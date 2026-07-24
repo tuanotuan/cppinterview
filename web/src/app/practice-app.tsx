@@ -1148,6 +1148,9 @@ export function PracticeApp({
             {account && aiBudgetCacheHydrated && aiDailyBudget ? (
               <AiBudgetPill budget={aiDailyBudget} />
             ) : null}
+            <HeaderNavLink href="/learn/tick-data-order-book">
+              Học Tick
+            </HeaderNavLink>
             <SavedItemsControl
               items={savedItems}
               onRemove={deleteSavedItem}
