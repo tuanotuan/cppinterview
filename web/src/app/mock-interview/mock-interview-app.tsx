@@ -982,6 +982,12 @@ function MockSetup({
           </div>
           <nav className="flex flex-wrap items-center gap-2">
             <Link
+              href="/learn/tick-data-order-book"
+              className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
+            >
+              Học Tick data
+            </Link>
+            <Link
               href="/"
               className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
             >
@@ -1118,23 +1124,42 @@ function MockSetup({
               {bankQuestionCount} câu đã duyệt sẵn sàng để tạo thêm bộ
             </h2>
             <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {mockCompetencyKeys.map((key) => (
-                <div
-                  key={key}
-                  className={`rounded-xl p-3 ${
-                    groundingCoverage.counts[key]
-                      ? "bg-[#eaf8cf] text-[#245748]"
-                      : "bg-[#f1e6dc] text-[#8e3825]"
-                  }`}
-                >
-                  <span className="block font-mono text-lg font-bold">
-                    {groundingCoverage.counts[key]}
-                  </span>
-                  <span className="mt-1 block text-[10px] leading-4">
-                    {mockCompetencyLabels[key]}
-                  </span>
-                </div>
-              ))}
+              {mockCompetencyKeys.map((key) => {
+                const className = `rounded-xl p-3 ${
+                  groundingCoverage.counts[key]
+                    ? "bg-[#eaf8cf] text-[#245748]"
+                    : "bg-[#f1e6dc] text-[#8e3825]"
+                }`;
+                const content = (
+                  <>
+                    <span className="block font-mono text-lg font-bold">
+                      {groundingCoverage.counts[key]}
+                    </span>
+                    <span className="mt-1 block text-[10px] leading-4">
+                      {mockCompetencyLabels[key]}
+                    </span>
+                    {key === "tick_data_order_book" ? (
+                      <span className="mt-2 block text-[9px] font-bold underline underline-offset-2">
+                        Học nền tảng →
+                      </span>
+                    ) : null}
+                  </>
+                );
+
+                return key === "tick_data_order_book" ? (
+                  <Link
+                    key={key}
+                    href="/learn/tick-data-order-book"
+                    className={`${className} transition hover:-translate-y-0.5`}
+                  >
+                    {content}
+                  </Link>
+                ) : (
+                  <div key={key} className={className}>
+                    {content}
+                  </div>
+                );
+              })}
             </div>
           </article>
 

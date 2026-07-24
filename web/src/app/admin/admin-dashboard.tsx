@@ -440,6 +440,9 @@ export function AdminDashboard({
             </div>
           </div>
           <nav className="flex items-center gap-2">
+            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/learn/tick-data-order-book">
+              Học Tick data
+            </Link>
             <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/stats">
               Thống kê
             </Link>
@@ -577,7 +580,7 @@ export function AdminDashboard({
           </div>
         </details>
 
-        <details className="group mt-8 overflow-hidden rounded-[2rem] border border-[#ba4b2f]/20 bg-[#fff7e8]">
+        <details id="review-queue" className="group mt-8 scroll-mt-5 overflow-hidden rounded-[2rem] border border-[#ba4b2f]/20 bg-[#fff7e8]">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 sm:px-7 sm:py-6">
             <div className="flex min-w-0 items-center gap-4">
               <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#ffe0a8] font-mono text-sm font-bold text-[#8e3825]">
@@ -600,9 +603,17 @@ export function AdminDashboard({
 
           <div className="border-t border-[#ba4b2f]/15 px-5 py-6 sm:px-7">
             <div className="flex flex-wrap items-center justify-between gap-4">
-              <p className="max-w-2xl text-sm text-[#64736c]">
-                Mở từng câu để đối chiếu đáp án, rubric và nguồn trước khi đưa vào lịch luyện.
-              </p>
+              <div className="max-w-2xl">
+                <p className="text-sm text-[#64736c]">
+                  Mở từng câu để đối chiếu đáp án, rubric và nguồn trước khi đưa vào lịch luyện.
+                </p>
+                <Link
+                  href="/learn/tick-data-order-book"
+                  className="mt-2 inline-flex text-xs font-bold text-[#356b58] underline decoration-[#79b82a]/60 underline-offset-4"
+                >
+                  Chưa có nền Tick data? Đọc bài nhập môn trước →
+                </Link>
+              </div>
               {reviewQueue.length ? (
                 <button
                   type="button"
