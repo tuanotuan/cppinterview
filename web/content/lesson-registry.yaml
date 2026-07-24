@@ -294,3 +294,69 @@ lessons:
       - day
       - "1"
     prerequisites: []
+  - id: cpp20-tick-event-model-and-binary-parsing
+    sourcePath: cpp20/02_tick event model and binary parsing
+    language: cpp
+    track: cpp20
+    order: 2
+    tags:
+      - tick-data
+      - market-data
+      - feed
+      - binary-parsing
+      - fixed-point
+    prerequisites: []
+  - id: cpp20-market-by-order-reconstruction
+    sourcePath: cpp20/03_market by order reconstruction
+    language: cpp
+    track: cpp20
+    order: 3
+    tags:
+      - order-book
+      - market-data
+      - market-by-order
+      - lifecycle
+      - priority
+    prerequisites:
+      - cpp20-tick-event-model-and-binary-parsing
+  - id: cpp20-market-by-price-and-book-invariants
+    sourcePath: cpp20/04_market by price and book invariants
+    language: cpp
+    track: cpp20
+    order: 4
+    tags:
+      - order-book
+      - market-data
+      - market-by-price
+      - invariants
+      - performance
+    prerequisites:
+      - cpp20-market-by-order-reconstruction
+  - id: cpp20-sequencing-gaps-and-recovery
+    sourcePath: cpp20/05_sequencing gaps and recovery
+    language: cpp
+    track: cpp20
+    order: 5
+    tags:
+      - tick-data
+      - order-book
+      - sequencing
+      - recovery
+      - feed
+    prerequisites:
+      - cpp20-tick-event-model-and-binary-parsing
+      - cpp20-market-by-order-reconstruction
+  - id: cpp20-trade-statistics-timestamps-and-corrections
+    sourcePath: cpp20/06_trade statistics timestamps and corrections
+    language: cpp
+    track: cpp20
+    order: 6
+    tags:
+      - tick-data
+      - market-data
+      - interval-statistics
+      - timestamps
+      - data-quality
+    prerequisites:
+      - cpp20-tick-event-model-and-binary-parsing
+      - cpp20-sequencing-gaps-and-recovery
