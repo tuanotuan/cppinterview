@@ -30,16 +30,22 @@ question back to the Review Queue.
 
 The AI budget migrations reserve a conservative amount before each web AI call,
 record the actual response-token cost afterward, and reconcile it against the
-official OpenAI Costs API. Web admission uses the Vietnam calendar-day quota;
-the monthly row remains an accounting view and must not block a freshly reset
-daily quota. Automated draft generation is included when it uses the same
-`OPENAI_PROJECT_ID`. Keep the OpenAI project hard-spend limit at the same value
-as `OPENAI_MONTHLY_BUDGET_USD` for the authoritative monthly backstop.
+official OpenAI Costs API. Web admission uses only finalized interactive request
+cost for the Vietnam calendar day. The Costs API reports the whole project, so
+scheduled draft generation remains in monthly/project accounting but cannot
+drain the web daily quota. Keep the OpenAI project hard-spend limit at the same
+value as `OPENAI_MONTHLY_BUDGET_USD` for the authoritative monthly backstop.
 
 The reconciliation baseline records the realtime counter at each Billing sync.
 Effective spend is the provider total plus only the realtime delta created after
 that baseline, so new requests are visible immediately without counting settled
 usage twice.
+
+`20260729120000_isolate_web_daily_ai_quota.sql` clears provider-contaminated
+daily floors, keeps provider cost as project observability, and adds
+`reserve_web_ai_budget(...)`. Deploy this migration with the matching app code.
+The app temporarily offsets project-only daily cost when talking to an older
+database, but the migration is the durable admission path.
 
 Gemini fallback requests are counted separately in `gemini_usage_daily`; they do
 not reduce the OpenAI dollar budget. `ai_provider_settings` stores the owner's

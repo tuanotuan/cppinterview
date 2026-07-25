@@ -51,5 +51,8 @@ describe("AI daily budget browser cache", () => {
     expect(aiDailyBudgetStorageKey("user-a")).not.toBe(
       aiDailyBudgetStorageKey("user-b"),
     );
+    expect(aiDailyBudgetStorageKey("user-a")).toContain(
+      "ai-daily-budget:v2:",
+    );
   });
 });

@@ -48,12 +48,14 @@ budget in the OpenAI dashboard as the provider-level backstop.
 For Billing-accurate quota reconciliation, add an organization Admin API key as
 `OPENAI_ADMIN_KEY` and the matching project ID as `OPENAI_PROJECT_ID`. These are
 server-only variables. The app uses OpenAI's official Costs API as the source of
-truth and keeps response-token accounting as a realtime fallback while provider
-cost data is being settled.
+truth for project/monthly accounting. The interactive web daily quota uses only
+the token cost finalized by web coach/report requests, because project Billing
+also includes scheduled question-generation jobs.
 
 Provider reconciliation snapshots the realtime counter at each successful Costs
-API sync, then adds only newer realtime usage to that Billing total. This avoids
-both double-counting and a frozen usage pill while provider data is delayed.
+API sync for monthly accounting. Background generation remains visible in the
+project Billing amount and protected by the OpenAI hard-spend limit, but it does
+not drain the web quota pill.
 
 To enable the free fallback, keep `GEMINI_API_KEY` server-side and optionally set
 `GEMINI_FALLBACK_MODEL`. Web requests are admitted against the Vietnam daily

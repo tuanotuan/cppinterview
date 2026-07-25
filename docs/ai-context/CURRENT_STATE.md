@@ -28,19 +28,17 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 
 - Hệ thống handoff đã có generator/fingerprint, `context:refresh`,
   `context:check`, CI gate và root `AGENTS.md` buộc duy trì phần semantic.
-- PR #58 không còn task dở được xác nhận. Validation được tách thành từng gate
-  tương đương để lỗi CI sau này chỉ rõ phase thất bại.
+- Daily web quota đã được tách khỏi Costs API toàn project: background question
+  generation vẫn vào project/monthly observability nhưng không làm cạn quota
+  tương tác. Fix dùng web actual cost, RPC admission riêng, compatibility wrapper
+  cho rolling deploy, migration tự làm sạch daily floor và browser cache v2.
 
 ## Validation gần nhất
 
-- Generator refresh và check mode: pass bằng Deno compatibility runtime.
-- Type-check riêng generator: pass với
-  `deno check --node-modules-dir=manual scripts/generate-ai-context.ts`.
-- `git diff --check`: pass.
-- Generator cũng chạy và check thành công qua `tsx` với Node 22 portable.
-- GitHub Actions Node 22 cho cả event `push` và `pull_request`: pass đầy đủ
-  content check, context check, lint, typecheck, test và build tại commit
-  `0c87ef6`.
+- Content check, context refresh/check và `git diff --check`: pass.
+- Lint toàn repo và TypeScript `--noEmit`: pass.
+- Vitest: 42 test files, 187 tests pass.
+- Next.js production build: pass, gồm compile, type-check và 18 static pages.
 
 ## Quy tắc cập nhật
 
