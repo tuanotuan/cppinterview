@@ -28,8 +28,8 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 
 - Hệ thống handoff đã có generator/fingerprint, `context:refresh`,
   `context:check`, CI gate và root `AGENTS.md` buộc duy trì phần semantic.
-- Không có implementation task dở nào khác được xác nhận. Thay mục này khi bắt
-  đầu hoặc bàn giao task mới.
+- PR #58 đang được chẩn đoán vì validation fail. PR validation được tách thành
+  từng gate tương đương để xác định chính xác lỗi trước khi sửa.
 
 ## Validation gần nhất
 
