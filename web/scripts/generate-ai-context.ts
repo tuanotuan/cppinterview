@@ -155,11 +155,13 @@ if (checkOnly) {
       `AI context snapshot is stale. Expected fingerprint ${fingerprint}, ` +
       `committed snapshot has ${currentFingerprint}. Run npm run context:refresh ` +
       "from web/ and commit the result.";
-    console.error(
-      process.env.GITHUB_ACTIONS === "true"
-        ? `::error file=docs/ai-context/GENERATED_SNAPSHOT.md,title=Stale AI context::${message}`
-        : message,
-    );
+    if (process.env.GITHUB_ACTIONS === "true") {
+      console.log(
+        `::error file=docs/ai-context/GENERATED_SNAPSHOT.md,title=Stale AI context::${message}`,
+      );
+    } else {
+      console.error(message);
+    }
     process.exitCode = 1;
   } else {
     console.log("AI context snapshot is current.");
