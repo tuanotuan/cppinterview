@@ -148,8 +148,17 @@ changes must still be described in the human-maintained context files.
 if (checkOnly) {
   const current = await readFile(outputPath, "utf8").catch(() => "");
   if (normalizeEol(current) !== normalizeEol(output)) {
+    const currentFingerprint =
+      current.match(/Project input fingerprint: `([a-f0-9]+)`/)?.[1] ??
+      "missing";
+    const message =
+      `AI context snapshot is stale. Expected fingerprint ${fingerprint}, ` +
+      `committed snapshot has ${currentFingerprint}. Run npm run context:refresh ` +
+      "from web/ and commit the result.";
     console.error(
-      "AI context snapshot is stale. Run `npm run context:refresh` from web/ and commit the result.",
+      process.env.GITHUB_ACTIONS === "true"
+        ? `::error file=docs/ai-context/GENERATED_SNAPSHOT.md,title=Stale AI context::${message}`
+        : message,
     );
     process.exitCode = 1;
   } else {
