@@ -147,10 +147,10 @@ changes must still be described in the human-maintained context files.
 
 if (checkOnly) {
   const current = await readFile(outputPath, "utf8").catch(() => "");
-  if (normalizeEol(current) !== normalizeEol(output)) {
-    const currentFingerprint =
-      current.match(/Project input fingerprint: `([a-f0-9]+)`/)?.[1] ??
-      "missing";
+  const currentFingerprint =
+    current.match(/Project input fingerprint: `([a-f0-9]+)`/)?.[1] ??
+    "missing";
+  if (currentFingerprint !== fingerprint) {
     const message =
       `AI context snapshot is stale. Expected fingerprint ${fingerprint}, ` +
       `committed snapshot has ${currentFingerprint}. Run npm run context:refresh ` +
