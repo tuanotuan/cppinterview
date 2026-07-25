@@ -1,7 +1,9 @@
 import type { AiDailyBudgetSnapshot } from "./budget";
 import { vietnamUsageDate } from "./usage";
 
-const STORAGE_PREFIX = "cpp-recall:ai-daily-budget:v1";
+// v2 discards same-day v1 snapshots whose percentage included project-wide
+// background generation instead of web-only AI requests.
+const STORAGE_PREFIX = "cpp-recall:ai-daily-budget:v2";
 
 export function aiDailyBudgetStorageKey(accountId: string) {
   return `${STORAGE_PREFIX}:${accountId}`;

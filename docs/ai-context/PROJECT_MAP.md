@@ -94,7 +94,9 @@ merge offline state rồi sync. RPC DB là nguồn thẩm quyền cho cloud tran
 ### AI coach
 
 Request được validate + rate-limit + auth/approval check → reserve daily OpenAI
-budget → gọi model → finalize usage → lưu attempt. Khi daily/hard quota OpenAI
+web budget → gọi model → finalize usage → lưu attempt. Daily allowance chỉ tính
+interactive web requests; Costs API toàn project và background generation chỉ
+tham gia monthly accounting/hard-spend backstop. Khi daily/hard quota OpenAI
 hết, Gemini có thể fallback nếu config và owner toggle cho phép. Múi giờ budget
 là `Asia/Ho_Chi_Minh`.
 

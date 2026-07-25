@@ -85,21 +85,15 @@ export function aiDailyBudgetSnapshotFromUsageRead({
 }): AiDailyBudgetSnapshot | null {
   if (readError) return null;
 
-  const estimated = Number(
+  // The daily web allowance belongs only to interactive app requests recorded
+  // by finalize_ai_budget. Provider billing is project-wide and also includes
+  // background question generation, so it must not drain this allowance.
+  const used = nonNegativeNumber(
     row?.actual_usd_micros ?? fallbackActualUsdMicros,
   );
   const billing = typeof row?.provider_synced_at === "string"
-    ? Number(row.provider_usd_micros ?? 0)
+    ? nonNegativeNumber(row.provider_usd_micros)
     : null;
-  const used = reconciledUsageUsdMicros({
-    realtimeUsdMicros: estimated,
-    providerUsdMicros: billing ?? 0,
-    realtimeBaselineUsdMicros: Number(
-      row?.provider_actual_baseline_usd_micros ?? 0,
-    ),
-    usageFloorUsdMicros: Number(row?.usage_floor_usd_micros ?? 0),
-    providerSynced: billing !== null,
-  });
 
   return {
     actualUsdMicros: used,
@@ -143,16 +137,25 @@ export async function reserveAiBudget(
     return { client, reservedUsdMicros: 0, usageDate: null, monthStart: null };
   }
 
-  // Older deployments still apply the RPC's monthly gate. Move that ceiling
-  // with the reconciled monthly usage so it acts only as a concurrency window
-  // for one daily allowance instead of blocking a freshly reset day.
-  const monthlyAdmissionLimitUsdMicros =
-    await legacyMonthlyAdmissionLimitUsdMicros(client);
-  const { data, error } = await client.rpc("reserve_ai_budget", {
+  let { data, error } = await client.rpc("reserve_web_ai_budget", {
     p_daily_limit_usd_micros: dailyBudgetUsdMicros(),
-    p_monthly_limit_usd_micros: monthlyAdmissionLimitUsdMicros,
     p_reservation_usd_micros: reservedUsdMicros,
   });
+
+  if (error && isMissingWebBudgetRpc(error)) {
+    // During rollout, older databases still use project-reconciled daily cost.
+    // Offset that non-web portion so admission remains based on web actuals.
+    const [monthlyLimit, dailyLimit] = await Promise.all([
+      legacyMonthlyAdmissionLimitUsdMicros(client),
+      legacyDailyAdmissionLimitUsdMicros(client),
+    ]);
+    ({ data, error } = await client.rpc("reserve_ai_budget", {
+      p_daily_limit_usd_micros: dailyLimit,
+      p_monthly_limit_usd_micros: monthlyLimit,
+      p_reservation_usd_micros: reservedUsdMicros,
+    }));
+  }
+
   if (error) {
     console.error("AI budget reservation failed", { code: error.code });
     throw new AiBudgetConfigurationError("AI budget migration is missing");
@@ -180,12 +183,7 @@ async function legacyMonthlyAdmissionLimitUsdMicros(client: SupabaseClient) {
     "month_start",
     monthStart,
   );
-  const snapshot = aiDailyBudgetSnapshotFromUsageRead({
-    row: data,
-    readError: error,
-    usageDate: monthStart,
-  });
-  if (!snapshot) {
+  if (error) {
     console.error("Monthly AI admission baseline read failed", {
       code: error?.code ?? "unknown",
     });
@@ -193,7 +191,35 @@ async function legacyMonthlyAdmissionLimitUsdMicros(client: SupabaseClient) {
   }
   return Math.min(
     Number.MAX_SAFE_INTEGER,
-    snapshot.actualUsdMicros + dailyBudgetUsdMicros(),
+    reconciledUsageFromRow(data) + dailyBudgetUsdMicros(),
+  );
+}
+
+async function legacyDailyAdmissionLimitUsdMicros(client: SupabaseClient) {
+  const usageDate = vietnamUsageDate();
+  const { data, error } = await readAiUsageRow(
+    client,
+    "ai_usage_daily",
+    "usage_date",
+    usageDate,
+  );
+  if (error) {
+    console.error("Daily AI admission baseline read failed", {
+      code: error.code ?? "unknown",
+    });
+    return dailyBudgetUsdMicros();
+  }
+  const webActual = nonNegativeNumber(data?.actual_usd_micros);
+  const usageFloor = nonNegativeNumber(data?.usage_floor_usd_micros);
+  // The old reconciliation function raised the daily floor to project billing.
+  // The new migration pins it to web actuals, which also makes this fallback
+  // safe while PostgREST is still refreshing its schema cache.
+  const projectOnlyCost = usageFloor > webActual
+    ? Math.max(0, reconciledUsageFromRow(data) - webActual)
+    : 0;
+  return Math.min(
+    Number.MAX_SAFE_INTEGER,
+    dailyBudgetUsdMicros() + projectOnlyCost,
   );
 }
 
@@ -270,4 +296,26 @@ function parseBudgetDecision(data: unknown) {
     throw new AiBudgetConfigurationError("AI budget period is missing");
   }
   return { status, usageDate, monthStart };
+}
+
+function reconciledUsageFromRow(row: AiDailyUsageRow | null) {
+  const providerSynced = typeof row?.provider_synced_at === "string";
+  return reconciledUsageUsdMicros({
+    realtimeUsdMicros: nonNegativeNumber(row?.actual_usd_micros),
+    providerUsdMicros: nonNegativeNumber(row?.provider_usd_micros),
+    realtimeBaselineUsdMicros: nonNegativeNumber(
+      row?.provider_actual_baseline_usd_micros,
+    ),
+    usageFloorUsdMicros: nonNegativeNumber(row?.usage_floor_usd_micros),
+    providerSynced,
+  });
+}
+
+function nonNegativeNumber(value: unknown) {
+  const parsed = Number(value ?? 0);
+  return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
+}
+
+function isMissingWebBudgetRpc(error: { code?: string; message?: string }) {
+  return error.code === "PGRST202" || error.code === "42883";
 }

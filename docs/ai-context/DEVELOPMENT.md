@@ -137,6 +137,9 @@ service-role-only/browser grants như contract hiện tại.
 - Đừng cho stale/archived/unapproved question vào practice hoặc AI coach.
 - OpenAI admission theo ngày Việt Nam; monthly row là accounting/backstop, không
   được khóa nhầm ngày mới.
+- Daily web allowance chỉ dùng cost do interactive coach/report finalization
+  ghi lại. Costs API là toàn project và có background generation, nên chỉ dùng
+  cho project/monthly accounting; không đưa nó vào phần trăm hay admission web.
 - Queue ưu tiên question New theo giới hạn trước các review còn lại theo policy
   trong `learning-state.ts`.
 - Hidden test/code-runner metadata không lộ ra client hay response.

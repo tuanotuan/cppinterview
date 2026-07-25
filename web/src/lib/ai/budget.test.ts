@@ -88,28 +88,57 @@ describe("AI budget snapshots", () => {
     });
   });
 
-  it("keeps the database usage floor when provider billing lags", () => {
+  it("does not let project-wide billing or generation drain web quota", () => {
     expect(
       aiDailyBudgetSnapshotFromUsageRead({
         row: {
-          actual_usd_micros: 90_000,
-          provider_usd_micros: 80_000,
-          provider_actual_baseline_usd_micros: 90_000,
-          usage_floor_usd_micros: 115_000,
+          actual_usd_micros: 10_000,
+          provider_usd_micros: 300_000,
+          provider_actual_baseline_usd_micros: 0,
+          usage_floor_usd_micros: 300_000,
           provider_synced_at: "2026-07-22T10:00:00.000Z",
-          request_count: 4,
+          request_count: 2,
         },
         usageDate: "2026-07-22",
       }),
     ).toMatchObject({
-      actualUsdMicros: 115_000,
-      requestCount: 4,
-      remainingPercent: 31,
+      actualUsdMicros: 10_000,
+      billingUsdMicros: 300_000,
+      requestCount: 2,
+      remainingPercent: 94,
     });
   });
 });
 
 describe("AI daily admission", () => {
+  it("prefers the web-only daily reservation RPC", async () => {
+    vi.stubEnv("OPENAI_MONTHLY_BUDGET_USD", "5");
+    const rpc = vi.fn(async (name: string) => {
+      if (name !== "reserve_web_ai_budget") {
+        throw new Error(`Unexpected RPC ${name}`);
+      }
+      return {
+        data: {
+          status: "allowed",
+          usage_date: "2026-07-25",
+          month_start: "2026-07-01",
+        },
+        error: null,
+      };
+    });
+    const client = { rpc } as unknown as SupabaseClient;
+
+    await expect(reserveAiBudget(client, 100_000)).resolves.toMatchObject({
+      usageDate: "2026-07-25",
+      monthStart: "2026-07-01",
+    });
+    expect(rpc).toHaveBeenCalledOnce();
+    expect(rpc).toHaveBeenCalledWith("reserve_web_ai_budget", {
+      p_daily_limit_usd_micros: 166_666,
+      p_reservation_usd_micros: 100_000,
+    });
+  });
+
   it("retains a one-day concurrency window on the legacy RPC", async () => {
     vi.stubEnv("OPENAI_MONTHLY_BUDGET_USD", "5");
 
@@ -117,6 +146,15 @@ describe("AI daily admission", () => {
     let monthlyReservedUsdMicros = 0;
     const rpc = vi.fn(
       async (name: string, args: Record<string, number | string | null>) => {
+        if (name === "reserve_web_ai_budget") {
+          return {
+            data: null,
+            error: {
+              code: "PGRST202",
+              message: "Could not find reserve_web_ai_budget",
+            },
+          };
+        }
         if (name !== "reserve_ai_budget") {
           throw new Error(`Unexpected RPC ${name}`);
         }
@@ -164,6 +202,63 @@ describe("AI daily admission", () => {
     ).rejects.toBeInstanceOf(AiMonthlyBudgetExceededError);
   });
 
+  it("does not inflate the migrated RPC during a schema-cache lag", async () => {
+    vi.stubEnv("OPENAI_MONTHLY_BUDGET_USD", "5");
+    const rpc = vi.fn(
+      async (name: string) => {
+        if (name === "reserve_web_ai_budget") {
+          return {
+            data: null,
+            error: {
+              code: "PGRST202",
+              message: "Schema cache has not reloaded",
+            },
+          };
+        }
+        if (name !== "reserve_ai_budget") {
+          throw new Error(`Unexpected RPC ${name}`);
+        }
+        return {
+          data: {
+            status: "allowed",
+            usage_date: "2026-07-25",
+            month_start: "2026-07-01",
+          },
+          error: null,
+        };
+      },
+    );
+    const client = {
+      rpc,
+      from: (table: string) => ({
+        select: () => ({
+          eq: () => ({
+            maybeSingle: async () => ({
+              data: table === "ai_usage_daily"
+                ? {
+                    actual_usd_micros: 10_000,
+                    provider_usd_micros: 300_000,
+                    provider_actual_baseline_usd_micros: 10_000,
+                    usage_floor_usd_micros: 10_000,
+                    provider_synced_at: "2026-07-25T01:00:00.000Z",
+                  }
+                : { actual_usd_micros: 4_000_000 },
+              error: null,
+            }),
+          }),
+        }),
+      }),
+    } as unknown as SupabaseClient;
+
+    await reserveAiBudget(client, 100_000);
+
+    expect(rpc).toHaveBeenLastCalledWith("reserve_ai_budget", {
+      p_daily_limit_usd_micros: 166_666,
+      p_monthly_limit_usd_micros: 4_166_666,
+      p_reservation_usd_micros: 100_000,
+    });
+  });
+
   it("keeps OpenAI active after yesterday's quota resets", async () => {
     vi.stubEnv("OPENAI_ADMIN_KEY", "");
     vi.stubEnv("OPENAI_PROJECT_ID", "");
@@ -176,6 +271,8 @@ describe("AI daily admission", () => {
       ["2026-07-24", 166_666],
       [usageDate, 0],
     ]);
+    const backgroundProjectCostUsdMicros = 300_000;
+    let dailyReservedUsdMicros = 0;
     let requestCount = 0;
     let inputTokens = 0;
     let outputTokens = 0;
@@ -183,6 +280,15 @@ describe("AI daily admission", () => {
 
     const rpc = vi.fn(
       async (name: string, args: Record<string, number | string | null>) => {
+        if (name === "reserve_web_ai_budget") {
+          return {
+            data: null,
+            error: {
+              code: "PGRST202",
+              message: "Could not find reserve_web_ai_budget",
+            },
+          };
+        }
         if (name === "reserve_ai_budget") {
           const reservation = Number(args.p_reservation_usd_micros);
           const monthlyLimit = Number(args.p_monthly_limit_usd_micros);
@@ -194,12 +300,14 @@ describe("AI daily admission", () => {
                 reservation >
               monthlyLimit
               ? "monthly_exceeded"
-              : todayActual >= dailyLimit
+              : todayActual + dailyReservedUsdMicros + reservation >
+                  dailyLimit
                 ? "daily_exceeded"
                 : "allowed";
 
           if (status === "allowed") {
             monthlyReservedUsdMicros += reservation;
+            dailyReservedUsdMicros += reservation;
           }
           return {
             data: {
@@ -217,6 +325,10 @@ describe("AI daily admission", () => {
           monthlyReservedUsdMicros = Math.max(
             0,
             monthlyReservedUsdMicros - reservation,
+          );
+          dailyReservedUsdMicros = Math.max(
+            0,
+            dailyReservedUsdMicros - reservation,
           );
           monthlyActualUsdMicros += actual;
           const finalizedUsageDate = String(args.p_usage_date);
@@ -248,6 +360,13 @@ describe("AI daily admission", () => {
                   : {
                       actual_usd_micros:
                         dailyActualUsdMicros.get(value) ?? 0,
+                      provider_usd_micros:
+                        backgroundProjectCostUsdMicros,
+                      provider_actual_baseline_usd_micros: 0,
+                      usage_floor_usd_micros:
+                        backgroundProjectCostUsdMicros,
+                      provider_synced_at:
+                        "2026-07-25T01:00:00.000Z",
                       request_count: requestCount,
                       input_tokens: inputTokens,
                       output_tokens: outputTokens,
@@ -282,6 +401,14 @@ describe("AI daily admission", () => {
     ).toEqual([
       4_896_000 + 166_666,
       4_901_000 + 166_666,
+    ]);
+    expect(
+      rpc.mock.calls
+        .filter(([name]) => name === "reserve_ai_budget")
+        .map(([, args]) => args.p_daily_limit_usd_micros),
+    ).toEqual([
+      backgroundProjectCostUsdMicros + 166_666,
+      backgroundProjectCostUsdMicros + 166_666,
     ]);
   });
 });

@@ -17,8 +17,8 @@
 - API routes: 14 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/coach/evaluate, /api/coach/follow-up, /api/mock-interview/report, /api/mock-interview/run, /api/progress/sync, /api/questions/approve, /auth/callback, /auth/login, /auth/logout)
 - TypeScript source files excluding tests: 78
 - Colocated test files: 42
-- Supabase migrations: 22
-- Latest migration filename: `20260729110000_use_daily_ai_admission.sql`
+- Supabase migrations: 23
+- Latest migration filename: `20260729120000_isolate_web_daily_ai_quota.sql`
 
 ## Toolchain declared in package.json
 
@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `169bbba6dd5315bdbed97f147d97ff5b40b6b6f2cf787910b87bfa3134d3d91f`
-- Fingerprinted files: 237
+- Project input fingerprint: `258426ea570eecfc70af9f0385d90950f52cd46ec2f3fa00ade4d8e46c2f3688`
+- Fingerprinted files: 238
 
 The fingerprint covers lesson sources, content files, application source/tests,
 scripts, package metadata, environment template, workflows, and Supabase files.
