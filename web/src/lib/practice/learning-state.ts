@@ -253,9 +253,9 @@ export function buildAnkiDailyQueue(
   }
 
   return [
+    ...newQuestions,
     ...learning.map((state) => state.questionId),
     ...reviews.map((state) => state.questionId),
-    ...newQuestions,
   ];
 }
 
@@ -284,10 +284,10 @@ export function ratingIntervalDays(
 export function learningQueuePriority(state: QuestionLearningState): number {
   if (state.suspended) return Number.POSITIVE_INFINITY;
   return {
-    relearning: 0,
-    learning: 1,
-    review: 2,
-    new: 3,
+    new: 0,
+    relearning: 1,
+    learning: 2,
+    review: 3,
   }[state.state];
 }
 
