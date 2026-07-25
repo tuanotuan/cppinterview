@@ -106,7 +106,21 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - run: npm ci
       - run: npm run content:check
-      - run: npm run context:check
+      - name: Check AI context
+        shell: bash
+        run: |
+          set +e
+          output="$(npm run context:check 2>&1)"
+          status=$?
+          set -e
+          if [ "$status" -ne 0 ]; then
+            output="${output//'%'/'%25'}"
+            output="${output//$'\n'/'%0A'}"
+            output="${output//$'\r'/'%0D'}"
+            echo "::error file=docs/ai-context/GENERATED_SNAPSHOT.md,title=AI context check failed::$output"
+            exit "$status"
+          fi
+          printf '%s\n' "$output"
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run test
