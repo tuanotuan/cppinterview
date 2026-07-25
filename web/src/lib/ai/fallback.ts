@@ -23,16 +23,29 @@ export function isOpenAiAppBudgetError(error: unknown) {
   );
 }
 
+function isOpenAiProviderQuotaError(error: unknown) {
+  return (
+    providerStatus(error) === 429 &&
+    providerCode(error) === "insufficient_quota"
+  );
+}
+
+function isOpenAiFallbackEligibleError(error: unknown) {
+  return (
+    isOpenAiAppBudgetError(error) || isOpenAiProviderQuotaError(error)
+  );
+}
+
 export async function runGeminiBudgetFallback<T>(
-  budgetError: unknown,
+  openAiError: unknown,
   client: SupabaseClient | null,
   operation: () => Promise<GeminiStructuredResult<T>>,
 ) {
   if (
-    !isOpenAiAppBudgetError(budgetError) ||
+    !isOpenAiFallbackEligibleError(openAiError) ||
     !(await isGeminiFallbackEnabled(client))
   ) {
-    throw budgetError;
+    throw openAiError;
   }
 
   try {
@@ -42,7 +55,7 @@ export async function runGeminiBudgetFallback<T>(
   } catch (error) {
     if (providerStatus(error) === 429) {
       throw new AllAiQuotasExceededError(
-        "OpenAI app budget and Gemini provider quota are exhausted",
+        "OpenAI and Gemini quotas are exhausted",
       );
     }
     throw new GeminiFallbackProviderError({ cause: error });
@@ -74,4 +87,11 @@ function providerStatus(error: unknown) {
     return undefined;
   }
   return typeof error.status === "number" ? error.status : undefined;
+}
+
+function providerCode(error: unknown) {
+  if (typeof error !== "object" || error === null || !("code" in error)) {
+    return undefined;
+  }
+  return typeof error.code === "string" ? error.code : undefined;
 }

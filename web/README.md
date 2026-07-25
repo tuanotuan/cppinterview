@@ -56,9 +56,11 @@ API sync, then adds only newer realtime usage to that Billing total. This avoids
 both double-counting and a frozen usage pill while provider data is delayed.
 
 To enable the free fallback, keep `GEMINI_API_KEY` server-side and optionally set
-`GEMINI_FALLBACK_MODEL`. The fallback is attempted only after the app rejects an
-OpenAI request for reaching its daily or monthly budget. It can be toggled in
-Admin; `GEMINI_FALLBACK_ENABLED=false` is the deployment-level kill switch.
+`GEMINI_FALLBACK_MODEL`. Web requests are admitted against the Vietnam daily
+quota so a new day is not blocked by the previous month's accounting row. The
+fallback is attempted after that daily quota is exhausted or OpenAI returns
+`insufficient_quota` for the project hard-spend limit. It can be toggled in Admin;
+`GEMINI_FALLBACK_ENABLED=false` is the deployment-level kill switch.
 
 Cloud sync is optional. Add the Supabase project URL and publishable key, then
 follow [`supabase/README.md`](supabase/README.md) to apply the RLS migration and

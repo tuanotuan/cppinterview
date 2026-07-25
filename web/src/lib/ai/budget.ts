@@ -143,9 +143,14 @@ export async function reserveAiBudget(
     return { client, reservedUsdMicros: 0, usageDate: null, monthStart: null };
   }
 
+  // Older deployments still apply the RPC's monthly gate. Move that ceiling
+  // with the reconciled monthly usage so it acts only as a concurrency window
+  // for one daily allowance instead of blocking a freshly reset day.
+  const monthlyAdmissionLimitUsdMicros =
+    await legacyMonthlyAdmissionLimitUsdMicros(client);
   const { data, error } = await client.rpc("reserve_ai_budget", {
     p_daily_limit_usd_micros: dailyBudgetUsdMicros(),
-    p_monthly_limit_usd_micros: monthlyBudgetUsdMicros(),
+    p_monthly_limit_usd_micros: monthlyAdmissionLimitUsdMicros,
     p_reservation_usd_micros: reservedUsdMicros,
   });
   if (error) {
@@ -165,6 +170,31 @@ export async function reserveAiBudget(
     usageDate: decision.usageDate,
     monthStart: decision.monthStart,
   };
+}
+
+async function legacyMonthlyAdmissionLimitUsdMicros(client: SupabaseClient) {
+  const monthStart = `${vietnamUsageDate().slice(0, 7)}-01`;
+  const { data, error } = await readAiUsageRow(
+    client,
+    "ai_usage_monthly",
+    "month_start",
+    monthStart,
+  );
+  const snapshot = aiDailyBudgetSnapshotFromUsageRead({
+    row: data,
+    readError: error,
+    usageDate: monthStart,
+  });
+  if (!snapshot) {
+    console.error("Monthly AI admission baseline read failed", {
+      code: error?.code ?? "unknown",
+    });
+    return monthlyBudgetUsdMicros();
+  }
+  return Math.min(
+    Number.MAX_SAFE_INTEGER,
+    snapshot.actualUsdMicros + dailyBudgetUsdMicros(),
+  );
 }
 
 export async function finalizeAiBudget(

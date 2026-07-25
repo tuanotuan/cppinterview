@@ -40,6 +40,53 @@ describe("runGeminiBudgetFallback", () => {
     expect(operation).toHaveBeenCalledOnce();
   });
 
+  it("runs Gemini after OpenAI reports hard quota exhaustion", async () => {
+    vi.stubEnv("GEMINI_API_KEY", "test-key");
+    const operation = vi.fn().mockResolvedValue({
+      data: { answer: "ok" },
+      model: "gemini-test",
+      usage,
+    });
+    const hardQuotaError = Object.assign(new Error("quota exhausted"), {
+      status: 429,
+      code: "insufficient_quota",
+    });
+
+    await expect(
+      runGeminiBudgetFallback(hardQuotaError, null, operation),
+    ).resolves.toMatchObject({ model: "gemini-test" });
+    expect(operation).toHaveBeenCalledOnce();
+  });
+
+  it.each([
+    [
+      "a transient rate limit",
+      Object.assign(new Error("rate limited"), {
+        status: 429,
+        code: "rate_limit_exceeded",
+      }),
+    ],
+    [
+      "a 429 without a provider code",
+      Object.assign(new Error("rate limited"), { status: 429 }),
+    ],
+    [
+      "an insufficient-quota code without status 429",
+      Object.assign(new Error("quota response malformed"), {
+        status: 500,
+        code: "insufficient_quota",
+      }),
+    ],
+  ])("does not fallback for %s", async (_label, original) => {
+    vi.stubEnv("GEMINI_API_KEY", "test-key");
+    const operation = vi.fn();
+
+    await expect(
+      runGeminiBudgetFallback(original, null, operation),
+    ).rejects.toBe(original);
+    expect(operation).not.toHaveBeenCalled();
+  });
+
   it("does not fallback for arbitrary OpenAI/provider errors", async () => {
     vi.stubEnv("GEMINI_API_KEY", "test-key");
     const original = new Error("provider failed");
