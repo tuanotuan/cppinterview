@@ -8,6 +8,8 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 ## Tính năng gần đây đáng biết
 
 - AI admission reset theo ngày Việt Nam và practice ưu tiên question New.
+- Tiêu đề question trong practice tự giảm cỡ chữ theo độ dài; câu ngắn giữ cỡ
+  nổi bật, câu dài dùng typography gọn và line-height thoáng hơn.
 - Curriculum/guide tick-data và order-book đã có trong C++20.
 - Mock interview WorldQuant có bộ đề versioned và code runner dùng isolated
   Vercel Sandbox.
