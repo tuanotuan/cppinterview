@@ -63,7 +63,7 @@ describe("Anki-style learning-state foundation", () => {
     });
   });
 
-  it("orders relearning, learning, review, then new and excludes suspended", () => {
+  it("orders new before relearning, learning, and review and excludes suspended", () => {
     const base = newQuestionLearningState({
       questionId: "cpp11-auto-001",
       questionVersion: 1,
@@ -77,7 +77,7 @@ describe("Anki-style learning-state foundation", () => {
           state: state as typeof base.state,
         }),
       ),
-    ).toEqual([3, 2, 1, 0]);
+    ).toEqual([0, 3, 2, 1]);
     expect(learningQueuePriority({ ...base, suspended: true })).toBe(Infinity);
   });
 
@@ -131,7 +131,7 @@ describe("Anki-style learning-state foundation", () => {
     expect(ratingIntervalDays(review, "easy")).toBe(32);
   });
 
-  it("builds a due-first queue with separate review and new limits", () => {
+  it("keeps New questions first until all of them are completed", () => {
     const questions = ["new-a", "new-b", "review-a", "review-b", "learn-a"].map(
       (id) => ({ id, version: 1, sourceHash: "a".repeat(64) }),
     );
@@ -164,21 +164,60 @@ describe("Anki-style learning-state foundation", () => {
       lastReviewedOn: "2026-07-20",
     });
 
-    const queue = buildAnkiDailyQueue(states, "2026-07-21", {
-      newLimit: 1,
-      reviewLimit: 1,
-    });
-
-    expect(queue[0]).toBe("learn-a");
-    expect(queue).toHaveLength(3);
-    expect(queue.filter((id) => id.startsWith("review"))).toHaveLength(1);
-    expect(queue.filter((id) => id.startsWith("new"))).toHaveLength(1);
     expect(countLearningStates(states.values())).toEqual({
       new: 2,
       learning: 0,
       review: 2,
       relearning: 1,
     });
+
+    const queueOptions = {
+      newLimit: 1,
+      reviewLimit: 1,
+    };
+    const firstQueue = buildAnkiDailyQueue(
+      states,
+      "2026-07-21",
+      queueOptions,
+    );
+
+    expect(firstQueue[0]).toMatch(/^new-/);
+    expect(firstQueue.slice(1)).toEqual(["learn-a", "review-a"]);
+
+    const firstNewId = firstQueue[0];
+    states.set(firstNewId, {
+      ...states.get(firstNewId)!,
+      state: "review",
+      dueOn: "2026-07-24",
+      intervalDays: 3,
+      reviewCount: 1,
+      lastRating: "good",
+      lastReviewedOn: "2026-07-21",
+    });
+
+    const secondQueue = buildAnkiDailyQueue(
+      states,
+      "2026-07-21",
+      queueOptions,
+    );
+    expect(secondQueue[0]).toMatch(/^new-/);
+    expect(secondQueue[0]).not.toBe(firstNewId);
+    expect(secondQueue.slice(1)).toEqual(["learn-a", "review-a"]);
+
+    const secondNewId = secondQueue[0];
+    states.set(secondNewId, {
+      ...states.get(secondNewId)!,
+      state: "review",
+      dueOn: "2026-07-24",
+      intervalDays: 3,
+      reviewCount: 1,
+      lastRating: "good",
+      lastReviewedOn: "2026-07-21",
+    });
+
+    expect(
+      buildAnkiDailyQueue(states, "2026-07-21", queueOptions),
+    ).toEqual(["learn-a", "review-a"]);
   });
 
   it("uses extended review metadata when restoring a state", () => {

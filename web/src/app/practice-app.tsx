@@ -1653,7 +1653,7 @@ export function PracticeApp({
                   />
                 </div>
                 <p className="mt-3 text-sm text-white/65">
-                  {remainingIds.length} câu còn lại · 1 mới + 5 ôn/ngày
+                  {remainingIds.length} câu còn lại · ưu tiên câu mới trước
                 </p>
                 <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
                   <LearningCount label="Mới" value={learningCounts.new} />
