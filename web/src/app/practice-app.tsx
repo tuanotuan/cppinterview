@@ -645,6 +645,7 @@ export function PracticeApp({
       : customStudyIds
         ? questionById.get(customRemainingIds[0])
         : questionById.get(remainingIds[0]);
+  const currentPrompt = current ? displayQuestionPrompt(current) : "";
   const currentLearningState = current
     ? learningStates.get(current.id)
     : undefined;
@@ -1300,9 +1301,9 @@ export function PracticeApp({
                   ) : null}
 
                   <h1
-                    className={`${hasAnswered ? "mt-7" : ""} max-w-4xl text-3xl leading-[1.16] font-semibold tracking-[-0.04em] text-[#17221d] sm:text-4xl lg:text-[2.85rem]`}
+                    className={`${hasAnswered ? "mt-7" : ""} max-w-4xl font-semibold text-[#17221d] ${questionHeadingTypography(currentPrompt)}`}
                   >
-                    <InlineCode text={displayQuestionPrompt(current)} />
+                    <InlineCode text={currentPrompt} />
                   </h1>
 
                   {current.code ? (
@@ -2311,6 +2312,18 @@ function InlineCode({ text, inverted = false }: { text: string; inverted?: boole
       part
     ),
   );
+}
+
+function questionHeadingTypography(prompt: string) {
+  const length = prompt.replace(/\s+/g, " ").trim().length;
+
+  if (length >= 360) {
+    return "text-xl leading-[1.35] tracking-[-0.025em] sm:text-2xl lg:text-[2rem]";
+  }
+  if (length >= 200) {
+    return "text-2xl leading-[1.25] tracking-[-0.03em] sm:text-3xl lg:text-[2.35rem]";
+  }
+  return "text-3xl leading-[1.16] tracking-[-0.04em] sm:text-4xl lg:text-[2.85rem]";
 }
 
 function RichText({ text, inverted = false }: { text: string; inverted?: boolean }) {
