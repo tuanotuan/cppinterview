@@ -34,74 +34,75 @@ const outputPath = path.join(
 );
 const checkOnly = process.argv.includes("--check");
 
-const manifest = JSON.parse(
-  await readFile(
-    path.join(webRoot, "src", "generated", "content-manifest.json"),
-    "utf8",
-  ),
-) as Manifest;
-const packageJson = JSON.parse(
-  await readFile(path.join(webRoot, "package.json"), "utf8"),
-) as PackageJson;
-
-const routeFiles = await findFiles(path.join(webRoot, "src", "app"), (file) =>
-  /[\\/]route\.ts$/.test(file),
-);
-const pageFiles = await findFiles(path.join(webRoot, "src", "app"), (file) =>
-  /[\\/]page\.tsx$/.test(file),
-);
-const migrationFiles = await findFiles(
-  path.join(webRoot, "supabase", "migrations"),
-  (file) => file.endsWith(".sql"),
-);
-const testFiles = await findFiles(path.join(webRoot, "src"), (file) =>
-  file.endsWith(".test.ts") || file.endsWith(".test.tsx"),
-);
-const sourceFiles = await findFiles(path.join(webRoot, "src"), (file) =>
-  /\.(ts|tsx)$/.test(file) && !/\.test\.(ts|tsx)$/.test(file),
-);
-
-const fingerprintFiles = (
-  await Promise.all([
-    collectExistingFiles([
-      path.join(repoRoot, "AGENTS.md"),
-      path.join(webRoot, "AGENTS.md"),
-      path.join(webRoot, ".env.example"),
-      path.join(webRoot, "package.json"),
-      path.join(webRoot, "package-lock.json"),
-    ]),
-    findFiles(path.join(repoRoot, ".github", "workflows"), () => true),
-    findFiles(path.join(repoRoot, "cpp98_foundation"), isLessonSource),
-    findFiles(path.join(repoRoot, "cpp11"), isLessonSource),
-    findFiles(path.join(repoRoot, "cpp20"), isLessonSource),
-    findFiles(path.join(repoRoot, "python"), isLessonSource),
-    findFiles(path.join(repoRoot, "cmake"), isLessonSource),
-    findFiles(path.join(webRoot, "content"), (file) =>
-      /\.(md|yaml|yml)$/.test(file),
+async function main() {
+  const manifest = JSON.parse(
+    await readFile(
+      path.join(webRoot, "src", "generated", "content-manifest.json"),
+      "utf8",
     ),
-    findFiles(path.join(webRoot, "scripts"), (file) => file.endsWith(".ts")),
-    findFiles(path.join(webRoot, "src"), (file) =>
-      /\.(ts|tsx|json)$/.test(file),
-    ),
-    findFiles(path.join(webRoot, "supabase"), (file) =>
-      /\.(sql|toml|md)$/.test(file),
-    ),
-  ])
-).flat();
-const fingerprint = await hashFiles(fingerprintFiles);
+  ) as Manifest;
+  const packageJson = JSON.parse(
+    await readFile(path.join(webRoot, "package.json"), "utf8"),
+  ) as PackageJson;
 
-const tracks = countBy(manifest.lessons, (lesson) => lesson.track);
-const statuses = countBy(manifest.questions, (question) => question.status);
-const decks = countBy(
-  manifest.questions,
-  (question) => question.taxonomy.deckId,
-);
-const latestMigration = migrationFiles
-  .map((file) => path.basename(file))
-  .sort()
-  .at(-1);
+  const routeFiles = await findFiles(path.join(webRoot, "src", "app"), (file) =>
+    /[\\/]route\.ts$/.test(file),
+  );
+  const pageFiles = await findFiles(path.join(webRoot, "src", "app"), (file) =>
+    /[\\/]page\.tsx$/.test(file),
+  );
+  const migrationFiles = await findFiles(
+    path.join(webRoot, "supabase", "migrations"),
+    (file) => file.endsWith(".sql"),
+  );
+  const testFiles = await findFiles(path.join(webRoot, "src"), (file) =>
+    file.endsWith(".test.ts") || file.endsWith(".test.tsx"),
+  );
+  const sourceFiles = await findFiles(path.join(webRoot, "src"), (file) =>
+    /\.(ts|tsx)$/.test(file) && !/\.test\.(ts|tsx)$/.test(file),
+  );
 
-const output = `# Generated repository snapshot
+  const fingerprintFiles = (
+    await Promise.all([
+      collectExistingFiles([
+        path.join(repoRoot, "AGENTS.md"),
+        path.join(webRoot, "AGENTS.md"),
+        path.join(webRoot, ".env.example"),
+        path.join(webRoot, "package.json"),
+        path.join(webRoot, "package-lock.json"),
+      ]),
+      findFiles(path.join(repoRoot, ".github", "workflows"), () => true),
+      findFiles(path.join(repoRoot, "cpp98_foundation"), isLessonSource),
+      findFiles(path.join(repoRoot, "cpp11"), isLessonSource),
+      findFiles(path.join(repoRoot, "cpp20"), isLessonSource),
+      findFiles(path.join(repoRoot, "python"), isLessonSource),
+      findFiles(path.join(repoRoot, "cmake"), isLessonSource),
+      findFiles(path.join(webRoot, "content"), (file) =>
+        /\.(md|yaml|yml)$/.test(file),
+      ),
+      findFiles(path.join(webRoot, "scripts"), (file) => file.endsWith(".ts")),
+      findFiles(path.join(webRoot, "src"), (file) =>
+        /\.(ts|tsx|json)$/.test(file),
+      ),
+      findFiles(path.join(webRoot, "supabase"), (file) =>
+        /\.(sql|toml|md)$/.test(file),
+      ),
+    ])
+  ).flat();
+  const fingerprint = await hashFiles(fingerprintFiles);
+
+  const tracks = countBy(manifest.lessons, (lesson) => lesson.track);
+  const statuses = countBy(manifest.questions, (question) => question.status);
+  const decks = countBy(
+    manifest.questions,
+    (question) => question.taxonomy.deckId,
+  );
+  const latestMigration = migrationFiles
+    .map((file) => path.basename(file))
+    .sort()
+    .at(-1);
+
+  const output = `# Generated repository snapshot
 
 > Generated by \`web/scripts/generate-ai-context.ts\`. Do not edit by hand.
 > Run \`cd web && npm run context:refresh\`; CI runs \`context:check\`.
@@ -145,33 +146,39 @@ It proves this snapshot was refreshed for the tracked inputs; semantic behavior
 changes must still be described in the human-maintained context files.
 `;
 
-if (checkOnly) {
-  const current = await readFile(outputPath, "utf8").catch(() => "");
-  const currentFingerprint =
-    current.match(/Project input fingerprint: `([a-f0-9]+)`/)?.[1] ??
-    "missing";
-  if (currentFingerprint !== fingerprint) {
-    const message =
-      `AI context snapshot is stale. Expected fingerprint ${fingerprint}, ` +
-      `committed snapshot has ${currentFingerprint}. Run npm run context:refresh ` +
-      "from web/ and commit the result.";
-    if (process.env.GITHUB_ACTIONS === "true") {
-      console.log(
-        `::error file=docs/ai-context/GENERATED_SNAPSHOT.md,title=Stale AI context::${message}`,
-      );
+  if (checkOnly) {
+    const current = await readFile(outputPath, "utf8").catch(() => "");
+    const currentFingerprint =
+      current.match(/Project input fingerprint: `([a-f0-9]+)`/)?.[1] ??
+      "missing";
+    if (currentFingerprint !== fingerprint) {
+      const message =
+        `AI context snapshot is stale. Expected fingerprint ${fingerprint}, ` +
+        `committed snapshot has ${currentFingerprint}. Run npm run context:refresh ` +
+        "from web/ and commit the result.";
+      if (process.env.GITHUB_ACTIONS === "true") {
+        console.log(
+          `::error file=docs/ai-context/GENERATED_SNAPSHOT.md,title=Stale AI context::${message}`,
+        );
+      } else {
+        console.error(message);
+      }
+      process.exitCode = 1;
     } else {
-      console.error(message);
+      console.log("AI context snapshot is current.");
     }
-    process.exitCode = 1;
   } else {
-    console.log("AI context snapshot is current.");
+    await writeFile(outputPath, output, "utf8");
+    console.log(
+      `Refreshed ${normalizePath(path.relative(repoRoot, outputPath))}.`,
+    );
   }
-} else {
-  await writeFile(outputPath, output, "utf8");
-  console.log(
-    `Refreshed ${normalizePath(path.relative(repoRoot, outputPath))}.`,
-  );
 }
+
+void main().catch((error: unknown) => {
+  console.error(error);
+  process.exitCode = 1;
+});
 
 async function findFiles(
   root: string,
