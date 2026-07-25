@@ -17,6 +17,7 @@ Validation:
 
 ```powershell
 npm run content:check   # manifest có khớp source/registry/question YAML
+npm run context:check   # generated AI snapshot có khớp project inputs
 npm run lint
 npm run typecheck
 npm test
@@ -25,8 +26,21 @@ npm run validate        # toàn bộ gate theo thứ tự trên
 ```
 
 `content:refresh` có ghi registry/manifest. `content:check`, test, lint,
-typecheck là read-only. `content:sync`, `content:generate:db`, migration và
-deploy có tác động external; không chạy chỉ để “kiểm tra”.
+typecheck và `context:check` là read-only. `content:refresh` cũng refresh
+`docs/ai-context/GENERATED_SNAPSHOT.md`. `content:sync`,
+`content:generate:db`, migration và deploy có tác động external; không chạy chỉ
+để “kiểm tra”.
+
+Sau mọi thay đổi project, chạy:
+
+```powershell
+npm run context:refresh
+```
+
+Snapshot máy sinh có fingerprint của lesson, content, source/test, scripts,
+package metadata, env template, CI và Supabase. CI chặn snapshot cũ. Nếu behavior
+hay kiến trúc đổi, vẫn phải cập nhật file context semantic theo `AGENTS.md`;
+fingerprint không thể tự giải thích ý nghĩa thay đổi.
 
 ## Recipe: sửa/thêm lesson
 
@@ -106,7 +120,8 @@ service-role-only/browser grants như contract hiện tại.
 
 `.github/workflows/web-validate.yml`:
 
-- PR hoặc non-main branch: `npm ci` + `npm run validate`.
+- PR hoặc non-main branch: `npm ci` + `npm run validate`, gồm
+  `context:check`.
 - Push `main`, schedule mỗi 6 giờ, manual dispatch: refresh + validate; commit
   deterministic content nếu đổi; sync Supabase; generate tối đa một batch DB
   drafts.
@@ -131,7 +146,7 @@ service-role-only/browser grants như contract hiện tại.
 - Logic thuần một domain: test file liên quan + `npm run typecheck`.
 - Content/note/schema: `content:check` + content tests.
 - Route/UI/cross-domain: lint + typecheck + tests liên quan.
-- Trước handoff/merge: `npm run validate`.
+- Trước handoff/merge: `npm run context:refresh`, rồi `npm run validate`.
 
 Ghi chính xác command nào đã chạy và command nào chưa chạy; không nói “pass”
 nếu chỉ suy luận.

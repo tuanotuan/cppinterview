@@ -14,8 +14,18 @@ Tài liệu ổn định để tìm đúng vùng code. Xác minh lại nếu sou
 | `web/src/generated/content-manifest.json` | Manifest deterministic, không sửa tay |
 | `web/supabase/migrations/` | Schema/RPC/RLS theo thứ tự timestamp |
 | `.github/workflows/web-validate.yml` | CI validate, refresh/sync/generate content |
+| `AGENTS.md`, `AI_START_HERE.md` | Rule duy trì handoff và file định tuyến cho session mới |
+| `docs/ai-context/GENERATED_SNAPSHOT.md` | Inventory/fingerprint deterministic do script sinh |
 
 App phải ở `web/`; content tooling dựa vào vị trí này để tìm repo root.
+
+## AI context maintenance
+
+`web/scripts/generate-ai-context.ts` tính inventory và fingerprint từ lesson,
+content, app source/test, scripts, package/env, workflow và Supabase. Chạy
+`npm run context:refresh` sau mọi project change; `context:check` nằm trong
+`validate`. Snapshot chỉ giữ facts máy tính được. Thay đổi semantic phải cập
+nhật file context tương ứng theo root `AGENTS.md`.
 
 ## Runtime và entry points
 

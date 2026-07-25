@@ -19,13 +19,15 @@
     "content:sync": "tsx scripts/sync-content-question-bank.ts",
     "content:sync:check": "tsx scripts/sync-content-question-bank.ts --check",
     "content:generate:db": "tsx scripts/generate-db-question-drafts.ts",
-    "content:refresh": "npm run content:discover",
+    "content:refresh": "npm run content:discover && npm run context:refresh",
     "content:review": "tsx scripts/review-question.ts",
     "content:status": "tsx scripts/content-status.ts",
+    "context:refresh": "tsx scripts/generate-ai-context.ts",
+    "context:check": "tsx scripts/generate-ai-context.ts --check",
     "sandbox:snapshot": "tsx scripts/create-code-runner-snapshot.ts",
     "sandbox:smoke": "node --conditions=react-server --import tsx scripts/smoke-code-runner.ts",
     "sandbox:red-team": "node --conditions=react-server --import tsx scripts/red-team-code-runner.ts",
-    "validate": "npm run content:check && npm run lint && npm run typecheck && npm run test && npm run build"
+    "validate": "npm run content:check && npm run context:check && npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {
     "@google/genai": "^2.12.0",

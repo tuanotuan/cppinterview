@@ -15,7 +15,8 @@ Anki, AI coach, mock interview WorldQuant và code runner cô lập.
 2. Đọc đúng **một** file sau theo loại việc:
    - Kiến trúc, tìm file cần sửa: [docs/ai-context/PROJECT_MAP.md](docs/ai-context/PROJECT_MAP.md)
    - Build/test, thêm lesson, DB/env/deploy: [docs/ai-context/DEVELOPMENT.md](docs/ai-context/DEVELOPMENT.md)
-   - Branch, số liệu, việc vừa làm, điểm chưa chắc: [docs/ai-context/CURRENT_STATE.md](docs/ai-context/CURRENT_STATE.md)
+   - Task dở, blocker, giới hạn chưa xác nhận: [docs/ai-context/CURRENT_STATE.md](docs/ai-context/CURRENT_STATE.md)
+   - Số liệu máy sinh mới nhất: [docs/ai-context/GENERATED_SNAPSHOT.md](docs/ai-context/GENERATED_SNAPSHOT.md)
 3. Chỉ mở source trực tiếp liên quan. Dùng `rg` trước, không quét mọi
    `knowledge.md`, test hay migration.
 4. Nếu sửa trong `web/`, bắt buộc đọc `web/AGENTS.md`. Với API/convention
@@ -45,8 +46,9 @@ Nếu việc tiếp nối đúng một task dở dang, thêm:
 > Đọc thêm `docs/ai-context/CURRENT_STATE.md`; xác minh snapshot bằng Git trước
 > khi sửa.
 
-## Khi kết thúc một thay đổi lớn
+## Khi kết thúc một thay đổi
 
-Cập nhật `CURRENT_STATE.md` nếu branch/feature/blocker thay đổi. Chỉ cập nhật
-`PROJECT_MAP.md` hoặc `DEVELOPMENT.md` khi kiến trúc, command hay invariant thật
-sự đổi. Giữ các file ngắn; link tới source thay vì chép source.
+Làm theo `AGENTS.md`: luôn chạy `cd web && npm run context:refresh` và commit
+generated snapshot cùng code. Cập nhật file semantic tương ứng khi kiến trúc,
+workflow, invariant, task hoặc blocker đổi. Giữ các file ngắn; thay fact cũ và
+link tới source thay vì chép source.

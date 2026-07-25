@@ -12,6 +12,9 @@ on:
       - "python/**"
       - "cmake/**"
       - "web/**"
+      - "AGENTS.md"
+      - "AI_START_HERE.md"
+      - "docs/ai-context/**"
       - ".github/workflows/web-validate.yml"
   pull_request:
     paths:
@@ -21,6 +24,9 @@ on:
       - "python/**"
       - "cmake/**"
       - "web/**"
+      - "AGENTS.md"
+      - "AI_START_HERE.md"
+      - "docs/ai-context/**"
       - ".github/workflows/web-validate.yml"
 
 permissions:
@@ -62,7 +68,7 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add web/content web/src/generated
+          git add web/content web/src/generated docs/ai-context/GENERATED_SNAPSHOT.md
           git commit -m "chore(content): refresh interview question queue"
           git push
       - name: Sync current content snapshot to Supabase

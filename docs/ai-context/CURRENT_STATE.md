@@ -1,81 +1,47 @@
 # Current state
 
-Snapshot này được lập ngày **2026-07-25 (Asia/Saigon)**. Luôn xác minh bằng Git
-và source hiện tại trước khi hành động.
+File này chỉ giữ trạng thái semantic không thể sinh chắc chắn từ source. Số liệu
+content, route, dependency, migration và fingerprint mới nhất nằm trong
+`GENERATED_SNAPSHOT.md`. Branch, HEAD và worktree phải kiểm tra trực tiếp bằng
+Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi thời sau mỗi commit.
 
-## Git snapshot trước khi thêm handoff docs
+## Tính năng gần đây đáng biết
 
-- Repo: `https://github.com/tuanotuan/modern-cpp-features.git`
-- HEAD: `414d10b` — merge PR #57, `fix(ai): reset OpenAI admission daily`
-- Branch checkout: `fix/ai-quota-two-request-drain`
-- `main` và `origin/main` cũng ở đúng `414d10b`.
-- Branch checkout chưa có commit riêng và worktree sạch trước khi tạo bộ
-  Markdown này. Vì vậy **không được suy ra** yêu cầu của fix
-  `ai-quota-two-request-drain` chỉ từ tên branch.
-- Sau tác vụ tài liệu này, các file handoff mới là thay đổi dự kiến chưa commit.
+- AI admission reset theo ngày Việt Nam và practice ưu tiên question New.
+- Curriculum/guide tick-data và order-book đã có trong C++20.
+- Mock interview WorldQuant có bộ đề versioned và code runner dùng isolated
+  Vercel Sandbox.
+- App hỗ trợ deck C++, Python và CMake; số lesson/question hiện hữu xem generated
+  snapshot, không suy từ việc deck đã enable.
+- Git giữ lesson source; production có pipeline sync derived snapshot và tạo
+  DB-native question drafts trong Supabase.
 
-## Content snapshot
+## Giới hạn chưa thể suy ra từ repo
 
-- Generated manifest: schema 1, 34 lessons, 48 questions.
-- Lessons: C++98 = 5, C++11 = 22, C++20 = 6, Python 3 = 1.
-- Questions: 10 `verified`, 38 `draft`; cả 48 hiện thuộc deck
-  `cpp-interview`.
-- Source revision trong manifest:
-  `269db959cf2280941c07c3b96e39487c730c5b2bc6588808c858cd7cfe8b62c6`.
-- `web/README.md` nói “22 lessons”; con số này đã cũ so với manifest.
-- Python lesson đã tồn tại nhưng chưa có question trong generated Git bank.
-- CMake được hỗ trợ và deck đang enabled trong code, nhưng snapshot chưa có
-  thư mục `cmake/` hay lesson CMake.
+- Không có task spec chỉ vì tên branch trông giống một feature/fix.
+- Repo không chứng minh trạng thái deploy Vercel, migration remote đã apply tới
+  đâu, `QUESTION_STORE` production, secret hay quota thực tế.
+- Phải kiểm tra external environment khi user yêu cầu; không suy đoán từ
+  `.env.example`, migration tồn tại hay workflow.
 
-Các số trên chỉ để định hướng. Khi cần số chính xác, parse
-`web/src/generated/content-manifest.json`.
+## Task/handoff hiện tại
 
-## Tính năng gần nhất đã merge
+- Hệ thống handoff đã có generator/fingerprint, `context:refresh`,
+  `context:check`, CI gate và root `AGENTS.md` buộc duy trì phần semantic.
+- Không có implementation task dở nào khác được xác nhận. Thay mục này khi bắt
+  đầu hoặc bàn giao task mới.
 
-Theo 15 commit gần nhất:
+## Validation gần nhất
 
-- Reset OpenAI admission đúng ngày mới và ưu tiên question New.
-- Guide tick-data/order-book và curriculum C++20 gồm parsing, MBO, MBP,
-  sequencing/recovery, trade statistics/timestamp/corrections.
-- Mock-interview code chạy trong isolated Vercel Sandbox.
-- Ẩn set hints/format metadata của mock interview.
-- WorldQuant tick-data engineering mock interview versioned.
-
-## Trạng thái kiến trúc đáng chú ý
-
-- App có ba deck được enable: C++, Python, CMake.
-- Git source lesson → deterministic manifest; production có pipeline sync DB và
-  DB-native AI drafts.
-- Practice offline-first; Supabase/GitHub OAuth là optional cho cloud.
-- AI coach dùng OpenAI Luna/Terra theo tác vụ, Gemini free fallback khi quota
-  phù hợp; budget day theo giờ Việt Nam.
-- Mock code runner cần migration admission, snapshot immutable và dedicated
-  Supabase secret key; mặc định env example để disabled.
-
-## Chưa được xác nhận
-
-- Không có yêu cầu/task spec cho branch `fix/ai-quota-two-request-drain`.
-- Snapshot tài liệu không biết trạng thái deploy Vercel, migration đã apply tới
-  đâu, `QUESTION_STORE` production hay secret thực tế. Phải kiểm tra external
-  environment khi user yêu cầu, không suy đoán từ repo.
-- Không coi các dòng TODO/FIXME là backlog chính thức nếu chưa có issue/yêu cầu.
-
-## Validation của handoff
-
+- Generator refresh và check mode: pass bằng Deno compatibility runtime.
+- Type-check riêng generator: pass với
+  `deno check --node-modules-dir=manual scripts/generate-ai-context.ts`.
 - `git diff --check`: pass.
-- Link từ `AI_START_HERE.md` tới ba file context: tồn tại.
-- Chưa chạy được `npm run validate`: máy hiện tại không tìm thấy `node`/`npm`
-  trong `PATH`, dù `web/node_modules` đã tồn tại. Đây không phải test failure của
-  source; session sau cần chạy lại khi Node 22 khả dụng.
+- Chưa chạy full `npm run validate` vì shell hiện tại không có `node`/`npm`
+  trong `PATH`. CI Node 22 vẫn là validation gate chuẩn sau khi push.
 
-## Cách cập nhật file này
+## Quy tắc cập nhật
 
-Sau feature/fix lớn, thay:
-
-1. ngày, branch, HEAD và worktree;
-2. content counts nếu manifest đổi;
-3. “tính năng gần nhất” và blocker/task dở;
-4. command validation cuối cùng và kết quả.
-
-Xóa trạng thái đã hết giá trị thay vì nối log dài. File này phải là snapshot,
-không phải changelog.
+Thay nội dung hiện tại, không nối changelog. Chỉ ghi blocker, quyết định, giới
+hạn hoặc task dở có ích cho session kế tiếp. Các facts có thể tính từ repo phải
+được thêm vào generator thay vì chép tay vào đây.
