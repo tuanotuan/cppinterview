@@ -30,9 +30,11 @@ question back to the Review Queue.
 
 The AI budget migrations reserve a conservative amount before each web AI call,
 record the actual response-token cost afterward, and reconcile it against the
-official OpenAI Costs API. Daily quota uses the Vietnam calendar day. Automated
-draft generation is included when it uses the same `OPENAI_PROJECT_ID`. Keep the
-OpenAI project budget at the same value as `OPENAI_MONTHLY_BUDGET_USD`.
+official OpenAI Costs API. Web admission uses the Vietnam calendar-day quota;
+the monthly row remains an accounting view and must not block a freshly reset
+daily quota. Automated draft generation is included when it uses the same
+`OPENAI_PROJECT_ID`. Keep the OpenAI project hard-spend limit at the same value
+as `OPENAI_MONTHLY_BUDGET_USD` for the authoritative monthly backstop.
 
 The reconciliation baseline records the realtime counter at each Billing sync.
 Effective spend is the provider total plus only the realtime delta created after
