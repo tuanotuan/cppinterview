@@ -12,6 +12,9 @@ on:
       - "python/**"
       - "cmake/**"
       - "web/**"
+      - "AGENTS.md"
+      - "AI_START_HERE.md"
+      - "docs/ai-context/**"
       - ".github/workflows/web-validate.yml"
   pull_request:
     paths:
@@ -21,6 +24,9 @@ on:
       - "python/**"
       - "cmake/**"
       - "web/**"
+      - "AGENTS.md"
+      - "AI_START_HERE.md"
+      - "docs/ai-context/**"
       - ".github/workflows/web-validate.yml"
 
 permissions:
@@ -62,7 +68,7 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add web/content web/src/generated
+          git add web/content web/src/generated docs/ai-context/GENERATED_SNAPSHOT.md
           git commit -m "chore(content): refresh interview question queue"
           git push
       - name: Sync current content snapshot to Supabase
@@ -99,4 +105,23 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm ci
-      - run: npm run validate
+      - run: npm run content:check
+      - name: Check AI context
+        shell: bash
+        run: |
+          set +e
+          output="$(npm run context:check 2>&1)"
+          status=$?
+          set -e
+          if [ "$status" -ne 0 ]; then
+            output="${output//'%'/'%25'}"
+            output="${output//$'\n'/'%0A'}"
+            output="${output//$'\r'/'%0D'}"
+            echo "::error file=docs/ai-context/GENERATED_SNAPSHOT.md,title=AI context check failed::$output"
+            exit "$status"
+          fi
+          printf '%s\n' "$output"
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build
