@@ -988,6 +988,12 @@ function MockSetup({
               Học Tick data
             </Link>
             <Link
+              href="/learn/cmake"
+              className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
+            >
+              Học CMake
+            </Link>
+            <Link
               href="/"
               className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
             >
