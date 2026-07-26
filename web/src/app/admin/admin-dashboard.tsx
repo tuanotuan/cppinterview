@@ -17,8 +17,10 @@ import type {
   PracticeAccount,
 } from "@/lib/practice/cloud-server";
 import { parseProgress } from "@/lib/practice/scheduler";
-
-const PROGRESS_STORAGE_KEY = "cpp-recall:progress:v1";
+import {
+  readPracticeProgressSnapshot,
+  writePracticeProgressSnapshot,
+} from "@/lib/practice/storage";
 
 const statusLabels: Record<AdminQuestionStatus, string> = {
   active: "Đang dùng",
@@ -305,11 +307,8 @@ export function AdminDashboard({
       );
       if (action === "reset") {
         try {
-          const local = parseProgress(
-            window.localStorage.getItem(PROGRESS_STORAGE_KEY),
-          );
-          window.localStorage.setItem(
-            PROGRESS_STORAGE_KEY,
+          const local = parseProgress(readPracticeProgressSnapshot());
+          writePracticeProgressSnapshot(
             JSON.stringify({
               ...local,
               reviews: local.reviews.filter(
@@ -440,6 +439,9 @@ export function AdminDashboard({
             </div>
           </div>
           <nav className="flex flex-wrap items-center gap-2">
+            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/worldquant">
+              WQ Hub
+            </Link>
             <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/learn/tick-data-order-book">
               Học Tick data
             </Link>

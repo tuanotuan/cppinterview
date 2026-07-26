@@ -103,6 +103,9 @@ export default async function StatsPage({
           </div>
           <nav className="flex flex-wrap items-center gap-2">
             <StatsDeckSwitcher selected={selectedDeck} />
+            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/worldquant">
+              WQ Hub
+            </Link>
             <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/learn/tick-data-order-book">
               Học Tick data
             </Link>

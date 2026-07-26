@@ -982,6 +982,12 @@ function MockSetup({
           </div>
           <nav className="flex flex-wrap items-center gap-2">
             <Link
+              href="/worldquant"
+              className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
+            >
+              WQ Hub
+            </Link>
+            <Link
               href="/learn/tick-data-order-book"
               className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
             >
@@ -1243,6 +1249,12 @@ function MockReport({
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href="/worldquant"
+              className="rounded-xl border border-[#173f35]/15 bg-white/65 px-4 py-2 text-sm font-bold"
+            >
+              WQ Hub
+            </Link>
             <Link
               href="/"
               className="rounded-xl border border-[#173f35]/15 bg-white/65 px-4 py-2 text-sm font-bold"

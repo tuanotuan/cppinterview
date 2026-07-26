@@ -32,6 +32,7 @@ nhật file context tương ứng theo root `AGENTS.md`.
 | URL/vùng | Entry point | Chức năng |
 |---|---|---|
 | `/` | `web/src/app/page.tsx`, `practice-app.tsx` | Chọn deck, daily/custom study, answer, rating, saved state |
+| `/worldquant` | `worldquant/page.tsx`, `worldquant-readiness-app.tsx` | Readiness Hub theo role: competency coverage, preparation evidence, daily queue, target date và mock gần nhất |
 | `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Bộ đề WorldQuant 30/45/60 phút, report cuối buổi |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx` | Guide tick data/order book |
 | `/learn/cmake` | `learn/cmake/page.tsx`, `lib/learn/cmake-guide.ts` | Guide CMake target-based từ mental model tới CTest, packaging, CI và legacy migration |
@@ -57,8 +58,9 @@ API quan trọng:
 |---|---|---|
 | `content` | `loader.ts`, `schema.ts`, `automation.ts` | Parse note, schema Zod, discover lesson, sinh manifest |
 | `content` | `question-store-server.ts` | Chọn `repo`/`shadow`/`db`, parity, apply override |
-| `practice` | `learning-state.ts`, `scheduler.ts` | Queue Anki, rating, due date, streak |
+| `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts` | Queue Anki, rating, due date, streak và browser progress store |
 | `practice` | `cloud-server.ts`, `cloud.ts` | Ghép auth, progress, approval, overrides, usage, manifest |
+| `worldquant` | `readiness.ts` | Role profiles, taxonomy classifier, competency targets/weights và công thức preparation evidence |
 | `ai` | `openai.ts`, `gemini.ts`, `fallback.ts` | Provider calls và fallback |
 | `ai` | `budget.ts`, `usage.ts`, `billing.ts` | Admission daily, accounting monthly, Costs API reconciliation |
 | `mock-interview` | `profile.ts`, `session.ts`, `contracts.ts` | Bộ đề versioned, local session, report schema |
@@ -91,6 +93,15 @@ Quy tắc:
 Không có Supabase: localStorage và app vẫn dùng được. Có Supabase + đúng owner:
 server tải review history, Anki projection, approvals, overrides và usage; browser
 merge offline state rồi sync. RPC DB là nguồn thẩm quyền cho cloud transition.
+
+### WorldQuant readiness
+
+Question `verified` hoặc owner-approved hợp lệ → classifier taxonomy gán đúng một
+competency → browser merge local/cloud progress → learning evidence theo Anki state
+→ giới hạn hai card mỗi lesson → áp target và role weight. Hub tách `coverage`
+(content bank đã kiểm chứng) khỏi `Preparation Index` (bằng chứng người học đã tích
+lũy), nên thiếu content không bị diễn giải thành điểm yếu cá nhân. Mock report gần
+nhất chỉ hiển thị riêng, chưa trộn vào index.
 
 ### AI coach
 
