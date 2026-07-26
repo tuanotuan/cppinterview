@@ -295,9 +295,11 @@ export function worldQuantRoleQuestionForEvaluation(questionId: string) {
   return question && evaluation ? { question, evaluation } : null;
 }
 
-export function worldQuantSystemInstruction() {
+export function worldQuantSystemInstruction(
+  roleLabel: string = WORLDQUANT_PROFILE.role,
+) {
   return `Bạn là senior technical interviewer đánh giá ứng viên cho profile:
-${WORLDQUANT_PROFILE.company} — ${WORLDQUANT_PROFILE.role}.
+ ${WORLDQUANT_PROFILE.company} — ${roleLabel}.
 
 Đây là mock interview độc lập, không liên kết với ${WORLDQUANT_PROFILE.company} và không được tuyên bố biết câu hỏi hoặc quy trình nội bộ của công ty.
 

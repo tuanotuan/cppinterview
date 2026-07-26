@@ -32,8 +32,8 @@ nhật file context tương ứng theo root `AGENTS.md`.
 | URL/vùng | Entry point | Chức năng |
 |---|---|---|
 | `/` | `web/src/app/page.tsx`, `practice-app.tsx` | Daily/custom study và Focus Sprint exact queue; answer, rating, scheduler, cloud sync và saved state |
-| `/worldquant` | `worldquant/page.tsx`, `worldquant-readiness-app.tsx` | Readiness Hub theo role; deterministic Focus Sprint, content-gap/owner-review checkpoint, target date và mock gần nhất |
-| `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Bộ đề WorldQuant 30/45/60 phút, report cuối buổi |
+| `/worldquant` | `worldquant/page.tsx`, `worldquant-readiness-app.tsx` | Readiness Hub theo role; Focus Sprint, targeted-mock CTA, account-scoped mock v4 gần nhất và comparable trend |
+| `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Interview Loop v4 balanced/targeted 30/45/60 phút, hidden execution, scoped debrief, history và remediation |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx` | Guide tick data/order book |
 | `/learn/cmake` | `learn/cmake/page.tsx`, `lib/learn/cmake-guide.ts` | Guide CMake target-based từ mental model tới CTest, packaging, CI và legacy migration |
 | `/stats` | `stats/page.tsx` | Analytics học tập |
@@ -44,8 +44,8 @@ API quan trọng:
 
 - `api/coach/{evaluate,follow-up}`: chấm và giải thích; OpenAI trước, Gemini
   fallback theo quota.
-- `api/mock-interview/{run,report}`: chạy sample code trong Vercel Sandbox và
-  tạo report có hidden evaluation.
+- `api/mock-interview/{run,report,history}`: chạy sample code, xác minh exact
+  blueprint, tạo report có hidden evaluation và đọc/xóa history theo account.
 - `api/progress/sync`: đồng bộ review/Anki state.
 - `api/questions/approve`: duyệt đúng question version + source hash.
 - `api/admin/{questions,question-state,ai-settings,generation-jobs}`: mutation
@@ -64,7 +64,9 @@ API quan trọng:
 | `worldquant` | `readiness.ts`, `focus-plan.ts` | Role/competency model, preparation evidence và planner queue deterministic theo gap/time budget |
 | `ai` | `openai.ts`, `gemini.ts`, `fallback.ts` | Provider calls và fallback |
 | `ai` | `budget.ts`, `usage.ts`, `billing.ts` | Admission daily, accounting monthly, Costs API reconciliation |
-| `mock-interview` | `profile.ts`, `session.ts`, `contracts.ts` | Bộ đề versioned, local session, report schema |
+| `mock-interview` | `catalog.ts`, `target-plan.ts`, `session-v4.ts`, `contracts-v4.ts` | Canonical competency mapping, deterministic balanced/targeted blueprint, account-scoped frozen session và exact API contract |
+| `mock-interview` | `history.server.ts`, `trends.ts` | Lease/cache/idempotency cho report history và trend chỉ trên attempt comparable |
+| `worldquant` | `mock-debrief.ts`, `mock-remediation.ts` | Role-scoped evidence, assessed/not-assessed matrix, deterministic ranked gaps và Focus remediation |
 | `code-runner` | `admission.server.ts`, `execution-specs.server.ts`, `vercel-sandbox.server.ts` | Quota/idempotency, harness server-owned, VM cô lập |
 | `supabase` | `server.ts`, `config.ts`, `authorization.ts` | SSR client và owner allowlist |
 | `admin` | `dashboard.ts` | Tổng hợp dữ liệu admin |
@@ -102,7 +104,21 @@ competency → browser merge local/cloud progress → learning evidence theo Ank
 → giới hạn hai card mỗi lesson → áp target và role weight. Hub tách `coverage`
 (content bank đã kiểm chứng) khỏi `Preparation Index` (bằng chứng người học đã tích
 lũy), nên thiếu content không bị diễn giải thành điểm yếu cá nhân. Mock report gần
-nhất chỉ hiển thị riêng, chưa trộn vào index.
+nhất chỉ hiển thị riêng, chưa trộn vào index. Hub đọc history v4 theo account,
+chỉ so trend cùng role/profile version, duration và evidence scope; mục
+`not_assessed` không bị đổi thành điểm 0.
+
+### WorldQuant Interview Loop v4
+
+Catalog question đã duyệt + curated JD question → canonical competency →
+deterministic blueprint theo role/mode/duration/variant → exact account-scoped
+session. Submission đầu tiên được đóng băng cùng idempotency key; server dựng
+lại blueprint và version trước runner/AI. Supabase giữ một token-scoped report
+lease, trả cached artifact khi response trước bị mất, release retryable AI
+failure và abort reservation khi hidden runner bắt buộc key mới. Targeted report
+chỉ là evidence cho competency đã chọn; balanced cũng là sample trên phần trọng
+số đã hỏi, không phải hiring/readiness verdict. Canonical debrief tạo remediation
+từ assessed gap; AI text chỉ là nhận xét định tính.
 
 ### WorldQuant Focus Sprint
 

@@ -29,7 +29,6 @@ import {
   reserveCodeExecution,
 } from "@/lib/code-runner/admission.server";
 import {
-  codeExecutionResultSchema,
   isSourceWithinByteLimit,
   type CodeExecutionResult,
 } from "@/lib/code-runner/contracts";
@@ -59,7 +58,35 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   mockInterviewReportRequestSchema,
   normalizeMockInterviewReport,
+  type MockInterviewReportRequest,
 } from "@/lib/mock-interview/contracts";
+import {
+  mockInterviewCompletedArtifactV4Schema,
+  mockInterviewReportRequestV4Schema,
+  mockInterviewScopedReportV4Schema,
+  publicHiddenExecutionResultSchema,
+  type MockInterviewReportRequestV4,
+} from "@/lib/mock-interview/contracts-v4";
+import {
+  buildWorldQuantBankCatalog,
+  legacyMockCompetencyForReadiness,
+  resolveTargetedMockPlan,
+  targetedMockCandidates,
+  WORLDQUANT_CURATED_CATALOG,
+} from "@/lib/mock-interview/catalog";
+import {
+  abortMockInterviewAttempt,
+  createMockHistoryAdminClient,
+  completeMockInterviewAttempt,
+  MockHistoryBusyError,
+  MockHistoryConfigurationError,
+  MockHistoryIdempotencyConflictError,
+  MockHistorySessionConflictError,
+  readMockInterviewAttempt,
+  releaseMockInterviewAttempt,
+  reserveMockInterviewAttempt,
+  type MockHistoryAttempt,
+} from "@/lib/mock-interview/history.server";
 import {
   inferMockCompetency,
   WORLDQUANT_PROFILE_VERSION,
@@ -70,11 +97,28 @@ import {
   buildMockInterviewSystemInstruction,
   type MockEvaluationItem,
 } from "@/lib/mock-interview/report-prompt";
+import {
+  buildWorldQuantTargetedMockPlan,
+  type TargetedMockPlan,
+} from "@/lib/mock-interview/target-plan";
+import { buildWorldQuantMockDebrief } from "@/lib/worldquant/mock-debrief";
+import {
+  worldQuantRoleProfileById,
+  type WorldQuantCompetencyKey,
+  type WorldQuantRoleProfileId,
+} from "@/lib/worldquant/readiness";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
 const MAX_REPORT_REQUEST_BYTES = 80 * 1024;
+
+class CodeExecutionFinalizationIndeterminateError extends Error {
+  constructor() {
+    super("Code execution finalization is indeterminate");
+    this.name = "CodeExecutionFinalizationIndeterminateError";
+  }
+}
 
 export async function POST(request: Request) {
   const clientKey =
@@ -141,8 +185,11 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
-  const parsed = mockInterviewReportRequestSchema.safeParse(body);
-  if (!parsed.success) {
+  const parsedV4 = mockInterviewReportRequestV4Schema.safeParse(body);
+  const parsedLegacy = parsedV4.success
+    ? null
+    : mockInterviewReportRequestSchema.safeParse(body);
+  if (!parsedV4.success && !parsedLegacy?.success) {
     return Response.json(
       {
         error:
@@ -152,9 +199,15 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
+  const reportRequest = parsedV4.success
+    ? normalizeV4ReportRequest(parsedV4.data)
+    : normalizeLegacyReportRequest(
+        mockInterviewReportRequestSchema.parse(body),
+      );
   if (
-    parsed.data.profileVersion !== WORLDQUANT_PROFILE_VERSION ||
-    parsed.data.items.reduce(
+    (reportRequest.kind === "legacy" &&
+      reportRequest.profileVersion !== WORLDQUANT_PROFILE_VERSION) ||
+    reportRequest.items.reduce(
       (sum, item) =>
         sum + item.response.length + item.explanation.length,
       0,
@@ -199,9 +252,11 @@ export async function POST(request: Request) {
 
   let approvals: QuestionApproval[] = [];
   let manifest = getRepoContentManifest();
-  const needsQuestionBank = parsed.data.items.some(
+  const needsQuestionBank =
+    reportRequest.kind === "v4" ||
+    reportRequest.items.some(
     (item) => item.origin === "question_bank",
-  );
+    );
   if (needsQuestionBank) {
     const [approvalsResult, overridesResult] = await Promise.all([
       supabase
@@ -224,13 +279,60 @@ export async function POST(request: Request) {
     });
   }
 
+  let resolvedV4Questions:
+    | ReturnType<typeof resolveTargetedMockPlan>
+    | null = null;
+  if (reportRequest.kind === "v4") {
+    const catalog = [
+      ...buildWorldQuantBankCatalog({ manifest, approvals }),
+      ...WORLDQUANT_CURATED_CATALOG,
+    ];
+    let expectedPlan: TargetedMockPlan;
+    try {
+      expectedPlan = buildWorldQuantTargetedMockPlan({
+        profileId: reportRequest.plan.profileId,
+        mode: reportRequest.plan.mode,
+        targetCompetency: reportRequest.plan.targetCompetency,
+        variant: reportRequest.plan.variant,
+        durationMinutes: reportRequest.plan.durationMinutes,
+        candidates: targetedMockCandidates(catalog),
+      });
+    } catch {
+      return Response.json(
+        {
+          error: "Role hoặc competency của bộ mock không còn hợp lệ.",
+          code: "plan_invalid",
+        },
+        { status: 409 },
+      );
+    }
+    resolvedV4Questions = resolveTargetedMockPlan({
+      plan: reportRequest.plan,
+      catalog,
+    });
+    if (
+      manifest.sourceRevision !== reportRequest.sourceRevision ||
+      JSON.stringify(expectedPlan) !== JSON.stringify(reportRequest.plan) ||
+      !resolvedV4Questions
+    ) {
+      return Response.json(
+        {
+          error:
+            "Question bank hoặc blueprint đã đổi. Hãy tạo buổi mock mới để giữ đúng version.",
+          code: "plan_changed",
+        },
+        { status: 409 },
+      );
+    }
+  }
+
   const evaluationItems: MockEvaluationItem[] = [];
   const executionTargets: Array<{
     questionId: string;
     source: string;
     spec: MockExecutionSpec;
   }> = [];
-  for (const requestedItem of parsed.data.items) {
+  for (const requestedItem of reportRequest.items) {
     if (requestedItem.origin === "role_profile") {
       const roleItem = worldQuantRoleQuestionForEvaluation(
         requestedItem.questionId,
@@ -277,7 +379,11 @@ export async function POST(request: Request) {
       }
       evaluationItems.push({
         questionId: roleItem.question.id,
-        competency: roleItem.question.competency,
+        competency: requestedItem.readinessCompetency
+          ? legacyMockCompetencyForReadiness(
+              requestedItem.readinessCompetency,
+            )
+          : roleItem.question.competency,
         prompt: roleItem.question.prompt,
         code: roleItem.question.code,
         candidateAnswer,
@@ -330,10 +436,14 @@ export async function POST(request: Request) {
     }
     evaluationItems.push({
       questionId: question.id,
-      competency: inferMockCompetency({
-        language: lesson.language,
-        topics: question.taxonomy.topics,
-      }),
+      competency: requestedItem.readinessCompetency
+        ? legacyMockCompetencyForReadiness(
+            requestedItem.readinessCompetency,
+          )
+        : inferMockCompetency({
+            language: lesson.language,
+            topics: question.taxonomy.topics,
+          }),
       prompt: question.prompt,
       code: question.code,
       candidateAnswer: candidateAnswerForReport({
@@ -354,15 +464,156 @@ export async function POST(request: Request) {
     });
   }
 
+  let history:
+    | {
+        client: ReturnType<typeof createMockHistoryAdminClient>;
+        reservation: MockHistoryAttempt;
+      }
+    | null = null;
+  if (reportRequest.kind === "v4") {
+    const blueprintFingerprint = sha256Json(reportRequest.plan);
+    const requestFingerprint = sha256Json(reportRequest.raw);
+    try {
+      const client = createMockHistoryAdminClient();
+      const reservation = await reserveMockInterviewAttempt(client, {
+        userId: authResult.data.user.id,
+        sessionId: reportRequest.sessionId,
+        idempotencyKey: reportRequest.idempotencyKey,
+        requestFingerprint,
+        profileId: "worldquant-interview-loop",
+        profileVersion: 4,
+        roleProfileId: reportRequest.profileId,
+        roleProfileVersion: reportRequest.profileVersion,
+        blueprintId: [
+          "worldquant",
+          reportRequest.profileId,
+          reportRequest.plan.mode,
+          reportRequest.plan.durationMinutes,
+          reportRequest.plan.variant,
+        ].join("-"),
+        blueprintVersion: reportRequest.plan.version,
+        blueprintFingerprint,
+        durationMinutes: reportRequest.durationMinutes,
+        publicAttempt: {
+          schemaVersion: 4,
+          sessionId: reportRequest.sessionId,
+          sourceRevision: reportRequest.sourceRevision,
+          startedAt: reportRequest.startedAt,
+          submittedAt: reportRequest.submittedAt,
+          elapsedSeconds: reportRequest.elapsedSeconds,
+          plan: reportRequest.plan,
+          questions: resolvedV4Questions!.map((question) => ({
+            id: question.id,
+            origin: question.origin,
+            version: question.version,
+            contentRevision: question.contentRevision,
+            prompt: question.prompt,
+            code: question.code ?? null,
+            language: question.language,
+            track: question.track,
+            responseMode: question.responseMode,
+            readinessCompetency: question.readinessCompetency,
+          })),
+        },
+      });
+      if (reservation.status === "completed") {
+        const cached =
+          mockInterviewCompletedArtifactV4Schema.safeParse(
+            reservation.report,
+          );
+        if (!cached.success) {
+          return Response.json(
+            {
+              error:
+                "Report cache đã tồn tại nhưng không còn đúng contract hiện tại.",
+              code: "history_cache_invalid",
+            },
+            { status: 503 },
+          );
+        }
+        return Response.json({
+          ...cached.data,
+          cached: true,
+          historyPersisted: true,
+          historyAttemptId: reservation.attemptId,
+        });
+      }
+      if (reservation.status === "failed") {
+        return Response.json(
+          {
+            error:
+              "Lượt chấm này đã kết thúc lỗi. Hãy tạo buổi mock mới.",
+            code: reservation.failure?.code ?? "attempt_failed",
+          },
+          { status: 409 },
+        );
+      }
+      history = { client, reservation };
+    } catch (error) {
+      if (error instanceof MockHistoryConfigurationError) {
+        return Response.json(
+          {
+            error:
+              "Cloud history v4 chưa sẵn sàng nên report bị khóa để tránh chấm trùng và tốn quota.",
+            code: "history_not_configured",
+          },
+          { status: 503 },
+        );
+      } else if (error instanceof MockHistoryBusyError) {
+        return Response.json(
+          {
+            error:
+              "Report này vẫn đang được chấm. Chờ một chút rồi thử lại.",
+            code: "report_in_progress",
+          },
+          { status: 409, headers: { "Retry-After": "10" } },
+        );
+      } else if (
+        error instanceof MockHistoryIdempotencyConflictError ||
+        error instanceof MockHistorySessionConflictError
+      ) {
+        return Response.json(
+          {
+            error:
+              "Session hoặc idempotency key không còn khớp với bài nộp.",
+            code: "history_conflict",
+          },
+          { status: 409 },
+        );
+      } else {
+        throw error;
+      }
+    }
+  }
+
   let hiddenExecutionResults: CodeExecutionResult[] = [];
   if (executionTargets.length && isCodeRunnerConfigured()) {
     try {
       hiddenExecutionResults = await runHiddenExecutionBatch({
         userId: authResult.data.user.id,
-        idempotencyKey: parsed.data.idempotencyKey,
+        idempotencyKey: reportRequest.idempotencyKey,
         targets: executionTargets,
       });
     } catch (error) {
+      if (history?.reservation.leaseToken) {
+        try {
+          if (hiddenExecutionRequiresFreshKey(error)) {
+            await abortMockInterviewAttempt(history.client, {
+              userId: authResult.data.user.id,
+              attemptId: history.reservation.attemptId,
+              leaseToken: history.reservation.leaseToken,
+            });
+          } else {
+            await releaseMockInterviewAttempt(history.client, {
+              userId: authResult.data.user.id,
+              attemptId: history.reservation.attemptId,
+              leaseToken: history.reservation.leaseToken,
+            });
+          }
+        } catch {
+          return historyTransitionErrorResponse();
+        }
+      }
       return hiddenExecutionErrorResponse(error);
     }
   }
@@ -387,11 +638,20 @@ export async function POST(request: Request) {
   const questionCompetencies = Object.fromEntries(
     evaluationItems.map((item) => [item.questionId, item.competency]),
   );
-  const instructions = buildMockInterviewSystemInstruction();
+  const role =
+    reportRequest.kind === "v4"
+      ? worldQuantRoleProfileById(reportRequest.profileId)
+      : null;
+  const instructions = buildMockInterviewSystemInstruction(role?.label);
   const prompt = buildMockInterviewReportPrompt({
-    durationMinutes: parsed.data.durationMinutes,
-    elapsedSeconds: parsed.data.elapsedSeconds,
+    durationMinutes: reportRequest.durationMinutes,
+    elapsedSeconds: reportRequest.elapsedSeconds,
     items: evaluationItems,
+    roleLabel: role?.label,
+    evidenceScope:
+      reportRequest.kind === "v4"
+        ? reportRequest.plan.mode
+        : undefined,
   });
 
   try {
@@ -434,19 +694,176 @@ export async function POST(request: Request) {
       provider === "gemini"
         ? `Gemini fallback · ${result.model}`
         : result.model;
+    const executionResults = hiddenExecutionResults.flatMap(
+      (execution, index) => {
+        const questionId = executionTargets[index]?.questionId;
+        return questionId
+          ? [
+              {
+                questionId,
+                submittedCodeHash: execution.codeHash,
+                result: publicHiddenExecutionResult(execution),
+              },
+            ]
+          : [];
+      },
+    );
+
+    if (reportRequest.kind === "v4") {
+      const debrief = buildWorldQuantMockDebrief({
+        profileId: reportRequest.profileId,
+        plan: {
+          mode: reportRequest.plan.mode,
+          questionMappings: reportRequest.items.map((item) => ({
+            questionId: item.questionId,
+            competency: item.readinessCompetency!,
+          })),
+        },
+        scores: report.questionAssessments.map((assessment) => ({
+          questionId: assessment.questionId,
+          score: assessment.score,
+        })),
+      });
+      const scopedReport =
+        mockInterviewScopedReportV4Schema.parse({
+          evidenceScope: debrief.scope,
+          summary: report.summary,
+          competencies: report.competencies,
+          questionAssessments: report.questionAssessments,
+          strengths: report.strengths,
+          priorityGaps: report.priorityGaps,
+          studyPlan: report.studyPlan,
+        });
+      const artifact =
+        mockInterviewCompletedArtifactV4Schema.parse({
+          schemaVersion: 4,
+          sessionId: reportRequest.sessionId,
+          profileId: reportRequest.profileId,
+          profileVersion: reportRequest.profileVersion,
+          plan: reportRequest.plan,
+          startedAt: reportRequest.startedAt,
+          completedAt: new Date().toISOString(),
+          report: scopedReport,
+          debrief,
+          model: modelLabel,
+          provider,
+          executionResults,
+        });
+      let historyPersisted = false;
+      let historyAttemptId: string | null = null;
+      let historyWarning: string | null = null;
+      if (history?.reservation.leaseToken) {
+        const completionInput = {
+          userId: authResult.data.user.id,
+          attemptId: history.reservation.attemptId,
+          leaseToken: history.reservation.leaseToken,
+          report: JSON.parse(JSON.stringify(artifact)) as Record<
+            string,
+            unknown
+          >,
+        };
+        for (let completionTry = 0; completionTry < 2; completionTry += 1) {
+          try {
+            const completedAttempt =
+              await completeMockInterviewAttempt(
+                history.client,
+                completionInput,
+              );
+            const persistedArtifact =
+              mockInterviewCompletedArtifactV4Schema.safeParse(
+                completedAttempt.report,
+              );
+            historyPersisted =
+              completedAttempt.status === "completed" &&
+              persistedArtifact.success &&
+              JSON.stringify(persistedArtifact.data) ===
+                JSON.stringify(artifact);
+            historyAttemptId = historyPersisted
+              ? completedAttempt.attemptId
+              : null;
+            break;
+          } catch (error) {
+            if (completionTry === 1) {
+              console.error("Mock history completion failed", {
+                name:
+                  error instanceof Error
+                    ? error.name
+                    : "UnknownError",
+              });
+            }
+          }
+        }
+        if (!historyPersisted) {
+          try {
+            const storedAttempt = await readMockInterviewAttempt(
+              history.client,
+              {
+                userId: authResult.data.user.id,
+                attemptId: history.reservation.attemptId,
+              },
+            );
+            if (storedAttempt?.status === "completed") {
+              const storedArtifact =
+                mockInterviewCompletedArtifactV4Schema.safeParse(
+                  storedAttempt.report,
+                );
+              historyPersisted =
+                storedArtifact.success &&
+                JSON.stringify(storedArtifact.data) ===
+                  JSON.stringify(artifact);
+              historyAttemptId = historyPersisted
+                ? storedAttempt.attemptId
+                : null;
+            } else if (
+              storedAttempt?.status === "reserved" &&
+              history.reservation.leaseToken
+            ) {
+              await releaseMockInterviewAttempt(history.client, {
+                userId: authResult.data.user.id,
+                attemptId: history.reservation.attemptId,
+                leaseToken: history.reservation.leaseToken,
+              });
+            }
+          } catch {
+            // The normalized artifact is still returned locally. Retrying
+            // paid AI would be worse than an explicit history warning.
+          }
+        }
+        if (!historyPersisted) {
+          historyWarning =
+            "Report đã lưu local nhưng cloud history chưa xác nhận được; hệ thống không chạy lại AI để tránh tốn quota lần hai.";
+        }
+      }
+      return Response.json({
+        ...artifact,
+        historyPersisted,
+        historyAttemptId,
+        historyWarning,
+        aiDailyBudget: dailyBudget,
+        aiUsageRecorded: provider === "gemini" || dailyBudget !== null,
+      });
+    }
 
     return Response.json({
       report,
       model: modelLabel,
       provider,
-      executionResults: hiddenExecutionResults.map((result, index) => ({
-        questionId: executionTargets[index]?.questionId,
-        result: publicHiddenExecutionResult(result),
-      })),
+      executionResults,
       aiDailyBudget: dailyBudget,
       aiUsageRecorded: provider === "gemini" || dailyBudget !== null,
     });
   } catch (error) {
+    if (history?.reservation.leaseToken) {
+      try {
+        await releaseMockInterviewAttempt(history.client, {
+          userId: authResult.data.user.id,
+          attemptId: history.reservation.attemptId,
+          leaseToken: history.reservation.leaseToken,
+        });
+      } catch {
+        return historyTransitionErrorResponse();
+      }
+    }
     if (error instanceof AllAiQuotasExceededError) {
       return Response.json(
         {
@@ -532,14 +949,113 @@ export async function POST(request: Request) {
   }
 }
 
+type NormalizedReportItem = {
+  questionId: string;
+  origin: "question_bank" | "role_profile";
+  version: number;
+  contentRevision: string;
+  response: string;
+  explanation: string;
+  elapsedSeconds: number;
+  readinessCompetency?: WorldQuantCompetencyKey;
+};
+
+type NormalizedLegacyReportRequest = {
+  kind: "legacy";
+  idempotencyKey: string;
+  sessionId: string;
+  profileId: "worldquant-tick-data-engineer";
+  profileVersion: number;
+  sourceRevision: string;
+  durationMinutes: 30 | 45 | 60;
+  elapsedSeconds: number;
+  items: NormalizedReportItem[];
+};
+
+type NormalizedV4ReportRequest = {
+  kind: "v4";
+  idempotencyKey: string;
+  sessionId: string;
+  profileId: WorldQuantRoleProfileId;
+  profileVersion: 1;
+  sourceRevision: string;
+  durationMinutes: 30 | 45 | 60;
+  elapsedSeconds: number;
+  startedAt: string;
+  submittedAt: string;
+  plan: TargetedMockPlan;
+  items: NormalizedReportItem[];
+  raw: MockInterviewReportRequestV4;
+};
+
+function normalizeLegacyReportRequest(
+  request: MockInterviewReportRequest,
+): NormalizedLegacyReportRequest {
+  return {
+    kind: "legacy",
+    idempotencyKey: request.idempotencyKey,
+    sessionId: request.sessionId,
+    profileId: request.profileId,
+    profileVersion: request.profileVersion,
+    sourceRevision: request.sourceRevision,
+    durationMinutes: request.durationMinutes,
+    elapsedSeconds: request.elapsedSeconds,
+    items: request.items,
+  };
+}
+
+function normalizeV4ReportRequest(
+  request: MockInterviewReportRequestV4,
+): NormalizedV4ReportRequest {
+  return {
+    kind: "v4",
+    idempotencyKey: request.idempotencyKey,
+    sessionId: request.sessionId,
+    profileId: request.profileId,
+    profileVersion: request.profileVersion,
+    sourceRevision: request.sourceRevision,
+    durationMinutes: request.plan.durationMinutes,
+    elapsedSeconds: request.elapsedSeconds,
+    startedAt: request.startedAt,
+    submittedAt: request.submittedAt,
+    plan: request.plan,
+    items: request.items.map((item) => ({
+      questionId: item.question.question.id,
+      origin: item.question.question.origin,
+      version: item.question.question.version,
+      contentRevision: item.question.question.contentRevision,
+      response: item.response,
+      explanation: item.explanation,
+      elapsedSeconds: item.elapsedSeconds,
+      readinessCompetency: item.question.readinessCompetency,
+    })),
+    raw: request,
+  };
+}
+
+function sha256Json(value: unknown) {
+  return createHash("sha256")
+    .update(JSON.stringify(value))
+    .digest("hex");
+}
+
 function publicHiddenExecutionResult(
   result: CodeExecutionResult,
-): CodeExecutionResult {
+): Omit<
+  CodeExecutionResult,
+  "diagnostics" | "output" | "cases"
+> {
   return {
-    ...result,
-    diagnostics: "",
-    output: "",
-    cases: [],
+    suite: result.suite,
+    codeHash: result.codeHash,
+    specRevision: result.specRevision,
+    language: result.language,
+    status: result.status,
+    passedTests: result.passedTests,
+    totalTests: result.totalTests,
+    durationMs: result.durationMs,
+    toolchain: result.toolchain,
+    completedAt: result.completedAt,
   };
 }
 
@@ -597,8 +1113,8 @@ async function runHiddenExecutionBatch({
     throw new CodeExecutionBusyError(reservation.reservationId);
   }
 
+  const results: CodeExecutionResult[] = [];
   try {
-    const results: CodeExecutionResult[] = [];
     for (const target of targets) {
       results.push(
         await executeMockCode({
@@ -608,16 +1124,6 @@ async function runHiddenExecutionBatch({
         }),
       );
     }
-    await finishCodeExecution(admissionClient, {
-      userId,
-      reservationId: reservation.reservationId,
-      status: "completed",
-      cachedResult: {
-        ok: true,
-        results: results.map(publicHiddenExecutionResult),
-      },
-    });
-    return results;
   } catch (error) {
     await finishCodeExecution(admissionClient, {
       userId,
@@ -630,14 +1136,59 @@ async function runHiddenExecutionBatch({
     }).catch(() => undefined);
     throw error;
   }
+
+  try {
+    const finalized = await finishCodeExecution(admissionClient, {
+      userId,
+      reservationId: reservation.reservationId,
+      status: "completed",
+      cachedResult: {
+        ok: true,
+        results: results.map(publicHiddenExecutionResult),
+      },
+    });
+    if (finalized.status !== "completed") {
+      throw new CodeExecutionFinalizationIndeterminateError();
+    }
+    return results;
+  } catch {
+    try {
+      const recovered = await reserveCodeExecution(admissionClient, {
+        userId,
+        idempotencyKey,
+        purpose: "mock_report",
+        jobCount: targets.length,
+        requestFingerprint,
+      });
+      const cached = parseCachedHiddenResults(recovered.cachedResult);
+      if (
+        recovered.status === "completed" &&
+        cached &&
+        hiddenResultsMatchTargets(cached, targets)
+      ) {
+        return cached;
+      }
+    } catch {
+      // Keep the same key. A later retry can still recover the terminal cache.
+    }
+    throw new CodeExecutionFinalizationIndeterminateError();
+  }
 }
 
 function parseCachedHiddenResults(
   value: Record<string, unknown> | null,
 ) {
   if (!value || value.ok !== true) return null;
-  const parsed = codeExecutionResultSchema.array().safeParse(value.results);
-  return parsed.success ? parsed.data : null;
+  const parsed =
+    publicHiddenExecutionResultSchema.array().safeParse(value.results);
+  return parsed.success
+    ? parsed.data.map((result) => ({
+        ...result,
+        diagnostics: "",
+        output: "",
+        cases: [],
+      }))
+    : null;
 }
 
 function hiddenResultsMatchTargets(
@@ -683,6 +1234,16 @@ function hiddenExecutionErrorResponse(error: unknown) {
       { status: 409 },
     );
   }
+  if (error instanceof CodeExecutionFinalizationIndeterminateError) {
+    return Response.json(
+      {
+        error:
+          "Hidden tests đã chạy nhưng trạng thái cache chưa xác nhận được. Giữ nguyên submission và thử lại.",
+        code: "code_execution_finalization_indeterminate",
+      },
+      { status: 503 },
+    );
+  }
   if (error instanceof CodeExecutionIdempotencyConflictError) {
     return Response.json(
       {
@@ -713,6 +1274,25 @@ function hiddenExecutionErrorResponse(error: unknown) {
       code: "code_execution_retry_required",
     },
     { status: 502 },
+  );
+}
+
+function hiddenExecutionRequiresFreshKey(error: unknown) {
+  return !(
+    error instanceof CodeExecutionQuotaExceededError ||
+    error instanceof CodeExecutionBusyError ||
+    error instanceof CodeExecutionFinalizationIndeterminateError
+  );
+}
+
+function historyTransitionErrorResponse() {
+  return Response.json(
+    {
+      error:
+        "Không thể mở lại reservation an toàn. Hãy giữ nguyên submission và thử lại sau.",
+      code: "history_transition_failed",
+    },
+    { status: 503 },
   );
 }
 

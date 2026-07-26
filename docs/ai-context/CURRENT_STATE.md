@@ -8,9 +8,11 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 ## Tính năng gần đây đáng biết
 
 - `/worldquant` là Readiness Hub dùng được cả local mode: bốn role profile C++,
-  mười competency ổn định, target-date planner, daily queue, Focus Sprint và mock
-  report gần nhất. `Preparation Index` chỉ là bằng chứng trong app, không phải
-  xác suất đậu.
+  mười competency ổn định, target-date planner, daily queue và Focus Sprint.
+  Khi đã login và cấu hình history, Hub hiển thị mock v4 mới nhất theo role,
+  assessed/not-assessed matrix, comparable trend và CTA targeted mock theo gap.
+  `Preparation Index` và mock evidence luôn tách rời; cả hai không phải xác suất
+  đậu.
 - Focus Sprint chốt exact approved queue theo role/gap/Anki state và time budget,
   hỗ trợ pause/resume/completion qua nhiều deck. Practice không replan; mỗi rating
   vẫn cập nhật scheduler/cloud bình thường. Session local có reconcile stale và
@@ -18,8 +20,10 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 - Readiness tách content coverage khỏi learning progress, chỉ nhận question
   `verified`/owner-approved và cap hai card mỗi lesson để tránh coverage bị thổi
   phồng. Draft chờ duyệt được báo riêng cho owner, không đi vào Focus/Preparation
-  Index. Mock v3 vẫn chỉ có một report gần nhất, chưa account-scope trong
-  localStorage và chưa được cộng vào index.
+  Index. Mock v3 legacy vẫn được giữ nguyên trong key localStorage cũ và không tự
+  gán sang account. Interview Loop v4 dùng key theo account, exact balanced hoặc
+  targeted blueprint, frozen report submission, durable history/cache và scoped
+  canonical debrief; targeted không phát readiness verdict.
 - AI admission reset theo ngày Việt Nam và practice ưu tiên question New.
 - Tiêu đề question trong practice tự giảm cỡ chữ theo độ dài; câu ngắn giữ cỡ
   nổi bật, câu dài dùng typography gọn và line-height thoáng hơn.
@@ -29,8 +33,8 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 - Guide `/learn/cmake` có 16 chương target-based, dùng một TickPlatform xuyên
   suốt từ mental model, code generation và CTest tới packaging, CI và migration
   legacy; baseline thực hành là CMake 3.25.
-- Mock interview WorldQuant có bộ đề versioned và code runner dùng isolated
-  Vercel Sandbox.
+- Mock interview WorldQuant có deterministic role blueprint, hidden code runner
+  trong isolated Vercel Sandbox, deterministic remediation và history delete.
 - App hỗ trợ deck C++, Python và CMake; số lesson/question hiện hữu xem generated
   snapshot, không suy từ việc deck đã enable.
 - Git giữ lesson source; production có pipeline sync derived snapshot và tạo
@@ -53,13 +57,17 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
   distributed systems và ownership. Tick drafts mới không thay đổi coverage cho
   tới khi owner duyệt. Hub phải tiếp tục gọi phần thiếu là `content gap`, không
   đổi thành đánh giá người học yếu khi chưa có evidence đã kiểm chứng.
+- Migration `20260730100000_create_mock_interview_attempts.sql` và secret
+  `MOCK_HISTORY_SUPABASE_SECRET_KEY` phải được cấu hình trước khi bắt đầu mock
+  v4; report fail closed trước runner/AI nếu không giữ được reservation. Migration
+  chưa được repo tự động apply vào remote chỉ vì file tồn tại.
 
 ## Validation gần nhất
 
 - Content check, context refresh/check và `git diff --check`: pass.
 - Lint toàn repo và TypeScript `--noEmit`: pass.
-- Vitest: 48 test files, 241 tests pass.
-- Next.js production build: pass, gồm compile, type-check và 19 generated pages;
+- Vitest: 56 test files, 299 tests pass.
+- Next.js production build: pass, gồm compile, type-check và 20 generated pages;
   `/worldquant` là dynamic route, hai learning guide được prerender static.
 
 ## Quy tắc cập nhật
