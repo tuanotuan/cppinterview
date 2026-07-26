@@ -34,6 +34,7 @@ nhật file context tương ứng theo root `AGENTS.md`.
 | `/` | `web/src/app/page.tsx`, `practice-app.tsx` | Chọn deck, daily/custom study, answer, rating, saved state |
 | `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Bộ đề WorldQuant 30/45/60 phút, report cuối buổi |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx` | Guide tick data/order book |
+| `/learn/cmake` | `learn/cmake/page.tsx`, `lib/learn/cmake-guide.ts` | Guide CMake target-based từ mental model tới CTest, packaging, CI và legacy migration |
 | `/stats` | `stats/page.tsx` | Analytics học tập |
 | `/admin` | `admin/page.tsx`, `admin-dashboard.tsx` | Review/edit/archive question, schedule, AI/job settings |
 | `/auth/*` | `auth/{login,callback,logout}` | GitHub OAuth qua Supabase |

@@ -439,9 +439,12 @@ export function AdminDashboard({
               <p className="text-xs text-[#64736c]">Content & learning operations</p>
             </div>
           </div>
-          <nav className="flex items-center gap-2">
+          <nav className="flex flex-wrap items-center gap-2">
             <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/learn/tick-data-order-book">
               Học Tick data
+            </Link>
+            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/learn/cmake">
+              Học CMake
             </Link>
             <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/stats">
               Thống kê

@@ -1152,6 +1152,7 @@ export function PracticeApp({
             <HeaderNavLink href="/learn/tick-data-order-book">
               Học Tick
             </HeaderNavLink>
+            <HeaderNavLink href="/learn/cmake">Học CMake</HeaderNavLink>
             <SavedItemsControl
               items={savedItems}
               onRemove={deleteSavedItem}
