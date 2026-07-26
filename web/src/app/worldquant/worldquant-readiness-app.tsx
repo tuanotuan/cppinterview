@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useSyncExternalStore } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 
 import {
   MOCK_INTERVIEW_STORAGE_KEY,
@@ -17,6 +17,7 @@ import {
   buildLearningStates,
   type QuestionLearningState,
 } from "@/lib/practice/learning-state";
+import { FOCUS_SESSION_STORAGE_KEY } from "@/lib/practice/focus-session";
 import {
   addDays,
   mergeProgress,
@@ -29,6 +30,11 @@ import {
   subscribeToPracticeProgress,
 } from "@/lib/practice/storage";
 import {
+  buildWorldQuantFocusPlan,
+  type FocusQueueReason,
+  type WorldQuantFocusPlan,
+} from "@/lib/worldquant/focus-plan";
+import {
   buildWorldQuantReadiness,
   DEFAULT_WORLDQUANT_ROLE_PROFILE_ID,
   isValidReadinessDateKey,
@@ -40,8 +46,15 @@ import {
   type CompetencyReadiness,
   type ReadinessHeadlineStatus,
   type ReadinessQuestionSummary,
+  type WorldQuantCompetencyKey,
   type WorldQuantRoleProfileId,
 } from "@/lib/worldquant/readiness";
+
+import {
+  prepareFocusSprint,
+  prepareFocusSprintResume,
+  restoreMatchingFocusSession,
+} from "./focus-sprint";
 
 const HUB_PREFERENCES_STORAGE_KEY = "recall:worldquant-hub:v1";
 const HUB_PREFERENCES_CHANGED_EVENT = "recall:worldquant-hub-changed";
@@ -51,6 +64,11 @@ type HubPreferences = {
   roleId: WorldQuantRoleProfileId;
   targetDate: string;
   minutesPerDay: number;
+};
+
+type FocusFeedback = {
+  competency: WorldQuantCompetencyKey | null;
+  message: string;
 };
 
 const headlineLabels: Record<ReadinessHeadlineStatus, string> = {
@@ -71,6 +89,7 @@ const competencyStatusLabels = {
 
 export function WorldQuantReadinessApp({
   questions,
+  pendingReviewCounts,
   initialCloudProgress,
   initialQuestionStates,
   account,
@@ -79,6 +98,7 @@ export function WorldQuantReadinessApp({
   today,
 }: {
   questions: ReadinessQuestionSummary[];
+  pendingReviewCounts: Partial<Record<WorldQuantCompetencyKey, number>>;
   initialCloudProgress: PracticeProgress;
   initialQuestionStates: QuestionLearningState[];
   account: PracticeAccount | null;
@@ -86,6 +106,8 @@ export function WorldQuantReadinessApp({
   cloudError: boolean;
   today: string;
 }) {
+  const [focusFeedback, setFocusFeedback] =
+    useState<FocusFeedback | null>(null);
   const progressSnapshot = useSyncExternalStore(
     subscribeToPracticeProgress,
     readPracticeProgressSnapshot,
@@ -99,6 +121,11 @@ export function WorldQuantReadinessApp({
   const mockSnapshot = useSyncExternalStore(
     subscribeToMockSession,
     readMockSessionSnapshot,
+    () => null,
+  );
+  const focusSessionSnapshot = useSyncExternalStore(
+    subscribeToFocusSession,
+    readFocusSessionSnapshot,
     () => null,
   );
   const preferences = useMemo(
@@ -157,6 +184,36 @@ export function WorldQuantReadinessApp({
       }),
     [learningStates, preferences.roleId, questions, today],
   );
+  const focusPlan = useMemo(
+    () =>
+      buildWorldQuantFocusPlan({
+        profileId: preferences.roleId,
+        questions,
+        states: learningStates,
+        today,
+        timeBudgetMinutes: preferences.minutesPerDay,
+      }),
+    [
+      learningStates,
+      preferences.minutesPerDay,
+      preferences.roleId,
+      questions,
+      today,
+    ],
+  );
+  const activeFocusSession = useMemo(
+    () =>
+      restoreMatchingFocusSession({
+        raw:
+          focusSessionSnapshot === null ||
+          focusSessionSnapshot === EMPTY_STORAGE_SNAPSHOT
+            ? null
+            : focusSessionSnapshot,
+        profileId: preferences.roleId,
+        questions,
+      }),
+    [focusSessionSnapshot, preferences.roleId, questions],
+  );
   const dailyQueue = useMemo(
     () => {
       const roleQuestionIds = new Set(
@@ -194,7 +251,7 @@ export function WorldQuantReadinessApp({
       (left, right) =>
         right.weight - left.weight || left.key.localeCompare(right.key),
     );
-  const plan = buildTargetPlan({
+  const targetPlan = buildTargetPlan({
     today,
     targetDate: preferences.targetDate,
     minutesPerDay: preferences.minutesPerDay,
@@ -207,6 +264,38 @@ export function WorldQuantReadinessApp({
 
   function updatePreferences(next: Partial<HubPreferences>) {
     writeHubPreferences({ ...preferences, ...next });
+  }
+
+  function startFocusSprint(
+    selectedPlan: WorldQuantFocusPlan,
+    competency: WorldQuantCompetencyKey | null = null,
+  ) {
+    setFocusFeedback(null);
+    const destination = prepareFocusSprint(selectedPlan);
+    if (
+      destination.kind === "practice" ||
+      destination.kind === "guide"
+    ) {
+      window.location.assign(destination.href);
+      return;
+    }
+    setFocusFeedback({ competency, message: destination.message });
+  }
+
+  function resumeFocusSprint() {
+    if (!activeFocusSession) return;
+    setFocusFeedback(null);
+    const destination = prepareFocusSprintResume(activeFocusSession);
+    if (destination.kind === "practice") {
+      window.location.assign(destination.href);
+      return;
+    }
+    if (
+      destination.kind === "storage_error" ||
+      destination.kind === "unavailable"
+    ) {
+      setFocusFeedback({ competency: null, message: destination.message });
+    }
   }
 
   return (
@@ -235,6 +324,9 @@ export function WorldQuantReadinessApp({
             <HeaderLink href="/learn/cmake">Học CMake</HeaderLink>
             <HeaderLink href="/mock-interview">Mock interview</HeaderLink>
             <HeaderLink href="/stats">Thống kê</HeaderLink>
+            {account ? (
+              <HeaderLink href="/admin">Duyệt question</HeaderLink>
+            ) : null}
             {account ? (
               <span className="rounded-full border border-[#173f35]/15 bg-white/65 px-4 py-2 text-xs font-semibold">
                 @{account.login ?? account.displayName}
@@ -342,50 +434,155 @@ export function WorldQuantReadinessApp({
         </section>
 
         <section className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-          <Panel eyebrow="Next action" title="Kế hoạch hôm nay">
-            {dailyQueue.length > 0 ? (
-              <>
-                <p className="mt-3 text-sm leading-6 text-[#64736c]">
-                  Queue dùng đúng giới hạn toàn app: tối đa 1 thẻ mới và 5 thẻ
-                  review, không nhân quota theo từng competency.
-                </p>
-                <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {dailyQueue.map((question, index) => (
-                    <div
-                      key={question.id}
-                      className="rounded-2xl border border-[#173f35]/10 bg-[#fbfaf4] p-4"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <span className="font-mono text-[10px] font-bold text-[#ba4b2f] uppercase">
-                          #{index + 1}
-                        </span>
-                        <span className="text-xs text-[#64736c]">
-                          ~{question.estimatedMinutes} phút
-                        </span>
-                      </div>
-                      <p className="mt-2 font-semibold">
-                        {worldQuantCompetencies[question.competency].shortLabel}
-                      </p>
-                      <p className="mt-1 truncate font-mono text-[11px] text-[#64736c]">
-                        {question.id}
-                      </p>
-                    </div>
-                  ))}
+          <Panel eyebrow="Focus Sprint" title="Queue đúng gap, đúng thứ tự">
+            <p className="mt-3 text-sm leading-6 text-[#64736c]">
+              Planner ưu tiên thẻ quá hạn, relearning và leech trong bank đã
+              duyệt, rồi mới đến thẻ đang học hoặc thẻ mới. Rating vẫn đi qua
+              scheduler bình thường; sprint không tự sửa tiến độ.
+            </p>
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
+              <span className="rounded-full bg-[#edf3e7] px-3 py-1.5 font-bold text-[#356b58]">
+                {focusPlan.questions.length} thẻ · ~
+                {focusPlan.scheduledMinutes} phút
+              </span>
+              <span className="rounded-full border border-[#173f35]/10 px-3 py-1.5 text-[#64736c]">
+                Budget {focusPlan.requestedMinutes} phút · trần{" "}
+                {focusPlan.budgetCeilingMinutes} phút
+              </span>
+              <span className="rounded-full border border-[#173f35]/10 px-3 py-1.5 text-[#64736c]">
+                Daily queue chuẩn: {dailyQueue.length} thẻ
+              </span>
+            </div>
+
+            {activeFocusSession ? (
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#356b58]/20 bg-[#edf3e7] p-4">
+                <div>
+                  <p className="font-semibold">Có một sprint đang làm dở.</p>
+                  <p className="mt-1 text-xs text-[#64736c]">
+                    {activeFocusSession.completedQuestions.length}/
+                    {activeFocusSession.plan.questions.length} thẻ đã xong ·{" "}
+                    {activeFocusSession.remainingQuestions.length} thẻ còn lại
+                  </p>
                 </div>
-              </>
+                <button
+                  type="button"
+                  onClick={resumeFocusSprint}
+                  className="rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white"
+                >
+                  Tiếp tục sprint
+                </button>
+              </div>
+            ) : null}
+
+            {focusPlan.questions.length > 0 ? (
+              <ol className="mt-5 max-h-[32rem] space-y-3 overflow-y-auto pr-1">
+                {focusPlan.questions.map((step, index) => (
+                  <li
+                    key={step.question.id}
+                    className="rounded-2xl border border-[#173f35]/10 bg-[#fbfaf4] p-4"
+                  >
+                    <div className="flex min-w-0 items-start gap-3">
+                      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#f1d6c9] font-mono text-xs font-bold text-[#8e3825]">
+                        {index + 1}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="text-sm font-semibold">
+                            {
+                              worldQuantCompetencies[step.competency]
+                                .shortLabel
+                            }
+                          </p>
+                          <span className="text-[11px] text-[#64736c]">
+                            ~{step.question.estimatedMinutes} phút
+                          </span>
+                        </div>
+                        <p className="mt-1 break-all font-mono text-[11px] text-[#173f35]">
+                          {step.question.id}
+                        </p>
+                        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-[#64736c]">
+                          <span className="font-semibold text-[#8e3825]">
+                            {focusQueueReasonLabel(step.queueReason)}
+                          </span>
+                          <span>{step.question.deckId}</span>
+                          <span>
+                            v{step.question.version} ·{" "}
+                            {step.question.sourceHash.slice(0, 8)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ol>
             ) : (
-              <p className="mt-5 rounded-2xl border border-dashed border-[#173f35]/20 p-5 text-sm text-[#64736c]">
-                Queue hôm nay đã trống. Dùng custom study hoặc làm mock để tiếp
-                tục luyện theo gap.
+              <p className="mt-5 rounded-2xl border border-dashed border-[#173f35]/20 p-5 text-sm leading-6 text-[#64736c]">
+                Không có thẻ đã duyệt nào đủ điều kiện cho sprint hôm nay.
+                Planner sẽ chỉ mở guide thật nếu competency đó có guide; nó
+                không tạo queue giả.
               </p>
             )}
+
+            {focusPlan.fallbacks.length > 0 ? (
+              <div className="mt-5 rounded-2xl border border-[#d08a36]/25 bg-[#fff4df] p-4">
+                <p className="text-xs font-bold text-[#8e5a1f]">
+                  Phần bank chưa phủ đủ
+                </p>
+                <ul className="mt-2 space-y-2 text-xs leading-5 text-[#765c39]">
+                  {focusPlan.fallbacks.map((fallback) => {
+                    const pendingCount =
+                      pendingReviewCounts[fallback.competency] ?? 0;
+                    return (
+                      <li key={fallback.competency}>
+                        <b>
+                          {
+                            worldQuantCompetencies[fallback.competency]
+                              .shortLabel
+                          }
+                          :
+                        </b>{" "}
+                        {fallback.kind === "guide"
+                          ? `${fallback.label} — đây là guide, không phải thẻ đã duyệt.`
+                          : fallback.label}
+                        {pendingCount > 0
+                          ? ` · ${pendingCount} draft đang chờ owner review.`
+                          : ""}
+                      </li>
+                    );
+                  })}
+                </ul>
+                {account &&
+                Object.values(pendingReviewCounts).some(
+                  (count) => (count ?? 0) > 0,
+                ) ? (
+                  <Link
+                    href="/admin"
+                    className="mt-3 inline-flex rounded-xl border border-[#8e5a1f]/20 bg-white/65 px-3 py-2 text-xs font-bold text-[#8e5a1f]"
+                  >
+                    Mở Review Queue
+                  </Link>
+                ) : null}
+              </div>
+            ) : null}
+
+            {focusFeedback?.competency === null ? (
+              <p
+                id="focus-sprint-feedback"
+                role="alert"
+                className="mt-4 rounded-2xl border border-[#ba4b2f]/20 bg-[#f8e8df] px-4 py-3 text-sm text-[#8e3825]"
+              >
+                {focusFeedback.message}
+              </p>
+            ) : null}
+
             <div className="mt-5 flex flex-wrap gap-3">
-              <Link
-                href="/"
+              <button
+                type="button"
+                onClick={() => startFocusSprint(focusPlan)}
                 className="rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#245748]"
               >
-                Bắt đầu review
-              </Link>
+                {focusPlanCtaLabel(focusPlan, Boolean(activeFocusSession))}
+              </button>
               <Link
                 href="/mock-interview"
                 className="rounded-2xl border border-[#173f35]/15 bg-white px-5 py-3 text-sm font-bold transition hover:border-[#356b58]/40"
@@ -438,15 +635,15 @@ export function WorldQuantReadinessApp({
                     Còn lại
                   </p>
                   <p className="mt-2 text-3xl font-semibold">
-                    {plan.daysRemaining} ngày
+                    {targetPlan.daysRemaining} ngày
                   </p>
                 </div>
                 <p className="font-mono text-xs text-white/55">
-                  {plan.availableHours} giờ khả dụng
+                  {targetPlan.availableHours} giờ khả dụng
                 </p>
               </div>
               <p className="mt-4 text-sm leading-6 text-white/72">
-                {plan.message}
+                {targetPlan.message}
               </p>
             </div>
           </Panel>
@@ -488,6 +685,14 @@ export function WorldQuantReadinessApp({
                   (item) => item.key === key,
                 )!;
                 const definition = worldQuantCompetencies[key];
+                const competencyPlan = buildWorldQuantFocusPlan({
+                  profileId: preferences.roleId,
+                  questions,
+                  states: learningStates,
+                  today,
+                  timeBudgetMinutes: preferences.minutesPerDay,
+                  focusCompetency: key,
+                });
                 return (
                   <div
                     key={key}
@@ -504,12 +709,21 @@ export function WorldQuantReadinessApp({
                         </p>
                       </div>
                     </div>
-                    <Link
-                      href={definition.practiceHref}
+                    <button
+                      type="button"
+                      onClick={() => startFocusSprint(competencyPlan, key)}
                       className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-xs font-bold"
                     >
-                      {definition.practiceLabel}
-                    </Link>
+                      {targetedFocusCtaLabel(competencyPlan)}
+                    </button>
+                    {focusFeedback?.competency === key ? (
+                      <p
+                        role="alert"
+                        className="basis-full rounded-xl border border-[#ba4b2f]/20 bg-[#f8e8df] px-3 py-2 text-xs leading-5 text-[#8e3825]"
+                      >
+                        {focusFeedback.message}
+                      </p>
+                    ) : null}
                   </div>
                 );
               })}
@@ -896,6 +1110,25 @@ function readMockSessionSnapshot() {
   }
 }
 
+function subscribeToFocusSession(callback: () => void) {
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === FOCUS_SESSION_STORAGE_KEY) callback();
+  };
+  window.addEventListener("storage", onStorage);
+  return () => window.removeEventListener("storage", onStorage);
+}
+
+function readFocusSessionSnapshot() {
+  try {
+    return (
+      window.localStorage.getItem(FOCUS_SESSION_STORAGE_KEY) ??
+      EMPTY_STORAGE_SNAPSHOT
+    );
+  } catch {
+    return EMPTY_STORAGE_SNAPSHOT;
+  }
+}
+
 function buildTargetPlan({
   today,
   targetDate,
@@ -930,6 +1163,39 @@ function buildTargetPlan({
     message = `Bank còn ${contentGaps} content gap. Dùng guide cho phần thiếu, giữ review hằng ngày và chuyển dần sang mock khi coverage tăng.`;
   }
   return { daysRemaining, availableHours, message };
+}
+
+function focusQueueReasonLabel(reason: FocusQueueReason) {
+  return {
+    due_relearning: "Quá hạn · relearning",
+    due_leech: "Quá hạn · leech",
+    due: "Đến hạn",
+    relearning: "Đang relearning",
+    leech: "Leech cần củng cố",
+    learning: "Đang học",
+    new: "Thẻ mới",
+  }[reason];
+}
+
+function focusPlanCtaLabel(
+  plan: WorldQuantFocusPlan,
+  hasActiveSession: boolean,
+) {
+  if (plan.questions.length > 0) {
+    return hasActiveSession ? "Bắt đầu sprint mới" : "Bắt đầu Focus Sprint";
+  }
+  if (plan.fallbacks.some((fallback) => fallback.kind === "guide")) {
+    return "Mở guide phù hợp";
+  }
+  return "Xem giới hạn content";
+}
+
+function targetedFocusCtaLabel(plan: WorldQuantFocusPlan) {
+  if (plan.questions.length > 0) return "Luyện gap này";
+  if (plan.fallbacks.some((fallback) => fallback.kind === "guide")) {
+    return "Mở guide";
+  }
+  return "Chưa có bank";
 }
 
 function dateDifferenceDays(from: string, to: string) {

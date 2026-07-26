@@ -5,6 +5,7 @@ import { loadCloudContext } from "@/lib/practice/cloud-server";
 import {
   classifyWorldQuantCompetency,
   type ReadinessQuestionSummary,
+  type WorldQuantCompetencyKey,
 } from "@/lib/worldquant/readiness";
 
 import { WorldQuantReadinessApp } from "./worldquant-readiness-app";
@@ -35,6 +36,7 @@ export default async function WorldQuantPage() {
       id: question.id,
       version: question.version,
       sourceHash: question.sourceHash,
+      deckId: question.taxonomy.deckId,
       lessonId: question.lessonId,
       estimatedMinutes: question.estimatedMinutes,
       competency: classifyWorldQuantCompetency({
@@ -49,10 +51,33 @@ export default async function WorldQuantPage() {
           ? "repository_verified"
           : "owner_approved",
     }));
+  const pendingReviewCounts = cloud.manifest.questions
+    .filter(
+      (question) =>
+        question.status !== "archived" &&
+        (question.status === "draft" ||
+          question.status === "needs_review") &&
+        !isQuestionApproved(question, cloud.approvals),
+    )
+    .reduce<Partial<Record<WorldQuantCompetencyKey, number>>>(
+      (counts, question) => {
+        const competency = classifyWorldQuantCompetency({
+          deckId: question.taxonomy.deckId,
+          language: question.taxonomy.language,
+          lessonId: question.lessonId,
+          topics: question.taxonomy.topics,
+          tags: question.taxonomy.tags,
+        });
+        counts[competency] = (counts[competency] ?? 0) + 1;
+        return counts;
+      },
+      {},
+    );
 
   return (
     <WorldQuantReadinessApp
       questions={questions}
+      pendingReviewCounts={pendingReviewCounts}
       initialCloudProgress={cloud.progress}
       initialQuestionStates={cloud.questionStates}
       account={cloud.account}

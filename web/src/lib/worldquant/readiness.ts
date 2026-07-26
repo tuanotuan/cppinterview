@@ -317,6 +317,7 @@ export type ReadinessQuestionSummary = {
   id: string;
   version: number;
   sourceHash: string;
+  deckId: PracticeDeckId;
   lessonId: string;
   estimatedMinutes: number;
   competency: WorldQuantCompetencyKey;

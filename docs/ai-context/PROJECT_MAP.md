@@ -31,8 +31,8 @@ nhật file context tương ứng theo root `AGENTS.md`.
 
 | URL/vùng | Entry point | Chức năng |
 |---|---|---|
-| `/` | `web/src/app/page.tsx`, `practice-app.tsx` | Chọn deck, daily/custom study, answer, rating, saved state |
-| `/worldquant` | `worldquant/page.tsx`, `worldquant-readiness-app.tsx` | Readiness Hub theo role: competency coverage, preparation evidence, daily queue, target date và mock gần nhất |
+| `/` | `web/src/app/page.tsx`, `practice-app.tsx` | Daily/custom study và Focus Sprint exact queue; answer, rating, scheduler, cloud sync và saved state |
+| `/worldquant` | `worldquant/page.tsx`, `worldquant-readiness-app.tsx` | Readiness Hub theo role; deterministic Focus Sprint, content-gap/owner-review checkpoint, target date và mock gần nhất |
 | `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Bộ đề WorldQuant 30/45/60 phút, report cuối buổi |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx` | Guide tick data/order book |
 | `/learn/cmake` | `learn/cmake/page.tsx`, `lib/learn/cmake-guide.ts` | Guide CMake target-based từ mental model tới CTest, packaging, CI và legacy migration |
@@ -59,8 +59,9 @@ API quan trọng:
 | `content` | `loader.ts`, `schema.ts`, `automation.ts` | Parse note, schema Zod, discover lesson, sinh manifest |
 | `content` | `question-store-server.ts` | Chọn `repo`/`shadow`/`db`, parity, apply override |
 | `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts` | Queue Anki, rating, due date, streak và browser progress store |
+| `practice` | `focus-session.ts`, `focus-eligibility.ts` | Session Focus Sprint identity-only, resume/reconcile/completion và lọc exact approved refs |
 | `practice` | `cloud-server.ts`, `cloud.ts` | Ghép auth, progress, approval, overrides, usage, manifest |
-| `worldquant` | `readiness.ts` | Role profiles, taxonomy classifier, competency targets/weights và công thức preparation evidence |
+| `worldquant` | `readiness.ts`, `focus-plan.ts` | Role/competency model, preparation evidence và planner queue deterministic theo gap/time budget |
 | `ai` | `openai.ts`, `gemini.ts`, `fallback.ts` | Provider calls và fallback |
 | `ai` | `budget.ts`, `usage.ts`, `billing.ts` | Admission daily, accounting monthly, Costs API reconciliation |
 | `mock-interview` | `profile.ts`, `session.ts`, `contracts.ts` | Bộ đề versioned, local session, report schema |
@@ -102,6 +103,17 @@ competency → browser merge local/cloud progress → learning evidence theo Ank
 (content bank đã kiểm chứng) khỏi `Preparation Index` (bằng chứng người học đã tích
 lũy), nên thiếu content không bị diễn giải thành điểm yếu cá nhân. Mock report gần
 nhất chỉ hiển thị riêng, chưa trộn vào index.
+
+### WorldQuant Focus Sprint
+
+Hub dùng role weight, competency gap và Anki state để chốt một plan tối đa 110%
+time budget. Plan chỉ chứa question identity/version/source hash/deck, giữ nguyên
+thứ tự qua nhiều deck và chỉ lấy card `verified`/owner-approved. Hub ghi session
+local trước khi hard-navigate tới Practice; Practice reconcile exact identity,
+suspended và reviewed-today rồi dùng rating/scheduler/cloud path bình thường để
+tiến queue. Session dùng optimistic revision check để tab cũ không phục hồi queue
+đã tiến ở tab khác. Khi bank thiếu coverage, Hub mở guide thật hoặc báo content
+gap/draft chờ owner review, không tạo queue giả.
 
 ### AI coach
 

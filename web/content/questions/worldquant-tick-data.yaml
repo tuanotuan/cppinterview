@@ -1,0 +1,295 @@
+schemaVersion: 1
+questions:
+  - id: cpp20-tick-binary-parsing-001
+    lessonId: cpp20-tick-event-model-and-binary-parsing
+    type: code_reasoning
+    difficulty: advanced
+    estimatedMinutes: 5
+    prompt: >-
+      Feed handler dưới đây có thể sai dù `packet.size() >= sizeof(AddMessage)`.
+      Hãy chỉ ra các lỗi và mô tả thứ tự parse/validate an toàn trước khi publish
+      normalized event.
+    code: |-
+      const auto& message =
+          *reinterpret_cast<const AddMessage*>(packet.data());
+      return AddOrder{
+          message.order_id,
+          message.price,
+          message.quantity,
+          message.side == 'B'
+      };
+    hint: >-
+      Byte trên wire không tự có alignment, object lifetime, padding hay byte
+      order giống C++ object.
+    answer:
+      short: >-
+        Không được xem byte mạng là `AddMessage`. Cần kiểm tra record length và
+        type, đọc từng field có bounds check, đổi endianness, kiểm tra
+        fixed-point/enum/context, rồi mới tạo và publish `AddOrder`.
+      detailed: >-
+        `reinterpret_cast` có thể tạo truy cập lệch alignment, phụ thuộc
+        compiler padding/ABI, đọc sai network byte order và giả định một C++
+        object đã tồn tại trong buffer. Kiểm tra `sizeof` cũng không chứng minh
+        layout wire khớp struct hoặc mọi offset hợp lệ cho message type. Parser
+        nên nhận `std::span<const std::byte>`, xác nhận length và type trước,
+        decode từng field theo specification, kiểm tra overflow khi đổi
+        fixed-point, validate side/flag và instrument/session context, rồi gắn
+        sequence cùng timestamps. Parse error phải giữ evidence và không mutate
+        book hay publish event nửa đúng.
+    rubric:
+      required:
+        - Nêu rủi ro alignment, padding/ABI và C++ object lifetime.
+        - Nêu việc phải decode đúng network byte order.
+        - Kiểm tra length và message type trước khi đọc field offsets.
+        - Validate fixed-point, enum/flag và context trước khi publish.
+        - Parse lỗi không được mutate downstream state.
+      bonus:
+        - Đề xuất parser nhận `std::span<const std::byte>`.
+        - Nhắc giữ raw record/offset để replay và debug.
+      misconceptions:
+        - "`#pragma pack` làm cho phép cast này hoàn toàn an toàn."
+        - "Chỉ cần packet đủ `sizeof(AddMessage)` là mọi field đều hợp lệ."
+    sources:
+      - sectionId: binary-wire-data-is-not-a-c-struct
+      - sectionId: validation-before-normalization
+    sourceHash: d32976e4eb9d4efca1d8ed174a6b008f5309800fb54bc5d7324f5e060f38e48b
+    status: draft
+    version: 1
+
+  - id: cpp20-tick-event-lifetime-001
+    lessonId: cpp20-tick-event-model-and-binary-parsing
+    type: scenario
+    difficulty: advanced
+    estimatedMinutes: 4
+    prompt: >-
+      Một parser zero-copy đặt `std::span` và `std::string_view` trỏ vào receive
+      buffer trong event, rồi chuyển event sang consumer bất đồng bộ. Điều kiện
+      nào phải đúng để thiết kế này an toàn?
+    hint: >-
+      So sánh lifetime của receive buffer với lifetime của mọi consumer và lần
+      tái sử dụng buffer tiếp theo.
+    answer:
+      short: >-
+        Buffer phải còn sống, không bị tái sử dụng hay sửa cho tới khi consumer
+        cuối cùng xong; ownership và synchronization phải được chứng minh. Nếu
+        không, hãy copy các field nhỏ vào value event.
+      detailed: >-
+        `span` và `string_view` không sở hữu dữ liệu. Event sẽ dangling hoặc thấy
+        bytes của packet khác nếu receive buffer hết lifetime hay được tái sử
+        dụng trước consumer. Thiết kế zero-copy cần ownership rõ ràng, cơ chế giữ
+        buffer sống, quy tắc immutable và đồng bộ với mọi consumer. Boundary an
+        toàn mặc định là copy những field normalized nhỏ cần thiết vào value
+        object. Chỉ giữ zero-copy khi benchmark chứng minh lợi ích đủ lớn và
+        lifetime contract được kiểm thử.
+    rubric:
+      required:
+        - Nêu `span` và `string_view` không sở hữu dữ liệu.
+        - Buffer phải sống lâu hơn mọi consumer.
+        - Buffer không được tái sử dụng hoặc mutate trong thời gian đó.
+        - Đề xuất copy field cần thiết khi ownership chưa được bảo đảm.
+      bonus:
+        - Yêu cầu benchmark trước khi nhận thêm độ phức tạp zero-copy.
+        - Nhắc normalized event vẫn cần provenance để replay/debug.
+      misconceptions:
+        - "`const std::span` tự kéo dài lifetime của receive buffer."
+        - "Zero-copy luôn nhanh hơn nên không cần đo."
+    sources:
+      - sectionId: a-normalized-event-model
+      - sectionId: session-scope-and-lifetime
+    sourceHash: d32976e4eb9d4efca1d8ed174a6b008f5309800fb54bc5d7324f5e060f38e48b
+    status: draft
+    version: 1
+
+  - id: cpp20-mbo-replace-transaction-001
+    lessonId: cpp20-market-by-order-reconstruction
+    type: scenario
+    difficulty: advanced
+    estimatedMinutes: 5
+    prompt: >-
+      Book có order 10: bid 100.25 x 80. Feed gửi replace `10 -> 77`, giá
+      100.30, lượng 50. Hãy mô tả transition atomic, ảnh hưởng priority và cách
+      xử lý nếu ID 77 đã tồn tại.
+    hint: >-
+      Replace tạo identity mới; validate toàn bộ trước khi chạm order index hay
+      aggregate levels.
+    answer:
+      short: >-
+        Validate old ID tồn tại và new ID chưa tồn tại trước. Nếu hợp lệ, trừ 80
+        ở 100.25, xóa ID 10, cộng 50 ở 100.30 và tạo ID 77 theo priority rule của
+        venue. Nếu 77 đã tồn tại, reject mà không đổi state.
+      detailed: >-
+        Replace phải kế thừa side, instrument và metadata không được message gửi
+        lại, nhưng old identity chấm dứt. Toàn bộ điều kiện về old/new ID,
+        quantity, price, session và index phải được kiểm tra trước mutation. Sau
+        commit, không được đồng thời còn ID 10 và 77; aggregate mỗi level phải
+        bằng tổng live orders. Với simple price-time, order mới thường đi vào vị
+        trí priority theo contract của venue, không sửa ID tại chỗ để giữ queue
+        position. Bất kỳ validation failure nào cũng phải giữ nguyên state hash.
+    rubric:
+      required:
+        - Validate old ID tồn tại và ID 77 chưa tồn tại trước mutation.
+        - Trừ toàn bộ 80 khỏi level 100.25 và xóa ID 10.
+        - Thêm 50 tại 100.30 với identity 77.
+        - Không mặc định giữ queue priority bằng cách sửa ID tại chỗ.
+        - Collision ID 77 phải fail mà state không đổi.
+      bonus:
+        - Nhắc replace kế thừa side/instrument từ old order theo ITCH.
+        - Nêu invariant aggregate level bằng tổng quantity của live orders.
+      misconceptions:
+        - "Replace chỉ cần đổi key 10 thành 77 trong hash map."
+        - "Có thể trừ old level trước rồi validate new ID sau."
+    sources:
+      - sectionId: apply-the-venue-lifecycle-exactly
+      - sectionId: aggregate-indexes-and-order-priority
+      - sectionId: transactional-update-and-fail-closed
+      - sectionId: invariants-and-failure-policy
+    sourceHash: c3bec6fc544f4f68b17d88c75d0ef222ea637c454c6b2f03781c827ec37ce25b
+    status: draft
+    version: 1
+
+  - id: cpp20-mbp-metadata-invariants-001
+    lessonId: cpp20-market-by-price-and-book-invariants
+    type: pitfall
+    difficulty: advanced
+    estimatedMinutes: 5
+    prompt: >-
+      Vì sao `depth = 10` và invariant `best_bid <= best_ask` dùng chung cho mọi
+      instrument có thể làm MBP builder sai? Hãy nêu publication contract phù
+      hợp hơn.
+    hint: >-
+      Depth và price convention có thể là instrument metadata; inverted book
+      đổi cả ordering lẫn plausibility check.
+    answer:
+      short: >-
+        Depth và normal/inverted convention phải lấy từ versioned instrument
+        metadata. Comparator lẫn plausibility check phải theo metadata, và chỉ
+        publish một generation nhất quán kèm sequence, status và metadata
+        revision.
+      detailed: >-
+        Các instrument trên cùng channel có thể có market depth khác nhau, nên
+        hard-code 10 sẽ cắt hoặc diễn giải sai levels. Với inverted book, không
+        chỉ đảo dấu kiểm tra bid/ask: cách chọn best level cũng phải dùng
+        comparator đúng cho instrument. Locked, crossed hay auction state còn
+        cần diễn giải theo feed contract, không được tự xóa level để làm book
+        trông hợp lý. Downstream nên nhận immutable snapshot/version hoặc atomic
+        buffer swap, kèm last applied sequence, synchronized/suspect status,
+        channel/session và instrument-definition revision; không được thấy bid
+        từ generation mới nhưng ask từ generation cũ.
+    rubric:
+      required:
+        - Depth phải đến từ instrument metadata thay vì constant toàn channel.
+        - Inverted book cần comparator chọn best level theo metadata.
+        - Plausibility invariant cũng phải nhận instrument metadata.
+        - Không tự sửa book bằng cách xóa level đáng ngờ.
+        - Publication phải atomic và kèm synchronization/version metadata.
+      bonus:
+        - Phân biệt locked với crossed book.
+        - Nhắc consumer không được thấy hai phía từ hai generations khác nhau.
+      misconceptions:
+        - "Chỉ đảo `<=` thành `>=` là hỗ trợ đầy đủ inverted book."
+        - "Level không có trong snapshot luôn có quantity bằng zero."
+    sources:
+      - sectionId: book-depth-is-instrument-metadata
+      - sectionId: locked-crossed-and-inverted-books
+      - sectionId: publication-contract
+    sourceHash: 1c27869730672295f0876a2be05a572c5183212f0567b9adf0a550b9ee95a1d4
+    status: draft
+    version: 1
+
+  - id: cpp20-feed-arbitration-recovery-001
+    lessonId: cpp20-sequencing-gaps-and-recovery
+    type: scenario
+    difficulty: advanced
+    estimatedMinutes: 6
+    prompt: >-
+      Feed A đến `100, 101, 103`; Feed B đến `100, 101, 102, 103`. Sequencer
+      phải phát gì, xử lý duplicate thế nào và làm gì nếu 102 không đến trước
+      khi buffer/deadline chạm giới hạn?
+    hint: >-
+      Hai feed tạo một logical stream; packet ahead phải chờ trong bounded
+      buffer chứ không được apply vượt gap.
+    answer:
+      short: >-
+        Chỉ phát `100, 101, 102, 103` một lần. Giữ 103 trong bounded buffer khi
+        chờ 102, bỏ bản duplicate đã apply; nếu không nối được gap trong giới
+        hạn, dừng publish phạm vi lỗi và chuyển sang replay hoặc snapshot
+        recovery.
+      detailed: >-
+        Arbitrator key theo channel/session/sequence và nhận bản đầu tiên của
+        expected sequence. Khi thấy 103 trong lúc expected là 102, nó không apply
+        103 mà đánh dấu channel out-of-sync, buffer packet ahead có byte/window/
+        deadline limit và chờ Feed B hoặc retransmission. Khi 102 đến, apply 102
+        rồi drain 103 liên tục; bản 103 còn lại là duplicate. Nếu buffer overflow
+        hoặc replay không còn, bỏ staging state và bootstrap generation mới từ
+        snapshot, nối snapshot với queued live increments bằng cutover metadata,
+        validate rồi atomic publish. Không sort theo timestamp để lấp gap.
+    rubric:
+      required:
+        - Logical output có mỗi sequence 100 đến 103 đúng một lần.
+        - Không apply 103 trước 102.
+        - Buffer ahead packet phải có byte/window/deadline limit.
+        - Duplicate từ feed còn lại không được mutate state lần hai.
+        - Gap không phục hồi được phải dừng publish và dùng replay/snapshot recovery.
+      bonus:
+        - Nhắc snapshot cần cutover metadata và atomic generation swap.
+        - Phân biệt sequence unit theo protocol thay vì dùng phép tăng universal.
+      misconceptions:
+        - "Apply cả A và B để tăng độ tin cậy."
+        - "Có thể sort 102 và 103 theo timestamp sau khi nhận đủ."
+    sources:
+      - sectionId: redundant-feed-arbitration
+      - sectionId: live-gap-handling
+      - sectionId: small-replay-versus-full-recovery
+      - sectionId: snapshot-incremental-cutover
+    sourceHash: c788b88e63939897efc9e22e8f1c766cc65161b35ac2daf6762a4b45ea1d64d4
+    status: draft
+    version: 1
+
+  - id: cpp20-trade-correction-bar-revision-001
+    lessonId: cpp20-trade-statistics-timestamps-and-corrections
+    type: scenario
+    difficulty: advanced
+    estimatedMinutes: 6
+    prompt: >-
+      Một printable trade tạo high của bar `[10:00, 10:01)`. Sau khi bar đã
+      publish, feed gửi break cho trade đó. Pipeline phải giữ state và phát kết
+      quả sửa như thế nào?
+    hint: >-
+      Cần scoped trade identity, reversible contribution và versioned output;
+      timestamp chọn bucket nhưng sequence quyết định application order.
+    answer:
+      short: >-
+        Tìm accepted trade bằng identity có scope, undo volume/turnover và price
+        occurrence, recompute OHLC nếu cần, rồi phát bar revision mới với reason
+        `trade_break`; không overwrite âm thầm hay tạo negative volume.
+      detailed: >-
+        Pipeline phải lưu trade identity trong đúng namespace cùng contribution
+        đã chấp nhận và ordering key cho open/close. Break hợp lệ trừ quantity và
+        checked turnover, loại price occurrence rồi recompute high cùng các giá
+        trị OHLC bị ảnh hưởng. Output dùng cùng BarKey nhưng revision tăng đơn
+        điệu và giữ reason/audit record. Unknown break phải được flag vì có thể
+        do gap, retention hoặc duplicate, không được trừ mù. Exchange/source
+        event time theo policy chọn bucket `[start, end)`, còn protocol sequence
+        giữ application order deterministic. Receive/send/process clocks vẫn
+        được lưu riêng để đo latency và replay.
+    rubric:
+      required:
+        - Lookup trade bằng identity có venue/session/instrument/namespace scope.
+        - Undo volume, turnover và price occurrence của trade gốc.
+        - Recompute high và các OHLC fields bị ảnh hưởng.
+        - Phát revision mới có reason thay vì overwrite không audit.
+        - Timestamp chọn interval còn sequence giữ application order.
+      bonus:
+        - Unknown break không được tạo negative volume.
+        - Phân biệt source/send/receive/processing clocks.
+      misconceptions:
+        - "Trade break mutate current order book để hoàn tác execution."
+        - "Chỉ cần trừ volume; high/low/open/close không cần xét lại."
+    sources:
+      - sectionId: correctable-trade-state
+      - sectionId: interval-boundaries
+      - sectionId: multiple-clocks-not-one-magic-timestamp
+      - sectionId: late-data-and-versioned-output
+    sourceHash: 62b2ce4d0bece64b03d5104bd7933e41cc2901896238f4c6363a159c61367b7a
+    status: draft
+    version: 1
