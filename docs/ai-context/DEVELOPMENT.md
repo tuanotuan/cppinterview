@@ -66,6 +66,8 @@ Supabase, rồi enqueue/generate DB-native drafts. Không dùng `content:auto` h
 - Contract đầy đủ: `web/content/README.md`.
 - YAML Git-owned: `web/content/questions/*.yaml`.
 - Question mới bắt đầu ở `draft`; `verified` cần review người.
+- Có thể thêm tranche Git-owned đã viết/review nguồn thủ công, nhưng vẫn phải để
+  `draft`; không dùng cách này để giả lập production AI generation.
 - Approval phải bind đúng `version` và `sourceHash`.
 - Sửa nội dung làm tăng version và vô hiệu approval cũ.
 - “Delete” ở Admin là archive overlay, không xóa history.
@@ -135,6 +137,10 @@ service-role-only/browser grants như contract hiện tại.
 - Zod schema là boundary cho manifest, API body và AI structured output.
 - Giữ stable IDs, immutable audit history và source/version/hash binding.
 - Đừng cho stale/archived/unapproved question vào practice hoặc AI coach.
+- Focus Sprint chỉ persist exact question identity/version/hash/deck, không
+  prompt/answer; chỉ reconcile với approved bank. Rating vẫn phải đi qua
+  scheduler/cloud path chuẩn trước khi tiến session, và mọi local session write
+  phải kiểm tra đúng revision để tab cũ không ghi đè queue mới.
 - OpenAI admission theo ngày Việt Nam; monthly row là accounting/backstop, không
   được khóa nhầm ngày mới.
 - Daily web allowance chỉ dùng cost do interactive coach/report finalization

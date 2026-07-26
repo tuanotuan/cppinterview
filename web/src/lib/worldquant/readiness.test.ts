@@ -400,6 +400,7 @@ function question({
     id,
     version: 1,
     sourceHash: "a".repeat(64),
+    deckId: "cpp-interview",
     lessonId,
     estimatedMinutes: 5,
     competency,

@@ -1,6 +1,7 @@
 import { isQuestionApproved } from "@/lib/practice/approvals";
 import { loadCloudContext } from "@/lib/practice/cloud-server";
 import { parsePracticeDeck } from "@/lib/content/decks";
+import { parseFocusSessionId } from "@/lib/practice/focus-session";
 
 import { PracticeApp, type PracticeQuestion } from "./practice-app";
 
@@ -12,6 +13,7 @@ export default async function Home({
   searchParams: Promise<{
     auth?: string | string[];
     deck?: string | string[];
+    focus?: string | string[];
   }>;
 }) {
   const cloud = await loadCloudContext({
@@ -23,6 +25,12 @@ export default async function Home({
   const params = await searchParams;
   const authCode = Array.isArray(params.auth) ? params.auth[0] : params.auth;
   const deckParam = Array.isArray(params.deck) ? params.deck[0] : params.deck;
+  const focusParam = Array.isArray(params.focus)
+    ? params.focus[0]
+    : params.focus;
+  const requestedFocusId = parseFocusSessionId(focusParam);
+  const invalidFocusRequest =
+    focusParam !== undefined && requestedFocusId === null;
   const lessons = new Map(manifest.lessons.map((lesson) => [lesson.id, lesson]));
 
   const mappedQuestions: PracticeQuestion[] = manifest.questions
@@ -66,6 +74,10 @@ export default async function Home({
 
   return (
     <PracticeApp
+      key={
+        requestedFocusId ??
+        (invalidFocusRequest ? "invalid-focus" : "normal-practice")
+      }
       questions={questions}
       reviewQueue={reviewQueue}
       sourceRevision={manifest.sourceRevision}
@@ -77,6 +89,8 @@ export default async function Home({
       initialAiDailyBudget={cloud.aiDailyBudget}
       authNotice={authNotice(authCode)}
       initialDeck={parsePracticeDeck(deckParam)}
+      requestedFocusId={requestedFocusId}
+      invalidFocusRequest={invalidFocusRequest}
     />
   );
 }

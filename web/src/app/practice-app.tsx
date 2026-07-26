@@ -44,6 +44,16 @@ import {
   buildCustomStudyQueue,
   type CustomStudyFilters,
 } from "@/lib/practice/custom-study";
+import { focusEligibleQuestionIdentities } from "@/lib/practice/focus-eligibility";
+import {
+  completeFocusSessionQuestion,
+  FOCUS_SESSION_STORAGE_KEY,
+  parseFocusSession,
+  reconcileFocusSession,
+  sameFocusSessionRevision,
+  serializeFocusSession,
+  type FocusSession,
+} from "@/lib/practice/focus-session";
 import { scenarioEditorConfig } from "@/lib/practice/scenario-editor";
 import {
   parseSavedItems,
@@ -83,6 +93,11 @@ import {
   scheduleQuestionReview,
   type QuestionLearningState,
 } from "@/lib/practice/learning-state";
+import type { FocusQueueReason } from "@/lib/worldquant/focus-plan";
+import {
+  worldQuantCompetencies,
+  type WorldQuantCompetencyKey,
+} from "@/lib/worldquant/readiness";
 
 const STUDY_SESSION_KEY = "cpp-recall:study-session:v1";
 
@@ -99,6 +114,12 @@ const MonacoCodeEditor = dynamic(
   },
 );
 type SyncStatus = "local" | "syncing" | "synced" | "error";
+type FocusHydrationStatus =
+  | "idle"
+  | "loading"
+  | "ready"
+  | "missing"
+  | "storage_error";
 type FollowUpChatMessage = {
   role: "user" | "assistant";
   content: string;
@@ -163,6 +184,8 @@ export function PracticeApp({
   initialAiDailyBudget,
   authNotice,
   initialDeck,
+  requestedFocusId,
+  invalidFocusRequest,
 }: {
   questions: PracticeQuestion[];
   reviewQueue: PracticeQuestion[];
@@ -175,7 +198,10 @@ export function PracticeApp({
   initialAiDailyBudget: AiDailyBudgetSnapshot | null;
   authNotice: string | null;
   initialDeck: PracticeDeckId;
+  requestedFocusId: string | null;
+  invalidFocusRequest: boolean;
 }) {
+  const hasFocusRequest = requestedFocusId !== null || invalidFocusRequest;
   const snapshot = useSyncExternalStore(
     subscribeToProgress,
     getProgressSnapshot,
@@ -224,6 +250,17 @@ export function PracticeApp({
   );
   const [customStudyIds, setCustomStudyIds] = useState<string[] | null>(null);
   const [customStudyNotice, setCustomStudyNotice] = useState<string | null>(null);
+  const [focusSession, setFocusSession] = useState<FocusSession | null>(null);
+  const [focusHydrationStatus, setFocusHydrationStatus] =
+    useState<FocusHydrationStatus>(
+      requestedFocusId
+        ? "loading"
+        : invalidFocusRequest
+          ? "missing"
+          : "idle",
+    );
+  const [focusStaleDroppedCount, setFocusStaleDroppedCount] = useState(0);
+  const [focusNotice, setFocusNotice] = useState<string | null>(null);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>(() =>
     cloudSetupError ? "error" : account ? "syncing" : "local",
   );
@@ -237,6 +274,7 @@ export function PracticeApp({
   >("idle");
   const initialSyncStarted = useRef(false);
   const sessionHydrationStarted = useRef(false);
+  const focusHydrationStarted = useRef<string | null>(null);
   const scrollToRatingWhenAvailable = useRef(false);
   const pendingSessionSaveRef = useRef<(() => void) | null>(null);
   const [sessionHydrated, setSessionHydrated] = useState(false);
@@ -521,6 +559,213 @@ export function PracticeApp({
   }, [account, initialCloudProgress, initialQuestionStates, snapshot]);
 
   const today = localDateKey();
+  const focusProgressReviews = useMemo(() => {
+    const resetCutoffs = new Map(
+      initialQuestionStates
+        .filter((state) => state.historyResetOn)
+        .map((state) => [state.questionId, state.historyResetOn!]),
+    );
+    return mergeProgress(initialCloudProgress, progress).reviews.filter(
+      (review) => {
+        const resetOn = resetCutoffs.get(review.questionId);
+        return !resetOn || review.reviewedOn > resetOn;
+      },
+    );
+  }, [initialCloudProgress, initialQuestionStates, progress]);
+  const {
+    allLatest,
+    allLearningStates,
+    allQuestionById,
+    allQuestionIdentities,
+  } = useMemo(() => {
+    const questionIds = new Set(
+      availableQuestions.map((question) => question.id),
+    );
+    const reviews = focusProgressReviews.filter((review) =>
+      questionIds.has(review.questionId),
+    );
+    return {
+      allLatest: latestReviews(reviews),
+      allLearningStates: buildLearningStates(
+        availableQuestions.map((question) => ({
+          id: question.id,
+          version: question.version,
+          sourceHash: question.sourceHash,
+        })),
+        reviews,
+        cloudQuestionStates.filter((state) =>
+          questionIds.has(state.questionId),
+        ),
+      ),
+      allQuestionById: new Map(
+        availableQuestions.map((question) => [question.id, question]),
+      ),
+      allQuestionIdentities: availableQuestions.map((question) => ({
+        id: question.id,
+        version: question.version,
+        sourceHash: question.sourceHash,
+        deckId: question.taxonomy.deckId,
+      })),
+    };
+  }, [availableQuestions, cloudQuestionStates, focusProgressReviews]);
+
+  useEffect(() => {
+    if (
+      !requestedFocusId ||
+      snapshot === null ||
+      focusHydrationStarted.current === requestedFocusId
+    ) {
+      return;
+    }
+    focusHydrationStarted.current = requestedFocusId;
+    setFocusHydrationStatus("loading");
+
+    try {
+      const stored = parseFocusSession(
+        window.localStorage.getItem(FOCUS_SESSION_STORAGE_KEY),
+      );
+      if (!stored || stored.sessionId !== requestedFocusId) {
+        setFocusSession(null);
+        setFocusHydrationStatus("missing");
+        return;
+      }
+
+      const completedIds = new Set(
+        stored.completedQuestions.map((question) => question.id),
+      );
+      const reconciled = reconcileFocusSession(
+        stored,
+        focusEligibleQuestionIdentities({
+          questions: allQuestionIdentities,
+          learningStates: allLearningStates,
+          latest: allLatest,
+          completedQuestionIds: completedIds,
+          today,
+        }),
+      );
+      let hydratedSession = reconciled.session;
+      let hydratedStaleDroppedCount = reconciled.staleDroppedCount;
+
+      if (reconciled.staleDroppedCount > 0) {
+        const currentStored = parseFocusSession(
+          window.localStorage.getItem(FOCUS_SESSION_STORAGE_KEY),
+        );
+        if (sameFocusSessionRevision(currentStored, stored)) {
+          window.localStorage.setItem(
+            FOCUS_SESSION_STORAGE_KEY,
+            serializeFocusSession(reconciled.session),
+          );
+        } else {
+          if (currentStored?.sessionId === requestedFocusId) {
+            hydratedSession = currentStored;
+            hydratedStaleDroppedCount = 0;
+          }
+          setFocusNotice(
+            "Sprint đã tiến ở tab khác. Tab này đã dùng revision mới hơn và không ghi đè queue cũ.",
+          );
+        }
+      }
+      setFocusSession(hydratedSession);
+      setFocusStaleDroppedCount(hydratedStaleDroppedCount);
+      setFocusHydrationStatus("ready");
+      setSelectedQuestionId(null);
+      setCustomStudyIds(null);
+      setCustomStudyNotice(null);
+
+      const nextQuestion = hydratedSession.remainingQuestions[0];
+      if (hydratedSession.status === "active" && nextQuestion) {
+        setRequestedDeck(nextQuestion.deckId);
+        setSelectedDeck(nextQuestion.deckId);
+        const url = new URL(window.location.href);
+        url.searchParams.set("deck", nextQuestion.deckId);
+        window.history.replaceState(null, "", url);
+      }
+    } catch {
+      setFocusSession(null);
+      setFocusHydrationStatus("storage_error");
+    }
+  }, [
+    allLatest,
+    allLearningStates,
+    allQuestionIdentities,
+    requestedFocusId,
+    snapshot,
+    today,
+  ]);
+
+  useEffect(() => {
+    if (
+      focusHydrationStatus !== "ready" ||
+      focusSession?.status !== "active" ||
+      !requestedFocusId
+    ) {
+      return;
+    }
+
+    const completedIds = new Set(
+      focusSession.completedQuestions.map((question) => question.id),
+    );
+    const reconciled = reconcileFocusSession(
+      focusSession,
+      focusEligibleQuestionIdentities({
+        questions: allQuestionIdentities,
+        learningStates: allLearningStates,
+        latest: allLatest,
+        completedQuestionIds: completedIds,
+        today,
+      }),
+    );
+    if (reconciled.staleDroppedCount === 0) return;
+
+    let sessionForTab = reconciled.session;
+    let staleDroppedCount = reconciled.staleDroppedCount;
+    try {
+      const stored = parseFocusSession(
+        window.localStorage.getItem(FOCUS_SESSION_STORAGE_KEY),
+      );
+      if (sameFocusSessionRevision(stored, focusSession)) {
+        window.localStorage.setItem(
+          FOCUS_SESSION_STORAGE_KEY,
+          serializeFocusSession(reconciled.session),
+        );
+      } else {
+        if (stored?.sessionId === requestedFocusId) {
+          sessionForTab = stored;
+          staleDroppedCount = 0;
+        }
+        setFocusNotice(
+          "Sprint đã tiến ở tab khác. Tab này đã dùng revision mới hơn và không ghi đè queue cũ.",
+        );
+      }
+    } catch {
+      setFocusNotice(
+        "Queue đã được đối chiếu trong tab này nhưng trình duyệt không lưu được thay đổi.",
+      );
+    }
+    setFocusSession(sessionForTab);
+    const sessionHead = sessionForTab.remainingQuestions[0];
+    if (sessionForTab.status === "active" && sessionHead) {
+      setRequestedDeck(sessionHead.deckId);
+      setSelectedDeck(sessionHead.deckId);
+      const url = new URL(window.location.href);
+      url.searchParams.set("deck", sessionHead.deckId);
+      window.history.replaceState(null, "", url);
+    }
+    if (staleDroppedCount > 0) {
+      setFocusStaleDroppedCount(
+        (current) => current + staleDroppedCount,
+      );
+    }
+  }, [
+    allLatest,
+    allLearningStates,
+    allQuestionIdentities,
+    focusHydrationStatus,
+    focusSession,
+    requestedFocusId,
+    today,
+  ]);
+
   const {
     activeDeck,
     completedToday,
@@ -619,26 +864,40 @@ export function PracticeApp({
   const selectedQuestion = selectedQuestionId
     ? questionById.get(selectedQuestionId)
     : undefined;
+  const focusQuestionRef =
+    focusHydrationStatus === "ready" && focusSession?.status === "active"
+      ? focusSession.remainingQuestions[0]
+      : undefined;
+  const focusQuestion = focusQuestionRef
+    ? allQuestionById.get(focusQuestionRef.id)
+    : undefined;
+  const isFocusActive = Boolean(focusQuestionRef && focusQuestion);
   const customRemainingIds = (customStudyIds ?? []).filter(
     (questionId) =>
       questionById.has(questionId) &&
       latest.get(questionId)?.reviewedOn !== today,
   );
-  const current =
+  const normalCurrent =
     selectedQuestion && latest.get(selectedQuestion.id)?.reviewedOn !== today
       ? selectedQuestion
       : customStudyIds
         ? questionById.get(customRemainingIds[0])
         : questionById.get(remainingIds[0]);
+  const current = isFocusActive ? focusQuestion : normalCurrent;
   const currentPrompt = current ? displayQuestionPrompt(current) : "";
   const currentLearningState = current
-    ? learningStates.get(current.id)
+    ? isFocusActive
+      ? allLearningStates.get(current.id)
+      : learningStates.get(current.id)
     : undefined;
   const isRandomQuestion = Boolean(
-    current && selectedQuestionId === current.id && !remainingIds.includes(current.id),
+    !isFocusActive &&
+      current &&
+      selectedQuestionId === current.id &&
+      !remainingIds.includes(current.id),
   );
   const isCustomStudyQuestion = Boolean(
-    current && customStudyIds?.includes(current.id),
+    !isFocusActive && current && customStudyIds?.includes(current.id),
   );
   const randomCandidates = deckQuestions.filter(
     (question) =>
@@ -653,6 +912,18 @@ export function PracticeApp({
       )
     : undefined;
   const dailyTotal = completedToday + remainingIds.length;
+  const focusQueueTotal = focusSession
+    ? focusSession.completedQuestions.length +
+      focusSession.remainingQuestions.length
+    : 0;
+  const focusPosition = focusSession
+    ? Math.min(focusSession.completedQuestions.length + 1, focusQueueTotal)
+    : 0;
+  const focusStep = current
+    ? focusSession?.plan.questions.find(
+        (step) => step.question.id === current.id,
+      )
+    : undefined;
 
   async function approveAllPending() {
     if (!selectedPendingReview.length || approvalStatus === "saving") return;
@@ -689,6 +960,36 @@ export function PracticeApp({
     }
   }
 
+  function persistFocusSessionIfCurrent(
+    baseSession: FocusSession,
+    nextSession: FocusSession,
+  ) {
+    try {
+      const stored = parseFocusSession(
+        window.localStorage.getItem(FOCUS_SESSION_STORAGE_KEY),
+      );
+      if (!requestedFocusId || !sameFocusSessionRevision(stored, baseSession)) {
+        setFocusNotice(
+          "Sprint đã tiến ở tab khác. Tab này dùng revision mới hơn và không khôi phục lại queue cũ.",
+        );
+        return stored?.sessionId === requestedFocusId
+          ? stored
+          : nextSession;
+      }
+      window.localStorage.setItem(
+        FOCUS_SESSION_STORAGE_KEY,
+        serializeFocusSession(nextSession),
+      );
+      setFocusNotice(null);
+      return nextSession;
+    } catch {
+      setFocusNotice(
+        "Tiến độ sprint mới chỉ giữ trong tab này vì trình duyệt không ghi được local storage.",
+      );
+      return nextSession;
+    }
+  }
+
   function rateCurrent(rating: Rating) {
     if (!current || !currentLearningState) return;
     const scheduled = scheduleQuestionReview(
@@ -698,15 +999,35 @@ export function PracticeApp({
     );
     const updated = recordScheduledReview(progress, scheduled.review);
     saveProgress(JSON.stringify(updated));
+    if (account) {
+      void syncReviews([scheduled.review]);
+    }
     if (isCustomStudyQuestion && customRemainingIds.length <= 1) {
       setCustomStudyIds(null);
       setCustomStudyNotice("Đã hoàn thành phiên Custom Study.");
     }
+    if (isFocusActive && focusSession) {
+      const nextSession = completeFocusSessionQuestion(
+        focusSession,
+        current.id,
+      );
+      const sessionForTab = persistFocusSessionIfCurrent(
+        focusSession,
+        nextSession,
+      );
+      setFocusSession(sessionForTab);
+
+      const nextQuestion = sessionForTab.remainingQuestions[0];
+      if (sessionForTab.status === "active" && nextQuestion) {
+        setRequestedDeck(nextQuestion.deckId);
+        setSelectedDeck(nextQuestion.deckId);
+        const url = new URL(window.location.href);
+        url.searchParams.set("deck", nextQuestion.deckId);
+        window.history.replaceState(null, "", url);
+      }
+    }
     setSelectedQuestionId(null);
     clearStudySessionState();
-    if (account) {
-      void syncReviews([scheduled.review]);
-    }
   }
 
   function startCustomStudy(filters: CustomStudyFilters) {
@@ -737,6 +1058,7 @@ export function PracticeApp({
   }
 
   function selectDeck(deck: PracticeDeckId) {
+    if (isFocusActive) return;
     if (deck === requestedDeck) return;
     setRequestedDeck(deck);
     const url = new URL(window.location.href);
@@ -750,6 +1072,45 @@ export function PracticeApp({
       setCustomStudyNotice(null);
       setSelectedDeck(deck);
     });
+  }
+
+  function pauseFocusSprint() {
+    window.location.assign("/worldquant");
+  }
+
+  function cancelFocusSprint() {
+    try {
+      const stored = parseFocusSession(
+        window.localStorage.getItem(FOCUS_SESSION_STORAGE_KEY),
+      );
+      if (
+        !requestedFocusId ||
+        !focusSession ||
+        !sameFocusSessionRevision(stored, focusSession)
+      ) {
+        if (stored?.sessionId === requestedFocusId) {
+          setFocusSession(stored);
+          const storedHead = stored.remainingQuestions[0];
+          if (stored.status === "active" && storedHead) {
+            setRequestedDeck(storedHead.deckId);
+            setSelectedDeck(storedHead.deckId);
+            const url = new URL(window.location.href);
+            url.searchParams.set("deck", storedHead.deckId);
+            window.history.replaceState(null, "", url);
+          }
+        }
+        setFocusNotice(
+          "Sprint trong storage đã tiến sang revision mới hơn. Tab này không được phép xóa revision đó; hãy tạm dừng để về Hub.",
+        );
+        return;
+      }
+      window.localStorage.removeItem(FOCUS_SESSION_STORAGE_KEY);
+      window.location.assign("/worldquant");
+    } catch {
+      setFocusNotice(
+        "Chưa xóa được sprint khỏi local storage. Hãy kiểm tra quyền lưu trữ của trình duyệt rồi thử lại.",
+      );
+    }
   }
 
   function toggleReferenceAnswer() {
@@ -1104,6 +1465,39 @@ export function PracticeApp({
     return next;
   }
 
+  if (hasFocusRequest && focusHydrationStatus === "loading") {
+    return <LoadingScreen />;
+  }
+
+  if (
+    hasFocusRequest &&
+    (focusHydrationStatus === "missing" ||
+      focusHydrationStatus === "storage_error" ||
+      (focusHydrationStatus === "ready" &&
+        focusSession?.status === "active" &&
+        !focusQuestion))
+  ) {
+    return (
+      <FocusUnavailableScreen
+        storageError={focusHydrationStatus === "storage_error"}
+      />
+    );
+  }
+
+  if (
+    hasFocusRequest &&
+    focusHydrationStatus === "ready" &&
+    focusSession?.status === "completed"
+  ) {
+    return (
+      <FocusCompletionScreen
+        completedCount={focusSession.completedQuestions.length}
+        staleDroppedCount={focusStaleDroppedCount}
+        notice={focusNotice}
+      />
+    );
+  }
+
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
       <div className="mx-auto max-w-7xl">
@@ -1116,12 +1510,18 @@ export function PracticeApp({
               <p className="font-semibold tracking-[-0.02em]">Recall</p>
               <p className="text-xs text-[#64736c]">Interview practice</p>
             </div>
-            <DeckSwitcher
-              selected={requestedDeck}
-              counts={deckCounts}
-              pending={deckTransitionPending}
-              onSelect={selectDeck}
-            />
+            {isFocusActive ? (
+              <span className="rounded-full border border-[#356b58]/20 bg-[#d7ff91]/55 px-3 py-1.5 font-mono text-[11px] font-bold text-[#173f35]">
+                WQ FOCUS SPRINT
+              </span>
+            ) : (
+              <DeckSwitcher
+                selected={requestedDeck}
+                counts={deckCounts}
+                pending={deckTransitionPending}
+                onSelect={selectDeck}
+              />
+            )}
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-2 text-sm">
@@ -1139,25 +1539,27 @@ export function PracticeApp({
               Học Tick
             </HeaderNavLink>
             <HeaderNavLink href="/learn/cmake">Học CMake</HeaderNavLink>
-            <SavedItemsControl
-              items={savedItems}
-              onRemove={deleteSavedItem}
-              onOpenQuestion={(questionId) => {
-                const question = sessionQuestions.find(
-                  (item) => item.id === questionId,
-                );
-                if (!question) return;
-                const nextDeck = question.taxonomy.deckId;
-                clearStudySessionState();
-                setRequestedDeck(nextDeck);
-                setSelectedDeck(nextDeck);
-                setSelectedQuestionId(questionId);
-                const url = new URL(window.location.href);
-                url.searchParams.set("deck", nextDeck);
-                window.history.replaceState(null, "", url);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-            />
+            {!isFocusActive ? (
+              <SavedItemsControl
+                items={savedItems}
+                onRemove={deleteSavedItem}
+                onOpenQuestion={(questionId) => {
+                  const question = sessionQuestions.find(
+                    (item) => item.id === questionId,
+                  );
+                  if (!question) return;
+                  const nextDeck = question.taxonomy.deckId;
+                  clearStudySessionState();
+                  setRequestedDeck(nextDeck);
+                  setSelectedDeck(nextDeck);
+                  setSelectedQuestionId(questionId);
+                  const url = new URL(window.location.href);
+                  url.searchParams.set("deck", nextDeck);
+                  window.history.replaceState(null, "", url);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              />
+            ) : null}
             <AccountControl
               account={account}
               cloudEnabled={cloudEnabled}
@@ -1176,20 +1578,71 @@ export function PracticeApp({
           </p>
         ) : null}
 
-        <CustomStudyPanel
-          key={selectedDeck}
-          language={activeDeck.language}
-          topics={customStudyTopics}
-          activeCount={customRemainingIds.length}
-          notice={customStudyNotice}
-          onStart={startCustomStudy}
-          onStop={() => {
-            setCustomStudyIds(null);
-            setCustomStudyNotice("Đã dừng Custom Study, quay lại lịch hôm nay.");
-          }}
-        />
+        {isFocusActive && focusSession ? (
+          <section className="mt-6 rounded-3xl border border-[#356b58]/20 bg-[#eaf4df] p-5 shadow-sm sm:p-6">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="font-mono text-xs font-bold tracking-[0.14em] text-[#356b58] uppercase">
+                  WorldQuant Focus Sprint
+                </p>
+                <h1 className="mt-2 text-xl font-semibold tracking-tight text-[#173f35]">
+                  Câu {focusPosition}/{focusQueueTotal} · giữ nguyên queue đã
+                  chốt
+                </h1>
+                <p className="mt-1 text-sm text-[#596a62]">
+                  {focusStep
+                    ? `${focusCompetencyLabel(focusStep.competency)} · ${focusReasonLabel(focusStep.queueReason)}`
+                    : "Ôn theo khoảng trống năng lực đã chọn ở Readiness Hub."}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={pauseFocusSprint}
+                  className="rounded-xl border border-[#356b58]/25 bg-white/70 px-4 py-2 text-sm font-bold text-[#356b58] transition hover:bg-white"
+                >
+                  Tạm dừng
+                </button>
+                <button
+                  type="button"
+                  onClick={cancelFocusSprint}
+                  className="rounded-xl border border-[#ba4b2f]/20 bg-[#f8e8df] px-4 py-2 text-sm font-bold text-[#8e3825] transition hover:bg-[#f4d9cc]"
+                >
+                  Hủy sprint
+                </button>
+              </div>
+            </div>
+            {focusStaleDroppedCount > 0 ? (
+              <p className="mt-3 text-xs font-semibold text-[#8a5a20]">
+                Đã bỏ {focusStaleDroppedCount} câu stale, bị đình chỉ hoặc đã
+                ôn hôm nay; không tự thay bằng nội dung khác.
+              </p>
+            ) : null}
+            {focusNotice ? (
+              <p
+                className="mt-3 text-xs font-semibold text-[#a3321f]"
+                role="alert"
+              >
+                {focusNotice}
+              </p>
+            ) : null}
+          </section>
+        ) : (
+          <CustomStudyPanel
+            key={selectedDeck}
+            language={activeDeck.language}
+            topics={customStudyTopics}
+            activeCount={customRemainingIds.length}
+            notice={customStudyNotice}
+            onStart={startCustomStudy}
+            onStop={() => {
+              setCustomStudyIds(null);
+              setCustomStudyNotice("Đã dừng Custom Study, quay lại lịch hôm nay.");
+            }}
+          />
+        )}
 
-        {!current && selectedPendingReview.length ? (
+        {!isFocusActive && !current && selectedPendingReview.length ? (
           <section className="mt-7 rounded-3xl border border-[#ba4b2f]/25 bg-[#fff4df] p-6 sm:p-8">
             <p className="font-mono text-xs tracking-[0.15em] text-[#ba4b2f] uppercase">
               Review queue
@@ -1226,7 +1679,9 @@ export function PracticeApp({
               <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <span className="rounded-full bg-[#d7ff91] px-3 py-1 font-mono text-xs font-bold text-[#173f35]">
-                    {isCustomStudyQuestion
+                    {isFocusActive
+                      ? "FOCUS SPRINT"
+                      : isCustomStudyQuestion
                       ? "CUSTOM STUDY"
                       : isRandomQuestion
                       ? "CÂU NGẪU NHIÊN"
@@ -1235,7 +1690,9 @@ export function PracticeApp({
                         : "ÔN ĐẾN HẠN"}
                   </span>
                   <span className="font-mono text-xs text-[#6c7b73]">
-                    {isCustomStudyQuestion && customStudyIds
+                    {isFocusActive
+                      ? `${focusPosition}/${focusQueueTotal}`
+                      : isCustomStudyQuestion && customStudyIds
                       ? `${customStudyIds.length - customRemainingIds.length + 1}/${customStudyIds.length}`
                       : isRandomQuestion
                       ? "ngoài lịch hôm nay"
@@ -1264,14 +1721,16 @@ export function PracticeApp({
                   >
                     {isSaved(`question:${current.id}`) ? "★ Đã lưu" : "☆ Lưu câu hỏi"}
                   </button>
-                  <button
-                    type="button"
-                    onClick={showRandomQuestion}
-                    disabled={!randomCandidates.length}
-                    className="rounded-xl border border-[#173f35]/18 bg-white/65 px-3 py-2 text-xs font-bold text-[#356b58] transition hover:-translate-y-0.5 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#d7ff91]/55 focus:outline-none"
-                  >
-                    ↻ Câu khác ngẫu nhiên
-                  </button>
+                  {!isFocusActive ? (
+                    <button
+                      type="button"
+                      onClick={showRandomQuestion}
+                      disabled={!randomCandidates.length}
+                      className="rounded-xl border border-[#173f35]/18 bg-white/65 px-3 py-2 text-xs font-bold text-[#356b58] transition hover:-translate-y-0.5 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#d7ff91]/55 focus:outline-none"
+                    >
+                      ↻ Câu khác ngẫu nhiên
+                    </button>
+                  ) : null}
                   <span className="font-mono text-xs text-[#6c7b73]">{today}</span>
                 </div>
               </div>
@@ -1587,7 +2046,7 @@ export function PracticeApp({
             </section>
 
             <aside className="space-y-4 lg:pt-12">
-              {selectedPendingReview.length ? (
+              {!isFocusActive && selectedPendingReview.length ? (
                 <div className="rounded-3xl border border-[#ba4b2f]/25 bg-[#fff4df] p-6">
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -1630,25 +2089,45 @@ export function PracticeApp({
 
               <div className="rounded-3xl bg-[#173f35] p-6 text-white">
                 <p className="font-mono text-xs tracking-[0.15em] text-[#d7ff91] uppercase">
-                  Tiến độ hôm nay
+                  {isFocusActive ? "Tiến độ Focus Sprint" : "Tiến độ hôm nay"}
                 </p>
                 <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/15">
                   <div
                     className="h-full rounded-full bg-[#d7ff91] transition-all"
                     style={{
-                      width: `${dailyTotal ? (completedToday / dailyTotal) * 100 : 0}%`,
+                      width: `${
+                        isFocusActive
+                          ? focusQueueTotal
+                            ? ((focusSession?.completedQuestions.length ?? 0) /
+                                focusQueueTotal) *
+                              100
+                            : 0
+                          : dailyTotal
+                            ? (completedToday / dailyTotal) * 100
+                            : 0
+                      }%`,
                     }}
                   />
                 </div>
                 <p className="mt-3 text-sm text-white/65">
-                  {remainingIds.length} câu còn lại · ưu tiên câu mới trước
+                  {isFocusActive
+                    ? `${focusSession?.remainingQuestions.length ?? 0} câu còn lại · rating vẫn cập nhật lịch ôn thật`
+                    : `${remainingIds.length} câu còn lại · ưu tiên câu mới trước`}
                 </p>
-                <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
-                  <LearningCount label="Mới" value={learningCounts.new} />
-                  <LearningCount label="Đang học" value={learningCounts.learning} />
-                  <LearningCount label="Ôn tập" value={learningCounts.review} />
-                  <LearningCount label="Học lại" value={learningCounts.relearning} />
-                </div>
+                {!isFocusActive ? (
+                  <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
+                    <LearningCount label="Mới" value={learningCounts.new} />
+                    <LearningCount
+                      label="Đang học"
+                      value={learningCounts.learning}
+                    />
+                    <LearningCount label="Ôn tập" value={learningCounts.review} />
+                    <LearningCount
+                      label="Học lại"
+                      value={learningCounts.relearning}
+                    />
+                  </div>
+                ) : null}
               </div>
 
               <div className="rounded-3xl border border-[#173f35]/15 bg-white/55 p-6">
@@ -1721,6 +2200,23 @@ export function PracticeApp({
   );
 }
 
+function focusCompetencyLabel(competency: WorldQuantCompetencyKey) {
+  return worldQuantCompetencies[competency].shortLabel;
+}
+
+function focusReasonLabel(reason: FocusQueueReason) {
+  const labels: Record<FocusQueueReason, string> = {
+    due_relearning: "học lại đã đến hạn",
+    due_leech: "câu leech đã đến hạn",
+    due: "đã đến hạn",
+    relearning: "đang học lại",
+    leech: "câu khó lặp lại",
+    learning: "đang học",
+    new: "câu mới",
+  };
+  return labels[reason];
+}
+
 function LoadingScreen() {
   return (
     <main className="grid min-h-screen place-items-center px-5">
@@ -1730,6 +2226,103 @@ function LoadingScreen() {
         </span>
         <p className="mt-4 text-sm text-[#64736c]">Đang mở lịch ôn tập…</p>
       </div>
+    </main>
+  );
+}
+
+function FocusUnavailableScreen({
+  storageError,
+}: {
+  storageError: boolean;
+}) {
+  return (
+    <main className="grid min-h-screen place-items-center px-5 py-12">
+      <section className="w-full max-w-xl rounded-[2rem] border border-[#ba4b2f]/20 bg-white/70 p-8 text-center shadow-[0_20px_70px_rgba(23,63,53,0.08)]">
+        <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-[#f8e8df] font-mono font-bold text-[#ba4b2f]">
+          !
+        </span>
+        <p className="mt-5 font-mono text-xs font-bold tracking-[0.14em] text-[#ba4b2f] uppercase">
+          Focus Sprint không mở được
+        </p>
+        <h1 className="mt-3 text-2xl font-semibold tracking-tight text-[#17221d]">
+          {storageError
+            ? "Trình duyệt đang chặn local storage"
+            : "Không tìm thấy đúng sprint trong URL này"}
+        </h1>
+        <p className="mt-3 text-sm leading-6 text-[#64736c]">
+          Queue không được đoán lại hoặc thay bằng session khác. Quay về
+          Readiness Hub để tiếp tục sprint còn lưu hoặc tạo một kế hoạch mới.
+        </p>
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <Link
+            href="/worldquant"
+            className="rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#245748]"
+          >
+            Về Readiness Hub
+          </Link>
+          <Link
+            href="/"
+            className="rounded-xl border border-[#173f35]/18 bg-white px-5 py-3 text-sm font-bold text-[#356b58]"
+          >
+            Ôn tập bình thường
+          </Link>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function FocusCompletionScreen({
+  completedCount,
+  staleDroppedCount,
+  notice,
+}: {
+  completedCount: number;
+  staleDroppedCount: number;
+  notice: string | null;
+}) {
+  return (
+    <main className="grid min-h-screen place-items-center px-5 py-12">
+      <section className="w-full max-w-xl rounded-[2rem] border border-[#356b58]/18 bg-white/70 p-8 text-center shadow-[0_20px_70px_rgba(23,63,53,0.08)]">
+        <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-[#173f35] font-mono font-bold text-[#d7ff91]">
+          ✓
+        </span>
+        <p className="mt-5 font-mono text-xs font-bold tracking-[0.14em] text-[#356b58] uppercase">
+          Focus Sprint hoàn tất
+        </p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#17221d]">
+          Đã rating {completedCount} câu
+        </h1>
+        <p className="mt-3 text-sm leading-6 text-[#64736c]">
+          Mỗi rating đã đi qua scheduler và cập nhật bằng chứng readiness như
+          một buổi Practice bình thường.
+        </p>
+        {staleDroppedCount > 0 ? (
+          <p className="mt-3 rounded-xl bg-[#fff4df] px-4 py-3 text-xs font-semibold text-[#8a5a20]">
+            {staleDroppedCount} câu không còn hợp lệ đã bị bỏ, không được tự
+            thay bằng nội dung mới.
+          </p>
+        ) : null}
+        {notice ? (
+          <p className="mt-3 text-xs font-semibold text-[#a3321f]" role="alert">
+            {notice}
+          </p>
+        ) : null}
+        <div className="mt-7 flex flex-wrap justify-center gap-3">
+          <Link
+            href="/worldquant"
+            className="rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#245748]"
+          >
+            Xem readiness mới
+          </Link>
+          <Link
+            href="/"
+            className="rounded-xl border border-[#173f35]/18 bg-white px-5 py-3 text-sm font-bold text-[#356b58]"
+          >
+            Tiếp tục Practice
+          </Link>
+        </div>
+      </section>
     </main>
   );
 }
