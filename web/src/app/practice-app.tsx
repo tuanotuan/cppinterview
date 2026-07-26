@@ -69,6 +69,12 @@ import {
   type Review,
 } from "@/lib/practice/scheduler";
 import {
+  EMPTY_PROGRESS_STORAGE_SNAPSHOT as EMPTY_SNAPSHOT,
+  readPracticeProgressSnapshot as getProgressSnapshot,
+  subscribeToPracticeProgress as subscribeToProgress,
+  writePracticeProgressSnapshot as saveProgress,
+} from "@/lib/practice/storage";
+import {
   buildAnkiDailyQueue,
   buildLearningStates,
   countLearningStates,
@@ -78,10 +84,7 @@ import {
   type QuestionLearningState,
 } from "@/lib/practice/learning-state";
 
-const STORAGE_KEY = "cpp-recall:progress:v1";
 const STUDY_SESSION_KEY = "cpp-recall:study-session:v1";
-const EMPTY_SNAPSHOT = "__empty__";
-const storageListeners = new Set<() => void>();
 
 const MonacoCodeEditor = dynamic(
   () =>
@@ -144,26 +147,8 @@ export type PracticeQuestion = ContentQuestion & {
   }>;
 };
 
-function subscribeToProgress(callback: () => void) {
-  storageListeners.add(callback);
-  window.addEventListener("storage", callback);
-  return () => {
-    storageListeners.delete(callback);
-    window.removeEventListener("storage", callback);
-  };
-}
-
-function getProgressSnapshot() {
-  return window.localStorage.getItem(STORAGE_KEY) ?? EMPTY_SNAPSHOT;
-}
-
 function getServerProgressSnapshot() {
   return null;
-}
-
-function saveProgress(raw: string) {
-  window.localStorage.setItem(STORAGE_KEY, raw);
-  storageListeners.forEach((listener) => listener());
 }
 
 export function PracticeApp({
@@ -1149,6 +1134,7 @@ export function PracticeApp({
             {account && aiBudgetCacheHydrated && aiDailyBudget ? (
               <AiBudgetPill budget={aiDailyBudget} />
             ) : null}
+            <HeaderNavLink href="/worldquant">WQ Hub</HeaderNavLink>
             <HeaderNavLink href="/learn/tick-data-order-book">
               Học Tick
             </HeaderNavLink>

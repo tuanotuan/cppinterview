@@ -1910,6 +1910,12 @@ function GuideHeader() {
         aria-label="Điều hướng"
       >
         <Link
+          href="/worldquant"
+          className="rounded-xl px-4 py-2 font-bold transition hover:bg-white/60"
+        >
+          WQ Hub
+        </Link>
+        <Link
           href="/learn/tick-data-order-book"
           className="rounded-xl px-4 py-2 font-bold transition hover:bg-white/60"
         >

@@ -7,6 +7,13 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 
 ## Tính năng gần đây đáng biết
 
+- `/worldquant` là Readiness Hub dùng được cả local mode: bốn role profile C++,
+  mười competency ổn định, target-date planner, daily queue và mock report gần
+  nhất. `Preparation Index` chỉ là bằng chứng trong app, không phải xác suất đậu.
+- Readiness tách content coverage khỏi learning progress, chỉ nhận question
+  `verified`/owner-approved và cap hai card mỗi lesson để tránh coverage bị thổi
+  phồng. Mock v3 vẫn chỉ có một report gần nhất, chưa account-scope trong
+  localStorage và chưa được cộng vào index.
 - AI admission reset theo ngày Việt Nam và practice ưu tiên question New.
 - Tiêu đề question trong practice tự giảm cỡ chữ theo độ dài; câu ngắn giữ cỡ
   nổi bật, câu dài dùng typography gọn và line-height thoáng hơn.
@@ -31,18 +38,21 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 
 ## Task/handoff hiện tại
 
-- Trang CMake là guide độc lập ở `web/src/app/learn/cmake/page.tsx`; mục lục,
-  nguồn chính thức và mapping theo JD nằm ở `web/src/lib/learn/cmake-guide.ts`.
-- Trang/data/test Tick được giữ nguyên có chủ đích; hai guide chỉ liên kết qua
-  navigation, không dùng chung component để tránh refactor ngoài phạm vi.
+- Mô hình WorldQuant nằm ở `web/src/lib/worldquant/readiness.ts`; route server chỉ
+  truyền question summary serializable, client đọc localStorage rồi merge cloud
+  read-only. Khi thêm content, giữ taxonomy đủ rõ để classifier không phải đọc
+  prompt/answer.
+- Question bank hiện chưa bao phủ đều Tick, CMake, Python, Linux/networking,
+  distributed systems và ownership. Hub phải tiếp tục gọi đây là `content gap`;
+  không đổi thành đánh giá người học yếu cho tới khi có evidence đã kiểm chứng.
 
 ## Validation gần nhất
 
 - Content check, context refresh/check và `git diff --check`: pass.
 - Lint toàn repo và TypeScript `--noEmit`: pass.
-- Vitest: 43 test files, 190 tests pass.
+- Vitest: 44 test files, 213 tests pass.
 - Next.js production build: pass, gồm compile, type-check và 19 generated pages;
-  `/learn/cmake` được prerender static.
+  `/worldquant` là dynamic route, hai learning guide được prerender static.
 
 ## Quy tắc cập nhật
 

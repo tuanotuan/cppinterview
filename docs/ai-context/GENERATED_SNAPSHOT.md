@@ -13,10 +13,10 @@
 
 ## Application inventory
 
-- App pages: 6 (/, /admin, /learn/cmake, /learn/tick-data-order-book, /mock-interview, /stats)
+- App pages: 7 (/, /admin, /learn/cmake, /learn/tick-data-order-book, /mock-interview, /stats, /worldquant)
 - API routes: 14 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/coach/evaluate, /api/coach/follow-up, /api/mock-interview/report, /api/mock-interview/run, /api/progress/sync, /api/questions/approve, /auth/callback, /auth/login, /auth/logout)
-- TypeScript source files excluding tests: 80
-- Colocated test files: 43
+- TypeScript source files excluding tests: 84
+- Colocated test files: 44
 - Supabase migrations: 23
 - Latest migration filename: `20260729120000_isolate_web_daily_ai_quota.sql`
 
@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `4b092ea2a439b5337b1000ce3ed85a2243feb3cd0b9917f3c2e453f2c3c92a9f`
-- Fingerprinted files: 241
+- Project input fingerprint: `0f991ef41493bff403de73aa73cc1c9a1ad781e0de409539badebcf548f23ba8`
+- Fingerprinted files: 246
 
 The fingerprint covers lesson sources, content files, application source/tests,
 scripts, package metadata, environment template, workflows, and Supabase files.
