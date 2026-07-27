@@ -277,3 +277,23 @@ calendar day, with one active execution batch per user. Idempotency fingerprints
 bind cached results to the exact question, execution-spec revision, and source
 hash. Infrastructure failures are recorded as `sandbox_error` and must never
 reduce the candidate score.
+
+## Account-scoped Mock v4 history
+
+`20260730100000_create_mock_interview_attempts.sql` must be applied after the
+code-execution admission migration. It stores only candidate-visible attempt
+metadata and normalized completed artifacts; candidate answers, rubrics,
+canonical answers, hidden inputs, diagnostics, and output are rejected.
+
+Create another dedicated Supabase secret API key named `mock_history` and add it
+to the web runtime as `MOCK_HISTORY_SUPABASE_SECRET_KEY`. Do not reuse
+`CODE_RUNNER_SUPABASE_SECRET_KEY` or `SUPABASE_SERVICE_ROLE_KEY`, and never use a
+`NEXT_PUBLIC_` prefix.
+
+The report route reserves history before hidden execution or paid AI. A frozen
+submission and idempotency key can recover a cached completed report after a
+lost response. Retryable provider failures expire only the current token-owned
+lease; hidden terminal failures token-abort the unfinished history row before
+the client rotates its downstream execution key. Browser deletion is owner-only
+and cannot delete a live reservation. Until both the migration and dedicated
+secret exist, starting a new Mock v4 session is intentionally disabled.

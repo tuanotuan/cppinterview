@@ -2,14 +2,26 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { isCodeRunnerConfigured } from "@/lib/code-runner/config.server";
-import { displayQuestionPrompt } from "@/lib/content/question-prompt";
 import { isQuestionApproved } from "@/lib/practice/approvals";
 import { loadCloudContext } from "@/lib/practice/cloud-server";
 import {
-  buildWorldQuantGroundingCoverage,
-  inferMockCompetency,
-  type MockInterviewQuestion,
-} from "@/lib/mock-interview/profile";
+  buildWorldQuantBankCatalog,
+} from "@/lib/mock-interview/catalog";
+import { mockInterviewCompletedArtifactV4Schema } from "@/lib/mock-interview/contracts-v4";
+import {
+  createMockHistoryAdminClient,
+  listMockInterviewAttempts,
+  MockHistoryConfigurationError,
+} from "@/lib/mock-interview/history.server";
+import {
+  classifyWorldQuantCompetency,
+  worldQuantCompetencyKeys,
+  worldQuantRoleProfileById,
+  worldQuantRoleProfileIds,
+  type ReadinessQuestionSummary,
+  type WorldQuantCompetencyKey,
+  type WorldQuantRoleProfileId,
+} from "@/lib/worldquant/readiness";
 
 import { MockInterviewApp } from "./mock-interview-app";
 
@@ -21,7 +33,15 @@ export const metadata: Metadata = {
     "Mock interview cho vị trí Modern C++ Tick Data Platform Engineer.",
 };
 
-export default async function MockInterviewPage() {
+export default async function MockInterviewPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    role?: string | string[];
+    mode?: string | string[];
+    focus?: string | string[];
+  }>;
+}) {
   const cloud = await loadCloudContext({
     includeAiUsage: false,
     includeDailyAiBudget: false,
@@ -31,57 +51,132 @@ export default async function MockInterviewPage() {
   if (!cloud.enabled) return <MockInterviewGate mode="not-configured" />;
   if (!cloud.account) return <MockInterviewGate mode="login" />;
 
-  const lessonById = new Map(
-    cloud.manifest.lessons.map((lesson) => [lesson.id, lesson]),
-  );
-  const bankQuestions = cloud.manifest.questions.flatMap(
-    (question): MockInterviewQuestion[] => {
-      if (
-        question.status === "archived" ||
-        (question.status !== "verified" &&
-          !isQuestionApproved(question, cloud.approvals))
-      ) {
-        return [];
-      }
-      const lesson = lessonById.get(question.lessonId);
-      if (!lesson) return [];
-      return [
-        {
-          id: question.id,
-          origin: "question_bank",
-          version: question.version,
-          contentRevision: question.sourceHash,
-          prompt: displayQuestionPrompt(question),
-          code: question.code,
-          language: lesson.language,
-          track: lesson.track,
-          responseMode: question.taxonomy.responseMode,
-          estimatedMinutes: question.estimatedMinutes,
-          competency: inferMockCompetency({
-            language: lesson.language,
-            topics: question.taxonomy.topics,
-          }),
-          selectionTopics: [
-            ...question.taxonomy.topics,
-            `lesson::${question.lessonId}`,
-          ],
-        },
-      ];
-    },
-  );
+  const bankQuestions = buildWorldQuantBankCatalog({
+    manifest: cloud.manifest,
+    approvals: cloud.approvals,
+  });
+  const readinessQuestions: ReadinessQuestionSummary[] =
+    cloud.manifest.questions
+      .filter(
+        (question) =>
+          question.status !== "archived" &&
+          (question.status === "verified" ||
+            isQuestionApproved(question, cloud.approvals)),
+      )
+      .map((question) => ({
+        id: question.id,
+        version: question.version,
+        sourceHash: question.sourceHash,
+        deckId: question.taxonomy.deckId,
+        lessonId: question.lessonId,
+        estimatedMinutes: question.estimatedMinutes,
+        competency: classifyWorldQuantCompetency({
+          deckId: question.taxonomy.deckId,
+          language: question.taxonomy.language,
+          lessonId: question.lessonId,
+          topics: question.taxonomy.topics,
+          tags: question.taxonomy.tags,
+        }),
+        validation:
+          question.status === "verified"
+            ? "repository_verified"
+            : "owner_approved",
+      }));
+  const query = await searchParams;
+  const initialRoleProfileId = parseRoleProfileId(single(query.role));
+  const requestedFocus = parseCompetency(single(query.focus));
+  const requestedMode = single(query.mode);
+  const role = worldQuantRoleProfileById(initialRoleProfileId);
+  const initialMode =
+    requestedMode === "targeted" &&
+    requestedFocus &&
+    role.weights[requestedFocus] > 0
+      ? "targeted"
+      : "balanced";
+  const initialTargetCompetency =
+    initialMode === "targeted" ? requestedFocus : null;
+  let historyAvailable = false;
+  let initialHistory: Array<{
+    attemptId: string;
+    artifact: ReturnType<
+      typeof mockInterviewCompletedArtifactV4Schema.parse
+    >;
+  }> = [];
+  try {
+    const historyClient = createMockHistoryAdminClient();
+    const history = await listMockInterviewAttempts(historyClient, {
+      userId: cloud.account.id,
+      limit: 20,
+    });
+    historyAvailable = true;
+    initialHistory = history.items.flatMap((attempt) => {
+      if (attempt.status !== "completed") return [];
+      const artifact =
+        mockInterviewCompletedArtifactV4Schema.safeParse(attempt.report);
+      return artifact.success
+        ? [{ attemptId: attempt.attemptId, artifact: artifact.data }]
+        : [];
+    });
+  } catch (error) {
+    if (!(error instanceof MockHistoryConfigurationError)) {
+      console.error("Mock history load failed", {
+        name: error instanceof Error ? error.name : "UnknownError",
+      });
+    }
+  }
 
   return (
     <MockInterviewApp
       account={{
+        id: cloud.account.id,
         displayName: cloud.account.displayName,
         login: cloud.account.login,
       }}
       sourceRevision={cloud.manifest.sourceRevision}
       bankQuestions={bankQuestions}
-      groundingCoverage={buildWorldQuantGroundingCoverage(bankQuestions)}
+      readinessQuestions={readinessQuestions}
+      initialCloudProgress={cloud.progress}
+      initialQuestionStates={cloud.questionStates}
+      today={vietnamDateKey()}
+      initialRoleProfileId={initialRoleProfileId}
+      initialMode={initialMode}
+      initialTargetCompetency={initialTargetCompetency}
+      initialHistory={initialHistory}
+      historyAvailable={historyAvailable}
       codeRunnerAvailable={isCodeRunnerConfigured()}
     />
   );
+}
+
+function single(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function parseRoleProfileId(value: string | undefined): WorldQuantRoleProfileId {
+  return worldQuantRoleProfileIds.includes(
+    value as WorldQuantRoleProfileId,
+  )
+    ? (value as WorldQuantRoleProfileId)
+    : "tick-data-platform";
+}
+
+function parseCompetency(
+  value: string | undefined,
+): WorldQuantCompetencyKey | null {
+  return worldQuantCompetencyKeys.includes(
+    value as WorldQuantCompetencyKey,
+  )
+    ? (value as WorldQuantCompetencyKey)
+    : null;
+}
+
+function vietnamDateKey() {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 }
 
 function MockInterviewGate({

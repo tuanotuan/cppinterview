@@ -95,7 +95,9 @@ Xem danh sách chuẩn trong `web/.env.example`.
 - Server app: OpenAI/Gemini keys, admin billing key, project ID, code-runner
   config.
 - GitHub Actions only: `SUPABASE_SERVICE_ROLE_KEY` cho content sync/generation.
-- Code runner dùng secret Supabase riêng, không tái dùng content-sync key.
+- Code runner và Mock v4 history dùng hai secret Supabase riêng
+  (`CODE_RUNNER_SUPABASE_SECRET_KEY`, `MOCK_HISTORY_SUPABASE_SECRET_KEY`);
+  không tái dùng content-sync key hay dùng chung với nhau.
 - `ALLOWED_GITHUB_LOGIN` mặc định `tuanotuan`; auth/API trả quyền chỉ cho owner.
 - Không log secret, không commit `.env.local`, không truyền secret vào sandbox.
 
@@ -114,6 +116,7 @@ Các nhóm schema hiện có:
 - immutable lesson/question revisions, sync runs, generation jobs;
 - multi-language/CMake metadata;
 - code execution admission/quota/idempotency.
+- account-scoped Mock v4 history, report lease/cache và owner delete.
 
 Không sửa migration đã áp dụng; thêm migration mới. Giữ RLS và RPC
 service-role-only/browser grants như contract hiện tại.
@@ -149,6 +152,9 @@ service-role-only/browser grants như contract hiện tại.
 - Queue ưu tiên question New theo giới hạn trước các review còn lại theo policy
   trong `learning-state.ts`.
 - Hidden test/code-runner metadata không lộ ra client hay response.
+- Mock v4 phải reserve durable history trước hidden runner/paid AI. Retry dùng
+  frozen submission; chỉ token hiện hành được release/abort lease. Không chạy
+  lại paid AI chỉ để khắc phục một completion response bất định.
 
 ## Chọn validation theo phạm vi
 

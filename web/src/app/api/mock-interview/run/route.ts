@@ -14,6 +14,7 @@ import {
   isSourceWithinByteLimit,
   mockCodeRunRequestSchema,
 } from "@/lib/code-runner/contracts";
+import { mockCodeRunRequestV4Schema } from "@/lib/mock-interview/contracts-v4";
 import {
   CodeRunnerConfigurationError,
   getCodeRunnerConfig,
@@ -22,10 +23,25 @@ import {
   mockExecutionSpecForQuestion,
 } from "@/lib/code-runner/execution-specs.server";
 import { executeMockCode } from "@/lib/code-runner/vercel-sandbox.server";
+import { loadQuestionOverrides } from "@/lib/content/question-overrides-server";
+import {
+  loadQuestionStoreManifest,
+} from "@/lib/content/question-store-server";
+import {
+  buildWorldQuantBankCatalog,
+  resolveTargetedMockPlan,
+  targetedMockCandidates,
+  WORLDQUANT_CURATED_CATALOG,
+} from "@/lib/mock-interview/catalog";
 import {
   worldQuantMockSetById,
   WORLDQUANT_ROLE_QUESTIONS,
 } from "@/lib/mock-interview/profile";
+import { buildWorldQuantTargetedMockPlan } from "@/lib/mock-interview/target-plan";
+import {
+  rowsToApprovals,
+  type QuestionApprovalRow,
+} from "@/lib/practice/approvals";
 import { isAllowedPracticeUser } from "@/lib/supabase/authorization";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -83,14 +99,53 @@ export async function POST(request: Request) {
   } catch {
     return errorResponse(400, "JSON không hợp lệ.", "invalid_json");
   }
-  const parsed = mockCodeRunRequestSchema.safeParse(body);
-  if (!parsed.success || !isSourceWithinByteLimit(parsed.data.code)) {
+  const parsedV4 = mockCodeRunRequestV4Schema.safeParse(body);
+  const parsedLegacy = parsedV4.success
+    ? null
+    : mockCodeRunRequestSchema.safeParse(body);
+  if (
+    (!parsedV4.success && !parsedLegacy?.success) ||
+    !isSourceWithinByteLimit(
+      parsedV4.success
+        ? parsedV4.data.code
+        : mockCodeRunRequestSchema.parse(body).code,
+    )
+  ) {
     return errorResponse(
       400,
       "Request chạy code không hợp lệ hoặc source vượt giới hạn.",
       "invalid_request",
     );
   }
+  const runRequest = parsedV4.success
+    ? {
+        kind: "v4" as const,
+        raw: parsedV4.data,
+        idempotencyKey: parsedV4.data.idempotencyKey,
+        sessionId: parsedV4.data.sessionId,
+        sourceRevision: parsedV4.data.sourceRevision,
+        questionId: parsedV4.data.question.question.id,
+        questionVersion: parsedV4.data.question.question.version,
+        contentRevision:
+          parsedV4.data.question.question.contentRevision,
+        code: parsedV4.data.code,
+      }
+    : {
+        kind: "legacy" as const,
+        raw: mockCodeRunRequestSchema.parse(body),
+        idempotencyKey:
+          mockCodeRunRequestSchema.parse(body).idempotencyKey,
+        sessionId: mockCodeRunRequestSchema.parse(body).sessionId,
+        sourceRevision:
+          mockCodeRunRequestSchema.parse(body).sourceRevision,
+        questionId:
+          mockCodeRunRequestSchema.parse(body).questionId,
+        questionVersion:
+          mockCodeRunRequestSchema.parse(body).questionVersion,
+        contentRevision:
+          mockCodeRunRequestSchema.parse(body).contentRevision,
+        code: mockCodeRunRequestSchema.parse(body).code,
+      };
 
   const supabase = await createSupabaseServerClient();
   const { data: authData, error: authError } =
@@ -110,7 +165,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const target = resolveRunTarget(parsed.data);
+  const target =
+    runRequest.kind === "v4"
+      ? await resolveV4RunTarget(runRequest.raw, supabase)
+      : resolveRunTarget(runRequest.raw);
   if (!target.ok) return target.response;
 
   let admissionClient: ReturnType<
@@ -127,12 +185,14 @@ export async function POST(request: Request) {
     .update(
       JSON.stringify({
         codeHash: createHash("sha256")
-          .update(parsed.data.code)
+          .update(runRequest.code)
           .digest("hex"),
-        contentRevision: parsed.data.contentRevision,
+        contentRevision: runRequest.contentRevision,
         language: target.spec.language,
-        questionId: parsed.data.questionId,
-        questionVersion: parsed.data.questionVersion,
+        questionId: runRequest.questionId,
+        questionVersion: runRequest.questionVersion,
+        sessionId: runRequest.sessionId,
+        sourceRevision: runRequest.sourceRevision,
         specRevision: target.spec.revision,
         toolchainSnapshotHash: createHash("sha256")
           .update(runnerConfig.snapshotId)
@@ -144,7 +204,7 @@ export async function POST(request: Request) {
   try {
     const reservation = await reserveCodeExecution(admissionClient, {
       userId: authData.user.id,
-      idempotencyKey: parsed.data.idempotencyKey,
+      idempotencyKey: runRequest.idempotencyKey,
       purpose: "sample",
       jobCount: 1,
       requestFingerprint,
@@ -155,7 +215,7 @@ export async function POST(request: Request) {
       const cached = parseCachedResult(
         reservation.cachedResult,
         target.spec,
-        parsed.data.code,
+        runRequest.code,
       );
       if (cached) return Response.json({ ok: true, result: cached });
       return errorResponse(
@@ -174,15 +234,45 @@ export async function POST(request: Request) {
 
     const result = await executeMockCode({
       spec: target.spec,
-      source: parsed.data.code,
+      source: runRequest.code,
       suite: "sample",
     });
-    await finishCodeExecution(admissionClient, {
-      userId: authData.user.id,
-      reservationId,
-      status: "completed",
-      cachedResult: { ok: true, result },
-    });
+    try {
+      const finalized = await finishCodeExecution(admissionClient, {
+        userId: authData.user.id,
+        reservationId,
+        status: "completed",
+        cachedResult: { ok: true, result },
+      });
+      if (finalized.status !== "completed") {
+        throw new Error("Sample execution finalization is indeterminate");
+      }
+    } catch {
+      try {
+        const recovered = await reserveCodeExecution(admissionClient, {
+          userId: authData.user.id,
+          idempotencyKey: runRequest.idempotencyKey,
+          purpose: "sample",
+          jobCount: 1,
+          requestFingerprint,
+        });
+        const cached = parseCachedResult(
+          recovered.cachedResult,
+          target.spec,
+          runRequest.code,
+        );
+        if (recovered.status === "completed" && cached) {
+          return Response.json({ ok: true, result: cached });
+        }
+      } catch {
+        // Preserve the pending key so a later retry can recover the cache.
+      }
+      return errorResponse(
+        503,
+        "Code đã chạy nhưng cache chưa xác nhận được. Giữ nguyên lượt này và thử lại.",
+        "run_finalization_indeterminate",
+      );
+    }
     return Response.json({ ok: true, result });
   } catch (error) {
     if (reservationId) {
@@ -198,6 +288,118 @@ export async function POST(request: Request) {
     }
     return handleRunError(error);
   }
+}
+
+async function resolveV4RunTarget(
+  request: ReturnType<typeof mockCodeRunRequestV4Schema.parse>,
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+): Promise<
+  | {
+      ok: true;
+      spec: NonNullable<
+        ReturnType<typeof mockExecutionSpecForQuestion>
+      >;
+    }
+  | { ok: false; response: Response }
+> {
+  const [approvalsResult, overridesResult] = await Promise.all([
+    supabase
+      .from("question_approvals")
+      .select("question_id, question_version, source_hash"),
+    loadQuestionOverrides(supabase),
+  ]);
+  if (approvalsResult.error || overridesResult.error) {
+    return {
+      ok: false,
+      response: errorResponse(
+        502,
+        "Không đọc được question bank để xác minh blueprint.",
+        "question_bank_failed",
+      ),
+    };
+  }
+  const manifest = await loadQuestionStoreManifest({
+    supabase,
+    overrides: overridesResult.overrides,
+  });
+  const approvals = rowsToApprovals(
+    (approvalsResult.data ?? []) as QuestionApprovalRow[],
+  );
+  const catalog = [
+    ...buildWorldQuantBankCatalog({ manifest, approvals }),
+    ...WORLDQUANT_CURATED_CATALOG,
+  ];
+  let expectedPlan;
+  try {
+    expectedPlan = buildWorldQuantTargetedMockPlan({
+      profileId: request.plan.profileId,
+      mode: request.plan.mode,
+      targetCompetency: request.plan.targetCompetency,
+      variant: request.plan.variant,
+      durationMinutes: request.plan.durationMinutes,
+      candidates: targetedMockCandidates(catalog),
+    });
+  } catch {
+    return {
+      ok: false,
+      response: errorResponse(
+        409,
+        "Blueprint không còn hợp lệ. Hãy tạo buổi mock mới.",
+        "plan_invalid",
+      ),
+    };
+  }
+  if (
+    manifest.sourceRevision !== request.sourceRevision ||
+    JSON.stringify(expectedPlan) !== JSON.stringify(request.plan) ||
+    !resolveTargetedMockPlan({ plan: request.plan, catalog })
+  ) {
+    return {
+      ok: false,
+      response: errorResponse(
+        409,
+        "Question bank hoặc blueprint đã đổi. Hãy tạo buổi mock mới.",
+        "plan_changed",
+      ),
+    };
+  }
+
+  const identity = request.question.question;
+  const question =
+    identity.origin === "role_profile"
+      ? WORLDQUANT_ROLE_QUESTIONS.find(
+          (item) => item.id === identity.id,
+        )
+      : null;
+  if (
+    !question ||
+    question.version !== identity.version ||
+    question.contentRevision !== identity.contentRevision
+  ) {
+    return {
+      ok: false,
+      response: errorResponse(
+        409,
+        "Câu runnable không còn khớp catalog server.",
+        "content_changed",
+      ),
+    };
+  }
+  const spec = mockExecutionSpecForQuestion(question);
+  if (
+    !spec ||
+    spec.revision !== identity.execution?.specRevision
+  ) {
+    return {
+      ok: false,
+      response: errorResponse(
+        422,
+        "Câu này không có execution spec đúng version.",
+        "not_runnable",
+      ),
+    };
+  }
+  return { ok: true, spec };
 }
 
 function resolveRunTarget(

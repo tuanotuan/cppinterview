@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
 
+import { mockInterviewCompletedArtifactV4Schema } from "@/lib/mock-interview/contracts-v4";
+import {
+  createMockHistoryAdminClient,
+  listMockInterviewAttempts,
+  MockHistoryConfigurationError,
+} from "@/lib/mock-interview/history.server";
+import type { MockInterviewHistoryEntry } from "@/lib/mock-interview/trends";
 import { isQuestionApproved } from "@/lib/practice/approvals";
 import { loadCloudContext } from "@/lib/practice/cloud-server";
 import {
@@ -73,6 +80,44 @@ export default async function WorldQuantPage() {
       },
       {},
     );
+  let mockHistoryAvailable = false;
+  let initialMockHistory: MockInterviewHistoryEntry[] = [];
+  if (cloud.account) {
+    try {
+      const history = await listMockInterviewAttempts(
+        createMockHistoryAdminClient(),
+        {
+          userId: cloud.account.id,
+          limit: 50,
+        },
+      );
+      mockHistoryAvailable = true;
+      initialMockHistory = history.items.flatMap((attempt) => {
+        if (attempt.status !== "completed") return [];
+        const artifact =
+          mockInterviewCompletedArtifactV4Schema.safeParse(attempt.report);
+        return artifact.success
+          ? [
+              {
+                attemptId: attempt.attemptId,
+                status: attempt.status,
+                roleProfileId: attempt.roleProfileId,
+                roleProfileVersion: attempt.roleProfileVersion,
+                durationMinutes: attempt.durationMinutes,
+                completedAt: attempt.completedAt,
+                report: artifact.data,
+              },
+            ]
+          : [];
+      });
+    } catch (error) {
+      if (!(error instanceof MockHistoryConfigurationError)) {
+        console.error("WorldQuant mock history load failed", {
+          name: error instanceof Error ? error.name : "UnknownError",
+        });
+      }
+    }
+  }
 
   return (
     <WorldQuantReadinessApp
@@ -84,6 +129,8 @@ export default async function WorldQuantPage() {
       cloudEnabled={cloud.enabled}
       cloudError={cloud.error}
       today={vietnamDateKey()}
+      initialMockHistory={initialMockHistory}
+      mockHistoryAvailable={mockHistoryAvailable}
     />
   );
 }

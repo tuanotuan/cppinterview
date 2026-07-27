@@ -8,9 +8,19 @@ import {
   parseMockInterviewSession,
 } from "@/lib/mock-interview/session";
 import {
+  mockInterviewStorageKey,
+  parseMockInterviewSessionV4,
+} from "@/lib/mock-interview/session-v4";
+import {
   mockCompetencyKeys,
   mockCompetencyLabels,
 } from "@/lib/mock-interview/profile";
+import type { MockInterviewCompletedArtifactV4 } from "@/lib/mock-interview/contracts-v4";
+import {
+  buildWorldQuantMockTrends,
+  type MockInterviewHistoryEntry,
+  type MockInterviewTrendDuration,
+} from "@/lib/mock-interview/trends";
 import type { PracticeAccount } from "@/lib/practice/cloud-server";
 import {
   buildAnkiDailyQueue,
@@ -34,6 +44,7 @@ import {
   type FocusQueueReason,
   type WorldQuantFocusPlan,
 } from "@/lib/worldquant/focus-plan";
+import { buildWorldQuantMockRemediation } from "@/lib/worldquant/mock-remediation";
 import {
   buildWorldQuantReadiness,
   DEFAULT_WORLDQUANT_ROLE_PROFILE_ID,
@@ -41,6 +52,7 @@ import {
   mapLegacyMockCompetency,
   parseWorldQuantRoleProfile,
   worldQuantCompetencies,
+  worldQuantCompetencyKeys,
   worldQuantRoleProfileById,
   worldQuantRoleProfiles,
   type CompetencyReadiness,
@@ -96,6 +108,8 @@ export function WorldQuantReadinessApp({
   cloudEnabled,
   cloudError,
   today,
+  initialMockHistory,
+  mockHistoryAvailable,
 }: {
   questions: ReadinessQuestionSummary[];
   pendingReviewCounts: Partial<Record<WorldQuantCompetencyKey, number>>;
@@ -105,6 +119,8 @@ export function WorldQuantReadinessApp({
   cloudEnabled: boolean;
   cloudError: boolean;
   today: string;
+  initialMockHistory: MockInterviewHistoryEntry[];
+  mockHistoryAvailable: boolean;
 }) {
   const [focusFeedback, setFocusFeedback] =
     useState<FocusFeedback | null>(null);
@@ -121,6 +137,23 @@ export function WorldQuantReadinessApp({
   const mockSnapshot = useSyncExternalStore(
     subscribeToMockSession,
     readMockSessionSnapshot,
+    () => null,
+  );
+  const v4MockStorageKey = account
+    ? mockInterviewStorageKey(account.id)
+    : null;
+  const subscribeToV4Mock = useMemo(
+    () => (callback: () => void) =>
+      subscribeToStorageKey(v4MockStorageKey, callback),
+    [v4MockStorageKey],
+  );
+  const readV4Mock = useMemo(
+    () => () => readStorageKey(v4MockStorageKey),
+    [v4MockStorageKey],
+  );
+  const v4MockSnapshot = useSyncExternalStore(
+    subscribeToV4Mock,
+    readV4Mock,
     () => null,
   );
   const focusSessionSnapshot = useSyncExternalStore(
@@ -261,6 +294,59 @@ export function WorldQuantReadinessApp({
     mockSession?.status === "completed" && mockSession.report
       ? mockSession
       : null;
+  const activeV4Mock =
+    v4MockSnapshot &&
+    v4MockSnapshot !== EMPTY_STORAGE_SNAPSHOT
+      ? parseMockInterviewSessionV4(v4MockSnapshot)
+      : null;
+  const roleMockHistory = useMemo(
+    () =>
+      initialMockHistory
+        .filter(
+          (entry) =>
+            entry.status === "completed" &&
+            entry.roleProfileId === preferences.roleId &&
+            entry.completedAt !== null,
+        )
+        .sort(compareMockHistoryNewestFirst),
+    [initialMockHistory, preferences.roleId],
+  );
+  const latestV4Mock = roleMockHistory[0] ?? null;
+  const latestV4Artifact =
+    latestV4Mock?.report as MockInterviewCompletedArtifactV4 | undefined;
+  const latestV4Duration =
+    latestV4Mock?.durationMinutes as
+      | MockInterviewTrendDuration
+      | undefined;
+  const mockTrends = useMemo(
+    () =>
+      buildWorldQuantMockTrends({
+        entries: initialMockHistory,
+        roleProfileId: preferences.roleId,
+        durationMinutes: latestV4Duration ?? null,
+      }),
+    [
+      initialMockHistory,
+      latestV4Duration,
+      preferences.roleId,
+    ],
+  );
+  const assessedMockTrends = worldQuantCompetencyKeys
+    .map((key) => ({ key, ...mockTrends.competencies[key] }))
+    .filter((trend) => trend.count > 0);
+  const latestMockRemediation = latestV4Artifact
+    ? buildWorldQuantMockRemediation({
+        debrief: latestV4Artifact.debrief,
+        approvedQuestions: questions,
+        states: learningStates,
+        today,
+        timeBudgetMinutes: preferences.minutesPerDay,
+      })
+    : null;
+  const balancedMockHref = mockInterviewHref({
+    roleId: preferences.roleId,
+    mode: "balanced",
+  });
 
   function updatePreferences(next: Partial<HubPreferences>) {
     writeHubPreferences({ ...preferences, ...next });
@@ -423,12 +509,18 @@ export function WorldQuantReadinessApp({
           <MetricCard
             label="Mock gần nhất"
             value={
-              completedMock ? `${completedMock.report!.overallScore}/100` : "Chưa có"
+              latestV4Artifact
+                ? `${latestV4Artifact.debrief.roleInterviewScore ?? "—"}/100`
+                : completedMock
+                  ? `${completedMock.report!.overallScore}/100`
+                  : "Chưa có"
             }
             note={
-              completedMock
-                ? "Hiển thị riêng, chưa trộn vào index"
-                : "Làm mock để thêm bằng chứng phỏng vấn"
+              latestV4Artifact
+                ? `${latestV4Artifact.debrief.assessedWeightPercent}% trọng số role đã hỏi · tách khỏi index`
+                : completedMock
+                  ? "Legacy v3 · hiển thị riêng, chưa trộn vào index"
+                  : "Làm mock để thêm bằng chứng phỏng vấn"
             }
           />
         </section>
@@ -584,7 +676,7 @@ export function WorldQuantReadinessApp({
                 {focusPlanCtaLabel(focusPlan, Boolean(activeFocusSession))}
               </button>
               <Link
-                href="/mock-interview"
+                href={balancedMockHref}
                 className="rounded-2xl border border-[#173f35]/15 bg-white px-5 py-3 text-sm font-bold transition hover:border-[#356b58]/40"
               >
                 Luyện mock interview
@@ -671,6 +763,11 @@ export function WorldQuantReadinessApp({
                   key={competency.key}
                   competency={competency}
                   core={profile.coreCompetencies.includes(competency.key)}
+                  mockHref={mockInterviewHref({
+                    roleId: preferences.roleId,
+                    mode: "targeted",
+                    competency: competency.key,
+                  })}
                 />
               ))}
             </div>
@@ -716,6 +813,16 @@ export function WorldQuantReadinessApp({
                     >
                       {targetedFocusCtaLabel(competencyPlan)}
                     </button>
+                    <Link
+                      href={mockInterviewHref({
+                        roleId: preferences.roleId,
+                        mode: "targeted",
+                        competency: key,
+                      })}
+                      className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-xs font-bold"
+                    >
+                      Mock đúng gap
+                    </Link>
                     {focusFeedback?.competency === key ? (
                       <p
                         role="alert"
@@ -731,7 +838,206 @@ export function WorldQuantReadinessApp({
           </Panel>
 
           <Panel eyebrow="Interview evidence" title="Mock gần nhất">
-            {completedMock ? (
+            {activeV4Mock &&
+            activeV4Mock.status !== "completed" ? (
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#356b58]/20 bg-[#edf3e7] p-4">
+                <div>
+                  <p className="text-sm font-semibold">
+                    Có một mock v4 đang làm dở.
+                  </p>
+                  <p className="mt-1 text-xs text-[#64736c]">
+                    {worldQuantRoleProfileById(activeV4Mock.profileId).label} ·{" "}
+                    câu {activeV4Mock.currentIndex + 1}/
+                    {activeV4Mock.questions.length} ·{" "}
+                    {activeV4Mock.status === "evaluating"
+                      ? "đang chấm report"
+                      : "đang phỏng vấn"}
+                  </p>
+                </div>
+                <Link
+                  href="/mock-interview"
+                  className="rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white"
+                >
+                  Tiếp tục mock
+                </Link>
+              </div>
+            ) : null}
+            {latestV4Artifact && latestV4Mock ? (
+              <>
+                <div className="mt-5 rounded-2xl bg-[#edf3e7] p-5">
+                  <div className="flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                      <p className="text-4xl font-semibold">
+                        {latestV4Artifact.debrief.roleInterviewScore ?? "—"}
+                        <span className="text-lg text-[#64736c]">/100</span>
+                      </p>
+                      <p className="mt-2 text-sm text-[#64736c]">
+                        {latestV4Artifact.plan.mode === "targeted"
+                          ? `Targeted · ${
+                              worldQuantCompetencies[
+                                latestV4Artifact.plan.targetCompetency!
+                              ].shortLabel
+                            }`
+                          : "Balanced role sample"}{" "}
+                        · {latestV4Artifact.plan.durationMinutes} phút ·{" "}
+                        {latestV4Artifact.debrief.assessedWeightPercent}% trọng
+                        số role đã hỏi
+                      </p>
+                      <p className="mt-1 text-xs text-[#64736c]">
+                        Hoàn thành{" "}
+                        {formatDateTime(latestV4Artifact.completedAt)}
+                      </p>
+                    </div>
+                    <Link
+                      href={balancedMockHref}
+                      className="rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white"
+                    >
+                      Làm balanced mock
+                    </Link>
+                  </div>
+                  <p className="mt-4 text-xs leading-5 text-[#52645c]">
+                    Đây là điểm trên phần đã hỏi, không phải kết luận sẵn sàng
+                    tuyển dụng và không được cộng vào Preparation Index.
+                  </p>
+                </div>
+
+                <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {latestV4Artifact.debrief.competencies
+                    .filter((item) => item.roleWeight > 0)
+                    .map((item) => (
+                      <div
+                        key={item.competency}
+                        className="rounded-xl border border-[#173f35]/10 px-4 py-3"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-xs font-semibold">
+                            {
+                              worldQuantCompetencies[item.competency]
+                                .shortLabel
+                            }
+                          </span>
+                          <span className="font-mono text-xs font-bold">
+                            {item.status === "assessed"
+                              ? `${item.score}/100`
+                              : "Chưa hỏi"}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-[10px] text-[#64736c]">
+                          {item.status === "assessed"
+                            ? `${item.evidenceCount} câu evidence · role weight ${item.roleWeight}%`
+                            : `Không có evidence trong attempt này · role weight ${item.roleWeight}%`}
+                        </p>
+                      </div>
+                    ))}
+                </div>
+
+                {assessedMockTrends.length ? (
+                  <div className="mt-4 rounded-2xl border border-[#173f35]/10 bg-[#fbfaf4] p-4">
+                    <p className="text-xs font-bold">
+                      Trend cùng role/profile,{" "}
+                      {mockTrends.planMode === "targeted"
+                        ? `targeted ${
+                            worldQuantCompetencies[
+                              mockTrends.targetCompetency!
+                            ].shortLabel
+                          }`
+                        : "balanced"}{" "}
+                      và cùng {latestV4Duration} phút
+                    </p>
+                    <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      {assessedMockTrends
+                        .filter(
+                          (trend) => profile.weights[trend.key] > 0,
+                        )
+                        .map((trend) => (
+                          <div
+                            key={trend.key}
+                            className="flex items-center justify-between gap-3 text-xs"
+                          >
+                            <span>
+                              {
+                                worldQuantCompetencies[trend.key]
+                                  .shortLabel
+                              }
+                            </span>
+                            <span className="font-mono font-bold">
+                              {trend.latest}
+                              {trend.delta === null
+                                ? ""
+                                : ` (${trend.delta >= 0 ? "+" : ""}${trend.delta})`}{" "}
+                              · n={trend.count}
+                            </span>
+                          </div>
+                        ))}
+                    </div>
+                    <p className="mt-3 text-[10px] leading-4 text-[#64736c]">
+                      Chỉ so competency đã được chấm; “Chưa hỏi” không bị biến
+                      thành 0. Có {mockTrends.comparableAttemptCount} attempt
+                      cùng version để đối chiếu.
+                    </p>
+                  </div>
+                ) : null}
+
+                {latestMockRemediation?.recommendations.length ? (
+                  <div className="mt-4">
+                    <p className="text-xs font-bold">
+                      Remediation từ gap đã được chấm
+                    </p>
+                    <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                      {latestMockRemediation.recommendations
+                        .slice(0, 2)
+                        .map((option) => (
+                          <div
+                            key={option.competency}
+                            className="rounded-xl border border-[#173f35]/10 p-3"
+                          >
+                            <p className="text-xs font-semibold">
+                              #{option.rank}{" "}
+                              {
+                                worldQuantCompetencies[
+                                  option.competency
+                                ].shortLabel
+                              }
+                            </p>
+                            <p className="mt-1 text-[10px] text-[#64736c]">
+                              {option.availability === "focus_sprint"
+                                ? `${option.plan.questions.length} thẻ approved`
+                                : option.availability === "guide"
+                                  ? "Có guide nền tảng"
+                                  : option.availability === "content_gap"
+                                    ? "Question bank chưa có card/guide phù hợp"
+                                    : "Hiện chưa có item đến hạn cho gap này"}
+                            </p>
+                            {option.availability === "focus_sprint" ||
+                            option.availability === "guide" ? (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  startFocusSprint(
+                                    option.plan,
+                                    option.competency,
+                                  )
+                                }
+                                className="mt-3 rounded-lg bg-[#173f35] px-3 py-2 text-[10px] font-bold text-white"
+                              >
+                                {option.availability === "focus_sprint"
+                                  ? "Tạo Focus Sprint"
+                                  : "Mở guide"}
+                              </button>
+                            ) : null}
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                ) : null}
+
+                <p className="mt-4 text-xs leading-5 text-[#64736c]">
+                  {mockHistoryAvailable
+                    ? `${roleMockHistory.length} attempt v4 của role này được lưu theo account.`
+                    : "Cloud history chưa cấu hình; Hub chỉ hiện dữ liệu server đã tải được."}
+                </p>
+              </>
+            ) : completedMock ? (
               <>
                 <div className="mt-5 flex flex-wrap items-end justify-between gap-4 rounded-2xl bg-[#edf3e7] p-5">
                   <div>
@@ -745,7 +1051,7 @@ export function WorldQuantReadinessApp({
                     </p>
                   </div>
                   <Link
-                    href="/mock-interview"
+                    href={balancedMockHref}
                     className="rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white"
                   >
                     Xem / làm lại
@@ -800,7 +1106,7 @@ export function WorldQuantReadinessApp({
                   performance, engineering quality và ownership.
                 </p>
                 <Link
-                  href="/mock-interview"
+                  href={balancedMockHref}
                   className="mt-5 inline-flex rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white"
                 >
                   Bắt đầu mock
@@ -895,9 +1201,11 @@ function ScoreCard({
 function CompetencyCard({
   competency,
   core,
+  mockHref,
 }: {
   competency: CompetencyReadiness;
   core: boolean;
+  mockHref: string;
 }) {
   const definition = worldQuantCompetencies[competency.key];
   return (
@@ -943,6 +1251,12 @@ function CompetencyCard({
           {gapLabel(competency.gapKind)}
         </span>
       </div>
+      <Link
+        href={mockHref}
+        className="mt-4 inline-flex rounded-xl border border-[#173f35]/15 bg-white px-3 py-2 text-[11px] font-bold text-[#173f35]"
+      >
+        Luyện targeted mock
+      </Link>
     </article>
   );
 }
@@ -1110,6 +1424,29 @@ function readMockSessionSnapshot() {
   }
 }
 
+function subscribeToStorageKey(
+  storageKey: string | null,
+  callback: () => void,
+) {
+  const onStorage = (event: StorageEvent) => {
+    if (storageKey && event.key === storageKey) callback();
+  };
+  window.addEventListener("storage", onStorage);
+  return () => window.removeEventListener("storage", onStorage);
+}
+
+function readStorageKey(storageKey: string | null) {
+  if (!storageKey) return EMPTY_STORAGE_SNAPSHOT;
+  try {
+    return (
+      window.localStorage.getItem(storageKey) ??
+      EMPTY_STORAGE_SNAPSHOT
+    );
+  } catch {
+    return EMPTY_STORAGE_SNAPSHOT;
+  }
+}
+
 function subscribeToFocusSession(callback: () => void) {
   const onStorage = (event: StorageEvent) => {
     if (event.key === FOCUS_SESSION_STORAGE_KEY) callback();
@@ -1234,6 +1571,33 @@ function gapToneClass(gapKind: CompetencyReadiness["gapKind"]) {
   return gapKind === "learning"
     ? "font-bold text-[#356b58]"
     : "font-bold text-[#8e3825]";
+}
+
+function mockInterviewHref({
+  roleId,
+  mode,
+  competency,
+}: {
+  roleId: WorldQuantRoleProfileId;
+  mode: "balanced" | "targeted";
+  competency?: WorldQuantCompetencyKey;
+}) {
+  const query = new URLSearchParams({ role: roleId, mode });
+  if (competency) query.set("focus", competency);
+  return `/mock-interview?${query.toString()}`;
+}
+
+function compareMockHistoryNewestFirst(
+  left: MockInterviewHistoryEntry,
+  right: MockInterviewHistoryEntry,
+) {
+  const leftTime = Date.parse(left.completedAt ?? "");
+  const rightTime = Date.parse(right.completedAt ?? "");
+  const timeOrder =
+    Number.isFinite(leftTime) && Number.isFinite(rightTime)
+      ? rightTime - leftTime
+      : 0;
+  return timeOrder || right.attemptId.localeCompare(left.attemptId);
 }
 
 function formatMockReadiness(
