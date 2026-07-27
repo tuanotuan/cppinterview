@@ -4,7 +4,10 @@ import {
   AiMonthlyBudgetExceededError,
   withAiBudget,
 } from "@/lib/ai/budget";
-import { coachRequestSchema } from "@/lib/ai/contracts";
+import {
+  coachFeedbackSchema,
+  coachRequestSchema,
+} from "@/lib/ai/contracts";
 import {
   AllAiQuotasExceededError,
   GeminiFallbackProviderError,
@@ -135,6 +138,31 @@ export async function POST(request: Request) {
     );
   }
 
+  if (supabase && authResult?.data.user && parsed.data.idempotencyKey) {
+    const cached = await supabase
+      .from("coach_attempts")
+      .select("id, feedback, model")
+      .eq("user_id", authResult.data.user.id)
+      .eq("idempotency_key", parsed.data.idempotencyKey)
+      .maybeSingle();
+    if (!cached.error && cached.data) {
+      const feedback = coachFeedbackSchema.safeParse(cached.data.feedback);
+      if (feedback.success) {
+        return Response.json({
+          feedback: feedback.data,
+          model: cached.data.model,
+          provider: cached.data.model.startsWith("Gemini")
+            ? "gemini"
+            : "openai",
+          attemptId: cached.data.id,
+          cached: true,
+          aiDailyBudget: null,
+          aiUsageRecorded: true,
+        });
+      }
+    }
+  }
+
   try {
     let provider: "openai" | "gemini" = "openai";
     let dailyBudget = null;
@@ -169,8 +197,9 @@ export async function POST(request: Request) {
     const modelLabel =
       provider === "gemini" ? `Gemini fallback · ${model}` : model;
 
+    let attemptId: number | null = null;
     if (supabase && authResult?.data.user) {
-      const { error: saveError } = await supabase.from("coach_attempts").insert({
+      const attempt = await supabase.from("coach_attempts").insert({
         user_id: authResult.data.user.id,
         question_id: question.id,
         question_version: question.version,
@@ -181,9 +210,12 @@ export async function POST(request: Request) {
         suggested_rating: feedback.suggestedRating,
         feedback,
         model: modelLabel,
-      });
-      if (saveError) {
-        console.error("AI coach history save failed", { code: saveError.code });
+        idempotency_key: parsed.data.idempotencyKey ?? null,
+      }).select("id").single();
+      if (attempt.error) {
+        console.error("AI coach history save failed", { code: attempt.error.code });
+      } else {
+        attemptId = attempt.data.id;
       }
     }
 
@@ -193,6 +225,7 @@ export async function POST(request: Request) {
       provider,
       aiDailyBudget: dailyBudget,
       aiUsageRecorded: provider === "gemini" || dailyBudget !== null,
+      attemptId,
     });
   } catch (error) {
     if (error instanceof AllAiQuotasExceededError) {

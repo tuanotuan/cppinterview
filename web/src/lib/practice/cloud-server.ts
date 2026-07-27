@@ -58,6 +58,7 @@ export type CloudContext = {
   geminiFallbackEnabled: boolean;
   aiDailyBudget: AiDailyBudgetSnapshot | null;
   generationJobs: ContentGenerationJobSummary[];
+  mistakeQuestionIds: string[];
   error: boolean;
 };
 
@@ -121,6 +122,7 @@ export async function loadCloudContext(
       geminiFallbackEnabled: false,
       aiDailyBudget: null,
       generationJobs: [],
+      mistakeQuestionIds: [],
       error: false,
     };
   }
@@ -141,6 +143,7 @@ export async function loadCloudContext(
       geminiFallbackEnabled: false,
       aiDailyBudget: null,
       generationJobs: [],
+      mistakeQuestionIds: [],
       error: false,
     };
   }
@@ -186,6 +189,10 @@ export async function loadCloudContext(
         .order("updated_at", { ascending: false })
         .limit(50)
     : Promise.resolve({ data: [], error: null });
+  const mistakeQuestionsPromise = supabase
+    .from("mistake_flashcard_candidates")
+    .select("materialized_question_id")
+    .not("materialized_question_id", "is", null);
   const [
     reviewsResult,
     statesResult,
@@ -196,6 +203,7 @@ export async function loadCloudContext(
     geminiUsageResult,
     providerSettingsResult,
     generationJobsResult,
+    mistakeQuestionsResult,
     baseManifest,
   ] =
     await Promise.all([
@@ -218,6 +226,7 @@ export async function loadCloudContext(
       geminiUsagePromise,
       providerSettingsPromise,
       generationJobsPromise,
+      mistakeQuestionsPromise,
       loadQuestionStoreManifest({ supabase }),
     ]);
   const { data: rows, error } = reviewsResult;
@@ -231,6 +240,7 @@ export async function loadCloudContext(
     providerSettingsResult;
   const { data: generationJobRows, error: generationJobsError } =
     generationJobsResult;
+  const { data: mistakeQuestionRows } = mistakeQuestionsResult;
   const aiDailyBudget = includeDailyAiBudget
     ? aiDailyBudgetSnapshotFromUsageRead({
         row: dailyUsageRow,
@@ -326,6 +336,11 @@ export async function loadCloudContext(
             updatedAt: String(row.updated_at),
           }];
         }),
+    mistakeQuestionIds: (mistakeQuestionRows ?? []).flatMap((row) =>
+      typeof row.materialized_question_id === "string"
+        ? [row.materialized_question_id]
+        : [],
+    ),
     error: Boolean(
       error ||
         statesError ||

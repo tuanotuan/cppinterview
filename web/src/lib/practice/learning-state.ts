@@ -222,8 +222,14 @@ export function buildAnkiDailyQueue(
   {
     newLimit = MAX_NEW_PER_DAY,
     reviewLimit = MAX_REVIEW_PER_DAY,
-  }: { newLimit?: number; reviewLimit?: number } = {},
+    priorityQuestionIds = [],
+  }: {
+    newLimit?: number;
+    reviewLimit?: number;
+    priorityQuestionIds?: Iterable<string>;
+  } = {},
 ): string[] {
+  const priority = new Set(priorityQuestionIds);
   const available = [...states.values()].filter(
     (state) => !state.suspended && state.lastReviewedOn !== dateKey,
   );
@@ -242,11 +248,19 @@ export function buildAnkiDailyQueue(
     .slice(0, Math.max(0, reviewLimit));
   const newIds = available
     .filter((state) => state.state === "new")
-    .map((state) => state.questionId);
+    .map((state) => state.questionId)
+    .sort(
+      (left, right) =>
+        Number(priority.has(right)) - Number(priority.has(left)),
+    );
   const newQuestions: string[] = [];
   const candidates = [...newIds];
   for (let index = 0; index < Math.max(0, newLimit); index += 1) {
-    const selected = selectDailyQuestion(candidates, `${dateKey}:${index}`);
+    const preferred = candidates.filter((id) => priority.has(id));
+    const selected = selectDailyQuestion(
+      preferred.length ? preferred : candidates,
+      `${dateKey}:${index}`,
+    );
     if (!selected) break;
     newQuestions.push(selected);
     candidates.splice(candidates.indexOf(selected), 1);

@@ -3,6 +3,8 @@ import Link from "next/link";
 
 import { buildAdminDashboardSnapshot } from "@/lib/admin/dashboard";
 import { loadCloudContext } from "@/lib/practice/cloud-server";
+import { loadMistakeCandidates } from "@/lib/practice/mistake-cards.server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import { AdminDashboard } from "./admin-dashboard";
 
@@ -32,6 +34,9 @@ export default async function AdminPage() {
     vietnamDateKey(),
     cloud.questionOverrides,
   );
+  const mistakes = await loadMistakeCandidates(
+    await createSupabaseServerClient(),
+  );
 
   return (
     <AdminDashboard
@@ -41,6 +46,9 @@ export default async function AdminPage() {
       initialGeminiFallbackEnabled={cloud.geminiFallbackEnabled}
       initialGenerationJobs={cloud.generationJobs}
       initialSnapshot={snapshot}
+      initialMistakeCandidates={mistakes.candidates}
+      initialMistakeGenerationMode={mistakes.generationMode}
+      mistakeQueueAvailable={mistakes.available}
     />
   );
 }

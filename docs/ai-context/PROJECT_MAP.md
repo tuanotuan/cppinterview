@@ -47,6 +47,8 @@ API quan trọng:
 - `api/mock-interview/{run,report,history}`: chạy sample code, xác minh exact
   blueprint, tạo report có hidden evaluation và đọc/xóa history theo account.
 - `api/progress/sync`: đồng bộ review/Anki state.
+- `api/mistakes/{generate,preferences,resolve,ground,backfill}`: Mistake Inbox
+  owner-private, grounded card generation và recovery từ Mock v4.
 - `api/questions/approve`: duyệt đúng question version + source hash.
 - `api/admin/{questions,question-state,ai-settings,generation-jobs}`: mutation
   owner-only.
@@ -61,6 +63,7 @@ API quan trọng:
 | `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts` | Queue Anki, rating, due date, streak và browser progress store |
 | `practice` | `focus-session.ts`, `focus-eligibility.ts` | Session Focus Sprint identity-only, resume/reconcile/completion và lọc exact approved refs |
 | `practice` | `cloud-server.ts`, `cloud.ts` | Ghép auth, progress, approval, overrides, usage, manifest |
+| `practice` | `mistake-cards.ts`, `mistake-cards.server.ts` | Capture lỗi durable, dedupe, grounded generation và materialize draft |
 | `worldquant` | `readiness.ts`, `focus-plan.ts` | Role/competency model, preparation evidence và planner queue deterministic theo gap/time budget |
 | `ai` | `openai.ts`, `gemini.ts`, `fallback.ts` | Provider calls và fallback |
 | `ai` | `budget.ts`, `usage.ts`, `billing.ts` | Admission daily, accounting monthly, Costs API reconciliation |
@@ -139,6 +142,16 @@ interactive web requests; Costs API toàn project và background generation ch�
 tham gia monthly accounting/hard-spend backstop. Khi daily/hard quota OpenAI
 hết, Gemini có thể fallback nếu config và owner toggle cho phép. Múi giờ budget
 là `Asia/Ho_Chi_Minh`.
+
+### Mistake → flashcard
+
+AI Coach chỉ capture sau khi attempt đã lưu và rating `again`/`hard` đã sync;
+Mock v4 chỉ capture sau khi completed artifact được xác nhận bền vững. Evidence
+không chứa candidate answer hay hidden runner data. Candidate được dedupe theo
+concept/source, có chế độ `ask`/`auto`/`off`; AI chỉ sinh draft có lesson section
+được xác minh, rồi owner phải duyệt exact revision trước khi học. Remediation card
+được ưu tiên trong quota New, có thể đóng góp learning evidence nhưng không làm
+tăng WorldQuant content coverage.
 
 ### Code runner
 

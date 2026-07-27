@@ -186,6 +186,7 @@ export function PracticeApp({
   initialDeck,
   requestedFocusId,
   invalidFocusRequest,
+  mistakeQuestionIds,
 }: {
   questions: PracticeQuestion[];
   reviewQueue: PracticeQuestion[];
@@ -200,6 +201,7 @@ export function PracticeApp({
   initialDeck: PracticeDeckId;
   requestedFocusId: string | null;
   invalidFocusRequest: boolean;
+  mistakeQuestionIds: string[];
 }) {
   const hasFocusRequest = requestedFocusId !== null || invalidFocusRequest;
   const snapshot = useSyncExternalStore(
@@ -223,6 +225,10 @@ export function PracticeApp({
   );
   const [coachModels, setCoachModels] = useState<Record<string, string>>({});
   const [coachAnswers, setCoachAnswers] = useState<Record<string, string>>({});
+  const [coachAttemptIds, setCoachAttemptIds] = useState<Record<string, number>>({});
+  const [coachIdempotencyKeys, setCoachIdempotencyKeys] = useState<
+    Record<string, string>
+  >({});
   const [coachLoading, setCoachLoading] = useState<string | null>(null);
   const [coachErrors, setCoachErrors] = useState<Record<string, string>>({});
   const [followUpInputs, setFollowUpInputs] = useState<Record<string, string>>({});
@@ -250,6 +256,7 @@ export function PracticeApp({
   );
   const [customStudyIds, setCustomStudyIds] = useState<string[] | null>(null);
   const [customStudyNotice, setCustomStudyNotice] = useState<string | null>(null);
+  const [mistakeNotice, setMistakeNotice] = useState<string | null>(null);
   const [focusSession, setFocusSession] = useState<FocusSession | null>(null);
   const [focusHydrationStatus, setFocusHydrationStatus] =
     useState<FocusHydrationStatus>(
@@ -343,6 +350,8 @@ export function PracticeApp({
     const restoredFeedback: Record<string, CoachFeedback> = {};
     const restoredModels: Record<string, string> = {};
     const restoredCoachAnswers: Record<string, string> = {};
+    const restoredAttemptIds: Record<string, number> = {};
+    const restoredIdempotencyKeys: Record<string, string> = {};
     const restoredInputs: Record<string, string> = {};
     const restoredChats: Record<string, FollowUpChatMessage[]> = {};
     const restoredDeepDiveAnswers: Record<string, string> = {};
@@ -364,6 +373,10 @@ export function PracticeApp({
       if (saved.coachFeedback) restoredFeedback[questionId] = saved.coachFeedback;
       if (saved.coachModel) restoredModels[questionId] = saved.coachModel;
       if (saved.coachAnswer) restoredCoachAnswers[questionId] = saved.coachAnswer;
+      if (saved.coachAttemptId) restoredAttemptIds[questionId] = saved.coachAttemptId;
+      if (saved.coachIdempotencyKey) {
+        restoredIdempotencyKeys[questionId] = saved.coachIdempotencyKey;
+      }
       if (saved.followUpInput) restoredInputs[questionId] = saved.followUpInput;
       if (saved.followUpChat) restoredChats[questionId] = saved.followUpChat;
       if (saved.deepDiveOpen) restoredDeepDiveOpen.add(questionId);
@@ -384,6 +397,8 @@ export function PracticeApp({
     setCoachFeedback(restoredFeedback);
     setCoachModels(restoredModels);
     setCoachAnswers(restoredCoachAnswers);
+    setCoachAttemptIds(restoredAttemptIds);
+    setCoachIdempotencyKeys(restoredIdempotencyKeys);
     setFollowUpInputs(restoredInputs);
     setFollowUpChats(restoredChats);
     setDeepDiveOpen(restoredDeepDiveOpen);
@@ -409,6 +424,8 @@ export function PracticeApp({
         const feedback = coachFeedback[question.id];
         const model = coachModels[question.id];
         const coachAnswer = coachAnswers[question.id];
+        const coachAttemptId = coachAttemptIds[question.id];
+        const coachIdempotencyKey = coachIdempotencyKeys[question.id];
         const followUpInput = followUpInputs[question.id];
         const followUpChat = followUpChats[question.id];
         const deepDiveAnswer = deepDiveAnswers[question.id];
@@ -422,6 +439,7 @@ export function PracticeApp({
           answer ||
             codeAnswer ||
             feedback ||
+            coachIdempotencyKey ||
             followUpInput ||
             followUpChat?.length ||
             deepDiveAnswer ||
@@ -444,6 +462,8 @@ export function PracticeApp({
           ...(feedback ? { coachFeedback: feedback } : {}),
           ...(model ? { coachModel: model } : {}),
           ...(coachAnswer ? { coachAnswer } : {}),
+          ...(coachAttemptId ? { coachAttemptId } : {}),
+          ...(coachIdempotencyKey ? { coachIdempotencyKey } : {}),
           ...(followUpInput ? { followUpInput } : {}),
           ...(followUpChat?.length ? { followUpChat } : {}),
           ...(isDeepDiveOpen ? { deepDiveOpen: true } : {}),
@@ -478,7 +498,9 @@ export function PracticeApp({
   }, [
     answers,
     coachAnswers,
+    coachAttemptIds,
     coachFeedback,
+    coachIdempotencyKeys,
     coachModels,
     codeAnswers,
     deepDiveAnswers,
@@ -819,6 +841,7 @@ export function PracticeApp({
     const nextRemainingIds = buildAnkiDailyQueue(
       nextLearningStates,
       today,
+      { priorityQuestionIds: mistakeQuestionIds },
     ).filter(
       (questionId) => nextLatest.get(questionId)?.reviewedOn !== today,
     );
@@ -851,6 +874,7 @@ export function PracticeApp({
   }, [
     availableQuestions,
     cloudQuestionStates,
+    mistakeQuestionIds,
     pendingReview,
     progress.reviews,
     selectedDeck,
@@ -1000,7 +1024,17 @@ export function PracticeApp({
     const updated = recordScheduledReview(progress, scheduled.review);
     saveProgress(JSON.stringify(updated));
     if (account) {
-      void syncReviews([scheduled.review]);
+      const attemptId = coachAttemptIds[current.id];
+      void syncReviews(
+        [scheduled.review],
+        attemptId && (rating === "again" || rating === "hard")
+          ? {
+              coachAttemptId: attemptId,
+              questionId: current.id,
+              rating,
+            }
+          : undefined,
+      );
     }
     if (isCustomStudyQuestion && customRemainingIds.length <= 1) {
       setCustomStudyIds(null);
@@ -1133,6 +1167,8 @@ export function PracticeApp({
     setCoachFeedback({});
     setCoachModels({});
     setCoachAnswers({});
+    setCoachAttemptIds({});
+    setCoachIdempotencyKeys({});
     setCoachErrors({});
     setFollowUpInputs({});
     setFollowUpChats({});
@@ -1146,22 +1182,57 @@ export function PracticeApp({
     setVisibleSources(new Set());
   }
 
-  async function syncReviews(reviews: Review[]) {
+  async function syncReviews(
+    reviews: Review[],
+    mistakeCapture?: {
+      coachAttemptId: number;
+      questionId: string;
+      rating: "again" | "hard";
+    },
+  ) {
     setSyncStatus("syncing");
     try {
       const response = await fetch("/api/progress/sync", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reviews }),
+        body: JSON.stringify({ reviews, mistakeCapture }),
       });
       if (!response.ok) throw new Error("Cloud sync failed");
       const payload = (await response.json()) as {
         progress: PracticeProgress;
         questionStates: QuestionLearningState[];
+        mistakeCapture?: {
+          candidates: Array<{ id: string }>;
+          generationMode: "ask" | "auto" | "off";
+        } | null;
+        mistakeQueueAvailable?: boolean;
       };
       const currentLocal = parseProgress(getProgressSnapshot());
       saveProgress(JSON.stringify(mergeProgress(currentLocal, payload.progress)));
       setCloudQuestionStates(payload.questionStates);
+      const candidates = payload.mistakeCapture?.candidates ?? [];
+      if (candidates.length) {
+        if (payload.mistakeCapture?.generationMode === "auto") {
+          setMistakeNotice(
+            `Đã phát hiện ${candidates.length} lỗ hổng; đang tạo thẻ ôn tập để chờ duyệt.`,
+          );
+          void Promise.allSettled(
+            candidates.map((candidate) =>
+              fetch("/api/mistakes/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ candidateId: candidate.id }),
+              }),
+            ),
+          );
+        } else if (payload.mistakeCapture?.generationMode === "ask") {
+          setMistakeNotice(
+            `Đã đưa ${candidates.length} lỗi vào Mistake Inbox. Mở Admin để tạo thẻ.`,
+          );
+        }
+      } else if (payload.mistakeQueueAvailable === false) {
+        setMistakeNotice("Mistake queue chưa được cài migration trong Supabase.");
+      }
       setSyncStatus("synced");
     } catch {
       setSyncStatus("error");
@@ -1181,16 +1252,27 @@ export function PracticeApp({
     setCoachErrors((errors) => ({ ...errors, [current.id]: "" }));
 
     try {
+      const idempotencyKey =
+        coachIdempotencyKeys[current.id] ?? crypto.randomUUID();
+      setCoachIdempotencyKeys((keys) => ({
+        ...keys,
+        [current.id]: idempotencyKey,
+      }));
       const response = await fetch("/api/coach/evaluate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ questionId: current.id, answer }),
+        body: JSON.stringify({
+          questionId: current.id,
+          answer,
+          idempotencyKey,
+        }),
       });
       const payload = (await response.json()) as {
         feedback?: CoachFeedback;
         model?: string;
         aiDailyBudget?: AiDailyBudgetSnapshot | null;
         aiUsageRecorded?: boolean;
+        attemptId?: number | null;
         error?: string;
       };
 
@@ -1211,6 +1293,12 @@ export function PracticeApp({
         ...evaluatedAnswers,
         [current.id]: answer,
       }));
+      if (payload.attemptId) {
+        setCoachAttemptIds((ids) => ({
+          ...ids,
+          [current.id]: payload.attemptId!,
+        }));
+      }
       if (payload.aiDailyBudget) {
         setAiDailyBudget((current) =>
           mergeAiDailyBudgetSnapshot(current, payload.aiDailyBudget!),
@@ -1421,6 +1509,8 @@ export function PracticeApp({
     setCoachFeedback((values) => omitRecordKey(values, questionId));
     setCoachModels((values) => omitRecordKey(values, questionId));
     setCoachAnswers((values) => omitRecordKey(values, questionId));
+    setCoachAttemptIds((values) => omitRecordKey(values, questionId));
+    setCoachIdempotencyKeys((values) => omitRecordKey(values, questionId));
     setCoachErrors((values) => omitRecordKey(values, questionId));
     setFollowUpInputs((values) => omitRecordKey(values, questionId));
     setFollowUpChats((values) => omitRecordKey(values, questionId));
@@ -1435,6 +1525,8 @@ export function PracticeApp({
     setCoachFeedback((values) => omitRecordKey(values, questionId));
     setCoachModels((values) => omitRecordKey(values, questionId));
     setCoachAnswers((values) => omitRecordKey(values, questionId));
+    setCoachAttemptIds((values) => omitRecordKey(values, questionId));
+    setCoachIdempotencyKeys((values) => omitRecordKey(values, questionId));
     setCoachErrors((values) => omitRecordKey(values, questionId));
     setFollowUpInputs((values) => omitRecordKey(values, questionId));
     setFollowUpChats((values) => omitRecordKey(values, questionId));
@@ -1576,6 +1668,18 @@ export function PracticeApp({
           >
             {authNotice}
           </p>
+        ) : null}
+
+        {mistakeNotice ? (
+          <div
+            role="status"
+            className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#356b58]/25 bg-[#eaf4df] px-4 py-3 text-sm text-[#245748]"
+          >
+            <span>{mistakeNotice}</span>
+            <Link href="/admin#mistake-inbox" className="font-bold underline">
+              Mở Mistake Inbox
+            </Link>
+          </div>
         ) : null}
 
         {isFocusActive && focusSession ? (

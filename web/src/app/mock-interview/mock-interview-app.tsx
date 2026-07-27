@@ -728,6 +728,11 @@ export function MockInterviewApp({
         historyPersisted?: boolean;
         historyAttemptId?: string | null;
         historyWarning?: string | null;
+        mistakeCapture?: {
+          candidates: Array<{ id: string }>;
+          generationMode: "ask" | "auto" | "off";
+        } | null;
+        mistakeQueueAvailable?: boolean;
         executionResults?: Array<{
           questionId: string;
           result: unknown;
@@ -817,7 +822,30 @@ export function MockInterviewApp({
           ),
         ]);
       }
-      setHistoryError(payload.historyWarning ?? null);
+      const detected = payload.mistakeCapture?.candidates ?? [];
+      const mistakeMessage = detected.length
+        ? `Đã đưa ${detected.length} lỗi từ buổi mock vào Mistake Inbox.`
+        : payload.mistakeQueueAvailable === false
+          ? "Mistake queue chưa được cài migration trong Supabase."
+          : null;
+      setHistoryError(
+        [payload.historyWarning, mistakeMessage].filter(Boolean).join(" ") ||
+          null,
+      );
+      if (
+        detected.length &&
+        payload.mistakeCapture?.generationMode === "auto"
+      ) {
+        void Promise.allSettled(
+          detected.map((candidate) =>
+            fetch("/api/mistakes/generate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ candidateId: candidate.id }),
+            }),
+          ),
+        );
+      }
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
       autoSubmitted.current = true;

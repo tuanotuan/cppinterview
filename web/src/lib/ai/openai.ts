@@ -5,6 +5,11 @@ import { zodTextFormat } from "openai/helpers/zod";
 
 import type { GeneratedLesson, Question } from "@/lib/content/schema";
 import {
+  mistakeFlashcardDraftSchema,
+  type MistakeFlashcardDraft,
+} from "@/lib/practice/mistake-cards";
+import { buildMistakeCardPrompt } from "@/lib/practice/mistake-card-prompt";
+import {
   mockInterviewReportSchema,
   type MockInterviewReport,
 } from "../mock-interview/contracts";
@@ -145,6 +150,53 @@ export async function evaluateMockInterviewWithOpenAI({
     response,
     model,
     "OpenAI returned an empty mock interview report",
+  );
+}
+
+export async function generateMistakeCardWithOpenAI({
+  candidate,
+  question,
+  lesson,
+  sections,
+  safetyIdentifier,
+}: {
+  candidate: {
+    criterion: string;
+    evidence: Record<string, unknown>;
+    occurrenceCount: number;
+  };
+  question: Question;
+  lesson: GeneratedLesson;
+  sections: GeneratedLesson["sections"];
+  safetyIdentifier: string;
+}): Promise<OpenAIStructuredResult<MistakeFlashcardDraft>> {
+  const model = openAIModel("luna");
+  const response = await openAIClient().responses.parse({
+    model,
+    store: false,
+    safety_identifier: safetyIdentifier,
+    instructions:
+      "Generate one source-grounded remediation flashcard. Return only the requested structured object.",
+    input: buildMistakeCardPrompt({
+      ...candidate,
+      question,
+      lesson,
+      sections,
+    }),
+    reasoning: { effort: "low" },
+    max_output_tokens: 2400,
+    text: {
+      format: zodTextFormat(
+        mistakeFlashcardDraftSchema,
+        "mistake_flashcard",
+      ),
+      verbosity: "medium",
+    },
+  });
+  return parsedResult(
+    response,
+    model,
+    "OpenAI returned an empty remediation flashcard",
   );
 }
 

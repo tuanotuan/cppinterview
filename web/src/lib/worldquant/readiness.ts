@@ -321,7 +321,10 @@ export type ReadinessQuestionSummary = {
   lessonId: string;
   estimatedMinutes: number;
   competency: WorldQuantCompetencyKey;
-  validation: "repository_verified" | "owner_approved";
+  validation:
+    | "repository_verified"
+    | "owner_approved"
+    | "personal_remediation";
 };
 
 export type CompetencyReadiness = {
@@ -646,6 +649,9 @@ export function buildWorldQuantReadiness({
   const roleQuestions = questions.filter(
     (question) => profile.weights[question.competency] > 0,
   );
+  const canonicalRoleQuestions = roleQuestions.filter(
+    (question) => question.validation !== "personal_remediation",
+  );
   const activeStates = roleQuestions
     .map((question) => states.get(question.id))
     .filter((state): state is QuestionLearningState => Boolean(state))
@@ -654,13 +660,23 @@ export function buildWorldQuantReadiness({
     const weight = profile.weights[key];
     const target = profile.targets[key];
     const relevantQuestions = questions.filter(
-      (question) => question.competency === key,
+      (question) =>
+        question.competency === key &&
+        question.validation !== "personal_remediation",
+    );
+    const remediationQuestions = questions.filter(
+      (question) =>
+        question.competency === key &&
+        question.validation === "personal_remediation",
     );
     const evidenceQuestions = capQuestionsPerLesson(
       relevantQuestions,
       states,
     );
     const evidenceTotal = evidenceQuestions.reduce(
+      (sum, question) => sum + learningEvidence(states.get(question.id)),
+      0,
+    ) + capQuestionsPerLesson(remediationQuestions, states).reduce(
       (sum, question) => sum + learningEvidence(states.get(question.id)),
       0,
     );
@@ -745,11 +761,11 @@ export function buildWorldQuantReadiness({
       preparationIndex,
       limitedEvidence: coveragePercent < 60 || coreCoverageLimited,
     }),
-    questionCount: roleQuestions.length,
-    repositoryVerifiedCount: roleQuestions.filter(
+    questionCount: canonicalRoleQuestions.length,
+    repositoryVerifiedCount: canonicalRoleQuestions.filter(
       (question) => question.validation === "repository_verified",
     ).length,
-    ownerApprovedCount: roleQuestions.filter(
+    ownerApprovedCount: canonicalRoleQuestions.filter(
       (question) => question.validation === "owner_approved",
     ).length,
     learnedCount: activeStates.filter((state) => state.state !== "new").length,

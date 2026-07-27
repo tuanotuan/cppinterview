@@ -54,13 +54,16 @@ export default async function WorldQuantPage() {
         tags: question.taxonomy.tags,
       }),
       validation:
-        question.status === "verified"
+        cloud.mistakeQuestionIds.includes(question.id)
+          ? "personal_remediation"
+          : question.status === "verified"
           ? "repository_verified"
           : "owner_approved",
     }));
   const pendingReviewCounts = cloud.manifest.questions
     .filter(
       (question) =>
+        !cloud.mistakeQuestionIds.includes(question.id) &&
         question.status !== "archived" &&
         (question.status === "draft" ||
           question.status === "needs_review") &&

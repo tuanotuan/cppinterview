@@ -44,6 +44,16 @@ export const reviewSchema = z
 
 export const syncProgressSchema = z.object({
   reviews: z.array(reviewSchema).max(600),
+  mistakeCapture: z
+    .object({
+      coachAttemptId: z.number().int().positive(),
+      questionId: z
+        .string()
+        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+        .max(100),
+      rating: z.enum(["again", "hard"]),
+    })
+    .optional(),
 });
 
 export type PracticeReviewRow = {

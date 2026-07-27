@@ -77,10 +77,12 @@ export default async function MockInterviewPage({
           topics: question.taxonomy.topics,
           tags: question.taxonomy.tags,
         }),
-        validation:
-          question.status === "verified"
-            ? "repository_verified"
-            : "owner_approved",
+      validation:
+        cloud.mistakeQuestionIds.includes(question.id)
+          ? "personal_remediation"
+          : question.status === "verified"
+          ? "repository_verified"
+          : "owner_approved",
       }));
   const query = await searchParams;
   const initialRoleProfileId = parseRoleProfileId(single(query.role));
