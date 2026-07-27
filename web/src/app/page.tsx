@@ -91,6 +91,7 @@ export default async function Home({
       initialDeck={parsePracticeDeck(deckParam)}
       requestedFocusId={requestedFocusId}
       invalidFocusRequest={invalidFocusRequest}
+      mistakeQuestionIds={cloud.mistakeQuestionIds}
     />
   );
 }

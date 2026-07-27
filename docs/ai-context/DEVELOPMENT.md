@@ -117,6 +117,7 @@ Các nhóm schema hiện có:
 - multi-language/CMake metadata;
 - code execution admission/quota/idempotency.
 - account-scoped Mock v4 history, report lease/cache và owner delete.
+- owner-private Mistake Inbox, observation dedupe và grounded remediation drafts.
 
 Không sửa migration đã áp dụng; thêm migration mới. Giữ RLS và RPC
 service-role-only/browser grants như contract hiện tại.
@@ -155,6 +156,9 @@ service-role-only/browser grants như contract hiện tại.
 - Mock v4 phải reserve durable history trước hidden runner/paid AI. Retry dùng
   frozen submission; chỉ token hiện hành được release/abort lease. Không chạy
   lại paid AI chỉ để khắc phục một completion response bất định.
+- Mistake capture chỉ chạy sau durable coach/review hoặc completed Mock v4.
+  Generated remediation luôn là DB-native draft chờ duyệt; không lưu candidate
+  answer/hidden execution evidence và không tính card cá nhân vào content coverage.
 
 ## Chọn validation theo phạm vi
 

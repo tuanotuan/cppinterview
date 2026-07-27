@@ -297,3 +297,24 @@ describe("Anki-style learning-state foundation", () => {
       .toMatchObject({ state: "new", reviewCount: 0, historyResetOn: "2026-07-21" });
   });
 });
+
+describe("mistake-card queue priority", () => {
+  it("selects a new remediation card before ordinary New cards", () => {
+    const states = new Map(
+      ["ordinary-a", "remediation", "ordinary-b"].map((questionId) => [
+        questionId,
+        newQuestionLearningState({
+          questionId,
+          questionVersion: 1,
+          sourceHash: "a".repeat(64),
+        }),
+      ]),
+    );
+    expect(
+      buildAnkiDailyQueue(states, "2026-07-27", {
+        newLimit: 1,
+        priorityQuestionIds: ["remediation"],
+      }),
+    ).toEqual(["remediation"]);
+  });
+});

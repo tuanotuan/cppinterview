@@ -2,6 +2,12 @@ import { GoogleGenAI } from "@google/genai";
 
 import type { GeneratedLesson, Question } from "@/lib/content/schema";
 import {
+  mistakeFlashcardDraftJsonSchema,
+  mistakeFlashcardDraftSchema,
+  type MistakeFlashcardDraft,
+} from "@/lib/practice/mistake-cards";
+import { buildMistakeCardPrompt } from "@/lib/practice/mistake-card-prompt";
+import {
   mockInterviewReportJsonSchema,
   mockInterviewReportSchema,
   type MockInterviewReport,
@@ -187,6 +193,58 @@ export async function evaluateMockInterviewWithGemini({
 
   return {
     data: mockInterviewReportSchema.parse(
+      JSON.parse(interaction.output_text),
+    ),
+    model: geminiFallbackModel(),
+    usage: tokenUsage(interaction.usage),
+  };
+}
+
+export async function generateMistakeCardWithGemini({
+  candidate,
+  question,
+  lesson,
+  sections,
+}: {
+  candidate: {
+    criterion: string;
+    evidence: Record<string, unknown>;
+    occurrenceCount: number;
+  };
+  question: Question;
+  lesson: GeneratedLesson;
+  sections: GeneratedLesson["sections"];
+}): Promise<GeminiStructuredResult<MistakeFlashcardDraft>> {
+  const interaction = await geminiClient().interactions.create(
+    {
+      model: geminiFallbackModel(),
+      store: false,
+      system_instruction:
+        "Generate one source-grounded remediation flashcard. Return only JSON.",
+      input: buildMistakeCardPrompt({
+        ...candidate,
+        question,
+        lesson,
+        sections,
+      }),
+      generation_config: {
+        thinking_level: "high",
+        temperature: 0.15,
+        max_output_tokens: 2400,
+      },
+      response_format: {
+        type: "text",
+        mime_type: "application/json",
+        schema: mistakeFlashcardDraftJsonSchema,
+      },
+    },
+    { timeout: 45_000, maxRetries: 1 },
+  );
+  if (!interaction.output_text) {
+    throw new Error("Gemini returned an empty remediation flashcard");
+  }
+  return {
+    data: mistakeFlashcardDraftSchema.parse(
       JSON.parse(interaction.output_text),
     ),
     model: geminiFallbackModel(),

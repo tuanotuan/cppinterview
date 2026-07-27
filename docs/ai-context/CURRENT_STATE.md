@@ -39,6 +39,9 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
   snapshot, không suy từ việc deck đã enable.
 - Git giữ lesson source; production có pipeline sync derived snapshot và tạo
   DB-native question drafts trong Supabase.
+- Mistake Inbox biến lỗi durable từ AI Coach và Mock v4 thành draft flashcard có
+  nguồn, review gate, dedupe, retry/recovery và ưu tiên Anki New. Card sửa lỗi cá
+  nhân không làm phồng WorldQuant content coverage.
 
 ## Giới hạn chưa thể suy ra từ repo
 
@@ -61,13 +64,16 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
   `MOCK_HISTORY_SUPABASE_SECRET_KEY` phải được cấu hình trước khi bắt đầu mock
   v4; report fail closed trước runner/AI nếu không giữ được reservation. Migration
   chưa được repo tự động apply vào remote chỉ vì file tồn tại.
+- Migration `20260730110000_create_mistake_flashcard_queue.sql` phải được apply
+  trước khi dùng Mistake Inbox; practice/report fail-soft còn Admin báo migration
+  bị thiếu.
 
 ## Validation gần nhất
 
 - Content check, context refresh/check và `git diff --check`: pass.
 - Lint toàn repo và TypeScript `--noEmit`: pass.
-- Vitest: 56 test files, 299 tests pass.
-- Next.js production build: pass, gồm compile, type-check và 20 generated pages;
+- Vitest: 57 test files, 303 tests pass.
+- Next.js production build: pass, gồm compile, type-check và 25 generated pages;
   `/worldquant` là dynamic route, hai learning guide được prerender static.
 
 ## Quy tắc cập nhật

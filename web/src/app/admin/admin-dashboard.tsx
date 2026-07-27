@@ -16,6 +16,10 @@ import type {
   GeminiUsageSummary,
   PracticeAccount,
 } from "@/lib/practice/cloud-server";
+import type {
+  MistakeFlashcardCandidate,
+  MistakeGenerationMode,
+} from "@/lib/practice/mistake-cards";
 import { parseProgress } from "@/lib/practice/scheduler";
 import {
   readPracticeProgressSnapshot,
@@ -51,6 +55,9 @@ export function AdminDashboard({
   initialGeminiFallbackEnabled,
   initialGenerationJobs,
   initialSnapshot,
+  initialMistakeCandidates,
+  initialMistakeGenerationMode,
+  mistakeQueueAvailable,
 }: {
   account: PracticeAccount;
   aiUsage: AiUsageSummary | null;
@@ -58,6 +65,9 @@ export function AdminDashboard({
   initialGeminiFallbackEnabled: boolean;
   initialGenerationJobs: ContentGenerationJobSummary[];
   initialSnapshot: AdminDashboardSnapshot;
+  initialMistakeCandidates: MistakeFlashcardCandidate[];
+  initialMistakeGenerationMode: MistakeGenerationMode;
+  mistakeQueueAvailable: boolean;
 }) {
   const [questions, setQuestions] = useState(initialSnapshot.questions);
   const [query, setQuery] = useState("");
@@ -75,6 +85,14 @@ export function AdminDashboard({
   const [geminiSettingSaving, setGeminiSettingSaving] = useState(false);
   const [generationJobs, setGenerationJobs] = useState(initialGenerationJobs);
   const [retryingJobId, setRetryingJobId] = useState<number | null>(null);
+  const [mistakeCandidates, setMistakeCandidates] = useState(
+    initialMistakeCandidates,
+  );
+  const [mistakeMode, setMistakeMode] = useState(
+    initialMistakeGenerationMode,
+  );
+  const [mistakeSavingId, setMistakeSavingId] = useState<string | null>(null);
+  const [mistakeBackfilling, setMistakeBackfilling] = useState(false);
   const topics = useMemo(
     () =>
       [
@@ -169,6 +187,161 @@ export function AdminDashboard({
   const uncovered = lessonCoverage.filter(
     (lesson) => lesson.currentQuestions === 0,
   );
+  const visibleMistakes = mistakeCandidates.filter(
+    (candidate) => candidate.status !== "dismissed",
+  );
+  const mistakeFunnel = {
+    detected: visibleMistakes.length,
+    generated: visibleMistakes.filter((item) =>
+      ["pending_review", "approved"].includes(item.status),
+    ).length,
+    approved: visibleMistakes.filter((item) => item.status === "approved").length,
+    firstReviewed: visibleMistakes.filter((item) => {
+      const question = questions.find(
+        (entry) => entry.id === item.materializedQuestionId,
+      );
+      return Boolean(question?.reviewHistory.length);
+    }).length,
+    resolved: visibleMistakes.filter((item) => {
+      const question = questions.find(
+        (entry) => entry.id === item.materializedQuestionId,
+      );
+      return (
+        question?.learning.state === "review" &&
+        question.learning.intervalDays >= 21
+      );
+    }).length,
+    repeated: visibleMistakes.filter((item) => item.occurrenceCount > 1).length,
+  };
+
+  async function saveMistakeMode(mode: MistakeGenerationMode) {
+    const previous = mistakeMode;
+    setMistakeMode(mode);
+    const response = await fetch("/api/mistakes/preferences", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mode }),
+    });
+    if (!response.ok) {
+      setMistakeMode(previous);
+      setNotice("Không lưu được chế độ Mistake → flashcard.");
+    }
+  }
+
+  async function generateMistake(candidateId: string) {
+    setMistakeSavingId(candidateId);
+    try {
+      const response = await fetch("/api/mistakes/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ candidateId }),
+      });
+      const payload = (await response.json()) as {
+        status?: string;
+        questionId?: string | null;
+        error?: string;
+      };
+      if (!response.ok) throw new Error(payload.error ?? "generation_failed");
+      setNotice("Đã tạo thẻ sửa lỗi và đưa vào Review Queue.");
+      window.location.reload();
+    } catch (error) {
+      setNotice(
+        error instanceof Error
+          ? `Không tạo được thẻ: ${error.message}`
+          : "Không tạo được thẻ sửa lỗi.",
+      );
+    } finally {
+      setMistakeSavingId(null);
+    }
+  }
+
+  async function resolveMistake(
+    candidateId: string,
+    action: "dismiss" | "reinforce_existing",
+  ) {
+    const matchedQuestionId =
+      action === "reinforce_existing"
+        ? window.prompt("Nhập question ID đã có để tăng cường:")
+        : null;
+    if (action === "reinforce_existing" && !matchedQuestionId) return;
+    setMistakeSavingId(candidateId);
+    const response = await fetch("/api/mistakes/resolve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ candidateId, action, matchedQuestionId }),
+    });
+    if (response.ok) {
+      setMistakeCandidates((items) =>
+        items.map((item) =>
+          item.id === candidateId
+            ? {
+                ...item,
+                status:
+                  action === "dismiss" ? "dismissed" : "reinforce_existing",
+                matchedQuestionId,
+              }
+            : item,
+        ),
+      );
+    } else {
+      setNotice("Không cập nhật được mistake candidate.");
+    }
+    setMistakeSavingId(null);
+  }
+
+  async function backfillMistakes() {
+    setMistakeBackfilling(true);
+    const response = await fetch("/api/mistakes/backfill", { method: "POST" });
+    const payload = (await response.json()) as {
+      attemptsScanned?: number;
+      observations?: number;
+      error?: string;
+    };
+    setMistakeBackfilling(false);
+    if (!response.ok) {
+      setNotice(`Không khôi phục được history: ${payload.error ?? "unknown"}`);
+      return;
+    }
+    setNotice(
+      `Đã quét ${payload.attemptsScanned ?? 0} mock v4 và khôi phục ${payload.observations ?? 0} observation mới.`,
+    );
+    window.location.reload();
+  }
+
+  async function groundMistake(candidateId: string) {
+    const lessonId = window.prompt("Lesson ID dùng làm nguồn:");
+    if (!lessonId) return;
+    const sections = window.prompt(
+      "Section IDs, phân cách bằng dấu phẩy:",
+    );
+    if (!sections) return;
+    setMistakeSavingId(candidateId);
+    const response = await fetch("/api/mistakes/ground", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        candidateId,
+        lessonId: lessonId.trim(),
+        sourceSectionIds: sections
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
+      }),
+    });
+    setMistakeSavingId(null);
+    if (!response.ok) {
+      setNotice("Nguồn không hợp lệ hoặc section không thuộc lesson hiện tại.");
+      return;
+    }
+    setMistakeCandidates((items) =>
+      items.map((item) =>
+        item.id === candidateId
+          ? { ...item, status: "detected", lessonId: lessonId.trim() }
+          : item,
+      ),
+    );
+    setNotice("Đã bổ sung nguồn. Candidate sẵn sàng tạo flashcard.");
+  }
 
   async function approve(questionIds: string[]) {
     const selected = questions.filter(
@@ -582,6 +755,169 @@ export function AdminDashboard({
                 </p>
               ) : null}
             </div>
+          </div>
+        </details>
+
+        <details
+          id="mistake-inbox"
+          className="group mt-8 scroll-mt-5 overflow-hidden rounded-[2rem] border border-[#356b58]/20 bg-[#eef6e7]"
+        >
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 sm:px-7 sm:py-6">
+            <div className="flex min-w-0 items-center gap-4">
+              <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#d7ff91] font-mono text-sm font-bold text-[#173f35]">
+                {mistakeFunnel.detected}
+              </span>
+              <div>
+                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
+                  Mistake → flashcard
+                </p>
+                <h2 className="mt-1 text-xl font-semibold">Mistake Inbox</h2>
+                <p className="mt-1 text-xs text-[#64736c]">
+                  {mistakeFunnel.generated} đã tạo · {mistakeFunnel.approved} đã duyệt · {mistakeFunnel.firstReviewed} đã ôn · {mistakeFunnel.resolved} đạt 21 ngày · {mistakeFunnel.repeated} lỗi lặp lại
+                </p>
+              </div>
+            </div>
+            <span className="text-xs font-bold text-[#356b58]">
+              <span className="group-open:hidden">Xem inbox ↓</span>
+              <span className="hidden group-open:inline">Thu gọn ↑</span>
+            </span>
+          </summary>
+          <div className="border-t border-[#356b58]/15 px-5 py-6 sm:px-7">
+            {!mistakeQueueAvailable ? (
+              <p className="rounded-xl border border-[#ba4b2f]/20 bg-[#fff4df] p-4 text-sm text-[#8e3825]">
+                Chưa chạy migration Mistake → flashcard trong Supabase.
+              </p>
+            ) : (
+              <>
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <p className="max-w-2xl text-sm text-[#64736c]">
+                    Chỉ lỗi đã lưu bền vững từ AI Coach hoặc Mock v4 mới vào đây.
+                    AI tạo draft có nguồn; mày vẫn duyệt câu trước khi lịch Anki dùng nó.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={mistakeBackfilling}
+                      onClick={() => void backfillMistakes()}
+                      className="rounded-xl border border-[#173f35]/15 bg-white px-3 py-2 text-xs font-bold disabled:opacity-50"
+                    >
+                      {mistakeBackfilling ? "Đang quét…" : "Khôi phục từ Mock history"}
+                    </button>
+                    <label className="flex items-center gap-2 text-xs font-bold">
+                      Khi phát hiện lỗi
+                      <select
+                        value={mistakeMode}
+                        onChange={(event) =>
+                          void saveMistakeMode(
+                            event.target.value as MistakeGenerationMode,
+                          )
+                        }
+                        className="rounded-xl border border-[#173f35]/15 bg-white px-3 py-2"
+                      >
+                        <option value="ask">Hỏi trước khi tạo</option>
+                        <option value="auto">Tự tạo vào queue</option>
+                        <option value="off">Tắt capture</option>
+                      </select>
+                    </label>
+                  </div>
+                </div>
+                <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                  {visibleMistakes.map((candidate) => (
+                    <article
+                      key={candidate.id}
+                      className="rounded-2xl border border-[#173f35]/12 bg-white/70 p-5"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="rounded-full bg-[#e7eee3] px-3 py-1 font-mono text-[10px] font-bold uppercase">
+                          {candidate.status.replace("_", " ")}
+                        </span>
+                        <span className="font-mono text-[10px] text-[#64736c]">
+                          {candidate.sourceKind} · x{candidate.occurrenceCount}
+                        </span>
+                      </div>
+                      <h3 className="mt-4 font-semibold leading-6">
+                        {candidate.criterionText}
+                      </h3>
+                      <p className="mt-2 break-all font-mono text-[10px] text-[#64736c]">
+                        {candidate.sourceQuestionId} · {candidate.lessonId ?? "chưa có nguồn lesson"}
+                      </p>
+                      {candidate.lastErrorCode ? (
+                        <p className="mt-2 text-xs text-[#a3321f]">
+                          Lỗi gần nhất: {candidate.lastErrorCode}
+                        </p>
+                      ) : null}
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {["detected", "failed"].includes(candidate.status) ? (
+                          <button
+                            type="button"
+                            disabled={mistakeSavingId !== null}
+                            onClick={() => void generateMistake(candidate.id)}
+                            className="rounded-xl bg-[#173f35] px-3 py-2 text-xs font-bold text-white disabled:opacity-50"
+                          >
+                            {mistakeSavingId === candidate.id
+                              ? "Đang tạo…"
+                              : "Tạo flashcard"}
+                          </button>
+                        ) : null}
+                        {candidate.status === "needs_grounding" ? (
+                          <button
+                            type="button"
+                            disabled={mistakeSavingId !== null}
+                            onClick={() => void groundMistake(candidate.id)}
+                            className="rounded-xl bg-[#fff4df] px-3 py-2 text-xs font-bold text-[#8e3825]"
+                          >
+                            Bổ sung lesson nguồn
+                          </button>
+                        ) : null}
+                        {candidate.materializedQuestionId ? (
+                          <a
+                            href="#review-queue"
+                            className="rounded-xl border border-[#356b58]/25 px-3 py-2 text-xs font-bold text-[#356b58]"
+                          >
+                            {candidate.materializedQuestionId}
+                          </a>
+                        ) : null}
+                        {["detected", "failed", "needs_grounding"].includes(
+                          candidate.status,
+                        ) ? (
+                          <>
+                            <button
+                              type="button"
+                              disabled={mistakeSavingId !== null}
+                              onClick={() =>
+                                void resolveMistake(
+                                  candidate.id,
+                                  "reinforce_existing",
+                                )
+                              }
+                              className="rounded-xl border border-[#173f35]/15 px-3 py-2 text-xs font-bold"
+                            >
+                              Dùng câu đã có
+                            </button>
+                            <button
+                              type="button"
+                              disabled={mistakeSavingId !== null}
+                              onClick={() =>
+                                void resolveMistake(candidate.id, "dismiss")
+                              }
+                              className="rounded-xl px-3 py-2 text-xs font-bold text-[#8e3825]"
+                            >
+                              Bỏ qua
+                            </button>
+                          </>
+                        ) : null}
+                      </div>
+                    </article>
+                  ))}
+                  {!visibleMistakes.length ? (
+                    <p className="rounded-2xl border border-dashed border-[#356b58]/25 p-8 text-center text-sm text-[#64736c] lg:col-span-2">
+                      Chưa có lỗi đủ điều kiện. Rating Again/Hard sau AI Coach hoặc
+                      hoàn tất Mock v4 sẽ tạo candidate.
+                    </p>
+                  ) : null}
+                </div>
+              </>
+            )}
           </div>
         </details>
 

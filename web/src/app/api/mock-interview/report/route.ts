@@ -52,6 +52,10 @@ import {
   type QuestionApproval,
   type QuestionApprovalRow,
 } from "@/lib/practice/approvals";
+import {
+  captureMockMistakes,
+  MistakeQueueConfigurationError,
+} from "@/lib/practice/mistake-cards.server";
 import { isAllowedPracticeUser } from "@/lib/supabase/authorization";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -531,11 +535,19 @@ export async function POST(request: Request) {
             { status: 503 },
           );
         }
+        const mistakes = await capturePersistedMockMistakes({
+          supabase,
+          userId: authResult.data.user.id,
+          attemptId: reservation.attemptId,
+          artifact: cached.data,
+          manifest,
+        });
         return Response.json({
           ...cached.data,
           cached: true,
           historyPersisted: true,
           historyAttemptId: reservation.attemptId,
+          ...mistakes,
         });
       }
       if (reservation.status === "failed") {
@@ -834,6 +846,16 @@ export async function POST(request: Request) {
             "Report đã lưu local nhưng cloud history chưa xác nhận được; hệ thống không chạy lại AI để tránh tốn quota lần hai.";
         }
       }
+      const mistakes =
+        historyPersisted && historyAttemptId
+          ? await capturePersistedMockMistakes({
+              supabase,
+              userId: authResult.data.user.id,
+              attemptId: historyAttemptId,
+              artifact,
+              manifest,
+            })
+          : { mistakeCapture: null, mistakeQueueAvailable: true };
       return Response.json({
         ...artifact,
         historyPersisted,
@@ -841,6 +863,7 @@ export async function POST(request: Request) {
         historyWarning,
         aiDailyBudget: dailyBudget,
         aiUsageRecorded: provider === "gemini" || dailyBudget !== null,
+        ...mistakes,
       });
     }
 
@@ -946,6 +969,41 @@ export async function POST(request: Request) {
       },
       { status: 502 },
     );
+  }
+}
+
+async function capturePersistedMockMistakes({
+  supabase,
+  userId,
+  attemptId,
+  artifact,
+  manifest,
+}: {
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>;
+  userId: string;
+  attemptId: string;
+  artifact: Parameters<typeof captureMockMistakes>[0]["artifact"];
+  manifest: Parameters<typeof captureMockMistakes>[0]["manifest"];
+}) {
+  try {
+    return {
+      mistakeCapture: await captureMockMistakes({
+        supabase,
+        userId,
+        attemptId,
+        artifact,
+        manifest,
+      }),
+      mistakeQueueAvailable: true,
+    };
+  } catch (error) {
+    if (error instanceof MistakeQueueConfigurationError) {
+      return { mistakeCapture: null, mistakeQueueAvailable: false };
+    }
+    console.error("Mock mistake capture failed", {
+      name: error instanceof Error ? error.name : "UnknownError",
+    });
+    return { mistakeCapture: null, mistakeQueueAvailable: true };
   }
 }
 

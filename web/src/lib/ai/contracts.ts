@@ -6,6 +6,7 @@ export const coachRequestSchema = z.object({
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
     .max(100),
   answer: z.string().trim().min(10).max(6000),
+  idempotencyKey: z.string().uuid().optional(),
 });
 
 export const coachFeedbackSchema = z.object({

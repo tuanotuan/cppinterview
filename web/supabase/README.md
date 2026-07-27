@@ -297,3 +297,15 @@ lease; hidden terminal failures token-abort the unfinished history row before
 the client rotates its downstream execution key. Browser deletion is owner-only
 and cannot delete a live reservation. Until both the migration and dedicated
 secret exist, starting a new Mock v4 session is intentionally disabled.
+
+## Mistake → flashcard queue
+
+Apply `20260730110000_create_mistake_flashcard_queue.sql` after the Mock v4
+history migration. It adds owner-private candidates/observations/preferences,
+coach idempotency, generation leases, grounding/resolution RPCs, and the
+`mistake` DB-native question origin.
+
+No new secret is required. Capture uses the authenticated owner session and RLS;
+generation uses the existing OpenAI daily/monthly budget with Gemini fallback.
+Cards are inserted as immutable DB-native `draft` revisions and remain inactive
+until the owner approves their exact question version and source hash.

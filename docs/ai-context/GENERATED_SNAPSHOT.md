@@ -14,11 +14,11 @@
 ## Application inventory
 
 - App pages: 7 (/, /admin, /learn/cmake, /learn/tick-data-order-book, /mock-interview, /stats, /worldquant)
-- API routes: 15 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/coach/evaluate, /api/coach/follow-up, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/progress/sync, /api/questions/approve, /auth/callback, /auth/login, /auth/logout)
-- TypeScript source files excluding tests: 97
-- Colocated test files: 56
-- Supabase migrations: 24
-- Latest migration filename: `20260730100000_create_mock_interview_attempts.sql`
+- API routes: 20 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/coach/evaluate, /api/coach/follow-up, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/progress/sync, /api/questions/approve, /auth/callback, /auth/login, /auth/logout)
+- TypeScript source files excluding tests: 105
+- Colocated test files: 57
+- Supabase migrations: 25
+- Latest migration filename: `20260730110000_create_mistake_flashcard_queue.sql`
 
 ## Toolchain declared in package.json
 
@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `beb5696373900fb221e78354d09faeaa2a8d1b2d00403249d7347568f31ed802`
-- Fingerprinted files: 273
+- Project input fingerprint: `f7db52605e58499a3e416b78659d9d88ebaddfa63bcced0c80a2eff1ae1d40dd`
+- Fingerprinted files: 283
 
 The fingerprint covers lesson sources, content files, application source/tests,
 scripts, package metadata, environment template, workflows, and Supabase files.

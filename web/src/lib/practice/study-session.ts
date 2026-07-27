@@ -22,6 +22,8 @@ const questionStudySessionSchema = z.object({
   hint: z.boolean().optional(),
   sourceVisible: z.boolean().optional(),
   coachFeedback: coachFeedbackSchema.optional(),
+  coachAttemptId: z.number().int().positive().optional(),
+  coachIdempotencyKey: z.string().uuid().optional(),
   coachModel: z.string().max(120).optional(),
   coachAnswer: z.string().max(6000).optional(),
   followUpInput: z.string().max(2000).optional(),

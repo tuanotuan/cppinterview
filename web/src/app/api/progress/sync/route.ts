@@ -1,5 +1,6 @@
 import { loadQuestionOverrides } from "@/lib/content/question-overrides-server";
 import { loadQuestionStoreManifest } from "@/lib/content/question-store-server";
+import { coachFeedbackSchema } from "@/lib/ai/contracts";
 import {
   activeQuestionIds,
   rowsToApprovals,
@@ -13,6 +14,11 @@ import {
   type PracticeReviewRow,
   type QuestionLearningStateRow,
 } from "@/lib/practice/cloud";
+import {
+  captureCoachMistakes,
+  MistakeQueueConfigurationError,
+  type MistakeCaptureResult,
+} from "@/lib/practice/mistake-cards.server";
 import { isAllowedPracticeUser } from "@/lib/supabase/authorization";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -101,6 +107,52 @@ export async function POST(request: Request) {
     }
   }
 
+  let mistakeCapture: MistakeCaptureResult | null = null;
+  let mistakeQueueAvailable = true;
+  if (parsed.data.mistakeCapture) {
+    const capture = parsed.data.mistakeCapture;
+    const question = questionById.get(capture.questionId);
+    const lesson = question
+      ? manifest.lessons.find((item) => item.id === question.lessonId)
+      : null;
+    const attempt = await supabase
+      .from("coach_attempts")
+      .select("id, question_id, question_version, feedback")
+      .eq("id", capture.coachAttemptId)
+      .eq("user_id", authData.user.id)
+      .maybeSingle();
+    const feedback = coachFeedbackSchema.safeParse(attempt.data?.feedback);
+    if (
+      !attempt.error &&
+      attempt.data &&
+      question &&
+      lesson &&
+      attempt.data.question_id === question.id &&
+      attempt.data.question_version === question.version &&
+      feedback.success
+    ) {
+      try {
+        mistakeCapture = await captureCoachMistakes({
+          supabase,
+          userId: authData.user.id,
+          attemptId: attempt.data.id,
+          question,
+          lesson,
+          feedback: feedback.data,
+          rating: capture.rating,
+        });
+      } catch (error) {
+        if (error instanceof MistakeQueueConfigurationError) {
+          mistakeQueueAvailable = false;
+        } else {
+          console.error("Mistake capture failed", {
+            name: error instanceof Error ? error.name : "UnknownError",
+          });
+        }
+      }
+    }
+  }
+
   const [reviewsResult, statesResult] = await Promise.all([
     supabase
       .from("practice_reviews")
@@ -126,5 +178,7 @@ export async function POST(request: Request) {
     questionStates: rowsToLearningStates(
       (statesResult.data ?? []) as QuestionLearningStateRow[],
     ),
+    mistakeCapture,
+    mistakeQueueAvailable,
   });
 }
