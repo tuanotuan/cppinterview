@@ -31,7 +31,7 @@ nhật file context tương ứng theo root `AGENTS.md`.
 
 | URL/vùng | Entry point | Chức năng |
 |---|---|---|
-| `/` | `web/src/app/page.tsx`, `practice-app.tsx` | Daily/custom study và Focus Sprint exact queue; answer, rating, scheduler, cloud sync, saved state và return về Guided Mission |
+| `/` | `web/src/app/page.tsx`, `practice-app.tsx` | Daily/custom study và Focus Sprint exact queue; answer không giới hạn sản phẩm, blank = chưa biết và vẫn gọi được AI, rating, scheduler, cloud sync, saved state và return về Guided Mission |
 | `/worldquant` | `worldquant/page.tsx`, `worldquant-readiness-app.tsx` | Guided entry theo role/budget, onboarding first-visit, menu Advanced thu gọn; analytics, Focus Sprint, mock v4 gần nhất và comparable trend |
 | `/worldquant/curriculum` | `worldquant/curriculum/page.tsx` | Graph 30 concept theo prerequisite; tách card coverage, pending content và transfer drill |
 | `/worldquant/drills` | `worldquant/drills/page.tsx`, `worldquant-drill-app.tsx` | Scenario lab: approved warm-up → practice → follow-up → rubric → fresh/spaced checkpoint; giữ exact Guided Mission return |
@@ -40,7 +40,7 @@ nhật file context tương ứng theo root `AGENTS.md`.
 | `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Interview Loop v4 balanced/targeted 30/45/60 phút, hidden execution, scoped debrief, history và remediation |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx` | Guide tick data/order book |
 | `/learn/cmake` | `learn/cmake/page.tsx`, `lib/learn/cmake-guide.ts` | Guide CMake target-based từ mental model tới CTest, packaging, CI và legacy migration |
-| `/stats` | `stats/page.tsx`, `calibration-shadow-panel.tsx` | Analytics học tập, confidence calibration và FSRS-6 shadow comparison |
+| `/stats` | `stats/page.tsx`, `fsrs-shadow-panel.tsx` | Analytics học tập và FSRS-6 shadow comparison |
 | `/admin` | `admin/page.tsx`, `admin-dashboard.tsx` | Review/edit/archive question, schedule, AI/job settings |
 | `/admin/coverage` | `admin/coverage/page.tsx` | Coverage Studio ưu tiên editorial gap theo concept và evidence kind |
 | `/auth/*` | `auth/{login,callback,logout}` | GitHub OAuth qua Supabase |
@@ -66,7 +66,7 @@ API quan trọng:
 | `content` | `loader.ts`, `schema.ts`, `automation.ts` | Parse note, schema Zod, discover lesson, sinh manifest |
 | `content` | `question-store-server.ts` | Chọn `repo`/`shadow`/`db`, parity, apply override |
 | `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts` | Queue Anki, rating, due date, streak và browser progress store |
-| `practice` | `repair-queue.ts`, `signals.ts`, `fsrs-shadow.ts`, `browser-storage-lock.ts` | Same-session repair exact identity, private confidence signals, cross-tab mutation lock và FSRS-6 chỉ quan sát |
+| `practice` | `repair-queue.ts`, `fsrs-shadow.ts`, `browser-storage-lock.ts` | Same-session repair exact identity, cross-tab mutation lock và FSRS-6 chỉ quan sát |
 | `practice` | `focus-session.ts`, `focus-eligibility.ts` | Session Focus Sprint identity-only, resume/reconcile/completion và lọc exact approved refs |
 | `practice` | `cloud-server.ts`, `cloud.ts` | Ghép auth, progress, approval, overrides, usage, manifest |
 | `practice` | `mistake-cards.ts`, `mistake-cards.server.ts` | Capture lỗi durable, dedupe, grounded generation và materialize draft |
@@ -166,17 +166,17 @@ sau khi durable exposure ledger đã ghi thành công. Browser thiếu Web Locks
 mới chỉ ở localStorage theo account/local mode;
 không có migration hoặc cloud sync ngầm.
 
-### Practice repair, calibration và scheduler shadow
+### Practice repair và scheduler shadow
 
 Review `Again`/`Hard` vẫn ghi đúng một daily review qua scheduler chuẩn, đồng
 thời enqueue exact question revision để retrieval lại sau 3/5 thẻ xen kẽ.
-Repair attempt không tạo review ngày thứ hai. Browser ghi confidence, response
-time và các cờ hint/reveal/coach đã từng dùng nhưng không ghi candidate answer;
-các cờ giữ nguyên qua navigation/reload cho tới khi exact card được rate, nên
-đổi câu không thể rửa bằng chứng hỗ trợ. Mutation
-localStorage dùng Web Locks theo key khi browser hỗ trợ và merge-reread làm
-fallback. Stats tính calibration/ECE và replay đúng question revision bằng
-`ts-fsrs` ở chế độ shadow; FSRS không mutation due date hay Preparation Index.
+Repair attempt không tạo review ngày thứ hai. Study session giữ draft answer và
+các cờ hint/reveal/coach qua navigation/reload cho tới khi exact card được rate;
+practice không hỏi hoặc ghi mức tự tin. Answer rỗng được hiểu là chưa biết và AI
+coach vẫn dạy từ đầu; answer/code không có giới hạn ký tự ở tầng sản phẩm.
+Mutation repair queue dùng Web Locks theo key khi browser hỗ trợ và merge-reread
+làm fallback. Stats replay đúng question revision bằng `ts-fsrs` ở chế độ
+shadow; FSRS không mutation due date hay Preparation Index.
 
 ### Full Round và English Voice
 
@@ -198,7 +198,8 @@ web budget → gọi model → finalize usage → lưu attempt. Daily allowance 
 interactive web requests; Costs API toàn project và background generation chỉ
 tham gia monthly accounting/hard-spend backstop. Khi daily/hard quota OpenAI
 hết, Gemini có thể fallback nếu config và owner toggle cho phép. Múi giờ budget
-là `Asia/Ho_Chi_Minh`.
+là `Asia/Ho_Chi_Minh`. Candidate answer là field bắt buộc nhưng được phép rỗng;
+prompt đánh dấu rõ blank là “chưa biết” để trả feedback dạy từ nền tảng.
 
 ### Mistake → flashcard
 

@@ -108,9 +108,9 @@ config tương ứng và có thể fail closed theo thiết kế.
 
 Các feature Curriculum/Drill/Mission/Full Round không thêm migration:
 
-- `worldquant/training-state.ts`, `practice/repair-queue.ts` và
-  `practice/signals.ts` dùng key localStorage versioned, tách
-  `account UUID`/`local`; state local không tự gán sang account sau login.
+- `worldquant/training-state.ts` và `practice/repair-queue.ts` dùng key
+  localStorage versioned, tách `account UUID`/`local`; state local không tự gán
+  sang account sau login.
 - Mutation read-modify-write dùng Web Locks theo exact storage key khi browser
   hỗ trợ; fallback vẫn reread/merge ngay trước write nhưng không thể cam kết
   atomic giữa hai tab trên browser không có Web Locks. Vì vậy checkpoint exposure
@@ -128,11 +128,10 @@ Các feature Curriculum/Drill/Mission/Full Round không thêm migration:
   không phải learning evidence. Return từ Focus/Drill/Mock chỉ dùng allowlisted
   marker + role + budget 15 phút hợp lệ để dựng lại `/worldquant/mission`; không
   nhận hoặc chuyển tiếp return URL tùy ý.
-- Drill/full-round answer không được ghi vào training state. Practice signal chỉ
-  chứa identity/version/hash, rating, confidence, timing, cờ từng dùng
-  hint/reveal/coach, coach score và outcome. Cờ hỗ trợ là irreversible trong
-  attempt chưa rate và sống qua navigation/reload; chỉ rating mới kết thúc và
-  xóa cờ của exact card đó.
+- Drill/full-round answer không được ghi vào training state. Practice study
+  session lưu draft answer cùng cờ hint/reveal/coach trong browser; cờ hỗ trợ là
+  irreversible trong attempt chưa rate và sống qua navigation/reload, chỉ rating
+  mới kết thúc và xóa cờ của exact card đó. Practice không thu thập confidence.
 - Full Round không lưu/upload audio. Transcript chỉ ở React memory và bị xóa
   sau khi summary đã lưu; write fail phải giữ response trong tab để retry. Web
   Speech do browser/OS cung cấp, có thể dùng dịch vụ của vendor. Timer dùng deadline
@@ -156,6 +155,8 @@ Các nhóm schema hiện có:
 - code execution admission/quota/idempotency.
 - account-scoped Mock v4 history, report lease/cache và owner delete.
 - owner-private Mistake Inbox, observation dedupe và grounded remediation drafts.
+- coach attempt cho phép `candidate_answer` rỗng (nghĩa là chưa biết) và không có
+  product-level character limit sau migration `20260730120000`.
 
 Không sửa migration đã áp dụng; thêm migration mới. Giữ RLS và RPC
 service-role-only/browser grants như contract hiện tại.
@@ -200,7 +201,7 @@ service-role-only/browser grants như contract hiện tại.
 - Same-session repair phải bind exact question version/source hash. Review đầu
   vẫn qua scheduler/cloud path; repair retry không tạo daily review thứ hai.
 - Async AI response phải bind request/session hiện hành; response của card cũ
-  không được tái tạo feedback hoặc mở khóa/khóa confidence cho attempt mới.
+  không được tái tạo feedback cho attempt mới.
 - Gap chỉ được `verified` bởi checkpoint clean đạt ≥80%, đủ hai follow-up và
   không dùng hint sau khi practice đã `transfer_ready`. Exposure phải được ghi
   ngay trước khi prompt mở; bằng chứng hợp lệ là checkpoint unseen hoặc clean

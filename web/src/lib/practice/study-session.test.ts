@@ -61,6 +61,29 @@ describe("study session persistence", () => {
     expect(parseStudySession(raw, [identity]).questions).toEqual({});
   });
 
+  it("round-trips answers without a product character limit", () => {
+    const answer = "a".repeat(7000);
+    const codeAnswer = "c".repeat(8000);
+    const deepDiveAnswer = "d".repeat(9000);
+    const raw = serializeStudySession({
+      [identity.id]: {
+        questionVersion: identity.version,
+        sourceHash: identity.sourceHash,
+        answer,
+        codeAnswer,
+        coachAnswer: answer,
+        deepDiveAnswer,
+      },
+    });
+
+    expect(parseStudySession(raw, [identity]).questions[identity.id]).toMatchObject({
+      answer,
+      codeAnswer,
+      coachAnswer: answer,
+      deepDiveAnswer,
+    });
+  });
+
   it("recovers safely from malformed browser storage", () => {
     expect(parseStudySession("not-json", [identity]).questions).toEqual({});
     expect(parseStudySession('{"version":99}', [identity]).questions).toEqual({});
