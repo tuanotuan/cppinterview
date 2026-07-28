@@ -176,7 +176,7 @@ export async function generateMistakeCardWithOpenAI({
     store: false,
     safety_identifier: safetyIdentifier,
     instructions:
-      "Generate one source-grounded remediation flashcard. Return only the requested structured object.",
+      "Tạo một thẻ ghi nhớ giúp khắc phục điểm còn thiếu và bám sát tài liệu nguồn. Chỉ trả về đúng đối tượng có cấu trúc được yêu cầu.",
     input: buildMistakeCardPrompt({
       ...candidate,
       question,

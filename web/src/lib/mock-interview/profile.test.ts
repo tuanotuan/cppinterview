@@ -105,8 +105,8 @@ describe("WorldQuant mock profile", () => {
     );
   });
 
-  it("uses profile v3 and stable revisions for every role question", () => {
-    expect(WORLDQUANT_PROFILE_VERSION).toBe(3);
+  it("uses profile v4 and stable revisions for every role question", () => {
+    expect(WORLDQUANT_PROFILE_VERSION).toBe(4);
     expect(
       WORLDQUANT_ROLE_QUESTIONS.every(
         (question) =>
@@ -138,8 +138,8 @@ describe("WorldQuant mock profile", () => {
         (question) => question.id === "worldquant-cmake-delivery",
       ),
     ).toMatchObject({
-      version: 2,
-      contentRevision: "worldquant-jd-2025-cmake-runner-v1",
+      version: 3,
+      contentRevision: "worldquant-jd-2025-cmake-runner-v2",
       language: "cmake",
       track: "cmake",
     });

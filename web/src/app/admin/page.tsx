@@ -11,7 +11,7 @@ import { AdminDashboard } from "./admin-dashboard";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Admin — Recall",
+  title: "Quản trị — Recall",
   description: "Quản lý ngân hàng câu hỏi và độ phủ nội dung Recall.",
 };
 
@@ -61,15 +61,15 @@ function AdminGate({ mode }: { mode: "login" | "not-configured" }) {
           R
         </div>
         <p className="mt-8 font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
-          Admin access
+          Khu vực quản trị
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight">
           Khu vực quản trị riêng
         </h1>
         <p className="mt-4 leading-7 text-[#64736c]">
           {mode === "login"
-            ? "Đăng nhập bằng tài khoản GitHub owner để xem draft, đáp án và quản lý ngân hàng câu hỏi."
-            : "Supabase chưa được cấu hình nên trang admin chưa thể xác thực owner."}
+            ? "Đăng nhập bằng tài khoản GitHub của quản trị viên để xem bản nháp, đáp án và quản lý ngân hàng câu hỏi."
+            : "Supabase chưa được cấu hình nên trang quản trị chưa thể xác thực người dùng."}
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           {mode === "login" ? (

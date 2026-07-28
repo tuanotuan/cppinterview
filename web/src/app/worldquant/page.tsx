@@ -22,7 +22,7 @@ import { WorldQuantReadinessApp } from "./worldquant-readiness-app";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "WorldQuant Readiness Hub — Recall",
+  title: "Trung tâm chuẩn bị WorldQuant — Recall",
   description:
     "Theo dõi bằng chứng học tập và khoảng trống năng lực cho các vị trí C++ tại WorldQuant.",
 };

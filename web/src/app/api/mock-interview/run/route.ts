@@ -55,7 +55,7 @@ export async function POST(request: Request) {
   if (!isSupabaseConfigured()) {
     return errorResponse(
       503,
-      "Supabase chưa được cấu hình nên runner bị khóa an toàn.",
+      "Supabase chưa được cấu hình nên trình chạy mã tạm thời bị khóa.",
       "runner_not_configured",
     );
   }
@@ -67,7 +67,7 @@ export async function POST(request: Request) {
   ) {
     return errorResponse(
       415,
-      "Runner chỉ nhận application/json.",
+      "API chạy mã chỉ nhận application/json.",
       "unsupported_media_type",
     );
   }
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
   ) {
     return errorResponse(
       413,
-      "Source code vượt giới hạn 8 KiB.",
+      "Yêu cầu chạy mã vượt giới hạn 20 KiB.",
       "request_too_large",
     );
   }
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
   if (new TextEncoder().encode(rawBody).byteLength > MAX_REQUEST_BYTES) {
     return errorResponse(
       413,
-      "Source code vượt giới hạn 8 KiB.",
+      "Yêu cầu chạy mã vượt giới hạn 20 KiB.",
       "request_too_large",
     );
   }
@@ -113,7 +113,7 @@ export async function POST(request: Request) {
   ) {
     return errorResponse(
       400,
-      "Request chạy code không hợp lệ hoặc source vượt giới hạn.",
+      "Yêu cầu chạy mã không hợp lệ hoặc mã nguồn vượt giới hạn.",
       "invalid_request",
     );
   }
@@ -153,14 +153,14 @@ export async function POST(request: Request) {
   if (authError || !authData.user) {
     return errorResponse(
       401,
-      "Đăng nhập GitHub để chạy code.",
+      "Đăng nhập GitHub để chạy mã.",
       "authentication_required",
     );
   }
   if (!isAllowedPracticeUser(authData.user)) {
     return errorResponse(
       403,
-      "Tài khoản này không có quyền dùng runner.",
+      "Tài khoản này không có quyền dùng trình chạy mã.",
       "forbidden",
     );
   }
@@ -220,7 +220,7 @@ export async function POST(request: Request) {
       if (cached) return Response.json({ ok: true, result: cached });
       return errorResponse(
         409,
-        "Lượt chạy cũ đã kết thúc nhưng cache không còn hợp lệ. Hãy chạy lại.",
+        "Lượt chạy cũ đã kết thúc nhưng kết quả lưu tạm không còn hợp lệ. Hãy chạy lại.",
         "cached_result_invalid",
       );
     }
@@ -269,7 +269,7 @@ export async function POST(request: Request) {
       }
       return errorResponse(
         503,
-        "Code đã chạy nhưng cache chưa xác nhận được. Giữ nguyên lượt này và thử lại.",
+        "Mã đã chạy nhưng kết quả lưu tạm chưa được xác nhận. Hãy giữ nguyên lượt này và thử lại.",
         "run_finalization_indeterminate",
       );
     }
@@ -313,7 +313,7 @@ async function resolveV4RunTarget(
       ok: false,
       response: errorResponse(
         502,
-        "Không đọc được question bank để xác minh blueprint.",
+        "Không đọc được ngân hàng câu hỏi để xác minh bộ đề.",
         "question_bank_failed",
       ),
     };
@@ -344,7 +344,7 @@ async function resolveV4RunTarget(
       ok: false,
       response: errorResponse(
         409,
-        "Blueprint không còn hợp lệ. Hãy tạo buổi mock mới.",
+        "Cấu trúc bộ đề không còn hợp lệ. Hãy tạo buổi phỏng vấn mới.",
         "plan_invalid",
       ),
     };
@@ -358,7 +358,7 @@ async function resolveV4RunTarget(
       ok: false,
       response: errorResponse(
         409,
-        "Question bank hoặc blueprint đã đổi. Hãy tạo buổi mock mới.",
+        "Ngân hàng câu hỏi hoặc cấu trúc bộ đề đã thay đổi. Hãy tạo buổi phỏng vấn mới.",
         "plan_changed",
       ),
     };
@@ -380,7 +380,7 @@ async function resolveV4RunTarget(
       ok: false,
       response: errorResponse(
         409,
-        "Câu runnable không còn khớp catalog server.",
+        "Câu có thể chạy mã không còn khớp với danh mục trên máy chủ.",
         "content_changed",
       ),
     };
@@ -394,7 +394,7 @@ async function resolveV4RunTarget(
       ok: false,
       response: errorResponse(
         422,
-        "Câu này không có execution spec đúng version.",
+        "Câu này không có đặc tả chạy mã đúng phiên bản.",
         "not_runnable",
       ),
     };
@@ -424,7 +424,7 @@ function resolveRunTarget(
       ok: false,
       response: errorResponse(
         409,
-        "Bộ đề đã thay đổi. Hãy tạo buổi mock mới.",
+        "Bộ đề đã thay đổi. Hãy tạo buổi phỏng vấn mới.",
         "set_changed",
       ),
     };
@@ -442,7 +442,7 @@ function resolveRunTarget(
       ok: false,
       response: errorResponse(
         409,
-        "Câu hỏi hoặc execution spec đã đổi. Hãy tạo buổi mock mới.",
+        "Câu hỏi hoặc đặc tả chạy mã đã thay đổi. Hãy tạo buổi phỏng vấn mới.",
         "content_changed",
       ),
     };
@@ -453,7 +453,7 @@ function resolveRunTarget(
       ok: false,
       response: errorResponse(
         422,
-        "Câu này không có test harness an toàn để chạy.",
+        "Câu này không có bộ khung kiểm thử an toàn để chạy.",
         "not_runnable",
       ),
     };
@@ -483,21 +483,21 @@ function handleRunError(error: unknown) {
   if (error instanceof CodeExecutionQuotaExceededError) {
     return errorResponse(
       429,
-      "Đã hết quota chạy sample hôm nay. Quota reset lúc 00:00 giờ Việt Nam.",
+      "Đã hết hạn mức chạy kiểm thử mẫu hôm nay. Hạn mức được đặt lại lúc 00:00 giờ Việt Nam.",
       "daily_quota_exceeded",
     );
   }
   if (error instanceof CodeExecutionBusyError) {
     return errorResponse(
       409,
-      "Một lượt code khác đang chạy. Chờ nó kết thúc rồi thử lại.",
+      "Một lượt chạy mã khác đang xử lý. Hãy chờ nó kết thúc rồi thử lại.",
       "runner_busy",
     );
   }
   if (error instanceof CodeExecutionIdempotencyConflictError) {
     return errorResponse(
       409,
-      "Idempotency key đã được dùng cho request khác.",
+      "Khóa chống gửi trùng đã được dùng cho một yêu cầu khác.",
       "idempotency_conflict",
     );
   }
@@ -507,7 +507,7 @@ function handleRunError(error: unknown) {
   ) {
     return errorResponse(
       503,
-      "Code runner chưa được cấu hình đầy đủ.",
+      "Trình chạy mã chưa được cấu hình đầy đủ.",
       "runner_not_configured",
     );
   }
@@ -516,7 +516,7 @@ function handleRunError(error: unknown) {
   });
   return errorResponse(
     502,
-    "Sandbox tạm thời không chạy được. Thử lại sau.",
+    "Môi trường chạy mã cô lập tạm thời chưa hoạt động. Vui lòng thử lại sau.",
     "sandbox_failed",
   );
 }

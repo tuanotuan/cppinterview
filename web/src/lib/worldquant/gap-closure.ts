@@ -98,6 +98,11 @@ export function completeDrillAndReconcileGap(
   if (!drill) {
     throw new Error(`Unknown drill: ${input.attempt.drillId}`);
   }
+  if (input.attempt.drillVersion !== drill.version) {
+    throw new Error(
+      `Stale drill revision: ${input.attempt.drillId}@${input.attempt.drillVersion}`,
+    );
+  }
   const checkpointExposure = checkpointExposureForAttempt(
     state,
     drill.id,
@@ -236,7 +241,7 @@ export function buildDrillRepairCards({
       conceptId:
         drill.conceptIds[position % drill.conceptIds.length],
       prompt: `Tự giải thích bằng ví dụ mới: ${drill.rubric[index]}`,
-      explanation: `Rubric còn thiếu từ drill “${drill.title}”. Không dùng lại nguyên câu trả lời cũ.`,
+      explanation: `Tiêu chí còn thiếu từ bài luyện “${drill.title}”. Không dùng lại nguyên câu trả lời cũ.`,
       createdAt: now,
       dueOn: addDays(today, position === 0 ? 1 : 2),
       resolvedAt: null,

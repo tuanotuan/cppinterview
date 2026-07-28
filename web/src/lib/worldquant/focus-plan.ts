@@ -277,7 +277,7 @@ export function buildWorldQuantFocusPlan({
         competency: competency.key,
         gapKind: competency.gapKind as "content" | "mixed",
         href: null,
-        label: `Question bank chưa đủ content cho ${definition.shortLabel}`,
+        label: `Kho câu hỏi chưa đủ học liệu cho ${definition.shortLabel}`,
       };
     },
   );

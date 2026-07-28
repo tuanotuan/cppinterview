@@ -125,7 +125,7 @@ export function MonacoCodeEditor({
 }) {
   const options = useMemo<editor.IStandaloneEditorConstructionOptions>(
     () => ({
-      ariaLabel: `Code ${languageIds[language]} cho câu hỏi thiết kế`,
+      ariaLabel: `Trình soạn mã ${languageIds[language]} cho câu hỏi thiết kế`,
       automaticLayout: true,
       autoClosingBrackets: "always",
       autoClosingDelete: "always",
@@ -174,7 +174,7 @@ export function MonacoCodeEditor({
       onChange={(nextValue) => onChange(nextValue ?? "")}
       loading={
         <div className="grid h-full place-items-center bg-[#0b241d] font-mono text-xs text-white/45">
-          Đang tải VS Code editor…
+          Đang tải trình soạn mã…
         </div>
       }
       saveViewState={false}

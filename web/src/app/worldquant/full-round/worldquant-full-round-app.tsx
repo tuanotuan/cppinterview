@@ -258,7 +258,7 @@ export function WorldQuantFullRoundApp({
     }
     if (recognitionRef.current) {
       setNotice(
-        "Hãy dừng ghi lời và chờ browser chốt transcript trước khi hoàn tất round.",
+        "Hãy dừng ghi lời và chờ trình duyệt hoàn tất bản ghi trước khi kết thúc chặng.",
       );
       return;
     }
@@ -318,7 +318,7 @@ export function WorldQuantFullRoundApp({
     setStoragePending(false);
     if (!persisted) {
       setNotice(
-        "Chưa lưu được summary. Câu trả lời vẫn còn trong tab; hãy thử Lưu evidence lại.",
+        "Chưa lưu được kết quả tóm tắt. Câu trả lời vẫn còn trong trang; hãy thử lưu kết quả lại.",
       );
       return;
     }
@@ -350,7 +350,7 @@ export function WorldQuantFullRoundApp({
       window.webkitSpeechRecognition;
     if (!Constructor) {
       setNotice(
-        "Trình duyệt này không có Web Speech; mày vẫn gõ transcript thủ công được.",
+        "Trình duyệt này không hỗ trợ tính năng nhận dạng giọng nói; bạn vẫn có thể nhập câu trả lời.",
       );
       return;
     }
@@ -402,7 +402,7 @@ export function WorldQuantFullRoundApp({
       setVoicePhase("idle");
       setVoiceInterim("");
       setNotice(
-        `Web Speech dừng (${event.error}). Có thể tiếp tục bằng textarea.`,
+        `${speechRecognitionErrorMessage(event.error)} Bạn có thể tiếp tục bằng ô nhập bên dưới.`,
       );
     };
     recognition.onend = () => {
@@ -430,7 +430,7 @@ export function WorldQuantFullRoundApp({
       microphoneSegmentStartedAtRef.current = null;
       setVoicePhase("idle");
       setNotice(
-        "Không khởi động được microphone; hãy kiểm tra quyền trình duyệt hoặc gõ tay.",
+        "Không khởi động được micro; hãy kiểm tra quyền của trình duyệt hoặc gõ tay.",
       );
     }
   }
@@ -490,7 +490,7 @@ export function WorldQuantFullRoundApp({
       [currentRound.id]: "",
     }));
     setNotice(
-      "Transcript của chặng này đã bị xóa khỏi bộ nhớ trang.",
+      "Bản ghi của chặng này đã bị xóa khỏi bộ nhớ trang.",
     );
   }
 
@@ -527,9 +527,11 @@ export function WorldQuantFullRoundApp({
               WQ
             </span>
             <span>
-              <span className="block font-bold">Full Round</span>
+              <span className="block font-bold">
+                Buổi mô phỏng phỏng vấn đầy đủ
+              </span>
               <span className="block text-xs text-[#64736c]">
-                5 rounds · timed · evidence-first
+                5 chặng · có giới hạn thời gian · đánh giá dựa trên kết quả
               </span>
             </span>
           </Link>
@@ -540,7 +542,7 @@ export function WorldQuantFullRoundApp({
                 roleId,
               )}
             >
-              Today&apos;s Mission
+              Nhiệm vụ hôm nay
             </HeaderLink>
             <HeaderLink
               href={worldQuantRoleHref(
@@ -548,7 +550,7 @@ export function WorldQuantFullRoundApp({
                 roleId,
               )}
             >
-              Drill Lab
+              Phòng luyện tình huống
             </HeaderLink>
             <HeaderLink
               href={worldQuantRoleHref(
@@ -556,7 +558,7 @@ export function WorldQuantFullRoundApp({
                 roleId,
               )}
             >
-              AI Mock
+              Phỏng vấn thử với AI
             </HeaderLink>
           </nav>
         </header>
@@ -577,7 +579,7 @@ export function WorldQuantFullRoundApp({
             <div className="grid gap-5 xl:grid-cols-[280px_minmax(0,1fr)]">
               <aside className="h-fit rounded-[2rem] border border-[#173f35]/12 bg-white/60 p-5 xl:sticky xl:top-5">
                 <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
-                  Interview timeline
+                  Tiến trình phỏng vấn
                 </p>
                 <div className="mt-4 space-y-2">
                   {rounds.map((round, index) => (
@@ -612,8 +614,8 @@ export function WorldQuantFullRoundApp({
                 >
                   <p className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] opacity-70">
                     {remainingSeconds === 0
-                      ? "Time is up"
-                      : "Time remaining"}
+                      ? "Đã hết giờ"
+                      : "Thời gian còn lại"}
                   </p>
                   <p className="mt-2 font-mono text-3xl font-bold">
                     {formatDuration(remainingSeconds)}
@@ -625,7 +627,7 @@ export function WorldQuantFullRoundApp({
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
-                      Round {roundIndex + 1}/{rounds.length} ·{" "}
+                      Chặng {roundIndex + 1}/{rounds.length} ·{" "}
                       {
                         worldQuantCompetencies[
                           currentRound.competency
@@ -641,7 +643,7 @@ export function WorldQuantFullRoundApp({
                   </div>
                   {currentRound.englishVoice ? (
                     <span className="rounded-full bg-[#d7ff91]/70 px-3 py-1 font-mono text-[10px] font-bold text-[#245748]">
-                      answer in English
+                      trả lời bằng tiếng Anh
                     </span>
                   ) : null}
                 </div>
@@ -661,7 +663,7 @@ export function WorldQuantFullRoundApp({
                       className="rounded-xl border border-[#173f35]/10 bg-white/55 p-3 text-sm text-[#52645c]"
                     >
                       <span className="font-mono text-[10px] font-bold text-[#ba4b2f]">
-                        follow-up
+                        Câu hỏi tiếp nối
                       </span>
                       <p className="mt-1">{followUp.prompt}</p>
                     </div>
@@ -686,14 +688,15 @@ export function WorldQuantFullRoundApp({
                           className="rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-45"
                         >
                           {voicePhase === "stopping"
-                            ? "Đang chốt transcript…"
+                            ? "Đang hoàn tất bản ghi…"
                             : voicePhase === "listening"
                             ? "■ Dừng ghi lời"
-                            : "● Luyện nói English"}
+                            : "● Luyện nói tiếng Anh"}
                         </button>
                       ) : (
                         <span className="text-sm font-semibold text-[#52645c]">
-                          Web Speech không có sẵn — dùng textarea bên dưới.
+                          Tính năng nhận dạng giọng nói không có sẵn — hãy dùng
+                          ô nhập bên dưới.
                         </span>
                       )}
                       <button
@@ -701,7 +704,7 @@ export function WorldQuantFullRoundApp({
                         onClick={deleteCurrentTranscript}
                         className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-sm font-bold"
                       >
-                        Xóa transcript ngay
+                         Xóa bản ghi ngay
                       </button>
                     </div>
                     {voiceInterim ? (
@@ -710,20 +713,21 @@ export function WorldQuantFullRoundApp({
                       </p>
                     ) : null}
                     <p className="mt-3 text-xs leading-5 text-[#64736c]">
-                      Recall không lưu hoặc upload audio. Transcript chỉ ở
-                      bộ nhớ trang và bị xóa khi hoàn tất. Web Speech do
-                      browser/OS cung cấp, nên audio có thể chịu chính sách
-                      xử lý của nhà cung cấp trình duyệt. Speaking pace chỉ
-                      tính phần transcript do microphone tạo trong thời gian
-                      ghi thực; phần gõ tay không được giả thành tốc độ nói.
+                      Recall không lưu hoặc tải âm thanh lên máy chủ. Bản ghi
+                      chỉ ở trong bộ nhớ trang và bị xóa khi hoàn tất. Tính năng
+                      nhận dạng giọng nói trên web do trình duyệt hoặc hệ điều
+                      hành cung cấp, nên âm thanh có thể chịu chính sách xử lý
+                      của nhà cung cấp. Tốc độ nói chỉ tính phần bản ghi do
+                      micro tạo trong thời gian ghi thực; phần gõ tay không được
+                      tính thành tốc độ nói.
                     </p>
                   </div>
                 ) : null}
 
                 <label className="mt-6 block text-sm font-bold text-[#344a40]">
                   {currentRound.englishVoice
-                    ? "Editable English transcript"
-                    : "Interview notes / answer"}
+                    ? "Bản ghi tiếng Anh có thể chỉnh sửa"
+                    : "Ghi chú / câu trả lời phỏng vấn"}
                   <textarea
                     value={currentAnswer}
                     onChange={(event) => {
@@ -738,20 +742,20 @@ export function WorldQuantFullRoundApp({
                     className="mt-2 min-h-56 w-full resize-y rounded-2xl border border-[#173f35]/18 bg-[#fbfaf5] px-4 py-3 font-normal leading-7 outline-none focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/45 disabled:cursor-not-allowed disabled:opacity-65"
                     placeholder={
                       currentRound.englishVoice
-                        ? "Speak or type your answer in English…"
-                        : "Reason out loud, write the contract, complexity and trade-offs…"
+                        ? "Nói hoặc nhập câu trả lời bằng tiếng Anh…"
+                        : "Lập luận thành lời; nêu ràng buộc, độ phức tạp và các đánh đổi…"
                     }
                   />
                 </label>
                 <p className="mt-2 font-mono text-[10px] text-[#64736c]">
-                  {currentAnswer.length}/8000 · in-memory only · not sent
-                  to Recall server
+                   {currentAnswer.length}/8000 · chỉ lưu trong bộ nhớ · không
+                   gửi đến máy chủ Recall
                 </p>
 
                 {currentAnswer.trim().length >= 20 ? (
                   <fieldset className="mt-6 rounded-2xl border border-[#173f35]/12 bg-white/55 p-5">
                     <legend className="px-2 text-sm font-bold text-[#173f35]">
-                      Self-check rubric
+                       Tiêu chí tự chấm
                     </legend>
                     <div className="space-y-3">
                       {currentRound.drill.rubric.map(
@@ -775,8 +779,8 @@ export function WorldQuantFullRoundApp({
                   </fieldset>
                 ) : (
                   <p className="mt-6 rounded-2xl border border-dashed border-[#173f35]/20 p-5 text-sm text-[#64736c]">
-                    Rubric mở sau khi mày ghi câu trả lời, để tránh đọc đáp
-                    án trước khi reasoning.
+                     Tiêu chí chấm sẽ mở sau khi bạn ghi câu trả lời, để tránh
+                     đọc gợi ý trước khi tự lập luận.
                   </p>
                 )}
 
@@ -790,7 +794,7 @@ export function WorldQuantFullRoundApp({
                 ) : null}
                 <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
                   <p className="text-xs text-[#64736c]">
-                    Rubric: {currentRubric.size}/
+                     Tiêu chí đạt: {currentRubric.size}/
                     {currentRound.drill.rubric.length}
                   </p>
                   <button
@@ -802,16 +806,16 @@ export function WorldQuantFullRoundApp({
                     className="rounded-2xl bg-[#173f35] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45"
                   >
                     {storagePending
-                      ? "Đang lưu summary…"
+                       ? "Đang lưu kết quả…"
                       : voicePhase === "stopping"
-                        ? "Đang chốt transcript…"
+                         ? "Đang hoàn tất bản ghi…"
                         : roundExpired
                           ? roundIndex + 1 === rounds.length
-                            ? "Time up — lưu full round"
-                            : "Time up — chuyển round"
+                             ? "Hết giờ — lưu vòng phỏng vấn"
+                             : "Hết giờ — chuyển chặng"
                       : roundIndex + 1 === rounds.length
-                      ? "Hoàn tất full round"
-                      : "Chốt round và tiếp tục →"}
+                       ? "Hoàn tất vòng phỏng vấn"
+                       : "Kết thúc chặng và tiếp tục →"}
                   </button>
                 </div>
               </article>
@@ -852,17 +856,19 @@ function SetupScreen({
       <div className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
         <div>
           <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
-            WorldQuant interview simulator
+             Mô phỏng phỏng vấn WorldQuant
           </p>
           <h1 className="mt-3 max-w-3xl text-4xl font-semibold tracking-tight sm:text-6xl">
-            Một mạch từ C++ depth đến English ownership.
+            Một mạch từ C++ chuyên sâu đến trình bày cách xử lý công việc bằng
+            tiếng Anh.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-[#64736c]">
-            5 chặng có timer, scenario riêng và rubric tự chấm. Không AI,
-            không dùng quota; câu trả lời chỉ tồn tại trong memory của tab.
+             5 chặng có đồng hồ, tình huống riêng và tiêu chí tự chấm. Không
+             dùng AI, không tốn hạn mức; câu trả lời chỉ tồn tại trong bộ nhớ
+             của trang.
           </p>
           <label className="mt-7 block max-w-md text-sm font-bold">
-            Role profile
+             Vị trí mục tiêu
             <select
               value={roleId}
               onChange={(event) =>
@@ -888,7 +894,7 @@ function SetupScreen({
               Bắt đầu {totalMinutes} phút
             </button>
             <span className="font-mono text-xs text-[#64736c]">
-              {priorRounds} full round đã hoàn tất
+               {priorRounds} buổi mô phỏng phỏng vấn đầy đủ đã hoàn tất
             </span>
           </div>
         </div>
@@ -908,7 +914,7 @@ function SetupScreen({
                 </p>
               </div>
               <span className="font-mono text-xs text-[#64736c]">
-                {round.durationMinutes}m
+                 {round.durationMinutes} phút
               </span>
             </article>
           ))}
@@ -940,41 +946,41 @@ function SummaryScreen({
     <section className="py-12">
       <div className="mx-auto max-w-4xl rounded-[2.5rem] border border-[#173f35]/12 bg-white/68 p-6 text-center shadow-[0_28px_90px_rgb(23_63_53_/_10%)] sm:p-10">
         <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
-          Full round complete
+           Đã hoàn thành vòng phỏng vấn
         </p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
-          Rubric coverage {score}%
+           Đạt {score}% tiêu chí chấm
         </h1>
         <p className="mx-auto mt-4 max-w-2xl leading-7 text-[#64736c]">
-          Transcript và mọi câu trả lời đã bị xóa khỏi memory của phiên.
-          Chỉ summary số được giữ trong training state.
+           Bản ghi và mọi câu trả lời đã bị xóa khỏi bộ nhớ của phiên.
+           Chỉ kết quả tổng hợp dạng số được giữ lại.
         </p>
         <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <ResultMetric
-            label="Rubric"
+             label="Tiêu chí"
             value={`${result.rubricPassed}/${result.rubricTotal}`}
           />
           <ResultMetric
-            label="Voice words"
+             label="Số từ đã nói"
             value={result.english ? `${result.english.wordCount}` : "—"}
           />
           <ResultMetric
-            label="Fillers"
+             label="Từ đệm"
             value={result.english ? `${result.english.fillerCount}` : "—"}
           />
           <ResultMetric
-            label="Speaking pace"
+             label="Tốc độ nói"
             value={
               result.english
-                ? `${result.english.wordsPerMinute} wpm`
-                : "manual only"
+                 ? `${result.english.wordsPerMinute} từ/phút`
+                 : "chỉ gõ tay"
             }
           />
         </div>
         {!result.english ? (
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-[#64736c]">
-            Không có speech transcript kèm thời gian microphone, nên vòng
-            này không giả lập chỉ số tốc độ nói từ phần gõ tay.
+             Không có bản ghi lời nói kèm thời gian dùng micro, nên vòng
+            này không ước tính tốc độ nói từ phần nhập bằng bàn phím.
           </p>
         ) : null}
         {notice ? (
@@ -987,13 +993,13 @@ function SummaryScreen({
             href={worldQuantRoleHref("/mock-interview", roleId)}
             className="rounded-2xl bg-[#173f35] px-6 py-3 text-sm font-bold text-white"
           >
-            Sang AI Mock để debrief
+            Tiếp tục phỏng vấn thử với AI để nhận phản hồi
           </Link>
           <Link
             href="/worldquant"
             className="rounded-2xl border border-[#173f35]/15 bg-white px-6 py-3 text-sm font-bold"
           >
-            Về Readiness Hub
+             Về Trung tâm chuẩn bị
           </Link>
           <button
             type="button"
@@ -1060,6 +1066,23 @@ function hasSpeechCapability() {
 
 function getServerSpeechCapability() {
   return false;
+}
+
+function speechRecognitionErrorMessage(code: string) {
+  const messages: Record<string, string> = {
+    aborted: "Quá trình ghi đã bị dừng.",
+    "audio-capture": "Không thu được âm thanh từ micro.",
+    "bad-grammar": "Trình duyệt không xử lý được cấu hình nhận dạng giọng nói.",
+    "language-not-supported":
+      "Trình duyệt không hỗ trợ ngôn ngữ nhận dạng đã chọn.",
+    network: "Kết nối mạng gặp lỗi khi nhận dạng giọng nói.",
+    "no-speech": "Không phát hiện lời nói.",
+    "not-allowed": "Trình duyệt chưa được cấp quyền dùng micro.",
+    "service-not-allowed":
+      "Dịch vụ nhận dạng giọng nói không được phép hoạt động.",
+  };
+
+  return messages[code] ?? "Tính năng nhận dạng giọng nói đã dừng.";
 }
 
 function detachRecognition(recognition: SpeechRecognitionLike) {

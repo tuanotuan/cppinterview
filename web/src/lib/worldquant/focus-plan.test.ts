@@ -330,7 +330,7 @@ describe("WorldQuant Focus Sprint planner", () => {
         competency: "tick_market_data",
         gapKind: "content",
         href: "/learn/tick-data-order-book",
-        label: "Học Tick data",
+        label: "Học dữ liệu tick",
       },
     ]);
 
@@ -373,7 +373,7 @@ describe("WorldQuant Focus Sprint planner", () => {
         gapKind: "content",
         href: null,
         label:
-          "Question bank chưa đủ content cho Ownership",
+          "Kho câu hỏi chưa đủ học liệu cho Làm chủ công việc",
       },
     ]);
   });

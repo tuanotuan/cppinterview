@@ -18,14 +18,23 @@ export async function POST(request: Request) {
   const supabase = await createSupabaseServerClient();
   const { data: authData, error: authError } = await supabase.auth.getUser();
   if (authError || !authData.user || !isAllowedPracticeUser(authData.user)) {
-    return Response.json({ error: "Cần đăng nhập owner để đổi AI fallback." }, { status: 401 });
+    return Response.json(
+      {
+        error:
+          "Cần đăng nhập bằng tài khoản quản trị viên để thay đổi AI dự phòng.",
+      },
+      { status: 401 },
+    );
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return Response.json({ error: "Request không phải JSON hợp lệ." }, { status: 400 });
+    return Response.json(
+      { error: "Yêu cầu không chứa JSON hợp lệ." },
+      { status: 400 },
+    );
   }
   const parsed = settingsSchema.safeParse(body);
   if (!parsed.success) {
@@ -52,7 +61,7 @@ export async function POST(request: Request) {
   );
   if (error) {
     return Response.json(
-      { error: "Không lưu được cấu hình Gemini fallback." },
+      { error: "Không lưu được cấu hình Gemini dự phòng." },
       { status: 502 },
     );
   }

@@ -7,10 +7,15 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 
 ## Tính năng gần đây đáng biết
 
-- `/worldquant` là Readiness Hub dùng được cả local mode: bốn role profile C++,
-  mười competency ổn định và Guided Mode làm entry mặc định. Header chỉ giữ
-  Hôm nay/Luyện thẻ/Cách dùng; onboarding first-visit và một CTA tạo exact
-  role/budget Mission, còn analytics/công cụ chuyên sâu nằm trong Advanced.
+- Quy ước nội dung người dùng nhìn thấy nằm ở `web/AGENTS.md`; giao diện công
+  khai, thông báo API và phản hồi AI dùng “bạn” hoặc câu trung tính, chỉ giữ
+  thuật ngữ chuẩn khi cần. `user-facing-language.test.ts` chặn đại từ suồng sã
+  và các nhãn cũ đã được chuẩn hóa.
+- `/worldquant` là Trung tâm chuẩn bị dùng được cả khi chỉ lưu trên thiết bị:
+  bốn hồ sơ vị trí C++, mười năng lực ổn định và Chế độ hướng dẫn làm lối vào
+  mặc định. Header chỉ giữ Hôm nay/Luyện thẻ/Cách dùng; phần giới thiệu lần đầu
+  và một nút tạo Nhiệm vụ đúng vị trí/thời lượng, còn thống kê/công cụ chuyên sâu
+  nằm trong mục Nâng cao.
   Khi đã login và cấu hình history, Hub vẫn hiển thị mock v4 mới nhất theo role,
   assessed/not-assessed matrix, comparable trend và CTA targeted mock theo gap.
   `Preparation Index` và mock evidence luôn tách rời; cả hai không phải xác suất
@@ -23,6 +28,15 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
   `/admin/coverage` (editorial priority). Gap đi theo
   `open → learning → transfer_ready → verified`; checkpoint clean phải đạt
   rubric/follow-up và là unseen hoặc spaced retest sau cooldown 24 giờ mới verify.
+- Hồ sơ phỏng vấn WorldQuant hiện ở phiên bản 4 và danh mục bài luyện ở phiên
+  bản 2. Vì bản 2 chỉ viết lại ngôn ngữ mà không đổi cấu trúc đánh giá, lượt
+  làm, lần mở bài kiểm tra và kết quả vòng phỏng vấn bản 1 vẫn được giữ làm lịch
+  sử. Lượt hoàn tất mới, bằng chứng cập nhật điểm cần cải thiện và thống kê xếp
+  bài luyện phải dùng đúng bản 2 hiện hành. Một vòng phỏng vấn cũ chỉ hợp lệ khi
+  mọi chặng cùng dùng một phiên bản danh mục; không trộn bản 1 với bản 2. Phiên
+  bản khóa và cấu trúc lưu trên trình duyệt là 2; khi chưa có khóa bản 2, ứng
+  dụng sao chép một chiều lịch sử từ khóa bản 1 và không xóa hoặc ghi lại khóa
+  cũ, nên tab ứng dụng cũ không thể ghi đè dữ liệu mới.
 - Practice có same-session Recall Repair: `Again` quay lại sau 3 thẻ, `Hard`
   sau 5 thẻ; retry không tạo daily review thứ hai. Practice không còn hỏi mức tự
   tin hoặc hiển thị confidence calibration. Draft answer/code không có giới hạn
@@ -34,10 +48,13 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
   Stats chỉ giữ FSRS-6 shadow theo exact revision và không đổi lịch hiện tại.
 - Today’s Mission khóa exact snapshot qua reload theo account/local + ngày + role
   + budget, đưa duy nhất item chưa xong đầu tiên lên “Bước tiếp theo” và return
-  về đúng Mission sau Focus/Drill/Mock. Snapshot giữ tối đa 24 bản/account và
-  rebuild khi question/drill revision, competency/canonical-content truth stale
-  hoặc mock history không khả dụng; local mode không xếp mock cần durable history.
-  Content gap được báo là giới hạn bank, không làm Mission báo hoàn tất. Training, repair và
+  về đúng Mission sau Focus/Drill/Mock. Snapshot dùng schema/key v2, giữ tối đa
+  24 bản/account và rebuild khi question/drill revision,
+  competency/canonical-content truth stale hoặc mock history không khả dụng;
+  bản v1 bị bỏ qua để dựng lại và không bị đọc, di chuyển hay xóa. Local mode
+  không xếp mock cần durable history.
+  Phần học liệu còn thiếu được báo là giới hạn của kho câu hỏi, không làm Nhiệm
+  vụ báo hoàn tất. Training, repair và
   signal writes dùng Web Locks khi browser hỗ trợ để tránh hai tab ghi đè nhau.
 - Full Round không lưu/upload audio hoặc answer. Transcript chỉ ở memory của tab,
   bị xóa sau khi summary lưu thành công; timer khóa input tại deadline và WPM chỉ
@@ -45,7 +62,9 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
   checkpoint certification; training state chỉ giữ summary số cùng exact
   role/full-round/drill revision. Các state training mới
   hiện là localStorage versioned theo account/local mode, chưa cloud sync và
-  không tự chuyển local state sang account sau login.
+  không tự chuyển local state sang account sau login. Hub vẫn đọc kết quả hoàn
+  tất của hồ sơ phỏng vấn bản 3 để hiển thị riêng, nhưng không khôi phục phiên
+  đang làm dở từ bản cũ.
 - Focus Sprint chốt exact approved queue theo role/gap/Anki state và time budget,
   hỗ trợ pause/resume/completion qua nhiều deck. Practice không replan; mỗi rating
   vẫn cập nhật scheduler/cloud bình thường. Guided return chỉ mang marker, role
@@ -93,10 +112,11 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
   Focus session cũ vẫn ở `practice/focus-session.ts`;
   same-session retry ở `practice/repair-queue.ts`. Route server chỉ truyền dữ
   liệu serializable; analytics/training state không lưu candidate answer.
-- Question bank hiện chưa bao phủ đều Tick, CMake, Python, Linux/networking,
+- Kho câu hỏi hiện chưa bao phủ đều dữ liệu tick, CMake, Python, Linux/mạng,
   distributed systems và ownership. Tick drafts mới không thay đổi coverage cho
-  tới khi owner duyệt. Hub phải tiếp tục gọi phần thiếu là `content gap`, không
-  đổi thành đánh giá người học yếu khi chưa có evidence đã kiểm chứng.
+  tới khi owner duyệt. Giao diện phải mô tả đây là “phần học liệu còn thiếu”;
+  chỉ giữ enum nội bộ `content_gap`, không biến nó thành đánh giá người học yếu
+  khi chưa có bằng chứng đã kiểm chứng.
 - Migration `20260730100000_create_mock_interview_attempts.sql` và secret
   `MOCK_HISTORY_SUPABASE_SECRET_KEY` phải được cấu hình trước khi bắt đầu mock
   v4; report fail closed trước runner/AI nếu không giữ được reservation. Migration
@@ -112,13 +132,13 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 
 - `npm run validate` pass toàn bộ: content/context check, lint, TypeScript,
   Vitest và production build.
-- Vitest: 71 test files, 407 tests pass.
+- Vitest: 72 test files, 418 tests pass.
 - Next.js production build: pass, gồm compile, type-check và 25 generated pages;
   năm route WorldQuant training và `/admin/coverage` đều có trong route graph.
-- Headless Chrome production smoke ở 1440×1200 và 390×844: Rescue ẩn score/rating,
-  hiển thị lời giải + CTA tự làm lại; Retry xóa feedback, focus answer và vẫn cho
-  `Nhờ AI giải lại` khi blank; outcome chưa đạt chỉ hiện CTA Recall Repair, không
-  hiện bốn nút rating.
+- Headless Chrome production smoke ở 1440×1200 và mobile CDP 390×844: trang
+  luyện thẻ, Trung tâm chuẩn bị, hướng dẫn CMake, hướng dẫn dữ liệu tick và Full
+  Round hiển thị đúng bố cục; không có tràn ngang ở cấp trang. Các trạng thái
+  thiếu cấu hình Supabase của Mock/Stats/Admin cũng dùng câu tiếng Việt rõ ràng.
 
 ## Quy tắc cập nhật
 

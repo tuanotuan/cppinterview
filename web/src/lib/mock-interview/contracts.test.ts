@@ -8,6 +8,7 @@ import {
 import {
   mockCompetencyKeys,
   WORLDQUANT_MOCK_SETS,
+  WORLDQUANT_PROFILE_VERSION,
   WORLDQUANT_ROLE_QUESTIONS,
   type MockCompetencyKey,
   type MockInterviewSet,
@@ -40,7 +41,7 @@ function reportRequestForSet(mockSet: MockInterviewSet) {
     idempotencyKey: "23966699-ebc3-4b74-9a16-0ca48f4a47c7",
     sessionId: "9f58ceae-6ce7-4d56-bf6e-2be2256cc063",
     profileId: "worldquant-tick-data-engineer",
-    profileVersion: 3,
+    profileVersion: WORLDQUANT_PROFILE_VERSION,
     setId: mockSet.id,
     setVersion: mockSet.version,
     sourceRevision: "a".repeat(40),

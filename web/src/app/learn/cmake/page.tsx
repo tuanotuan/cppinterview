@@ -8,9 +8,9 @@ import {
 } from "@/lib/learn/cmake-guide";
 
 export const metadata: Metadata = {
-  title: "CMake cho Modern C++ — Recall",
+  title: "CMake cho C++ hiện đại — Recall",
   description:
-    "Guide CMake chi tiết từ target graph, usage requirements và code generation tới CTest, packaging, CI và migration legacy cho vai trò WorldQuant.",
+    "Hướng dẫn CMake chi tiết từ đồ thị target, yêu cầu sử dụng và sinh mã tới CTest, đóng gói, CI và chuyển đổi hệ thống cũ cho vai trò WorldQuant.",
 };
 
 const codeClass =
@@ -25,27 +25,27 @@ export default function CMakeLearningGuide() {
         <section className="relative mt-7 min-w-0 overflow-hidden rounded-[2.25rem] border border-[#173f35]/15 bg-[#173f35] px-6 py-8 text-white shadow-[0_24px_90px_rgba(23,63,53,0.16)] sm:px-10 sm:py-11 lg:grid lg:grid-cols-[minmax(0,1.18fr)_minmax(340px,0.82fr)] lg:gap-12">
           <div className="relative z-10 min-w-0">
             <p className="font-mono text-[11px] font-bold tracking-[0.2em] text-[#d7ff91] uppercase">
-              Build systems for production C++
+              Hệ thống dựng cho C++ trong môi trường thực tế
             </p>
             <h1 className="mt-5 max-w-4xl text-4xl font-semibold tracking-[-0.045em] text-balance sm:text-6xl lg:text-7xl">
               CMake cho
-              <span className="block sm:inline"> Modern C++.</span>
+              <span className="block sm:inline"> C++ hiện đại.</span>
               <span className="block text-[#d7ff91]">
-                Từ target graph đến production.
+                Từ đồ thị target đến vận hành thực tế.
               </span>
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-white/72 sm:text-lg">
-              Không học CMake như một danh sách command. Mày sẽ dùng một project
-              tick-data xuyên suốt để hiểu dependency graph, incremental build,
-              test, install, CI và cách nâng legacy platform mà vẫn giữ đường
-              rollback.
+              Không học CMake như một danh sách lệnh. Bạn sẽ dùng một dự án dữ
+              liệu tick xuyên suốt để hiểu đồ thị phụ thuộc, cách dựng tăng
+              dần, kiểm thử, cài đặt, CI và cách nâng cấp nền tảng cũ mà vẫn có
+              đường quay lại an toàn.
             </p>
 
             <div className="mt-7 flex flex-wrap gap-2 font-mono text-[11px] font-bold uppercase">
               <HeroChip>2–3 giờ</HeroChip>
               <HeroChip>16 chương</HeroChip>
-              <HeroChip>Baseline CMake 3.25</HeroChip>
-              <HeroChip>WorldQuant-focused</HeroChip>
+              <HeroChip>Mốc CMake 3.25</HeroChip>
+              <HeroChip>Hướng đến WorldQuant</HeroChip>
             </div>
 
             <div className="mt-8 flex min-w-0 flex-wrap gap-3">
@@ -53,13 +53,13 @@ export default function CMakeLearningGuide() {
                 href="#configure-generate-build"
                 className="w-full rounded-2xl bg-[#d7ff91] px-5 py-3 text-center text-sm font-bold text-[#173f35] transition hover:bg-white sm:w-auto"
               >
-                Bắt đầu từ mental model ↓
+                Bắt đầu từ mô hình tư duy ↓
               </a>
               <Link
                 href="/mock-interview"
                 className="w-full rounded-2xl border border-white/20 bg-white/8 px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-white/14 sm:w-auto"
               >
-                Làm mock WorldQuant
+                Phỏng vấn thử WorldQuant
               </Link>
             </div>
           </div>
@@ -81,14 +81,14 @@ export default function CMakeLearningGuide() {
             </span>
             <div>
               <h2 className="font-bold text-[#8e3825]">
-                Baseline thực hành là 3.25, manual chính thức có thể mới hơn
+                Mốc thực hành là 3.25, tài liệu chính thức có thể mới hơn
               </h2>
               <p className="mt-2 max-w-5xl text-sm leading-7 text-[#71574a]">
-                Mọi ví dụ chính trong bài chạy với CMake 3.25. C++ modules cần
+                Mọi ví dụ chính trong bài chạy với CMake 3.25. Mô-đun C++ cần
                 3.28+, target <InlineCode>codegen</InlineCode> cần 3.31, còn
-                instrumentation/compile tracing 4.x chỉ là phần mở rộng. Luôn
-                đọc nhãn “Added in version” trước khi đưa feature mới vào
-                platform cũ.
+                công cụ đo và theo dõi quá trình biên dịch của bản 4.x chỉ là
+                phần mở rộng. Luôn đọc nhãn “Added in version” (được thêm từ
+                phiên bản) trước khi đưa tính năng mới vào nền tảng cũ.
               </p>
             </div>
           </div>
@@ -98,14 +98,14 @@ export default function CMakeLearningGuide() {
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
-                JD → learning outcomes
+                Mô tả công việc → kết quả học tập
               </p>
               <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em]">
-                Học để vận hành platform, không chỉ để configure được.
+                Học để vận hành nền tảng, không chỉ để chạy cấu hình thành công.
               </h2>
             </div>
             <span className="rounded-full bg-[#e8efe2] px-3 py-1.5 font-mono text-[10px] font-bold text-[#356b58] uppercase">
-              6 signals phỏng vấn
+              6 năng lực cần thể hiện
             </span>
           </div>
           <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -135,108 +135,111 @@ export default function CMakeLearningGuide() {
             <GuideSection
               id="configure-generate-build"
               number="01"
-              eyebrow="First principles"
-              title="CMake không phải compiler"
-              lead="CMake đọc model của project rồi sinh buildsystem cho Ninja, Make hoặc IDE. Tách đúng các phase là bước đầu để debug có căn cứ."
+              eyebrow="Nguyên lý nền tảng"
+              title="CMake không phải trình biên dịch"
+              lead="CMake đọc mô hình của dự án rồi sinh hệ thống dựng cho Ninja, Make hoặc IDE. Tách đúng từng giai đoạn là bước đầu để tìm lỗi có căn cứ."
             >
               <p>
-                Hãy giữ mental model này: <Term>configure</Term> phát hiện
-                toolchain, đọc <InlineCode>CMakeLists.txt</InlineCode> và tạo
-                cache; <Term>generate</Term> viết native build files;{" "}
-                <Term>build</Term> mới gọi compiler/linker; sau đó{" "}
-                <Term>CTest</Term> chạy test và <Term>install</Term> tạo layout
-                cho consumer.
+                Hãy giữ mô hình tư duy này: <Term>configure (cấu hình)</Term>{" "}
+                phát hiện bộ công cụ, đọc{" "}
+                <InlineCode>CMakeLists.txt</InlineCode> và tạo bộ nhớ đệm;{" "}
+                <Term>generate (sinh tệp)</Term> viết tệp cho Ninja, Make hoặc
+                IDE;{" "}
+                <Term>build (dựng)</Term> mới gọi trình biên dịch và trình liên
+                kết; sau đó <Term>CTest</Term> chạy kiểm thử và{" "}
+                <Term>install (cài đặt)</Term> tạo cấu trúc cho bên sử dụng.
               </p>
 
               <Flow
                 items={[
-                  ["1", "Configure", "CMake code + toolchain → cache"],
-                  ["2", "Generate", "Target graph → Ninja/VS files"],
-                  ["3", "Build", "Compiler + linker tạo artifacts"],
-                  ["4", "Test", "CTest chạy executable đã build"],
-                  ["5", "Install", "Copy/export public product"],
+                  ["1", "Cấu hình", "Mã CMake + bộ công cụ → bộ nhớ đệm"],
+                  ["2", "Sinh tệp", "Đồ thị target → tệp Ninja/VS"],
+                  ["3", "Dựng", "Trình biên dịch + liên kết tạo sản phẩm"],
+                  ["4", "Kiểm thử", "CTest chạy chương trình đã dựng"],
+                  ["5", "Cài đặt", "Sao chép/xuất sản phẩm công khai"],
                 ]}
               />
 
-              <CodeBlock label="Một workflow không phụ thuộc working directory">
+              <CodeBlock label="Một quy trình không phụ thuộc thư mục làm việc">
                 {`cmake -S . -B build/dev -G Ninja -DCMAKE_BUILD_TYPE=Debug
 cmake --build build/dev --parallel
 ctest --test-dir build/dev --output-on-failure --no-tests=error
 cmake --install build/dev --prefix stage/dev`}
               </CodeBlock>
 
-              <h3>Ba tree, ba trách nhiệm</h3>
+              <h3>Ba cây thư mục, ba trách nhiệm</h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <CompareCard
-                  label="Source tree"
-                  title="Input được Git quản lý"
+                  label="Cây mã nguồn"
+                  title="Đầu vào được Git quản lý"
                   bullets={[
                     "CMakeLists.txt, .cmake",
-                    "C++ source/header",
-                    "Schema, fixtures, scripts",
+                    "Mã nguồn/tệp tiêu đề C++",
+                    "Lược đồ, dữ liệu kiểm thử, tập lệnh",
                   ]}
                 />
                 <CompareCard
-                  label="Build tree"
-                  title="Disposable output"
+                  label="Cây dựng"
+                  title="Kết quả có thể tạo lại"
                   bullets={[
                     "CMakeCache.txt",
-                    "Generated source",
-                    "Object, library, executable",
+                    "Mã nguồn được sinh",
+                    "Tệp đối tượng, thư viện, chương trình",
                   ]}
                 />
                 <CompareCard
-                  label="Install tree"
-                  title="Public product"
+                  label="Cây cài đặt"
+                  title="Sản phẩm công khai"
                   bullets={[
                     "bin/lib/include",
-                    "Package config",
-                    "Không phụ thuộc source tree",
+                    "Cấu hình gói",
+                    "Không phụ thuộc cây mã nguồn",
                   ]}
                 />
               </div>
 
-              <Callout tone="red" title="Anti-pattern: in-source build">
-                Build trong source tree trộn cache, generated files và artifacts
-                vào Git input. Dùng <InlineCode>-S</InlineCode> và{" "}
-                <InlineCode>-B</InlineCode>; mỗi generator/toolchain/config
-                family có build directory riêng.
+              <Callout tone="red" title="Cách làm nên tránh: dựng trong cây mã nguồn">
+                Dựng trong cây mã nguồn trộn bộ nhớ đệm, tệp được sinh và sản
+                phẩm được tạo khi dựng vào đầu vào của Git. Dùng{" "}
+                <InlineCode>-S</InlineCode>{" "}
+                và <InlineCode>-B</InlineCode>; mỗi nhóm trình sinh, bộ công cụ
+                và cấu hình có thư mục dựng riêng.
               </Callout>
 
               <Lab>
-                Tạo <InlineCode>build/gcc-debug</InlineCode>, configure bằng
-                Ninja, build, chạy CTest và install vào{" "}
+                Tạo <InlineCode>build/gcc-debug</InlineCode>, cấu hình bằng
+                Ninja, dựng, chạy CTest và cài vào{" "}
                 <InlineCode>stage/gcc-debug</InlineCode>. Sau đó xóa toàn bộ
-                build tree và chứng minh source tree không thay đổi.
+                cây dựng và chứng minh cây mã nguồn không thay đổi.
               </Lab>
 
               <Checkpoint
-                question="Đổi compiler trong CMakeCache.txt rồi build tiếp có an toàn không?"
-                answer="Không. Compiler được chọn trong lần configure đầu và ảnh hưởng ABI, feature detection, try_compile, flags và dependency discovery. Tạo build tree mới hoặc dùng preset/toolchain có binaryDir riêng."
+                question="Đổi trình biên dịch trong CMakeCache.txt rồi dựng tiếp có an toàn không?"
+                answer="Không. Trình biên dịch được chọn trong lần cấu hình đầu và ảnh hưởng ABI, việc phát hiện tính năng, try_compile, cờ cùng việc tìm phụ thuộc. Hãy tạo cây dựng mới hoặc dùng cấu hình đặt sẵn/bộ công cụ có binaryDir riêng."
               />
             </GuideSection>
 
             <GuideSection
               id="language-cache-scope"
               number="02"
-              eyebrow="CMake language"
-              title="Variable không phải target property"
-              lead="CMake là một language có list, quoting, scope và cache riêng. Nhiều legacy bug bắt đầu từ việc dùng cache như global mutable state."
+              eyebrow="Ngôn ngữ CMake"
+              title="Biến không phải thuộc tính của target"
+              lead="CMake là một ngôn ngữ có danh sách, quy tắc trích dẫn, phạm vi và bộ nhớ đệm riêng. Nhiều lỗi trong hệ thống cũ bắt đầu từ việc dùng bộ nhớ đệm như trạng thái toàn cục có thể thay đổi."
             >
               <p>
-                Normal variable sống theo directory/function scope. Cache entry
-                là user-facing configuration được giữ qua các lần configure.
-                Environment variable thuộc process. Còn requirement của C++
-                target phải nằm trên <strong>target property</strong>, không nên
-                được truyền bằng một chuỗi biến global.
+                Biến thường sống theo phạm vi thư mục hoặc hàm. Mục trong bộ nhớ
+                đệm là cấu hình dành cho người dùng và được giữ qua các lần cấu
+                hình. Biến môi trường thuộc tiến trình. Yêu cầu của target C++
+                phải nằm trong <strong>thuộc tính target</strong>, không nên
+                truyền qua một chuỗi biến toàn cục.
               </p>
 
               <div className="overflow-x-auto rounded-2xl border border-[#173f35]/12 bg-white/65">
                 <table className="w-full min-w-[720px] text-left text-sm">
                   <thead className="bg-[#edf0e8] font-mono text-[10px] uppercase">
                     <tr>
-                      <th scope="col" className="px-4 py-3">Loại state</th>
-                      <th scope="col" className="px-4 py-3">Lifetime/scope</th>
+                      <th scope="col" className="px-4 py-3">Loại trạng thái</th>
+                      <th scope="col" className="px-4 py-3">Vòng đời/phạm vi</th>
                       <th scope="col" className="px-4 py-3">Dùng cho</th>
                       <th scope="col" className="px-4 py-3">Không dùng cho</th>
                     </tr>
@@ -244,34 +247,34 @@ cmake --install build/dev --prefix stage/dev`}
                   <tbody>
                     <TableRow
                       values={[
-                        "Normal variable",
-                        "Directory / function",
-                        "Logic configure cục bộ",
-                        "Public compile contract",
+                        "Biến thường",
+                        "Thư mục / hàm",
+                        "Logic cấu hình cục bộ",
+                        "Quy ước biên dịch công khai",
                       ]}
                     />
                     <TableRow
                       values={[
-                        "Cache variable",
-                        "Build tree",
-                        "User option/path",
-                        "Ép user bằng FORCE",
+                        "Biến bộ nhớ đệm",
+                        "Cây dựng",
+                        "Tùy chọn/đường dẫn của người dùng",
+                        "Ép người dùng bằng FORCE",
                       ]}
                     />
                     <TableRow
                       values={[
-                        "Environment",
-                        "CMake process",
-                        "Toolchain/CI input",
-                        "Dependency graph ẩn",
+                        "Môi trường",
+                        "Tiến trình CMake",
+                        "Đầu vào bộ công cụ/CI",
+                        "Đồ thị phụ thuộc ẩn",
                       ]}
                     />
                     <TableRow
                       values={[
-                        "Target property",
-                        "Target graph",
-                        "Include/feature/link requirement",
-                        "Toggle toàn project",
+                        "Thuộc tính target",
+                        "Đồ thị target",
+                        "Yêu cầu include/tính năng/liên kết",
+                        "Bật tắt toàn dự án",
                       ]}
                       last
                     />
@@ -279,14 +282,14 @@ cmake --install build/dev --prefix stage/dev`}
                 </table>
               </div>
 
-              <CodeBlock label="Option và function có scope rõ">
+              <CodeBlock label="Tùy chọn và hàm có phạm vi rõ">
                 {`cmake_minimum_required(VERSION 3.25)
 project(TickPlatform VERSION 1.0.0 LANGUAGES CXX)
 
-option(TICK_BUILD_TESTING "Build TickPlatform tests" ON)
+option(TICK_BUILD_TESTING "Dựng các bài kiểm thử TickPlatform" ON)
 set(TICK_SCHEMA_DIR
     "\${PROJECT_SOURCE_DIR}/schemas"
-    CACHE PATH "Directory containing feed schemas")
+    CACHE PATH "Thư mục chứa các lược đồ luồng dữ liệu")
 
 function(tick_enable_strict_warnings target)
   if(MSVC)
@@ -299,57 +302,60 @@ function(tick_enable_strict_warnings target)
 endfunction()`}
               </CodeBlock>
 
-              <h3>List và quoting là nguồn bug âm thầm</h3>
+              <h3>Danh sách và trích dẫn là nguồn lỗi âm thầm</h3>
               <p>
-                CMake list là chuỗi phân cách bằng dấu chấm phẩy. Unquoted
-                expansion có thể biến một argument thành nhiều argument. Với
-                path hoặc generator expression có list, quote toàn expression
-                hoặc dùng API target-aware thay vì tự nối command string.
+                Danh sách CMake là chuỗi phân cách bằng dấu chấm phẩy. Việc mở
+                rộng không có dấu nháy có thể biến một đối số thành nhiều đối
+                số. Với đường dẫn hoặc biểu thức sinh có danh sách, hãy trích
+                dẫn toàn biểu thức hoặc dùng API hiểu target thay vì tự nối
+                chuỗi lệnh.
               </p>
 
-              <Callout tone="amber" title="Cache là API của user">
+              <Callout tone="amber" title="Bộ nhớ đệm là API dành cho người dùng">
                 Đừng <InlineCode>set(... CACHE ... FORCE)</InlineCode> chỉ để CI
-                “chắc chắn đúng”; nó ghi đè lựa chọn của developer. Default nằm
-                trong project/preset, override thuộc command line hoặc user
-                preset.
+                “chắc chắn đúng”; nó ghi đè lựa chọn của lập trình viên. Giá trị
+                mặc định nằm trong dự án hoặc cấu hình đặt sẵn; giá trị thay thế
+                thuộc dòng lệnh hoặc cấu hình riêng của người dùng.
               </Callout>
 
               <p>
                 <InlineCode>cmake_minimum_required</InlineCode> đồng thời đặt
-                policy version. Policy là cơ chế migrate behavior, không phải
-                feature toggle. Gần như không bao giờ giải quyết warning bằng
-                cách set hàng loạt policy về <InlineCode>OLD</InlineCode>.
+                phiên bản chính sách. Chính sách là cơ chế chuyển đổi hành vi,
+                không phải nút bật tắt tính năng. Gần như không bao giờ nên xử
+                lý cảnh báo bằng cách đặt hàng loạt chính sách về{" "}
+                <InlineCode>OLD</InlineCode>.
               </p>
 
               <Lab>
-                Viết option bật feed equities và cache path tới schema. In giá
-                trị trong configure, override bằng <InlineCode>-D</InlineCode>,
-                rồi giải thích state nào còn lại khi chạy configure lần hai.
+                Viết tùy chọn bật luồng dữ liệu cổ phiếu và lưu đường dẫn tới
+                lược đồ trong bộ nhớ đệm. In giá trị khi cấu hình, thay bằng{" "}
+                <InlineCode>-D</InlineCode>, rồi giải thích trạng thái nào còn
+                lại khi cấu hình lần hai.
               </Lab>
 
               <Checkpoint
-                question="Function và macro khác nhau ở điểm nguy hiểm nào?"
-                answer="Function tạo variable scope mới và truyền argument như value thông thường; macro thay thế gần giống textual invocation, không có scope riêng nên dễ sửa variable của caller. Ưu tiên function trừ khi thực sự cần semantics của macro."
+                question="Hàm và macro khác nhau ở điểm nguy hiểm nào?"
+                answer="Hàm tạo phạm vi biến mới và truyền đối số như giá trị thông thường; macro thay thế gần giống việc chèn văn bản, không có phạm vi riêng nên dễ sửa biến của bên gọi. Ưu tiên hàm trừ khi thực sự cần ngữ nghĩa của macro."
               />
             </GuideSection>
 
             <GuideSection
               id="targets-graph"
               number="03"
-              eyebrow="Core design unit"
-              title="Target graph mới là kiến trúc build"
-              lead="File chỉ là input. Target mới sở hữu source, requirements, output và dependency edge."
+              eyebrow="Đơn vị thiết kế cốt lõi"
+              title="Đồ thị target mới là kiến trúc dựng"
+              lead="Tệp chỉ là đầu vào. Target mới sở hữu mã nguồn, yêu cầu, kết quả và cạnh phụ thuộc."
             >
               <p>
-                Một platform tick-data nên được nhìn như graph: adapter feed phụ
-                thuộc protocol model, decoder phụ thuộc generated schema, order
-                book phụ thuộc event model, executable phụ thuộc các library.
-                Edge phải được biểu diễn bằng{" "}
+                Một nền tảng dữ liệu tick nên được nhìn như một đồ thị: bộ chuyển
+                đổi luồng dữ liệu phụ thuộc mô hình giao thức, bộ giải mã phụ
+                thuộc lược đồ được sinh, sổ lệnh phụ thuộc mô hình sự kiện,
+                chương trình phụ thuộc các thư viện. Cạnh phải được biểu diễn bằng{" "}
                 <InlineCode>target_link_libraries</InlineCode>, không bằng include
-                path hoặc link directory toàn cục.
+                path hoặc thư mục liên kết toàn cục.
               </p>
 
-              <CodeBlock label="Target graph tối thiểu">
+              <CodeBlock label="Đồ thị target tối thiểu">
                 {`add_library(tick_model INTERFACE)
 add_library(Tick::model ALIAS tick_model)
 set_target_properties(tick_model PROPERTIES EXPORT_NAME model)
@@ -377,71 +383,72 @@ target_link_libraries(tick_replay
 
               <div className="grid gap-4 md:grid-cols-2">
                 <CompareCard
-                  label="Build targets"
-                  title="Tạo artifact hoặc object"
+                  label="Target tạo sản phẩm"
+                  title="Tạo sản phẩm hoặc tệp đối tượng"
                   bullets={[
                     "EXECUTABLE",
                     "STATIC / SHARED / MODULE",
-                    "OBJECT library",
+                    "Thư viện OBJECT",
                   ]}
                 />
                 <CompareCard
-                  label="Graph targets"
-                  title="Mô tả contract/đồ có sẵn"
+                  label="Target mô tả quan hệ"
+                  title="Mô tả quy ước hoặc thành phần có sẵn"
                   bullets={[
-                    "INTERFACE library",
-                    "IMPORTED target",
-                    "ALIAS namespace",
+                    "Thư viện INTERFACE",
+                    "Target IMPORTED",
+                    "ALIAS có không gian tên",
                   ]}
                 />
               </div>
 
-              <Callout tone="green" title="Tên có namespace bắt typo sớm">
-                Alias <InlineCode>Tick::feed_decoder</InlineCode> khiến CMake báo
-                lỗi ngay nếu consumer link nhầm target. Raw string không có{" "}
-                <InlineCode>::</InlineCode> có thể bị hiểu như tên library cho
-                linker và chỉ fail rất muộn.
+              <Callout tone="green" title="Tên có không gian tên bắt lỗi gõ sớm">
+                Tên thay thế <InlineCode>Tick::feed_decoder</InlineCode> khiến
+                CMake báo lỗi ngay nếu bên sử dụng liên kết nhầm target. Chuỗi
+                thô không có <InlineCode>::</InlineCode> có thể bị hiểu như tên
+                thư viện cho trình liên kết và chỉ báo lỗi rất muộn.
               </Callout>
 
-              <h3>Chọn loại library theo product semantics</h3>
+              <h3>Chọn loại thư viện theo ý nghĩa sản phẩm</h3>
               <p>
-                <InlineCode>INTERFACE</InlineCode> dành cho header-only contract;
-                <InlineCode>OBJECT</InlineCode> tái dùng object nhưng không phải
-                package boundary; <InlineCode>MODULE</InlineCode> hợp với plugin
-                không link trực tiếp; <InlineCode>STATIC</InlineCode> và{" "}
-                <InlineCode>SHARED</InlineCode> cần quyết định ABI/deployment rõ.
-                Không để <InlineCode>BUILD_SHARED_LIBS</InlineCode> vô tình đổi
-                product type nếu platform yêu cầu cụ thể.
+                <InlineCode>INTERFACE</InlineCode> dành cho quy ước chỉ có tệp
+                tiêu đề; <InlineCode>OBJECT</InlineCode> tái dùng tệp đối tượng
+                nhưng không phải ranh giới gói; <InlineCode>MODULE</InlineCode>{" "}
+                hợp với phần bổ trợ không liên kết trực tiếp;{" "}
+                <InlineCode>STATIC</InlineCode> và{" "}
+                <InlineCode>SHARED</InlineCode> cần quyết định rõ ABI và cách
+                triển khai. Không để <InlineCode>BUILD_SHARED_LIBS</InlineCode>{" "}
+                vô tình đổi loại sản phẩm nếu nền tảng có yêu cầu cụ thể.
               </p>
 
               <Lab>
-                Vẽ graph cho <InlineCode>feed_codec</InlineCode>,{" "}
+                Vẽ đồ thị cho <InlineCode>feed_codec</InlineCode>,{" "}
                 <InlineCode>order_book</InlineCode>,{" "}
                 <InlineCode>interval_features</InlineCode> và{" "}
-                <InlineCode>tick_replay</InlineCode>. Mỗi edge phải trả lời được:
-                compile requirement nào đi qua edge này?
+                <InlineCode>tick_replay</InlineCode>. Mỗi cạnh phụ thuộc phải trả
+                lời được: yêu cầu biên dịch nào đi qua cạnh này?
               </Lab>
 
               <Checkpoint
-                question="Khi nào dùng IMPORTED target thay vì link một absolute .so/.lib?"
-                answer="Khi binary/dependency được build hoặc cung cấp ngoài project. Imported target có thể mang location theo config, include dirs, transitive dependencies và platform metadata; raw path chỉ cho linker một file và làm mất contract."
+                question="Khi nào dùng target IMPORTED thay vì liên kết trực tiếp một đường dẫn .so/.lib tuyệt đối?"
+                answer="Khi tệp nhị phân hoặc phụ thuộc được dựng hay cung cấp ngoài dự án. Target được nhập có thể mang vị trí theo cấu hình, thư mục include, phụ thuộc truyền tiếp và dữ liệu nền tảng; đường dẫn thô chỉ đưa cho trình liên kết một tệp và làm mất quy ước."
               />
             </GuideSection>
 
             <GuideSection
               id="usage-requirements"
               number="04"
-              eyebrow="Transitive contracts"
-              title="PUBLIC, PRIVATE, INTERFACE phải đọc từ consumer"
-              lead="Scope không mô tả mức độ quan trọng. Nó mô tả requirement dùng để build target hiện tại, consumer, hay cả hai."
+              eyebrow="Quy ước truyền tiếp"
+              title="PUBLIC, PRIVATE, INTERFACE phải được nhìn từ bên sử dụng"
+              lead="Phạm vi không mô tả mức độ quan trọng. Nó cho biết yêu cầu dùng để dựng target hiện tại, bên sử dụng hay cả hai."
             >
               <div className="overflow-x-auto rounded-2xl border border-[#173f35]/12 bg-white/65">
                 <table className="w-full min-w-[720px] text-left text-sm">
                   <thead className="bg-[#edf0e8] font-mono text-[10px] uppercase">
                     <tr>
-                      <th scope="col" className="px-4 py-3">Scope</th>
-                      <th scope="col" className="px-4 py-3">Build target</th>
-                      <th scope="col" className="px-4 py-3">Build consumer</th>
+                      <th scope="col" className="px-4 py-3">Phạm vi</th>
+                      <th scope="col" className="px-4 py-3">Dựng target</th>
+                      <th scope="col" className="px-4 py-3">Dựng bên sử dụng</th>
                       <th scope="col" className="px-4 py-3">Câu hỏi quyết định</th>
                     </tr>
                   </thead>
@@ -450,8 +457,8 @@ target_link_libraries(tick_replay
                       values={[
                         "PRIVATE",
                         "✓",
-                        "Không nhận usage req.*",
-                        "Chỉ .cpp implementation cần?",
+                        "Không nhận yêu cầu sử dụng*",
+                        "Chỉ phần triển khai .cpp cần?",
                       ]}
                     />
                     <TableRow
@@ -459,7 +466,7 @@ target_link_libraries(tick_replay
                         "PUBLIC",
                         "✓",
                         "✓",
-                        "Target và public header cùng cần?",
+                        "Target và tệp tiêu đề công khai cùng cần?",
                       ]}
                     />
                     <TableRow
@@ -467,7 +474,7 @@ target_link_libraries(tick_replay
                         "INTERFACE",
                         "—",
                         "✓",
-                        "Header-only/consumer contract?",
+                        "Quy ước chỉ có tệp tiêu đề/dành cho bên sử dụng?",
                       ]}
                       last
                     />
@@ -475,7 +482,7 @@ target_link_libraries(tick_replay
                 </table>
               </div>
 
-              <CodeBlock label="Usage requirements không rò implementation">
+              <CodeBlock label="Yêu cầu sử dụng không làm lộ phần triển khai">
                 {`add_library(feed_decoder src/feed_decoder.cpp)
 
 target_sources(feed_decoder
@@ -499,54 +506,57 @@ target_link_libraries(feed_decoder
 )`}
               </CodeBlock>
 
-              <h3>Đọc public header để chọn scope</h3>
+              <h3>Đọc tệp tiêu đề công khai để chọn phạm vi</h3>
               <p>
-                Nếu <InlineCode>decoder.hpp</InlineCode> nhắc type của{" "}
-                <InlineCode>tick_model</InlineCode>, consumer cần model để compile:
-                edge đó là <InlineCode>PUBLIC</InlineCode>. Nếu thread chỉ nằm
+                Nếu <InlineCode>decoder.hpp</InlineCode> nhắc kiểu của{" "}
+                <InlineCode>tick_model</InlineCode>, bên sử dụng cần mô hình để
+                biên dịch: cạnh đó là <InlineCode>PUBLIC</InlineCode>. Nếu luồng
+                chỉ nằm
                 trong <InlineCode>decoder.cpp</InlineCode>, nó là{" "}
-                <InlineCode>PRIVATE</InlineCode>. Nếu target chỉ gom header,
-                requirement thường là <InlineCode>INTERFACE</InlineCode>.
+                <InlineCode>PRIVATE</InlineCode>. Nếu target chỉ gom tệp tiêu
+                đề, yêu cầu thường là <InlineCode>INTERFACE</InlineCode>.
               </p>
 
               <p>
                 Dấu <strong>*</strong>: <InlineCode>PRIVATE</InlineCode> không
-                truyền usage requirements để compile consumer. Nhưng static
-                library chưa link dependency thành binary hoàn chỉnh; khi export,
-                CMake có thể giữ dependency implementation dưới{" "}
+                truyền yêu cầu sử dụng để biên dịch bên dùng. Nhưng thư viện
+                tĩnh chưa liên kết phụ thuộc thành tệp nhị phân hoàn chỉnh; khi
+                xuất, CMake có thể giữ phụ thuộc triển khai dưới{" "}
                 <InlineCode>$&lt;LINK_ONLY:...&gt;</InlineCode> để executable cuối
-                resolve symbol. Vì vậy package config vẫn có thể phải{" "}
+                tìm được ký hiệu. Vì vậy cấu hình gói vẫn có thể phải{" "}
                 <InlineCode>find_dependency(Threads)</InlineCode>.
               </p>
 
-              <Callout tone="red" title="Global commands phá ownership">
+              <Callout tone="red" title="Lệnh toàn cục phá vỡ quyền sở hữu">
                 <InlineCode>include_directories</InlineCode>,{" "}
                 <InlineCode>add_definitions</InlineCode>,{" "}
                 <InlineCode>link_directories</InlineCode> và sửa{" "}
                 <InlineCode>CMAKE_CXX_FLAGS</InlineCode> làm target không còn tự
-                mô tả. Chúng cũng khiến test “tình cờ” compile vì thừa include/
-                define từ sibling directory.
+                mô tả. Chúng cũng khiến bài kiểm thử “tình cờ” biên dịch được vì
+                thừa include hoặc định nghĩa từ thư mục cùng cấp.
               </Callout>
 
               <Lab>
-                Với một public header dùng <InlineCode>std::span</InlineCode> và
-                type <InlineCode>SchemaView</InlineCode> từ target khác, khai báo
-                compile feature và link scope đúng. Sau đó tạo consumer nhỏ chỉ
-                include public header để kiểm chứng.
+                Với một tệp tiêu đề công khai dùng{" "}
+                <InlineCode>std::span</InlineCode> và kiểu{" "}
+                <InlineCode>SchemaView</InlineCode> từ target khác, hãy khai báo
+                đúng tính năng biên dịch và phạm vi liên kết. Sau đó tạo một
+                chương trình sử dụng nhỏ chỉ include tệp tiêu đề công khai để
+                kiểm chứng.
               </Lab>
 
               <Checkpoint
-                question="Warning flags có nên PUBLIC vì mọi code phải sạch không?"
-                answer="Thường không. Warning policy là policy build của target/project, không phải requirement để consumer compile đúng. Propagate warning (đặc biệt -Werror) có thể phá downstream và third-party; link một interface warnings target vào từng first-party target bằng PRIVATE."
+                question="Cờ cảnh báo có nên là PUBLIC vì mọi mã nguồn phải sạch không?"
+                answer="Thường không. Chính sách cảnh báo là chính sách dựng của target hoặc dự án, không phải yêu cầu để bên sử dụng biên dịch đúng. Việc truyền cảnh báo tiếp (đặc biệt -Werror) có thể phá phần phụ thuộc phía sau và thư viện bên thứ ba; hãy liên kết một target cảnh báo dạng INTERFACE vào từng target nội bộ bằng PRIVATE."
               />
             </GuideSection>
 
             <GuideSection
               id="project-architecture"
               number="05"
-              eyebrow="Scale the graph"
-              title="Mỗi directory tạo target, không sửa target hàng xóm"
-              lead="Project lớn dễ hiểu khi root chọn feature và ghép subdirectory, còn leaf directory sở hữu source/requirements của chính nó."
+              eyebrow="Mở rộng đồ thị"
+              title="Mỗi thư mục tạo target, không sửa target hàng xóm"
+              lead="Dự án lớn dễ hiểu khi thư mục gốc chọn tính năng và ghép thư mục con, còn thư mục lá sở hữu mã nguồn cùng yêu cầu của chính nó."
             >
               <FileTree
                 lines={[
@@ -562,11 +572,11 @@ target_link_libraries(feed_decoder
                 ]}
               />
 
-              <CodeBlock label="Root orchestration nhỏ">
+              <CodeBlock label="Điều phối gọn ở thư mục gốc">
                 {`cmake_minimum_required(VERSION 3.25)
 project(TickPlatform VERSION 1.0.0 LANGUAGES CXX)
 
-option(TICK_BUILD_TOOLS "Build replay and diagnostics tools" ON)
+option(TICK_BUILD_TOOLS "Dựng công cụ phát lại và chẩn đoán" ON)
 
 add_subdirectory(model)
 add_subdirectory(codecs)
@@ -585,7 +595,7 @@ if(PROJECT_IS_TOP_LEVEL)
 endif()`}
               </CodeBlock>
 
-              <CodeBlock label="Leaf target sở hữu public API">
+              <CodeBlock label="Target lá sở hữu API công khai">
                 {`add_library(order_book)
 add_library(Tick::order_book ALIAS order_book)
 
@@ -603,92 +613,93 @@ target_compile_features(order_book PUBLIC cxx_std_20)`}
 
               <div className="grid gap-4 md:grid-cols-2">
                 <SmallRule
-                  label="Explicit input"
-                  title="Liệt kê source có review"
-                  body="file(GLOB) làm source membership ẩn; CONFIGURE_DEPENDS cải thiện reconfigure nhưng vẫn phụ thuộc generator và khó review."
+                  label="Đầu vào tường minh"
+                  title="Liệt kê mã nguồn để dễ xem xét"
+                  body="file(GLOB) làm danh sách mã nguồn bị ẩn; CONFIGURE_DEPENDS cải thiện việc cấu hình lại nhưng vẫn phụ thuộc trình sinh và khó xem xét thay đổi."
                 />
                 <SmallRule
-                  label="Top-level friendly"
-                  title="Library dùng được khi embedded"
-                  body="Chỉ bật test/tool/install mặc định khi PROJECT_IS_TOP_LEVEL; đừng áp option của root lên parent consumer."
+                  label="Thân thiện khi dùng làm dự án con"
+                  title="Thư viện dùng được khi được nhúng"
+                  body="Chỉ bật kiểm thử, công cụ và cài đặt mặc định khi PROJECT_IS_TOP_LEVEL; đừng áp tùy chọn của dự án gốc lên dự án cha."
                 />
                 <SmallRule
-                  label="Public headers"
-                  title="FILE_SET giữ ownership"
-                  body="Header file set (3.23+) kết nối IDE, install và export với cùng một danh sách API."
+                  label="Tệp tiêu đề công khai"
+                  title="FILE_SET giữ quyền sở hữu"
+                  body="Tập tệp tiêu đề (3.23+) kết nối IDE, cài đặt và xuất với cùng một danh sách API."
                 />
                 <SmallRule
-                  label="Direction"
-                  title="Dependency đi một chiều"
-                  body="Leaf không gọi target_* lên target tạo ở directory xa; tạo API helper function nếu policy cần tái dùng."
+                  label="Hướng phụ thuộc"
+                  title="Phụ thuộc đi một chiều"
+                  body="Thư mục lá không gọi target_* lên target được tạo ở thư mục xa; tạo hàm hỗ trợ nếu cần tái sử dụng chính sách."
                 />
               </div>
 
               <Lab>
-                Tách một CMakeLists legacy 200 dòng thành root orchestration và
-                bốn leaf targets. Không đổi artifact name hoặc behavior ở bước
-                đầu; chỉ làm ownership hiện rõ.
+                Tách một CMakeLists cũ 200 dòng thành phần điều phối gốc và bốn
+                target lá. Không đổi tên sản phẩm hoặc hành vi ở bước đầu; chỉ
+                làm rõ quyền sở hữu.
               </Lab>
 
               <Checkpoint
-                question="Vì sao add_subdirectory không đồng nghĩa target phải thấy mọi include của parent?"
-                answer="Directory scope có thể kế thừa một số variable/property legacy, nhưng target usage requirements chỉ truyền qua dependency edges. Modern design cố tình không dựa vào ambient directory state để target có thể build/consume độc lập."
+                question="Vì sao add_subdirectory không đồng nghĩa target phải thấy mọi thư mục include của thư mục cha?"
+                answer="Phạm vi thư mục có thể kế thừa một số biến hoặc thuộc tính cũ, nhưng yêu cầu sử dụng của target chỉ truyền qua các cạnh phụ thuộc. Thiết kế hiện đại không dựa vào trạng thái thư mục xung quanh để target có thể được dựng và sử dụng độc lập."
               />
             </GuideSection>
 
             <GuideSection
               id="generators-configurations"
               number="06"
-              eyebrow="Native build systems"
-              title="Debug/Release không có một model duy nhất"
-              lead="Ninja/Unix Makefiles thường single-config; Visual Studio, Xcode và Ninja Multi-Config chọn config ở lúc build."
+              eyebrow="Hệ thống dựng gốc"
+              title="Debug/Release không có một mô hình duy nhất"
+              lead="Ninja/Unix Makefiles thường dùng một cấu hình; Visual Studio, Xcode và Ninja Multi-Config chọn cấu hình lúc dựng."
             >
               <div className="grid gap-4 md:grid-cols-2">
                 <CompareCard
-                  label="Single-config"
-                  title="Config chọn lúc configure"
+                  label="Một cấu hình"
+                  title="Chọn cấu hình lúc cấu hình dự án"
                   bullets={[
                     "-DCMAKE_BUILD_TYPE=Debug",
-                    "Một build tree cho một config",
+                    "Một cây dựng cho một cấu hình",
                     "Ninja / Unix Makefiles phổ biến",
                   ]}
                 />
                 <CompareCard
-                  label="Multi-config"
-                  title="Config chọn lúc build"
+                  label="Nhiều cấu hình"
+                  title="Chọn cấu hình lúc dựng"
                   bullets={[
                     "cmake --build ... --config Release",
-                    "Một tree chứa nhiều config",
+                    "Một cây chứa nhiều cấu hình",
                     "Visual Studio / Xcode / Ninja Multi-Config",
                   ]}
                 />
               </div>
 
-              <CodeBlock label="Hai workflow tương đương">
-                {`# Ninja, single-config
+              <CodeBlock label="Hai quy trình tương đương">
+                {`# Ninja, một cấu hình
 cmake -S . -B build/ninja-debug -G Ninja \
   -DCMAKE_BUILD_TYPE=Debug
 cmake --build build/ninja-debug
 
-# Visual Studio, multi-config
+# Visual Studio, nhiều cấu hình
 cmake -S . -B build/vs -G "Visual Studio 17 2022" -A x64
 cmake --build build/vs --config Debug
 ctest --test-dir build/vs -C Debug --output-on-failure`}
               </CodeBlock>
 
-              <Callout tone="red" title="Build type rỗng không phải Debug">
-                Với single-config, nếu user không đặt{" "}
+              <Callout tone="red" title="Loại dựng rỗng không có nghĩa là Debug">
+                Với trình sinh một cấu hình, nếu người dùng không đặt{" "}
                 <InlineCode>CMAKE_BUILD_TYPE</InlineCode>, nó thường rỗng. Đừng
-                giả định rỗng là Debug. Với multi-config, kiểm tra biến này để
-                điều khiển flags gần như luôn sai.
+                giả định rỗng là Debug. Với trình sinh nhiều cấu hình, kiểm tra
+                biến này để điều khiển cờ gần như luôn sai.
               </Callout>
 
               <p>
-                Generator và compiler là identity của build tree. Đừng tái dùng
-                cùng directory cho GCC, Clang, MSVC hoặc toolchain khác.{" "}
+                Trình sinh và trình biên dịch xác định danh tính của cây dựng.
+                Đừng tái dùng cùng thư mục cho GCC, Clang, MSVC hoặc bộ công cụ
+                khác.{" "}
                 <InlineCode>CMAKE_EXPORT_COMPILE_COMMANDS</InlineCode> hữu ích
-                cho clangd/analysis với Make/Ninja, nhưng không phải contract
-                portable cho mọi generator.
+                cho clangd và phân tích với Make/Ninja, nhưng không phải quy ước
+                dùng được với mọi trình sinh.
               </p>
 
               <div className="overflow-x-auto rounded-2xl border border-[#173f35]/12 bg-white/65">
@@ -696,28 +707,28 @@ ctest --test-dir build/vs -C Debug --output-on-failure`}
                   <thead className="bg-[#edf0e8] font-mono text-[10px] uppercase">
                     <tr>
                       <th scope="col" className="px-4 py-3">Câu hỏi</th>
-                      <th scope="col" className="px-4 py-3">Single-config</th>
-                      <th scope="col" className="px-4 py-3">Multi-config</th>
+                      <th scope="col" className="px-4 py-3">Một cấu hình</th>
+                      <th scope="col" className="px-4 py-3">Nhiều cấu hình</th>
                     </tr>
                   </thead>
                   <tbody>
                     <TableRow
                       values={[
-                        "Chọn config",
-                        "Configure -D...",
-                        "Build/test --config/-C",
+                        "Chọn cấu hình",
+                        "Cấu hình bằng -D...",
+                        "Dựng/kiểm thử bằng --config/-C",
                       ]}
                     />
                     <TableRow
                       values={[
-                        "Output config",
-                        "Một config/tree",
-                        "Debug, Release... cùng tree",
+                        "Kết quả theo cấu hình",
+                        "Một cấu hình/cây",
+                        "Debug, Release... cùng một cây",
                       ]}
                     />
                     <TableRow
                       values={[
-                        "Điều kiện portable",
+                        "Điều kiện dùng được đa nền tảng",
                         "$<CONFIG:...>",
                         "$<CONFIG:...>",
                       ]}
@@ -728,33 +739,33 @@ ctest --test-dir build/vs -C Debug --output-on-failure`}
               </div>
 
               <Lab>
-                Chạy cùng project bằng Ninja Debug và Visual Studio Release.
-                Ghi lại compiler command, artifact path và command CTest; không
-                sửa CMakeLists giữa hai build.
+                Chạy cùng dự án bằng Ninja Debug và Visual Studio Release. Ghi
+                lại lệnh biên dịch, đường dẫn sản phẩm và lệnh CTest; không sửa
+                CMakeLists giữa hai lần dựng.
               </Lab>
 
               <Checkpoint
-                question="Tại sao if(CMAKE_BUILD_TYPE STREQUAL Debug) làm MSVC bị thiếu flag?"
-                answer="Visual Studio là multi-config; CMAKE_BUILD_TYPE không chọn config hiện tại. Config chỉ biết ở generate/build time, nên dùng generator expression $<CONFIG:Debug> hoặc config-specific target property."
+                question="Tại sao if(CMAKE_BUILD_TYPE STREQUAL Debug) làm MSVC bị thiếu cờ?"
+                answer="Visual Studio hỗ trợ nhiều cấu hình; CMAKE_BUILD_TYPE không chọn cấu hình hiện tại. Cấu hình chỉ được biết lúc sinh tệp hoặc dựng, nên dùng biểu thức sinh $<CONFIG:Debug> hoặc thuộc tính target theo cấu hình."
               />
             </GuideSection>
 
             <GuideSection
               id="generator-expressions"
               number="07"
-              eyebrow="Generate-time logic"
-              title="Generator expression không chạy lúc configure"
-              lead="Biểu thức $&lt;...&gt; được giữ lại để CMake evaluate theo target, compiler và config khi sinh native buildsystem."
+              eyebrow="Logic lúc sinh tệp"
+              title="Biểu thức sinh không chạy lúc cấu hình"
+              lead="Biểu thức $&lt;...&gt; được giữ lại để CMake tính theo target, trình biên dịch và cấu hình khi sinh hệ thống dựng gốc."
             >
               <p>
-                Dùng <InlineCode>if()</InlineCode> khi quyết định graph ở
-                configure time. Dùng generator expression khi một target cần
-                value khác nhau theo config/compiler hoặc khi public interface
-                khác giữa build tree và install tree.
+                Dùng <InlineCode>if()</InlineCode> khi quyết định đồ thị lúc cấu
+                hình. Dùng biểu thức sinh khi một target cần giá trị khác nhau
+                theo cấu hình hoặc trình biên dịch, hay khi giao diện công khai
+                khác giữa cây dựng và cây cài đặt.
               </p>
 
-              <CodeBlock label="Frontend lúc configure, config lúc generate">
-                {`if(MSVC) # gồm cả compiler dùng command-line frontend kiểu cl
+              <CodeBlock label="Giao diện trình biên dịch lúc cấu hình, cấu hình dựng lúc sinh tệp">
+                {`if(MSVC) # gồm cả trình biên dịch có giao diện dòng lệnh kiểu cl
   target_compile_options(feed_decoder PRIVATE /W4 /permissive-)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
   target_compile_options(feed_decoder PRIVATE
@@ -775,13 +786,14 @@ add_custom_command(
               </CodeBlock>
 
               <p>
-                Chọn syntax flag theo compiler <em>frontend</em>, không chỉ vendor:
-                <InlineCode>clang-cl</InlineCode> có ID Clang nhưng dùng command
-                line kiểu MSVC; biến <InlineCode>MSVC</InlineCode> của CMake bao
-                phủ trường hợp đó. AppleClang cũng cần nằm trong nhánh GNU-like.
+                Chọn cú pháp cờ theo <em>giao diện dòng lệnh</em> của trình biên
+                dịch, không chỉ theo nhà cung cấp:{" "}
+                <InlineCode>clang-cl</InlineCode> có ID Clang nhưng dùng dòng
+                lệnh kiểu MSVC; biến <InlineCode>MSVC</InlineCode> của CMake bao
+                phủ trường hợp đó. AppleClang cũng cần nằm trong nhánh kiểu GNU.
               </p>
 
-              <CodeBlock label="Một API, hai location">
+              <CodeBlock label="Một API, hai vị trí">
                 {`target_include_directories(feed_decoder PUBLIC
   "$<BUILD_INTERFACE:\${CMAKE_CURRENT_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:include>"
@@ -791,63 +803,63 @@ add_custom_command(
               <div className="grid gap-4 md:grid-cols-2">
                 <SmallRule
                   label="$<CONFIG:...>"
-                  title="Portable qua generator"
-                  body="Không phụ thuộc CMAKE_BUILD_TYPE; hoạt động khi một project sinh nhiều config."
+                  title="Dùng được qua nhiều trình sinh"
+                  body="Không phụ thuộc CMAKE_BUILD_TYPE; hoạt động khi một dự án sinh nhiều cấu hình."
                 />
                 <SmallRule
                   label="$<TARGET_FILE:...>"
-                  title="Không đoán output path"
-                  body="CMake resolve executable/library path đúng config, suffix và platform."
+                  title="Không đoán đường dẫn kết quả"
+                  body="CMake tìm đúng đường dẫn chương trình hoặc thư viện theo cấu hình, hậu tố và nền tảng."
                 />
                 <SmallRule
                   label="BUILD_INTERFACE"
-                  title="Dùng trong build tree"
-                  body="Source/binary include path chỉ tồn tại khi target được dùng ngay trong project."
+                  title="Dùng trong cây dựng"
+                  body="Đường dẫn include của mã nguồn/tệp nhị phân chỉ tồn tại khi target được dùng ngay trong dự án."
                 />
                 <SmallRule
                   label="INSTALL_INTERFACE"
-                  title="Dùng sau install"
-                  body="Phải relocatable; thường là path tương đối tính từ install prefix."
+                  title="Dùng sau khi cài đặt"
+                  body="Phải có thể di chuyển; thường là đường dẫn tương đối tính từ tiền tố cài đặt."
                 />
               </div>
 
-              <Callout tone="amber" title="Quote expression có list">
-                Generator expression có dấu chấm phẩy hoặc khoảng trắng có thể
-                bị split trước khi evaluate. Quote toàn expression và dùng{" "}
-                <InlineCode>COMMAND_EXPAND_LISTS</InlineCode> khi command thực sự
-                cần expand list.
+              <Callout tone="amber" title="Trích dẫn biểu thức có danh sách">
+                Biểu thức sinh có dấu chấm phẩy hoặc khoảng trắng có thể
+                bị tách trước khi tính. Hãy trích dẫn toàn biểu thức và dùng{" "}
+                <InlineCode>COMMAND_EXPAND_LISTS</InlineCode> khi lệnh thực sự
+                cần mở rộng danh sách.
               </Callout>
 
               <Lab>
-                Thêm expensive invariant chỉ ở Debug, warnings theo MSVC/GCC/
-                Clang và một post-build smoke command dùng{" "}
+                Thêm phép kiểm tra bất biến tốn kém chỉ ở Debug, cảnh báo theo
+                MSVC/GCC/Clang và một lệnh kiểm tra nhanh sau khi dựng dùng{" "}
                 <InlineCode>$&lt;TARGET_FILE:...&gt;</InlineCode>. Kiểm tra trên
-                single- và multi-config.
+                trình sinh một và nhiều cấu hình.
               </Lab>
 
               <Checkpoint
-                question="Có đọc kết quả generator expression bằng message() ở configure time được không?"
-                answer="Không theo cách trực tiếp. Ở configure time nó vẫn là chuỗi $<...>; kết quả phụ thuộc generate context/target/config. Muốn inspect, xem generated compile commands/build verbose hoặc dùng file(GENERATE) phù hợp."
+                question="Có đọc kết quả biểu thức sinh bằng message() lúc cấu hình được không?"
+                answer="Không theo cách trực tiếp. Lúc cấu hình, nó vẫn là chuỗi $<...>; kết quả phụ thuộc ngữ cảnh sinh tệp, target và cấu hình. Muốn kiểm tra, hãy xem lệnh biên dịch được sinh, kết quả dựng chi tiết hoặc dùng file(GENERATE) phù hợp."
               />
             </GuideSection>
 
             <GuideSection
               id="dependency-management"
               number="08"
-              eyebrow="External ownership"
-              title="Dependency phải trở thành target"
-              lead="Mục tiêu không phải “tìm ra một .so”. Mục tiêu là nhận target mang đủ include, definitions, link items và config mapping."
+              eyebrow="Quyền sở hữu phụ thuộc ngoài"
+              title="Phụ thuộc phải trở thành target"
+              lead="Mục tiêu không phải “tìm ra một tệp .so”. Mục tiêu là nhận target mang đủ đường dẫn include, định nghĩa, thành phần liên kết và ánh xạ cấu hình."
             >
               <Flow
                 items={[
-                  ["A", "Installed package", "find_package → imported target"],
-                  ["B", "Vendored source", "add_subdirectory có boundary"],
-                  ["C", "Fetched source", "FetchContent pin immutable revision"],
-                  ["D", "External build", "ExternalProject/process boundary"],
+                  ["A", "Gói đã cài", "find_package → target được nhập"],
+                  ["B", "Mã nguồn đi kèm", "add_subdirectory có ranh giới"],
+                  ["C", "Mã nguồn được tải", "FetchContent khóa phiên bản bất biến"],
+                  ["D", "Lần dựng bên ngoài", "Ranh giới ExternalProject/tiến trình"],
                 ]}
               />
 
-              <CodeBlock label="Ưu tiên package-provided target">
+              <CodeBlock label="Ưu tiên target do gói cung cấp">
                 {`find_package(Threads REQUIRED)
 find_package(ZLIB 1.2.13 REQUIRED)
 find_package(fmt 10 CONFIG REQUIRED)
@@ -861,14 +873,15 @@ target_link_libraries(feed_decoder
               </CodeBlock>
 
               <p>
-                <Term>Module mode</Term> đọc{" "}
-                <InlineCode>FindPackage.cmake</InlineCode> do CMake/project cung
-                cấp và thường phải heuristic search. <Term>Config mode</Term> đọc
-                package config do dependency cài cùng artifacts, nên thường biết
-                chính xác imported targets/version/components hơn.
+                <Term>Chế độ mô-đun</Term> đọc{" "}
+                <InlineCode>FindPackage.cmake</InlineCode> do CMake hoặc dự án cung
+                cấp và thường phải tìm kiếm theo quy tắc suy đoán.{" "}
+                <Term>Chế độ cấu hình</Term> đọc cấu hình gói do phụ thuộc cài
+                cùng sản phẩm, nên thường biết chính xác hơn các target được nhập,
+                phiên bản và thành phần.
               </p>
 
-              <CodeBlock label="FetchContent có revision cố định">
+              <CodeBlock label="FetchContent có phiên bản cố định">
                 {`include(FetchContent)
 
 FetchContent_Declare(
@@ -881,57 +894,58 @@ FetchContent_MakeAvailable(tl_expected)
 target_link_libraries(tick_model INTERFACE tl::expected)`}
               </CodeBlock>
 
-              <Callout tone="red" title="Không fetch nhánh mutable trong CI">
+              <Callout tone="red" title="Không tải nhánh có thể thay đổi trong CI">
                 <InlineCode>main</InlineCode>, tag có thể bị di chuyển và URL
-                không hash làm build hôm nay khác ngày mai. Pin full commit hoặc
-                archive + <InlineCode>URL_HASH</InlineCode>; chuẩn bị mirror/cache
-                cho CI không được phép ra mạng.
+                không có mã băm làm lần dựng hôm nay khác ngày mai. Khóa theo mã
+                commit đầy đủ hoặc tệp nén kèm{" "}
+                <InlineCode>URL_HASH</InlineCode>; chuẩn bị máy chủ bản sao hoặc
+                bộ nhớ đệm cho CI không được phép ra mạng.
               </Callout>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <SmallRule
-                  label="Config first"
-                  title="Consume target, không consume biến"
-                  body="Foo::Foo giữ usage requirements theo version/config; FOO_LIBRARIES/FOO_INCLUDE_DIRS dễ thiếu metadata."
+                  label="Ưu tiên cấu hình"
+                  title="Dùng target, không dùng biến"
+                  body="Foo::Foo giữ yêu cầu sử dụng theo phiên bản/cấu hình; FOO_LIBRARIES/FOO_INCLUDE_DIRS dễ thiếu dữ liệu."
                 />
                 <SmallRule
-                  label="One owner"
-                  title="Root quyết dependency policy"
-                  body="Leaf target chỉ yêu cầu target dependency; root/preset/provider quyết system, vendored hay fetched."
+                  label="Một nơi sở hữu"
+                  title="Thư mục gốc quyết định chính sách phụ thuộc"
+                  body="Target lá chỉ yêu cầu target phụ thuộc; thư mục gốc, cấu hình đặt sẵn hoặc nhà cung cấp quyết định dùng bản hệ thống, đi kèm hay được tải."
                 />
                 <SmallRule
-                  label="Offline"
-                  title="CI phải tái lập"
-                  body="Dependency lock/mirror/cache key cần gắn revision, toolchain và platform."
+                  label="Không cần mạng"
+                  title="CI phải tái lập được"
+                  body="Khóa phụ thuộc, máy chủ bản sao và khóa bộ nhớ đệm cần gắn với phiên bản, bộ công cụ và nền tảng."
                 />
                 <SmallRule
-                  label="No link_directories"
-                  title="Link target có location"
-                  body="Search path global có thể chọn nhầm ABI/version và thay đổi theo link order."
+                  label="Không dùng link_directories"
+                  title="Liên kết target có vị trí rõ"
+                  body="Đường dẫn tìm kiếm toàn cục có thể chọn nhầm ABI/phiên bản và thay đổi theo thứ tự liên kết."
                 />
               </div>
 
               <Lab>
                 Thay một đoạn dùng <InlineCode>FOO_INCLUDE_DIRS</InlineCode>,{" "}
                 <InlineCode>FOO_LIBRARIES</InlineCode> và{" "}
-                <InlineCode>link_directories</InlineCode> bằng imported target.
-                Ghi rõ ai chịu trách nhiệm cung cấp package trong local/CI.
+                <InlineCode>link_directories</InlineCode> bằng target được nhập.
+                Ghi rõ ai chịu trách nhiệm cung cấp gói trên thiết bị và trong CI.
               </Lab>
 
               <Checkpoint
-                question="FetchContent khác ExternalProject ở thời điểm dependency tham gia graph thế nào?"
-                answer="FetchContent populate dependency ở configure time rồi thường add_subdirectory, nên targets của dependency nằm trong cùng build graph. ExternalProject điều phối một build riêng ở build time; phù hợp process/toolchain boundary nhưng không tự tạo normal targets để link."
+                question="FetchContent khác ExternalProject ở thời điểm phụ thuộc tham gia đồ thị thế nào?"
+                answer="FetchContent nạp phụ thuộc lúc cấu hình rồi thường gọi add_subdirectory, nên các target của phụ thuộc nằm trong cùng đồ thị dựng. ExternalProject điều phối một lần dựng riêng lúc dựng; phù hợp với ranh giới tiến trình hoặc bộ công cụ nhưng không tự tạo target thường để liên kết."
               />
             </GuideSection>
 
             <GuideSection
               id="generated-sources"
               number="09"
-              eyebrow="Incremental correctness"
-              title="Generated file cần một producer và dependency đầy đủ"
-              lead="Feed onboarding thường sinh decoder từ schema. Nếu rule thiếu OUTPUT/DEPENDS, clean build có thể pass nhưng incremental build dùng code stale."
+              eyebrow="Tính đúng đắn của cách dựng tăng dần"
+              title="Tệp được sinh cần một nơi tạo và đầy đủ phụ thuộc"
+              lead="Khi thêm luồng dữ liệu, hệ thống thường sinh bộ giải mã từ lược đồ. Nếu quy tắc thiếu OUTPUT/DEPENDS, lần dựng sạch có thể thành công nhưng lần dựng tăng dần lại dùng mã cũ."
             >
-              <CodeBlock label="Schema → generated C++ trong binary tree">
+              <CodeBlock label="Lược đồ → mã C++ được sinh trong cây dựng">
                 {`find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 set(generated_dir
@@ -954,7 +968,7 @@ add_custom_command(
   DEPENDS
     tools/gen_feed.py
     schemas/feed.json
-  COMMENT "Generating feed decoder"
+  COMMENT "Đang sinh bộ giải mã luồng dữ liệu"
   VERBATIM
 )
 
@@ -971,60 +985,60 @@ target_include_directories(feed_codec
               <div className="grid gap-4 md:grid-cols-2">
                 <SmallRule
                   label="OUTPUT"
-                  title="Build tool biết file được tạo"
-                  body="Rule chạy khi output thiếu/outdated và consumer có file-level dependency."
+                  title="Công cụ dựng biết tệp được tạo"
+                  body="Quy tắc chạy khi kết quả thiếu hoặc cũ và bên sử dụng có phụ thuộc ở mức tệp."
                 />
                 <SmallRule
                   label="DEPENDS"
-                  title="Mọi input đổi đều rebuild"
-                  body="Generator script, schema và imported host tool phải nằm trong dependency model."
+                  title="Mọi đầu vào đổi đều được dựng lại"
+                  body="Tập lệnh sinh, lược đồ và target công cụ chạy trên máy dựng (host) phải nằm trong mô hình phụ thuộc."
                 />
                 <SmallRule
                   label="BYPRODUCTS"
-                  title="Khai báo output phụ"
-                  body="Ninja cần biết file nào có producer; thiếu byproduct dễ tạo race hoặc 'no rule to make target'."
+                  title="Khai báo kết quả phụ"
+                  body="Ninja cần biết tệp nào có nơi tạo; thiếu sản phẩm phụ dễ tạo tranh chấp hoặc lỗi 'no rule to make target'."
                 />
                 <SmallRule
                   label="VERBATIM"
-                  title="Argument escaping portable"
-                  body="CMake chuyển argument đúng cho native build tool; đừng tự ghép shell string."
+                  title="Thoát ký tự đối số đa nền tảng"
+                  body="CMake chuyển đối số đúng cho công cụ dựng gốc; đừng tự ghép chuỗi lệnh shell."
                 />
               </div>
 
-              <Callout tone="red" title="Không generate vào source tree">
-                Output trong source tree làm Git dirty, gây race giữa build
-                configs và che dependency bug vì file cũ còn sót. Generate vào{" "}
-                <InlineCode>CMAKE_CURRENT_BINARY_DIR</InlineCode>; test từ clean
-                tree và incremental tree.
+              <Callout tone="red" title="Không sinh tệp vào cây mã nguồn">
+                Kết quả trong cây mã nguồn làm Git có thay đổi, gây tranh chấp
+                giữa các cấu hình dựng và che lỗi phụ thuộc vì tệp cũ còn sót.
+                Hãy sinh vào <InlineCode>CMAKE_CURRENT_BINARY_DIR</InlineCode>;
+                kiểm thử từ cây sạch và cây dựng tăng dần.
               </Callout>
 
               <p>
-                Một output chỉ có một producer. Nếu generator biết include
-                dependency động, cân nhắc <InlineCode>DEPFILE</InlineCode>. CMake
+                Một kết quả chỉ có một nơi tạo. Nếu trình sinh biết phụ thuộc
+                include động, cân nhắc <InlineCode>DEPFILE</InlineCode>. CMake
                 3.31 thêm target <InlineCode>codegen</InlineCode> cho một số
-                generators; đó là optimization mới, không phải baseline 3.25.
+                trình sinh; đó là tối ưu mới, không phải mốc 3.25.
               </p>
 
               <Lab>
-                Chạy build, sửa schema và xác nhận chỉ generator + target phụ
-                thuộc rebuild. Sau đó sửa generator script và lặp lại. Cuối cùng
-                clean build trên directory mới để bắt output bị bỏ sót.
+                Chạy dựng, sửa lược đồ và xác nhận chỉ trình sinh cùng target phụ
+                thuộc được dựng lại. Sau đó sửa tập lệnh sinh và lặp lại. Cuối
+                cùng dựng sạch trong thư mục mới để bắt kết quả bị bỏ sót.
               </Lab>
 
               <Checkpoint
                 question="Tại sao add_custom_target(generate ALL ...) thường kém hơn add_custom_command(OUTPUT ...)?"
-                answer="Custom target thường luôn out-of-date và chỉ tạo target-level ordering; build tool không có file-level model chính xác. OUTPUT rule mô tả producer/input/output nên incremental scheduling đúng và tránh chạy thừa."
+                answer="Target tùy chỉnh thường luôn bị xem là cũ và chỉ tạo thứ tự ở mức target; công cụ dựng không có mô hình chính xác ở mức tệp. Quy tắc OUTPUT mô tả nơi tạo, đầu vào và kết quả nên việc lên lịch dựng tăng dần đúng và tránh chạy thừa."
               />
             </GuideSection>
 
             <GuideSection
               id="presets-toolchains"
               number="10"
-              eyebrow="Reproducible entry points"
-              title="Preset là workflow được version-control"
-              lead="Developer và CI nên gọi cùng named configuration thay vì copy một chuỗi -D flags trong README, shell script và pipeline."
+              eyebrow="Điểm bắt đầu có thể tái lập"
+              title="Cấu hình đặt sẵn là quy trình được quản lý phiên bản"
+              lead="Lập trình viên và CI nên gọi cùng một cấu hình có tên thay vì sao chép chuỗi cờ -D trong README, tập lệnh shell và quy trình CI."
             >
-              <CodeBlock label="CMakePresets.json · schema 6 / CMake 3.25">
+              <CodeBlock label="CMakePresets.json · lược đồ 6 / CMake 3.25">
                 {`{
   "version": 6,
   "cmakeMinimumRequired": {
@@ -1074,25 +1088,26 @@ target_include_directories(feed_codec
 }`}
               </CodeBlock>
 
-              <CodeBlock label="Commands trở thành contract ngắn">
+              <CodeBlock label="Các lệnh trở thành quy ước ngắn gọn">
                 {`cmake --preset clang-asan
 cmake --build --preset clang-asan
 ctest --preset clang-asan`}
               </CodeBlock>
 
               <p>
-                <InlineCode>CMakePresets.json</InlineCode> thuộc project và nên
-                commit. <InlineCode>CMakeUserPresets.json</InlineCode> chứa path/
-                environment cá nhân, không commit. Hidden preset là base để kế
-                thừa; mỗi toolchain/config family dùng binary directory riêng.
+                <InlineCode>CMakePresets.json</InlineCode> thuộc dự án và nên
+                commit. <InlineCode>CMakeUserPresets.json</InlineCode> chứa
+                đường dẫn hoặc môi trường cá nhân nên không commit. Cấu hình ẩn
+                là nền để kế thừa; mỗi nhóm bộ công cụ và cấu hình dùng thư mục
+                tệp nhị phân riêng.
               </p>
 
-              <CodeBlock label="Native toolchain được đọc trước project()">
+              <CodeBlock label="Bộ công cụ gốc được đọc trước project()">
                 {`# cmake/toolchains/native-clang.cmake
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
 
-# Chỉ đặt các field sau trong một cross toolchain riêng:
+# Chỉ đặt các trường sau trong một bộ công cụ biên dịch chéo riêng:
 # set(CMAKE_SYSTEM_NAME Linux)
 # set(CMAKE_SYSROOT "/opt/sysroots/target")
 # set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
@@ -1101,47 +1116,48 @@ set(CMAKE_CXX_COMPILER clang++)
               </CodeBlock>
 
               <p>
-                Native toolchain chỉ chọn compiler/flags cần thiết. Tự đặt{" "}
+                Bộ công cụ gốc chỉ chọn trình biên dịch và cờ cần thiết. Tự đặt{" "}
                 <InlineCode>CMAKE_SYSTEM_NAME</InlineCode> làm CMake coi đây là
-                cross-compile, thay đổi package discovery và{" "}
-                <InlineCode>try_run()</InlineCode>; chỉ làm vậy khi host và target
-                thực sự khác nhau.
+                biên dịch chéo, thay đổi cách tìm gói và{" "}
+                <InlineCode>try_run()</InlineCode>; chỉ làm vậy khi máy chạy công
+                cụ và nền tảng đích thực sự khác nhau.
               </p>
 
-              <Callout tone="amber" title="Host tool khác target tool">
-                Khi cross-compile, schema generator chạy trên host nhưng library
-                build cho target. Dùng imported executable/host tool rõ ràng;
-                đừng vô tình cố chạy executable vừa cross-compile trong custom
-                command.
+              <Callout tone="amber" title="Công cụ chạy trên máy dựng khác công cụ cho nền tảng đích">
+                Khi biên dịch chéo, trình sinh lược đồ chạy trên máy dựng (host)
+                nhưng thư viện được dựng cho nền tảng đích. Hãy dùng target
+                chương trình <InlineCode>IMPORTED</InlineCode> hoặc công cụ host
+                được khai báo rõ; đừng vô tình chạy chương trình vừa được biên
+                dịch chéo trong lệnh tùy chỉnh.
               </Callout>
 
               <p>
-                Workflow preset (CMake 3.25) có thể nối configure → build → test
-                → package. Toolchain path cũng có thể nằm trong configure preset
-                để local và CI chọn cùng compiler/sysroot.
+                Cấu hình quy trình (CMake 3.25) có thể nối cấu hình → dựng → kiểm
+                thử → đóng gói. Đường dẫn bộ công cụ cũng có thể nằm trong cấu
+                hình đặt sẵn để thiết bị và CI chọn cùng trình biên dịch/sysroot.
               </p>
 
               <Lab>
-                Tạo preset <InlineCode>clang-asan</InlineCode>,{" "}
-                <InlineCode>gcc-release</InlineCode> và một test preset. Chứng
-                minh hai preset không dùng chung cache, sau đó gọi đúng ba command
-                trong CI.
+                Tạo cấu hình đặt sẵn <InlineCode>clang-asan</InlineCode>,{" "}
+                <InlineCode>gcc-release</InlineCode> và một cấu hình đặt sẵn cho kiểm thử. Chứng
+                minh hai cấu hình không dùng chung bộ nhớ đệm, sau đó gọi đúng
+                ba lệnh trong CI.
               </Lab>
 
               <Checkpoint
                 question="Vì sao CMakeUserPresets.json không nên commit?"
-                answer="Nó dành cho override theo máy/user: local SDK path, IDE hoặc environment riêng. Commit file này làm path/secret/máy của một người trở thành contract project và gây xung đột với CMakePresets.json dùng chung."
+                answer="Tệp này dành cho giá trị thay thế theo máy hoặc người dùng: đường dẫn SDK trên thiết bị, IDE hoặc môi trường riêng. Commit tệp này biến đường dẫn, bí mật và cấu hình máy của một người thành quy ước của dự án, đồng thời gây xung đột với CMakePresets.json dùng chung."
               />
             </GuideSection>
 
             <GuideSection
               id="testing-quality"
               number="11"
-              eyebrow="CTest architecture"
-              title="Test graph cũng cần ownership"
-              lead="Một platform dữ liệu cần unit, golden replay và integration test tách nhãn; CI phải fail nếu vô tình không discover test nào."
+              eyebrow="Kiến trúc CTest"
+              title="Đồ thị kiểm thử cũng cần quyền sở hữu"
+              lead="Một nền tảng dữ liệu cần tách nhãn cho kiểm thử đơn vị, phát lại kết quả chuẩn và kiểm thử tích hợp; CI phải báo lỗi nếu vô tình không tìm thấy bài kiểm thử nào."
             >
-              <CodeBlock label="CTest target-aware">
+              <CodeBlock label="CTest hiểu target">
                 {`include(CTest)
 
 if(BUILD_TESTING)
@@ -1178,26 +1194,26 @@ endif()`}
 
               <div className="grid gap-4 md:grid-cols-2">
                 <CompareCard
-                  label="Fast feedback"
-                  title="Unit / invariant"
+                  label="Phản hồi nhanh"
+                  title="Đơn vị / điều bất biến"
                   bullets={[
-                    "Parser bounds/endian",
-                    "Order-book invariants",
-                    "Interval statistic edge cases",
+                    "Giới hạn/thứ tự byte của bộ phân tích",
+                    "Điều bất biến của sổ lệnh",
+                    "Trường hợp biên của thống kê theo khoảng",
                   ]}
                 />
                 <CompareCard
-                  label="System confidence"
-                  title="Golden / integration"
+                  label="Độ tin cậy hệ thống"
+                  title="Kết quả chuẩn / tích hợp"
                   bullets={[
-                    "Deterministic replay",
-                    "Generated schema compatibility",
-                    "Install + downstream consumer",
+                    "Phát lại cho kết quả xác định",
+                    "Tính tương thích của lược đồ được sinh",
+                    "Cài đặt + dự án sử dụng phía sau",
                   ]}
                 />
               </div>
 
-              <CodeBlock label="CI commands không che empty suite">
+              <CodeBlock label="Lệnh CI không che bộ kiểm thử rỗng">
                 {`ctest --test-dir build/clang-asan \
   --output-on-failure \
   --no-tests=error \
@@ -1209,40 +1225,41 @@ ctest --test-dir build/release \
               </CodeBlock>
 
               <p>
-                Test không được phụ thuộc thứ tự mặc định. Dùng fixture khi có
-                setup/cleanup lifecycle; dùng <InlineCode>RESOURCE_LOCK</InlineCode>
-                khi nhiều test tranh một resource named; dùng timeout và label để
-                CI phân tầng. Với cross-compile, test executable có thể cần
-                emulator hoặc chạy ở target environment.
+                Bài kiểm thử không được phụ thuộc thứ tự mặc định. Dùng dữ liệu
+                chuẩn bị khi có vòng đời thiết lập/dọn dẹp; dùng{" "}
+                <InlineCode>RESOURCE_LOCK</InlineCode> khi nhiều bài kiểm thử
+                tranh cùng một tài nguyên có tên; dùng giới hạn thời gian và
+                nhãn để CI phân tầng. Khi biên dịch chéo, chương trình kiểm thử
+                có thể cần trình giả lập hoặc chạy trong môi trường đích.
               </p>
 
-              <Callout tone="red" title="CTest có thể thành công dù không chạy test">
+              <Callout tone="red" title="CTest có thể thành công dù không chạy bài kiểm thử">
                 CLI CTest bình thường có thể không coi “0 tests” là lỗi. CI phải
-                dùng <InlineCode>--no-tests=error</InlineCode> hoặc test preset{" "}
+                dùng <InlineCode>--no-tests=error</InlineCode> hoặc cấu hình kiểm thử{" "}
                 <InlineCode>noTestsAction: error</InlineCode>.
               </Callout>
 
               <Lab>
-                Tạo ba labels <InlineCode>unit</InlineCode>,{" "}
+                Tạo ba nhãn <InlineCode>unit</InlineCode>,{" "}
                 <InlineCode>replay</InlineCode>,{" "}
                 <InlineCode>integration</InlineCode>. Chạy riêng từng tầng,
-                parallel toàn suite và sinh JUnit artifact.
+                chạy song song toàn bộ kiểm thử và sinh báo cáo JUnit.
               </Lab>
 
               <Checkpoint
-                question="Tại sao link test trực tiếp target trong build tree chưa chứng minh package dùng được?"
-                answer="Test đó dùng graph nội bộ và source/build paths. Nó không kiểm install layout, exported targets, dependency forwarding hoặc relocatability. Cần install rồi configure một consumer project độc lập bằng find_package."
+                question="Tại sao liên kết bài kiểm thử trực tiếp với target trong cây dựng chưa chứng minh gói có thể sử dụng được?"
+                answer="Bài kiểm thử đó dùng đồ thị nội bộ cùng đường dẫn mã nguồn/cây dựng. Nó không kiểm tra cấu trúc cài đặt, target đã xuất, việc chuyển tiếp phụ thuộc hoặc khả năng di chuyển. Cần cài đặt rồi cấu hình một dự án sử dụng độc lập bằng find_package."
               />
             </GuideSection>
 
             <GuideSection
               id="quality-performance"
               number="12"
-              eyebrow="Engineering quality"
-              title="Quality flags là opt-in target policy"
-              lead="Warnings, sanitizer, clang-tidy, PCH, unity và LTO có trade-off khác nhau; đừng đổ tất cả vào global CMAKE_CXX_FLAGS."
+              eyebrow="Chất lượng kỹ thuật"
+              title="Cờ chất lượng là chính sách target được bật có chủ đích"
+              lead="Cảnh báo, sanitizer, clang-tidy, PCH, unity và LTO có những đánh đổi khác nhau; đừng dồn tất cả vào CMAKE_CXX_FLAGS toàn cục."
             >
-              <CodeBlock label="Reusable policy targets, link PRIVATE">
+              <CodeBlock label="Target chính sách tái sử dụng, liên kết PRIVATE">
                 {`add_library(tick_warnings INTERFACE)
 if(MSVC)
   target_compile_options(tick_warnings INTERFACE /W4 /permissive-)
@@ -1259,7 +1276,7 @@ if(NOT MSVC AND
   target_link_options(tick_asan INTERFACE -fsanitize=address)
 elseif(TICK_ENABLE_ASAN)
   message(FATAL_ERROR
-    "TICK_ENABLE_ASAN is unsupported by this compiler frontend")
+    "Giao diện trình biên dịch này không hỗ trợ TICK_ENABLE_ASAN")
 endif()
 
 target_link_libraries(feed_decoder
@@ -1275,8 +1292,8 @@ endif()`}
                 <table className="w-full min-w-[760px] text-left text-sm">
                   <thead className="bg-[#edf0e8] font-mono text-[10px] uppercase">
                     <tr>
-                      <th scope="col" className="px-4 py-3">Tool/feature</th>
-                      <th scope="col" className="px-4 py-3">Scope khuyên dùng</th>
+                      <th scope="col" className="px-4 py-3">Công cụ/tính năng</th>
+                      <th scope="col" className="px-4 py-3">Phạm vi nên dùng</th>
                       <th scope="col" className="px-4 py-3">Rủi ro</th>
                     </tr>
                   </thead>
@@ -1284,36 +1301,36 @@ endif()`}
                     <TableRow
                       values={[
                         "Warnings / -Werror",
-                        "First-party target PRIVATE",
-                        "Phá third-party/downstream",
+                        "Target nội bộ PRIVATE",
+                        "Phá thư viện bên thứ ba/phần phía sau",
                       ]}
                     />
                     <TableRow
                       values={[
                         "ASan/UBSan",
-                        "Compile + link cùng target graph",
-                        "Trộn runtime/config",
+                        "Biên dịch + liên kết cùng đồ thị target",
+                        "Trộn thư viện chạy/cấu hình",
                       ]}
                     />
                     <TableRow
                       values={[
                         "PCH",
                         "Thường PRIVATE",
-                        "Ép consumer include policy",
+                        "Ép chính sách include lên bên sử dụng",
                       ]}
                     />
                     <TableRow
                       values={[
-                        "Unity build",
-                        "Opt-in sau khi đo",
-                        "ODR/name collision",
+                        "Dựng hợp nhất (unity build)",
+                        "Chỉ bật sau khi đo",
+                        "Vi phạm ODR/trùng tên",
                       ]}
                     />
                     <TableRow
                       values={[
                         "IPO/LTO",
                         "CheckIPOSupported + Release",
-                        "Toolchain/linker support",
+                        "Mức hỗ trợ của bộ công cụ/trình liên kết",
                       ]}
                       last
                     />
@@ -1322,43 +1339,43 @@ endif()`}
               </div>
 
               <p>
-                Build nhanh bắt đầu từ graph đúng: Ninja/parallelism, dependency
-                chính xác và codegen không chạy thừa. Sau đó mới đo PCH, unity,
-                compiler launcher/cache và IPO. CMake 4.x instrumentation có thể
-                đo pipeline sâu hơn nhưng không nên trở thành requirement cho
-                baseline 3.25.
+                Dựng nhanh bắt đầu từ đồ thị đúng: Ninja/chạy song song, phụ
+                thuộc chính xác và bước sinh mã không chạy thừa. Sau đó mới đo
+                PCH, unity, trình khởi chạy/bộ nhớ đệm trình biên dịch và IPO.
+                Công cụ đo của CMake 4.x có thể đo quy trình sâu hơn nhưng không
+                nên trở thành yêu cầu cho mốc 3.25.
               </p>
 
-              <Callout tone="amber" title="Sanitizer phải đi qua compile và link">
-                Chỉ thêm <InlineCode>-fsanitize</InlineCode> lúc compile có thể
-                tạo undefined runtime symbols ở link. Chỉ thêm lúc link thì
-                instrumentation không được emit. Policy target giúp hai nửa đi
-                cùng nhau.
+              <Callout tone="amber" title="Sanitizer phải đi qua cả biên dịch và liên kết">
+                Chỉ thêm <InlineCode>-fsanitize</InlineCode> lúc biên dịch có
+                thể tạo ký hiệu thư viện chạy chưa được định nghĩa khi liên kết.
+                Chỉ thêm lúc liên kết thì mã kiểm tra không được sinh. Target
+                chính sách giúp hai phần đi cùng nhau.
               </Callout>
 
               <Lab>
-                Tạo Debug ASan preset và Release preset. Chạy cùng unit/replay
-                suite, đo thời gian clean/incremental build, rồi chỉ bật PCH hoặc
-                unity khi có baseline để so sánh.
+                Tạo cấu hình đặt sẵn Debug ASan và Release. Chạy cùng bộ kiểm
+                thử đơn vị/phát lại, đo thời gian dựng sạch và dựng tăng dần,
+                rồi chỉ bật PCH hoặc unity khi có mốc để so sánh.
               </Lab>
 
               <Checkpoint
                 question="Tại sao target_precompile_headers(... PUBLIC ...) thường là mùi thiết kế?"
-                answer="PCH thường là optimization implementation của target. PUBLIC biến header order/content thành requirement của consumer, tăng coupling và dễ gây mismatch. Chỉ PUBLIC khi đó thực sự là contract cần để consumer compile đúng."
+                answer="PCH thường là tối ưu cho phần triển khai của target. PUBLIC biến thứ tự/nội dung tệp tiêu đề thành yêu cầu của bên sử dụng, tăng liên kết phụ thuộc và dễ gây không khớp. Chỉ dùng PUBLIC khi đó thực sự là quy ước cần để bên sử dụng biên dịch đúng."
               />
             </GuideSection>
 
             <GuideSection
               id="install-export-package"
               number="13"
-              eyebrow="Downstream contract"
-              title="Build tree pass chưa phải product pass"
-              lead="Production library phải install được, export target có namespace và được một consumer sạch tìm thấy ở prefix khác."
+              eyebrow="Quy ước với bên sử dụng"
+              title="Cây dựng thành công chưa có nghĩa là sản phẩm đạt"
+              lead="Thư viện dùng trong thực tế phải cài được, xuất target có không gian tên và được một dự án sử dụng độc lập tìm thấy ở tiền tố khác."
             >
-              <CodeBlock label="Install target + public header set">
+              <CodeBlock label="Cài target + tập tệp tiêu đề công khai">
                 {`include(GNUInstallDirs)
 
-# Both public libraries registered a FILE_SET named api.
+# Cả hai thư viện công khai đều đăng ký FILE_SET tên api.
 install(
   TARGETS tick_model feed_decoder
   EXPORT TickPlatformTargets
@@ -1381,7 +1398,7 @@ install(
 )`}
               </CodeBlock>
 
-              <CodeBlock label="Package config + version">
+              <CodeBlock label="Cấu hình gói + phiên bản">
                 {`include(CMakePackageConfigHelpers)
 
 configure_package_config_file(
@@ -1419,7 +1436,7 @@ include(
 check_required_components(TickPlatform)`}
               </CodeBlock>
 
-              <CodeBlock label="Downstream consumer không biết source tree">
+              <CodeBlock label="Dự án sử dụng không biết cây mã nguồn">
                 {`find_package(TickPlatform 1 CONFIG REQUIRED)
 
 add_executable(research_replay main.cpp)
@@ -1429,101 +1446,101 @@ target_link_libraries(research_replay
               </CodeBlock>
 
               <p>
-                Template config dùng <InlineCode>@PACKAGE_INIT@</InlineCode> và{" "}
-                <InlineCode>find_dependency()</InlineCode> cho mọi dependency còn
-                được exported interface nhắc tới, kể cả{" "}
-                <InlineCode>LINK_ONLY</InlineCode> của static library. Interface
-                không được chứa absolute include path tới máy build/dependency;
-                dependency nên được diễn tả bằng imported target và tìm lại trong
-                consumer environment.
+                Mẫu cấu hình dùng <InlineCode>@PACKAGE_INIT@</InlineCode> và{" "}
+                <InlineCode>find_dependency()</InlineCode> cho mọi phụ thuộc còn
+                được giao diện xuất nhắc tới, kể cả{" "}
+                <InlineCode>LINK_ONLY</InlineCode> của thư viện tĩnh. Giao diện
+                không được chứa đường dẫn include tuyệt đối tới máy dựng hoặc
+                phụ thuộc; phụ thuộc nên được diễn tả bằng target được nhập và được
+                tìm lại trong môi trường của bên sử dụng.
               </p>
 
               <Flow
                 items={[
-                  ["1", "Build", "Tạo first-party artifacts"],
-                  ["2", "Install", "Stage vào prefix tạm"],
-                  ["3", "Relocate", "Move/copy prefix sang path khác"],
-                  ["4", "Consume", "find_package từ project sạch"],
-                  ["5", "Run", "Smoke test runtime dependencies"],
+                  ["1", "Dựng", "Tạo sản phẩm nội bộ"],
+                  ["2", "Cài đặt", "Đưa vào tiền tố tạm"],
+                  ["3", "Di chuyển", "Chuyển/sao chép tiền tố sang đường dẫn khác"],
+                  ["4", "Sử dụng", "find_package từ dự án sạch"],
+                  ["5", "Chạy", "Kiểm tra nhanh các phụ thuộc khi chạy"],
                 ]}
               />
 
-              <Callout tone="red" title="Absolute INSTALL_INTERFACE phá relocatability">
-                Đừng export <InlineCode>/home/me/deps/include</InlineCode> hoặc
-                source path vào package. Consumer khác máy/container sẽ nhận
-                target trỏ về path không tồn tại.
+              <Callout tone="red" title="INSTALL_INTERFACE tuyệt đối phá khả năng di chuyển">
+                Đừng xuất <InlineCode>/home/me/deps/include</InlineCode> hoặc
+                đường dẫn mã nguồn vào gói. Bên sử dụng trên máy hoặc vùng chứa
+                khác sẽ nhận target trỏ về đường dẫn không tồn tại.
               </Callout>
 
               <Lab>
-                Install TickPlatform vào prefix tạm, chuyển prefix sang directory
-                khác, rồi configure/build một consumer độc lập chỉ với{" "}
-                <InlineCode>CMAKE_PREFIX_PATH</InlineCode>. Không cho consumer
-                nhìn source/build tree gốc.
+                Cài TickPlatform vào tiền tố tạm, chuyển tiền tố sang thư mục
+                khác, rồi cấu hình và dựng một dự án sử dụng độc lập chỉ với{" "}
+                <InlineCode>CMAKE_PREFIX_PATH</InlineCode>. Không cho dự án đó
+                nhìn cây mã nguồn hoặc cây dựng gốc.
               </Lab>
 
               <Checkpoint
                 question="install(TARGETS) và install(EXPORT) giải quyết hai việc khác nhau thế nào?"
-                answer="install(TARGETS) đặt artifacts/header vào install tree và gắn targets vào export set. install(EXPORT) sinh file CMake mô tả imported targets để downstream load lại graph với namespace."
+                answer="install(TARGETS) đặt sản phẩm/tệp tiêu đề vào cây cài đặt và gắn target vào tập xuất. install(EXPORT) sinh tệp CMake mô tả các target được nhập để bên sử dụng tải lại đồ thị với không gian tên."
               />
             </GuideSection>
 
             <GuideSection
               id="diagnostics-performance"
               number="14"
-              eyebrow="Evidence first"
-              title="Phân loại lỗi trước khi xóa build"
-              lead="Configure, compile, link, test, install và runtime là sáu lớp khác nhau. Mỗi lớp có evidence và tool riêng."
+              eyebrow="Ưu tiên bằng chứng"
+              title="Phân loại lỗi trước khi xóa cây dựng"
+              lead="Cấu hình, biên dịch, liên kết, kiểm thử, cài đặt và lúc chạy là sáu lớp khác nhau. Mỗi lớp có bằng chứng và công cụ riêng."
             >
               <div className="overflow-x-auto rounded-2xl border border-[#173f35]/12 bg-white/65">
                 <table className="w-full min-w-[820px] text-left text-sm">
                   <thead className="bg-[#edf0e8] font-mono text-[10px] uppercase">
                     <tr>
-                      <th scope="col" className="px-4 py-3">Phase</th>
-                      <th scope="col" className="px-4 py-3">Symptom</th>
-                      <th scope="col" className="px-4 py-3">Evidence đầu tiên</th>
+                      <th scope="col" className="px-4 py-3">Giai đoạn</th>
+                      <th scope="col" className="px-4 py-3">Biểu hiện</th>
+                      <th scope="col" className="px-4 py-3">Bằng chứng đầu tiên</th>
                     </tr>
                   </thead>
                   <tbody>
                     <TableRow
                       values={[
-                        "Configure",
-                        "Package/compiler không tìm thấy",
-                        "--debug-find, cache, toolchain",
+                        "Cấu hình",
+                        "Không tìm thấy gói/trình biên dịch",
+                        "--debug-find, bộ nhớ đệm, bộ công cụ",
                       ]}
                     />
                     <TableRow
                       values={[
-                        "Compile",
-                        "Header/define/standard sai",
-                        "build --verbose, compile_commands",
+                        "Biên dịch",
+                        "Tệp tiêu đề/định nghĩa/chuẩn sai",
+                        "dựng --verbose, compile_commands",
                       ]}
                     />
                     <TableRow
                       values={[
-                        "Link",
-                        "Undefined/duplicate symbol",
-                        "Link line, target edges, ABI/config",
+                        "Liên kết",
+                        "Ký hiệu chưa được định nghĩa hoặc bị trùng (undefined/duplicate symbol)",
+                        "Lệnh liên kết, cạnh target, ABI/cấu hình",
                       ]}
                     />
                     <TableRow
                       values={[
-                        "Test",
-                        "Không discover/flaky/timeout",
-                        "ctest -N/-V, labels/properties",
+                        "Kiểm thử",
+                        "Không tìm thấy/chập chờn/hết thời gian",
+                        "ctest -N/-V, nhãn/thuộc tính",
                       ]}
                     />
                     <TableRow
                       values={[
-                        "Install",
-                        "Thiếu header/config",
-                        "install_manifest + staged tree",
+                        "Cài đặt",
+                        "Thiếu tệp tiêu đề/cấu hình",
+                        "install_manifest + cây tạm",
                       ]}
                     />
                     <TableRow
                       values={[
-                        "Runtime",
-                        "Loader/plugin không thấy",
-                        "RPATH/runtime dependency inspection",
+                        "Lúc chạy",
+                        "Trình nạp/phần bổ trợ không tìm thấy",
+                        "RPATH/kiểm tra phụ thuộc lúc chạy",
                       ]}
                       last
                     />
@@ -1531,78 +1548,80 @@ target_link_libraries(research_replay
                 </table>
               </div>
 
-              <CodeBlock label="Diagnostic toolbox">
-                {`# Configure trace theo file/module cần soi
+              <CodeBlock label="Bộ công cụ chẩn đoán">
+                {`# Theo dõi bước cấu hình theo tệp/mô-đun cần xem
 cmake -S . -B build/trace \
   --trace-expand \
   --trace-source=cmake/FindFeedSDK.cmake
 
-# Package search
+# Tìm kiếm gói
 cmake -S . -B build/find --debug-find
 
-# Graph và native commands
+# Đồ thị và các lệnh dựng gốc
 cmake --graphviz=build/graph.dot build/dev
 cmake --build build/dev --verbose
 
-# Cache sạch có chủ đích (CMake 3.24+)
+# Làm sạch bộ nhớ đệm có chủ đích (CMake 3.24+)
 cmake --fresh -S . -B build/dev -G Ninja
 
-# Test discovery/verbose
+# Tìm bài kiểm thử/xem kết quả chi tiết
 ctest --test-dir build/dev -N
 ctest --test-dir build/dev -V -R replay`}
               </CodeBlock>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <SmallRule
-                  label="Wrong include"
-                  title="Trace dependency edge"
-                  body="Xem compile command rồi truy target nào đưa include path vào transitive closure."
+                  label="Include sai"
+                  title="Lần theo cạnh phụ thuộc"
+                  body="Xem lệnh biên dịch rồi tìm target nào đưa đường dẫn include vào chuỗi phụ thuộc."
                 />
                 <SmallRule
-                  label="Undefined symbol"
-                  title="Không thêm library mò"
-                  body="Xác minh symbol owner, link order/visibility, ABI, config mapping và PUBLIC/PRIVATE edge."
+                  label="Ký hiệu chưa được định nghĩa"
+                  title="Không thêm thư viện theo phỏng đoán"
+                  body="Xác minh nơi sở hữu ký hiệu, thứ tự/khả năng hiển thị khi liên kết, ABI, ánh xạ cấu hình và cạnh PUBLIC/PRIVATE."
                 />
                 <SmallRule
-                  label="Stale cache"
-                  title="Hiểu key trước khi fresh"
-                  body="Compiler, generator, prefix và option cũ có thể nằm trong CMakeCache; --fresh là reset có chủ đích."
+                  label="Bộ nhớ đệm cũ"
+                  title="Hiểu khóa trước khi làm mới"
+                  body="Trình biên dịch, trình sinh, tiền tố và tùy chọn cũ có thể nằm trong CMakeCache; --fresh là thao tác đặt lại có chủ đích."
                 />
                 <SmallRule
-                  label="Slow build"
-                  title="Đo configure/compile/link"
-                  body="Graphviz/verbose/compile database cho structure; instrumentation/tool timing cho bottleneck."
+                  label="Dựng chậm"
+                  title="Đo cấu hình/biên dịch/liên kết"
+                  body="Graphviz, kết quả chi tiết và cơ sở dữ liệu biên dịch cho biết cấu trúc; công cụ đo thời gian giúp tìm nút thắt."
                 />
               </div>
 
-              <Callout tone="amber" title="Xóa build là phép thử, không phải root cause">
-                Clean build pass chứng minh stale state có vai trò, nhưng chưa nói
-                cache key/rule nào sai. Phải tái hiện incremental failure và sửa
-                dependency model để lỗi không quay lại.
+              <Callout tone="amber" title="Xóa cây dựng là phép thử, không phải nguyên nhân gốc">
+                Lần dựng sạch thành công chứng minh trạng thái cũ có vai trò,
+                nhưng chưa cho biết khóa bộ nhớ đệm hay quy tắc nào sai. Phải tái
+                hiện lỗi dựng tăng dần và sửa mô hình phụ thuộc để lỗi không quay
+                lại.
               </Callout>
 
               <Lab>
-                Cố ý tạo năm lỗi: thiếu package, thiếu include, undefined symbol,
-                zero tests và thiếu installed header. Với mỗi lỗi, ghi phase,
-                command evidence và target/property cần sửa.
+                Cố ý tạo năm lỗi: thiếu gói, thiếu include, ký hiệu chưa định
+                nghĩa, không có bài kiểm thử và thiếu tệp tiêu đề đã cài. Với
+                mỗi lỗi, ghi giai đoạn, bằng chứng từ lệnh và target/thuộc tính
+                cần sửa.
               </Lab>
 
               <Checkpoint
-                question="Compile command có -I đúng nhưng header vẫn sai version thì kiểm tra gì?"
-                answer="Kiểm tra thứ tự include paths, duplicate install/source copies, generator output stale và target nào inject path. Sau đó kiểm imported target/config package được chọn bằng --debug-find; đừng chỉ thêm một -I khác lên đầu."
+                question="Lệnh biên dịch có -I đúng nhưng tệp tiêu đề vẫn sai phiên bản thì kiểm tra gì?"
+                answer="Kiểm tra thứ tự đường dẫn include, các bản sao cài đặt/mã nguồn bị trùng, kết quả cũ của trình sinh và target nào thêm đường dẫn. Sau đó dùng --debug-find để kiểm tra target được nhập hoặc cấu hình gói đã được chọn; đừng chỉ thêm một -I khác lên đầu."
               />
             </GuideSection>
 
             <GuideSection
               id="legacy-migration-ci"
               number="15"
-              eyebrow="Ownership under change"
-              title="Migrate legacy theo boundary, không rewrite toàn bộ"
-              lead="Mục tiêu đầu tiên là tái hiện build cũ và khóa behavior. Sau đó mới chuyển global state thành target contract từng module."
+              eyebrow="Quyền sở hữu khi thay đổi"
+              title="Chuyển đổi hệ thống cũ theo ranh giới, không viết lại toàn bộ"
+              lead="Mục tiêu đầu tiên là tái hiện cách dựng cũ và khóa hành vi. Sau đó mới chuyển trạng thái toàn cục thành quy ước target của từng mô-đun."
             >
               <MigrationSteps />
 
-              <CodeBlock label="Trước: ambient global state">
+              <CodeBlock label="Trước: trạng thái toàn cục xung quanh">
                 {`include_directories(
   "\${PROJECT_SOURCE_DIR}/include"
   "/opt/feed-sdk/include"
@@ -1615,7 +1634,7 @@ add_library(decoder src/decoder.cpp)
 target_link_libraries(decoder feed_sdk pthread)`}
               </CodeBlock>
 
-              <CodeBlock label="Sau: explicit boundary, artifact name giữ nguyên">
+              <CodeBlock label="Sau: ranh giới tường minh, giữ nguyên tên sản phẩm">
                 {`add_library(FeedSDK::FeedSDK UNKNOWN IMPORTED)
 set_target_properties(FeedSDK::FeedSDK PROPERTIES
   IMPORTED_LOCATION "/opt/feed-sdk/lib/libfeed_sdk.so"
@@ -1641,12 +1660,13 @@ target_link_libraries(decoder
 
               <p>
                 <InlineCode>cxx_std_11</InlineCode> nghĩa là “ít nhất C++11” và
-                compiler có thể dùng standard mới hơn. Boundary thực sự phải
-                compile đúng C++11 nên đặt <InlineCode>CXX_STANDARD</InlineCode>,
-                required/no extensions như trên và giữ một CI lane kiểm chứng.
-                Core mới vẫn dùng <InlineCode>cxx_std_20</InlineCode>; đừng hạ
-                standard toàn platform. Policy upgrade cũng làm từng đợt với
-                warning inventory, không set tất cả về{" "}
+                trình biên dịch có thể dùng chuẩn mới hơn. Ranh giới thực sự
+                phải biên dịch đúng C++11 nên đặt{" "}
+                <InlineCode>CXX_STANDARD</InlineCode>, yêu cầu bắt buộc/không
+                phần mở rộng như trên và giữ một nhánh CI kiểm chứng. Phần lõi
+                mới vẫn dùng <InlineCode>cxx_std_20</InlineCode>; đừng hạ chuẩn
+                toàn nền tảng. Việc nâng chính sách cũng làm từng đợt với danh
+                sách cảnh báo, không đặt tất cả về{" "}
                 <InlineCode>OLD</InlineCode>.
               </p>
 
@@ -1654,45 +1674,45 @@ target_link_libraries(decoder
                 <table className="w-full min-w-[820px] text-left text-sm">
                   <thead className="bg-[#edf0e8] font-mono text-[10px] uppercase">
                     <tr>
-                      <th scope="col" className="px-4 py-3">CI lane</th>
-                      <th scope="col" className="px-4 py-3">Evidence</th>
-                      <th scope="col" className="px-4 py-3">Bắt regression</th>
+                      <th scope="col" className="px-4 py-3">Nhánh CI</th>
+                      <th scope="col" className="px-4 py-3">Bằng chứng</th>
+                      <th scope="col" className="px-4 py-3">Bắt lỗi tái diễn</th>
                     </tr>
                   </thead>
                   <tbody>
                     <TableRow
                       values={[
                         "GCC Debug + ASan/UBSan",
-                        "Unit + replay",
-                        "Memory/UB/invariant",
+                        "Đơn vị + phát lại",
+                        "Bộ nhớ/UB/điều bất biến",
                       ]}
                     />
                     <TableRow
                       values={[
-                        "Clang Debug + analysis",
+                        "Clang Debug + phân tích",
                         "Warnings/clang-tidy",
-                        "Portability/API misuse",
+                        "Tính đa nền tảng/dùng sai API",
                       ]}
                     />
                     <TableRow
                       values={[
                         "Release",
-                        "Full test + benchmark trend",
-                        "Optimization-only issue",
+                        "Đầy đủ kiểm thử + xu hướng đo hiệu năng",
+                        "Lỗi chỉ xuất hiện khi tối ưu",
                       ]}
                     />
                     <TableRow
                       values={[
                         "MSVC / Windows",
-                        "Multi-config build/test",
-                        "Generator/compiler assumptions",
+                        "Dựng/kiểm thử nhiều cấu hình",
+                        "Giả định về trình sinh/trình biên dịch",
                       ]}
                     />
                     <TableRow
                       values={[
-                        "Install consumer",
-                        "find_package smoke",
-                        "Export/relocatability",
+                        "Dự án sử dụng sau cài đặt",
+                        "Kiểm tra nhanh find_package",
+                        "Xuất/khả năng di chuyển",
                       ]}
                       last
                     />
@@ -1700,41 +1720,42 @@ target_link_libraries(decoder
                 </table>
               </div>
 
-              <Callout tone="green" title="Mỗi migration step có rollback">
-                Giữ dual build/parity gate cho tới khi artifact, tests và
-                consumers khớp. Một commit chỉ chuyển một boundary giúp bisect và
-                rollback; xóa compatibility shim sau khi consumer cuối đã migrate.
+              <Callout tone="green" title="Mỗi bước chuyển đổi đều có đường quay lại">
+                Giữ hai cách dựng và cổng kiểm tra tương đương cho tới khi sản
+                phẩm, kiểm thử và các bên sử dụng khớp nhau. Một commit chỉ
+                chuyển một ranh giới giúp tìm commit gây lỗi và quay lại; xóa
+                lớp tương thích sau khi bên sử dụng cuối cùng đã chuyển đổi.
               </Callout>
 
               <Lab>
-                Chọn một legacy feed adapter. Chụp configure/build/test commands,
-                compile/link lines và artifact checksum/behavior. Bọc dependency
-                prebuilt thành imported target, rồi thay global include/define/
-                flags từng nhóm mà output vẫn giữ.
+                Chọn một bộ chuyển đổi luồng dữ liệu cũ. Ghi lại các lệnh cấu
+                hình/dựng/kiểm thử, dòng biên dịch/liên kết và tổng kiểm/hành vi
+                của sản phẩm. Bọc phụ thuộc dựng sẵn thành target được nhập, rồi thay
+                từng nhóm include, định nghĩa và cờ toàn cục mà vẫn giữ kết quả.
               </Lab>
 
               <Checkpoint
-                question="Thứ tự migrate global CMake an toàn là gì?"
-                answer="Baseline + presets trước; vẽ graph; bọc external/prebuilt targets; chuyển từng module sang target sources/includes/defines/features/link; sửa codegen; thêm install-consumer; nâng policies; cuối cùng xóa global shims khi parity và consumers đều xanh."
+                question="Thứ tự chuyển đổi CMake toàn cục an toàn là gì?"
+                answer="Chốt mốc và cấu hình đặt sẵn trước; vẽ đồ thị; bọc target bên ngoài/dựng sẵn; chuyển từng mô-đun sang mã nguồn, include, định nghĩa, tính năng và liên kết theo target; sửa bước sinh mã; thêm kiểm thử dự án sử dụng sau cài đặt; nâng chính sách; cuối cùng xóa lớp tương thích toàn cục khi kết quả tương đương và các bên sử dụng đều hoạt động."
               />
             </GuideSection>
 
             <GuideSection
               id="worldquant-capstone"
               number="16"
-              eyebrow="WorldQuant capstone"
-              title="Ship một TickPlatform có evidence"
-              lead="Capstone gom toàn bộ bài: C++11 legacy boundary, C++20 core, generated feed code, deterministic replay, package consumer và CI matrix."
+              eyebrow="Dự án tổng kết WorldQuant"
+              title="Hoàn thiện TickPlatform với đầy đủ bằng chứng"
+              lead="Dự án tổng kết gom toàn bộ bài: ranh giới C++11 cũ, lõi C++20, mã luồng dữ liệu được sinh, phát lại xác định, dự án sử dụng gói và ma trận CI."
             >
               <FileTree
                 lines={[
                   "TickPlatform/",
-                  "├── model/                 # event/value types",
-                  "├── legacy_adapter/        # C++11 boundary",
-                  "├── feed_codegen/          # schema → C++",
+                  "├── model/                 # kiểu sự kiện/giá trị",
+                  "├── legacy_adapter/        # ranh giới C++11",
+                  "├── feed_codegen/          # lược đồ → C++",
                   "├── codecs/{equities,futures}/",
-                  "├── order_book/            # invariants/state",
-                  "├── interval_features/     # OHLCV/statistics",
+                  "├── order_book/            # điều bất biến/trạng thái",
+                  "├── interval_features/     # OHLCV/thống kê",
                   "├── tools/tick_replay/",
                   "├── tests/{unit,golden,integration}/",
                   "├── cmake/{toolchains,packages}/",
@@ -1742,13 +1763,13 @@ target_link_libraries(decoder
                 ]}
               />
 
-              <CodeBlock label="Top-level capstone skeleton">
+              <CodeBlock label="Khung dự án tổng kết ở cấp cao nhất">
                 {`cmake_minimum_required(VERSION 3.25)
 project(TickPlatform VERSION 1.0.0 LANGUAGES CXX)
 
-option(TICK_ENABLE_EQUITIES "Build equities feed adapter" ON)
-option(TICK_ENABLE_FUTURES "Build futures feed adapter" ON)
-option(TICK_ENABLE_ASAN "Enable AddressSanitizer" OFF)
+option(TICK_ENABLE_EQUITIES "Dựng bộ chuyển đổi luồng cổ phiếu" ON)
+option(TICK_ENABLE_FUTURES "Dựng bộ chuyển đổi luồng hợp đồng tương lai" ON)
+option(TICK_ENABLE_ASAN "Bật AddressSanitizer" OFF)
 
 find_package(Threads REQUIRED)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
@@ -1778,57 +1799,58 @@ include(CMakePackageConfigHelpers)
 add_subdirectory(cmake/packages)`}
               </CodeBlock>
 
-              <h3>Definition of done</h3>
+              <h3>Điều kiện hoàn thành</h3>
               <Checklist
                 items={[
                   "Không dùng include_directories, link_directories hoặc CMAKE_CXX_FLAGS toàn cục.",
-                  "Mỗi target khai báo source, standard và usage requirements đúng ownership.",
-                  "Sửa schema hoặc generator script rebuild đúng generated decoder, không chạm source tree.",
-                  "CTest có unit, replay, integration labels; CI fail nếu zero tests.",
-                  "C++11 legacy adapter không hạ standard của C++20 core.",
-                  "Debug sanitizer và Release dùng preset/binary tree riêng.",
-                  "Install/export tạo Tick:: targets và consumer relocatable find_package được.",
-                  "CI matrix ghi source SHA, compiler/CMake version, preset và fixture/schema revision.",
-                  "Thêm feed mới chỉ thêm adapter/edge cần thiết, không sửa mọi target.",
-                  "Có migration rollback và parity evidence cho platform legacy.",
+                  "Mỗi target khai báo mã nguồn, chuẩn và yêu cầu sử dụng đúng quyền sở hữu.",
+                  "Sửa lược đồ hoặc tập lệnh sinh sẽ dựng lại đúng bộ giải mã được sinh, không chạm cây mã nguồn.",
+                  "CTest có nhãn đơn vị, phát lại và tích hợp; CI báo lỗi nếu không có bài kiểm thử.",
+                  "Bộ chuyển đổi C++11 cũ không hạ chuẩn của lõi C++20.",
+                  "Cấu hình Debug có sanitizer và cấu hình Release dùng cây dựng riêng.",
+                  "Cài đặt/xuất tạo target Tick:: và dự án sử dụng có thể di chuyển, tìm được bằng find_package.",
+                  "Ma trận CI ghi SHA mã nguồn, phiên bản trình biên dịch/CMake, cấu hình đặt sẵn và phiên bản dữ liệu kiểm thử/lược đồ.",
+                  "Thêm luồng dữ liệu mới chỉ thêm bộ chuyển đổi/cạnh cần thiết, không sửa mọi target.",
+                  "Có đường quay lại và bằng chứng tương đương khi chuyển đổi nền tảng cũ.",
                 ]}
               />
 
               <h3>Khung trả lời phỏng vấn 5 bước</h3>
               <Flow
                 items={[
-                  ["1", "State constraint", "Legacy ABI, feed mới, OS/compiler, CI"],
-                  ["2", "Draw targets", "Ownership + public dependency edges"],
-                  ["3", "Protect incrementality", "Generated outputs + exact inputs"],
-                  ["4", "Prove delivery", "CTest + install consumer + matrix"],
-                  ["5", "Plan migration", "Parity, rollout, rollback, observability"],
+                  ["1", "Nêu ràng buộc", "ABI cũ, luồng mới, hệ điều hành/trình biên dịch, CI"],
+                  ["2", "Vẽ các target", "Quyền sở hữu + cạnh phụ thuộc công khai"],
+                  ["3", "Bảo vệ cách dựng tăng dần", "Kết quả được sinh + đầu vào chính xác"],
+                  ["4", "Chứng minh khả năng bàn giao", "CTest + dự án dùng sau cài đặt + ma trận"],
+                  ["5", "Lập kế hoạch chuyển đổi", "Tương đương, triển khai, quay lại, khả năng quan sát"],
                 ]}
               />
 
               <div className="grid gap-4 md:grid-cols-2">
                 <InterviewCard
                   question="PUBLIC hay PRIVATE cho tick_model?"
-                  signal="Đọc public header của decoder. Nếu API expose event/model type, consumer cần edge PUBLIC; nếu chỉ .cpp dùng thì PRIVATE."
+                  signal="Đọc tệp tiêu đề công khai của bộ giải mã. Nếu API để lộ kiểu sự kiện/mô hình, bên sử dụng cần cạnh PUBLIC; nếu chỉ .cpp dùng thì PRIVATE."
                 />
                 <InterviewCard
-                  question="Onboard feed mới thế nào?"
-                  signal="Schema codegen có OUTPUT/DEPENDS, adapter target riêng, golden replay fixtures versioned và graph không làm unrelated target rebuild."
+                  question="Thêm luồng dữ liệu mới thế nào?"
+                  signal="Bước sinh mã từ lược đồ có OUTPUT/DEPENDS, target bộ chuyển đổi riêng, dữ liệu phát lại chuẩn có phiên bản và đồ thị không làm target không liên quan dựng lại."
                 />
                 <InterviewCard
                   question="CI nào đủ tin?"
-                  signal="Compiler/config matrix, sanitizer, no-tests-error, Release replay, install-consumer và artifact lineage; không chỉ 'cmake --build pass'."
+                  signal="Ma trận trình biên dịch/cấu hình, sanitizer, --no-tests=error, phát lại Release, dự án dùng sau cài đặt và nguồn gốc sản phẩm; không chỉ 'cmake --build thành công'."
                 />
                 <InterviewCard
-                  question="Migrate legacy ra sao?"
-                  signal="Baseline → imported boundary → target-by-target → dual parity → consumer cutover → xóa shim, mỗi bước rollback được."
+                  question="Chuyển đổi hệ thống cũ ra sao?"
+                  signal="Chốt mốc → ranh giới nhập → chuyển từng target → đối chiếu hai cách → chuyển bên sử dụng → xóa lớp tương thích; mỗi bước đều quay lại được."
                 />
               </div>
 
-              <Callout tone="green" title="Bài runnable đã có trong Recall">
-                Mock set WorldQuant có scenario tạo{" "}
-                <InlineCode>feed_decoder</InlineCode>, executable test, C++20,
-                usage requirements và CTest. Học xong guide này, làm lại scenario
-                mà không nhìn đáp án rồi giải thích sanitizer/CI/install extension.
+              <Callout tone="green" title="Bài thực hành đã có trong Recall">
+                Bộ phỏng vấn thử WorldQuant có tình huống tạo{" "}
+                <InlineCode>feed_decoder</InlineCode>, chương trình kiểm thử, C++20,
+                yêu cầu sử dụng và CTest. Học xong hướng dẫn này, hãy làm lại
+                tình huống mà không nhìn đáp án rồi giải thích phần mở rộng về
+                sanitizer, CI và cài đặt.
               </Callout>
 
               <div className="flex flex-wrap gap-3">
@@ -1836,19 +1858,19 @@ add_subdirectory(cmake/packages)`}
                   href="/mock-interview"
                   className="rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#245748]"
                 >
-                  Vào mock interview →
+                  Vào phỏng vấn thử →
                 </Link>
                 <Link
                   href="/?deck=cmake-build-systems"
                   className="rounded-2xl border border-[#173f35]/15 bg-white/70 px-5 py-3 text-sm font-bold text-[#356b58] transition hover:bg-white"
                 >
-                  Mở deck CMake →
+                  Mở bộ thẻ CMake →
                 </Link>
               </div>
 
               <Checkpoint
-                question="Một lời giải CMake tốt cho JD này phải chứng minh điều gì ngoài việc build pass?"
-                answer="Target ownership/transitive contract đúng; incremental codegen đúng; tests có tầng và không rỗng; package install/consume được; compiler/config matrix tái lập; legacy migration có parity/rollback. Build pass chỉ là một evidence nhỏ."
+                question="Một lời giải CMake tốt cho mô tả công việc này phải chứng minh điều gì ngoài việc dựng thành công?"
+                answer="Quyền sở hữu target và quy ước truyền tiếp đúng; bước sinh mã tăng dần đúng; kiểm thử có tầng và không rỗng; gói cài đặt và sử dụng được; ma trận trình biên dịch/cấu hình có thể tái lập; việc chuyển đổi hệ thống cũ có đối chiếu tương đương và đường quay lại. Dựng thành công chỉ là một bằng chứng nhỏ."
               />
             </GuideSection>
 
@@ -1857,15 +1879,15 @@ add_subdirectory(cmake/packages)`}
               className="scroll-mt-6 border-t border-[#173f35]/15 py-12"
             >
               <p className="font-mono text-[10px] font-bold tracking-[0.17em] text-[#ba4b2f] uppercase">
-                Primary references
+                Nguồn tham khảo chính
               </p>
               <h2 className="mt-4 text-3xl font-semibold tracking-[-0.035em] sm:text-5xl">
-                Đọc manual theo câu hỏi, không đọc thuộc lòng.
+                Đọc tài liệu theo câu hỏi, không học thuộc lòng.
               </h2>
               <p className="mt-4 max-w-3xl text-lg leading-8 text-[#64736c]">
-                Toàn bộ nguồn ngoài trong guide là tài liệu chính thức của CMake.
-                Trang “latest” có thể mô tả feature mới hơn baseline 3.25, nên
-                luôn kiểm version note của command/property.
+                Toàn bộ nguồn ngoài trong hướng dẫn là tài liệu chính thức của
+                CMake. Trang “mới nhất” có thể mô tả tính năng mới hơn mốc 3.25,
+                nên luôn kiểm tra ghi chú phiên bản của lệnh hoặc thuộc tính.
               </p>
               <div className="mt-7 grid gap-3 md:grid-cols-2">
                 {CMAKE_GUIDE_SOURCES.map((source) => (
@@ -1902,7 +1924,9 @@ function GuideHeader() {
         </span>
         <span>
           <span className="block font-semibold tracking-[-0.02em]">Recall</span>
-          <span className="block text-xs text-[#64736c]">Build systems guide</span>
+          <span className="block text-xs text-[#64736c]">
+            Hướng dẫn hệ thống dựng
+          </span>
         </span>
       </Link>
       <nav
@@ -1913,31 +1937,31 @@ function GuideHeader() {
           href="/worldquant"
           className="rounded-xl px-4 py-2 font-bold transition hover:bg-white/60"
         >
-          WQ Hub
+          Trung tâm chuẩn bị
         </Link>
         <Link
           href="/learn/tick-data-order-book"
           className="rounded-xl px-4 py-2 font-bold transition hover:bg-white/60"
         >
-          Học Tick
+          Học dữ liệu tick
         </Link>
         <Link
           href="/"
           className="rounded-xl px-4 py-2 font-bold transition hover:bg-white/60"
         >
-          Luyện tập
+          Luyện thẻ
         </Link>
         <Link
           href="/mock-interview"
           className="rounded-xl px-4 py-2 font-bold transition hover:bg-white/60"
         >
-          Mock interview
+          Phỏng vấn thử
         </Link>
         <Link
           href="/admin"
           className="rounded-xl border border-[#173f35]/15 bg-white/65 px-4 py-2 font-bold transition hover:border-[#356b58]/35"
         >
-          Admin
+          Quản trị
         </Link>
       </nav>
     </header>
@@ -1962,7 +1986,7 @@ function TargetGraphPreview() {
           <span className="size-2.5 rounded-full bg-[#8dbf58]" />
         </div>
         <span className="font-mono text-[11px] font-bold tracking-wide text-white/70 uppercase">
-          TickPlatform target graph
+          Đồ thị target TickPlatform
         </span>
       </div>
       <div className="space-y-3 p-5 font-mono text-xs">
@@ -2000,9 +2024,9 @@ function TargetGraphPreview() {
         />
       </div>
       <div className="grid grid-cols-1 gap-2 border-t border-white/10 bg-black/10 px-5 py-4 text-center sm:grid-cols-3 sm:gap-0">
-        <PreviewMetric label="Unit" value="target" />
-        <PreviewMetric label="Contract" value="usage reqs" />
-        <PreviewMetric label="Evidence" value="test/install" />
+        <PreviewMetric label="Đơn vị" value="target" />
+        <PreviewMetric label="Quy ước" value="yêu cầu sử dụng" />
+        <PreviewMetric label="Bằng chứng" value="kiểm thử/cài đặt" />
       </div>
     </div>
   );
@@ -2072,7 +2096,7 @@ function MobileTableOfContents() {
         </span>
       </summary>
       <nav
-        aria-label="Mục lục CMake trên mobile"
+        aria-label="Mục lục CMake trên thiết bị di động"
         className="grid gap-1 border-t border-[#173f35]/10 p-3 sm:grid-cols-2"
       >
         {CMAKE_GUIDE_CHAPTERS.map((chapter) => (
@@ -2096,7 +2120,7 @@ function GuideSidebar() {
   return (
     <aside className="sticky top-6 hidden max-h-[calc(100vh-3rem)] overflow-y-auto rounded-3xl border border-[#173f35]/12 bg-white/55 p-4 xl:block">
       <p className="px-3 pt-2 font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
-        Reading map
+        Lộ trình đọc
       </p>
       <nav className="mt-3 space-y-1" aria-label="Mục lục bài học">
         {CMAKE_GUIDE_CHAPTERS.map((chapter) => (
@@ -2119,8 +2143,8 @@ function GuideSidebar() {
           Nguyên tắc vàng
         </p>
         <p className="mt-2 text-xs leading-6 text-white/70">
-          Target graph → usage requirements → deterministic build → test/install
-          evidence → CI.
+          Đồ thị target → yêu cầu sử dụng → dựng xác định → bằng chứng kiểm
+          thử/cài đặt → CI.
         </p>
       </div>
     </aside>
@@ -2347,7 +2371,7 @@ function Lab({ children }: { children: React.ReactNode }) {
   return (
     <div className="rounded-2xl border border-[#6c63a8]/20 bg-[#f0edff] p-5 text-[#4c4772]">
       <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#62589a] uppercase">
-        Lab nối tiếp
+        Bài thực hành nối tiếp
       </p>
       <div className="mt-2 text-sm leading-7">{children}</div>
     </div>
@@ -2366,7 +2390,7 @@ function Checkpoint({
       <summary className="flex cursor-pointer list-none items-start justify-between gap-4 p-5">
         <div>
           <p className="font-mono text-[9px] font-bold tracking-[0.14em] text-[#ba4b2f] uppercase">
-            Checkpoint
+            Bài kiểm tra xác nhận
           </p>
           <p className="mt-2 font-semibold leading-7">{question}</p>
         </div>
@@ -2410,16 +2434,16 @@ function Checklist({ items }: { items: string[] }) {
 
 function MigrationSteps() {
   const steps = [
-    ["01", "Freeze baseline", "Preset + clean build/test/artifact evidence."],
-    ["02", "Map ambient state", "Global includes, defines, flags, link paths."],
-    ["03", "Draw target graph", "Module ownership và public API edges."],
-    ["04", "Wrap externals", "IMPORTED targets cho SDK/prebuilt legacy."],
-    ["05", "Migrate leaf target", "target_sources/includes/features/link."],
-    ["06", "Fix codegen", "OUTPUT/DEPENDS và binary-tree outputs."],
-    ["07", "Dual parity", "Build cũ/mới chạy cùng fixtures."],
-    ["08", "Install consumer", "Package boundary trước cutover."],
-    ["09", "Raise policies", "Xử lý warning theo đợt, không blanket OLD."],
-    ["10", "Remove shim", "Sau khi consumer cuối và rollback window kết thúc."],
+    ["01", "Chốt mốc", "Cấu hình đặt sẵn + bằng chứng dựng sạch/kiểm thử/sản phẩm."],
+    ["02", "Lập bản đồ trạng thái xung quanh", "Thư mục include, định nghĩa, cờ và đường dẫn liên kết toàn cục."],
+    ["03", "Vẽ đồ thị target", "Quyền sở hữu mô-đun và các cạnh API công khai."],
+    ["04", "Bọc phụ thuộc ngoài", "Target IMPORTED cho SDK/thành phần cũ dựng sẵn."],
+    ["05", "Chuyển target lá", "Khai báo mã nguồn, thư mục include, chuẩn C++ và liên kết."],
+    ["06", "Sửa bước sinh mã", "OUTPUT/DEPENDS và kết quả trong cây dựng."],
+    ["07", "Đối chiếu hai cách", "Cách dựng cũ/mới chạy cùng dữ liệu kiểm thử."],
+    ["08", "Kiểm tra dự án sử dụng sau cài đặt", "Ranh giới gói trước khi chuyển."],
+    ["09", "Nâng chính sách", "Xử lý cảnh báo theo đợt, không đặt OLD hàng loạt."],
+    ["10", "Gỡ lớp tương thích", "Sau khi bên sử dụng cuối cùng chuyển xong và hết thời gian quay lại."],
   ];
 
   return (
@@ -2452,7 +2476,7 @@ function InterviewCard({
   return (
     <div className="rounded-2xl border border-[#173f35]/12 bg-white/65 p-5">
       <p className="font-mono text-[9px] font-bold tracking-wide text-[#ba4b2f] uppercase">
-        Interview probe
+        Câu hỏi đào sâu khi phỏng vấn
       </p>
       <p className="mt-2 font-semibold leading-7">{question}</p>
       <p className="mt-3 text-sm leading-6 text-[#64736c]">{signal}</p>

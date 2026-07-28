@@ -4,7 +4,37 @@ import {
   type WorldQuantCompetencyKey,
 } from "./readiness";
 
-export const WORLDQUANT_DRILL_CATALOG_VERSION = 1 as const;
+export const WORLDQUANT_DRILL_CATALOG_VERSION = 2 as const;
+export const WORLDQUANT_SUPPORTED_DRILL_CATALOG_VERSIONS = [
+  1,
+  WORLDQUANT_DRILL_CATALOG_VERSION,
+] as const;
+export type WorldQuantDrillCatalogVersion =
+  (typeof WORLDQUANT_SUPPORTED_DRILL_CATALOG_VERSIONS)[number];
+const assessmentEquivalentDrillRevisionGroups = [
+  [1, 2],
+] as const satisfies readonly (
+  readonly WorldQuantDrillCatalogVersion[]
+)[];
+
+export function isWorldQuantDrillCatalogVersion(
+  value: unknown,
+): value is WorldQuantDrillCatalogVersion {
+  return WORLDQUANT_SUPPORTED_DRILL_CATALOG_VERSIONS.includes(
+    value as WorldQuantDrillCatalogVersion,
+  );
+}
+
+export function areWorldQuantDrillRevisionsAssessmentEquivalent(
+  left: WorldQuantDrillCatalogVersion,
+  right: WorldQuantDrillCatalogVersion,
+) {
+  if (left === right) return true;
+  // v2 only localizes the v1 wording; exercise structure and scoring stay the same.
+  return assessmentEquivalentDrillRevisionGroups.some(
+    (group) => group.includes(left) && group.includes(right),
+  );
+}
 
 export type WorldQuantDrillKind =
   | "explain"
@@ -15,7 +45,7 @@ export type WorldQuantDrillKind =
 
 export type WorldQuantDrill = {
   id: string;
-  version: 1;
+  version: typeof WORLDQUANT_DRILL_CATALOG_VERSION;
   variant: "practice" | "checkpoint";
   competency: WorldQuantCompetencyKey;
   conceptIds: readonly WorldQuantConceptId[];
@@ -36,7 +66,7 @@ export type WorldQuantDrill = {
 
 export type WorldQuantDrillPack = {
   id: string;
-  version: 1;
+  version: typeof WORLDQUANT_DRILL_CATALOG_VERSION;
   competency: WorldQuantCompetencyKey;
   title: string;
   summary: string;
@@ -45,27 +75,171 @@ export type WorldQuantDrillPack = {
   checkpointRetry: WorldQuantDrill;
 };
 
-export const worldQuantDrillPacks: readonly WorldQuantDrillPack[] = [
-  pack({
+export type WorldQuantDrillAssessmentDescriptor = Pick<
+  WorldQuantDrill,
+  "id" | "variant" | "competency" | "conceptIds"
+> & {
+  rubricTotal: number;
+};
+
+type WorldQuantDrillAssessmentPackDescriptor = {
+  id: string;
+  competency: WorldQuantCompetencyKey;
+  conceptIds: readonly WorldQuantConceptId[];
+  rubricTotals: readonly [
+    practice: number,
+    checkpoint: number,
+    checkpointRetry: number,
+  ];
+};
+
+// Frozen assessment structure for catalog v1. Catalog v2 only rewrites wording,
+// so both revisions intentionally point to this immutable descriptor set.
+const worldQuantDrillAssessmentPacksV1 = [
+  {
     id: "modern-cpp-lifetime",
     competency: "modern_cpp",
-    title: "Modern C++ ownership under load",
-    summary:
-      "Luyện lifetime, API contracts và zero-copy mà không tạo dangling view.",
     conceptIds: [
       "cpp-lifetime-ownership",
       "cpp-types-templates",
       "cpp-standards-idioms",
     ],
-    sourceLabel: "C++ lesson bank",
+    rubricTotals: [4, 4, 4],
+  },
+  {
+    id: "algorithms-streaming",
+    competency: "algorithms_data_structures",
+    conceptIds: [
+      "algorithms-complexity",
+      "algorithms-containers",
+      "algorithms-streaming",
+    ],
+    rubricTotals: [4, 4, 4],
+  },
+  {
+    id: "concurrency-pipeline",
+    competency: "concurrency_memory",
+    conceptIds: [
+      "concurrency-memory-model",
+      "concurrency-synchronization",
+      "concurrency-backpressure",
+    ],
+    rubricTotals: [4, 4, 4],
+  },
+  {
+    id: "performance-latency",
+    competency: "performance_latency",
+    conceptIds: [
+      "performance-cache-allocation",
+      "performance-profiling",
+      "performance-capacity",
+    ],
+    rubricTotals: [4, 4, 4],
+  },
+  {
+    id: "linux-network",
+    competency: "linux_networking",
+    conceptIds: [
+      "linux-process-io",
+      "linux-network-protocols",
+      "linux-observability",
+    ],
+    rubricTotals: [4, 4, 4],
+  },
+  {
+    id: "distributed-data",
+    competency: "distributed_data_platform",
+    conceptIds: [
+      "distributed-partitioning",
+      "distributed-streaming",
+      "distributed-consistency",
+    ],
+    rubricTotals: [4, 4, 4],
+  },
+  {
+    id: "tick-market-data",
+    competency: "tick_market_data",
+    conceptIds: [
+      "tick-feed-integrity",
+      "tick-order-book",
+      "tick-interval-features",
+    ],
+    rubricTotals: [4, 4, 4],
+  },
+  {
+    id: "build-delivery",
+    competency: "build_delivery",
+    conceptIds: [
+      "build-target-cmake",
+      "build-test-sanitizer",
+      "build-ci-release",
+    ],
+    rubricTotals: [4, 4, 4],
+  },
+  {
+    id: "scripting-reconciliation",
+    competency: "scripting_automation",
+    conceptIds: [
+      "scripting-python-data",
+      "scripting-perl-legacy",
+      "scripting-reconciliation",
+    ],
+    rubricTotals: [4, 4, 4],
+  },
+  {
+    id: "ownership-communication",
+    competency: "ownership_communication",
+    conceptIds: [
+      "ownership-requirements",
+      "ownership-incidents",
+      "ownership-english",
+    ],
+    rubricTotals: [4, 4, 4],
+  },
+] as const satisfies readonly WorldQuantDrillAssessmentPackDescriptor[];
+
+const worldQuantDrillAssessmentManifestV1 =
+  buildWorldQuantDrillAssessmentManifest(
+    worldQuantDrillAssessmentPacksV1,
+  );
+const worldQuantDrillAssessmentManifests = {
+  1: worldQuantDrillAssessmentManifestV1,
+  2: worldQuantDrillAssessmentManifestV1,
+} as const satisfies Record<
+  WorldQuantDrillCatalogVersion,
+  ReadonlyMap<string, WorldQuantDrillAssessmentDescriptor>
+>;
+
+export function worldQuantDrillAssessmentDescriptor(
+  id: string,
+  version: WorldQuantDrillCatalogVersion,
+) {
+  return (
+    worldQuantDrillAssessmentManifests[version].get(id) ?? null
+  );
+}
+
+export const worldQuantDrillPacks: readonly WorldQuantDrillPack[] = [
+  pack({
+    id: "modern-cpp-lifetime",
+    competency: "modern_cpp",
+    title: "Quyền sở hữu trong C++ hiện đại khi chịu tải",
+    summary:
+      "Luyện vòng đời, ràng buộc API và thiết kế không sao chép (zero-copy) mà không để view trỏ tới dữ liệu đã hết vòng đời (dangling view).",
+    conceptIds: [
+      "cpp-lifetime-ownership",
+      "cpp-types-templates",
+      "cpp-standards-idioms",
+    ],
+    sourceLabel: "Kho bài học C++",
     sourceHref: "/?deck=cpp-interview",
     practice: {
-      title: "Repair a dangling market event",
+      title: "Sửa sự kiện thị trường có view trỏ tới dữ liệu hết vòng đời",
       kind: "implement",
       language: "cpp",
       estimatedMinutes: 16,
       prompt:
-        "API decode trả string_view và span trỏ vào packet được truyền by value. Hãy sửa contract để lifetime rõ ràng, hạn chế copy trên hot path và giải thích invariant mà caller phải giữ.",
+        "API giải mã trả về string_view và span trỏ vào gói tin được truyền theo giá trị. Hãy sửa ràng buộc để vòng đời rõ ràng, hạn chế sao chép trên luồng xử lý cần hiệu năng cao (hot path) và giải thích bất biến mà bên gọi phải bảo đảm.",
       starterCode: `struct EventView {
   std::string_view symbol;
   std::span<const std::byte> payload;
@@ -73,150 +247,150 @@ export const worldQuantDrillPacks: readonly WorldQuantDrillPack[] = [
 
 EventView decode(std::vector<std::byte> packet);`,
       followUps: [
-        "Thiết kế thay đổi thế nào nếu event phải sống lâu hơn receive buffer?",
-        "Mày sẽ test và instrument lỗi lifetime này trong production ra sao?",
+        "Thiết kế thay đổi thế nào nếu sự kiện phải tồn tại lâu hơn bộ đệm nhận?",
+        "Bạn sẽ kiểm thử và đo lường lỗi vòng đời này trong hệ thống thực tế ra sao?",
       ],
       rubric: [
-        "Chỉ ra chính xác owner bị hủy khi decode trả về.",
-        "Contract biểu diễn owner hoặc lifetime dependency rõ ràng.",
-        "Nêu được trade-off owning result và borrowed view.",
-        "Có test boundary hoặc sanitizer phù hợp.",
+        "Chỉ ra chính xác đối tượng sở hữu bị hủy khi hàm giải mã trả về.",
+        "Ràng buộc biểu diễn rõ đối tượng sở hữu hoặc quan hệ phụ thuộc vòng đời.",
+        "Nêu được đánh đổi giữa kết quả sở hữu dữ liệu và view mượn dữ liệu.",
+        "Có kiểm thử tại ranh giới hoặc công cụ phát hiện lỗi (sanitizer) phù hợp.",
       ],
     },
     checkpoint: {
-      title: "Defend a zero-copy feed API",
+      title: "Bảo vệ thiết kế API nguồn dữ liệu không sao chép",
       kind: "design",
       language: "cpp",
       estimatedMinutes: 18,
       prompt:
-        "Thiết kế API C++20 cho decoder nhận ring-buffer slots tái sử dụng. Consumer có thể xử lý đồng bộ hoặc chuyển việc sang worker. Hãy trình bày types, ownership, backpressure và điều kiện zero-copy còn an toàn.",
+        "Thiết kế API C++20 cho bộ giải mã nhận các ô trong bộ đệm vòng (ring buffer) được tái sử dụng. Bên tiêu thụ có thể xử lý đồng bộ hoặc chuyển việc sang luồng xử lý. Hãy trình bày kiểu dữ liệu, quyền sở hữu, kiểm soát quá tải và điều kiện để không sao chép (zero-copy) vẫn an toàn.",
       starterCode: null,
       followUps: [
-        "Nếu worker chậm hơn producer thì API phải phản ứng thế nào?",
-        "Nếu nâng codebase từ C++11 lên C++20, mày rollout contract mới ra sao?",
+        "Nếu luồng xử lý chậm hơn bên tạo dữ liệu thì API phải phản ứng thế nào?",
+        "Nếu nâng mã nguồn từ C++11 lên C++20, bạn sẽ triển khai dần ràng buộc mới ra sao?",
       ],
       rubric: [
-        "Phân biệt lifetime synchronous và asynchronous.",
-        "Không giữ view sau khi slot được reuse nếu thiếu ownership token.",
-        "Có bounded backpressure hoặc copy fallback rõ ràng.",
-        "Nêu migration và compatibility strategy.",
+        "Phân biệt vòng đời đồng bộ và bất đồng bộ.",
+        "Không giữ view sau khi ô nhớ được tái sử dụng nếu thiếu thẻ quyền sở hữu.",
+        "Có cơ chế kiểm soát quá tải giới hạn hoặc phương án sao chép dự phòng rõ ràng.",
+        "Nêu chiến lược nâng cấp và tương thích.",
       ],
     },
     checkpointRetry: {
-      title: "Design a move-only batch handoff",
+      title: "Thiết kế cách bàn giao lô dữ liệu chỉ được di chuyển",
       kind: "design",
       language: "cpp",
       estimatedMinutes: 18,
       prompt:
-        "A C++20 parser builds EventBatch objects in a reusable std::pmr arena, then hands them to workers that may queue work beyond the current receive cycle. Design the public types and handoff protocol so ownership, allocator lifetime and cancellation are explicit without forcing one allocation per event.",
+        "Một bộ phân tích C++20 tạo các đối tượng EventBatch trong vùng nhớ std::pmr có thể tái sử dụng, rồi bàn giao cho các luồng có thể giữ công việc lâu hơn chu kỳ nhận hiện tại. Hãy thiết kế kiểu dữ liệu công khai và giao thức bàn giao để quyền sở hữu, vòng đời bộ cấp phát và việc hủy tác vụ đều rõ ràng mà không buộc phải cấp phát riêng cho từng sự kiện.",
       starterCode: null,
       followUps: [
-        "How would the contract change for a synchronous observer that never retains an event?",
-        "Which compile-time and runtime tests would catch accidental copies or arena reuse?",
+        "Ràng buộc sẽ thay đổi thế nào với một bên quan sát đồng bộ không bao giờ giữ lại sự kiện?",
+        "Kiểm thử nào tại thời điểm biên dịch và khi chạy có thể phát hiện việc vô tình sao chép hoặc tái sử dụng vùng nhớ?",
       ],
       rubric: [
-        "Separates owning batch state from non-owning event views.",
-        "Makes allocator and arena lifetime survive every asynchronous consumer.",
-        "Uses move-only or tokenized handoff with an explicit release point.",
-        "Explains cancellation, backpressure and tests for reuse or copy regressions.",
+        "Tách trạng thái lô sở hữu dữ liệu khỏi các view sự kiện không sở hữu dữ liệu.",
+        "Bảo đảm vòng đời bộ cấp phát và vùng nhớ kéo dài đủ cho mọi bên tiêu thụ bất đồng bộ.",
+        "Dùng cơ chế chỉ được di chuyển hoặc thẻ bàn giao với điểm giải phóng rõ ràng.",
+        "Giải thích việc hủy, kiểm soát quá tải và kiểm thử lỗi tái sử dụng hoặc sao chép.",
       ],
     },
   }),
   pack({
     id: "algorithms-streaming",
     competency: "algorithms_data_structures",
-    title: "Algorithms for market-data streams",
+    title: "Thuật toán cho luồng dữ liệu thị trường",
     summary:
-      "Chọn cấu trúc dữ liệu và chứng minh complexity dưới streaming workload.",
+      "Chọn cấu trúc dữ liệu và chứng minh độ phức tạp dưới tải xử lý luồng.",
     conceptIds: [
       "algorithms-complexity",
       "algorithms-containers",
       "algorithms-streaming",
     ],
-    sourceLabel: "C++ question bank",
+    sourceLabel: "Kho câu hỏi C++",
     sourceHref: "/?deck=cpp-interview",
     practice: {
-      title: "Rolling top-of-book window",
+      title: "Cửa sổ trượt cho mức giá tốt nhất",
       kind: "design",
       language: "cpp",
       estimatedMinutes: 15,
       prompt:
-        "Thiết kế cấu trúc giữ min, max và median spread trong cửa sổ 60 giây với tick đến theo timestamp. Nêu operations, complexity, memory bound và chính sách late data.",
+        "Thiết kế cấu trúc giữ chênh lệch giá nhỏ nhất, lớn nhất và trung vị trong cửa sổ 60 giây với tick đến theo dấu thời gian. Nêu các thao tác, độ phức tạp, giới hạn bộ nhớ và chính sách xử lý dữ liệu đến muộn.",
       starterCode: null,
       followUps: [
-        "Nếu throughput tăng 20 lần, bottleneck đầu tiên có thể nằm ở đâu?",
-        "Khi nào mày chọn approximate quantile thay vì exact median?",
+        "Nếu thông lượng tăng 20 lần, điểm nghẽn đầu tiên có thể nằm ở đâu?",
+        "Khi nào bạn chọn phân vị xấp xỉ thay vì trung vị chính xác?",
       ],
       rubric: [
-        "Mô tả eviction theo thời gian rõ ràng.",
-        "Chọn container phù hợp cho min/max và median.",
-        "Phân tích time và space complexity.",
-        "Có late/out-of-order policy deterministic.",
+        "Mô tả rõ cách loại dữ liệu cũ theo thời gian.",
+        "Chọn cấu trúc chứa (container) phù hợp cho giá trị nhỏ nhất, lớn nhất và trung vị.",
+        "Phân tích độ phức tạp thời gian và bộ nhớ.",
+        "Có chính sách xác định cho dữ liệu đến muộn hoặc sai thứ tự.",
       ],
     },
     checkpoint: {
-      title: "Bounded duplicate detector",
+      title: "Bộ phát hiện dữ liệu trùng có giới hạn",
       kind: "implement",
       language: "cpp",
       estimatedMinutes: 18,
       prompt:
-        "Feed có sequence 64-bit, duplicate có thể xuất hiện trong 1 triệu message gần nhất. Thiết kế duplicate detector bounded-memory, giải thích wrap/reset và chứng minh không biến gap thành duplicate.",
+        "Nguồn dữ liệu có số thứ tự 64-bit; dữ liệu trùng có thể xuất hiện trong một triệu thông điệp gần nhất. Hãy thiết kế bộ phát hiện dùng bộ nhớ có giới hạn, giải thích việc quay vòng/đặt lại và chứng minh khoảng thiếu không bị nhầm thành dữ liệu trùng.",
       starterCode: `class DuplicateWindow {
 public:
   bool seen_or_insert(std::uint64_t sequence);
   void reset(std::uint64_t snapshot_sequence);
 };`,
       followUps: [
-        "So sánh bitmap/ring với unordered_set cho workload này.",
-        "Mày benchmark detector mà không benchmark nhầm allocator như thế nào?",
+        "So sánh bitmap/ring với unordered_set cho tải này.",
+        "Bạn đo hiệu năng bộ phát hiện thế nào để không vô tình chỉ đo bộ cấp phát?",
       ],
       rubric: [
-        "State bị giới hạn theo window.",
-        "Phân biệt duplicate, old data và forward gap.",
-        "Reset/snapshot semantics rõ ràng.",
-        "Complexity và cache behavior được giải thích.",
+        "Trạng thái được giới hạn theo cửa sổ.",
+        "Phân biệt dữ liệu trùng, dữ liệu cũ và khoảng thiếu phía trước.",
+        "Ngữ nghĩa đặt lại và ảnh chụp trạng thái rõ ràng.",
+        "Độ phức tạp và hành vi bộ nhớ đệm được giải thích.",
       ],
     },
     checkpointRetry: {
-      title: "Rank hot symbols in one pass",
+      title: "Xếp hạng mã giao dịch nổi bật trong một lượt",
       kind: "design",
       language: "cpp",
       estimatedMinutes: 18,
       prompt:
-        "A feed contains tens of millions of trades and the symbol universe is too large to keep every counter. Design a bounded-memory streaming algorithm that reports the likely top 100 symbols by notional every minute, including error bounds, deterministic tie-breaking and late corrections.",
+        "Một nguồn dữ liệu chứa hàng chục triệu giao dịch và số lượng mã quá lớn để giữ mọi bộ đếm. Hãy thiết kế thuật toán xử lý luồng dùng bộ nhớ có giới hạn để báo cáo 100 mã có tổng giá trị giao dịch cao nhất mỗi phút, gồm giới hạn sai số, cách xử lý đồng hạng xác định và các điều chỉnh đến muộn.",
       starterCode: null,
       followUps: [
-        "When would an exact heap-and-map solution become preferable to a heavy-hitter sketch?",
-        "How would you merge results from partitions without overstating accuracy?",
+        "Khi nào giải pháp chính xác dùng heap và map phù hợp hơn thuật toán ước lượng phần tử xuất hiện nhiều?",
+        "Bạn sẽ gộp kết quả từ các phân vùng thế nào mà không phóng đại độ chính xác?",
       ],
       rubric: [
-        "Chooses an exact or approximate algorithm consistent with the stated memory bound.",
-        "States update, query and merge complexity.",
-        "Defines error guarantees and deterministic ranking semantics.",
-        "Handles window rollover, late corrections and partition aggregation explicitly.",
+        "Chọn thuật toán chính xác hoặc xấp xỉ phù hợp với giới hạn bộ nhớ đã nêu.",
+        "Nêu độ phức tạp khi cập nhật, truy vấn và gộp.",
+        "Xác định bảo đảm sai số và ngữ nghĩa xếp hạng có tính xác định.",
+        "Xử lý rõ việc chuyển cửa sổ, điều chỉnh đến muộn và tổng hợp phân vùng.",
       ],
     },
   }),
   pack({
     id: "concurrency-pipeline",
     competency: "concurrency_memory",
-    title: "Concurrent feed pipeline",
+    title: "Luồng xử lý dữ liệu đồng thời",
     summary:
-      "Reason về memory model, synchronization và overload thay vì chỉ chọn lock.",
+      "Lập luận về mô hình bộ nhớ, đồng bộ và quá tải thay vì chỉ chọn khóa.",
     conceptIds: [
       "concurrency-memory-model",
       "concurrency-synchronization",
       "concurrency-backpressure",
     ],
-    sourceLabel: "WorldQuant competency model",
+    sourceLabel: "Mô hình năng lực WorldQuant",
     sourceHref: "/worldquant",
     practice: {
-      title: "Diagnose a publication race",
+      title: "Chẩn đoán tranh chấp khi công bố dữ liệu",
       kind: "diagnose",
       language: "cpp",
       estimatedMinutes: 16,
       prompt:
-        "Producer ghi payload rồi publish index; consumer đôi lúc thấy index mới nhưng payload cũ. Hãy chỉ ra data race/happens-before bị thiếu và đề xuất contract atomics hoặc synchronization tối thiểu.",
+        "Bên tạo dữ liệu ghi nội dung rồi công bố chỉ mục; bên tiêu thụ đôi lúc thấy chỉ mục mới nhưng nội dung cũ. Hãy chỉ ra tranh chấp dữ liệu hoặc quan hệ thứ tự giữa thao tác (happens-before) còn thiếu và đề xuất ràng buộc nguyên tử hoặc đồng bộ tối thiểu.",
       starterCode: `payload[slot] = decoded;
 published.store(slot, std::memory_order_relaxed);
 
@@ -224,507 +398,507 @@ auto slot = published.load(std::memory_order_relaxed);
 consume(payload[slot]);`,
       followUps: [
         "Release/acquire ở đây bảo đảm điều gì và không bảo đảm điều gì?",
-        "Nếu có nhiều producer, thiết kế phải đổi ở đâu?",
+        "Nếu có nhiều bên tạo dữ liệu, thiết kế phải đổi ở đâu?",
       ],
       rubric: [
-        "Chỉ ra relaxed publication không tạo happens-before.",
-        "Đề xuất release/acquire hoặc primitive mạnh hơn đúng chỗ.",
-        "Xử lý slot reuse và ownership.",
-        "Không tuyên bố atomics tự giải quyết multi-producer protocol.",
+        "Chỉ ra phép công bố relaxed không tạo quan hệ thứ tự happens-before.",
+        "Đề xuất release/acquire hoặc cơ chế đồng bộ mạnh hơn đúng chỗ.",
+        "Xử lý việc tái sử dụng ô nhớ và quyền sở hữu.",
+        "Không cho rằng thao tác nguyên tử tự giải quyết được giao thức có nhiều bên tạo dữ liệu.",
       ],
     },
     checkpoint: {
-      title: "Design bounded fan-out",
+      title: "Thiết kế phân phối dữ liệu có giới hạn",
       kind: "design",
       language: "cpp",
       estimatedMinutes: 20,
       prompt:
-        "Một normalized tick phải đến ba consumer có tốc độ khác nhau. Thiết kế fan-out bounded, shutdown an toàn và overload policy mà không để consumer chậm phá latency của tất cả.",
+        "Một tick đã chuẩn hóa phải đến ba bên tiêu thụ có tốc độ khác nhau. Hãy thiết kế cách phân phối có giới hạn, dừng an toàn và chính sách quá tải mà không để bên chậm làm tăng độ trễ của tất cả.",
       starterCode: null,
       followUps: [
-        "Mày đo contention và false sharing ở đâu?",
-        "Khi drop dữ liệu, hệ thống chứng minh downstream state còn đúng bằng cách nào?",
+        "Bạn đo tranh chấp tài nguyên và chia sẻ giả (false sharing) ở đâu?",
+        "Khi loại bỏ dữ liệu, hệ thống chứng minh trạng thái phía sau vẫn đúng bằng cách nào?",
       ],
       rubric: [
-        "Nêu ownership của message giữa các consumer.",
-        "Queue và capacity có bound rõ.",
-        "Overload/drop/resync policy giữ correctness.",
-        "Shutdown không race và có observability.",
+        "Nêu quyền sở hữu thông điệp giữa các bên tiêu thụ.",
+        "Hàng đợi và sức chứa có giới hạn rõ.",
+        "Chính sách quá tải, loại bỏ và đồng bộ lại vẫn giữ tính đúng đắn.",
+        "Quá trình dừng không có tranh chấp và có thể quan sát được.",
       ],
     },
     checkpointRetry: {
-      title: "Close an ingestion queue without lost work",
+      title: "Đóng hàng đợi tiếp nhận mà không mất công việc",
       kind: "diagnose",
       language: "cpp",
       estimatedMinutes: 20,
       prompt:
-        "An MPSC ingestion queue occasionally hangs during shutdown: producers can still reserve slots while the consumer observes stop=true and exits. Diagnose the state-machine race and design a bounded close/drain protocol with clear memory-order and ownership guarantees.",
+        "Một hàng đợi tiếp nhận MPSC đôi lúc bị treo khi dừng: bên tạo dữ liệu vẫn có thể giữ chỗ trong khi bên tiêu thụ thấy stop=true và thoát. Hãy chẩn đoán tranh chấp trong máy trạng thái và thiết kế giao thức đóng/xử lý hết dữ liệu có giới hạn, với bảo đảm rõ ràng về thứ tự bộ nhớ và quyền sở hữu.",
       starterCode: null,
       followUps: [
-        "How do you prevent a producer that reserved but never published from blocking shutdown forever?",
-        "Which stress or model-based tests would distinguish lost wakeups from memory-order bugs?",
+        "Làm sao ngăn một bên tạo dữ liệu đã giữ chỗ nhưng chưa công bố khiến quá trình dừng bị chặn mãi?",
+        "Kiểm thử tải nặng hoặc dựa trên mô hình nào giúp phân biệt việc bỏ lỡ tín hiệu đánh thức với lỗi thứ tự bộ nhớ?",
       ],
       rubric: [
-        "Identifies the race between reservation, publication and stop observation.",
-        "Defines linearization points for close, publish and drain.",
-        "Uses synchronization and memory order with a stated happens-before argument.",
-        "Bounds shutdown and covers abandoned reservations, wakeups and observability.",
+        "Chỉ ra tranh chấp giữa việc giữ chỗ, công bố và quan sát tín hiệu dừng.",
+        "Xác định điểm tuyến tính hóa cho thao tác đóng, công bố và xử lý hết dữ liệu.",
+        "Dùng đồng bộ và thứ tự bộ nhớ kèm lập luận happens-before.",
+        "Giới hạn thời gian dừng và xử lý trường hợp bỏ chỗ đã giữ, đánh thức cùng khả năng quan sát.",
       ],
     },
   }),
   pack({
     id: "performance-latency",
     competency: "performance_latency",
-    title: "Latency evidence, not folklore",
+    title: "Độ trễ dựa trên bằng chứng",
     summary:
-      "Luyện measurement, cache/allocation và p99 capacity reasoning.",
+      "Luyện đo lường, bộ nhớ đệm/cấp phát và lập luận về năng lực xử lý ở p99.",
     conceptIds: [
       "performance-cache-allocation",
       "performance-profiling",
       "performance-capacity",
     ],
-    sourceLabel: "C++ performance lessons",
+    sourceLabel: "Bài học hiệu năng C++",
     sourceHref: "/?deck=cpp-interview",
     practice: {
-      title: "Explain a p99 regression",
+      title: "Giải thích lỗi tăng độ trễ p99",
       kind: "incident",
       language: "cpp",
       estimatedMinutes: 15,
       prompt:
-        "Sau release, median latency không đổi nhưng p99 tăng 4 lần khi market mở cửa. Hãy lập investigation tree, số liệu cần thu và experiment tách allocation, lock contention, I/O và batching.",
+        "Sau khi phát hành, độ trễ trung vị không đổi nhưng p99 tăng bốn lần khi thị trường mở cửa. Hãy lập cây điều tra, số liệu cần thu và thí nghiệm để tách ảnh hưởng của cấp phát, tranh chấp khóa, I/O và xử lý theo lô.",
       starterCode: null,
       followUps: [
-        "Làm sao tránh profiler làm thay đổi workload đang đo?",
-        "Khi rollback chữa được triệu chứng, bước ownership tiếp theo là gì?",
+        "Làm sao tránh công cụ phân tích làm thay đổi tải đang đo?",
+        "Khi quay lui khắc phục được triệu chứng, bước chịu trách nhiệm tiếp theo là gì?",
       ],
       rubric: [
-        "Phân biệt median và tail behavior.",
-        "Đặt giả thuyết có experiment bác bỏ được.",
-        "Dùng workload và baseline đại diện.",
-        "Có mitigation, rollback và follow-up.",
+        "Phân biệt độ trễ trung vị và độ trễ đuôi.",
+        "Đặt giả thuyết có thể bị bác bỏ bằng thí nghiệm.",
+        "Dùng tải và mốc so sánh có tính đại diện.",
+        "Có biện pháp giảm thiểu, quay lui và theo dõi tiếp.",
       ],
     },
     checkpoint: {
-      title: "Defend a batching change",
+      title: "Bảo vệ đề xuất xử lý theo lô",
       kind: "design",
       language: "cpp",
       estimatedMinutes: 18,
       prompt:
-        "Đề xuất batching 32 ticks để tăng throughput. Hãy xây performance model, benchmark plan và release guardrail để chứng minh lợi ích không phá latency SLA hoặc data ordering.",
+        "Đề xuất xử lý 32 tick mỗi lô để tăng thông lượng. Hãy xây mô hình hiệu năng, kế hoạch đo và hàng rào bảo vệ khi phát hành để chứng minh lợi ích không phá SLA độ trễ hoặc thứ tự dữ liệu.",
       starterCode: null,
       followUps: [
-        "Batch size nên cố định hay adaptive theo queue depth?",
-        "Những số liệu nào khiến mày hủy thay đổi dù throughput tăng?",
+        "Kích thước lô nên cố định hay tự điều chỉnh theo độ dài hàng đợi?",
+        "Những số liệu nào khiến bạn hủy thay đổi dù thông lượng tăng?",
       ],
       rubric: [
-        "Nêu throughput/latency trade-off định lượng.",
-        "Giữ ordering và timestamp semantics.",
-        "Benchmark có warm-up, distribution và realistic load.",
-        "Có canary, threshold và rollback.",
+        "Nêu định lượng đánh đổi giữa thông lượng và độ trễ.",
+        "Giữ thứ tự và ngữ nghĩa dấu thời gian.",
+        "Phép đo có giai đoạn làm nóng, phân bố kết quả và tải thực tế.",
+        "Có thử nghiệm giới hạn, ngưỡng quyết định và phương án quay lui.",
       ],
     },
     checkpointRetry: {
-      title: "Isolate a NUMA-sensitive latency spike",
+      title: "Cô lập đột biến độ trễ liên quan đến NUMA",
       kind: "incident",
       language: "cpp",
       estimatedMinutes: 18,
       prompt:
-        "After moving a feed process to a larger dual-socket host, throughput improves but p99 latency spikes only when a worker is rescheduled across sockets. Build a measurement and remediation plan covering NUMA placement, cache locality, allocation and misleading benchmark effects.",
+        "Sau khi chuyển tiến trình nguồn dữ liệu sang máy hai socket lớn hơn, thông lượng tăng nhưng độ trễ p99 chỉ đột biến khi luồng xử lý được chuyển giữa các socket. Hãy xây kế hoạch đo lường và khắc phục gồm bố trí NUMA, tính cục bộ của bộ nhớ đệm, cấp phát và những yếu tố có thể làm sai lệch phép đo.",
       starterCode: null,
       followUps: [
-        "What evidence would separate remote-memory access from lock contention?",
-        "How would you canary CPU pinning without hiding an underlying capacity problem?",
+        "Bằng chứng nào giúp phân biệt truy cập bộ nhớ từ xa với tranh chấp khóa?",
+        "Bạn sẽ thử nghiệm giới hạn việc ghim CPU thế nào mà không che giấu vấn đề năng lực xử lý bên dưới?",
       ],
       rubric: [
-        "Starts from per-thread latency, CPU placement and NUMA locality evidence.",
-        "Controls workload, frequency, warm-up and profiler overhead.",
-        "Separates allocation, migration, cache and synchronization hypotheses.",
-        "Defines a reversible mitigation with capacity and regression guardrails.",
+        "Bắt đầu từ độ trễ theo từng luồng, vị trí CPU và bằng chứng về tính cục bộ NUMA.",
+        "Kiểm soát tải, tần số, giai đoạn làm nóng và chi phí của công cụ phân tích.",
+        "Tách các giả thuyết về cấp phát, chuyển luồng, bộ nhớ đệm và đồng bộ.",
+        "Đề xuất biện pháp có thể hoàn tác cùng hàng rào bảo vệ về năng lực xử lý và lỗi tái phát.",
       ],
     },
   }),
   pack({
     id: "linux-network",
     competency: "linux_networking",
-    title: "Linux and feed-network triage",
+    title: "Chẩn đoán Linux và mạng truyền dữ liệu",
     summary:
-      "Chẩn đoán I/O, sockets và production evidence từ triệu chứng thực tế.",
+      "Chẩn đoán I/O, socket và bằng chứng từ hệ thống thực tế.",
     conceptIds: [
       "linux-process-io",
       "linux-network-protocols",
       "linux-observability",
     ],
-    sourceLabel: "WorldQuant systems track",
+    sourceLabel: "Lộ trình hệ thống WorldQuant",
     sourceHref: "/worldquant",
     practice: {
-      title: "Triage multicast packet loss",
+      title: "Phân loại nguyên nhân mất gói multicast",
       kind: "incident",
       language: "shell",
       estimatedMinutes: 16,
       prompt:
-        "Một host market-data báo sequence gaps lúc burst; host khác cùng feed không lỗi. Trình bày lệnh/số liệu Linux kiểm tra NIC, kernel drop, socket buffer, CPU scheduling và application queue theo thứ tự.",
+        "Một máy nhận dữ liệu thị trường báo thiếu số thứ tự khi lưu lượng tăng đột biến; máy khác cùng nguồn không lỗi. Hãy trình bày theo thứ tự các lệnh và số liệu Linux để kiểm tra NIC, gói bị loại trong kernel, bộ đệm socket, lập lịch CPU và hàng đợi ứng dụng.",
       starterCode: null,
       followUps: [
-        "Phân biệt packet mất trước NIC, trong kernel và trong app bằng evidence nào?",
-        "Tăng receive buffer có thể che hoặc tạo vấn đề gì?",
+        "Dùng bằng chứng nào để phân biệt gói bị mất trước NIC, trong kernel và trong ứng dụng?",
+        "Tăng bộ đệm nhận có thể che hoặc tạo vấn đề gì?",
       ],
       rubric: [
-        "Đi từ network/NIC đến kernel/socket rồi application.",
-        "Nêu counters hoặc tools cụ thể.",
-        "Không thay tuning trước khi có baseline.",
-        "Có cách tái hiện và xác nhận fix.",
+        "Đi từ mạng/NIC đến kernel/socket rồi ứng dụng.",
+        "Nêu bộ đếm hoặc công cụ cụ thể.",
+        "Không điều chỉnh cấu hình trước khi có mốc so sánh.",
+        "Có cách tái hiện và xác nhận bản sửa.",
       ],
     },
     checkpoint: {
-      title: "Non-blocking reconnect protocol",
+      title: "Giao thức kết nối lại không chặn",
       kind: "design",
       language: "cpp",
       estimatedMinutes: 18,
       prompt:
-        "Thiết kế client TCP non-blocking nhận snapshot và incremental updates. Bao gồm framing, partial read, timeout, reconnect, duplicate response và cách không publish state chưa đồng bộ.",
+        "Thiết kế chương trình TCP không chặn để nhận ảnh chụp trạng thái và các cập nhật tăng dần. Bao gồm phân khung thông điệp, đọc một phần, hết thời gian chờ, kết nối lại, phản hồi trùng và cách không công bố trạng thái chưa đồng bộ.",
       starterCode: null,
       followUps: [
-        "Edge-triggered epoll thay đổi read loop thế nào?",
-        "Nếu snapshot lớn hơn memory budget thì xử lý ra sao?",
+        "Epoll kích hoạt theo cạnh làm thay đổi vòng lặp đọc thế nào?",
+        "Nếu ảnh chụp trạng thái lớn hơn giới hạn bộ nhớ thì xử lý ra sao?",
       ],
       rubric: [
-        "Xử lý partial read/write và message framing.",
-        "State machine reconnect có timeout/backoff.",
-        "Snapshot/incremental boundary giữ consistency.",
-        "Có metrics cho disconnect, lag và parse failure.",
+        "Xử lý đọc/ghi một phần và phân khung thông điệp.",
+        "Máy trạng thái kết nối lại có thời gian chờ và khoảng nghỉ tăng dần.",
+        "Ranh giới giữa ảnh chụp trạng thái và cập nhật tăng dần giữ tính nhất quán.",
+        "Có số liệu cho mất kết nối, độ trễ và lỗi phân tích.",
       ],
     },
     checkpointRetry: {
-      title: "Diagnose an epoll busy loop",
+      title: "Chẩn đoán vòng lặp epoll chiếm CPU",
       kind: "incident",
       language: "cpp",
       estimatedMinutes: 18,
       prompt:
-        "A non-blocking feed process suddenly consumes one full core while ingest traffic is near zero. Logs show repeated epoll wakeups on connections that were recently closed and file descriptors are being reused. Diagnose the likely lifecycle bug and propose a safe event-loop contract.",
+        "Một tiến trình nhận dữ liệu không chặn đột nhiên dùng trọn một lõi CPU dù lưu lượng tiếp nhận gần bằng không. Nhật ký cho thấy epoll liên tục đánh thức trên các kết nối vừa đóng và bộ mô tả tệp (file descriptor) đang được tái sử dụng. Hãy chẩn đoán lỗi vòng đời có thể xảy ra và đề xuất ràng buộc an toàn cho vòng lặp sự kiện.",
       starterCode: null,
       followUps: [
-        "How do edge-triggered and level-triggered semantics change the investigation?",
-        "Which kernel and application observations prove the fix under reconnect churn?",
+        "Ngữ nghĩa kích hoạt theo cạnh và theo mức làm thay đổi cách điều tra thế nào?",
+        "Quan sát nào ở kernel và ứng dụng chứng minh bản sửa đúng khi kết nối lại liên tục?",
       ],
       rubric: [
-        "Checks readiness flags, drain loops, close ordering and descriptor reuse.",
-        "Associates events with connection generations instead of a bare file descriptor.",
-        "Handles EAGAIN, errors, half-close and deregistration explicitly.",
-        "Provides reproducible churn tests plus CPU, wakeup and stale-event metrics.",
+        "Kiểm tra cờ sẵn sàng, vòng lặp đọc hết dữ liệu, thứ tự đóng và việc tái sử dụng bộ mô tả.",
+        "Gắn sự kiện với thế hệ kết nối thay vì chỉ dùng bộ mô tả tệp.",
+        "Xử lý rõ EAGAIN, lỗi, đóng một chiều và hủy đăng ký.",
+        "Có kiểm thử kết nối/đóng lặp lại tái lập được cùng số liệu CPU, số lần đánh thức và sự kiện cũ.",
       ],
     },
   }),
   pack({
     id: "distributed-data",
     competency: "distributed_data_platform",
-    title: "Distributed tick-data platform",
+    title: "Nền tảng dữ liệu tick phân tán",
     summary:
-      "Partition, stream và migrate dữ liệu với idempotency cùng parity.",
+      "Phân vùng, xử lý luồng và chuyển đổi dữ liệu với tính lặp an toàn cùng khả năng đối chiếu tương đương.",
     conceptIds: [
       "distributed-partitioning",
       "distributed-streaming",
       "distributed-consistency",
     ],
-    sourceLabel: "Tick-data guide",
+    sourceLabel: "Hướng dẫn dữ liệu tick",
     sourceHref: "/learn/tick-data-order-book",
     practice: {
-      title: "Recover a hot partition",
+      title: "Khôi phục phân vùng quá tải",
       kind: "design",
       language: "cpp",
       estimatedMinutes: 17,
       prompt:
-        "Pipeline partition theo symbol nhưng một symbol chiếm 35% traffic. Hãy thiết kế mitigation giữ ordering per instrument, bounded state và replay được khi rebalance.",
+        "Luồng xử lý phân vùng theo mã giao dịch nhưng một mã chiếm 35% lưu lượng. Hãy thiết kế biện pháp giảm tải vẫn giữ thứ tự theo từng công cụ, trạng thái có giới hạn và khả năng phát lại khi cân bằng lại.",
       starterCode: null,
       followUps: [
-        "Nếu tách một symbol qua nhiều workers thì invariant nào bị phá?",
-        "Checkpoint và offset phải commit theo thứ tự nào?",
+        "Nếu tách một mã giao dịch qua nhiều luồng xử lý thì bất biến nào bị phá?",
+        "Điểm kiểm tra và vị trí đọc phải được ghi nhận theo thứ tự nào?",
       ],
       rubric: [
-        "Giữ ordering key rõ ràng.",
-        "Nêu trade-off repartition, isolate và scale-up.",
-        "Checkpoint/offset/state transition idempotent.",
-        "Có rollback hoặc replay plan.",
+        "Giữ khóa thứ tự rõ ràng.",
+        "Nêu đánh đổi giữa phân vùng lại, cô lập và tăng tài nguyên máy.",
+        "Chuyển trạng thái điểm kiểm tra/vị trí đọc có tính lặp an toàn.",
+        "Có kế hoạch quay lui hoặc phát lại.",
       ],
     },
     checkpoint: {
-      title: "Exactly-once is a claim to prove",
+      title: "Phải chứng minh tuyên bố xử lý đúng một lần",
       kind: "diagnose",
       language: "cpp",
       estimatedMinutes: 18,
       prompt:
-        "Team nói interval output là exactly-once vì consumer commit offset sau khi ghi DB. Phân tích failure windows, duplicate/missing outcomes và thiết kế idempotent contract thực tế.",
+        "Nhóm cho rằng đầu ra theo khoảng thời gian được xử lý đúng một lần vì bên tiêu thụ ghi nhận vị trí đọc sau khi ghi cơ sở dữ liệu. Hãy phân tích các khoảng lỗi, kết quả trùng/thiếu và thiết kế ràng buộc lặp an toàn trong thực tế.",
       starterCode: null,
       followUps: [
-        "Dedupe key và retention window được chọn thế nào?",
-        "Backfill chạy song song live stream cần namespace/version ra sao?",
+        "Khóa loại trùng và thời gian lưu được chọn thế nào?",
+        "Tác vụ bù dữ liệu chạy song song với luồng trực tiếp cần không gian tên và phiên bản ra sao?",
       ],
       rubric: [
-        "Liệt kê crash trước/sau write và trước/sau commit.",
-        "Không dùng exactly-once như khẩu hiệu.",
-        "Có idempotency key hoặc transactional boundary.",
-        "Backfill/live coexistence và audit rõ.",
+        "Liệt kê sự cố trước/sau khi ghi dữ liệu và trước/sau khi ghi nhận vị trí đọc.",
+        "Không dùng khái niệm xử lý đúng một lần như khẩu hiệu.",
+        "Có khóa lặp an toàn hoặc ranh giới giao dịch.",
+        "Cách tác vụ bù dữ liệu cùng tồn tại với luồng trực tiếp và việc kiểm toán đều rõ ràng.",
       ],
     },
     checkpointRetry: {
-      title: "Join a backfill to the live stream",
+      title: "Nối tác vụ bù dữ liệu vào luồng trực tiếp",
       kind: "design",
       language: "cpp",
       estimatedMinutes: 19,
       prompt:
-        "A year-long tick backfill must populate a new feature store while live ingestion continues. Design partition ownership, watermarks and the handoff from historical to live processing so every key has an auditable, deterministic result without pausing production.",
+        "Một tác vụ bù dữ liệu tick trong một năm phải ghi vào kho đặc trưng mới trong khi việc tiếp nhận trực tiếp vẫn diễn ra. Hãy thiết kế quyền sở hữu phân vùng, mốc thời gian và cách bàn giao từ xử lý dữ liệu lịch sử sang dữ liệu trực tiếp để mọi khóa đều có kết quả xác định, kiểm toán được mà không dừng hệ thống.",
       starterCode: null,
       followUps: [
-        "How do you recover if a partition fails after publishing output but before its handoff marker?",
-        "What changes when corrections can arrive for dates already declared complete?",
+        "Bạn khôi phục thế nào nếu một phân vùng lỗi sau khi công bố đầu ra nhưng trước khi ghi dấu bàn giao?",
+        "Thiết kế thay đổi thế nào khi dữ liệu điều chỉnh có thể đến cho những ngày đã được đánh dấu hoàn tất?",
       ],
       rubric: [
-        "Defines per-key ordering and an explicit historical/live boundary.",
-        "Uses idempotent output identity and restartable checkpoints.",
-        "Prevents concurrent writers from silently owning the same range.",
-        "Covers corrections, audit lineage, validation and rollback.",
+        "Xác định thứ tự theo từng khóa và ranh giới rõ giữa dữ liệu lịch sử với dữ liệu trực tiếp.",
+        "Dùng định danh đầu ra lặp an toàn và điểm kiểm tra có thể khởi động lại.",
+        "Ngăn nhiều bên ghi đồng thời âm thầm sở hữu cùng một phạm vi.",
+        "Bao quát dữ liệu điều chỉnh, nguồn gốc kiểm toán, kiểm tra hợp lệ và quay lui.",
       ],
     },
   }),
   pack({
     id: "tick-market-data",
     competency: "tick_market_data",
-    title: "Tick and order-book correctness",
+    title: "Tính đúng đắn của dữ liệu tick và sổ lệnh",
     summary:
-      "Feed integrity, book state và interval features đi qua replay deterministic.",
+      "Tính toàn vẹn nguồn dữ liệu, trạng thái sổ lệnh và đặc trưng theo khoảng thời gian được kiểm chứng bằng phát lại xác định.",
     conceptIds: [
       "tick-feed-integrity",
       "tick-order-book",
       "tick-interval-features",
     ],
-    sourceLabel: "Tick data & order-book guide",
+    sourceLabel: "Hướng dẫn dữ liệu tick và sổ lệnh",
     sourceHref: "/learn/tick-data-order-book",
     practice: {
-      title: "Repair an L2 book update path",
+      title: "Sửa luồng cập nhật sổ lệnh L2",
       kind: "implement",
       language: "cpp",
       estimatedMinutes: 20,
       prompt:
-        "Hoàn thiện apply cho L2 book: reject gap, ignore duplicate, quantity=0 xóa level và giữ best bid < best ask. Giải thích khi nào phải invalidate book và xin snapshot.",
+        "Hoàn thiện hàm apply cho sổ lệnh L2: từ chối khoảng thiếu, bỏ qua dữ liệu trùng, quantity=0 thì xóa mức giá và giữ giá mua tốt nhất nhỏ hơn giá bán tốt nhất. Giải thích khi nào phải vô hiệu hóa sổ lệnh và yêu cầu ảnh chụp trạng thái.",
       starterCode: `bool OrderBook::apply(const LevelUpdate& update) {
   // TODO: sequence, insert/update/delete and invariants.
 }`,
       followUps: [
-        "Crossed book có luôn là lỗi local không?",
-        "Mày replay fixture nào để chứng minh state deterministic?",
+        "Sổ lệnh bị giao cắt có luôn là lỗi trên thiết bị không?",
+        "Bạn phát lại bộ dữ liệu kiểm thử nào để chứng minh trạng thái có tính xác định?",
       ],
       rubric: [
-        "Sequence transition phân biệt duplicate và gap.",
-        "Insert/update/delete đúng theo side.",
-        "Invariant book được kiểm tra mà không che feed event hợp lệ.",
-        "Có resync và deterministic replay.",
+        "Chuyển số thứ tự phân biệt dữ liệu trùng và khoảng thiếu.",
+        "Thêm, cập nhật và xóa đúng theo bên mua/bán.",
+        "Bất biến của sổ lệnh được kiểm tra mà không che sự kiện nguồn hợp lệ.",
+        "Có đồng bộ lại và phát lại xác định.",
       ],
     },
     checkpoint: {
-      title: "Migrate interval features without alpha drift",
+      title: "Chuyển đổi đặc trưng theo khoảng thời gian mà không làm lệch alpha",
       kind: "design",
       language: "cpp",
       estimatedMinutes: 20,
       prompt:
-        "Legacy và platform mới lệch VWAP ở 0.02% intervals. Hãy điều tra semantics, precision, missing data và event ordering; sau đó thiết kế parity gate, cutover và rollback.",
+        "Hệ thống cũ và nền tảng mới lệch VWAP ở 0,02% số khoảng thời gian. Hãy điều tra ngữ nghĩa, độ chính xác, dữ liệu thiếu và thứ tự sự kiện; sau đó thiết kế cổng đối chiếu tương đương, chuyển đổi chính thức và quay lui.",
       starterCode: null,
       followUps: [
-        "Tolerance nào là kỹ thuật, tolerance nào cần researcher sign-off?",
-        "Nếu legacy có bug mà signals phụ thuộc bug đó thì xử lý thế nào?",
+        "Ngưỡng sai số nào thuộc quyết định kỹ thuật, ngưỡng nào cần nhà nghiên cứu xác nhận?",
+        "Nếu hệ thống cũ có lỗi nhưng tín hiệu lại phụ thuộc vào lỗi đó thì xử lý thế nào?",
       ],
       rubric: [
-        "So sánh input identity trước output.",
-        "Kiểm tra ordering, boundary, missingness và precision.",
-        "Tolerance có owner và rationale.",
-        "Cutover/rollback bảo vệ researchers.",
+        "So sánh tính đồng nhất của đầu vào trước khi so đầu ra.",
+        "Kiểm tra thứ tự, ranh giới, dữ liệu thiếu và độ chính xác.",
+        "Ngưỡng sai số có người chịu trách nhiệm và lý do rõ ràng.",
+        "Chuyển giao/quay lui bảo vệ công việc của nhà nghiên cứu.",
       ],
     },
     checkpointRetry: {
-      title: "Recover an order book after channel failover",
+      title: "Khôi phục sổ lệnh sau khi chuyển kênh dự phòng",
       kind: "incident",
       language: "cpp",
       estimatedMinutes: 20,
       prompt:
-        "Primary and backup market-data channels overlap during failover. The backup starts from an older sequence, a later snapshot has a different book epoch, and several trades arrive between snapshot request and response. Design the reconciliation state machine before the book is republished.",
+        "Kênh dữ liệu thị trường chính và dự phòng bị chồng lấn khi chuyển kênh. Kênh dự phòng bắt đầu từ số thứ tự cũ hơn, ảnh chụp trạng thái sau đó thuộc một phiên sổ lệnh khác và nhiều giao dịch đến giữa lúc yêu cầu với lúc nhận ảnh chụp. Hãy thiết kế máy trạng thái đối soát trước khi công bố lại sổ lệnh.",
       starterCode: null,
       followUps: [
-        "Which identifiers let you distinguish a duplicate packet from a new feed epoch?",
-        "How would deterministic replay prove that no stale book escaped during failover?",
+        "Định danh nào giúp phân biệt gói tin trùng với một phiên nguồn dữ liệu mới?",
+        "Phát lại xác định sẽ chứng minh thế nào rằng không có sổ lệnh cũ nào được công bố trong lúc chuyển kênh?",
       ],
       rubric: [
-        "Separates channel sequence, snapshot epoch and instrument state.",
-        "Buffers or rejects incrementals around the snapshot boundary deterministically.",
-        "Publishes only after continuity and book invariants are re-established.",
-        "Includes bounded buffering, timeout, replay evidence and resync metrics.",
+        "Tách số thứ tự kênh, phiên ảnh chụp trạng thái và trạng thái công cụ.",
+        "Lưu đệm hoặc từ chối các cập nhật quanh ranh giới ảnh chụp theo cách xác định.",
+        "Chỉ công bố sau khi khôi phục tính liên tục và các bất biến của sổ lệnh.",
+        "Có bộ đệm giới hạn, thời gian chờ, bằng chứng phát lại và số liệu đồng bộ lại.",
       ],
     },
   }),
   pack({
     id: "build-delivery",
     competency: "build_delivery",
-    title: "CMake, tests and delivery",
+    title: "CMake, kiểm thử và phát hành",
     summary:
-      "Target graph tới sanitizer, CI gate và rollback có thể lặp lại.",
+      "Đồ thị target, công cụ phát hiện lỗi (sanitizer), điều kiện kiểm soát CI và phương án quay lui có thể tái lập.",
     conceptIds: [
       "build-target-cmake",
       "build-test-sanitizer",
       "build-ci-release",
     ],
-    sourceLabel: "CMake learning guide",
+    sourceLabel: "Hướng dẫn học CMake",
     sourceHref: "/learn/cmake",
     practice: {
-      title: "Build a target-based test graph",
+      title: "Xây đồ thị kiểm thử theo target",
       kind: "implement",
       language: "cmake",
       estimatedMinutes: 18,
       prompt:
-        "Viết CMakeLists tạo library feed_decoder, test executable, usage requirements đúng scope, C++20 và CTest. Không dùng global include_directories hay CXX_FLAGS.",
+        "Viết CMakeLists tạo thư viện feed_decoder, chương trình kiểm thử, yêu cầu sử dụng đúng phạm vi, C++20 và CTest. Không dùng include_directories hoặc CXX_FLAGS toàn cục.",
       starterCode: `cmake_minimum_required(VERSION 3.25)
 project(feed LANGUAGES CXX)
 
 # TODO`,
       followUps: [
-        "Thêm ASan/UBSan opt-in mà không leak flags sang consumers thế nào?",
-        "Package/install interface khác build interface ở đâu?",
+        "Thêm tùy chọn bật ASan/UBSan mà không làm rò cờ sang các target sử dụng thế nào?",
+        "Giao diện khi đóng gói hoặc cài đặt khác giao diện trong thư mục dựng dự án (build tree) ở đâu?",
       ],
       rubric: [
-        "Library và test là target riêng.",
+        "Thư viện và chương trình kiểm thử là các target riêng.",
         "Include/link scope PUBLIC/PRIVATE hợp lý.",
-        "C++ standard là target property.",
-        "CTest và sanitizer option không dùng global flags.",
+        "Chuẩn C++ là thuộc tính của target.",
+        "Tùy chọn CTest và sanitizer không dùng cờ toàn cục.",
       ],
     },
     checkpoint: {
-      title: "Design a reproducible migration pipeline",
+      title: "Thiết kế quy trình chuyển đổi có thể tái lập",
       kind: "design",
       language: "cmake",
       estimatedMinutes: 18,
       prompt:
-        "Legacy build dùng shell scripts và machine-local paths. Thiết kế migration sang CMake/Ninja với dependency pinning, CI matrix, artifact provenance và rollback mà vẫn ship đều.",
+        "Hệ thống dựng cũ dùng tập lệnh shell và đường dẫn riêng trên từng máy. Hãy thiết kế việc chuyển sang CMake/Ninja với phiên bản phụ thuộc được cố định, ma trận CI, nguồn gốc sản phẩm được tạo khi dựng và phương án quay lui mà vẫn phát hành đều.",
       starterCode: null,
       followUps: [
-        "Mày chứng minh old/new binaries tương đương ở mức nào?",
-        "Khi compiler upgrade đổi floating-point output, gate xử lý ra sao?",
+        "Bạn chứng minh chương trình cũ và mới tương đương ở mức nào?",
+        "Khi nâng trình biên dịch làm đổi kết quả số thực, cổng kiểm tra xử lý ra sao?",
       ],
       rubric: [
-        "Migration incremental có compatibility boundary.",
-        "Dependency/toolchain được pin và trace.",
-        "CI kiểm tra build, test, sanitizer và artifact.",
-        "Có parity evidence và rollback.",
+        "Chuyển đổi từng bước có ranh giới tương thích.",
+        "Phiên bản phụ thuộc và bộ công cụ được cố định, truy vết được.",
+        "CI kiểm tra quá trình dựng, kiểm thử, sanitizer và sản phẩm tạo ra.",
+        "Có bằng chứng tương đương và phương án quay lui.",
       ],
     },
     checkpointRetry: {
-      title: "Make generated headers hermetic",
+      title: "Tạo header sinh tự động có đầu vào khép kín",
       kind: "implement",
       language: "cmake",
       estimatedMinutes: 18,
       prompt:
-        "A schema compiler generates C++ headers, but parallel Ninja builds intermittently compile stale files and installed packages expose build-tree paths. Design the target-based CMake graph for generation, consumption, testing and install/export without configure-time shell side effects.",
+        "Một trình biên dịch schema sinh header C++, nhưng Ninja khi dựng song song đôi lúc dùng tệp cũ và gói đã cài đặt lại làm lộ đường dẫn thuộc thư mục dựng dự án (build tree). Hãy thiết kế đồ thị target CMake cho việc sinh, sử dụng, kiểm thử và cài đặt hoặc xuất gói mà không tạo tác dụng phụ từ lệnh shell ở bước cấu hình.",
       starterCode: `add_custom_command(
   OUTPUT "\${CMAKE_CURRENT_BINARY_DIR}/generated/feed_schema.hpp"
   # TODO: command, dependencies and byproducts
 )`,
       followUps: [
-        "How do depfiles or BYPRODUCTS affect incremental correctness across generators?",
-        "How would consumers find the generated header after installation?",
+        "Depfile hoặc BYPRODUCTS ảnh hưởng thế nào đến tính đúng đắn của quá trình dựng tăng dần trên các trình tạo khác nhau?",
+        "Các target sử dụng sẽ tìm header đã sinh ở đâu sau khi cài đặt?",
       ],
       rubric: [
-        "Models generated outputs and all schema/tool dependencies explicitly.",
-        "Connects generation to consuming targets without a global ordering hack.",
-        "Separates build-tree and install-tree include interfaces.",
-        "Tests clean, incremental, parallel and packaged builds reproducibly.",
+        "Mô hình hóa rõ đầu ra được sinh cùng mọi phụ thuộc vào schema và công cụ.",
+        "Nối bước sinh với target sử dụng mà không dùng mẹo thứ tự toàn cục.",
+        "Tách giao diện include giữa thư mục dựng dự án (build tree) và thư mục cài đặt (install tree).",
+        "Kiểm thử tái lập được cho quá trình dựng sạch, tăng dần, song song và sau đóng gói.",
       ],
     },
   }),
   pack({
     id: "scripting-reconciliation",
     competency: "scripting_automation",
-    title: "Python, Perl and reconciliation",
+    title: "Python, Perl và đối soát",
     summary:
-      "Automation bounded-memory, resume được và thay legacy script an toàn.",
+      "Tự động hóa dùng bộ nhớ có giới hạn, có thể tiếp tục và thay thế tập lệnh cũ an toàn.",
     conceptIds: [
       "scripting-python-data",
       "scripting-perl-legacy",
       "scripting-reconciliation",
     ],
-    sourceLabel: "Python lesson bank",
+    sourceLabel: "Kho bài học Python",
     sourceHref: "/?deck=python-interview",
     practice: {
-      title: "Stream a parity report",
+      title: "Tạo báo cáo đối chiếu theo luồng",
       kind: "implement",
       language: "python",
       estimatedMinutes: 17,
       prompt:
-        "Thiết kế Python tool so sánh hai file interval đã sort theo key, không load toàn bộ vào RAM. Report mismatch có tolerance theo field, resume token và exit code dùng được trong CI.",
+        "Thiết kế công cụ Python so sánh hai tệp dữ liệu theo khoảng thời gian đã sắp xếp theo khóa mà không nạp toàn bộ vào RAM. Báo cáo chênh lệch có ngưỡng sai số theo trường, mã tiếp tục và mã thoát dùng được trong CI.",
       starterCode: `def compare_streams(legacy_path, modern_path, policy):
     # TODO: bounded-memory merge and report
     pass`,
       followUps: [
-        "Nếu một bên thiếu key, cursor của hai stream tiến thế nào?",
-        "Mày test NaN, signed zero và timestamp boundary ra sao?",
+        "Nếu một bên thiếu khóa, vị trí đọc của hai luồng tiến thế nào?",
+        "Bạn kiểm thử NaN, số không có dấu âm và ranh giới dấu thời gian ra sao?",
       ],
       rubric: [
-        "Dùng streaming merge bounded-memory.",
-        "Phân biệt missing row và field mismatch.",
-        "Tolerance policy explicit và versioned.",
-        "Resume/audit/CI exit semantics rõ.",
+        "Dùng phép gộp theo luồng với bộ nhớ có giới hạn.",
+        "Phân biệt hàng bị thiếu và trường bị chênh lệch.",
+        "Chính sách ngưỡng sai số rõ ràng và có phiên bản.",
+        "Ngữ nghĩa tiếp tục, kiểm toán và mã thoát CI rõ ràng.",
       ],
     },
     checkpoint: {
-      title: "Retire a fragile Perl backfill",
+      title: "Thay thế tác vụ bù dữ liệu Perl thiếu ổn định",
       kind: "design",
       language: "python",
       estimatedMinutes: 18,
       prompt:
-        "Một Perl script không test đang backfill datasets production. Lập kế hoạch hiểu behavior, characterization tests, Python replacement, dual-run và cutover không mất audit history.",
+        "Một tập lệnh Perl chưa có kiểm thử đang bù dữ liệu cho các tập dữ liệu thực tế. Hãy lập kế hoạch tìm hiểu hành vi, viết kiểm thử ghi nhận hành vi hiện tại, thay bằng Python, chạy đối chiếu hai phiên bản và chuyển đổi chính thức mà không mất lịch sử kiểm toán.",
       starterCode: null,
       followUps: [
-        "Behavior nào phải giữ dù code nhìn có vẻ sai?",
-        "Nếu dual-run quá đắt, mày chọn sample và risk gate thế nào?",
+        "Hành vi nào phải giữ dù mã nguồn có vẻ sai?",
+        "Nếu chạy đối chiếu hai phiên bản quá tốn kém, bạn chọn mẫu và cổng kiểm soát rủi ro thế nào?",
       ],
       rubric: [
-        "Characterize behavior trước rewrite.",
-        "Golden fixtures và edge cases có nguồn.",
-        "Dual-run/sample strategy định lượng risk.",
-        "Cutover, rollback và audit ownership rõ.",
+        "Mô tả hành vi hiện tại trước khi viết lại.",
+        "Bộ dữ liệu chuẩn và trường hợp biên có nguồn rõ ràng.",
+        "Chiến lược chạy đối chiếu/lấy mẫu định lượng được rủi ro.",
+        "Chuyển đổi chính thức, quay lui và trách nhiệm kiểm toán rõ ràng.",
       ],
     },
     checkpointRetry: {
-      title: "Build a crash-safe resumable transform",
+      title: "Xây tác vụ chuyển đổi có thể tiếp tục an toàn sau sự cố",
       kind: "implement",
       language: "python",
       estimatedMinutes: 18,
       prompt:
-        "A Python migration rewrites thousands of compressed daily files to a new schema and may be killed at any point. Design bounded-memory processing, atomic publication, resumable checkpoints and an audit manifest so retries cannot mix partial and complete outputs.",
+        "Một tác vụ chuyển đổi Python viết lại hàng nghìn tệp nén hằng ngày theo schema mới và có thể bị dừng ở bất kỳ lúc nào. Hãy thiết kế xử lý với bộ nhớ có giới hạn, công bố nguyên tử, điểm kiểm tra có thể tiếp tục và bản kê kiểm toán để lần chạy lại không trộn đầu ra dở dang với đầu ra hoàn tất.",
       starterCode: `def migrate_file(source, destination, checkpoint_store):
-    # TODO: stream, validate and publish atomically
+    # TODO: xử lý theo luồng, kiểm tra và công bố nguyên tử
     pass`,
       followUps: [
-        "How do you resume safely when the process dies after rename but before checkpoint commit?",
-        "How would you parallelize by date without two workers publishing the same output?",
+        "Bạn tiếp tục an toàn thế nào khi tiến trình dừng sau lúc đổi tên nhưng trước khi ghi nhận điểm kiểm tra?",
+        "Bạn xử lý song song theo ngày thế nào để hai tiến trình không công bố cùng một đầu ra?",
       ],
       rubric: [
-        "Streams records without loading an entire day into memory.",
-        "Uses temporary output, validation and atomic publication.",
-        "Makes checkpoints and output identity idempotent across every crash window.",
-        "Defines worker ownership, audit metadata, failure reporting and cleanup.",
+        "Xử lý bản ghi theo luồng mà không nạp cả ngày vào bộ nhớ.",
+        "Dùng đầu ra tạm, kiểm tra hợp lệ và công bố nguyên tử.",
+        "Bảo đảm điểm kiểm tra và định danh đầu ra có tính lặp an toàn trong mọi khoảng xảy ra sự cố.",
+        "Xác định quyền sở hữu tiến trình, siêu dữ liệu kiểm toán, báo lỗi và dọn dẹp.",
       ],
     },
   }),
   pack({
     id: "ownership-communication",
     competency: "ownership_communication",
-    title: "Ownership with researchers",
+    title: "Chủ động phối hợp với nhà nghiên cứu",
     summary:
-      "Làm rõ yêu cầu, điều tra incident và giao tiếp English qua time zones.",
+      "Làm rõ yêu cầu, điều tra sự cố và giao tiếp bằng tiếng Anh khi làm việc khác múi giờ.",
     conceptIds: [
       "ownership-requirements",
       "ownership-incidents",
       "ownership-english",
     ],
-    sourceLabel: "WorldQuant JD competency",
+    sourceLabel: "Năng lực theo mô tả công việc WorldQuant",
     sourceHref: "/worldquant",
     practice: {
-      title: "Resolve an ambiguous feature change",
+      title: "Xử lý yêu cầu thay đổi còn mơ hồ",
       kind: "incident",
       language: "english",
       estimatedMinutes: 14,
@@ -743,7 +917,7 @@ project(feed LANGUAGES CXX)
       ],
     },
     checkpoint: {
-      title: "Defend a risky cutover in English",
+      title: "Bảo vệ kế hoạch chuyển đổi chính thức có rủi ro bằng tiếng Anh",
       kind: "design",
       language: "english",
       estimatedMinutes: 16,
@@ -762,7 +936,7 @@ project(feed LANGUAGES CXX)
       ],
     },
     checkpointRetry: {
-      title: "Lead a cross-time-zone incident handoff",
+      title: "Bàn giao sự cố giữa các múi giờ",
       kind: "incident",
       language: "english",
       estimatedMinutes: 16,
@@ -814,6 +988,45 @@ export function curriculumDrillEvidence(): CurriculumDrillEvidence[] {
   }));
 }
 
+function buildWorldQuantDrillAssessmentManifest(
+  packs: readonly WorldQuantDrillAssessmentPackDescriptor[],
+) {
+  return new Map<string, WorldQuantDrillAssessmentDescriptor>(
+    packs.flatMap((packDescriptor) => [
+      [
+        `${packDescriptor.id}-practice`,
+        {
+          id: `${packDescriptor.id}-practice`,
+          variant: "practice" as const,
+          competency: packDescriptor.competency,
+          conceptIds: packDescriptor.conceptIds,
+          rubricTotal: packDescriptor.rubricTotals[0],
+        },
+      ],
+      [
+        `${packDescriptor.id}-checkpoint`,
+        {
+          id: `${packDescriptor.id}-checkpoint`,
+          variant: "checkpoint" as const,
+          competency: packDescriptor.competency,
+          conceptIds: packDescriptor.conceptIds,
+          rubricTotal: packDescriptor.rubricTotals[1],
+        },
+      ],
+      [
+        `${packDescriptor.id}-checkpoint-retry`,
+        {
+          id: `${packDescriptor.id}-checkpoint-retry`,
+          variant: "checkpoint" as const,
+          competency: packDescriptor.competency,
+          conceptIds: packDescriptor.conceptIds,
+          rubricTotal: packDescriptor.rubricTotals[2],
+        },
+      ],
+    ]),
+  );
+}
+
 function pack(input: {
   id: string;
   competency: WorldQuantCompetencyKey;
@@ -828,7 +1041,7 @@ function pack(input: {
 }): WorldQuantDrillPack {
   return {
     id: input.id,
-    version: 1,
+    version: WORLDQUANT_DRILL_CATALOG_VERSION,
     competency: input.competency,
     title: input.title,
     summary: input.summary,
@@ -884,7 +1097,7 @@ function drill(
 ): WorldQuantDrill {
   return {
     id,
-    version: 1,
+    version: WORLDQUANT_DRILL_CATALOG_VERSION,
     variant,
     competency,
     conceptIds,

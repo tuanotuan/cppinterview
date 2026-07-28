@@ -103,7 +103,7 @@ export const coachFollowUpRequestSchema = z
       context.addIssue({
         code: "custom",
         path: ["messages"],
-        message: "The last follow-up message must be from the user.",
+        message: "Tin nhắn bổ sung cuối cùng phải do người dùng gửi.",
       });
     }
 
@@ -113,7 +113,7 @@ export const coachFollowUpRequestSchema = z
         context.addIssue({
           code: "custom",
           path: ["messages", index, "role"],
-          message: `Expected ${expectedRole} at message ${index}.`,
+          message: `Tin nhắn ${index} phải có vai trò ${expectedRole}.`,
         });
       }
     });
@@ -152,7 +152,7 @@ export const coachFeedbackJsonSchema = {
       type: "integer",
       minimum: 0,
       maximum: 100,
-      description: "Overall interview answer score from 0 to 100.",
+      description: "Điểm tổng thể của câu trả lời phỏng vấn, từ 0 đến 100.",
     },
     verdict: {
       type: "string",

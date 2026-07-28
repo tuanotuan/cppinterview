@@ -148,6 +148,18 @@ const sessionSchema = z
   });
 
 export type MockInterviewSession = z.infer<typeof sessionSchema>;
+const HISTORICAL_COMPLETED_PROFILE_VERSIONS = [3, 4] as const;
+type HistoricalCompletedProfileVersion =
+  | (typeof HISTORICAL_COMPLETED_PROFILE_VERSIONS)[number]
+  | typeof WORLDQUANT_PROFILE_VERSION;
+export type CompletedMockInterviewSessionHistory = Omit<
+  MockInterviewSession,
+  "profileVersion" | "status" | "report"
+> & {
+  profileVersion: HistoricalCompletedProfileVersion;
+  status: "completed";
+  report: NonNullable<MockInterviewSession["report"]>;
+};
 
 export function createMockInterviewSession({
   sessionId,
@@ -212,6 +224,45 @@ export function parseMockInterviewSession(raw: string | null) {
   if (!raw) return null;
   try {
     return sessionSchema.parse(JSON.parse(raw));
+  } catch {
+    return null;
+  }
+}
+
+export function parseCompletedMockInterviewSessionHistory(
+  raw: string | null,
+): CompletedMockInterviewSessionHistory | null {
+  if (!raw) return null;
+  try {
+    const stored = JSON.parse(raw) as Record<string, unknown>;
+    const profileVersion = stored.profileVersion;
+    if (
+      stored.status !== "completed" ||
+      typeof profileVersion !== "number" ||
+      (!HISTORICAL_COMPLETED_PROFILE_VERSIONS.includes(
+        profileVersion as (typeof HISTORICAL_COMPLETED_PROFILE_VERSIONS)[number],
+      ) &&
+        profileVersion !== WORLDQUANT_PROFILE_VERSION)
+    ) {
+      return null;
+    }
+    const parsed = sessionSchema.safeParse({
+      ...stored,
+      profileVersion: WORLDQUANT_PROFILE_VERSION,
+    });
+    if (
+      !parsed.success ||
+      parsed.data.status !== "completed" ||
+      !parsed.data.report
+    ) {
+      return null;
+    }
+    return {
+      ...parsed.data,
+      profileVersion: profileVersion as HistoricalCompletedProfileVersion,
+      status: "completed",
+      report: parsed.data.report,
+    };
   } catch {
     return null;
   }

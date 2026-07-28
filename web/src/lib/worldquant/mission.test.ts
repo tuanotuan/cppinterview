@@ -85,7 +85,7 @@ describe("Today's WorldQuant Mission", () => {
     const contentGap = mission.items.find(
       (item) => item.kind === "content_gap",
     );
-    expect(contentGap?.reason).toContain("content gap");
+    expect(contentGap?.reason).toContain("phần học liệu còn thiếu");
     expect(contentGap).toHaveProperty("href");
   });
 
@@ -289,7 +289,7 @@ describe("Today's WorldQuant Mission", () => {
           attemptId:
             "30000000-0000-4000-8000-000000000004",
           drillId: drillPack.checkpoint.id,
-          drillVersion: 1,
+          drillVersion: drillPack.checkpoint.version,
           variant: "checkpoint",
           competency: "modern_cpp",
           conceptIds: [...drillPack.checkpoint.conceptIds],

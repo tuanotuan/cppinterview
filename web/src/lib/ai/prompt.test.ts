@@ -183,11 +183,11 @@ describe("AI coach contract", () => {
     expect(grading).toContain("phỏng vấn Python");
     expect(followUp).toContain("ví dụ Python ngắn");
     expect(buildCoachSystemInstruction(lesson, "evaluate")).toContain(
-      "senior Python interviewer",
+      "người phỏng vấn Python giàu kinh nghiệm",
     );
   });
 
-  it("uses CMake/build-system terminology for grading and follow-ups", () => {
+  it("uses clear CMake terminology for grading and follow-ups", () => {
     const question = manifest.questions[0];
     const sourceLesson = manifest.lessons.find(
       (item) => item.id === question.lessonId,
@@ -211,10 +211,10 @@ describe("AI coach contract", () => {
       messages: [{ role: "user", content: "Cho tôi một ví dụ target nhỏ." }],
     });
 
-    expect(grading).toContain("phỏng vấn CMake/build systems");
-    expect(followUp).toContain("ví dụ CMake/build systems ngắn");
+    expect(grading).toContain("phỏng vấn CMake và hệ thống dựng");
+    expect(followUp).toContain("ví dụ CMake và hệ thống dựng ngắn");
     expect(buildCoachSystemInstruction(lesson, "evaluate")).toContain(
-      "senior CMake/build systems interviewer",
+      "người phỏng vấn CMake và hệ thống dựng giàu kinh nghiệm",
     );
   });
 });

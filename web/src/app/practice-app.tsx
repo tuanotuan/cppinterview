@@ -33,6 +33,11 @@ import type {
   PracticeDeckId,
 } from "@/lib/content/schema";
 import { displayQuestionPrompt } from "@/lib/content/question-prompt";
+import {
+  questionDifficultyLabels,
+  questionTypeLabels,
+  taxonomyTopicLabel,
+} from "@/lib/content/user-facing-labels";
 import type { PracticeAccount } from "@/lib/practice/cloud-server";
 import {
   buildCandidateAnswer,
@@ -127,7 +132,7 @@ const MonacoCodeEditor = dynamic(
     ssr: false,
     loading: () => (
       <div className="grid h-96 place-items-center bg-[#0b241d] font-mono text-xs text-white/45">
-        Đang tải VS Code editor…
+        Đang tải trình soạn mã…
       </div>
     ),
   },
@@ -805,7 +810,7 @@ export function PracticeApp({
             hydratedStaleDroppedCount = 0;
           }
           setFocusNotice(
-            "Sprint đã tiến ở tab khác. Tab này đã dùng revision mới hơn và không ghi đè queue cũ.",
+            "Phiên ôn tập trọng tâm đã được tiếp tục ở một thẻ trình duyệt khác. Trang này đã tải tiến độ mới nhất và sẽ không ghi đè.",
           );
         }
       }
@@ -878,12 +883,12 @@ export function PracticeApp({
           staleDroppedCount = 0;
         }
         setFocusNotice(
-          "Sprint đã tiến ở tab khác. Tab này đã dùng revision mới hơn và không ghi đè queue cũ.",
+          "Phiên ôn tập trọng tâm đã được tiếp tục ở một thẻ trình duyệt khác. Trang này đã tải tiến độ mới nhất và sẽ không ghi đè.",
         );
       }
     } catch {
       setFocusNotice(
-        "Queue đã được đối chiếu trong tab này nhưng trình duyệt không lưu được thay đổi.",
+        "Danh sách đã được đối chiếu trong thẻ này nhưng trình duyệt không lưu được thay đổi.",
       );
     }
     setFocusSession(sessionForTab);
@@ -1159,7 +1164,7 @@ export function PracticeApp({
       );
       if (!requestedFocusId || !sameFocusSessionRevision(stored, baseSession)) {
         setFocusNotice(
-          "Sprint đã tiến ở tab khác. Tab này dùng revision mới hơn và không khôi phục lại queue cũ.",
+          "Phiên ôn tập trọng tâm đã được tiếp tục ở một thẻ trình duyệt khác. Trang này đã tải tiến độ mới nhất và sẽ không khôi phục danh sách cũ.",
         );
         return stored?.sessionId === requestedFocusId
           ? stored
@@ -1173,7 +1178,7 @@ export function PracticeApp({
       return nextSession;
     } catch {
       setFocusNotice(
-        "Tiến độ sprint mới chỉ giữ trong tab này vì trình duyệt không ghi được local storage.",
+        "Tiến độ phiên ôn tập mới chỉ được giữ trong thẻ này vì trình duyệt không ghi được vào bộ nhớ trên thiết bị.",
       );
       return nextSession;
     }
@@ -1241,7 +1246,7 @@ export function PracticeApp({
     }
     if (isCustomStudyQuestion && customRemainingIds.length <= 1) {
       setCustomStudyIds(null);
-      setCustomStudyNotice("Đã hoàn thành phiên Custom Study.");
+      setCustomStudyNotice("Đã hoàn thành phiên học tự chọn.");
     }
     if (isFocusActive && focusSession) {
       const nextSession = completeFocusSessionQuestion(
@@ -1303,13 +1308,13 @@ export function PracticeApp({
       filters,
     );
     if (!ids.length) {
-      setCustomStudyNotice("Không có câu nào khớp bộ lọc Custom Study.");
+      setCustomStudyNotice("Không có câu nào khớp bộ lọc của phiên học tự chọn.");
       return;
     }
     clearStudySessionState();
     setSelectedQuestionId(null);
     setCustomStudyIds(ids);
-    setCustomStudyNotice(`Đã tạo phiên Custom Study gồm ${ids.length} câu.`);
+    setCustomStudyNotice(`Đã tạo phiên học tự chọn gồm ${ids.length} câu.`);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -1365,7 +1370,7 @@ export function PracticeApp({
           }
         }
         setFocusNotice(
-          "Sprint trong storage đã tiến sang revision mới hơn. Tab này không được phép xóa revision đó; hãy tạm dừng để về Hub.",
+          "Phiên ôn tập đã được tiếp tục ở một thẻ trình duyệt khác. Trang này sẽ không xóa tiến độ mới nhất; hãy tạm dừng để về Trung tâm chuẩn bị.",
         );
         return;
       }
@@ -1373,7 +1378,7 @@ export function PracticeApp({
       window.location.assign(focusReturnHref ?? "/worldquant");
     } catch {
       setFocusNotice(
-        "Chưa xóa được sprint khỏi local storage. Hãy kiểm tra quyền lưu trữ của trình duyệt rồi thử lại.",
+        "Chưa xóa được phiên ôn tập khỏi bộ nhớ trên thiết bị. Hãy kiểm tra quyền lưu trữ của trình duyệt rồi thử lại.",
       );
     }
   }
@@ -1483,7 +1488,7 @@ export function PracticeApp({
       if (candidates.length) {
         if (payload.mistakeCapture?.generationMode === "auto") {
           setMistakeNotice(
-            `Đã phát hiện ${candidates.length} lỗ hổng; đang tạo thẻ ôn tập để chờ duyệt.`,
+            `Đã phát hiện ${candidates.length} điểm cần cải thiện; đang tạo thẻ ôn tập để chờ duyệt.`,
           );
           void Promise.allSettled(
             candidates.map((candidate) =>
@@ -1496,11 +1501,13 @@ export function PracticeApp({
           );
         } else if (payload.mistakeCapture?.generationMode === "ask") {
           setMistakeNotice(
-            `Đã đưa ${candidates.length} lỗi vào Mistake Inbox. Mở Admin để tạo thẻ.`,
+            `Đã đưa ${candidates.length} lỗi vào Hộp lỗi cần ôn. Mở trang Quản trị để tạo thẻ.`,
           );
         }
       } else if (payload.mistakeQueueAvailable === false) {
-        setMistakeNotice("Mistake queue chưa được cài migration trong Supabase.");
+        setMistakeNotice(
+          "Danh sách lỗi chưa được cài bản cập nhật cơ sở dữ liệu trong Supabase.",
+        );
       }
       setSyncStatus("synced");
     } catch {
@@ -1561,7 +1568,7 @@ export function PracticeApp({
       }
 
       if (!response.ok || !payload.feedback) {
-        throw new Error(payload.error || "AI coach chưa trả lời được.");
+        throw new Error(payload.error || "Trợ lý AI chưa trả lời được.");
       }
 
       const nextRescueRetry = resolveRescueRetryAfterCoach({
@@ -1610,7 +1617,7 @@ export function PracticeApp({
         setCoachErrors((errors) => ({
           ...errors,
           [questionId]:
-            "AI đã chấm xong nhưng bộ đếm usage chưa ghi được. Tạm dừng gọi thêm OpenAI và kiểm tra log.",
+            "AI đã chấm xong nhưng số liệu sử dụng chưa được lưu. Hãy tạm dừng gọi thêm OpenAI và kiểm tra nhật ký.",
         }));
       }
       setFollowUpChats((chats) => ({ ...chats, [questionId]: [] }));
@@ -1627,7 +1634,7 @@ export function PracticeApp({
       setCoachErrors((errors) => ({
         ...errors,
         [questionId]:
-          error instanceof Error ? error.message : "AI coach chưa trả lời được.",
+          error instanceof Error ? error.message : "Trợ lý AI chưa trả lời được.",
       }));
     } finally {
       if (
@@ -1716,7 +1723,7 @@ export function PracticeApp({
       if (payload.aiUsageRecorded === false) {
         setFollowUpErrors((errors) => ({
           ...errors,
-          [questionId]: "AI đã trả lời nhưng bộ đếm usage chưa ghi được.",
+          [questionId]: "AI đã trả lời nhưng số liệu sử dụng chưa được lưu.",
         }));
       }
     } catch (error) {
@@ -1744,7 +1751,7 @@ export function PracticeApp({
     const answer = deepDiveAnswers[questionId]?.trim() ?? "";
     const followUpQuestion = coachFeedback[questionId].followUpQuestion;
     const answerContext = answer
-      ? `Câu trả lời tôi tự làm: ${answer}\n\nHãy nhận xét câu trả lời như interviewer: chỉ ra phần đúng, phần thiếu hoặc sai, rồi mới giải thích để tôi hiểu sâu hơn.`
+      ? `Câu trả lời tôi tự làm: ${answer}\n\nHãy nhận xét câu trả lời như người phỏng vấn: chỉ ra phần đúng, phần thiếu hoặc sai, rồi mới giải thích để tôi hiểu sâu hơn.`
       : "Tôi để trống vì chưa biết cách trả lời. Hãy dạy tôi từ đầu, giải thích từng ý và đưa ra một câu trả lời phỏng vấn mẫu dễ học.";
 
     setDeepDiveLoading(questionId);
@@ -1802,7 +1809,7 @@ export function PracticeApp({
       if (payload.aiUsageRecorded === false) {
         setDeepDiveErrors((errors) => ({
           ...errors,
-          [questionId]: "AI đã trả lời nhưng bộ đếm usage chưa ghi được.",
+          [questionId]: "AI đã trả lời nhưng số liệu sử dụng chưa được lưu.",
         }));
       }
     } catch (error) {
@@ -2010,11 +2017,11 @@ export function PracticeApp({
             </span>
             <div>
               <p className="font-semibold tracking-[-0.02em]">Recall</p>
-              <p className="text-xs text-[#64736c]">Interview practice</p>
+              <p className="text-xs text-[#64736c]">Luyện phỏng vấn</p>
             </div>
             {isFocusActive ? (
               <span className="rounded-full border border-[#356b58]/20 bg-[#d7ff91]/55 px-3 py-1.5 font-mono text-[11px] font-bold text-[#173f35]">
-                WQ FOCUS SPRINT
+                PHIÊN ÔN TẬP TRỌNG TÂM WQ
               </span>
             ) : (
               <DeckSwitcher
@@ -2027,7 +2034,7 @@ export function PracticeApp({
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-2 text-sm">
-            <StatPill icon="◆" value={`${streak} ngày`} label="streak" />
+            <StatPill icon="◆" value={`${streak} ngày`} label="chuỗi ngày" />
             <StatPill
               icon="✓"
               value={`${completedToday}/${dailyTotal || 1}`}
@@ -2036,9 +2043,9 @@ export function PracticeApp({
             {account && aiBudgetCacheHydrated && aiDailyBudget ? (
               <AiBudgetPill budget={aiDailyBudget} />
             ) : null}
-            <HeaderNavLink href="/worldquant">WQ Hub</HeaderNavLink>
+            <HeaderNavLink href="/worldquant">Trung tâm chuẩn bị</HeaderNavLink>
             <HeaderNavLink href="/learn/tick-data-order-book">
-              Học Tick
+              Học dữ liệu tick
             </HeaderNavLink>
             <HeaderNavLink href="/learn/cmake">Học CMake</HeaderNavLink>
             {!isFocusActive ? (
@@ -2087,7 +2094,7 @@ export function PracticeApp({
           >
             <span>{mistakeNotice}</span>
             <Link href="/admin#mistake-inbox" className="font-bold underline">
-              Mở Mistake Inbox
+              Mở Hộp lỗi cần ôn
             </Link>
           </div>
         ) : null}
@@ -2097,16 +2104,16 @@ export function PracticeApp({
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className="font-mono text-xs font-bold tracking-[0.14em] text-[#356b58] uppercase">
-                  WorldQuant Focus Sprint
+                  Phiên ôn tập trọng tâm WorldQuant
                 </p>
                 <h1 className="mt-2 text-xl font-semibold tracking-tight text-[#173f35]">
-                  Câu {focusPosition}/{focusQueueTotal} · giữ nguyên queue đã
+                  Câu {focusPosition}/{focusQueueTotal} · giữ nguyên danh sách đã
                   chốt
                 </h1>
                 <p className="mt-1 text-sm text-[#596a62]">
                   {focusStep
                     ? `${focusCompetencyLabel(focusStep.competency)} · ${focusReasonLabel(focusStep.queueReason)}`
-                    : "Ôn theo khoảng trống năng lực đã chọn ở Readiness Hub."}
+                    : "Ôn theo điểm cần cải thiện đã chọn ở Trung tâm chuẩn bị."}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -2122,13 +2129,13 @@ export function PracticeApp({
                   onClick={cancelFocusSprint}
                   className="rounded-xl border border-[#ba4b2f]/20 bg-[#f8e8df] px-4 py-2 text-sm font-bold text-[#8e3825] transition hover:bg-[#f4d9cc]"
                 >
-                  Hủy sprint
+                  Hủy phiên ôn tập
                 </button>
               </div>
             </div>
             {focusStaleDroppedCount > 0 ? (
               <p className="mt-3 text-xs font-semibold text-[#8a5a20]">
-                Đã bỏ {focusStaleDroppedCount} câu stale, bị đình chỉ hoặc đã
+                Đã bỏ {focusStaleDroppedCount} câu không còn hợp lệ, bị đình chỉ hoặc đã
                 ôn hôm nay; không tự thay bằng nội dung khác.
               </p>
             ) : null}
@@ -2151,7 +2158,9 @@ export function PracticeApp({
             onStart={startCustomStudy}
             onStop={() => {
               setCustomStudyIds(null);
-              setCustomStudyNotice("Đã dừng Custom Study, quay lại lịch hôm nay.");
+              setCustomStudyNotice(
+                "Đã dừng phiên học tự chọn, quay lại lịch hôm nay.",
+              );
             }}
           />
         )}
@@ -2159,7 +2168,7 @@ export function PracticeApp({
         {!isFocusActive && !current && selectedPendingReview.length ? (
           <section className="mt-7 rounded-3xl border border-[#ba4b2f]/25 bg-[#fff4df] p-6 sm:p-8">
             <p className="font-mono text-xs tracking-[0.15em] text-[#ba4b2f] uppercase">
-              Review queue
+              Danh sách chờ duyệt
             </p>
             <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
               <div>
@@ -2181,7 +2190,8 @@ export function PracticeApp({
             </div>
             {approvalStatus === "error" ? (
               <p className="mt-3 text-xs font-semibold text-[#a3321f]">
-                Chưa lưu được approval. Kiểm tra migration rồi thử lại.
+                Chưa lưu được kết quả duyệt. Kiểm tra bản cập nhật cơ sở dữ liệu
+                rồi thử lại.
               </p>
             ) : null}
           </section>
@@ -2194,9 +2204,9 @@ export function PracticeApp({
                 <div className="flex items-center gap-2">
                   <span className="rounded-full bg-[#d7ff91] px-3 py-1 font-mono text-xs font-bold text-[#173f35]">
                     {isFocusActive
-                      ? "FOCUS SPRINT"
+                      ? "ÔN TẬP TRỌNG TÂM"
                       : isCustomStudyQuestion
-                      ? "CUSTOM STUDY"
+                      ? "PHIÊN HỌC TỰ CHỌN"
                       : isRandomQuestion
                       ? "CÂU NGẪU NHIÊN"
                       : completedToday === 0
@@ -2254,20 +2264,20 @@ export function PracticeApp({
                   {isRepairActive ? (
                     <div className="mb-6 rounded-2xl border border-[#ba4b2f]/25 bg-[#f8e8df] p-4 text-sm leading-6 text-[#713929]">
                       <p className="font-mono text-[11px] font-bold uppercase tracking-[0.16em]">
-                        Recall repair · lần {(repairItem?.attempts ?? 0) + 1}
+                        Ôn lại điểm yếu · lần {(repairItem?.attempts ?? 0) + 1}
                       </p>
                       <p className="mt-1 font-semibold">
                         Câu này quay lại sau các thẻ xen kẽ. Lần trả lời này
-                        chỉ kiểm tra đã sửa được lỗ hổng hay chưa, không tạo
-                        thêm một review ngày.
+                        chỉ kiểm tra đã khắc phục điểm yếu hay chưa, không tạo
+                        thêm một lượt ôn trong ngày.
                       </p>
                     </div>
                   ) : null}
                   {hasAnswered ? (
                     <div className="flex flex-wrap gap-2">
                       <Tag>{standardLabels[current.standard]}</Tag>
-                      <Tag>{current.type.replace("_", " ")}</Tag>
-                      <Tag>{current.difficulty}</Tag>
+                      <Tag>{questionTypeLabels[current.type]}</Tag>
+                      <Tag>{questionDifficultyLabels[current.difficulty]}</Tag>
                       <Tag>~{current.estimatedMinutes} phút</Tag>
                     </div>
                   ) : null}
@@ -2313,7 +2323,7 @@ export function PracticeApp({
                           value={answers[current.id] ?? ""}
                           onChange={(event) => updateAnswer(current.id, event.target.value)}
                           className="mt-2 min-h-28 w-full resize-y rounded-2xl border border-[#173f35]/20 bg-[#fbfaf5] px-4 py-3 leading-7 outline-none transition focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/45"
-                          placeholder="Giải thích ownership, API, trade-off và các quyết định quan trọng…"
+                          placeholder="Giải thích quyền sở hữu, API, các đánh đổi và quyết định quan trọng…"
                         />
                       </div>
                     </div>
@@ -2327,7 +2337,7 @@ export function PracticeApp({
                           className="text-sm font-semibold text-[#344a40]"
                           htmlFor="candidate-answer"
                         >
-                          Câu trả lời của mày
+                          Câu trả lời của bạn
                         </label>
                         <span className="font-mono text-[11px] text-[#6c7b73]">
                           ● tự lưu trên trình duyệt
@@ -2361,10 +2371,10 @@ export function PracticeApp({
                       aria-live="polite"
                     >
                       <p className="font-mono text-[11px] font-bold tracking-[0.14em] text-[#356b58] uppercase">
-                        Retry · lượt {currentRescueRetry.attempts + 1}
+                        Làm lại · lượt {currentRescueRetry.attempts + 1}
                       </p>
                       <p className="mt-1 font-semibold">
-                        Tự trả lời lại bằng lời của mày, không nhìn lời giải.
+                        Tự trả lời lại bằng lời của bạn, không nhìn lời giải.
                         Khi xong, nhờ AI chấm lần làm lại.
                       </p>
                     </div>
@@ -2424,7 +2434,7 @@ export function PracticeApp({
 
                   {hints.has(current.id) ? (
                     <div className="mt-4 rounded-2xl border border-[#ba4b2f]/20 bg-[#f8e8df] p-4 text-sm leading-6 text-[#713929]">
-                      <span className="mr-2 font-mono font-bold">hint:</span>
+                      <span className="mr-2 font-mono font-bold">gợi ý:</span>
                       <InlineCode text={current.hint} />
                     </div>
                   ) : null}
@@ -2452,15 +2462,15 @@ export function PracticeApp({
                           </p>
                           <p className="mt-0.5 text-xs text-[#5c6e65]">
                             {isRepairActive
-                              ? "Good/Easy kết thúc repair; Again/Hard sẽ chèn lại sau vài thẻ."
+                              ? "Ổn/Dễ kết thúc lượt ôn điểm yếu; Chưa nhớ/Khó sẽ đưa câu này trở lại sau vài thẻ."
                               : revealed.has(current.id)
-                              ? "So với đáp án, mày nhớ được tới đâu?"
-                              : "AI đã chấm xong — giờ mày tự chọn mức phù hợp."}
+                              ? "So với đáp án, bạn nhớ được đến đâu?"
+                              : "AI đã chấm xong — giờ bạn hãy chọn mức phù hợp."}
                           </p>
                         </div>
                         {currentSuggestedRating ? (
                           <span className="rounded-full bg-[#d7ff91]/70 px-3 py-1 text-xs font-semibold text-[#356b58]">
-                            AI gợi ý: {currentSuggestedRating.label}
+                            AI gợi ý mức đánh giá: {currentSuggestedRating.label}
                           </span>
                         ) : null}
                       </div>
@@ -2478,7 +2488,7 @@ export function PracticeApp({
                               {isRepairActive
                                 ? option.value === "good" ||
                                   option.value === "easy"
-                                  ? "đã phục hồi"
+                                  ? "đã khắc phục"
                                   : "lặp lại trong phiên"
                                 : `lại sau ${
                                     currentLearningState
@@ -2512,14 +2522,14 @@ export function PracticeApp({
                               id: `ai-feedback:${current.id}:${current.version}:${current.sourceHash}`,
                               kind: "ai_answer",
                               questionId: current.id,
-                              title: `AI feedback · ${current.lessonTitle}`,
+                              title: `Phản hồi AI · ${current.lessonTitle}`,
                               content: formatCoachFeedback(coachFeedback[current.id]),
                               context: displayQuestionPrompt(current),
                             })
                           }
                           onExpandNextStep={() =>
                             void askCoachFollowUp(
-                              `Hãy biến bước tiếp theo này thành một bài học mini dễ hiểu, có ví dụ ${current.language === "python" ? "Python" : "C++"} ngắn và một bài tập nhỏ: ${coachFeedback[current.id].nextStep}`,
+                              `Hãy biến bước tiếp theo này thành một bài học ngắn, dễ hiểu, có ví dụ ${current.language === "python" ? "Python" : "C++"} và một bài tập nhỏ: ${coachFeedback[current.id].nextStep}`,
                             )
                           }
                           onExploreInterviewerQuestion={() =>
@@ -2567,7 +2577,7 @@ export function PracticeApp({
                               id: `ai-deep-dive:${current.id}:${current.version}:${current.sourceHash}`,
                               kind: "ai_answer",
                               questionId: current.id,
-                              title: `Đào sâu · ${current.lessonTitle}`,
+                              title: `Tìm hiểu sâu · ${current.lessonTitle}`,
                               content: feedback.answer,
                               context: coachFeedback[current.id].followUpQuestion,
                             });
@@ -2641,8 +2651,8 @@ export function PracticeApp({
                       className="mt-6 text-sm font-bold text-[#356b58] underline decoration-[#356b58]/35 underline-offset-4"
                     >
                       {visibleSources.has(current.id)
-                        ? "Ẩn note nguồn"
-                        : "Đối chiếu note nguồn"}
+                        ? "Ẩn ghi chú nguồn"
+                        : "Đối chiếu ghi chú nguồn"}
                     </button>
                     {visibleSources.has(current.id) ? (
                       <SourceNotes question={current} />
@@ -2659,7 +2669,7 @@ export function PracticeApp({
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="font-mono text-xs tracking-[0.15em] text-[#ba4b2f] uppercase">
-                        Review queue
+                        Danh sách chờ duyệt
                       </p>
                       <p className="mt-2 text-2xl font-semibold">
                         {selectedPendingReview.length} câu chờ duyệt
@@ -2673,7 +2683,7 @@ export function PracticeApp({
                     {selectedPendingReview.slice(0, 3).map((question) => (
                       <li key={question.id} className="line-clamp-2">
                         <span className="font-mono text-[10px] font-bold text-[#ba4b2f] uppercase">
-                          {question.status === "draft" ? "AI draft" : "Nguồn đã đổi"}
+                          {question.status === "draft" ? "Bản nháp AI" : "Nguồn đã đổi"}
                         </span>{" "}
                         · {displayQuestionPrompt(question)}
                       </li>
@@ -2689,7 +2699,8 @@ export function PracticeApp({
                   </button>
                   {approvalStatus === "error" ? (
                     <p className="mt-3 text-xs font-semibold text-[#a3321f]">
-                      Chưa lưu được approval. Kiểm tra migration rồi thử lại.
+                      Chưa lưu được kết quả duyệt. Kiểm tra bản cập nhật cơ sở dữ
+                      liệu rồi thử lại.
                     </p>
                   ) : null}
                 </div>
@@ -2697,7 +2708,9 @@ export function PracticeApp({
 
               <div className="rounded-3xl bg-[#173f35] p-6 text-white">
                 <p className="font-mono text-xs tracking-[0.15em] text-[#d7ff91] uppercase">
-                  {isFocusActive ? "Tiến độ Focus Sprint" : "Tiến độ hôm nay"}
+                  {isFocusActive
+                    ? "Tiến độ phiên ôn tập trọng tâm"
+                    : "Tiến độ hôm nay"}
                 </p>
                 <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/15">
                   <div
@@ -2719,7 +2732,7 @@ export function PracticeApp({
                 </div>
                 <p className="mt-3 text-sm text-white/65">
                   {isFocusActive
-                    ? `${focusSession?.remainingQuestions.length ?? 0} câu còn lại · rating vẫn cập nhật lịch ôn thật`
+                    ? `${focusSession?.remainingQuestions.length ?? 0} câu còn lại · mức đánh giá vẫn cập nhật lịch ôn chính`
                     : `${remainingIds.length} câu còn lại · ưu tiên câu mới trước`}
                 </p>
                 {!isFocusActive ? (
@@ -2740,17 +2753,17 @@ export function PracticeApp({
 
               <div className="rounded-3xl border border-[#173f35]/15 bg-white/55 p-6">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-bold">Cloud progress</p>
+                  <p className="text-sm font-bold">Tiến độ đồng bộ trực tuyến</p>
                   <SyncDot status={syncStatus} />
                 </div>
                 <p className="mt-2 text-sm leading-6 text-[#64736c]">
                   {account
                     ? syncStatus === "error"
-                      ? "Local vẫn an toàn; cloud sẽ thử merge lại ở lần tải sau."
-                      : "Đồng bộ private giữa các thiết bị bằng tài khoản GitHub."
+                      ? "Dữ liệu trên thiết bị vẫn an toàn; hệ thống sẽ thử đồng bộ trực tuyến lại ở lần tải sau."
+                      : "Đồng bộ riêng tư giữa các thiết bị bằng tài khoản GitHub."
                     : cloudEnabled
                       ? "Đăng nhập GitHub để bật đồng bộ nhiều thiết bị."
-                      : "Chưa cấu hình Supabase; hiện progress chỉ lưu trên máy này."}
+                      : "Chưa cấu hình Supabase; hiện tiến độ chỉ lưu trên thiết bị này."}
                 </p>
               </div>
 
@@ -2770,14 +2783,15 @@ export function PracticeApp({
 
               <div className="rounded-3xl border border-[#356b58]/20 bg-[#eef4e9] p-6">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm font-bold">AI coach</p>
+                  <p className="text-sm font-bold">Trợ lý AI</p>
                   <span className="size-2 rounded-full bg-[#65a30d] shadow-[0_0_0_4px_rgba(101,163,13,0.12)]" />
                 </div>
                 <p className="mt-2 text-sm leading-6 text-[#64736c]">
-                  Chấm theo đúng rubric và note nguồn, sau đó gợi ý một câu follow-up.
+                  Chấm theo đúng tiêu chí và ghi chú nguồn, sau đó gợi ý một câu
+                  hỏi tiếp nối.
                 </p>
                 <span className="mt-4 inline-block rounded-full bg-[#d7ff91] px-3 py-1 font-mono text-[11px] font-semibold text-[#356b58]">
-                  OpenAI · Luna chấm bài / Terra đào sâu · Gemini khi hết quota
+                  OpenAI · Luna chấm bài / Terra tìm hiểu sâu · Gemini khi hết hạn mức
                 </span>
               </div>
             </aside>
@@ -2799,9 +2813,11 @@ export function PracticeApp({
 
         <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[#173f35]/12 py-5 font-mono text-[11px] text-[#78857f]">
           <span>
-            {account ? `Private sync · ${account.displayName}` : "Progress lưu trên trình duyệt này"}
+            {account
+              ? `Đồng bộ riêng tư · ${account.displayName}`
+              : "Tiến độ lưu trên trình duyệt này"}
           </span>
-          <span>notes@{sourceRevision.slice(0, 7)}</span>
+          <span>Nguồn {sourceRevision.slice(0, 7)}</span>
         </footer>
       </div>
     </main>
@@ -2815,10 +2831,10 @@ function focusCompetencyLabel(competency: WorldQuantCompetencyKey) {
 function focusReasonLabel(reason: FocusQueueReason) {
   const labels: Record<FocusQueueReason, string> = {
     due_relearning: "học lại đã đến hạn",
-    due_leech: "câu leech đã đến hạn",
+    due_leech: "câu khó nhớ đã đến hạn",
     due: "đã đến hạn",
     relearning: "đang học lại",
-    leech: "câu khó lặp lại",
+    leech: "câu khó nhớ",
     learning: "đang học",
     new: "câu mới",
   };
@@ -2850,23 +2866,24 @@ function FocusUnavailableScreen({
           !
         </span>
         <p className="mt-5 font-mono text-xs font-bold tracking-[0.14em] text-[#ba4b2f] uppercase">
-          Focus Sprint không mở được
+          Không mở được Phiên ôn tập trọng tâm
         </p>
         <h1 className="mt-3 text-2xl font-semibold tracking-tight text-[#17221d]">
           {storageError
-            ? "Trình duyệt đang chặn local storage"
-            : "Không tìm thấy đúng sprint trong URL này"}
+            ? "Trình duyệt đang chặn bộ nhớ trên thiết bị"
+            : "Không tìm thấy đúng phiên ôn tập trong đường dẫn này"}
         </h1>
         <p className="mt-3 text-sm leading-6 text-[#64736c]">
-          Queue không được đoán lại hoặc thay bằng session khác. Quay về
-          Readiness Hub để tiếp tục sprint còn lưu hoặc tạo một kế hoạch mới.
+          Danh sách không được tự đoán lại hoặc thay bằng phiên khác. Hãy quay
+          về Trung tâm chuẩn bị để tiếp tục phiên ôn tập còn lưu hoặc tạo kế
+          hoạch mới.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link
             href="/worldquant"
             className="rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#245748]"
           >
-            Về Readiness Hub
+            Về Trung tâm chuẩn bị
           </Link>
           <Link
             href="/"
@@ -2898,14 +2915,14 @@ function FocusCompletionScreen({
           ✓
         </span>
         <p className="mt-5 font-mono text-xs font-bold tracking-[0.14em] text-[#356b58] uppercase">
-          Focus Sprint hoàn tất
+          Phiên ôn tập trọng tâm đã hoàn tất
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#17221d]">
-          Đã rating {completedCount} câu
+          Đã đánh giá {completedCount} câu
         </h1>
         <p className="mt-3 text-sm leading-6 text-[#64736c]">
-          Mỗi rating đã đi qua scheduler và cập nhật bằng chứng readiness như
-          một buổi Practice bình thường.
+          Mỗi mức đánh giá đã được xếp lịch và cập nhật bằng chứng sẵn sàng như
+          một buổi luyện tập bình thường.
         </p>
         {staleDroppedCount > 0 ? (
           <p className="mt-3 rounded-xl bg-[#fff4df] px-4 py-3 text-xs font-semibold text-[#8a5a20]">
@@ -2924,22 +2941,22 @@ function FocusCompletionScreen({
             className="rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#245748]"
           >
             {returnHref
-              ? "Tiếp tục bước kế trong Mission"
-              : "Xem readiness mới"}
+              ? "Tiếp tục bước kế tiếp trong nhiệm vụ"
+              : "Xem mức sẵn sàng mới"}
           </Link>
           {returnHref ? (
             <Link
               href="/worldquant"
               className="rounded-xl border border-[#173f35]/18 bg-white px-5 py-3 text-sm font-bold text-[#356b58]"
             >
-              Về Readiness Hub
+              Về Trung tâm chuẩn bị
             </Link>
           ) : null}
           <Link
             href="/"
             className="rounded-xl border border-[#173f35]/18 bg-white px-5 py-3 text-sm font-bold text-[#356b58]"
           >
-            Tiếp tục Practice
+            Tiếp tục luyện tập
           </Link>
         </div>
       </section>
@@ -2973,8 +2990,9 @@ function CompletionScreen({
           Xong buổi ôn hôm nay.
         </h1>
         <p className="mt-5 text-lg leading-8 text-[#64736c]">
-          {completedToday} câu đã tự chấm. Streak hiện tại là {streak} ngày—mai quay lại
-          hệ thống sẽ chọn câu mới và kéo các câu đến hạn lên.
+          {completedToday} câu đã tự chấm. Chuỗi học hiện tại là {streak} ngày
+          — ngày mai quay lại, hệ thống sẽ chọn câu mới và đưa các câu đến hạn
+          lên trước.
         </p>
         {hasRandomQuestion ? (
           <button
@@ -3018,7 +3036,7 @@ function CustomStudyPanel({
   return (
     <details className="mt-5 rounded-2xl border border-[#173f35]/15 bg-white/55 px-4 py-3 open:bg-white/70">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold text-[#356b58]">
-        <span>Custom Study · ôn theo trạng thái hoặc tag</span>
+        <span>Phiên học tự chọn · ôn theo trạng thái hoặc thẻ</span>
         <span className="font-mono text-xs">
           {activeCount ? `${activeCount} câu còn lại` : "Mở bộ lọc ↓"}
         </span>
@@ -3037,7 +3055,7 @@ function CustomStudyPanel({
             ["review", "Ôn tập"],
             ["relearning", "Học lại"],
             ["due", "Đến hạn"],
-            ["leech", "Leech"],
+            ["leech", "Câu khó nhớ"],
           ]}
         />
         <StudySelect
@@ -3055,16 +3073,16 @@ function CustomStudyPanel({
           options={
             language === "cmake"
               ? [
-                  ["all", "Mọi version"],
+                  ["all", "Mọi phiên bản"],
                   ["cmake", "CMake"],
                 ]
               : language === "python"
               ? [
-                  ["all", "Mọi version"],
+                  ["all", "Mọi phiên bản"],
                   ["python3", "Python 3"],
                 ]
               : [
-                  ["all", "Mọi version"],
+                  ["all", "Mọi phiên bản"],
                   ["cpp98", "C++98"],
                   ["cpp11", "C++11"],
                   ["cpp20", "C++20"],
@@ -3077,19 +3095,21 @@ function CustomStudyPanel({
           onChange={(value) => setSkill(value as CustomStudyFilters["skill"])}
           options={[
             ["all", "Mọi loại"],
-            ["recall", "Recall"],
-            ["code_reasoning", "Code reasoning"],
-            ["pitfall", "Pitfall"],
-            ["scenario", "Scenario"],
+            ["recall", "Ghi nhớ"],
+            ["code_reasoning", "Lập luận về mã"],
+            ["pitfall", "Bẫy thường gặp"],
+            ["scenario", "Tình huống"],
           ]}
         />
         <StudySelect
-          label="Topic"
+          label="Chủ đề"
           value={topic}
           onChange={setTopic}
           options={[
-            ["all", "Mọi topic"],
-            ...topics.map((item): [string, string] => [item, item]),
+            ["all", "Mọi chủ đề"],
+            ...topics.map(
+              (item): [string, string] => [item, taxonomyTopicLabel(item)],
+            ),
           ]}
         />
         <label className="text-xs font-bold text-[#52645c]">
@@ -3126,7 +3146,8 @@ function CustomStudyPanel({
         {notice ? <p className="text-xs text-[#64736c]">{notice}</p> : null}
       </div>
       <p className="mt-3 text-[11px] text-[#718078]">
-        Rating trong Custom Study vẫn cập nhật lịch Anki của câu hỏi.
+        Mức đánh giá trong phiên học tự chọn vẫn cập nhật lịch ôn ngắt quãng
+        của câu hỏi.
       </p>
     </details>
   );
@@ -3191,18 +3212,18 @@ function DeckEmptyState({
         </h1>
         <p className="mt-4 leading-7 text-[#64736c]">
           {pendingCount
-            ? `${pendingCount} câu đang nằm trong Review Queue. Duyệt chúng để bắt đầu luyện.`
+            ? `${pendingCount} câu đang nằm trong danh sách chờ duyệt. Hãy duyệt để bắt đầu luyện.`
             : deck === "cmake-build-systems"
-              ? "Thêm bài vào cmake/<tên-bài>/knowledge.md; pipeline sẽ tạo draft và đưa vào Review Queue."
+              ? "Thêm bài vào cmake/<tên-bài>/knowledge.md; quy trình sẽ tạo bản nháp và đưa vào danh sách chờ duyệt."
               : deck === "python-interview"
-              ? "Thêm bài vào python/<tên-bài>/knowledge.md; pipeline sẽ tạo draft và đưa vào Review Queue."
-              : "Thêm hoặc duyệt câu hỏi trong Admin để bắt đầu luyện."}
+              ? "Thêm bài vào python/<tên-bài>/knowledge.md; quy trình sẽ tạo bản nháp và đưa vào danh sách chờ duyệt."
+              : "Thêm hoặc duyệt câu hỏi trong trang Quản trị để bắt đầu luyện."}
         </p>
         <Link
           href="/admin"
           className="mt-7 inline-flex rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white"
         >
-          Mở Admin
+          Mở trang Quản trị
         </Link>
       </div>
     </section>
@@ -3272,12 +3293,12 @@ function AiBudgetPill({ budget }: { budget: AiDailyBudgetSnapshot }) {
   const low = budget.remainingPercent <= 20;
   const usedUsd = budget.actualUsdMicros / 1_000_000;
   const billingLabel = budget.billingSyncedAt
-    ? `Billing toàn OpenAI project: $${((budget.billingUsdMicros ?? 0) / 1_000_000).toFixed(4)} · chỉ chi phí web bên dưới mới trừ quota`
-    : "Quota web tính từ token usage của các request tương tác";
+    ? `Chi phí toàn dự án OpenAI: $${((budget.billingUsdMicros ?? 0) / 1_000_000).toFixed(4)} · chỉ chi phí trang web bên dưới mới trừ hạn mức`
+    : "Hạn mức trang web được tính từ số token của các lượt gọi tương tác";
   return (
     <div
       className="min-w-32 rounded-full border border-[#173f35]/15 bg-white/55 px-3 py-2"
-      title={`${billingLabel} · web đã dùng $${usedUsd.toFixed(5)} · ${budget.requestCount} request · ${budget.inputTokens + budget.outputTokens} token · model cuối: ${budget.lastModel ?? "chưa có"} · quota web/ngày $${(budget.limitUsdMicros / 1_000_000).toFixed(3)} · reset 00:00 giờ Việt Nam`}
+      title={`${billingLabel} · trang web đã dùng $${usedUsd.toFixed(5)} · ${budget.requestCount} lượt gọi · ${budget.inputTokens + budget.outputTokens} token · mô hình cuối: ${budget.lastModel ?? "chưa có"} · hạn mức trang web/ngày $${(budget.limitUsdMicros / 1_000_000).toFixed(3)} · đặt lại lúc 00:00 giờ Việt Nam`}
     >
       <div className="flex items-center justify-between gap-2 font-mono text-[10px] font-bold uppercase">
         <span>OpenAI hôm nay</span>
@@ -3338,7 +3359,7 @@ function AccountControl({
     return (
       <div className="flex items-center gap-2">
         <HeaderNavLink href="/mock-interview">
-          Mock
+          Phỏng vấn thử
         </HeaderNavLink>
         <HeaderNavLink
           href={`/stats?deck=${selectedDeck}`}
@@ -3348,7 +3369,7 @@ function AccountControl({
         <HeaderNavLink
           href="/admin"
         >
-          Admin
+          Quản trị
         </HeaderNavLink>
         <form action="/auth/logout" method="post">
           <button
@@ -3387,14 +3408,14 @@ function AccountControl({
 
   return (
     <span className="rounded-full border border-[#173f35]/12 bg-[#e7e3d8] px-3 py-2 font-mono text-[10px] font-semibold text-[#64736c]">
-      local only
+      chỉ lưu trên thiết bị
     </span>
   );
 }
 
 function SyncDot({ status }: { status: SyncStatus }) {
   const labels: Record<SyncStatus, string> = {
-    local: "Chỉ lưu local",
+    local: "Chỉ lưu trên thiết bị",
     syncing: "Đang đồng bộ",
     synced: "Đã đồng bộ",
     error: "Lỗi đồng bộ",
@@ -3450,7 +3471,7 @@ function ScenarioCodeEditor({
               {editor.fileName}
             </span>
             <span className="rounded-full bg-white/8 px-2 py-0.5 font-mono text-[10px] text-white/55">
-              {editor.languageLabel} design
+              Thiết kế {editor.languageLabel}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -3485,7 +3506,7 @@ function ScenarioCodeEditor({
           />
         </div>
         <div className="flex items-center justify-between border-t border-white/8 bg-[#102f27] px-4 py-2 font-mono text-[10px] text-white/40">
-          <span>Monaco · Ctrl+F tìm kiếm · Alt+↑↓ chuyển dòng · Ctrl+S đã tự lưu</span>
+          <span>Monaco · Ctrl+F tìm kiếm · Alt+↑↓ chuyển dòng · Ctrl+S tự lưu</span>
           <span>{value.length} ký tự</span>
         </div>
       </div>
@@ -3595,9 +3616,9 @@ function CodeBlock({ code, language }: { code: string; language: string }) {
           type="button"
           onClick={copyCode}
           className="rounded-md px-2 py-1 font-mono text-[10px] font-semibold text-[#d7ff91] transition hover:bg-white/10"
-          aria-label="Sao chép đoạn code"
+          aria-label="Sao chép đoạn mã"
         >
-          {copied ? "Đã copy ✓" : "Copy"}
+          {copied ? "Đã sao chép ✓" : "Sao chép"}
         </button>
       </div>
       <pre className="max-w-full overflow-x-auto p-4 text-left font-mono text-[12px] leading-6 [tab-size:2] sm:text-[13px]">
@@ -3643,7 +3664,7 @@ const verdictLabels: Record<CoachFeedback["verdict"], string> = {
   needs_work: "Cần ôn lại",
   partial: "Đúng một phần",
   solid: "Nắm khá chắc",
-  strong: "Trả lời mạnh",
+  strong: "Trả lời rất tốt",
 };
 
 const coverageLabels: Record<CoachFeedback["coverage"][number]["status"], string> = {
@@ -3676,12 +3697,12 @@ function RescueRetryOutcomePanel({
   const needsRepair = state.phase === "needs_repair";
   const outcomeLabel = passed
     ? state.reviewRating === "easy"
-      ? "Easy"
-      : "Good"
+      ? "Dễ"
+      : "Ổn"
     : needsRepair
       ? state.repairRating === "again"
-        ? "Again"
-        : "Hard"
+        ? "Chưa nhớ"
+        : "Khó"
       : null;
 
   return (
@@ -3698,22 +3719,22 @@ function RescueRetryOutcomePanel({
     >
       <p className="font-mono text-[11px] font-bold tracking-[0.14em] text-[#356b58] uppercase">
         {state.phase === "rescue"
-          ? "AI Rescue · học trước"
-          : `Retry · lượt ${state.attempts}`}
+          ? "Trợ giúp AI · đọc lời giải trước"
+          : `Làm lại · lượt ${state.attempts}`}
       </p>
       <h2 className="mt-2 text-xl font-semibold tracking-tight text-[#173f35]">
         {state.phase === "rescue"
-          ? "Đã có lời giải — giờ tới lượt mày tự làm lại"
+          ? "Đã có lời giải — giờ đến lượt bạn tự làm lại"
           : passed
             ? `Đạt ${score}/100`
             : `Chưa đạt ${score}/100`}
       </h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-[#52645c]">
         {state.phase === "rescue"
-          ? "Đọc phần giải thích phía trên cho hiểu, rồi đóng lời giải và trả lời lại bằng trí nhớ. Rating đang khóa cho tới khi AI chấm lần làm lại."
+          ? "Đọc phần giải thích phía trên để hiểu, rồi đóng lời giải và trả lời lại bằng trí nhớ. Mức đánh giá đang khóa cho tới khi AI chấm lần làm lại."
           : passed
             ? `Lần làm lại đã đạt ngưỡng phỏng vấn. Hệ thống sẽ ghi mức ${outcomeLabel} và chuyển sang câu tiếp theo.`
-            : `Lần làm lại còn lỗ hổng. Hệ thống sẽ ghi mức ${outcomeLabel}, chuyển sang câu tiếp theo và chèn lại câu này trong Recall Repair sau vài thẻ.`}
+            : `Lần làm lại vẫn còn điểm cần cải thiện. Hệ thống sẽ ghi mức ${outcomeLabel}, chuyển sang câu tiếp theo và đưa câu này vào Ôn lại điểm yếu sau vài thẻ.`}
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
         {state.phase === "rescue" ? (
@@ -3733,7 +3754,7 @@ function RescueRetryOutcomePanel({
             >
               {passed
                 ? "Đạt · sang câu tiếp"
-                : "Đưa vào Recall Repair · sang câu tiếp"}
+                : "Ôn lại điểm yếu sau · sang câu tiếp"}
             </button>
             <button
               type="button"
@@ -3787,7 +3808,7 @@ function CoachFeedbackPanel({
                   AI
                 </span>
                 <span className="text-[9px] tracking-wider text-white/55 uppercase">
-                  Rescue
+                  Trợ giúp
                 </span>
               </>
             ) : (
@@ -3805,7 +3826,9 @@ function CoachFeedbackPanel({
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <p className="font-mono text-xs font-bold tracking-[0.15em] text-[#d7ff91] uppercase">
-              {rescueMode ? "AI Rescue · học từ đầu" : "AI interview feedback"}
+              {rescueMode
+                ? "Trợ giúp AI · học từ đầu"
+                : "Phản hồi phỏng vấn từ AI"}
             </p>
             <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-white/60">
               {model || "OpenAI"}
@@ -3830,7 +3853,7 @@ function CoachFeedbackPanel({
       <div className="space-y-7 p-6 sm:p-7">
         {feedback.strengths.length ? (
           <div>
-            <p className="text-sm font-bold text-[#245748]">Mày làm tốt</p>
+            <p className="text-sm font-bold text-[#245748]">Bạn làm tốt</p>
             <ul className="mt-3 space-y-2 text-sm leading-6 text-[#52645c]">
               {feedback.strengths.map((strength) => (
                 <li key={strength} className="flex gap-2">
@@ -3843,7 +3866,9 @@ function CoachFeedbackPanel({
         ) : null}
 
         <div>
-          <p className="text-sm font-bold text-[#245748]">Coverage theo rubric</p>
+          <p className="text-sm font-bold text-[#245748]">
+            Mức độ đáp ứng từng tiêu chí
+          </p>
           <div className="mt-3 divide-y divide-[#173f35]/10 rounded-2xl border border-[#173f35]/12 bg-white/65 px-4">
             {feedback.coverage.map((item) => (
               <div key={item.criterion} className="grid gap-2 py-4 sm:grid-cols-[5rem_1fr]">
@@ -3906,7 +3931,7 @@ function CoachFeedbackPanel({
           </div>
           <div className="flex flex-col rounded-2xl bg-[#d7ff91]/55 p-5">
             <p className="font-mono text-[11px] font-bold tracking-wider text-[#356b58] uppercase">
-              Interviewer hỏi tiếp
+              Người phỏng vấn hỏi tiếp
             </p>
             <p className="mt-2 text-sm leading-6 font-semibold text-[#29493d]">
               <InlineCode text={feedback.followUpQuestion} />
@@ -3924,13 +3949,13 @@ function CoachFeedbackPanel({
         <p className="text-center text-xs text-[#6c7b73]">
           {rescueMode ? (
             <>
-              Rating đang khóa · đọc cho hiểu rồi bấm{" "}
+              Mức đánh giá đang khóa · đọc để hiểu rồi bấm{" "}
               <strong>Tự làm lại không nhìn lời giải</strong>.
             </>
           ) : (
             <>
-              AI gợi ý tự chấm: <strong>{suggestedRating?.label}</strong> · hãy
-              tự quyết định sau khi đối chiếu đáp án nguồn.
+              AI gợi ý mức đánh giá: <strong>{suggestedRating?.label}</strong> ·
+              hãy tự quyết định sau khi đối chiếu đáp án nguồn.
             </>
           )}
         </p>
@@ -3992,7 +4017,7 @@ function DeepDivePracticePanel({
         }}
       >
         <label htmlFor={`deep-dive-${question.id}`} className="text-sm font-bold text-[#29493d]">
-          Câu trả lời của mày
+          Câu trả lời của bạn
         </label>
         <textarea
           id={`deep-dive-${question.id}`}
@@ -4031,7 +4056,9 @@ function DeepDivePracticePanel({
         <div className="mt-5 rounded-2xl border border-[#356b58]/15 bg-white/75 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-sm font-bold text-[#245748]">Nhận xét của interviewer AI</p>
+              <p className="text-sm font-bold text-[#245748]">
+                Nhận xét của người phỏng vấn AI
+              </p>
               {model ? (
                 <span className="rounded-full bg-[#e8efe2] px-2 py-0.5 font-mono text-[10px] text-[#356b58]">
                   {model}
@@ -4098,7 +4125,7 @@ function CoachFollowUpPanel({
             Chưa hiểu? Hỏi tiếp AI
           </p>
           <p className="mt-2 text-sm leading-6 text-[#64736c]">
-            AI sẽ giải thích lại dựa trên câu này, feedback vừa chấm và note nguồn.
+            AI sẽ giải thích lại dựa trên câu này, phản hồi vừa chấm và ghi chú nguồn.
           </p>
         </div>
         <span className="rounded-full bg-[#edf3e9] px-3 py-1 font-mono text-[11px] text-[#52645c]">
@@ -4171,7 +4198,7 @@ function CoachFollowUpPanel({
         }}
       >
         <label htmlFor={`follow-up-${question.id}`} className="sr-only">
-          Câu hỏi bổ sung cho AI coach
+          Câu hỏi bổ sung cho trợ lý AI
         </label>
         <textarea
           id={`follow-up-${question.id}`}
@@ -4180,14 +4207,14 @@ function CoachFollowUpPanel({
           maxLength={2000}
           rows={3}
           disabled={loading || limitReached}
-          placeholder="Ví dụ: Tại sao chỗ này lại là undefined behavior? Giải thích bằng ví dụ nhỏ được không?"
+          placeholder="Ví dụ: Tại sao chỗ này lại là hành vi không xác định (undefined behavior)? Có thể giải thích bằng ví dụ nhỏ không?"
           className="w-full resize-y rounded-2xl border border-[#173f35]/18 bg-white px-4 py-3 text-sm leading-6 text-[#1e352d] outline-none transition placeholder:text-[#819087] focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/45 disabled:bg-[#edf1ea]"
         />
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-[#78867f]">
             {limitReached
               ? "Đã đủ 4 lượt. Chấm lại để bắt đầu hội thoại mới."
-              : "Enter xuống dòng · tối đa 2.000 ký tự"}
+              : "Enter để xuống dòng · tối đa 2.000 ký tự"}
           </p>
           <button
             type="submit"
@@ -4281,7 +4308,7 @@ function SavedLibrary({
         <header className="flex items-start justify-between gap-4 border-b border-[#173f35]/12 p-5 sm:p-7">
           <div>
             <p className="font-mono text-xs font-bold tracking-[0.15em] text-[#ba4b2f] uppercase">
-              Saved library
+              Nội dung đã lưu
             </p>
             <h2 className="mt-2 text-2xl font-semibold">Nội dung đáng xem lại</h2>
             <p className="mt-2 text-sm text-[#64736c]">
@@ -4309,7 +4336,8 @@ function SavedLibrary({
           ))}
           {!items.length ? (
             <div className="rounded-2xl border border-dashed border-[#173f35]/20 px-5 py-12 text-center text-sm leading-6 text-[#64736c]">
-              Chưa lưu gì. Dùng nút ☆ ở câu hỏi hoặc phản hồi AI mà mày thấy đáng xem lại.
+              Chưa lưu gì. Dùng nút ☆ ở câu hỏi hoặc phản hồi AI mà bạn thấy
+              đáng xem lại.
             </div>
           ) : null}
         </div>

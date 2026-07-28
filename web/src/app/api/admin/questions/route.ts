@@ -21,14 +21,20 @@ export async function POST(request: Request) {
   const supabase = await createSupabaseServerClient();
   const { data: authData, error: authError } = await supabase.auth.getUser();
   if (authError || !authData.user || !isAllowedPracticeUser(authData.user)) {
-    return Response.json({ error: "Cần đăng nhập owner." }, { status: 401 });
+    return Response.json(
+      { error: "Cần đăng nhập bằng tài khoản quản trị viên." },
+      { status: 401 },
+    );
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return Response.json({ error: "Request không phải JSON hợp lệ." }, { status: 400 });
+    return Response.json(
+      { error: "Yêu cầu không chứa JSON hợp lệ." },
+      { status: 400 },
+    );
   }
   const parsed = questionMutationSchema.safeParse(body);
   if (!parsed.success) {
@@ -40,7 +46,10 @@ export async function POST(request: Request) {
 
   const loaded = await loadQuestionOverrides(supabase);
   if (loaded.error) {
-    return Response.json({ error: "Không đọc được question overrides." }, { status: 502 });
+    return Response.json(
+      { error: "Không đọc được các thay đổi của câu hỏi." },
+      { status: 502 },
+    );
   }
   const baseManifest = await loadQuestionStoreManifest({ supabase });
   const currentManifest = applyQuestionOverrides(
@@ -55,7 +64,10 @@ export async function POST(request: Request) {
   }
   if (baseQuestion.status === "archived") {
     return Response.json(
-      { error: "Câu hỏi đã archive từ repository nên không thể sửa hoặc khôi phục trong Admin." },
+      {
+        error:
+          "Câu hỏi đã được lưu trữ từ kho mã nguồn nên không thể sửa hoặc khôi phục tại trang quản trị.",
+      },
       { status: 409 },
     );
   }
@@ -63,7 +75,10 @@ export async function POST(request: Request) {
     (item) => item.id === baseQuestion.lessonId,
   );
   if (!lesson) {
-    return Response.json({ error: "Không tìm thấy lesson nguồn." }, { status: 500 });
+    return Response.json(
+      { error: "Không tìm thấy bài học nguồn." },
+      { status: 500 },
+    );
   }
 
   const currentQuestion = currentManifest.questions.find(
@@ -97,7 +112,10 @@ export async function POST(request: Request) {
     };
   } else {
     if (!existing?.archived) {
-      return Response.json({ error: "Câu hỏi này chưa được archive." }, { status: 409 });
+      return Response.json(
+        { error: "Câu hỏi này chưa được lưu trữ." },
+        { status: 409 },
+      );
     }
     row = {
       question_id: baseQuestion.id,
@@ -130,7 +148,10 @@ export async function POST(request: Request) {
 
   const override = rowsToQuestionOverrides([row])[0];
   if (!override) {
-    return Response.json({ error: "Override vừa lưu không hợp lệ." }, { status: 500 });
+    return Response.json(
+      { error: "Thay đổi vừa lưu không hợp lệ." },
+      { status: 500 },
+    );
   }
   const question = applyQuestionOverrides(baseManifest, [override]).questions.find(
     (item) => item.id === baseQuestion.id,

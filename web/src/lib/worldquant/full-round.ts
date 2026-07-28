@@ -60,16 +60,16 @@ export function isRoundDeadlineExpired(
 const sectionDefinitionsV1 = [
   {
     id: "cpp-depth",
-    label: "C++ depth",
-    brief: "Defend ownership, lifetime and API contracts.",
+    label: "C++ chuyên sâu",
+    brief: "Bảo vệ lập luận về quyền sở hữu, vòng đời và ràng buộc API.",
     candidates: ["modern_cpp"],
     durationMinutes: 12,
     englishVoice: false,
   },
   {
     id: "coding-concurrency",
-    label: "Coding & concurrency",
-    brief: "Reason about bounded algorithms and concurrent correctness.",
+    label: "Viết mã và lập trình đồng thời",
+    brief: "Lập luận về thuật toán có giới hạn và tính đúng đắn khi chạy đồng thời.",
     candidates: [
       "algorithms_data_structures",
       "concurrency_memory",
@@ -79,8 +79,8 @@ const sectionDefinitionsV1 = [
   },
   {
     id: "market-system-design",
-    label: "Tick / system design",
-    brief: "Design a reliable data path under ordering and load.",
+    label: "Thiết kế hệ thống dữ liệu tick",
+    brief: "Thiết kế luồng dữ liệu tin cậy khi phải giữ thứ tự và chịu tải.",
     candidates: [
       "tick_market_data",
       "distributed_data_platform",
@@ -90,16 +90,16 @@ const sectionDefinitionsV1 = [
   },
   {
     id: "delivery-automation",
-    label: "Build, scripting & SDLC",
-    brief: "Ship a reproducible migration with evidence and rollback.",
+    label: "Hệ thống dựng, tập lệnh và SDLC",
+    brief: "Lập kế hoạch chuyển đổi có thể tái lập, có bằng chứng và phương án quay lui.",
     candidates: ["build_delivery", "scripting_automation"],
     durationMinutes: 12,
     englishVoice: false,
   },
   {
     id: "english-ownership",
-    label: "English ownership",
-    brief: "Make a clear decision while exposing uncertainty and risk.",
+    label: "Làm chủ công việc bằng tiếng Anh",
+    brief: "Đưa ra quyết định rõ ràng đồng thời nêu minh bạch điều chưa chắc chắn và rủi ro.",
     candidates: ["ownership_communication"],
     durationMinutes: 10,
     englishVoice: true,

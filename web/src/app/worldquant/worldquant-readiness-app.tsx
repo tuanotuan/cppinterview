@@ -10,7 +10,7 @@ import {
 
 import {
   MOCK_INTERVIEW_STORAGE_KEY,
-  parseMockInterviewSession,
+  parseCompletedMockInterviewSessionHistory,
 } from "@/lib/mock-interview/session";
 import {
   mockInterviewStorageKey,
@@ -24,6 +24,7 @@ import {
   mockInterviewCompletedArtifactV4Schema,
   type MockInterviewCompletedArtifactV4,
 } from "@/lib/mock-interview/contracts-v4";
+import { PRACTICE_DECKS } from "@/lib/content/decks";
 import {
   buildWorldQuantMockTrends,
   type MockInterviewHistoryEntry,
@@ -52,6 +53,7 @@ import {
   type FocusQueueReason,
   type WorldQuantFocusPlan,
 } from "@/lib/worldquant/focus-plan";
+import { WORLDQUANT_DRILL_CATALOG_VERSION } from "@/lib/worldquant/drills";
 import {
   completeWorldQuantGuidedOnboarding,
   normalizeWorldQuantMissionMinutes,
@@ -118,12 +120,12 @@ const headlineLabels: Record<ReadinessHeadlineStatus, string> = {
   limited_evidence: "Chưa đủ bằng chứng",
   foundation: "Đang xây nền",
   building: "Đang tăng tốc",
-  mock_ready: "Sẵn sàng luyện mock",
+  mock_ready: "Sẵn sàng phỏng vấn thử",
   well_rehearsed: "Đã luyện vững",
 };
 
 const competencyStatusLabels = {
-  no_evidence: "Chưa có content",
+  no_evidence: "Chưa có học liệu",
   starting: "Mới bắt đầu",
   developing: "Đang phát triển",
   practiced: "Đã luyện",
@@ -165,6 +167,21 @@ export function WorldQuantReadinessApp({
   const [trainingState, setTrainingState] =
     useState<WorldQuantTrainingState>(
       EMPTY_WORLDQUANT_TRAINING_STATE,
+    );
+  const hasHistoricalDrillEvidence =
+    trainingState.attempts.some(
+      (attempt) =>
+        attempt.drillVersion !== WORLDQUANT_DRILL_CATALOG_VERSION,
+    ) ||
+    trainingState.checkpointExposures.some(
+      (exposure) =>
+        exposure.drillVersion !== WORLDQUANT_DRILL_CATALOG_VERSION,
+    ) ||
+    trainingState.fullRounds.some((summary) =>
+      summary.completedRounds.some(
+        (round) =>
+          round.drillVersion !== WORLDQUANT_DRILL_CATALOG_VERSION,
+      ),
     );
   const progressSnapshot = useSyncExternalStore(
     subscribeToPracticeProgress,
@@ -340,7 +357,7 @@ export function WorldQuantReadinessApp({
     () =>
       mockSnapshot === null || mockSnapshot === EMPTY_STORAGE_SNAPSHOT
         ? null
-        : parseMockInterviewSession(mockSnapshot),
+        : parseCompletedMockInterviewSessionHistory(mockSnapshot),
     [mockSnapshot],
   );
   const activeCompetencies = readiness.competencies
@@ -559,9 +576,11 @@ export function WorldQuantReadinessApp({
               WQ
             </span>
             <span>
-              <span className="block font-bold">Recall Readiness</span>
+              <span className="block font-bold">
+                Trung tâm chuẩn bị WorldQuant
+              </span>
               <span className="block text-xs text-[#64736c]">
-                WorldQuant C++ track
+                Lộ trình C++ WorldQuant
               </span>
             </span>
           </Link>
@@ -600,7 +619,7 @@ export function WorldQuantReadinessApp({
                     preferences.roleId,
                   )}
                 >
-                  Curriculum
+                  Lộ trình kiến thức
                 </AdvancedLink>
                 <AdvancedLink
                   href={worldQuantRoleHref(
@@ -608,7 +627,7 @@ export function WorldQuantReadinessApp({
                     preferences.roleId,
                   )}
                 >
-                  Drill Lab
+                  Phòng luyện tình huống
                 </AdvancedLink>
                 <AdvancedLink
                   href={worldQuantRoleHref(
@@ -616,7 +635,7 @@ export function WorldQuantReadinessApp({
                     preferences.roleId,
                   )}
                 >
-                  Full Round
+                  Buổi mô phỏng phỏng vấn đầy đủ
                 </AdvancedLink>
                 <AdvancedLink
                   href={worldQuantRoleHref(
@@ -624,10 +643,10 @@ export function WorldQuantReadinessApp({
                     preferences.roleId,
                   )}
                 >
-                  Mock interview
+                  Phỏng vấn thử
                 </AdvancedLink>
                 <AdvancedLink href="/learn/tick-data-order-book">
-                  Học Tick
+                  Học dữ liệu tick
                 </AdvancedLink>
                 <AdvancedLink href="/learn/cmake">
                   Học CMake
@@ -635,7 +654,7 @@ export function WorldQuantReadinessApp({
                 <AdvancedLink href="/stats">Thống kê</AdvancedLink>
                 {account ? (
                   <AdvancedLink href="/admin">
-                    Duyệt question
+                    Duyệt câu hỏi
                   </AdvancedLink>
                 ) : null}
               </div>
@@ -649,7 +668,7 @@ export function WorldQuantReadinessApp({
               </span>
             ) : (
               <span className="rounded-full border border-[#173f35]/15 bg-white/65 px-4 py-2 text-xs font-semibold">
-                Local mode
+                Dùng trên thiết bị
               </span>
             )}
           </nav>
@@ -660,8 +679,19 @@ export function WorldQuantReadinessApp({
             role="alert"
             className="mt-5 rounded-2xl border border-[#ba4b2f]/20 bg-[#f8e8df] px-4 py-3 text-sm text-[#8e3825]"
           >
-            Cloud đang lỗi nên hub tạm dùng dữ liệu trong trình duyệt. Không có
-            tiến độ nào bị ghi đè.
+            Dịch vụ đồng bộ đang lỗi nên hệ thống tạm dùng dữ liệu trong trình
+            duyệt. Không có tiến độ nào bị ghi đè.
+          </p>
+        ) : null}
+
+        {hasHistoricalDrillEvidence ? (
+          <p
+            role="status"
+            className="mt-5 rounded-2xl border border-[#9d6b16]/20 bg-[#fff4d8] px-4 py-3 text-sm leading-6 text-[#6d4b13]"
+          >
+            Nội dung bài luyện đã được viết lại cho rõ hơn. Lịch sử cũ vẫn
+            được giữ, nhưng bài kiểm tra xác nhận phải dùng phiên bản hiện tại
+            nên một số năng lực có thể cần được xác nhận lại.
           </p>
         ) : null}
 
@@ -672,24 +702,24 @@ export function WorldQuantReadinessApp({
           <div className="grid min-w-0 items-center gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-7">
             <div className="min-w-0">
               <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
-                Guided Mode · {today}
+                Chế độ hướng dẫn · {today}
               </p>
               <h1
                 id="guided-session-title"
                 className="mt-3 break-words text-2xl font-semibold tracking-tight sm:text-4xl"
               >
-                Chỉ cần bắt đầu, Mission sẽ chọn đúng việc tiếp theo.
+                Chỉ cần bắt đầu, nhiệm vụ sẽ chọn đúng việc tiếp theo.
               </h1>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-white/70">
-                {profile.label} · hệ thống tự xếp Repair → Flashcards → Drill
-                theo bằng chứng hiện tại. Mày không cần tự chọn công cụ.
+                {profile.label} · hệ thống tự xếp ôn lại → thẻ ghi nhớ → bài
+                luyện theo kết quả hiện tại. Bạn không cần tự chọn công cụ.
               </p>
               <div className="mt-5 hidden flex-wrap gap-2 text-xs sm:flex">
                 <span className="rounded-full bg-white/10 px-3 py-1.5">
-                  {dailyQueue.length} thẻ trong queue
+                  {dailyQueue.length} thẻ trong danh sách
                 </span>
                 <span className="rounded-full bg-white/10 px-3 py-1.5">
-                  Primary gap:{" "}
+                  Điểm cần ưu tiên cải thiện:{" "}
                   {
                     worldQuantCompetencies[
                       readiness.priorityCompetencies[0] ??
@@ -725,7 +755,7 @@ export function WorldQuantReadinessApp({
                   onClick={resumeFocusSprint}
                   className="mt-3 min-h-12 w-full rounded-xl bg-[#d7ff91] px-5 py-3 text-sm font-bold text-[#173f35] transition hover:bg-[#e5ffb7] focus-visible:ring-4 focus-visible:ring-white focus-visible:outline-none"
                 >
-                  Tiếp tục phần flashcard đang làm
+                  Tiếp tục phiên ôn thẻ đang làm
                 </button>
               ) : (
                 <Link
@@ -740,11 +770,12 @@ export function WorldQuantReadinessApp({
                   href={todayMissionHref}
                   className="mt-2 flex min-h-11 w-full items-center justify-center rounded-xl border border-white/18 px-4 py-2 text-center text-xs font-bold text-white"
                 >
-                  Xem toàn bộ Mission
+                  Xem toàn bộ nhiệm vụ
                 </Link>
               ) : null}
               <p className="mt-3 text-center text-[11px] leading-5 text-white/52">
-                Reload vẫn khôi phục đúng ngày, role và budget này.
+                Khi tải lại, hệ thống vẫn khôi phục đúng ngày, vị trí và thời
+                lượng này.
               </p>
             </div>
           </div>
@@ -767,7 +798,7 @@ export function WorldQuantReadinessApp({
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
-                  Start here · 3 bước
+                  Bắt đầu tại đây · 3 bước
                 </p>
                 <h2
                   id="guided-onboarding-title"
@@ -788,18 +819,18 @@ export function WorldQuantReadinessApp({
             <ol className="mt-5 grid gap-3 md:grid-cols-3">
               <GuidedStep
                 number={1}
-                title="Mở Mission"
-                description="Chọn role và số phút, rồi bấm nút bắt đầu duy nhất ở trên."
+                title="Mở nhiệm vụ"
+                description="Chọn vị trí và số phút, rồi bấm nút bắt đầu ở trên."
               />
               <GuidedStep
                 number={2}
-                title="Làm đúng bước Tiếp theo"
-                description="Mission tự chuyển từ sửa lỗi sang thẻ và bài transfer."
+                title="Làm đúng bước tiếp theo"
+                description="Nhiệm vụ tự chuyển từ sửa lỗi sang thẻ và bài vận dụng."
               />
               <GuidedStep
                 number={3}
-                title="Quay lại Mission"
-                description="Xong Focus, Drill hoặc Mock sẽ có nút về đúng kế hoạch cũ."
+                title="Quay lại nhiệm vụ"
+                description="Xong phiên ôn tập, bài luyện hoặc phỏng vấn thử sẽ có nút về đúng kế hoạch cũ."
               />
             </ol>
             {guidedStorageError ? (
@@ -816,20 +847,20 @@ export function WorldQuantReadinessApp({
         <section className="grid w-full min-w-0 max-w-full grid-cols-1 gap-7 py-9 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:items-stretch">
           <div className="w-full min-w-0 max-w-full rounded-[2rem] border border-[#173f35]/12 bg-white/65 p-6 shadow-[0_24px_80px_rgb(23_63_53_/_8%)] sm:p-9">
             <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
-              WorldQuant Readiness Hub
+              Trung tâm chuẩn bị WorldQuant
             </p>
             <h2 className="mt-4 max-w-3xl break-words text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
               Biết chính xác nên học gì tiếp theo.
             </h2>
             <p className="mt-4 max-w-3xl leading-7 text-[#64736c]">
-              Chọn role mục tiêu, rồi hub ghép question bank đã kiểm chứng với
-              lịch sử ôn thật của mày. Coverage thấp là thiếu content; progress
-              thấp mới là phần cần luyện.
+              Chọn vị trí mục tiêu, rồi hệ thống ghép kho câu hỏi đã kiểm chứng
+              với lịch sử ôn thực tế của bạn. Mức bao phủ thấp nghĩa là học
+              liệu còn thiếu; tiến độ thấp mới là phần cần luyện.
             </p>
 
             <label className="mt-7 block max-w-xl">
               <span className="font-mono text-[11px] font-bold tracking-[0.14em] text-[#64736c] uppercase">
-                Role profile
+                Vị trí mục tiêu
               </span>
               <select
                 value={preferences.roleId}
@@ -854,8 +885,9 @@ export function WorldQuantReadinessApp({
               <p className="mt-2 font-semibold">{profile.summary}</p>
             </div>
             <p className="mt-5 max-w-3xl text-xs leading-5 text-[#64736c]">
-              Đây là lộ trình tự xây từ JD mày cung cấp và các theme công khai,
-              không phải rubric tuyển dụng nội bộ hay xác suất đậu WorldQuant.
+              Đây là lộ trình được xây từ mô tả công việc bạn cung cấp và các
+              chủ đề công khai, không phải tiêu chí tuyển dụng nội bộ hay dự
+              đoán khả năng trúng tuyển WorldQuant.
             </p>
           </div>
 
@@ -873,7 +905,8 @@ export function WorldQuantReadinessApp({
             <span>
               Phân tích và công cụ nâng cao
               <span className="mt-1 block text-xs font-normal text-[#64736c]">
-                Coverage, competency, Focus Sprint, target date và mock history
+                Mức bao phủ, năng lực, phiên ôn tập trọng tâm, ngày mục tiêu và
+                lịch sử phỏng vấn thử
               </span>
             </span>
             <span
@@ -886,22 +919,22 @@ export function WorldQuantReadinessApp({
           <div className="pt-5">
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <MetricCard
-            label="Hàng đợi hôm nay"
+            label="Danh sách ôn hôm nay"
             value={`${dailyQueue.length} thẻ`}
             note={`${readiness.dueCount} đến hạn · ${readiness.newCount} thẻ mới`}
           />
           <MetricCard
-            label="Đã học trong bank"
+            label="Đã học trong kho câu hỏi"
             value={`${readiness.learnedCount}/${readiness.questionCount}`}
-            note={`${readiness.matureCount} thẻ mature (≥21 ngày)`}
+            note={`${readiness.matureCount} thẻ đã ghi nhớ lâu (≥21 ngày)`}
           />
           <MetricCard
-            label="Coverage theo role"
+            label="Mức bao phủ theo vị trí"
             value={`${readiness.coveragePercent}%`}
-            note="Có giới hạn 2 thẻ cho mỗi lesson"
+            note="Tối đa 2 thẻ cho mỗi bài học"
           />
           <MetricCard
-            label="Mock gần nhất"
+            label="Phỏng vấn thử gần nhất"
             value={
               latestV4Artifact
                 ? `${latestV4Artifact.debrief.roleInterviewScore ?? "—"}/100`
@@ -911,20 +944,24 @@ export function WorldQuantReadinessApp({
             }
             note={
               latestV4Artifact
-                ? `${latestV4Artifact.debrief.assessedWeightPercent}% trọng số role đã hỏi · tách khỏi index`
+                ? `${latestV4Artifact.debrief.assessedWeightPercent}% nội dung quan trọng của vị trí đã được hỏi · theo dõi riêng`
                 : completedMock
-                  ? "Legacy v3 · hiển thị riêng, chưa trộn vào index"
-                  : "Làm mock để thêm bằng chứng phỏng vấn"
+                  ? "Phiên bản cũ · hiển thị riêng, chưa tính vào chỉ số"
+                  : "Làm phỏng vấn thử để thêm kết quả phỏng vấn"
             }
           />
         </section>
 
         <section className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-          <Panel eyebrow="Focus Sprint" title="Queue đúng gap, đúng thứ tự">
+          <Panel
+            eyebrow="Phiên ôn tập trọng tâm"
+            title="Đúng ưu tiên, đúng thứ tự"
+          >
             <p className="mt-3 text-sm leading-6 text-[#64736c]">
-              Planner ưu tiên thẻ quá hạn, relearning và leech trong bank đã
-              duyệt, rồi mới đến thẻ đang học hoặc thẻ mới. Rating vẫn đi qua
-              scheduler bình thường; sprint không tự sửa tiến độ.
+              Hệ thống ưu tiên thẻ quá hạn, thẻ đang học lại và thẻ khó nhớ
+              trong kho đã duyệt, rồi mới đến thẻ đang học hoặc thẻ mới. Đánh
+              giá vẫn đi qua lịch ôn bình thường; phiên học không tự ý thay đổi
+              tiến độ.
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
               <span className="rounded-full bg-[#edf3e7] px-3 py-1.5 font-bold text-[#356b58]">
@@ -932,18 +969,20 @@ export function WorldQuantReadinessApp({
                 {focusPlan.scheduledMinutes} phút
               </span>
               <span className="rounded-full border border-[#173f35]/10 px-3 py-1.5 text-[#64736c]">
-                Budget {focusPlan.requestedMinutes} phút · trần{" "}
+                Thời lượng {focusPlan.requestedMinutes} phút · tối đa{" "}
                 {focusPlan.budgetCeilingMinutes} phút
               </span>
               <span className="rounded-full border border-[#173f35]/10 px-3 py-1.5 text-[#64736c]">
-                Daily queue chuẩn: {dailyQueue.length} thẻ
+                Danh sách hằng ngày: {dailyQueue.length} thẻ
               </span>
             </div>
 
             {activeFocusSession ? (
               <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#356b58]/20 bg-[#edf3e7] p-4">
                 <div>
-                  <p className="font-semibold">Có một sprint đang làm dở.</p>
+                  <p className="font-semibold">
+                    Có một phiên ôn tập đang làm dở.
+                  </p>
                   <p className="mt-1 text-xs text-[#64736c]">
                     {activeFocusSession.completedQuestions.length}/
                     {activeFocusSession.plan.questions.length} thẻ đã xong ·{" "}
@@ -955,7 +994,7 @@ export function WorldQuantReadinessApp({
                   onClick={resumeFocusSprint}
                   className="rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white"
                 >
-                  Tiếp tục sprint
+                  Tiếp tục phiên ôn
                 </button>
               </div>
             ) : null}
@@ -990,7 +1029,9 @@ export function WorldQuantReadinessApp({
                           <span className="font-semibold text-[#8e3825]">
                             {focusQueueReasonLabel(step.queueReason)}
                           </span>
-                          <span>{step.question.deckId}</span>
+                          <span>
+                            {PRACTICE_DECKS[step.question.deckId].label}
+                          </span>
                           <span>
                             v{step.question.version} ·{" "}
                             {step.question.sourceHash.slice(0, 8)}
@@ -1003,16 +1044,16 @@ export function WorldQuantReadinessApp({
               </ol>
             ) : (
               <p className="mt-5 rounded-2xl border border-dashed border-[#173f35]/20 p-5 text-sm leading-6 text-[#64736c]">
-                Không có thẻ đã duyệt nào đủ điều kiện cho sprint hôm nay.
-                Planner sẽ chỉ mở guide thật nếu competency đó có guide; nó
-                không tạo queue giả.
+                Không có thẻ đã duyệt nào đủ điều kiện cho phiên ôn hôm nay.
+                Hệ thống chỉ mở hướng dẫn nếu năng lực đó có tài liệu phù hợp;
+                hệ thống không tạo danh sách giả.
               </p>
             )}
 
             {focusPlan.fallbacks.length > 0 ? (
               <div className="mt-5 rounded-2xl border border-[#d08a36]/25 bg-[#fff4df] p-4">
                 <p className="text-xs font-bold text-[#8e5a1f]">
-                  Phần bank chưa phủ đủ
+                  Kho câu hỏi chưa đủ nội dung
                 </p>
                 <ul className="mt-2 space-y-2 text-xs leading-5 text-[#765c39]">
                   {focusPlan.fallbacks.map((fallback) => {
@@ -1028,10 +1069,10 @@ export function WorldQuantReadinessApp({
                           :
                         </b>{" "}
                         {fallback.kind === "guide"
-                          ? `${fallback.label} — đây là guide, không phải thẻ đã duyệt.`
+                          ? `${fallback.label} — đây là hướng dẫn, không phải thẻ đã duyệt.`
                           : fallback.label}
                         {pendingCount > 0
-                          ? ` · ${pendingCount} draft đang chờ owner review.`
+                          ? ` · ${pendingCount} bản nháp đang chờ người quản lý duyệt.`
                           : ""}
                       </li>
                     );
@@ -1045,7 +1086,7 @@ export function WorldQuantReadinessApp({
                     href="/admin"
                     className="mt-3 inline-flex rounded-xl border border-[#8e5a1f]/20 bg-white/65 px-3 py-2 text-xs font-bold text-[#8e5a1f]"
                   >
-                    Mở Review Queue
+                    Mở danh sách chờ duyệt
                   </Link>
                 ) : null}
               </div>
@@ -1063,12 +1104,12 @@ export function WorldQuantReadinessApp({
                 href={balancedMockHref}
                 className="rounded-2xl border border-[#173f35]/15 bg-white px-5 py-3 text-sm font-bold transition hover:border-[#356b58]/40"
               >
-                Luyện mock interview
+                Luyện phỏng vấn thử
               </Link>
             </div>
           </Panel>
 
-          <Panel eyebrow="Target date" title="Nhịp học đến phỏng vấn">
+          <Panel eyebrow="Ngày mục tiêu" title="Nhịp học đến phỏng vấn">
             <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <label>
                 <span className="text-xs font-bold text-[#64736c]">
@@ -1115,7 +1156,7 @@ export function WorldQuantReadinessApp({
                   </p>
                 </div>
                 <p className="font-mono text-xs text-white/55">
-                  {targetPlan.availableHours} giờ khả dụng
+                  {targetPlan.availableHours} giờ có thể học
                 </p>
               </div>
               <p className="mt-4 text-sm leading-6 text-white/72">
@@ -1127,19 +1168,19 @@ export function WorldQuantReadinessApp({
 
         <section className="mt-5">
           <Panel
-            eyebrow="Competency model v1"
+            eyebrow="Mô hình năng lực v1"
             title={`Ma trận ${profile.label}`}
           >
             <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#64736c]">
               <span>
-                <b className="text-[#173f35]">Coverage</b> = content đã kiểm
-                chứng
+                <b className="text-[#173f35]">Mức bao phủ</b> = học liệu đã
+                kiểm chứng
               </span>
               <span>
-                <b className="text-[#173f35]">Prepared</b> = bằng chứng học đã
-                tích lũy
+                <b className="text-[#173f35]">Mức chuẩn bị</b> = kết quả học
+                đã tích lũy
               </span>
-              <span>Core competency cần ≥50% coverage</span>
+              <span>Năng lực cốt lõi cần mức bao phủ ≥50%</span>
             </div>
             <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
               {activeCompetencies.map((competency) => (
@@ -1159,7 +1200,10 @@ export function WorldQuantReadinessApp({
         </section>
 
         <section className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-2">
-          <Panel eyebrow="Priority gaps" title="Ba việc đáng làm nhất">
+          <Panel
+            eyebrow="Điểm cần ưu tiên cải thiện"
+            title="Ba việc đáng làm nhất"
+          >
             <div className="mt-5 space-y-3">
               {readiness.priorityCompetencies.map((key, index) => {
                 const competency = readiness.competencies.find(
@@ -1194,7 +1238,8 @@ export function WorldQuantReadinessApp({
                           {gapDescription(competency.gapKind)}
                         </p>
                         <p className="mt-1 font-mono text-[10px] text-[#52645c]">
-                          Gap closure: {closureGap?.status ?? "chưa mở"}
+                          Tiến độ cải thiện:{" "}
+                          {gapClosureStatusLabel(closureGap?.status)}
                         </p>
                       </div>
                     </div>
@@ -1213,13 +1258,13 @@ export function WorldQuantReadinessApp({
                       })}
                       className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-xs font-bold"
                     >
-                      Mock đúng gap
+                      Phỏng vấn thử năng lực này
                     </Link>
                     <Link
                       href={`/worldquant/drills?role=${preferences.roleId}&competency=${key}`}
                       className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-xs font-bold"
                     >
-                      Scenario drill
+                      Bài luyện tình huống
                     </Link>
                     {focusFeedback?.competency === key ? (
                       <p
@@ -1235,20 +1280,23 @@ export function WorldQuantReadinessApp({
             </div>
           </Panel>
 
-          <Panel eyebrow="Interview evidence" title="Mock gần nhất">
+          <Panel
+            eyebrow="Kết quả phỏng vấn"
+            title="Phỏng vấn thử gần nhất"
+          >
             {activeV4Mock &&
             activeV4Mock.status !== "completed" ? (
               <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#356b58]/20 bg-[#edf3e7] p-4">
                 <div>
                   <p className="text-sm font-semibold">
-                    Có một mock v4 đang làm dở.
+                    Có một buổi phỏng vấn thử đang làm dở.
                   </p>
                   <p className="mt-1 text-xs text-[#64736c]">
                     {worldQuantRoleProfileById(activeV4Mock.profileId).label} ·{" "}
                     câu {activeV4Mock.currentIndex + 1}/
                     {activeV4Mock.questions.length} ·{" "}
                     {activeV4Mock.status === "evaluating"
-                      ? "đang chấm report"
+                       ? "đang chấm kết quả"
                       : "đang phỏng vấn"}
                   </p>
                 </div>
@@ -1256,7 +1304,7 @@ export function WorldQuantReadinessApp({
                   href="/mock-interview"
                   className="rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white"
                 >
-                  Tiếp tục mock
+                  Tiếp tục phỏng vấn thử
                 </Link>
               </div>
             ) : null}
@@ -1271,15 +1319,15 @@ export function WorldQuantReadinessApp({
                       </p>
                       <p className="mt-2 text-sm text-[#64736c]">
                         {latestV4Artifact.plan.mode === "targeted"
-                          ? `Targeted · ${
+                          ? `Theo năng lực · ${
                               worldQuantCompetencies[
                                 latestV4Artifact.plan.targetCompetency!
                               ].shortLabel
                             }`
-                          : "Balanced role sample"}{" "}
+                          : "Mẫu tổng hợp theo vị trí"}{" "}
                         · {latestV4Artifact.plan.durationMinutes} phút ·{" "}
                         {latestV4Artifact.debrief.assessedWeightPercent}% trọng
-                        số role đã hỏi
+                        số vị trí đã hỏi
                       </p>
                       <p className="mt-1 text-xs text-[#64736c]">
                         Hoàn thành{" "}
@@ -1290,12 +1338,12 @@ export function WorldQuantReadinessApp({
                       href={balancedMockHref}
                       className="rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white"
                     >
-                      Làm balanced mock
+                      Làm phỏng vấn thử tổng hợp
                     </Link>
                   </div>
                   <p className="mt-4 text-xs leading-5 text-[#52645c]">
                     Đây là điểm trên phần đã hỏi, không phải kết luận sẵn sàng
-                    tuyển dụng và không được cộng vào Preparation Index.
+                    tuyển dụng và không được cộng vào Chỉ số chuẩn bị.
                   </p>
                 </div>
 
@@ -1322,8 +1370,8 @@ export function WorldQuantReadinessApp({
                         </div>
                         <p className="mt-1 text-[10px] text-[#64736c]">
                           {item.status === "assessed"
-                            ? `${item.evidenceCount} câu evidence · role weight ${item.roleWeight}%`
-                            : `Không có evidence trong attempt này · role weight ${item.roleWeight}%`}
+                            ? `${item.evidenceCount} câu đã chấm · mức độ quan trọng với vị trí ${item.roleWeight}%`
+                            : `Không có kết quả trong lượt này · mức độ quan trọng với vị trí ${item.roleWeight}%`}
                         </p>
                       </div>
                     ))}
@@ -1332,14 +1380,14 @@ export function WorldQuantReadinessApp({
                 {assessedMockTrends.length ? (
                   <div className="mt-4 rounded-2xl border border-[#173f35]/10 bg-[#fbfaf4] p-4">
                     <p className="text-xs font-bold">
-                      Trend cùng role/profile,{" "}
+                      Xu hướng cùng vị trí/cấu hình,{" "}
                       {mockTrends.planMode === "targeted"
-                        ? `targeted ${
+                        ? `theo năng lực ${
                             worldQuantCompetencies[
                               mockTrends.targetCompetency!
                             ].shortLabel
                           }`
-                        : "balanced"}{" "}
+                        : "tổng hợp"}{" "}
                       và cùng {latestV4Duration} phút
                     </p>
                     <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -1363,15 +1411,15 @@ export function WorldQuantReadinessApp({
                               {trend.delta === null
                                 ? ""
                                 : ` (${trend.delta >= 0 ? "+" : ""}${trend.delta})`}{" "}
-                              · n={trend.count}
+                              · {trend.count} lượt
                             </span>
                           </div>
                         ))}
                     </div>
                     <p className="mt-3 text-[10px] leading-4 text-[#64736c]">
-                      Chỉ so competency đã được chấm; “Chưa hỏi” không bị biến
-                      thành 0. Có {mockTrends.comparableAttemptCount} attempt
-                      cùng version để đối chiếu.
+                      Chỉ so các năng lực đã được chấm; “Chưa hỏi” không bị
+                      biến thành 0. Có {mockTrends.comparableAttemptCount} lượt
+                      cùng phiên bản để đối chiếu.
                     </p>
                   </div>
                 ) : null}
@@ -1379,7 +1427,7 @@ export function WorldQuantReadinessApp({
                 {latestMockRemediation?.recommendations.length ? (
                   <div className="mt-4">
                     <p className="text-xs font-bold">
-                      Remediation từ gap đã được chấm
+                      Gợi ý ôn lại từ phần đã được chấm
                     </p>
                     <div className="mt-2 grid gap-2 sm:grid-cols-2">
                       {latestMockRemediation.recommendations
@@ -1399,12 +1447,12 @@ export function WorldQuantReadinessApp({
                             </p>
                             <p className="mt-1 text-[10px] text-[#64736c]">
                               {option.availability === "focus_sprint"
-                                ? `${option.plan.questions.length} thẻ approved`
+                                ? `${option.plan.questions.length} thẻ đã duyệt`
                                 : option.availability === "guide"
-                                  ? "Có guide nền tảng"
+                                  ? "Có hướng dẫn nền tảng"
                                   : option.availability === "content_gap"
-                                    ? "Question bank chưa có card/guide phù hợp"
-                                    : "Hiện chưa có item đến hạn cho gap này"}
+                                    ? "Kho câu hỏi chưa có thẻ hoặc hướng dẫn phù hợp"
+                                    : "Hiện chưa có bài đến hạn cho phần này"}
                             </p>
                             {option.availability === "focus_sprint" ||
                             option.availability === "guide" ? (
@@ -1419,8 +1467,8 @@ export function WorldQuantReadinessApp({
                                 className="mt-3 rounded-lg bg-[#173f35] px-3 py-2 text-[10px] font-bold text-white"
                               >
                                 {option.availability === "focus_sprint"
-                                  ? "Tạo Focus Sprint"
-                                  : "Mở guide"}
+                                  ? "Tạo phiên ôn tập trọng tâm"
+                                  : "Mở hướng dẫn"}
                               </button>
                             ) : null}
                           </div>
@@ -1431,8 +1479,8 @@ export function WorldQuantReadinessApp({
 
                 <p className="mt-4 text-xs leading-5 text-[#64736c]">
                   {mockHistoryAvailable
-                    ? `${roleMockHistory.length} attempt v4 của role này được lưu theo account.`
-                    : "Cloud history chưa cấu hình; Hub chỉ hiện dữ liệu server đã tải được."}
+                    ? `${roleMockHistory.length} lượt của vị trí này được lưu theo tài khoản.`
+                    : "Lịch sử đồng bộ chưa được cấu hình; hệ thống chỉ hiện dữ liệu máy chủ đã tải được."}
                 </p>
               </>
             ) : completedMock ? (
@@ -1481,33 +1529,37 @@ export function WorldQuantReadinessApp({
                           </span>
                         </div>
                         <p className="mt-1 text-[10px] text-[#64736c]">
-                          Map sang{" "}
+                          Tương ứng với{" "}
                           {worldQuantCompetencies[item.mapped.key].shortLabel}
                           {item.mapped.granularity === "legacy_fallback"
-                            ? " (legacy)"
+                             ? " (phiên bản cũ)"
                             : ""}
                         </p>
                       </div>
                     ))}
                 </div>
                 <p className="mt-4 text-xs leading-5 text-[#64736c]">
-                  Mock v3 chỉ lưu report gần nhất trong browser. Điểm này được
-                  hiển thị riêng và chưa cộng vào Preparation Index để tránh
-                  trộn bằng chứng không tương đương.
+                  Phiên bản phỏng vấn thử cũ chỉ lưu kết quả gần nhất trong
+                  trình duyệt. Điểm này được hiển thị riêng và chưa cộng vào chỉ
+                  số chuẩn bị
+                  để tránh trộn các kết quả không tương đương.
                 </p>
               </>
             ) : (
               <div className="mt-5 rounded-2xl border border-dashed border-[#173f35]/20 p-6">
-                <p className="font-semibold">Chưa có mock report hoàn chỉnh.</p>
+                <p className="font-semibold">
+                  Chưa có kết quả phỏng vấn thử hoàn chỉnh.
+                </p>
                 <p className="mt-2 text-sm leading-6 text-[#64736c]">
-                  Làm một set 30 phút để có rubric feedback cho C++, Tick,
-                  performance, engineering quality và ownership.
+                  Làm một buổi 30 phút để nhận đánh giá theo tiêu chí cho C++,
+                  Dữ liệu tick, hiệu năng, chất lượng kỹ thuật và tinh thần làm
+                  chủ công việc.
                 </p>
                 <Link
                   href={balancedMockHref}
                   className="mt-5 inline-flex rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white"
                 >
-                  Bắt đầu mock
+                  Bắt đầu phỏng vấn thử
                 </Link>
               </div>
             )}
@@ -1524,8 +1576,8 @@ export function WorldQuantReadinessApp({
               </p>
               <p className="mt-1 text-sm text-[#64736c]">
                 {cloudEnabled
-                  ? "Đăng nhập GitHub để merge tiến độ cloud khi đổi thiết bị."
-                  : "Supabase chưa được cấu hình; hub vẫn dùng đầy đủ ở local mode."}
+                  ? "Đăng nhập GitHub để hợp nhất tiến độ khi đổi thiết bị."
+                  : "Supabase chưa được cấu hình; hệ thống vẫn hoạt động đầy đủ trên thiết bị."}
               </p>
             </div>
             {cloudEnabled ? (
@@ -1564,7 +1616,7 @@ function ScoreCard({
       <div>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
-            Preparation Index
+            Chỉ số chuẩn bị
           </p>
           <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/80">
             {headlineLabels[status]}
@@ -1575,13 +1627,14 @@ function ScoreCard({
           <span className="ml-1 text-2xl text-white/45">/100</span>
         </p>
         <p className="mt-3 text-sm leading-6 text-white/64">
-          Chỉ số evidence trong app, không phải xác suất đậu. Khi coverage thấp,
-          điểm thấp chủ yếu nói rằng bank chưa đủ dữ liệu.
+          Chỉ số dựa trên kết quả trong ứng dụng, không phải xác suất trúng
+          tuyển. Khi mức bao phủ thấp, điểm thấp chủ yếu cho biết kho câu hỏi
+          chưa đủ dữ liệu.
         </p>
       </div>
       <div className="mt-8">
         <div className="flex items-center justify-between text-xs">
-          <span>Weighted coverage</span>
+          <span>Mức bao phủ có trọng số</span>
           <span className="font-mono font-bold">{coveragePercent}%</span>
         </div>
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
@@ -1591,7 +1644,8 @@ function ScoreCard({
           />
         </div>
         <p className="mt-4 font-mono text-[10px] text-white/45">
-          {verifiedCount} repo-verified · {approvedCount} owner-approved
+          {verifiedCount} câu đã xác minh trong kho · {approvedCount} câu đã
+          được duyệt
         </p>
       </div>
     </article>
@@ -1616,7 +1670,7 @@ function CompetencyCard({
             <h3 className="font-semibold">{definition.label}</h3>
             {core ? (
               <span className="rounded-full bg-[#f1d6c9] px-2 py-1 font-mono text-[9px] font-bold text-[#8e3825] uppercase">
-                Core
+                Cốt lõi
               </span>
             ) : null}
           </div>
@@ -1626,23 +1680,23 @@ function CompetencyCard({
         </div>
         <div className="text-right">
           <p className="font-mono text-lg font-bold">{competency.weight}%</p>
-          <p className="text-[10px] text-[#64736c]">role weight</p>
+          <p className="text-[10px] text-[#64736c]">mức độ quan trọng</p>
         </div>
       </div>
       <ProgressRow
-        label="Prepared"
+        label="Mức chuẩn bị"
         value={competency.preparedPercent}
         tone="green"
       />
       <ProgressRow
-        label="Coverage"
+        label="Mức bao phủ"
         value={competency.coveragePercent}
         tone="orange"
       />
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#64736c]">
         <span>
-          {competency.effectiveCount}/{competency.target} evidence ·{" "}
-          {competency.matureCount} mature
+          {competency.effectiveCount}/{competency.target} câu hỏi đủ điều kiện ·{" "}
+          {competency.matureCount} thẻ đã nhớ lâu
         </span>
         <span
           className={gapToneClass(competency.gapKind)}
@@ -1655,7 +1709,7 @@ function CompetencyCard({
         href={mockHref}
         className="mt-4 inline-flex rounded-xl border border-[#173f35]/15 bg-white px-3 py-2 text-[11px] font-bold text-[#173f35]"
       >
-        Luyện targeted mock
+        Phỏng vấn thử theo năng lực
       </Link>
     </article>
   );
@@ -1962,25 +2016,25 @@ function buildTargetPlan({
       competency.weight > 0 && competency.gapKind !== "content",
   ).length;
   let message =
-    "Ưu tiên gap có weight cao nhất, review queue mỗi ngày và một mock mỗi tuần.";
+    "Ưu tiên điểm cần cải thiện quan trọng nhất với vị trí, ôn thẻ mỗi ngày và làm một buổi phỏng vấn thử mỗi tuần.";
   if (daysRemaining === 0) {
     message =
-      "Target date đã tới hoặc đã qua. Giữ review ngắn, làm một mock và tập trung vào 2 gap có weight cao nhất.";
+      "Ngày mục tiêu đã tới hoặc đã qua. Hãy ôn ngắn, làm một buổi phỏng vấn thử và tập trung vào hai điểm cần cải thiện quan trọng nhất với vị trí.";
   } else if (daysRemaining <= 14) {
-    message = `Sprint ngắn: ${learningGaps} learning gap cần luyện trực tiếp; ${contentGaps} content gap nên bù bằng guide và mock thay vì hiểu nhầm là điểm yếu cá nhân.`;
+    message = `Giai đoạn nước rút: ${learningGaps} phần cần luyện trực tiếp; ${contentGaps} phần học liệu còn thiếu nên được bù bằng hướng dẫn và phỏng vấn thử, không nên hiểu nhầm là điểm yếu cá nhân.`;
   } else if (readiness.coveragePercent < 60) {
-    message = `Bank còn ${contentGaps} content gap. Dùng guide cho phần thiếu, giữ review hằng ngày và chuyển dần sang mock khi coverage tăng.`;
+    message = `Kho câu hỏi còn ${contentGaps} phần học liệu chưa đủ. Hãy dùng hướng dẫn cho phần thiếu, duy trì ôn hằng ngày và chuyển dần sang phỏng vấn thử khi mức bao phủ tăng.`;
   }
   return { daysRemaining, availableHours, message };
 }
 
 function focusQueueReasonLabel(reason: FocusQueueReason) {
   return {
-    due_relearning: "Quá hạn · relearning",
-    due_leech: "Quá hạn · leech",
+    due_relearning: "Quá hạn · đang học lại",
+    due_leech: "Quá hạn · thẻ khó nhớ",
     due: "Đến hạn",
-    relearning: "Đang relearning",
-    leech: "Leech cần củng cố",
+    relearning: "Đang học lại",
+    leech: "Thẻ khó nhớ cần củng cố",
     learning: "Đang học",
     new: "Thẻ mới",
   }[reason];
@@ -1991,20 +2045,22 @@ function focusPlanCtaLabel(
   hasActiveSession: boolean,
 ) {
   if (plan.questions.length > 0) {
-    return hasActiveSession ? "Bắt đầu sprint mới" : "Bắt đầu Focus Sprint";
+    return hasActiveSession
+      ? "Bắt đầu phiên ôn mới"
+      : "Bắt đầu phiên ôn tập trọng tâm";
   }
   if (plan.fallbacks.some((fallback) => fallback.kind === "guide")) {
-    return "Mở guide phù hợp";
+    return "Mở hướng dẫn phù hợp";
   }
-  return "Xem giới hạn content";
+  return "Xem phần học liệu còn thiếu";
 }
 
 function targetedFocusCtaLabel(plan: WorldQuantFocusPlan) {
-  if (plan.questions.length > 0) return "Luyện gap này";
+  if (plan.questions.length > 0) return "Luyện năng lực này";
   if (plan.fallbacks.some((fallback) => fallback.kind === "guide")) {
-    return "Mở guide";
+    return "Mở hướng dẫn";
   }
-  return "Chưa có bank";
+  return "Kho câu hỏi chưa đủ";
 }
 
 function dateDifferenceDays(from: string, to: string) {
@@ -2026,17 +2082,27 @@ function gapDescription(
   gapKind: CompetencyReadiness["gapKind"],
 ): string {
   if (gapKind === "content") {
-    return "Content gap: bank chưa đủ bằng chứng đã kiểm chứng.";
+    return "Phần học liệu còn thiếu: kho câu hỏi chưa đủ nội dung đã kiểm chứng.";
   }
   if (gapKind === "mixed") {
-    return "Mixed gap: bank còn thiếu và phần hiện có cũng chưa được luyện đủ.";
+    return "Cần bổ sung cả học liệu và luyện tập: kho còn thiếu, phần hiện có cũng chưa được luyện đủ.";
   }
-  return "Learning gap: content đã có nhưng chưa được luyện đủ.";
+  return "Cần luyện thêm: học liệu đã có nhưng chưa được ôn đủ.";
 }
 
 function gapLabel(gapKind: CompetencyReadiness["gapKind"]) {
-  if (gapKind === "mixed") return "content + learning gap";
-  return gapKind === "content" ? "content gap" : "learning gap";
+  if (gapKind === "mixed") return "thiếu học liệu + cần luyện thêm";
+  return gapKind === "content" ? "học liệu còn thiếu" : "cần luyện thêm";
+}
+
+function gapClosureStatusLabel(status: string | null | undefined) {
+  const labels: Record<string, string> = {
+    open: "cần luyện",
+    learning: "đang học",
+    transfer_ready: "sẵn sàng xác nhận",
+    verified: "đã xác nhận",
+  };
+  return status ? (labels[status] ?? status) : "chưa mở";
 }
 
 function gapToneClass(gapKind: CompetencyReadiness["gapKind"]) {
@@ -2078,8 +2144,8 @@ function formatMockReadiness(
   return {
     not_ready: "Cần luyện thêm",
     developing: "Đang phát triển",
-    interview_ready: "Interview-ready",
-    strong: "Strong",
+    interview_ready: "Sẵn sàng phỏng vấn",
+    strong: "Vững",
   }[readiness];
 }
 

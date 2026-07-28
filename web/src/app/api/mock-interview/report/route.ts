@@ -133,7 +133,7 @@ export async function POST(request: Request) {
   if (!limit.allowed) {
     return Response.json(
       {
-        error: "Mày gọi AI hơi nhanh. Chờ một chút rồi thử lại.",
+        error: "Bạn đang gọi AI quá nhanh. Vui lòng chờ một chút rồi thử lại.",
         code: "rate_limited",
       },
       {
@@ -151,7 +151,7 @@ export async function POST(request: Request) {
   ) {
     return Response.json(
       {
-        error: "Mock report chỉ nhận application/json.",
+        error: "API báo cáo phỏng vấn chỉ nhận application/json.",
         code: "unsupported_media_type",
       },
       { status: 415 },
@@ -165,7 +165,10 @@ export async function POST(request: Request) {
     declaredLength > MAX_REPORT_REQUEST_BYTES
   ) {
     return Response.json(
-      { error: "Buổi mock vượt giới hạn báo cáo.", code: "request_too_large" },
+      {
+        error: "Buổi phỏng vấn vượt giới hạn tạo báo cáo.",
+        code: "request_too_large",
+      },
       { status: 413 },
     );
   }
@@ -176,7 +179,10 @@ export async function POST(request: Request) {
     MAX_REPORT_REQUEST_BYTES
   ) {
     return Response.json(
-      { error: "Buổi mock vượt giới hạn báo cáo.", code: "request_too_large" },
+      {
+        error: "Buổi phỏng vấn vượt giới hạn tạo báo cáo.",
+        code: "request_too_large",
+      },
       { status: 413 },
     );
   }
@@ -185,7 +191,7 @@ export async function POST(request: Request) {
     body = JSON.parse(rawBody);
   } catch {
     return Response.json(
-      { error: "Request không phải JSON hợp lệ.", code: "invalid_json" },
+      { error: "Yêu cầu không chứa JSON hợp lệ.", code: "invalid_json" },
       { status: 400 },
     );
   }
@@ -197,7 +203,7 @@ export async function POST(request: Request) {
     return Response.json(
       {
         error:
-          "Dữ liệu buổi mock không hợp lệ hoặc có câu trả lời vượt giới hạn.",
+          "Dữ liệu buổi phỏng vấn không hợp lệ hoặc có câu trả lời vượt giới hạn.",
         code: "invalid_request",
       },
       { status: 400 },
@@ -219,7 +225,10 @@ export async function POST(request: Request) {
       50_000
   ) {
     return Response.json(
-      { error: "Buổi mock vượt giới hạn báo cáo.", code: "request_too_large" },
+      {
+        error: "Buổi phỏng vấn vượt giới hạn tạo báo cáo.",
+        code: "request_too_large",
+      },
       { status: 413 },
     );
   }
@@ -227,7 +236,8 @@ export async function POST(request: Request) {
   if (!isSupabaseConfigured()) {
     return Response.json(
       {
-        error: "Supabase chưa được cấu hình nên mock report bị khóa an toàn.",
+        error:
+          "Supabase chưa được cấu hình nên tính năng tạo báo cáo phỏng vấn tạm thời bị khóa.",
         code: "not_configured",
       },
       { status: 503 },
@@ -238,7 +248,7 @@ export async function POST(request: Request) {
   if (authResult.error || !authResult.data.user) {
     return Response.json(
       {
-        error: "Đăng nhập GitHub để chấm mock interview.",
+        error: "Đăng nhập GitHub để chấm buổi phỏng vấn thử.",
         code: "authentication_required",
       },
       { status: 401 },
@@ -247,7 +257,7 @@ export async function POST(request: Request) {
   if (!isAllowedPracticeUser(authResult.data.user)) {
     return Response.json(
       {
-        error: "Tài khoản này không có quyền chấm mock interview.",
+        error: "Tài khoản này không có quyền chấm buổi phỏng vấn thử.",
         code: "forbidden",
       },
       { status: 403 },
@@ -270,7 +280,10 @@ export async function POST(request: Request) {
     ]);
     if (approvalsResult.error || overridesResult.error) {
       return Response.json(
-        { error: "Không đọc được question bank.", code: "question_bank_failed" },
+        {
+          error: "Không đọc được ngân hàng câu hỏi.",
+          code: "question_bank_failed",
+        },
         { status: 502 },
       );
     }
@@ -304,7 +317,8 @@ export async function POST(request: Request) {
     } catch {
       return Response.json(
         {
-          error: "Role hoặc competency của bộ mock không còn hợp lệ.",
+          error:
+            "Vị trí hoặc năng lực trong bộ phỏng vấn không còn hợp lệ.",
           code: "plan_invalid",
         },
         { status: 409 },
@@ -322,7 +336,7 @@ export async function POST(request: Request) {
       return Response.json(
         {
           error:
-            "Question bank hoặc blueprint đã đổi. Hãy tạo buổi mock mới để giữ đúng version.",
+            "Ngân hàng câu hỏi hoặc cấu trúc bộ đề đã thay đổi. Hãy tạo buổi phỏng vấn mới để dùng đúng phiên bản.",
           code: "plan_changed",
         },
         { status: 409 },
@@ -349,7 +363,7 @@ export async function POST(request: Request) {
         return Response.json(
           {
             error:
-              "Profile WorldQuant đã thay đổi. Hãy tạo buổi mock mới để chấm đúng rubric.",
+              "Vị trí mục tiêu WorldQuant đã thay đổi. Hãy tạo buổi phỏng vấn mới để chấm theo đúng tiêu chí.",
             code: "content_changed",
           },
           { status: 409 },
@@ -369,7 +383,7 @@ export async function POST(request: Request) {
           return Response.json(
             {
               error:
-                "Source code vượt giới hạn 8 KiB của hidden runner.",
+                "Mã nguồn vượt giới hạn 8 KiB của môi trường kiểm thử ẩn.",
               code: "source_too_large",
             },
             { status: 413 },
@@ -410,7 +424,8 @@ export async function POST(request: Request) {
     if (!question) {
       return Response.json(
         {
-          error: "Một câu trong mock không còn nằm trong ngân hàng đã duyệt.",
+          error:
+            "Một câu trong buổi phỏng vấn không còn nằm trong ngân hàng đã duyệt.",
           code: "question_not_found",
         },
         { status: 404 },
@@ -423,7 +438,7 @@ export async function POST(request: Request) {
       return Response.json(
         {
           error:
-            "Nguồn tri thức đã đổi trong lúc mock. Hãy tạo buổi mới để tránh chấm nhầm version.",
+            "Nguồn tri thức đã thay đổi trong lúc phỏng vấn. Hãy tạo buổi mới để tránh chấm nhầm phiên bản.",
           code: "content_changed",
         },
         { status: 409 },
@@ -434,7 +449,7 @@ export async function POST(request: Request) {
     );
     if (!lesson) {
       return Response.json(
-        { error: "Lesson nguồn đang thiếu.", code: "lesson_not_found" },
+        { error: "Bài học nguồn đang thiếu.", code: "lesson_not_found" },
         { status: 500 },
       );
     }
@@ -462,7 +477,7 @@ export async function POST(request: Request) {
       misconceptions: question.rubric.misconceptions,
       canonicalAnswer: question.answer.detailed,
       evaluationGuide:
-        "Chấm đúng rubric và canonical answer. Không đòi hỏi chi tiết ngoài phạm vi source notes.",
+        "Chấm đúng tiêu chí và đáp án chuẩn. Không đòi hỏi chi tiết ngoài phạm vi ghi chú nguồn.",
       sourceNotes: sourceNotesForQuestion(question, lesson),
       origin: "question_bank",
     });
@@ -529,7 +544,7 @@ export async function POST(request: Request) {
           return Response.json(
             {
               error:
-                "Report cache đã tồn tại nhưng không còn đúng contract hiện tại.",
+            "Báo cáo lưu tạm đã tồn tại nhưng không còn đúng với cấu trúc dữ liệu hiện tại.",
               code: "history_cache_invalid",
             },
             { status: 503 },
@@ -554,7 +569,7 @@ export async function POST(request: Request) {
         return Response.json(
           {
             error:
-              "Lượt chấm này đã kết thúc lỗi. Hãy tạo buổi mock mới.",
+              "Lượt chấm này đã kết thúc do lỗi. Hãy tạo buổi phỏng vấn mới.",
             code: reservation.failure?.code ?? "attempt_failed",
           },
           { status: 409 },
@@ -566,7 +581,7 @@ export async function POST(request: Request) {
         return Response.json(
           {
             error:
-              "Cloud history v4 chưa sẵn sàng nên report bị khóa để tránh chấm trùng và tốn quota.",
+              "Lịch sử trực tuyến chưa sẵn sàng nên báo cáo bị khóa để tránh chấm trùng và tốn hạn mức.",
             code: "history_not_configured",
           },
           { status: 503 },
@@ -575,7 +590,7 @@ export async function POST(request: Request) {
         return Response.json(
           {
             error:
-              "Report này vẫn đang được chấm. Chờ một chút rồi thử lại.",
+              "Báo cáo này vẫn đang được chấm. Vui lòng chờ một chút rồi thử lại.",
             code: "report_in_progress",
           },
           { status: 409, headers: { "Retry-After": "10" } },
@@ -587,7 +602,7 @@ export async function POST(request: Request) {
         return Response.json(
           {
             error:
-              "Session hoặc idempotency key không còn khớp với bài nộp.",
+              "Phiên làm việc hoặc khóa chống gửi trùng không còn khớp với bài nộp.",
             code: "history_conflict",
           },
           { status: 409 },
@@ -704,7 +719,7 @@ export async function POST(request: Request) {
     });
     const modelLabel =
       provider === "gemini"
-        ? `Gemini fallback · ${result.model}`
+        ? `Gemini dự phòng · ${result.model}`
         : result.model;
     const executionResults = hiddenExecutionResults.flatMap(
       (execution, index) => {
@@ -843,7 +858,7 @@ export async function POST(request: Request) {
         }
         if (!historyPersisted) {
           historyWarning =
-            "Report đã lưu local nhưng cloud history chưa xác nhận được; hệ thống không chạy lại AI để tránh tốn quota lần hai.";
+            "Báo cáo đã được lưu trên trình duyệt nhưng lịch sử trực tuyến chưa xác nhận được; hệ thống không gọi lại AI để tránh tốn hạn mức lần hai.";
         }
       }
       const mistakes =
@@ -891,7 +906,7 @@ export async function POST(request: Request) {
       return Response.json(
         {
           error:
-            "OpenAI đã hết quota và Gemini Free cũng đang bận hoặc hết quota. Buổi mock vẫn được lưu để thử chấm lại.",
+            "OpenAI đã hết hạn mức và Gemini miễn phí cũng đang bận hoặc hết hạn mức. Buổi phỏng vấn vẫn được lưu để chấm lại sau.",
           code: "all_ai_quotas_exceeded",
         },
         { status: 429 },
@@ -901,7 +916,7 @@ export async function POST(request: Request) {
       return Response.json(
         {
           error:
-            "Gemini fallback chưa tạo được report. Buổi mock vẫn được lưu để thử lại.",
+            "Gemini dự phòng chưa tạo được báo cáo. Buổi phỏng vấn vẫn được lưu để thử lại.",
           code: "fallback_provider_error",
         },
         { status: 502 },
@@ -909,7 +924,10 @@ export async function POST(request: Request) {
     }
     if (error instanceof CoachConfigurationError) {
       return Response.json(
-        { error: "AI coach chưa được cấu hình key.", code: "not_configured" },
+        {
+          error: "Trợ lý AI chưa được cấu hình khóa truy cập.",
+          code: "not_configured",
+        },
         { status: 503 },
       );
     }
@@ -926,7 +944,7 @@ export async function POST(request: Request) {
       return Response.json(
         {
           error:
-            "Đã dùng hết quota OpenAI hôm nay và Gemini fallback đang tắt. Buổi mock vẫn được giữ để chấm sau.",
+            "Đã dùng hết hạn mức OpenAI hôm nay và Gemini dự phòng đang tắt. Buổi phỏng vấn vẫn được giữ để chấm sau.",
           code: "daily_budget_exceeded",
         },
         { status: 429 },
@@ -935,7 +953,8 @@ export async function POST(request: Request) {
     if (error instanceof AiBudgetConfigurationError) {
       return Response.json(
         {
-          error: "Bộ giới hạn chi phí AI chưa được cài trong Supabase.",
+          error:
+            "Cơ chế giới hạn chi phí AI chưa được cài đặt trong Supabase.",
           code: "budget_not_configured",
         },
         { status: 503 },
@@ -952,7 +971,7 @@ export async function POST(request: Request) {
       return Response.json(
         {
           error:
-            "OpenAI đang giới hạn hoặc project hết credit. Buổi mock vẫn được lưu để thử lại.",
+            "OpenAI đang giới hạn tạm thời hoặc dự án đã hết tín dụng. Buổi phỏng vấn vẫn được lưu để thử lại.",
           code:
             code === "insufficient_quota"
               ? "provider_quota_exceeded"
@@ -964,7 +983,7 @@ export async function POST(request: Request) {
     return Response.json(
       {
         error:
-          "AI chưa tạo được report. Buổi mock vẫn được lưu để mày thử chấm lại.",
+          "AI chưa tạo được báo cáo. Buổi phỏng vấn vẫn được lưu để bạn thử chấm lại.",
         code: "provider_error",
       },
       { status: 502 },
@@ -1276,7 +1295,7 @@ function hiddenExecutionErrorResponse(error: unknown) {
     return Response.json(
       {
         error:
-          "Đã hết quota hidden tests hôm nay. Quota reset lúc 00:00 giờ Việt Nam.",
+          "Đã hết hạn mức kiểm thử ẩn hôm nay. Hạn mức được đặt lại lúc 00:00 giờ Việt Nam.",
         code: "code_execution_daily_quota",
       },
       { status: 429 },
@@ -1286,7 +1305,7 @@ function hiddenExecutionErrorResponse(error: unknown) {
     return Response.json(
       {
         error:
-          "Một lượt code khác đang chạy. Chờ nó kết thúc rồi tạo report lại.",
+          "Một lượt chạy mã khác đang xử lý. Hãy chờ lượt đó kết thúc rồi tạo lại báo cáo.",
         code: "code_execution_busy",
       },
       { status: 409 },
@@ -1296,7 +1315,7 @@ function hiddenExecutionErrorResponse(error: unknown) {
     return Response.json(
       {
         error:
-          "Hidden tests đã chạy nhưng trạng thái cache chưa xác nhận được. Giữ nguyên submission và thử lại.",
+          "Kiểm thử ẩn đã chạy nhưng trạng thái lưu tạm chưa được xác nhận. Hãy giữ nguyên bài nộp và thử lại.",
         code: "code_execution_finalization_indeterminate",
       },
       { status: 503 },
@@ -1306,7 +1325,7 @@ function hiddenExecutionErrorResponse(error: unknown) {
     return Response.json(
       {
         error:
-          "Execution key không còn khớp. Nhấn tạo report lại để chạy một lượt mới.",
+          "Khóa chạy mã không còn khớp. Hãy nhấn tạo lại báo cáo để bắt đầu lượt mới.",
         code: "code_execution_retry_required",
       },
       { status: 409 },
@@ -1316,7 +1335,7 @@ function hiddenExecutionErrorResponse(error: unknown) {
     return Response.json(
       {
         error:
-          "Admission/quota cho code runner chưa sẵn sàng hoặc lượt cũ đã lỗi.",
+          "Quyền chạy hoặc hạn mức của trình chạy mã chưa sẵn sàng, hoặc lượt trước đã gặp lỗi.",
         code: "code_execution_retry_required",
       },
       { status: 503 },
@@ -1328,7 +1347,7 @@ function hiddenExecutionErrorResponse(error: unknown) {
   return Response.json(
     {
       error:
-        "Hidden tests chưa chạy xong. Câu trả lời vẫn được giữ để thử lại.",
+        "Kiểm thử ẩn chưa chạy xong. Câu trả lời vẫn được giữ để thử lại.",
       code: "code_execution_retry_required",
     },
     { status: 502 },
@@ -1347,7 +1366,7 @@ function historyTransitionErrorResponse() {
   return Response.json(
     {
       error:
-        "Không thể mở lại reservation an toàn. Hãy giữ nguyên submission và thử lại sau.",
+        "Không thể mở lại lượt đã giữ chỗ một cách an toàn. Hãy giữ nguyên bài nộp và thử lại sau.",
       code: "history_transition_failed",
     },
     { status: 503 },

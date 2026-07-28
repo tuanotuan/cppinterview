@@ -22,7 +22,7 @@ import {
   type WorldQuantRoleProfileId,
 } from "./readiness";
 
-export const WORLDQUANT_MISSION_SNAPSHOT_VERSION = 1 as const;
+export const WORLDQUANT_MISSION_SNAPSHOT_VERSION = 2 as const;
 export const WORLDQUANT_MISSION_SNAPSHOT_CHANGED_EVENT =
   "recall:worldquant-mission-snapshot-changed";
 export const WORLDQUANT_MISSION_SNAPSHOT_RETENTION = 24;
@@ -262,7 +262,7 @@ export function rehydrateWorldQuantMissionSnapshot({
         competency: item.competency,
         estimatedMinutes: item.estimatedMinutes,
         reason:
-          "Rubric atom từng thiếu và đã tới hạn retrieval lại.",
+          "Một tiêu chí chấm từng bị thiếu và đã đến lúc cần nhớ lại.",
         repairCard,
       });
       continue;
@@ -287,7 +287,7 @@ export function rehydrateWorldQuantMissionSnapshot({
         competency: item.competency,
         estimatedMinutes: item.estimatedMinutes,
         reason:
-          "Ôn exact approved cards trước khi chuyển sang bài transfer.",
+          "Ôn đúng các thẻ đã duyệt trước khi chuyển sang bài vận dụng.",
         focusPlan: item.focusPlan,
       });
       continue;
@@ -310,8 +310,8 @@ export function rehydrateWorldQuantMissionSnapshot({
         estimatedMinutes: item.estimatedMinutes,
         reason:
           drill.variant === "checkpoint"
-            ? "Gap đã transfer-ready; dùng prompt chưa từng làm để xác minh."
-            : "Chuyển retrieval thành explain/debug/implement có follow-up.",
+            ? "Năng lực đã sẵn sàng để xác nhận; dùng đề bài chưa từng làm để kiểm tra."
+            : "Chuyển việc nhớ kiến thức thành giải thích, gỡ lỗi hoặc viết mã có câu hỏi tiếp nối.",
         drill,
       });
       continue;
@@ -324,7 +324,7 @@ export function rehydrateWorldQuantMissionSnapshot({
         competency: null,
         estimatedMinutes: 30,
         reason:
-          "Checkpoint định kỳ; mock evidence vẫn tách khỏi Preparation Index.",
+          "Bài kiểm tra định kỳ; kết quả phỏng vấn thử vẫn tách khỏi Chỉ số chuẩn bị.",
         href: `/mock-interview?role=${frozen.roleProfileId}&mode=balanced&duration=30`,
         roleProfileVersion: item.roleProfileVersion,
         durationMinutes: item.durationMinutes,
@@ -340,7 +340,7 @@ export function rehydrateWorldQuantMissionSnapshot({
       kind: "content_gap",
       competency: item.competency,
       estimatedMinutes: 0,
-      reason: `Question bank chưa có card approved phù hợp cho ${definition.shortLabel}; đây là content gap, không phải điểm yếu cá nhân.`,
+      reason: `Kho câu hỏi chưa có thẻ đã duyệt phù hợp cho ${definition.shortLabel}; đây là phần học liệu còn thiếu, không phải điểm yếu cá nhân.`,
       href: definition.practiceHref,
     });
   }
@@ -419,7 +419,7 @@ export function worldQuantMissionSnapshotStorageKey(
   const timeBudgetMinutes = timeBudgetSchema.parse(
     scope.timeBudgetMinutes,
   );
-  return `${WORLDQUANT_MISSION_SNAPSHOT_STORAGE_PREFIX}${accountScope}:${date}:${roleProfileId}:${timeBudgetMinutes}:v1`;
+  return `${WORLDQUANT_MISSION_SNAPSHOT_STORAGE_PREFIX}${accountScope}:${date}:${roleProfileId}:${timeBudgetMinutes}:v2`;
 }
 
 export function readWorldQuantMissionSnapshot(
@@ -637,7 +637,7 @@ function parseMissionSnapshotStorageKey(
       .success ||
     !roleProfileSchema.safeParse(roleProfileId).success ||
     !timeBudgetSchema.safeParse(Number(timeBudget)).success ||
-    version !== "v1"
+    version !== "v2"
   ) {
     return null;
   }

@@ -27,25 +27,37 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   if (!isSupabaseConfigured()) {
-    return Response.json({ error: "Cloud sync chưa được cấu hình." }, { status: 503 });
+    return Response.json(
+      { error: "Đồng bộ trực tuyến chưa được cấu hình." },
+      { status: 503 },
+    );
   }
 
   const supabase = await createSupabaseServerClient();
   const { data: authData, error: authError } = await supabase.auth.getUser();
   if (authError || !authData.user || !isAllowedPracticeUser(authData.user)) {
-    return Response.json({ error: "Cần đăng nhập GitHub để sync." }, { status: 401 });
+    return Response.json(
+      { error: "Cần đăng nhập GitHub để đồng bộ." },
+      { status: 401 },
+    );
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return Response.json({ error: "Request không phải JSON hợp lệ." }, { status: 400 });
+    return Response.json(
+      { error: "Yêu cầu không chứa JSON hợp lệ." },
+      { status: 400 },
+    );
   }
 
   const parsed = syncProgressSchema.safeParse(body);
   if (!parsed.success) {
-    return Response.json({ error: "Progress payload không hợp lệ." }, { status: 400 });
+    return Response.json(
+      { error: "Dữ liệu tiến độ không hợp lệ." },
+      { status: 400 },
+    );
   }
 
   const [approvalsResult, overridesResult] = await Promise.all([
@@ -55,7 +67,10 @@ export async function POST(request: Request) {
     loadQuestionOverrides(supabase),
   ]);
   if (approvalsResult.error || overridesResult.error) {
-    return Response.json({ error: "Không đọc được question approvals." }, { status: 502 });
+    return Response.json(
+      { error: "Không đọc được kết quả duyệt câu hỏi." },
+      { status: 502 },
+    );
   }
   const manifest = await loadQuestionStoreManifest({
     supabase,
@@ -81,7 +96,10 @@ export async function POST(request: Request) {
     );
   });
   if (invalidReview) {
-    return Response.json({ error: "Progress payload không hợp lệ." }, { status: 400 });
+    return Response.json(
+      { error: "Dữ liệu tiến độ không hợp lệ." },
+      { status: 400 },
+    );
   }
 
   const orderedReviews = [...parsed.data.reviews]
@@ -101,7 +119,7 @@ export async function POST(request: Request) {
     });
     if (error) {
       return Response.json(
-        { error: "Không ghi được Anki learning state." },
+        { error: "Không lưu được trạng thái học theo lịch Anki." },
         { status: 502 },
       );
     }
@@ -168,7 +186,10 @@ export async function POST(request: Request) {
       ),
   ]);
   if (reviewsResult.error || statesResult.error) {
-    return Response.json({ error: "Không đọc được cloud progress." }, { status: 502 });
+    return Response.json(
+      { error: "Không đọc được tiến độ học trực tuyến." },
+      { status: 502 },
+    );
   }
 
   return Response.json({

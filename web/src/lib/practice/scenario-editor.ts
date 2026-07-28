@@ -11,7 +11,7 @@ private:
 };`;
 
 const PYTHON_DESIGN_TEMPLATE = `class Solution:
-    """Thiết kế public API và state ở đây."""
+    """Thiết kế API công khai và trạng thái ở đây."""
 
     def __init__(self) -> None:
         pass`;
@@ -19,7 +19,7 @@ const PYTHON_DESIGN_TEMPLATE = `class Solution:
 const CMAKE_DESIGN_TEMPLATE = `cmake_minimum_required(VERSION 3.25)
 project(TradingSystem LANGUAGES CXX)
 
-# Khai báo targets và usage requirements ở đây.
+# Khai báo các target và yêu cầu sử dụng ở đây.
 add_executable(trading_app main.cpp)`;
 
 export function scenarioEditorConfig(language: ContentLanguage) {
@@ -28,7 +28,7 @@ export function scenarioEditorConfig(language: ContentLanguage) {
       fileName: "main.py",
       languageLabel: "Python",
       template: PYTHON_DESIGN_TEMPLATE,
-      placeholder: "# Thiết kế class/API của mày ở đây…\n\nclass Solution:\n    pass",
+      placeholder: "# Thiết kế class/API của bạn ở đây…\n\nclass Solution:\n    pass",
     };
   }
   if (language === "cmake") {
@@ -36,13 +36,13 @@ export function scenarioEditorConfig(language: ContentLanguage) {
       fileName: "CMakeLists.txt",
       languageLabel: "CMake",
       template: CMAKE_DESIGN_TEMPLATE,
-      placeholder: "# Viết target graph và usage requirements ở đây…\n\nadd_library(core ...)",
+      placeholder: "# Viết đồ thị target và yêu cầu sử dụng ở đây…\n\nadd_library(core ...)",
     };
   }
   return {
     fileName: "main.cpp",
     languageLabel: "C++",
     template: CPLUSPLUS_DESIGN_TEMPLATE,
-    placeholder: "// Thiết kế class/API của mày ở đây…\n\nclass Solution {\npublic:\n    // ...\n};",
+    placeholder: "// Thiết kế class/API của bạn ở đây…\n\nclass Solution {\npublic:\n    // ...\n};",
   };
 }

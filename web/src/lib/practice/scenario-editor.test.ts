@@ -17,7 +17,7 @@ describe("scenario code editor", () => {
       languageLabel: "CMake",
     });
     expect(scenarioEditorConfig("cmake").template).toContain("add_executable");
-    expect(scenarioEditorConfig("cmake").placeholder).toContain("target graph");
+    expect(scenarioEditorConfig("cmake").placeholder).toContain("đồ thị target");
   });
 
 });

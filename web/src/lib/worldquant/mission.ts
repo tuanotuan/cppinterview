@@ -6,6 +6,7 @@ import {
 } from "./focus-plan";
 import {
   drillsForCompetency,
+  worldQuantDrillById,
   worldQuantDrillPacks,
   type WorldQuantDrill,
 } from "./drills";
@@ -141,7 +142,7 @@ export function buildWorldQuantMission({
       kind: "repair",
       competency: card.competency,
       estimatedMinutes: 3,
-      reason: "Rubric atom từng thiếu và đã tới hạn retrieval lại.",
+      reason: "Một tiêu chí chấm từng bị thiếu và đã đến lúc cần nhớ lại.",
       repairCard: card,
     });
     remaining -= 3;
@@ -195,7 +196,7 @@ export function buildWorldQuantMission({
       competency: primaryCompetency,
       estimatedMinutes: focusMinutes,
       reason:
-        "Ôn exact approved cards trước khi chuyển sang bài transfer.",
+        "Ôn đúng các thẻ đã duyệt trước khi chuyển sang bài vận dụng.",
       focusPlan: missionFocusPlan,
     });
     remaining -= focusMinutes;
@@ -207,7 +208,7 @@ export function buildWorldQuantMission({
       kind: "content_gap",
       competency: primaryCompetency,
       estimatedMinutes: 0,
-      reason: `Question bank chưa có card approved phù hợp cho ${definition.shortLabel}; đây là content gap, không phải điểm yếu cá nhân.`,
+      reason: `Kho câu hỏi chưa có thẻ đã duyệt phù hợp cho ${definition.shortLabel}; đây là phần học liệu còn thiếu, không phải điểm yếu cá nhân.`,
       href: definition.practiceHref,
     });
   }
@@ -226,8 +227,8 @@ export function buildWorldQuantMission({
       estimatedMinutes: drill.estimatedMinutes,
       reason:
         drill.variant === "checkpoint"
-          ? "Gap đã transfer-ready; dùng prompt chưa từng làm để xác minh."
-          : "Chuyển retrieval thành explain/debug/implement có follow-up.",
+          ? "Năng lực đã sẵn sàng để xác nhận; dùng đề bài chưa từng làm để kiểm tra."
+          : "Chuyển việc nhớ kiến thức thành giải thích, gỡ lỗi hoặc viết mã có câu hỏi tiếp nối.",
       drill,
     });
     remaining -= drill.estimatedMinutes;
@@ -254,7 +255,7 @@ export function buildWorldQuantMission({
       competency: null,
       estimatedMinutes: 30,
       reason:
-        "Checkpoint định kỳ; mock evidence vẫn tách khỏi Preparation Index.",
+        "Bài kiểm tra định kỳ; kết quả phỏng vấn thử vẫn tách khỏi Chỉ số chuẩn bị.",
       href: `/mock-interview?role=${roleProfileId}&mode=balanced&duration=30`,
       roleProfileVersion: 1,
       durationMinutes: 30,
@@ -367,9 +368,14 @@ function selectLeastPracticedCompetency(
     .filter((drillPack) => profile.weights[drillPack.competency] > 0)
     .map((drillPack) => ({
       competency: drillPack.competency,
-      count: trainingState.attempts.filter(
-        (attempt) => attempt.competency === drillPack.competency,
-      ).length,
+      count: trainingState.attempts.filter((attempt) => {
+        const current = worldQuantDrillById(attempt.drillId);
+        return (
+          attempt.competency === drillPack.competency &&
+          current !== null &&
+          worldQuantAttemptMatchesDrill(attempt, current)
+        );
+      }).length,
       weight: profile.weights[drillPack.competency],
     }))
     .sort(

@@ -45,28 +45,28 @@ export function FsrsShadowPanel({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
-              FSRS shadow
+              Đối chiếu bằng FSRS
             </p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight">
-              So lịch, chưa đổi lịch
+              So sánh lịch, chưa áp dụng
             </h2>
           </div>
           <span className="rounded-full border border-[#356b58]/20 bg-[#eaf8cf] px-3 py-1 font-mono text-[10px] font-bold text-[#245748]">
-            shadow only
+            chỉ để đối chiếu
           </span>
         </div>
         <p className="mt-2 text-sm leading-6 text-[#64736c]">
-          FSRS-6 chạy lại lịch sử ở chế độ quan sát. Lịch Anki hiện tại vẫn
-          là nguồn quyết định duy nhất; panel này không ghi due date.
+          FSRS-6 chạy lại lịch sử ở chế độ quan sát. Lịch ôn hiện tại vẫn
+          là nguồn quyết định duy nhất; phần này không thay đổi ngày đến hạn.
         </p>
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <SmallMetric label="Thẻ so được" value={`${shadow.cardCount}`} />
+          <SmallMetric label="Số thẻ đã đối chiếu" value={`${shadow.cardCount}`} />
           <SmallMetric
-            label="Retrievability TB"
+            label="Khả năng nhớ lại trung bình"
             value={percent(shadow.averageRetrievabilityPercent)}
           />
           <SmallMetric
-            label="Delta TB"
+            label="Chênh lệch ngày đến hạn trung bình"
             value={
               shadow.averageDueDeltaDays === null
                 ? "—"
@@ -90,8 +90,8 @@ export function FsrsShadowPanel({
                     {card.questionId} · v{card.questionVersion}
                   </p>
                   <p className="mt-1 text-[11px] text-[#64736c]">
-                    R {card.retrievabilityPercent}% · S {card.stability} · D{" "}
-                    {card.difficulty}
+                    Khả năng nhớ lại {card.retrievabilityPercent}% · Độ ổn định{" "}
+                    {card.stability} · Độ khó {card.difficulty}
                   </p>
                 </div>
                 <div className="text-right">
@@ -107,7 +107,7 @@ export function FsrsShadowPanel({
           </div>
         ) : (
           <p className="mt-5 rounded-2xl border border-dashed border-[#173f35]/20 p-5 text-sm text-[#64736c]">
-            Chưa có review để chạy shadow.
+            Chưa có lượt ôn để đối chiếu bằng FSRS.
           </p>
         )}
       </article>
