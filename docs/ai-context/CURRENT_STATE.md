@@ -13,6 +13,31 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
   assessed/not-assessed matrix, comparable trend và CTA targeted mock theo gap.
   `Preparation Index` và mock evidence luôn tách rời; cả hai không phải xác suất
   đậu.
+- WorldQuant training loop đã có đủ các route:
+  `/worldquant/curriculum` (30 concept/prerequisite),
+  `/worldquant/drills` (30 scenario: một practice + hai checkpoint mỗi competency),
+  `/worldquant/mission` (daily queue có time budget và mock history thật),
+  `/worldquant/full-round` (5 timed round + English Voice) và
+  `/admin/coverage` (editorial priority). Gap đi theo
+  `open → learning → transfer_ready → verified`; checkpoint clean phải đạt
+  rubric/follow-up và là unseen hoặc spaced retest sau cooldown 24 giờ mới verify.
+- Practice có same-session Recall Repair: `Again` quay lại sau 3 thẻ, `Hard`
+  sau 5 thẻ; retry không tạo daily review thứ hai. Confidence/timing/hint/reveal
+  và việc đã dùng coach được lưu thành private signal không chứa answer; exposure
+  giữ qua navigation/reload cho tới khi card được rate, nên đổi câu không thể
+  rửa cờ hỗ trợ. Stats hiển thị calibration, high-confidence
+  mistakes và FSRS-6 shadow theo exact revision; shadow không đổi lịch hiện tại.
+- Today’s Mission khóa exact snapshot qua reload theo account/local + ngày + role
+  + budget, giữ tối đa 24 snapshot/account và rebuild khi question/drill revision
+  stale. Training, repair và
+  signal writes dùng Web Locks khi browser hỗ trợ để tránh hai tab ghi đè nhau.
+- Full Round không lưu/upload audio hoặc answer. Transcript chỉ ở memory của tab,
+  bị xóa sau khi summary lưu thành công; timer khóa input tại deadline và WPM chỉ
+  tính thời gian mic cùng voice transcript thật. Năm scenario không dùng lại
+  checkpoint certification; training state chỉ giữ summary số cùng exact
+  role/full-round/drill revision. Các state training mới
+  hiện là localStorage versioned theo account/local mode, chưa cloud sync và
+  không tự chuyển local state sang account sau login.
 - Focus Sprint chốt exact approved queue theo role/gap/Anki state và time budget,
   hỗ trợ pause/resume/completion qua nhiều deck. Practice không replan; mỗi rating
   vẫn cập nhật scheduler/cloud bình thường. Session local có reconcile stale và
@@ -53,9 +78,11 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 
 ## Task/handoff hiện tại
 
-- Mô hình WorldQuant nằm ở `web/src/lib/worldquant/readiness.ts`, planner ở
-  `focus-plan.ts`, local session ở `practice/focus-session.ts`. Route server chỉ
-  truyền summary/count serializable; classifier không đọc prompt/answer.
+- Mô hình WorldQuant nằm ở `web/src/lib/worldquant/readiness.ts`; transfer loop
+  nằm ở `curriculum.ts`, `drills.ts`, `gap-closure.ts`, `mission.ts` và
+  `training-state.ts`. Focus session cũ vẫn ở `practice/focus-session.ts`;
+  same-session retry ở `practice/repair-queue.ts`. Route server chỉ truyền dữ
+  liệu serializable; analytics/training state không lưu candidate answer.
 - Question bank hiện chưa bao phủ đều Tick, CMake, Python, Linux/networking,
   distributed systems và ownership. Tick drafts mới không thay đổi coverage cho
   tới khi owner duyệt. Hub phải tiếp tục gọi phần thiếu là `content gap`, không
@@ -72,9 +99,9 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 
 - Content check, context refresh/check và `git diff --check`: pass.
 - Lint toàn repo và TypeScript `--noEmit`: pass.
-- Vitest: 57 test files, 303 tests pass.
+- Vitest: 70 test files, 379 tests pass.
 - Next.js production build: pass, gồm compile, type-check và 25 generated pages;
-  `/worldquant` là dynamic route, hai learning guide được prerender static.
+  năm route WorldQuant training và `/admin/coverage` đều có trong route graph.
 
 ## Quy tắc cập nhật
 

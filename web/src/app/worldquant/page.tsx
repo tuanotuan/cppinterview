@@ -11,8 +11,10 @@ import { isQuestionApproved } from "@/lib/practice/approvals";
 import { loadCloudContext } from "@/lib/practice/cloud-server";
 import {
   classifyWorldQuantCompetency,
+  parseWorldQuantRoleProfile,
   type ReadinessQuestionSummary,
   type WorldQuantCompetencyKey,
+  type WorldQuantRoleProfileId,
 } from "@/lib/worldquant/readiness";
 
 import { WorldQuantReadinessApp } from "./worldquant-readiness-app";
@@ -25,13 +27,27 @@ export const metadata: Metadata = {
     "Theo dõi bằng chứng học tập và khoảng trống năng lực cho các vị trí C++ tại WorldQuant.",
 };
 
-export default async function WorldQuantPage() {
-  const cloud = await loadCloudContext({
-    includeAiUsage: false,
-    includeDailyAiBudget: false,
-    includeGeminiUsage: false,
-    includeProviderSettings: false,
-  });
+export default async function WorldQuantPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ role?: string | string[] }>;
+}) {
+  const [cloud, params] = await Promise.all([
+    loadCloudContext({
+      includeAiUsage: false,
+      includeDailyAiBudget: false,
+      includeGeminiUsage: false,
+      includeProviderSettings: false,
+    }),
+    searchParams,
+  ]);
+  const roleParam = Array.isArray(params.role)
+    ? params.role[0]
+    : params.role;
+  const initialRoleId: WorldQuantRoleProfileId | null =
+    roleParam === undefined
+      ? null
+      : parseWorldQuantRoleProfile(roleParam);
   const questions: ReadinessQuestionSummary[] = cloud.manifest.questions
     .filter(
       (question) =>
@@ -134,6 +150,7 @@ export default async function WorldQuantPage() {
       today={vietnamDateKey()}
       initialMockHistory={initialMockHistory}
       mockHistoryAvailable={mockHistoryAvailable}
+      initialRoleId={initialRoleId}
     />
   );
 }

@@ -12,6 +12,7 @@ import { buildPracticeAnalytics } from "@/lib/practice/analytics";
 import { loadCloudContext } from "@/lib/practice/cloud-server";
 import { buildLearningStates } from "@/lib/practice/learning-state";
 import type { Rating } from "@/lib/practice/scheduler";
+import { CalibrationShadowPanel } from "./calibration-shadow-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -150,6 +151,17 @@ export default async function StatsPage({
           <MetricCard label="Đã học" value={`${analytics.summary.learnedQuestions}/${questions.length}`} note={`${analytics.summary.matureQuestions} câu mature (≥21 ngày)`} />
           <MetricCard label="Interval trung bình" value={`${analytics.summary.averageIntervalDays} ngày`} note={`${analytics.summary.totalReviews} lượt review tổng cộng`} />
         </section>
+
+        <CalibrationShadowPanel
+          accountId={cloud.account.id}
+          questionIdentities={questions.map((question) => ({
+            id: question.id,
+            version: question.version,
+            sourceHash: question.sourceHash,
+          }))}
+          reviews={deckProgress.reviews}
+          asOf={today}
+        />
 
         <section className="mt-5 grid gap-5 xl:grid-cols-[1.35fr_0.65fr]">
           <Panel eyebrow="Consistency" title="Hoạt động 28 ngày">

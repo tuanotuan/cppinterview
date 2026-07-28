@@ -612,6 +612,9 @@ export function AdminDashboard({
             </div>
           </div>
           <nav className="flex flex-wrap items-center gap-2">
+            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/admin/coverage">
+              Coverage Studio
+            </Link>
             <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/worldquant">
               WQ Hub
             </Link>

@@ -17,7 +17,11 @@ describe("study session persistence", () => {
           sourceHash: identity.sourceHash,
           answer: "Aggregate initialization follows declaration order.",
           codeAnswer: "class RiskConfig {};",
+          confidencePercent: 80,
           revealed: true,
+          answerRevealUsed: true,
+          hintUsed: true,
+          coachFeedbackUsed: true,
           sourceVisible: true,
           followUpChat: [
             { role: "user", content: "Why does declaration order matter?" },
@@ -34,7 +38,11 @@ describe("study session persistence", () => {
     expect(restored.questions[identity.id]).toMatchObject({
       answer: "Aggregate initialization follows declaration order.",
       codeAnswer: "class RiskConfig {};",
+      confidencePercent: 80,
       revealed: true,
+      answerRevealUsed: true,
+      hintUsed: true,
+      coachFeedbackUsed: true,
       sourceVisible: true,
       deepDiveOpen: true,
       deepDiveAnswer: "auto drops the top-level const during deduction.",
