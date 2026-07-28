@@ -204,6 +204,7 @@ export function PracticeApp({
   initialDeck,
   requestedFocusId,
   invalidFocusRequest,
+  focusReturnHref,
   mistakeQuestionIds,
 }: {
   questions: PracticeQuestion[];
@@ -219,6 +220,7 @@ export function PracticeApp({
   initialDeck: PracticeDeckId;
   requestedFocusId: string | null;
   invalidFocusRequest: boolean;
+  focusReturnHref: string | null;
   mistakeQuestionIds: string[];
 }) {
   const hasFocusRequest = requestedFocusId !== null || invalidFocusRequest;
@@ -1350,7 +1352,7 @@ export function PracticeApp({
   }
 
   function pauseFocusSprint() {
-    window.location.assign("/worldquant");
+    window.location.assign(focusReturnHref ?? "/worldquant");
   }
 
   function cancelFocusSprint() {
@@ -1380,7 +1382,7 @@ export function PracticeApp({
         return;
       }
       window.localStorage.removeItem(FOCUS_SESSION_STORAGE_KEY);
-      window.location.assign("/worldquant");
+      window.location.assign(focusReturnHref ?? "/worldquant");
     } catch {
       setFocusNotice(
         "Chưa xóa được sprint khỏi local storage. Hãy kiểm tra quyền lưu trữ của trình duyệt rồi thử lại.",
@@ -1940,6 +1942,7 @@ export function PracticeApp({
         completedCount={focusSession.completedQuestions.length}
         staleDroppedCount={focusStaleDroppedCount}
         notice={focusNotice}
+        returnHref={focusReturnHref}
       />
     );
   }
@@ -2804,10 +2807,12 @@ function FocusCompletionScreen({
   completedCount,
   staleDroppedCount,
   notice,
+  returnHref,
 }: {
   completedCount: number;
   staleDroppedCount: number;
   notice: string | null;
+  returnHref: string | null;
 }) {
   return (
     <main className="grid min-h-screen place-items-center px-5 py-12">
@@ -2838,11 +2843,21 @@ function FocusCompletionScreen({
         ) : null}
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <Link
-            href="/worldquant"
+            href={returnHref ?? "/worldquant"}
             className="rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#245748]"
           >
-            Xem readiness mới
+            {returnHref
+              ? "Tiếp tục bước kế trong Mission"
+              : "Xem readiness mới"}
           </Link>
+          {returnHref ? (
+            <Link
+              href="/worldquant"
+              className="rounded-xl border border-[#173f35]/18 bg-white px-5 py-3 text-sm font-bold text-[#356b58]"
+            >
+              Về Readiness Hub
+            </Link>
+          ) : null}
           <Link
             href="/"
             className="rounded-xl border border-[#173f35]/18 bg-white px-5 py-3 text-sm font-bold text-[#356b58]"

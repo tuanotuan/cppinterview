@@ -49,6 +49,59 @@ function missionFor(current: ReadinessQuestionSummary) {
   });
 }
 
+function missionWithMockAvailability(mockAvailable: boolean) {
+  return buildWorldQuantMission({
+    roleProfileId: "tick-data-platform",
+    questions: [question],
+    states: new Map([
+      [
+        question.id,
+        newQuestionLearningState({
+          questionId: question.id,
+          questionVersion: question.version,
+          sourceHash: question.sourceHash,
+        }),
+      ],
+    ]),
+    trainingState: EMPTY_WORLDQUANT_TRAINING_STATE,
+    today: "2026-07-28",
+    timeBudgetMinutes: 120,
+    daysSinceComparableMock: null,
+    mockAvailable,
+  });
+}
+
+function missionForValidation(
+  validation: ReadinessQuestionSummary["validation"],
+) {
+  const current: ReadinessQuestionSummary = {
+    ...question,
+    id: "validation-transition-card",
+    validation,
+  };
+  return {
+    current,
+    mission: buildWorldQuantMission({
+      roleProfileId: "tick-data-platform",
+      questions: [current],
+      states: new Map([
+        [
+          current.id,
+          newQuestionLearningState({
+            questionId: current.id,
+            questionVersion: current.version,
+            sourceHash: current.sourceHash,
+          }),
+        ],
+      ]),
+      trainingState: EMPTY_WORLDQUANT_TRAINING_STATE,
+      today: "2026-07-28",
+      timeBudgetMinutes: 30,
+      daysSinceComparableMock: 2,
+    }),
+  };
+}
+
 describe("WorldQuant mission snapshot", () => {
   it("round-trips and rehydrates the exact frozen mission", () => {
     const mission = missionFor(question);
@@ -98,6 +151,70 @@ describe("WorldQuant mission snapshot", () => {
     expect(restored.mission.missionId).not.toBe(
       oldMission.missionId,
     );
+  });
+
+  it("rejects a frozen mock when durable mock history is unavailable", () => {
+    const frozenMission = missionWithMockAvailability(true);
+    const rebuiltMission = missionWithMockAvailability(false);
+    expect(
+      frozenMission.items.some((item) => item.kind === "mock"),
+    ).toBe(true);
+
+    const restored = restoreOrBuildWorldQuantMission({
+      rawSnapshot: serializeWorldQuantMissionSnapshot(
+        createWorldQuantMissionSnapshot(frozenMission),
+      ),
+      scope: {
+        date: "2026-07-28",
+        roleProfileId: "tick-data-platform",
+        timeBudgetMinutes: 120,
+      },
+      questions: [question],
+      trainingState: EMPTY_WORLDQUANT_TRAINING_STATE,
+      mockAvailable: false,
+      build: () => rebuiltMission,
+    });
+
+    expect(restored.restored).toBe(false);
+    expect(
+      restored.mission.items.some((item) => item.kind === "mock"),
+    ).toBe(false);
+  });
+
+  it("round-trips personal remediation while tracking canonical content changes", () => {
+    const personal = missionForValidation("personal_remediation");
+    const canonical = missionForValidation("repository_verified");
+    expect(
+      personal.mission.items.some((item) => item.kind === "flashcards"),
+    ).toBe(true);
+    expect(
+      personal.mission.items.some((item) => item.kind === "content_gap"),
+    ).toBe(true);
+    expect(
+      canonical.mission.items.some((item) => item.kind === "content_gap"),
+    ).toBe(false);
+
+    expect(
+      rehydrateWorldQuantMissionSnapshot({
+        snapshot: createWorldQuantMissionSnapshot(personal.mission),
+        questions: [personal.current],
+        trainingState: EMPTY_WORLDQUANT_TRAINING_STATE,
+      }),
+    ).toEqual(personal.mission);
+    expect(
+      rehydrateWorldQuantMissionSnapshot({
+        snapshot: createWorldQuantMissionSnapshot(personal.mission),
+        questions: [canonical.current],
+        trainingState: EMPTY_WORLDQUANT_TRAINING_STATE,
+      }),
+    ).toBeNull();
+    expect(
+      rehydrateWorldQuantMissionSnapshot({
+        snapshot: createWorldQuantMissionSnapshot(canonical.mission),
+        questions: [personal.current],
+        trainingState: EMPTY_WORLDQUANT_TRAINING_STATE,
+      }),
+    ).toBeNull();
   });
 
   it("scopes snapshots by account, date, role, and budget", () => {

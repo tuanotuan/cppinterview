@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildWorldQuantGroundingCoverage,
   inferMockCompetency,
+  parseMockInterviewDuration,
   selectWorldQuantQuestions,
   worldQuantMockSetsForDuration,
   WORLDQUANT_MOCK_SETS,
@@ -42,6 +43,13 @@ const bankQuestions: MockInterviewQuestion[] = [
 ];
 
 describe("WorldQuant mock profile", () => {
+  it("parses only supported mock durations", () => {
+    expect(parseMockInterviewDuration("30")).toBe(30);
+    expect(parseMockInterviewDuration(60)).toBe(60);
+    expect(parseMockInterviewDuration("31")).toBe(45);
+    expect(parseMockInterviewDuration(undefined)).toBe(45);
+  });
+
   it("stores exactly two fixed sets for every supported duration", () => {
     expect(WORLDQUANT_MOCK_SETS).toHaveLength(6);
     expect(new Set(WORLDQUANT_MOCK_SETS.map((mockSet) => mockSet.id)).size).toBe(

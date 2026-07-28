@@ -31,6 +31,7 @@ import {
 } from "@/lib/mock-interview/profile";
 import {
   createMockInterviewSessionV4,
+  mockInterviewSessionMatchesGuidedRequest,
   mockInterviewStorageKey,
   parseMockInterviewSessionV4,
   serializeMockInterviewSessionV4,
@@ -90,8 +91,10 @@ type MockInterviewAppProps = {
   initialQuestionStates: QuestionLearningState[];
   today: string;
   initialRoleProfileId: WorldQuantRoleProfileId;
+  initialDuration: MockInterviewDuration;
   initialMode: TargetedMockMode;
   initialTargetCompetency: WorldQuantCompetencyKey | null;
+  missionReturnHref: string | null;
   initialHistory: MockInterviewHistoryEntry[];
   historyAvailable: boolean;
   codeRunnerAvailable: boolean;
@@ -206,13 +209,16 @@ export function MockInterviewApp({
   initialQuestionStates,
   today,
   initialRoleProfileId,
+  initialDuration,
   initialMode,
   initialTargetCompetency,
+  missionReturnHref,
   initialHistory,
   historyAvailable,
   codeRunnerAvailable,
 }: MockInterviewAppProps) {
-  const [duration, setDuration] = useState<MockInterviewDuration>(45);
+  const [duration, setDuration] =
+    useState<MockInterviewDuration>(initialDuration);
   const [roleProfileId, setRoleProfileId] =
     useState<WorldQuantRoleProfileId>(initialRoleProfileId);
   const [mode, setMode] = useState<TargetedMockMode>(initialMode);
@@ -291,6 +297,22 @@ export function MockInterviewApp({
   if (interruptedEvaluation) autoSubmitted.current = true;
   const session =
     storedSession && !staleSession ? storedSession : null;
+  const guidedMissionMatchesSession =
+    !missionReturnHref ||
+    !session ||
+    mockInterviewSessionMatchesGuidedRequest({
+      session,
+      request: {
+        profileId: initialRoleProfileId,
+        durationMinutes: initialDuration,
+        mode: initialMode,
+        targetCompetency:
+          initialMode === "targeted"
+            ? initialTargetCompetency
+            : null,
+        today,
+      },
+    });
   const hydrated = sessionSnapshot !== null;
   const notice = staleSession
     ? "Nội dung bộ đề hoặc question bank đã đổi nên buổi cũ không được khôi phục để tránh chấm sai version."
@@ -938,7 +960,7 @@ export function MockInterviewApp({
     }
   }
 
-  function resetInterview() {
+  function resetInterview(preferInitialRequest = false) {
     if (
       session?.status !== "completed" &&
       session &&
@@ -946,12 +968,22 @@ export function MockInterviewApp({
     ) {
       return;
     }
-    if (session) {
+    if (session && !preferInitialRequest) {
       setDuration(session.plan.durationMinutes);
       setRoleProfileId(session.profileId);
       setMode(session.plan.mode);
       setTargetCompetency(session.plan.targetCompetency);
       setVariant(session.plan.variant);
+    } else if (preferInitialRequest) {
+      setDuration(initialDuration);
+      setRoleProfileId(initialRoleProfileId);
+      setMode(initialMode);
+      setTargetCompetency(
+        initialMode === "targeted"
+          ? initialTargetCompetency
+          : null,
+      );
+      setVariant(1);
     }
     clearMockSession(storageKey);
     autoSubmitted.current = false;
@@ -1030,7 +1062,14 @@ export function MockInterviewApp({
         remediationMinutes={remediationMinutes}
         remediationMessage={remediationMessage}
         historyWarning={historyError}
-        onReset={resetInterview}
+        missionReturnHref={
+          guidedMissionMatchesSession ? missionReturnHref : null
+        }
+        missionStartRequired={
+          Boolean(missionReturnHref) && !guidedMissionMatchesSession
+        }
+        onReset={() => resetInterview()}
+        onStartMissionMock={() => resetInterview(true)}
         onReplay={() => startInterview(session.plan)}
         onRemediate={launchRemediation}
         onRemediationMinutes={setRemediationMinutes}
@@ -1048,7 +1087,7 @@ export function MockInterviewApp({
           </p>
           <button
             type="button"
-            onClick={resetInterview}
+            onClick={() => resetInterview()}
             className="mt-6 rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white"
           >
             Tạo buổi mới
@@ -1109,14 +1148,21 @@ export function MockInterviewApp({
             </span>
             <button
               type="button"
-              onClick={resetInterview}
+              onClick={() =>
+                resetInterview(
+                  Boolean(missionReturnHref) &&
+                    !guidedMissionMatchesSession,
+                )
+              }
               disabled={
                 session.status === "evaluating" &&
                 !visibleReportError
               }
               className="rounded-xl border border-[#173f35]/15 bg-white/60 px-3 py-2 text-xs font-bold disabled:opacity-40"
             >
-              Dừng
+              {missionReturnHref && !guidedMissionMatchesSession
+                ? "Đổi sang mock Mission"
+                : "Dừng"}
             </button>
           </div>
         </header>
@@ -1820,7 +1866,10 @@ function MockReport({
   remediationMinutes,
   remediationMessage,
   historyWarning,
+  missionReturnHref,
+  missionStartRequired,
   onReset,
+  onStartMissionMock,
   onReplay,
   onRemediate,
   onRemediationMinutes,
@@ -1832,7 +1881,10 @@ function MockReport({
   remediationMinutes: number;
   remediationMessage: string | null;
   historyWarning: string | null;
+  missionReturnHref: string | null;
+  missionStartRequired: boolean;
   onReset: () => void;
+  onStartMissionMock: () => void;
   onReplay: () => void;
   onRemediate: (
     option: WorldQuantMockRemediation["recommendations"][number],
@@ -1866,12 +1918,28 @@ function MockReport({
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href="/worldquant"
-              className="rounded-xl border border-[#173f35]/15 bg-white/65 px-4 py-2 text-sm font-bold"
-            >
-              WQ Hub
-            </Link>
+            {missionStartRequired ? (
+              <button
+                type="button"
+                onClick={onStartMissionMock}
+                className="min-h-11 rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white"
+              >
+                Tạo đúng mock cho Mission
+              </button>
+            ) : (
+              <Link
+                href={missionReturnHref ?? "/worldquant"}
+                className={`inline-flex min-h-11 items-center rounded-xl px-4 py-2 text-sm font-bold ${
+                  missionReturnHref
+                    ? "bg-[#173f35] text-white"
+                    : "border border-[#173f35]/15 bg-white/65"
+                }`}
+              >
+                {missionReturnHref
+                  ? "Tiếp tục bước kế trong Mission"
+                  : "WQ Hub"}
+              </Link>
+            )}
             <Link
               href="/"
               className="rounded-xl border border-[#173f35]/15 bg-white/65 px-4 py-2 text-sm font-bold"

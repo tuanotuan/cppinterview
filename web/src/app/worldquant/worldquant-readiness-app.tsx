@@ -52,6 +52,15 @@ import {
   type FocusQueueReason,
   type WorldQuantFocusPlan,
 } from "@/lib/worldquant/focus-plan";
+import {
+  completeWorldQuantGuidedOnboarding,
+  normalizeWorldQuantMissionMinutes,
+  parseWorldQuantGuidedModeState,
+  serializeWorldQuantGuidedModeState,
+  withWorldQuantMissionReturn,
+  worldQuantGuidedMissionHref,
+  worldQuantGuidedModeStorageKey,
+} from "@/lib/worldquant/guided-mode";
 import { buildWorldQuantMockRemediation } from "@/lib/worldquant/mock-remediation";
 import { worldQuantRoleHref } from "@/lib/worldquant/navigation";
 import { openOrReconcileGapFromMock } from "@/lib/worldquant/gap-closure";
@@ -88,7 +97,11 @@ import {
 
 const HUB_PREFERENCES_STORAGE_KEY = "recall:worldquant-hub:v1";
 const HUB_PREFERENCES_CHANGED_EVENT = "recall:worldquant-hub-changed";
+const GUIDED_MODE_CHANGED_EVENT = "recall:worldquant-guided-changed";
 const EMPTY_STORAGE_SNAPSHOT = "__empty__";
+const GUIDED_MISSION_MINUTE_OPTIONS = [
+  15, 30, 45, 60, 75, 90, 105, 120,
+] as const;
 
 type HubPreferences = {
   roleId: WorldQuantRoleProfileId;
@@ -144,6 +157,9 @@ export function WorldQuantReadinessApp({
 }) {
   const [focusFeedback, setFocusFeedback] =
     useState<FocusFeedback | null>(null);
+  const [guideOverrideOpen, setGuideOverrideOpen] = useState(false);
+  const [guidedStorageError, setGuidedStorageError] =
+    useState<string | null>(null);
   const [routeRoleId, setRouteRoleId] =
     useState<WorldQuantRoleProfileId | null>(initialRoleId);
   const [trainingState, setTrainingState] =
@@ -158,6 +174,23 @@ export function WorldQuantReadinessApp({
   const preferencesSnapshot = useSyncExternalStore(
     subscribeToHubPreferences,
     readHubPreferencesSnapshot,
+    () => null,
+  );
+  const guidedModeStorageKey = worldQuantGuidedModeStorageKey(
+    account?.id ?? null,
+  );
+  const subscribeToGuidedModeSnapshot = useMemo(
+    () => (callback: () => void) =>
+      subscribeToGuidedMode(guidedModeStorageKey, callback),
+    [guidedModeStorageKey],
+  );
+  const readGuidedModeSnapshot = useMemo(
+    () => () => readStorageKey(guidedModeStorageKey),
+    [guidedModeStorageKey],
+  );
+  const guidedModeSnapshot = useSyncExternalStore(
+    subscribeToGuidedModeSnapshot,
+    readGuidedModeSnapshot,
     () => null,
   );
   const mockSnapshot = useSyncExternalStore(
@@ -193,6 +226,10 @@ export function WorldQuantReadinessApp({
       ? { ...stored, roleId: routeRoleId }
       : stored;
   }, [preferencesSnapshot, routeRoleId, today]);
+  const guidedMode = useMemo(
+    () => parseWorldQuantGuidedModeState(guidedModeSnapshot),
+    [guidedModeSnapshot],
+  );
   const profile = worldQuantRoleProfileById(preferences.roleId);
   const roleQuestions = useMemo(
     () =>
@@ -375,6 +412,16 @@ export function WorldQuantReadinessApp({
     roleId: preferences.roleId,
     mode: "balanced",
   });
+  const guidedMissionMinutes = normalizeWorldQuantMissionMinutes(
+    preferences.minutesPerDay,
+  );
+  const todayMissionHref = worldQuantGuidedMissionHref(
+    preferences.roleId,
+    guidedMissionMinutes,
+  );
+  const showGuidedOnboarding =
+    guidedModeSnapshot !== null &&
+    (guidedMode.onboardingCompletedAt === null || guideOverrideOpen);
 
   useEffect(() => {
     const accountId = account?.id ?? null;
@@ -456,7 +503,13 @@ export function WorldQuantReadinessApp({
     setFocusFeedback(null);
     const destination = prepareFocusSprintResume(activeFocusSession);
     if (destination.kind === "practice") {
-      window.location.assign(destination.href);
+      window.location.assign(
+        withWorldQuantMissionReturn(
+          destination.href,
+          preferences.roleId,
+          preferences.minutesPerDay,
+        ),
+      );
       return;
     }
     if (
@@ -467,11 +520,41 @@ export function WorldQuantReadinessApp({
     }
   }
 
+  function dismissGuidedOnboarding() {
+    const persisted = writeGuidedModeState(
+      guidedModeStorageKey,
+      completeWorldQuantGuidedOnboarding(),
+    );
+    if (!persisted) {
+      setGuidedStorageError(
+        "Không lưu được trạng thái hướng dẫn; phần giới thiệu sẽ hiện lại sau khi tải trang.",
+      );
+      return;
+    }
+    setGuidedStorageError(null);
+    setGuideOverrideOpen(false);
+  }
+
+  function openGuidedOnboarding() {
+    setGuideOverrideOpen(true);
+    window.requestAnimationFrame(() => {
+      const heading = document.getElementById("guided-onboarding-title");
+      heading?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
+          .matches
+          ? "auto"
+          : "smooth",
+        block: "start",
+      });
+      heading?.focus({ preventScroll: true });
+    });
+  }
+
   return (
-    <main className="min-h-screen overflow-x-hidden px-4 py-5 sm:px-7 lg:px-10">
+    <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
       <div className="mx-auto w-full min-w-0 max-w-[1440px]">
         <header className="flex w-full min-w-0 flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
-          <Link href="/worldquant" className="flex items-center gap-3">
+          <Link href="/worldquant" className="flex min-w-0 items-center gap-3">
             <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
               WQ
             </span>
@@ -484,59 +567,84 @@ export function WorldQuantReadinessApp({
           </Link>
           <nav
             className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto sm:justify-end"
-            aria-label="Điều hướng"
+            aria-label="Điều hướng WorldQuant"
           >
+            <Link
+              href={todayMissionHref}
+              className="inline-flex min-h-11 items-center rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#245748] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+            >
+              Hôm nay
+            </Link>
             <HeaderLink href="/">Luyện thẻ</HeaderLink>
-            <HeaderLink href="/learn/tick-data-order-book">
-              Học Tick
-            </HeaderLink>
-            <HeaderLink href="/learn/cmake">Học CMake</HeaderLink>
-            <HeaderLink
-              href={worldQuantRoleHref(
-                "/worldquant/curriculum",
-                preferences.roleId,
-              )}
+            <button
+              type="button"
+              onClick={openGuidedOnboarding}
+              className="min-h-11 rounded-xl px-3 py-2 text-sm font-bold transition hover:bg-white/60 focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
             >
-              Curriculum
-            </HeaderLink>
-            <HeaderLink
-              href={worldQuantRoleHref(
-                "/worldquant/drills",
-                preferences.roleId,
-              )}
-            >
-              Drill Lab
-            </HeaderLink>
-            <HeaderLink
-              href={worldQuantRoleHref(
-                "/worldquant/mission",
-                preferences.roleId,
-              )}
-            >
-              Today&apos;s Mission
-            </HeaderLink>
-            <HeaderLink
-              href={worldQuantRoleHref(
-                "/worldquant/full-round",
-                preferences.roleId,
-              )}
-            >
-              Full Round
-            </HeaderLink>
-            <HeaderLink
-              href={worldQuantRoleHref(
-                "/mock-interview",
-                preferences.roleId,
-              )}
-            >
-              Mock interview
-            </HeaderLink>
-            <HeaderLink href="/stats">Thống kê</HeaderLink>
+              Cách dùng
+            </button>
+            <details className="group relative w-full sm:w-auto">
+              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-xl border border-[#173f35]/12 bg-white/65 px-4 py-2 text-sm font-bold transition hover:border-[#356b58]/35 focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none sm:justify-start [&::-webkit-details-marker]:hidden">
+                Nâng cao
+                <span
+                  aria-hidden="true"
+                  className="transition group-open:rotate-180"
+                >
+                  ↓
+                </span>
+              </summary>
+              <div className="mt-2 grid w-full grid-cols-1 gap-1 rounded-2xl border border-[#173f35]/12 bg-[#fbfaf4] p-2 shadow-[0_18px_60px_rgb(23_63_53_/_12%)] sm:absolute sm:right-0 sm:z-30 sm:w-80 sm:grid-cols-2">
+                <AdvancedLink
+                  href={worldQuantRoleHref(
+                    "/worldquant/curriculum",
+                    preferences.roleId,
+                  )}
+                >
+                  Curriculum
+                </AdvancedLink>
+                <AdvancedLink
+                  href={worldQuantRoleHref(
+                    "/worldquant/drills",
+                    preferences.roleId,
+                  )}
+                >
+                  Drill Lab
+                </AdvancedLink>
+                <AdvancedLink
+                  href={worldQuantRoleHref(
+                    "/worldquant/full-round",
+                    preferences.roleId,
+                  )}
+                >
+                  Full Round
+                </AdvancedLink>
+                <AdvancedLink
+                  href={worldQuantRoleHref(
+                    "/mock-interview",
+                    preferences.roleId,
+                  )}
+                >
+                  Mock interview
+                </AdvancedLink>
+                <AdvancedLink href="/learn/tick-data-order-book">
+                  Học Tick
+                </AdvancedLink>
+                <AdvancedLink href="/learn/cmake">
+                  Học CMake
+                </AdvancedLink>
+                <AdvancedLink href="/stats">Thống kê</AdvancedLink>
+                {account ? (
+                  <AdvancedLink href="/admin">
+                    Duyệt question
+                  </AdvancedLink>
+                ) : null}
+              </div>
+            </details>
             {account ? (
-              <HeaderLink href="/admin">Duyệt question</HeaderLink>
-            ) : null}
-            {account ? (
-              <span className="rounded-full border border-[#173f35]/15 bg-white/65 px-4 py-2 text-xs font-semibold">
+              <span
+                title={`@${account.login ?? account.displayName}`}
+                className="max-w-full min-w-0 truncate rounded-full border border-[#173f35]/15 bg-white/65 px-4 py-2 text-xs font-semibold"
+              >
                 @{account.login ?? account.displayName}
               </span>
             ) : (
@@ -557,14 +665,162 @@ export function WorldQuantReadinessApp({
           </p>
         ) : null}
 
-        <section className="grid grid-cols-1 gap-7 py-9 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:items-stretch">
-          <div className="min-w-0 rounded-[2rem] border border-[#173f35]/12 bg-white/65 p-6 shadow-[0_24px_80px_rgb(23_63_53_/_8%)] sm:p-9">
+        <section
+          aria-labelledby="guided-session-title"
+          className="mt-6 w-full min-w-0 max-w-full rounded-[2rem] border border-[#173f35]/12 bg-[#173f35] p-5 text-white shadow-[0_24px_80px_rgb(23_63_53_/_16%)] sm:p-8"
+        >
+          <div className="grid min-w-0 items-center gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-7">
+            <div className="min-w-0">
+              <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
+                Guided Mode · {today}
+              </p>
+              <h1
+                id="guided-session-title"
+                className="mt-3 break-words text-2xl font-semibold tracking-tight sm:text-4xl"
+              >
+                Chỉ cần bắt đầu, Mission sẽ chọn đúng việc tiếp theo.
+              </h1>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-white/70">
+                {profile.label} · hệ thống tự xếp Repair → Flashcards → Drill
+                theo bằng chứng hiện tại. Mày không cần tự chọn công cụ.
+              </p>
+              <div className="mt-5 hidden flex-wrap gap-2 text-xs sm:flex">
+                <span className="rounded-full bg-white/10 px-3 py-1.5">
+                  {dailyQueue.length} thẻ trong queue
+                </span>
+                <span className="rounded-full bg-white/10 px-3 py-1.5">
+                  Primary gap:{" "}
+                  {
+                    worldQuantCompetencies[
+                      readiness.priorityCompetencies[0] ??
+                        profile.coreCompetencies[0] ??
+                        "modern_cpp"
+                    ].shortLabel
+                  }
+                </span>
+              </div>
+            </div>
+            <div className="w-full min-w-0 max-w-full rounded-2xl bg-white/10 p-4 lg:w-80">
+              <label className="block text-xs font-bold text-white/72">
+                Thời gian hôm nay
+                <select
+                  value={guidedMissionMinutes}
+                  onChange={(event) =>
+                    updatePreferences({
+                      minutesPerDay: Number(event.target.value),
+                    })
+                  }
+                  className="mt-2 min-h-11 w-full rounded-xl border border-white/15 bg-[#244a40] px-3 py-2 font-bold text-white focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+                >
+                  {GUIDED_MISSION_MINUTE_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option} phút
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {activeFocusSession ? (
+                <button
+                  type="button"
+                  onClick={resumeFocusSprint}
+                  className="mt-3 min-h-12 w-full rounded-xl bg-[#d7ff91] px-5 py-3 text-sm font-bold text-[#173f35] transition hover:bg-[#e5ffb7] focus-visible:ring-4 focus-visible:ring-white focus-visible:outline-none"
+                >
+                  Tiếp tục phần flashcard đang làm
+                </button>
+              ) : (
+                <Link
+                  href={todayMissionHref}
+                  className="mt-3 flex min-h-12 w-full items-center justify-center rounded-xl bg-[#d7ff91] px-5 py-3 text-center text-sm font-bold text-[#173f35] transition hover:bg-[#e5ffb7] focus-visible:ring-4 focus-visible:ring-white focus-visible:outline-none"
+                >
+                  Bắt đầu buổi học hôm nay
+                </Link>
+              )}
+              {activeFocusSession ? (
+                <Link
+                  href={todayMissionHref}
+                  className="mt-2 flex min-h-11 w-full items-center justify-center rounded-xl border border-white/18 px-4 py-2 text-center text-xs font-bold text-white"
+                >
+                  Xem toàn bộ Mission
+                </Link>
+              ) : null}
+              <p className="mt-3 text-center text-[11px] leading-5 text-white/52">
+                Reload vẫn khôi phục đúng ngày, role và budget này.
+              </p>
+            </div>
+          </div>
+          {focusFeedback?.competency === null ? (
+            <p
+              role="alert"
+              className="mt-5 rounded-2xl border border-[#ba4b2f]/30 bg-[#f8e8df] px-4 py-3 text-sm text-[#8e3825]"
+            >
+              {focusFeedback.message}
+            </p>
+          ) : null}
+        </section>
+
+        {showGuidedOnboarding ? (
+          <section
+            id="cach-dung"
+            aria-labelledby="guided-onboarding-title"
+            className="mt-5 rounded-[2rem] border border-[#356b58]/18 bg-[#edf3e7] p-6 sm:p-7"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
+                  Start here · 3 bước
+                </p>
+                <h2
+                  id="guided-onboarding-title"
+                  tabIndex={-1}
+                  className="mt-2 text-2xl font-semibold tracking-tight"
+                >
+                  Cách dùng Recall mỗi ngày
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={dismissGuidedOnboarding}
+                className="min-h-11 rounded-xl border border-[#173f35]/15 bg-white/70 px-4 py-2 text-sm font-bold focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+              >
+                Đã hiểu
+              </button>
+            </div>
+            <ol className="mt-5 grid gap-3 md:grid-cols-3">
+              <GuidedStep
+                number={1}
+                title="Mở Mission"
+                description="Chọn role và số phút, rồi bấm nút bắt đầu duy nhất ở trên."
+              />
+              <GuidedStep
+                number={2}
+                title="Làm đúng bước Tiếp theo"
+                description="Mission tự chuyển từ sửa lỗi sang thẻ và bài transfer."
+              />
+              <GuidedStep
+                number={3}
+                title="Quay lại Mission"
+                description="Xong Focus, Drill hoặc Mock sẽ có nút về đúng kế hoạch cũ."
+              />
+            </ol>
+            {guidedStorageError ? (
+              <p
+                role="alert"
+                className="mt-4 rounded-xl border border-[#ba4b2f]/20 bg-[#f8e8df] px-4 py-3 text-sm text-[#8e3825]"
+              >
+                {guidedStorageError}
+              </p>
+            ) : null}
+          </section>
+        ) : null}
+
+        <section className="grid w-full min-w-0 max-w-full grid-cols-1 gap-7 py-9 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:items-stretch">
+          <div className="w-full min-w-0 max-w-full rounded-[2rem] border border-[#173f35]/12 bg-white/65 p-6 shadow-[0_24px_80px_rgb(23_63_53_/_8%)] sm:p-9">
             <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
               WorldQuant Readiness Hub
             </p>
-            <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
+            <h2 className="mt-4 max-w-3xl break-words text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
               Biết chính xác nên học gì tiếp theo.
-            </h1>
+            </h2>
             <p className="mt-4 max-w-3xl leading-7 text-[#64736c]">
               Chọn role mục tiêu, rồi hub ghép question bank đã kiểm chứng với
               lịch sử ôn thật của mày. Coverage thấp là thiếu content; progress
@@ -582,7 +838,7 @@ export function WorldQuantReadinessApp({
                     roleId: parseWorldQuantRoleProfile(event.target.value),
                   })
                 }
-                className="mt-2 w-full rounded-2xl border border-[#173f35]/15 bg-[#fbfaf4] px-4 py-3 font-bold outline-none focus:border-[#356b58]"
+                className="mt-2 w-full rounded-2xl border border-[#173f35]/15 bg-[#fbfaf4] px-3 py-3 text-sm font-bold focus-visible:border-[#356b58] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none sm:px-4 sm:text-base"
               >
                 {worldQuantRoleProfiles.map((role) => (
                   <option key={role.id} value={role.id}>
@@ -612,6 +868,22 @@ export function WorldQuantReadinessApp({
           />
         </section>
 
+        <details className="group mt-5 rounded-[2rem] border border-[#173f35]/12 bg-white/45 p-3 sm:p-4">
+          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 rounded-2xl bg-white/65 px-4 py-3 font-bold focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none sm:px-5 [&::-webkit-details-marker]:hidden">
+            <span>
+              Phân tích và công cụ nâng cao
+              <span className="mt-1 block text-xs font-normal text-[#64736c]">
+                Coverage, competency, Focus Sprint, target date và mock history
+              </span>
+            </span>
+            <span
+              aria-hidden="true"
+              className="shrink-0 transition group-open:rotate-180"
+            >
+              ↓
+            </span>
+          </summary>
+          <div className="pt-5">
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <MetricCard
             label="Hàng đợi hôm nay"
@@ -777,16 +1049,6 @@ export function WorldQuantReadinessApp({
                   </Link>
                 ) : null}
               </div>
-            ) : null}
-
-            {focusFeedback?.competency === null ? (
-              <p
-                id="focus-sprint-feedback"
-                role="alert"
-                className="mt-4 rounded-2xl border border-[#ba4b2f]/20 bg-[#f8e8df] px-4 py-3 text-sm text-[#8e3825]"
-              >
-                {focusFeedback.message}
-              </p>
             ) : null}
 
             <div className="mt-5 flex flex-wrap gap-3">
@@ -1251,6 +1513,8 @@ export function WorldQuantReadinessApp({
             )}
           </Panel>
         </section>
+          </div>
+        </details>
 
         {!account ? (
           <section className="mt-5 rounded-[2rem] border border-[#173f35]/12 bg-white/65 p-6 sm:flex sm:items-center sm:justify-between sm:gap-6">
@@ -1296,7 +1560,7 @@ function ScoreCard({
   approvedCount: number;
 }) {
   return (
-    <article className="flex min-w-0 flex-col justify-between rounded-[2rem] bg-[#173f35] p-7 text-white shadow-[0_24px_80px_rgb(23_63_53_/_18%)] sm:p-9">
+    <article className="flex w-full min-w-0 max-w-full flex-col justify-between rounded-[2rem] bg-[#173f35] p-7 text-white shadow-[0_24px_80px_rgb(23_63_53_/_18%)] sm:p-9">
       <div>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
@@ -1474,10 +1738,51 @@ function HeaderLink({
   return (
     <Link
       href={href}
-      className="rounded-xl px-3 py-2 text-sm font-bold transition hover:bg-white/60"
+      className="inline-flex min-h-11 items-center rounded-xl px-3 py-2 text-sm font-bold transition hover:bg-white/60 focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
     >
       {children}
     </Link>
+  );
+}
+
+function AdvancedLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className="flex min-h-11 items-center rounded-xl px-3 py-2 text-sm font-semibold transition hover:bg-[#edf3e7] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+    >
+      {children}
+    </Link>
+  );
+}
+
+function GuidedStep({
+  number,
+  title,
+  description,
+}: {
+  number: number;
+  title: string;
+  description: string;
+}) {
+  return (
+    <li className="flex min-w-0 gap-3 rounded-2xl border border-[#173f35]/10 bg-white/65 p-4">
+      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#173f35] font-mono text-xs font-bold text-white">
+        {number}
+      </span>
+      <span className="min-w-0">
+        <span className="block break-words font-semibold">{title}</span>
+        <span className="mt-1 block text-xs leading-5 text-[#64736c]">
+          {description}
+        </span>
+      </span>
+    </li>
   );
 }
 
@@ -1580,6 +1885,37 @@ function readStorageKey(storageKey: string | null) {
     );
   } catch {
     return EMPTY_STORAGE_SNAPSHOT;
+  }
+}
+
+function subscribeToGuidedMode(
+  storageKey: string,
+  callback: () => void,
+) {
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === storageKey) callback();
+  };
+  window.addEventListener("storage", onStorage);
+  window.addEventListener(GUIDED_MODE_CHANGED_EVENT, callback);
+  return () => {
+    window.removeEventListener("storage", onStorage);
+    window.removeEventListener(GUIDED_MODE_CHANGED_EVENT, callback);
+  };
+}
+
+function writeGuidedModeState(
+  storageKey: string,
+  state: ReturnType<typeof completeWorldQuantGuidedOnboarding>,
+) {
+  try {
+    window.localStorage.setItem(
+      storageKey,
+      serializeWorldQuantGuidedModeState(state),
+    );
+    window.dispatchEvent(new Event(GUIDED_MODE_CHANGED_EVENT));
+    return true;
+  } catch {
+    return false;
   }
 }
 

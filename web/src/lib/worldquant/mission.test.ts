@@ -9,6 +9,7 @@ import { worldQuantDrillPacks } from "./drills";
 import {
   buildWorldQuantMission,
   selectMissionDrill,
+  worldQuantAttemptMatchesDrill,
   worldQuantMissionId,
 } from "./mission";
 import {
@@ -35,6 +36,22 @@ const state: QuestionLearningState = newQuestionLearningState({
 });
 
 describe("Today's WorldQuant Mission", () => {
+  it("matches drill completion against the exact drill revision", () => {
+    const drill = worldQuantDrillPacks[0].practice;
+    expect(
+      worldQuantAttemptMatchesDrill(
+        { drillId: drill.id, drillVersion: drill.version },
+        drill,
+      ),
+    ).toBe(true);
+    expect(
+      worldQuantAttemptMatchesDrill(
+        { drillId: drill.id, drillVersion: drill.version + 1 },
+        drill,
+      ),
+    ).toBe(false);
+  });
+
   it("is deterministic and combines approved retrieval with a transfer drill", () => {
     const input = {
       roleProfileId: "tick-data-platform" as const,
@@ -392,6 +409,23 @@ describe("Today's WorldQuant Mission", () => {
       today: "2026-07-28",
       timeBudgetMinutes: 60,
       daysSinceComparableMock: 0,
+    });
+
+    expect(mission.items.some((item) => item.kind === "mock")).toBe(
+      false,
+    );
+  });
+
+  it("does not schedule an auth-gated mock in local guided mode", () => {
+    const mission = buildWorldQuantMission({
+      roleProfileId: "tick-data-platform",
+      questions: [question],
+      states: new Map([[question.id, state]]),
+      trainingState: EMPTY_WORLDQUANT_TRAINING_STATE,
+      today: "2026-07-28",
+      timeBudgetMinutes: 60,
+      daysSinceComparableMock: null,
+      mockAvailable: false,
     });
 
     expect(mission.items.some((item) => item.kind === "mock")).toBe(

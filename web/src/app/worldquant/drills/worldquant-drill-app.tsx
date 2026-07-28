@@ -58,12 +58,14 @@ export function WorldQuantDrillApp({
   initialRoleId,
   initialCompetency,
   initialDrillId,
+  missionReturnHref,
   warmupCards,
 }: {
   accountId: string | null;
   initialRoleId: WorldQuantRoleProfileId;
   initialCompetency: WorldQuantCompetencyKey;
   initialDrillId: string | null;
+  missionReturnHref: string | null;
   warmupCards: DrillWarmupCard[];
 }) {
   const [roleId, setRoleId] = useState(initialRoleId);
@@ -326,10 +328,13 @@ export function WorldQuantDrillApp({
               Curriculum
             </HeaderLink>
             <HeaderLink
-              href={worldQuantRoleHref(
-                "/worldquant/mission",
-                roleId,
-              )}
+              href={
+                missionReturnHref ??
+                worldQuantRoleHref(
+                  "/worldquant/mission",
+                  roleId,
+                )
+              }
             >
               Today&apos;s Mission
             </HeaderLink>
@@ -729,13 +734,16 @@ export function WorldQuantDrillApp({
                     Về catalog
                   </button>
                   <Link
-                    href={worldQuantRoleHref(
-                      "/worldquant/mission",
-                      roleId,
-                    )}
-                    className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-sm font-bold"
+                    href={
+                      missionReturnHref ??
+                      worldQuantRoleHref(
+                        "/worldquant/mission",
+                        roleId,
+                      )
+                    }
+                    className="inline-flex min-h-11 items-center rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-sm font-bold"
                   >
-                    Xem mission mới
+                    Tiếp tục bước kế trong Mission
                   </Link>
                 </div>
               </div>

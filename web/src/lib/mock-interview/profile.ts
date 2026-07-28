@@ -18,6 +18,16 @@ export const mockCompetencyKeys = [
 export type MockCompetencyKey = (typeof mockCompetencyKeys)[number];
 export type MockQuestionOrigin = "question_bank" | "role_profile";
 export type MockInterviewDuration = 30 | 45 | 60;
+
+export function parseMockInterviewDuration(
+  value: string | number | undefined,
+): MockInterviewDuration {
+  const parsed = Number(value);
+  return parsed === 30 || parsed === 45 || parsed === 60
+    ? parsed
+    : 45;
+}
+
 export const mockInterviewSetIds = [
   "worldquant-30-a",
   "worldquant-30-b",

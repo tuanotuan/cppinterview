@@ -31,11 +31,11 @@ nhật file context tương ứng theo root `AGENTS.md`.
 
 | URL/vùng | Entry point | Chức năng |
 |---|---|---|
-| `/` | `web/src/app/page.tsx`, `practice-app.tsx` | Daily/custom study và Focus Sprint exact queue; answer, rating, scheduler, cloud sync và saved state |
-| `/worldquant` | `worldquant/page.tsx`, `worldquant-readiness-app.tsx` | Readiness Hub theo role; Focus Sprint, targeted-mock CTA, account-scoped mock v4 gần nhất và comparable trend |
+| `/` | `web/src/app/page.tsx`, `practice-app.tsx` | Daily/custom study và Focus Sprint exact queue; answer, rating, scheduler, cloud sync, saved state và return về Guided Mission |
+| `/worldquant` | `worldquant/page.tsx`, `worldquant-readiness-app.tsx` | Guided entry theo role/budget, onboarding first-visit, menu Advanced thu gọn; analytics, Focus Sprint, mock v4 gần nhất và comparable trend |
 | `/worldquant/curriculum` | `worldquant/curriculum/page.tsx` | Graph 30 concept theo prerequisite; tách card coverage, pending content và transfer drill |
-| `/worldquant/drills` | `worldquant/drills/page.tsx`, `worldquant-drill-app.tsx` | Scenario lab: approved warm-up → practice → follow-up → rubric → fresh/spaced checkpoint |
-| `/worldquant/mission` | `worldquant/mission/page.tsx`, `worldquant-mission-app.tsx` | Daily mission deterministic từ repair, due card, gap, drill và mock history thật |
+| `/worldquant/drills` | `worldquant/drills/page.tsx`, `worldquant-drill-app.tsx` | Scenario lab: approved warm-up → practice → follow-up → rubric → fresh/spaced checkpoint; giữ exact Guided Mission return |
+| `/worldquant/mission` | `worldquant/mission/page.tsx`, `worldquant-mission-app.tsx` | Guided daily queue deterministic, nêu một bước tiếp theo và giữ exact return qua Focus/Drill/Mock |
 | `/worldquant/full-round` | `worldquant/full-round/page.tsx`, `worldquant-full-round-app.tsx` | Năm non-certification round có hard deadline, rubric và English Web Speech tùy chọn; không lưu answer/audio |
 | `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Interview Loop v4 balanced/targeted 30/45/60 phút, hidden execution, scoped debrief, history và remediation |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx` | Guide tick data/order book |
@@ -72,7 +72,7 @@ API quan trọng:
 | `practice` | `mistake-cards.ts`, `mistake-cards.server.ts` | Capture lỗi durable, dedupe, grounded generation và materialize draft |
 | `worldquant` | `readiness.ts`, `focus-plan.ts` | Role/competency model, preparation evidence và planner queue deterministic theo gap/time budget |
 | `worldquant` | `curriculum.ts`, `curriculum-evidence.ts`, `drills.ts` | Concept graph, content/transfer coverage và catalog 30 scenario: một practice + hai checkpoint mỗi competency |
-| `worldquant` | `training-state.ts`, `gap-closure.ts`, `mission.ts`, `mission-snapshot.ts`, `full-round.ts`, `navigation.ts` | Account-scoped training evidence, closure protocol, bounded frozen daily mission, role-aware navigation và versioned five-round simulator |
+| `worldquant` | `training-state.ts`, `gap-closure.ts`, `mission.ts`, `mission-snapshot.ts`, `guided-mode.ts`, `full-round.ts`, `navigation.ts` | Account-scoped training evidence, closure protocol, bounded frozen daily mission, Guided onboarding/return contract, role-aware navigation và versioned five-round simulator |
 | `ai` | `openai.ts`, `gemini.ts`, `fallback.ts` | Provider calls và fallback |
 | `ai` | `budget.ts`, `usage.ts`, `billing.ts` | Admission daily, accounting monthly, Costs API reconciliation |
 | `mock-interview` | `catalog.ts`, `target-plan.ts`, `session-v4.ts`, `contracts-v4.ts` | Canonical competency mapping, deterministic balanced/targeted blueprint, account-scoped frozen session và exact API contract |
@@ -153,9 +153,14 @@ thiếu sinh repair prompt grounded, không sao chép candidate answer. Today’
 Mission ghép due repair, exact approved Focus card, practice/checkpoint và mock
 history thật trong time budget. Exact mission được snapshot theo
 account/local + ngày + role + budget, cap 24 snapshot/account; reload chỉ rebuild
-khi catalog revision không còn hợp lệ. Primary competency nằm trong mission
-identity; approved card chưa đến hạn/không vừa budget không bị gắn nhầm thành
-content gap. Checkpoint prompt chỉ mở sau warm-up và
+khi exact card competency/revision, canonical content truth hoặc capability mock
+bền vững không còn hợp lệ. Hub là Guided entry: một CTA tạo exact role/budget
+Mission; Mission chỉ đưa một actionable item lên làm bước kế tiếp. Focus, Drill và Mock chỉ nhận
+structured return context rồi dựng lại internal Mission URL, không nhận redirect
+URL tùy ý. Content gap không được coi là item có thể hoàn tất hoặc evidence hoàn
+thành Mission. Primary competency nằm trong mission identity; approved card chưa
+đến hạn/không vừa budget không bị gắn nhầm thành content gap. Checkpoint prompt
+chỉ mở sau warm-up và
 sau khi durable exposure ledger đã ghi thành công. Browser thiếu Web Locks vẫn
 được luyện nhưng exposure fail closed thành non-verifying repeat. Training state
 mới chỉ ở localStorage theo account/local mode;

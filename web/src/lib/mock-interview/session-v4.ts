@@ -239,6 +239,39 @@ export type MockInterviewSessionV4 = z.infer<
   typeof mockInterviewSessionV4Schema
 >;
 
+export function mockInterviewSessionMatchesGuidedRequest({
+  session,
+  request,
+}: {
+  session: {
+    profileId: TargetedMockPlan["profileId"];
+    status: "in_progress" | "evaluating" | "completed";
+    completedAt?: string;
+    plan: Pick<
+      TargetedMockPlan,
+      "durationMinutes" | "mode" | "targetCompetency"
+    >;
+  };
+  request: Pick<
+    TargetedMockPlan,
+    "profileId" | "durationMinutes" | "mode" | "targetCompetency"
+  > & { today: string };
+}) {
+  const exactPlan =
+    session.profileId === request.profileId &&
+    session.plan.durationMinutes === request.durationMinutes &&
+    session.plan.mode === request.mode &&
+    session.plan.targetCompetency === request.targetCompetency;
+  if (!exactPlan) return false;
+  if (session.status !== "completed") return true;
+  if (!session.completedAt) return false;
+  const completedAt = new Date(session.completedAt);
+  return (
+    Number.isFinite(completedAt.getTime()) &&
+    vietnamDateKey(completedAt) === request.today
+  );
+}
+
 export function mockInterviewStorageKey(accountId: string) {
   return `recall:mock-interview:${z.string().uuid().parse(accountId)}:v4:active`;
 }
@@ -360,4 +393,13 @@ export function serializeMockInterviewSessionV4(
   session: MockInterviewSessionV4,
 ) {
   return JSON.stringify(mockInterviewSessionV4Schema.parse(session));
+}
+
+function vietnamDateKey(date: Date) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
 }

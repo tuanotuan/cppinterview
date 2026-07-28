@@ -2,6 +2,7 @@ import { isQuestionApproved } from "@/lib/practice/approvals";
 import { loadCloudContext } from "@/lib/practice/cloud-server";
 import { parsePracticeDeck } from "@/lib/content/decks";
 import { parseFocusSessionId } from "@/lib/practice/focus-session";
+import { parseWorldQuantMissionReturn } from "@/lib/worldquant/guided-mode";
 
 import { PracticeApp, type PracticeQuestion } from "./practice-app";
 
@@ -14,6 +15,9 @@ export default async function Home({
     auth?: string | string[];
     deck?: string | string[];
     focus?: string | string[];
+    returnTo?: string | string[];
+    returnRole?: string | string[];
+    returnMinutes?: string | string[];
   }>;
 }) {
   const cloud = await loadCloudContext({
@@ -31,6 +35,11 @@ export default async function Home({
   const requestedFocusId = parseFocusSessionId(focusParam);
   const invalidFocusRequest =
     focusParam !== undefined && requestedFocusId === null;
+  const focusReturnHref = parseWorldQuantMissionReturn({
+    returnTo: single(params.returnTo),
+    role: single(params.returnRole),
+    minutes: single(params.returnMinutes),
+  });
   const lessons = new Map(manifest.lessons.map((lesson) => [lesson.id, lesson]));
 
   const mappedQuestions: PracticeQuestion[] = manifest.questions
@@ -91,9 +100,14 @@ export default async function Home({
       initialDeck={parsePracticeDeck(deckParam)}
       requestedFocusId={requestedFocusId}
       invalidFocusRequest={invalidFocusRequest}
+      focusReturnHref={focusReturnHref}
       mistakeQuestionIds={cloud.mistakeQuestionIds}
     />
   );
+}
+
+function single(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
 }
 
 function authNotice(code?: string): string | null {

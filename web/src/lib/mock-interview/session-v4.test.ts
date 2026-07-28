@@ -4,6 +4,7 @@ import { WORLDQUANT_CURATED_CATALOG } from "./catalog";
 import {
   advanceMockInterviewSessionV4,
   createMockInterviewSessionV4,
+  mockInterviewSessionMatchesGuidedRequest,
   mockInterviewStorageKey,
   parseMockInterviewSessionV4,
   serializeMockInterviewSessionV4,
@@ -149,5 +150,41 @@ describe("mock interview session v4", () => {
         }),
       ),
     ).toBeNull();
+  });
+
+  it("only returns a completed guided mock to the Mission for today", () => {
+    const request = {
+      profileId: "tick-data-platform" as const,
+      durationMinutes: 30 as const,
+      mode: "balanced" as const,
+      targetCompetency: null,
+      today: "2026-07-28",
+    };
+    const completedSession = {
+      profileId: request.profileId,
+      status: "completed" as const,
+      completedAt: "2026-07-27T17:00:00.000Z",
+      plan: {
+        durationMinutes: request.durationMinutes,
+        mode: request.mode,
+        targetCompetency: request.targetCompetency,
+      },
+    };
+
+    expect(
+      mockInterviewSessionMatchesGuidedRequest({
+        session: completedSession,
+        request,
+      }),
+    ).toBe(true);
+    expect(
+      mockInterviewSessionMatchesGuidedRequest({
+        session: {
+          ...completedSession,
+          completedAt: "2026-07-27T16:59:59.000Z",
+        },
+        request,
+      }),
+    ).toBe(false);
   });
 });

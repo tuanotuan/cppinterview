@@ -5,6 +5,7 @@ import { isQuestionApproved } from "@/lib/practice/approvals";
 import { loadCloudContext } from "@/lib/practice/cloud-server";
 import { classifyQuestionConcepts } from "@/lib/worldquant/curriculum";
 import { worldQuantDrillById } from "@/lib/worldquant/drills";
+import { parseWorldQuantMissionReturn } from "@/lib/worldquant/guided-mode";
 import {
   classifyWorldQuantCompetency,
   parseWorldQuantRoleProfile,
@@ -32,6 +33,9 @@ export default async function WorldQuantDrillsPage({
     role?: string | string[];
     competency?: string | string[];
     drill?: string | string[];
+    returnTo?: string | string[];
+    returnRole?: string | string[];
+    returnMinutes?: string | string[];
   }>;
 }) {
   const cloud = await loadCloudContext({
@@ -47,6 +51,11 @@ export default async function WorldQuantDrillsPage({
   const requestedDrill = drillParam
     ? worldQuantDrillById(drillParam)
     : null;
+  const missionReturnHref = parseWorldQuantMissionReturn({
+    returnTo: first(params.returnTo),
+    role: first(params.returnRole),
+    minutes: first(params.returnMinutes),
+  });
   const competency = requestedDrill?.competency ??
     (worldQuantCompetencyKeys.includes(
       competencyParam as WorldQuantCompetencyKey,
@@ -103,6 +112,7 @@ export default async function WorldQuantDrillsPage({
       initialRoleId={parseWorldQuantRoleProfile(roleParam)}
       initialCompetency={competency}
       initialDrillId={requestedDrill?.id ?? null}
+      missionReturnHref={missionReturnHref}
       warmupCards={warmupCards}
     />
   );
