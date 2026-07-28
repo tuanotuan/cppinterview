@@ -78,6 +78,15 @@ import {
   type RecallRepairQueue,
 } from "@/lib/practice/repair-queue";
 import {
+  beginRescueRetry,
+  canRateRescueRetryAttempt,
+  rescueRetryBlocksRating,
+  rescueRetryOutcomeRating,
+  restoreRescueRetryState,
+  resolveRescueRetryAfterCoach,
+  type RescueRetryState,
+} from "@/lib/practice/rescue-retry";
+import {
   calculateStreak,
   latestReviews,
   localDateKey,
@@ -247,6 +256,9 @@ export function PracticeApp({
   );
   const [coachModels, setCoachModels] = useState<Record<string, string>>({});
   const [coachAnswers, setCoachAnswers] = useState<Record<string, string>>({});
+  const [rescueRetryByQuestion, setRescueRetryByQuestion] = useState<
+    Record<string, RescueRetryState>
+  >({});
   const [coachAttemptIds, setCoachAttemptIds] = useState<Record<string, number>>({});
   const [coachIdempotencyKeys, setCoachIdempotencyKeys] = useState<
     Record<string, string>
@@ -305,8 +317,10 @@ export function PracticeApp({
   const sessionHydrationStarted = useRef(false);
   const focusHydrationStarted = useRef<string | null>(null);
   const scrollToRatingWhenAvailable = useRef(false);
+  const scrollToCoachFeedbackWhenAvailable = useRef(false);
   const pendingSessionSaveRef = useRef<(() => void) | null>(null);
   const coachRequestTokensRef = useRef<Record<string, string>>({});
+  const reviewCompletionLocksRef = useRef<Set<string>>(new Set());
   const studySessionGenerationRef = useRef(0);
   const [sessionHydrated, setSessionHydrated] = useState(false);
   const sessionQuestions = useMemo(() => {
@@ -374,6 +388,7 @@ export function PracticeApp({
     const restoredFeedback: Record<string, CoachFeedback> = {};
     const restoredModels: Record<string, string> = {};
     const restoredCoachAnswers: Record<string, string> = {};
+    const restoredRescueRetry: Record<string, RescueRetryState> = {};
     const restoredAttemptIds: Record<string, number> = {};
     const restoredIdempotencyKeys: Record<string, string> = {};
     const restoredInputs: Record<string, string> = {};
@@ -409,6 +424,14 @@ export function PracticeApp({
       if (saved.coachAnswer !== undefined) {
         restoredCoachAnswers[questionId] = saved.coachAnswer;
       }
+      const restoredRetryState = restoreRescueRetryState({
+        persisted: saved.rescueRetry,
+        hasFeedback: Boolean(saved.coachFeedback),
+        coachAnswer: saved.coachAnswer,
+      });
+      if (restoredRetryState) {
+        restoredRescueRetry[questionId] = restoredRetryState;
+      }
       if (saved.coachAttemptId) restoredAttemptIds[questionId] = saved.coachAttemptId;
       if (saved.coachIdempotencyKey) {
         restoredIdempotencyKeys[questionId] = saved.coachIdempotencyKey;
@@ -436,6 +459,7 @@ export function PracticeApp({
     setCoachFeedback(restoredFeedback);
     setCoachModels(restoredModels);
     setCoachAnswers(restoredCoachAnswers);
+    setRescueRetryByQuestion(restoredRescueRetry);
     setCoachAttemptIds(restoredAttemptIds);
     setCoachIdempotencyKeys(restoredIdempotencyKeys);
     setFollowUpInputs(restoredInputs);
@@ -464,6 +488,7 @@ export function PracticeApp({
         const model = coachModels[question.id];
         const coachAnswer = coachAnswers[question.id];
         const hasCoachAnswer = coachAnswer !== undefined;
+        const rescueRetry = rescueRetryByQuestion[question.id];
         const coachAttemptId = coachAttemptIds[question.id];
         const coachIdempotencyKey = coachIdempotencyKeys[question.id];
         const followUpInput = followUpInputs[question.id];
@@ -483,6 +508,7 @@ export function PracticeApp({
           answer ||
             codeAnswer ||
             feedback ||
+            rescueRetry ||
             coachIdempotencyKey ||
             followUpInput ||
             followUpChat?.length ||
@@ -512,6 +538,7 @@ export function PracticeApp({
           ...(feedback ? { coachFeedback: feedback } : {}),
           ...(model ? { coachModel: model } : {}),
           ...(hasCoachAnswer ? { coachAnswer: coachAnswer ?? "" } : {}),
+          ...(rescueRetry ? { rescueRetry } : {}),
           ...(coachAttemptId ? { coachAttemptId } : {}),
           ...(coachIdempotencyKey ? { coachIdempotencyKey } : {}),
           ...(followUpInput ? { followUpInput } : {}),
@@ -564,6 +591,7 @@ export function PracticeApp({
     hints,
     hintUsedByQuestion,
     revealed,
+    rescueRetryByQuestion,
     selectedQuestionId,
     sessionHydrated,
     sessionQuestions,
@@ -1051,8 +1079,21 @@ export function PracticeApp({
   const hasAnswered = Boolean(
     current &&
       (coachFeedback[current.id] ||
-        coachFeedbackUsedByQuestion.has(current.id) ||
         answerRevealUsedByQuestion.has(current.id)),
+  );
+  const currentRescueRetry = current
+    ? rescueRetryByQuestion[current.id]
+    : undefined;
+  const rescueOutcomeRating = rescueRetryOutcomeRating(
+    currentRescueRetry,
+  );
+  const canRateCurrent = Boolean(
+    current &&
+      canRateRescueRetryAttempt({
+        hasCurrentFeedback: Boolean(coachFeedback[current.id]),
+        answerRevealUsed: answerRevealUsedByQuestion.has(current.id),
+        state: currentRescueRetry,
+      }),
   );
   const currentSuggestedRating = current
     ? ratingOptions.find(
@@ -1139,7 +1180,16 @@ export function PracticeApp({
   }
 
   function rateCurrent(rating: Rating) {
-    if (!current || !currentLearningState) return;
+    if (!current || !currentLearningState || !canRateCurrent) return;
+    const rescueRetry = rescueRetryByQuestion[current.id];
+    if (rescueRetryBlocksRating(rescueRetry)) return;
+    if (reviewCompletionLocksRef.current.has(current.id)) return;
+    reviewCompletionLocksRef.current.add(current.id);
+    window.setTimeout(() => {
+      reviewCompletionLocksRef.current.delete(current.id);
+    }, 1_000);
+    const reviewRating =
+      rescueRetryOutcomeRating(rescueRetry) ?? rating;
     const occurredAt = new Date();
     const occurredAtIso = occurredAt.toISOString();
 
@@ -1151,7 +1201,7 @@ export function PracticeApp({
             validRepairQuestions,
           ),
           current.id,
-          rating,
+          reviewRating,
         );
       setRepairQueue(updateRepair(repairQueue));
       void updateRecallRepairQueueLocked(
@@ -1170,7 +1220,7 @@ export function PracticeApp({
 
     const scheduled = scheduleQuestionReview(
       currentLearningState,
-      rating,
+      reviewRating,
       today,
     );
     const updated = recordScheduledReview(progress, scheduled.review);
@@ -1179,11 +1229,12 @@ export function PracticeApp({
       const attemptId = coachAttemptIds[current.id];
       void syncReviews(
         [scheduled.review],
-        attemptId && (rating === "again" || rating === "hard")
+        attemptId &&
+          (reviewRating === "again" || reviewRating === "hard")
           ? {
               coachAttemptId: attemptId,
               questionId: current.id,
-              rating,
+              rating: reviewRating,
             }
           : undefined,
       );
@@ -1219,12 +1270,12 @@ export function PracticeApp({
           validRepairQuestions,
         ),
       );
-      if (rating === "again" || rating === "hard") {
+      if (reviewRating === "again" || reviewRating === "hard") {
         next = enqueueRecallRepair(next, {
           questionId: current.id,
           questionVersion: current.version,
           sourceHash: current.sourceHash,
-          rating,
+          rating: reviewRating,
           now: occurredAtIso,
         });
       }
@@ -1330,7 +1381,8 @@ export function PracticeApp({
   function toggleReferenceAnswer() {
     if (!current) return;
     const willReveal = !revealed.has(current.id);
-    scrollToRatingWhenAvailable.current = willReveal;
+    scrollToRatingWhenAvailable.current =
+      willReveal && !rescueRetryBlocksRating(currentRescueRetry);
     if (willReveal) {
       setAnswerRevealUsedByQuestion((used) => {
         if (used.has(current.id)) return used;
@@ -1350,14 +1402,25 @@ export function PracticeApp({
     );
   }
 
+  function handleCoachFeedbackSectionRef(node: HTMLDivElement | null) {
+    if (!node || !scrollToCoachFeedbackWhenAvailable.current) return;
+    scrollToCoachFeedbackWhenAvailable.current = false;
+    window.requestAnimationFrame(() =>
+      node.scrollIntoView({ behavior: "smooth", block: "start" }),
+    );
+  }
+
   function clearStudySessionState() {
     studySessionGenerationRef.current += 1;
     coachRequestTokensRef.current = {};
+    scrollToRatingWhenAvailable.current = false;
+    scrollToCoachFeedbackWhenAvailable.current = false;
     setAnswers({});
     setCodeAnswers({});
     setCoachFeedback({});
     setCoachModels({});
     setCoachAnswers({});
+    setRescueRetryByQuestion({});
     setCoachAttemptIds({});
     setCoachIdempotencyKeys({});
     setCoachErrors({});
@@ -1448,7 +1511,10 @@ export function PracticeApp({
   async function askCoach() {
     if (!current) return;
     const questionId = current.id;
+    if (coachRequestTokensRef.current[questionId]) return;
     const answer = currentCandidateAnswer;
+    const rescueRetryBeforeRequest =
+      rescueRetryByQuestion[questionId];
 
     const requestToken = crypto.randomUUID();
     coachRequestTokensRef.current[questionId] = requestToken;
@@ -1498,7 +1564,19 @@ export function PracticeApp({
         throw new Error(payload.error || "AI coach chưa trả lời được.");
       }
 
-      scrollToRatingWhenAvailable.current = true;
+      const nextRescueRetry = resolveRescueRetryAfterCoach({
+        previous: rescueRetryBeforeRequest,
+        candidateAnswer: answer,
+        score: payload.feedback.score,
+      });
+      scrollToRatingWhenAvailable.current = !nextRescueRetry;
+      scrollToCoachFeedbackWhenAvailable.current =
+        Boolean(nextRescueRetry);
+      setRescueRetryByQuestion((states) =>
+        nextRescueRetry
+          ? { ...states, [questionId]: nextRescueRetry }
+          : omitRecordKey(states, questionId),
+      );
       setCoachFeedback((feedback) => ({
         ...feedback,
         [questionId]: payload.feedback!,
@@ -1781,27 +1859,59 @@ export function PracticeApp({
 
   function updateAnswer(questionId: string, value: string) {
     invalidateCoachRequest(questionId);
+    setRescueRetryByQuestion((states) => {
+      const state = states[questionId];
+      return state
+        ? { ...states, [questionId]: beginRescueRetry(state) }
+        : states;
+    });
     setAnswers((currentAnswers) => ({
       ...currentAnswers,
       [questionId]: value,
     }));
-    setCoachFeedback((values) => omitRecordKey(values, questionId));
-    setCoachModels((values) => omitRecordKey(values, questionId));
-    setCoachAnswers((values) => omitRecordKey(values, questionId));
-    setCoachAttemptIds((values) => omitRecordKey(values, questionId));
-    setCoachIdempotencyKeys((values) => omitRecordKey(values, questionId));
-    setCoachErrors((values) => omitRecordKey(values, questionId));
-    setFollowUpInputs((values) => omitRecordKey(values, questionId));
-    setFollowUpChats((values) => omitRecordKey(values, questionId));
-    setFollowUpErrors((values) => omitRecordKey(values, questionId));
+    clearCoachEvaluation(questionId);
   }
 
   function updateCodeAnswer(questionId: string, value: string) {
     invalidateCoachRequest(questionId);
+    setRescueRetryByQuestion((states) => {
+      const state = states[questionId];
+      return state
+        ? { ...states, [questionId]: beginRescueRetry(state) }
+        : states;
+    });
     setCodeAnswers((currentAnswers) => ({
       ...currentAnswers,
       [questionId]: value,
     }));
+    clearCoachEvaluation(questionId);
+  }
+
+  function startRescueRetry(questionId: string) {
+    const focusTextAnswer =
+      current?.id === questionId && !requiresCodeAnswer(current);
+    invalidateCoachRequest(questionId);
+    setRescueRetryByQuestion((states) => ({
+      ...states,
+      [questionId]: beginRescueRetry(states[questionId]),
+    }));
+    setAnswers((values) => omitRecordKey(values, questionId));
+    setCodeAnswers((values) => omitRecordKey(values, questionId));
+    setRevealed((values) => withoutSetValue(values, questionId));
+    setHints((values) => withoutSetValue(values, questionId));
+    setVisibleSources((values) => withoutSetValue(values, questionId));
+    clearCoachEvaluation(questionId);
+    window.requestAnimationFrame(() => {
+      document
+        .getElementById("practice-answer-area")
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (focusTextAnswer) {
+        document.getElementById("candidate-answer")?.focus();
+      }
+    });
+  }
+
+  function clearCoachEvaluation(questionId: string) {
     setCoachFeedback((values) => omitRecordKey(values, questionId));
     setCoachModels((values) => omitRecordKey(values, questionId));
     setCoachAnswers((values) => omitRecordKey(values, questionId));
@@ -1811,6 +1921,17 @@ export function PracticeApp({
     setFollowUpInputs((values) => omitRecordKey(values, questionId));
     setFollowUpChats((values) => omitRecordKey(values, questionId));
     setFollowUpErrors((values) => omitRecordKey(values, questionId));
+    setFollowUpLoading((loading) =>
+      loading === questionId ? null : loading,
+    );
+    setDeepDiveOpen((values) => withoutSetValue(values, questionId));
+    setDeepDiveAnswers((values) => omitRecordKey(values, questionId));
+    setDeepDiveFeedback((values) => omitRecordKey(values, questionId));
+    setDeepDiveModels((values) => omitRecordKey(values, questionId));
+    setDeepDiveErrors((values) => omitRecordKey(values, questionId));
+    setDeepDiveLoading((loading) =>
+      loading === questionId ? null : loading,
+    );
   }
 
   function toggleSet(
@@ -2164,7 +2285,7 @@ export function PracticeApp({
                   ) : null}
 
                   {requiresCodeAnswer(current) ? (
-                    <div className="mt-8 space-y-5">
+                    <div id="practice-answer-area" className="mt-8 space-y-5">
                       <ScenarioCodeEditor
                         language={current.language}
                         value={codeAnswers[current.id] ?? ""}
@@ -2184,6 +2305,11 @@ export function PracticeApp({
                         </div>
                         <textarea
                           id="candidate-answer"
+                          aria-describedby={
+                            currentRescueRetry?.phase === "retrying"
+                              ? "rescue-retry-instruction"
+                              : undefined
+                          }
                           value={answers[current.id] ?? ""}
                           onChange={(event) => updateAnswer(current.id, event.target.value)}
                           className="mt-2 min-h-28 w-full resize-y rounded-2xl border border-[#173f35]/20 bg-[#fbfaf5] px-4 py-3 leading-7 outline-none transition focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/45"
@@ -2193,7 +2319,10 @@ export function PracticeApp({
                     </div>
                   ) : (
                     <>
-                      <div className="mt-8 flex flex-wrap items-center justify-between gap-2">
+                      <div
+                        id="practice-answer-area"
+                        className="mt-8 flex flex-wrap items-center justify-between gap-2"
+                      >
                         <label
                           className="text-sm font-semibold text-[#344a40]"
                           htmlFor="candidate-answer"
@@ -2206,6 +2335,11 @@ export function PracticeApp({
                       </div>
                       <textarea
                         id="candidate-answer"
+                        aria-describedby={
+                          currentRescueRetry?.phase === "retrying"
+                            ? "rescue-retry-instruction"
+                            : undefined
+                        }
                         value={answers[current.id] ?? ""}
                         onChange={(event) => updateAnswer(current.id, event.target.value)}
                         className="mt-2 min-h-36 w-full resize-y rounded-2xl border border-[#173f35]/20 bg-[#fbfaf5] px-4 py-3 leading-7 outline-none transition focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/45"
@@ -2218,6 +2352,23 @@ export function PracticeApp({
                     Chưa biết thì cứ để trống. Nhờ AI sẽ giải từ đầu; câu trả lời
                     không bị giới hạn ký tự.
                   </p>
+
+                  {currentRescueRetry?.phase === "retrying" ? (
+                    <div
+                      id="rescue-retry-instruction"
+                      className="mt-4 rounded-2xl border border-[#356b58]/25 bg-[#edf3e9] p-4 text-sm text-[#29493d]"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      <p className="font-mono text-[11px] font-bold tracking-[0.14em] text-[#356b58] uppercase">
+                        Retry · lượt {currentRescueRetry.attempts + 1}
+                      </p>
+                      <p className="mt-1 font-semibold">
+                        Tự trả lời lại bằng lời của mày, không nhìn lời giải.
+                        Khi xong, nhờ AI chấm lần làm lại.
+                      </p>
+                    </div>
+                  ) : null}
 
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                     <button
@@ -2239,14 +2390,27 @@ export function PracticeApp({
                       <button
                         type="button"
                         onClick={askCoach}
-                        disabled={coachLoading === current.id}
+                        disabled={
+                          coachLoading === current.id ||
+                          (currentRescueRetry?.phase === "rescue" &&
+                            Boolean(coachFeedback[current.id]))
+                        }
                         className="rounded-xl border border-[#356b58]/25 bg-[#d7ff91] px-5 py-3 text-sm font-bold text-[#173f35] shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#d7ff91]/60 focus:outline-none"
                       >
                         {coachLoading === current.id
-                          ? "AI đang giúp…"
-                          : currentCandidateAnswer
-                            ? "Nhờ AI chấm"
-                            : "Nhờ AI giải"}
+                          ? currentRescueRetry?.phase === "retrying"
+                            ? "AI đang chấm lại…"
+                            : "AI đang giúp…"
+                          : currentRescueRetry?.phase === "rescue" &&
+                              coachFeedback[current.id]
+                            ? "Đọc lời giải bên dưới"
+                            : currentRescueRetry?.phase === "retrying"
+                              ? currentCandidateAnswer
+                                ? "Nhờ AI chấm lần làm lại"
+                                : "Nhờ AI giải lại"
+                              : currentCandidateAnswer
+                                ? "Nhờ AI chấm"
+                                : "Nhờ AI giải"}
                       </button>
                       <button
                         type="button"
@@ -2274,7 +2438,7 @@ export function PracticeApp({
                     </p>
                   ) : null}
 
-                  {hasAnswered ? (
+                  {canRateCurrent && !rescueOutcomeRating ? (
                     <div
                       ref={handleRatingSectionRef}
                       className="sticky bottom-3 z-20 mt-5 scroll-m-4 rounded-3xl border-2 border-[#356b58]/35 bg-[#fffef9]/95 p-4 shadow-[0_16px_45px_rgba(23,63,53,0.18)] backdrop-blur-md sm:p-5"
@@ -2330,37 +2494,54 @@ export function PracticeApp({
 
                   {coachFeedback[current.id] ? (
                     <>
-                      <CoachFeedbackPanel
-                        feedback={coachFeedback[current.id]}
-                        model={coachModels[current.id]}
-                        learningActionLoading={followUpLoading === current.id}
-                        learningActionDisabled={
-                          (followUpChats[current.id]?.length ?? 0) >= 8
-                        }
-                        deepDiveOpen={deepDiveOpen.has(current.id)}
-                        feedbackSaved={isSaved(
-                          `ai-feedback:${current.id}:${current.version}:${current.sourceHash}`,
-                        )}
-                        onToggleSaveFeedback={() =>
-                          toggleSavedItem({
-                            id: `ai-feedback:${current.id}:${current.version}:${current.sourceHash}`,
-                            kind: "ai_answer",
-                            questionId: current.id,
-                            title: `AI feedback · ${current.lessonTitle}`,
-                            content: formatCoachFeedback(coachFeedback[current.id]),
-                            context: displayQuestionPrompt(current),
-                          })
-                        }
-                        onExpandNextStep={() =>
-                          void askCoachFollowUp(
-                            `Hãy biến bước tiếp theo này thành một bài học mini dễ hiểu, có ví dụ ${current.language === "python" ? "Python" : "C++"} ngắn và một bài tập nhỏ: ${coachFeedback[current.id].nextStep}`,
-                          )
-                        }
-                        onExploreInterviewerQuestion={() =>
-                          toggleSet(setDeepDiveOpen, current.id)
-                        }
-                      />
-                      {deepDiveOpen.has(current.id) ? (
+                      <div ref={handleCoachFeedbackSectionRef}>
+                        <CoachFeedbackPanel
+                          feedback={coachFeedback[current.id]}
+                          model={coachModels[current.id]}
+                          rescueMode={currentRescueRetry?.phase === "rescue"}
+                          learningActionLoading={followUpLoading === current.id}
+                          learningActionDisabled={
+                            (followUpChats[current.id]?.length ?? 0) >= 8
+                          }
+                          deepDiveOpen={deepDiveOpen.has(current.id)}
+                          feedbackSaved={isSaved(
+                            `ai-feedback:${current.id}:${current.version}:${current.sourceHash}`,
+                          )}
+                          onToggleSaveFeedback={() =>
+                            toggleSavedItem({
+                              id: `ai-feedback:${current.id}:${current.version}:${current.sourceHash}`,
+                              kind: "ai_answer",
+                              questionId: current.id,
+                              title: `AI feedback · ${current.lessonTitle}`,
+                              content: formatCoachFeedback(coachFeedback[current.id]),
+                              context: displayQuestionPrompt(current),
+                            })
+                          }
+                          onExpandNextStep={() =>
+                            void askCoachFollowUp(
+                              `Hãy biến bước tiếp theo này thành một bài học mini dễ hiểu, có ví dụ ${current.language === "python" ? "Python" : "C++"} ngắn và một bài tập nhỏ: ${coachFeedback[current.id].nextStep}`,
+                            )
+                          }
+                          onExploreInterviewerQuestion={() =>
+                            toggleSet(setDeepDiveOpen, current.id)
+                          }
+                        />
+                      </div>
+                      {currentRescueRetry &&
+                      currentRescueRetry.phase !== "retrying" ? (
+                        <RescueRetryOutcomePanel
+                          state={currentRescueRetry}
+                          score={coachFeedback[current.id].score}
+                          onRetry={() => startRescueRetry(current.id)}
+                          onContinue={
+                            rescueOutcomeRating
+                              ? () => rateCurrent(rescueOutcomeRating)
+                              : undefined
+                          }
+                        />
+                      ) : null}
+                      {currentRescueRetry?.phase !== "rescue" &&
+                      deepDiveOpen.has(current.id) ? (
                         <DeepDivePracticePanel
                           question={current}
                           prompt={coachFeedback[current.id].followUpQuestion}
@@ -2393,33 +2574,35 @@ export function PracticeApp({
                           }}
                         />
                       ) : null}
-                      <CoachFollowUpPanel
-                        question={current}
-                        messages={followUpChats[current.id] ?? []}
-                        input={followUpInputs[current.id] ?? ""}
-                        error={followUpErrors[current.id]}
-                        loading={followUpLoading === current.id}
-                        isMessageSaved={(index) =>
-                          isSaved(`ai-follow-up:${current.id}:${index}`)
-                        }
-                        onToggleSaveMessage={(index, message) =>
-                          toggleSavedItem({
-                            id: `ai-follow-up:${current.id}:${index}`,
-                            kind: "ai_answer",
-                            questionId: current.id,
-                            title: `AI giải thích · ${current.lessonTitle}`,
-                            content: message.content,
-                            context: displayQuestionPrompt(current),
-                          })
-                        }
-                        onInput={(value) =>
-                          setFollowUpInputs((inputs) => ({
-                            ...inputs,
-                            [current.id]: value,
-                          }))
-                        }
-                        onSubmit={askCoachFollowUp}
-                      />
+                      {currentRescueRetry?.phase !== "rescue" ? (
+                        <CoachFollowUpPanel
+                          question={current}
+                          messages={followUpChats[current.id] ?? []}
+                          input={followUpInputs[current.id] ?? ""}
+                          error={followUpErrors[current.id]}
+                          loading={followUpLoading === current.id}
+                          isMessageSaved={(index) =>
+                            isSaved(`ai-follow-up:${current.id}:${index}`)
+                          }
+                          onToggleSaveMessage={(index, message) =>
+                            toggleSavedItem({
+                              id: `ai-follow-up:${current.id}:${index}`,
+                              kind: "ai_answer",
+                              questionId: current.id,
+                              title: `AI giải thích · ${current.lessonTitle}`,
+                              content: message.content,
+                              context: displayQuestionPrompt(current),
+                            })
+                          }
+                          onInput={(value) =>
+                            setFollowUpInputs((inputs) => ({
+                              ...inputs,
+                              [current.id]: value,
+                            }))
+                          }
+                          onSubmit={askCoachFollowUp}
+                        />
+                      ) : null}
                     </>
                   ) : null}
                 </div>
@@ -3476,9 +3659,100 @@ function formatCoachFeedback(feedback: CoachFeedback) {
   return `${feedback.score}/100 · ${verdictLabels[feedback.verdict]}\n\n${feedback.summary}\n\n${feedback.explanation}${corrections}`;
 }
 
+function RescueRetryOutcomePanel({
+  state,
+  score,
+  onRetry,
+  onContinue,
+}: {
+  state: RescueRetryState;
+  score: number;
+  onRetry: () => void;
+  onContinue?: () => void;
+}) {
+  if (state.phase === "retrying") return null;
+
+  const passed = state.phase === "passed";
+  const needsRepair = state.phase === "needs_repair";
+  const outcomeLabel = passed
+    ? state.reviewRating === "easy"
+      ? "Easy"
+      : "Good"
+    : needsRepair
+      ? state.repairRating === "again"
+        ? "Again"
+        : "Hard"
+      : null;
+
+  return (
+    <section
+      className={`mt-5 rounded-3xl border-2 p-5 shadow-sm sm:p-6 ${
+        state.phase === "rescue"
+          ? "border-[#ba4b2f]/25 bg-[#fff4e8]"
+          : passed
+            ? "border-[#356b58]/30 bg-[#edf8e8]"
+            : "border-[#ba4b2f]/25 bg-[#f8e8df]"
+      }`}
+      role="status"
+      aria-live="polite"
+    >
+      <p className="font-mono text-[11px] font-bold tracking-[0.14em] text-[#356b58] uppercase">
+        {state.phase === "rescue"
+          ? "AI Rescue · học trước"
+          : `Retry · lượt ${state.attempts}`}
+      </p>
+      <h2 className="mt-2 text-xl font-semibold tracking-tight text-[#173f35]">
+        {state.phase === "rescue"
+          ? "Đã có lời giải — giờ tới lượt mày tự làm lại"
+          : passed
+            ? `Đạt ${score}/100`
+            : `Chưa đạt ${score}/100`}
+      </h2>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-[#52645c]">
+        {state.phase === "rescue"
+          ? "Đọc phần giải thích phía trên cho hiểu, rồi đóng lời giải và trả lời lại bằng trí nhớ. Rating đang khóa cho tới khi AI chấm lần làm lại."
+          : passed
+            ? `Lần làm lại đã đạt ngưỡng phỏng vấn. Hệ thống sẽ ghi mức ${outcomeLabel} và chuyển sang câu tiếp theo.`
+            : `Lần làm lại còn lỗ hổng. Hệ thống sẽ ghi mức ${outcomeLabel}, chuyển sang câu tiếp theo và chèn lại câu này trong Recall Repair sau vài thẻ.`}
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {state.phase === "rescue" ? (
+          <button
+            type="button"
+            onClick={onRetry}
+            className="rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#245748] focus:ring-4 focus:ring-[#d7ff91] focus:outline-none"
+          >
+            Tự làm lại không nhìn lời giải
+          </button>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={onContinue}
+              className="rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#245748] focus:ring-4 focus:ring-[#d7ff91] focus:outline-none"
+            >
+              {passed
+                ? "Đạt · sang câu tiếp"
+                : "Đưa vào Recall Repair · sang câu tiếp"}
+            </button>
+            <button
+              type="button"
+              onClick={onRetry}
+              className="rounded-xl border border-[#356b58]/25 bg-white/70 px-5 py-3 text-sm font-bold text-[#245748] transition hover:-translate-y-0.5 hover:bg-white focus:ring-4 focus:ring-[#d7ff91]/60 focus:outline-none"
+            >
+              {passed ? "Làm lại lần nữa" : "Thử lại ngay"}
+            </button>
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function CoachFeedbackPanel({
   feedback,
   model,
+  rescueMode,
   learningActionLoading,
   learningActionDisabled,
   deepDiveOpen,
@@ -3489,6 +3763,7 @@ function CoachFeedbackPanel({
 }: {
   feedback: CoachFeedback;
   model?: string;
+  rescueMode: boolean;
   learningActionLoading: boolean;
   learningActionDisabled: boolean;
   deepDiveOpen: boolean;
@@ -3506,16 +3781,31 @@ function CoachFeedbackPanel({
       <div className="grid gap-5 bg-[#173f35] p-6 text-white sm:grid-cols-[6rem_1fr] sm:items-center">
         <div className="grid size-24 place-items-center rounded-full border-4 border-[#d7ff91]/70 bg-white/8">
           <div className="text-center">
-            <span className="block font-mono text-3xl font-bold text-[#d7ff91]">
-              {feedback.score}
-            </span>
-            <span className="text-[10px] tracking-wider text-white/55 uppercase">/ 100</span>
+            {rescueMode ? (
+              <>
+                <span className="block font-mono text-2xl font-bold text-[#d7ff91]">
+                  AI
+                </span>
+                <span className="text-[9px] tracking-wider text-white/55 uppercase">
+                  Rescue
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="block font-mono text-3xl font-bold text-[#d7ff91]">
+                  {feedback.score}
+                </span>
+                <span className="text-[10px] tracking-wider text-white/55 uppercase">
+                  / 100
+                </span>
+              </>
+            )}
           </div>
         </div>
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <p className="font-mono text-xs font-bold tracking-[0.15em] text-[#d7ff91] uppercase">
-              AI interview feedback
+              {rescueMode ? "AI Rescue · học từ đầu" : "AI interview feedback"}
             </p>
             <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-white/60">
               {model || "OpenAI"}
@@ -3529,7 +3819,9 @@ function CoachFeedbackPanel({
             </button>
           </div>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight">
-            {verdictLabels[feedback.verdict]}
+            {rescueMode
+              ? "Hiểu lời giải trước, rồi tự nói lại"
+              : verdictLabels[feedback.verdict]}
           </h2>
           <p className="mt-2 text-sm leading-6 text-white/72">{feedback.summary}</p>
         </div>
@@ -3595,7 +3887,7 @@ function CoachFeedbackPanel({
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className={rescueMode ? "hidden" : "grid gap-3 sm:grid-cols-2"}>
           <div className="flex flex-col rounded-2xl bg-[#e8efe2] p-5">
             <p className="font-mono text-[11px] font-bold tracking-wider text-[#356b58] uppercase">
               Bước tiếp theo
@@ -3630,8 +3922,17 @@ function CoachFeedbackPanel({
         </div>
 
         <p className="text-center text-xs text-[#6c7b73]">
-          AI gợi ý tự chấm: <strong>{suggestedRating?.label}</strong> · hãy tự quyết định sau khi
-          đối chiếu đáp án nguồn.
+          {rescueMode ? (
+            <>
+              Rating đang khóa · đọc cho hiểu rồi bấm{" "}
+              <strong>Tự làm lại không nhìn lời giải</strong>.
+            </>
+          ) : (
+            <>
+              AI gợi ý tự chấm: <strong>{suggestedRating?.label}</strong> · hãy
+              tự quyết định sau khi đối chiếu đáp án nguồn.
+            </>
+          )}
         </p>
       </div>
     </section>

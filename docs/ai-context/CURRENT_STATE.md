@@ -27,9 +27,11 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
   sau 5 thẻ; retry không tạo daily review thứ hai. Practice không còn hỏi mức tự
   tin hoặc hiển thị confidence calibration. Draft answer/code không có giới hạn
   ký tự ở tầng sản phẩm; để trống nghĩa là chưa biết, nút AI vẫn hoạt động và
-  prompt buộc coach dạy từ nền tảng. Cờ hint/reveal/coach vẫn giữ qua
-  navigation/reload tới khi card được rate. Stats chỉ giữ FSRS-6 shadow theo
-  exact revision và không đổi lịch hiện tại.
+  prompt buộc coach dạy từ nền tảng. Blank attempt đi vào Rescue, ẩn điểm/rating
+  và yêu cầu tự làm lại; AI chấm Retry lần hai, đạt thì tiếp tục bằng
+  `Good`/`Easy`, chưa đạt thì vào Recall Repair bằng `Again`/`Hard`. Phase này
+  cùng cờ hint/reveal/coach giữ qua navigation/reload tới khi card được hoàn tất.
+  Stats chỉ giữ FSRS-6 shadow theo exact revision và không đổi lịch hiện tại.
 - Today’s Mission khóa exact snapshot qua reload theo account/local + ngày + role
   + budget, đưa duy nhất item chưa xong đầu tiên lên “Bước tiếp theo” và return
   về đúng Mission sau Focus/Drill/Mock. Snapshot giữ tối đa 24 bản/account và
@@ -108,14 +110,15 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 
 ## Validation gần nhất
 
-- Content check, context refresh/check và `git diff --check`: pass.
-- Lint toàn repo và TypeScript `--noEmit`: pass.
-- Vitest: 70 test files, 388 tests pass.
+- `npm run validate` pass toàn bộ: content/context check, lint, TypeScript,
+  Vitest và production build.
+- Vitest: 71 test files, 407 tests pass.
 - Next.js production build: pass, gồm compile, type-check và 25 generated pages;
   năm route WorldQuant training và `/admin/coverage` đều có trong route graph.
-- Headless Chrome smoke ở 1440×1200: confidence selector đã biến mất và nút
-  `Nhờ AI giải` vẫn active khi textarea trống; mobile visual gate chưa chạy lại
-  cho thay đổi này.
+- Headless Chrome production smoke ở 1440×1200 và 390×844: Rescue ẩn score/rating,
+  hiển thị lời giải + CTA tự làm lại; Retry xóa feedback, focus answer và vẫn cho
+  `Nhờ AI giải lại` khi blank; outcome chưa đạt chỉ hiện CTA Recall Repair, không
+  hiện bốn nút rating.
 
 ## Quy tắc cập nhật
 

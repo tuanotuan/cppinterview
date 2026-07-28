@@ -23,6 +23,11 @@ describe("study session persistence", () => {
           hintUsed: true,
           coachFeedbackUsed: true,
           sourceVisible: true,
+          rescueRetry: {
+            phase: "needs_repair",
+            attempts: 2,
+            repairRating: "hard",
+          },
           followUpChat: [
             { role: "user", content: "Why does declaration order matter?" },
           ],
@@ -44,6 +49,11 @@ describe("study session persistence", () => {
       hintUsed: true,
       coachFeedbackUsed: true,
       sourceVisible: true,
+      rescueRetry: {
+        phase: "needs_repair",
+        attempts: 2,
+        repairRating: "hard",
+      },
       deepDiveOpen: true,
       deepDiveAnswer: "auto drops the top-level const during deduction.",
     });
@@ -81,6 +91,34 @@ describe("study session persistence", () => {
       codeAnswer,
       coachAnswer: answer,
       deepDiveAnswer,
+    });
+  });
+
+  it.each([
+    { phase: "rescue", attempts: 0 },
+    { phase: "retrying", attempts: 1 },
+    { phase: "passed", attempts: 2, reviewRating: "good" },
+    {
+      phase: "needs_repair",
+      attempts: 3,
+      repairRating: "again",
+    },
+  ] as const)("round-trips Rescue → Retry phase $phase", (rescueRetry) => {
+    const raw = serializeStudySession({
+      [identity.id]: {
+        questionVersion: identity.version,
+        sourceHash: identity.sourceHash,
+        answer: rescueRetry.phase === "retrying" ? "Draft in progress" : "",
+        coachAnswer: "",
+        rescueRetry,
+      },
+    });
+
+    expect(
+      parseStudySession(raw, [identity]).questions[identity.id],
+    ).toMatchObject({
+      coachAnswer: "",
+      rescueRetry,
     });
   });
 
