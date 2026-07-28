@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sourceRevision": "269db959cf2280941c07c3b96e39487c730c5b2bc6588808c858cd7cfe8b62c6",
+  "sourceRevision": "f20720622353912842bd0317b6a7886546de387f1eaa05ccbe88762753968298",
   "lessons": [
     {
       "id": "cpp98-object-variable-memory",
@@ -2718,6 +2718,87 @@
         "Version output khi trade break hoặc backfill thay đổi bar."
       ],
       "code": "#include <cstdint>\r\n#include <iostream>\r\n#include <limits>\r\n#include <map>\r\n#include <stdexcept>\r\n#include <unordered_map>\r\n#include <utility>\r\n\r\nusing MatchId = std::uint64_t;\r\nusing Sequence = std::uint64_t;\r\nusing Price4 = std::int64_t;\r\nusing Quantity = std::uint64_t;\r\n\r\nstruct Trade {\r\n    Sequence sequence;\r\n    Price4 price;\r\n    Quantity quantity;\r\n\r\n    bool operator==(const Trade&) const = default;\r\n};\r\n\r\nclass CorrectableBar {\r\npublic:\r\n    // MatchId is deliberately simplified for one instrument/session.\r\n    // Production identity must also include the venue-specific scope/namespace.\r\n    void add(MatchId id, Trade trade, bool printable) {\r\n        if (!printable) {\r\n            return;\r\n        }\r\n        if (trade.quantity == 0 || trade.price <= 0) {\r\n            throw std::runtime_error(\"this example requires positive price and quantity\");\r\n        }\r\n        if (const auto existing = trades_.find(id); existing != trades_.end()) {\r\n            if (existing->second == trade) {\r\n                return; // idempotent replay\r\n            }\r\n            throw std::runtime_error(\"same match ID with different payload\");\r\n        }\r\n        if (order_.contains(trade.sequence)) {\r\n            throw std::runtime_error(\"duplicate trade sequence\");\r\n        }\r\n        constexpr auto max_turnover = std::numeric_limits<std::int64_t>::max();\r\n        if (trade.quantity >\r\n            static_cast<Quantity>(max_turnover / trade.price)) {\r\n            throw std::overflow_error(\"turnover multiplication overflow\");\r\n        }\r\n\r\n        const auto turnover = trade.price * static_cast<std::int64_t>(trade.quantity);\r\n        if (turnover_ > max_turnover - turnover) {\r\n            throw std::overflow_error(\"turnover sum overflow\");\r\n        }\r\n        if (volume_ > std::numeric_limits<Quantity>::max() - trade.quantity) {\r\n            throw std::overflow_error(\"volume overflow\");\r\n        }\r\n\r\n        // Copy-on-write keeps the example transactional if a container allocation\r\n        // throws. A production hot path would use staged nodes/rollback guards.\r\n        CorrectableBar staged = *this;\r\n        staged.add_validated(id, trade, turnover);\r\n        swap(staged);\r\n    }\r\n\r\n    void break_trade(MatchId id) {\r\n        if (!trades_.contains(id)) {\r\n            throw std::runtime_error(\"unknown trade break\");\r\n        }\r\n        CorrectableBar staged = *this;\r\n        staged.break_validated(id);\r\n        swap(staged);\r\n    }\r\n\r\n    void print() const {\r\n        if (trades_.empty()) {\r\n            std::cout << \"empty revision=\" << revision_ << '\\n';\r\n            return;\r\n        }\r\n        const Price4 open = trades_.at(order_.begin()->second).price;\r\n        const Price4 close = trades_.at(order_.rbegin()->second).price;\r\n        std::cout << \"O=\" << open\r\n                  << \" H=\" << prices_.rbegin()->first\r\n                  << \" L=\" << prices_.begin()->first\r\n                  << \" C=\" << close\r\n                  << \" V=\" << volume_\r\n                  << \" VWAP_truncated=\"\r\n                  << (turnover_ / static_cast<std::int64_t>(volume_))\r\n                  << \" revision=\" << revision_ << '\\n';\r\n    }\r\n\r\nprivate:\r\n    void add_validated(MatchId id, Trade trade, std::int64_t turnover) {\r\n        trades_.emplace(id, trade);\r\n        order_.emplace(trade.sequence, id);\r\n        prices_[trade.price] += 1;\r\n        volume_ += trade.quantity;\r\n        turnover_ += turnover;\r\n        ++revision_;\r\n    }\r\n\r\n    void break_validated(MatchId id) {\r\n        const auto it = trades_.find(id);\r\n        const Trade trade = it->second;\r\n        const auto ordered = order_.find(trade.sequence);\r\n        const auto price_count = prices_.find(trade.price);\r\n        const auto trade_turnover =\r\n            trade.price * static_cast<std::int64_t>(trade.quantity);\r\n        if (ordered == order_.end() || ordered->second != id ||\r\n            price_count == prices_.end() || price_count->second == 0 ||\r\n            volume_ < trade.quantity || turnover_ < trade_turnover) {\r\n            throw std::logic_error(\"bar indexes are inconsistent\");\r\n        }\r\n\r\n        volume_ -= trade.quantity;\r\n        turnover_ -= trade_turnover;\r\n        order_.erase(ordered);\r\n        if (--price_count->second == 0) {\r\n            prices_.erase(price_count);\r\n        }\r\n        trades_.erase(it);\r\n        ++revision_;\r\n    }\r\n\r\n    void swap(CorrectableBar& other) noexcept {\r\n        using std::swap;\r\n        trades_.swap(other.trades_);\r\n        order_.swap(other.order_);\r\n        prices_.swap(other.prices_);\r\n        swap(volume_, other.volume_);\r\n        swap(turnover_, other.turnover_);\r\n        swap(revision_, other.revision_);\r\n    }\r\n\r\n    std::unordered_map<MatchId, Trade> trades_;\r\n    std::map<Sequence, MatchId> order_;\r\n    std::map<Price4, std::size_t> prices_;\r\n    Quantity volume_{};\r\n    std::int64_t turnover_{};\r\n    std::uint64_t revision_{};\r\n};\r\n\r\nint main() {\r\n    CorrectableBar bar;\r\n    bar.add(10, {.sequence = 100, .price = 1'000'000, .quantity = 5}, true);\r\n    bar.add(11, {.sequence = 101, .price = 1'000'200, .quantity = 3}, true);\r\n    bar.add(12, {.sequence = 102, .price = 1'000'100, .quantity = 7}, false);\r\n    bar.print();\r\n\r\n    bar.break_trade(11);\r\n    bar.print();\r\n}\r\n"
+    },
+    {
+      "id": "cpp11-copy-constructor",
+      "sourcePath": "cpp11/28_copy constructor",
+      "order": 23,
+      "tags": [
+        "copy",
+        "constructor"
+      ],
+      "prerequisites": [],
+      "language": "cpp",
+      "track": "cpp11",
+      "standard": "cpp11",
+      "title": "Day 28 — Copy Constructors",
+      "knowledgePath": "cpp11/28_copy constructor/knowledge.md",
+      "codePath": "cpp11/28_copy constructor/main.cpp",
+      "sourceHash": "7fe64c917b782093a3d207718e09322199aa35688b29b499b81ae10378b7b656",
+      "sections": [
+        {
+          "id": "purpose",
+          "heading": "1. Purpose",
+          "bodyMarkdown": "A copy constructor creates a new object from an existing object of the same type.\r\n\r\nIt is commonly used when an object is initialized from another object, passed by value, or duplicated by a container.",
+          "bodyText": "A copy constructor creates a new object from an existing object of the same type.It is commonly used when an object is initialized from another object, passed by value, or duplicated by a container."
+        },
+        {
+          "id": "minimal-syntax",
+          "heading": "2. Minimal Syntax",
+          "bodyMarkdown": "class Order {\r\npublic:\r\n    Order(const Order& other)\r\n        : id_(other.id_),\r\n          quantity_(other.quantity_) {}\r\n};\r\n\r\nGeneral form:\r\n\r\nClassName(const ClassName& other);\r\n\r\nconst& avoids copying the argument again and allows copying from const objects.",
+          "bodyText": "class Order {\r\npublic:\r\nOrder(const Order& other)\r\n: id_(other.id_),\r\nquantity_(other.quantity_) {}\r\n};General form:ClassName(const ClassName& other);const& avoids copying the argument again and allows copying from const objects."
+        },
+        {
+          "id": "default-copy-behavior",
+          "heading": "3. Default Copy Behavior",
+          "bodyMarkdown": "If no copy constructor is declared, C++ usually generates one.\r\n\r\nThe generated version performs a member-wise copy. This is normally safe for members such as:\r\n\r\nIntegers\r\n\r\nstd::string\r\n\r\nstd::vector\r\n\r\nOther value-like types",
+          "bodyText": "If no copy constructor is declared, C++ usually generates one.The generated version performs a member-wise copy. This is normally safe for members such as:Integersstd::stringstd::vectorOther value-like types"
+        },
+        {
+          "id": "shallow-copy-risk",
+          "heading": "4. Shallow Copy Risk",
+          "bodyMarkdown": "Raw pointers are copied as addresses.\r\n\r\nIf two objects own the same pointer, this may cause:\r\n\r\nDouble deletion\r\n\r\nDangling pointers\r\n\r\nShared unintended state\r\n\r\nMemory corruption\r\n\r\nPrefer standard containers and smart pointers instead of owning raw pointers.",
+          "bodyText": "Raw pointers are copied as addresses.If two objects own the same pointer, this may cause:Double deletionDangling pointersShared unintended stateMemory corruptionPrefer standard containers and smart pointers instead of owning raw pointers."
+        },
+        {
+          "id": "disable-copying",
+          "heading": "5. Disable Copying",
+          "bodyMarkdown": "Copying may be invalid for unique resources:\r\n\r\nclass Connection {\r\npublic:\r\n    Connection(const Connection&) = delete;\r\n    Connection& operator=(const Connection&) = delete;\r\n};\r\n\r\nExamples include sockets, mutexes, exchange sessions, and unique file handles.",
+          "bodyText": "Copying may be invalid for unique resources:class Connection {\r\npublic:\r\nConnection(const Connection&) = delete;\r\nConnection& operator=(const Connection&) = delete;\r\n};Examples include sockets, mutexes, exchange sessions, and unique file handles."
+        },
+        {
+          "id": "copy-constructor-vs-copy-assignment",
+          "heading": "6. Copy Constructor vs Copy Assignment",
+          "bodyMarkdown": "Copy construction creates a new object:\r\n\r\nOrder second{first};\r\n\r\nCopy assignment changes an existing object:\r\n\r\nsecond = first;\r\n\r\nThese are different operations.",
+          "bodyText": "Copy construction creates a new object:Order second{first};Copy assignment changes an existing object:second = first;These are different operations."
+        },
+        {
+          "id": "trading-system-relevance",
+          "heading": "7. Trading-System Relevance",
+          "bodyMarkdown": "Copy constructors matter for orders, market-data messages, risk snapshots, and execution reports.\r\n\r\nUnnecessary copies may increase latency. Pass read-only objects by const& when no copy is needed:\r\n\r\nvoid process(const Order& order);",
+          "bodyText": "Copy constructors matter for orders, market-data messages, risk snapshots, and execution reports.Unnecessary copies may increase latency. Pass read-only objects by const& when no copy is needed:void process(const Order& order);"
+        },
+        {
+          "id": "common-failure-modes",
+          "heading": "8. Common Failure Modes",
+          "bodyMarkdown": "Declaring the parameter by value and causing recursive copying.\r\n\r\nShallow-copying owned raw pointers.\r\n\r\nAccidentally copying large objects.\r\n\r\nForgetting related copy, move, or destructor behavior.",
+          "bodyText": "Declaring the parameter by value and causing recursive copying.Shallow-copying owned raw pointers.Accidentally copying large objects.Forgetting related copy, move, or destructor behavior."
+        },
+        {
+          "id": "best-practices",
+          "heading": "9. Best Practices",
+          "bodyMarkdown": "Prefer compiler-generated copying when member-wise copy is correct.\r\n\r\nUse = default to make intended copying explicit.\r\n\r\nUse = delete when copying is invalid.\r\n\r\nAvoid owning raw pointers.\r\n\r\nPass large read-only objects by const&.",
+          "bodyText": "Prefer compiler-generated copying when member-wise copy is correct.Use = default to make intended copying explicit.Use = delete when copying is invalid.Avoid owning raw pointers.Pass large read-only objects by const&."
+        },
+        {
+          "id": "key-takeaway",
+          "heading": "Key Takeaway",
+          "bodyMarkdown": "A copy constructor creates a new object from an existing object of the same class.",
+          "bodyText": "A copy constructor creates a new object from an existing object of the same class."
+        }
+      ],
+      "checklistItems": [],
+      "code": "#include <iostream>\r\n\r\nclass Order {\r\npublic:\r\n    Order(int id, int quantity)\r\n        : id_(id), quantity_(quantity) {}\r\n\r\n    Order(const Order& other)\r\n        : id_(other.id_), quantity_(other.quantity_) {\r\n        std::cout << \"Order copied\\n\";\r\n    }\r\n\r\n    void print() const {\r\n        std::cout << \"ID: \" << id_\r\n                  << \", Quantity: \" << quantity_\r\n                  << '\\n';\r\n    }\r\n\r\nprivate:\r\n    int id_;\r\n    int quantity_;\r\n};\r\n\r\nint main() {\r\n    Order original{101, 50};\r\n    Order copy{original};\r\n\r\n    original.print();\r\n    copy.print();\r\n}"
     }
   ],
   "questions": [

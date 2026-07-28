@@ -287,17 +287,15 @@ lessons:
     track: cpp11
   - id: python-day-1
     sourcePath: python/day_1
-    language: python
-    track: python3
     order: 1
     tags:
       - day
       - "1"
     prerequisites: []
+    language: python
+    track: python3
   - id: cpp20-tick-event-model-and-binary-parsing
     sourcePath: cpp20/02_tick event model and binary parsing
-    language: cpp
-    track: cpp20
     order: 2
     tags:
       - tick-data
@@ -306,10 +304,10 @@ lessons:
       - binary-parsing
       - fixed-point
     prerequisites: []
-  - id: cpp20-market-by-order-reconstruction
-    sourcePath: cpp20/03_market by order reconstruction
     language: cpp
     track: cpp20
+  - id: cpp20-market-by-order-reconstruction
+    sourcePath: cpp20/03_market by order reconstruction
     order: 3
     tags:
       - order-book
@@ -319,10 +317,10 @@ lessons:
       - priority
     prerequisites:
       - cpp20-tick-event-model-and-binary-parsing
-  - id: cpp20-market-by-price-and-book-invariants
-    sourcePath: cpp20/04_market by price and book invariants
     language: cpp
     track: cpp20
+  - id: cpp20-market-by-price-and-book-invariants
+    sourcePath: cpp20/04_market by price and book invariants
     order: 4
     tags:
       - order-book
@@ -332,10 +330,10 @@ lessons:
       - performance
     prerequisites:
       - cpp20-market-by-order-reconstruction
-  - id: cpp20-sequencing-gaps-and-recovery
-    sourcePath: cpp20/05_sequencing gaps and recovery
     language: cpp
     track: cpp20
+  - id: cpp20-sequencing-gaps-and-recovery
+    sourcePath: cpp20/05_sequencing gaps and recovery
     order: 5
     tags:
       - tick-data
@@ -346,10 +344,10 @@ lessons:
     prerequisites:
       - cpp20-tick-event-model-and-binary-parsing
       - cpp20-market-by-order-reconstruction
-  - id: cpp20-trade-statistics-timestamps-and-corrections
-    sourcePath: cpp20/06_trade statistics timestamps and corrections
     language: cpp
     track: cpp20
+  - id: cpp20-trade-statistics-timestamps-and-corrections
+    sourcePath: cpp20/06_trade statistics timestamps and corrections
     order: 6
     tags:
       - tick-data
@@ -360,3 +358,14 @@ lessons:
     prerequisites:
       - cpp20-tick-event-model-and-binary-parsing
       - cpp20-sequencing-gaps-and-recovery
+    language: cpp
+    track: cpp20
+  - id: cpp11-copy-constructor
+    sourcePath: cpp11/28_copy constructor
+    language: cpp
+    track: cpp11
+    order: 23
+    tags:
+      - copy
+      - constructor
+    prerequisites: []
