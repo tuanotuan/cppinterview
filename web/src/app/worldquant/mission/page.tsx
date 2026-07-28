@@ -48,6 +48,7 @@ export default async function WorldQuantMissionPage({
     : params.minutes;
   const mistakeIds = new Set(cloud.mistakeQuestionIds);
   let initialMockCompletions: MissionMockCompletion[] = [];
+  let mockAvailable = false;
   if (cloud.account) {
     try {
       const history = await listMockInterviewAttempts(
@@ -83,6 +84,7 @@ export default async function WorldQuantMissionPage({
           },
         ];
       });
+      mockAvailable = true;
     } catch (error) {
       if (!(error instanceof MockHistoryConfigurationError)) {
         console.error("WorldQuant mission mock history load failed", {
@@ -130,6 +132,7 @@ export default async function WorldQuantMissionPage({
       initialQuestionStates={cloud.questionStates}
       today={vietnamDateKey()}
       initialMockCompletions={initialMockCompletions}
+      mockAvailable={mockAvailable}
     />
   );
 }

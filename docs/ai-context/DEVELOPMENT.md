@@ -118,8 +118,16 @@ Các feature Curriculum/Drill/Mission/Full Round không thêm migration:
   làm bằng chứng unseen.
 - Mission snapshot tách theo account/local, ngày Việt Nam, role và budget; chỉ
   giữ identity/version/hash, drill revision và repair ID. Snapshot stale phải
-  fail closed rồi rebuild, không được giữ card revision cũ. Mỗi account chỉ giữ
-  tối đa 24 key snapshot v1; prune không được chạm key account/namespace khác.
+  fail closed rồi rebuild, không được giữ card revision/competency cũ hoặc
+  `content_gap` trái với canonical approved content hiện tại. Personal remediation
+  có thể cùng tồn tại với canonical gap và vẫn phải round-trip. Snapshot chứa
+  mock cũng phải rebuild khi account/history backend không đủ capability lưu
+  completion bền vững. Mỗi account chỉ giữ tối đa 24 key snapshot v1; prune không
+  được chạm key account/namespace khác.
+- Guided onboarding là UI state versioned riêng theo `account UUID`/`local`,
+  không phải learning evidence. Return từ Focus/Drill/Mock chỉ dùng allowlisted
+  marker + role + budget 15 phút hợp lệ để dựng lại `/worldquant/mission`; không
+  nhận hoặc chuyển tiếp return URL tùy ý.
 - Drill/full-round answer không được ghi vào training state. Practice signal chỉ
   chứa identity/version/hash, rating, confidence, timing, cờ từng dùng
   hint/reveal/coach, coach score và outcome. Cờ hỗ trợ là irreversible trong
@@ -201,7 +209,8 @@ service-role-only/browser grants như contract hiện tại.
   state mới hơn; `not_assessed` không mở/verify gap.
 - Collision exposure của hai tab phải fail closed thành repeat. Mission chỉ báo
   `content_gap` khi không có approved card cho competency; card mature/chưa đến
-  hạn hoặc không vừa budget không phải content gap.
+  hạn hoặc không vừa budget không phải content gap. `content_gap` không phải
+  actionable item và không được làm UI báo Mission đã hoàn tất.
 - Personal remediation, drill và draft không được tính thay approved card trong
   content coverage.
 

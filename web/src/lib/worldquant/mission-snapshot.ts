@@ -200,18 +200,43 @@ export function rehydrateWorldQuantMissionSnapshot({
   snapshot,
   questions,
   trainingState,
+  mockAvailable = true,
 }: {
   snapshot: WorldQuantMissionSnapshot;
   questions: readonly ReadinessQuestionSummary[];
   trainingState: WorldQuantTrainingState;
+  mockAvailable?: boolean;
 }): WorldQuantMission | null {
   const parsed = worldQuantMissionSnapshotSchema.safeParse(snapshot);
   if (!parsed.success) return null;
   const frozen = parsed.data;
+  if (
+    !mockAvailable &&
+    frozen.items.some((item) => item.kind === "mock")
+  ) {
+    return null;
+  }
   const profile = worldQuantRoleProfileById(frozen.roleProfileId);
   if (
     profile.version !== frozen.roleProfileVersion ||
     profile.weights[frozen.primaryCompetency] <= 0
+  ) {
+    return null;
+  }
+  const frozenContentGaps = frozen.items.filter(
+    (item) => item.kind === "content_gap",
+  );
+  const hasCanonicalPrimaryContent = questions.some(
+    (question) =>
+      question.competency === frozen.primaryCompetency &&
+      question.validation !== "personal_remediation" &&
+      profile.weights[question.competency] > 0,
+  );
+  if (
+    frozenContentGaps.some(
+      (item) => item.competency !== frozen.primaryCompetency,
+    ) ||
+    (frozenContentGaps.length > 0) === hasCanonicalPrimaryContent
   ) {
     return null;
   }
@@ -244,13 +269,15 @@ export function rehydrateWorldQuantMissionSnapshot({
     }
 
     if (item.kind === "flashcards") {
-      const valid = item.focusPlan.questions.every(({ question }) => {
+      const valid = item.focusPlan.questions.every((planned) => {
+        const { question } = planned;
         const current = questionsById.get(question.id);
         return (
           current?.version === question.version &&
           current.sourceHash === question.sourceHash &&
           current.deckId === question.deckId &&
-          current.estimatedMinutes === question.estimatedMinutes
+          current.estimatedMinutes === question.estimatedMinutes &&
+          current.competency === planned.competency
         );
       });
       if (!valid) return null;
@@ -344,12 +371,14 @@ export function restoreOrBuildWorldQuantMission({
   scope,
   questions,
   trainingState,
+  mockAvailable = true,
   build,
 }: {
   rawSnapshot: string | null;
   scope: Omit<WorldQuantMissionSnapshotScope, "accountId">;
   questions: readonly ReadinessQuestionSummary[];
   trainingState: WorldQuantTrainingState;
+  mockAvailable?: boolean;
   build: () => WorldQuantMission;
 }): {
   mission: WorldQuantMission;
@@ -367,6 +396,7 @@ export function restoreOrBuildWorldQuantMission({
       snapshot,
       questions,
       trainingState,
+      mockAvailable,
     });
     if (mission) return { mission, snapshot, restored: true };
   }

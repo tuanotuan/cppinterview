@@ -90,6 +90,7 @@ export function buildWorldQuantMission({
   today,
   timeBudgetMinutes,
   daysSinceComparableMock = null,
+  mockAvailable = true,
 }: {
   roleProfileId: WorldQuantRoleProfileId;
   questions: readonly ReadinessQuestionSummary[];
@@ -98,6 +99,7 @@ export function buildWorldQuantMission({
   today: string;
   timeBudgetMinutes: number;
   daysSinceComparableMock?: number | null;
+  mockAvailable?: boolean;
 }): WorldQuantMission {
   const budget = clamp(Math.round(timeBudgetMinutes), 15, 120);
   const profile = worldQuantRoleProfileById(roleProfileId);
@@ -239,6 +241,7 @@ export function buildWorldQuantMission({
       .filter((gap) => gap.roleProfileId === roleProfileId)
       .every((gap) => gap.status === "verified");
   if (
+    mockAvailable &&
     daysSinceComparableMock !== 0 &&
     (daysSinceComparableMock === null ||
       daysSinceComparableMock >= 7 ||
@@ -323,14 +326,14 @@ export function selectMissionDrill({
     (drill) =>
       !trainingState.attempts.some(
         (attempt) =>
-          attemptMatchesDrill(attempt, drill) &&
+          worldQuantAttemptMatchesDrill(attempt, drill) &&
           vietnamDateKey(new Date(attempt.completedAt)) === today,
       ),
   );
   const neverAttempted = availableToday.find(
     (drill) =>
       !trainingState.attempts.some(
-        (attempt) => attemptMatchesDrill(attempt, drill),
+        (attempt) => worldQuantAttemptMatchesDrill(attempt, drill),
       ) &&
       (drill.variant !== "checkpoint" ||
         !wasCheckpointExposed(
@@ -390,9 +393,9 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
-function attemptMatchesDrill(
-  attempt: WorldQuantTrainingState["attempts"][number],
-  drill: WorldQuantDrill,
+export function worldQuantAttemptMatchesDrill(
+  attempt: { drillId: string; drillVersion: number },
+  drill: { id: string; version: number },
 ) {
   return (
     attempt.drillId === drill.id &&

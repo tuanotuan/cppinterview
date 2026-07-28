@@ -8,6 +8,7 @@ import {
   buildWorldQuantBankCatalog,
 } from "@/lib/mock-interview/catalog";
 import { mockInterviewCompletedArtifactV4Schema } from "@/lib/mock-interview/contracts-v4";
+import { parseMockInterviewDuration } from "@/lib/mock-interview/profile";
 import {
   createMockHistoryAdminClient,
   listMockInterviewAttempts,
@@ -22,6 +23,7 @@ import {
   type WorldQuantCompetencyKey,
   type WorldQuantRoleProfileId,
 } from "@/lib/worldquant/readiness";
+import { parseWorldQuantMissionReturn } from "@/lib/worldquant/guided-mode";
 
 import { MockInterviewApp } from "./mock-interview-app";
 
@@ -40,6 +42,10 @@ export default async function MockInterviewPage({
     role?: string | string[];
     mode?: string | string[];
     focus?: string | string[];
+    duration?: string | string[];
+    returnTo?: string | string[];
+    returnRole?: string | string[];
+    returnMinutes?: string | string[];
   }>;
 }) {
   const cloud = await loadCloudContext({
@@ -88,6 +94,14 @@ export default async function MockInterviewPage({
   const initialRoleProfileId = parseRoleProfileId(single(query.role));
   const requestedFocus = parseCompetency(single(query.focus));
   const requestedMode = single(query.mode);
+  const initialDuration = parseMockInterviewDuration(
+    single(query.duration),
+  );
+  const missionReturnHref = parseWorldQuantMissionReturn({
+    returnTo: single(query.returnTo),
+    role: single(query.returnRole),
+    minutes: single(query.returnMinutes),
+  });
   const role = worldQuantRoleProfileById(initialRoleProfileId);
   const initialMode =
     requestedMode === "targeted" &&
@@ -141,8 +155,10 @@ export default async function MockInterviewPage({
       initialQuestionStates={cloud.questionStates}
       today={vietnamDateKey()}
       initialRoleProfileId={initialRoleProfileId}
+      initialDuration={initialDuration}
       initialMode={initialMode}
       initialTargetCompetency={initialTargetCompetency}
+      missionReturnHref={missionReturnHref}
       initialHistory={initialHistory}
       historyAvailable={historyAvailable}
       codeRunnerAvailable={isCodeRunnerConfigured()}

@@ -8,8 +8,10 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 ## Tính năng gần đây đáng biết
 
 - `/worldquant` là Readiness Hub dùng được cả local mode: bốn role profile C++,
-  mười competency ổn định, target-date planner, daily queue và Focus Sprint.
-  Khi đã login và cấu hình history, Hub hiển thị mock v4 mới nhất theo role,
+  mười competency ổn định và Guided Mode làm entry mặc định. Header chỉ giữ
+  Hôm nay/Luyện thẻ/Cách dùng; onboarding first-visit và một CTA tạo exact
+  role/budget Mission, còn analytics/công cụ chuyên sâu nằm trong Advanced.
+  Khi đã login và cấu hình history, Hub vẫn hiển thị mock v4 mới nhất theo role,
   assessed/not-assessed matrix, comparable trend và CTA targeted mock theo gap.
   `Preparation Index` và mock evidence luôn tách rời; cả hai không phải xác suất
   đậu.
@@ -28,8 +30,11 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
   rửa cờ hỗ trợ. Stats hiển thị calibration, high-confidence
   mistakes và FSRS-6 shadow theo exact revision; shadow không đổi lịch hiện tại.
 - Today’s Mission khóa exact snapshot qua reload theo account/local + ngày + role
-  + budget, giữ tối đa 24 snapshot/account và rebuild khi question/drill revision
-  stale. Training, repair và
+  + budget, đưa duy nhất item chưa xong đầu tiên lên “Bước tiếp theo” và return
+  về đúng Mission sau Focus/Drill/Mock. Snapshot giữ tối đa 24 bản/account và
+  rebuild khi question/drill revision, competency/canonical-content truth stale
+  hoặc mock history không khả dụng; local mode không xếp mock cần durable history.
+  Content gap được báo là giới hạn bank, không làm Mission báo hoàn tất. Training, repair và
   signal writes dùng Web Locks khi browser hỗ trợ để tránh hai tab ghi đè nhau.
 - Full Round không lưu/upload audio hoặc answer. Transcript chỉ ở memory của tab,
   bị xóa sau khi summary lưu thành công; timer khóa input tại deadline và WPM chỉ
@@ -40,8 +45,9 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
   không tự chuyển local state sang account sau login.
 - Focus Sprint chốt exact approved queue theo role/gap/Anki state và time budget,
   hỗ trợ pause/resume/completion qua nhiều deck. Practice không replan; mỗi rating
-  vẫn cập nhật scheduler/cloud bình thường. Session local có reconcile stale và
-  optimistic revision check để tab cũ không ghi đè queue mới.
+  vẫn cập nhật scheduler/cloud bình thường. Guided return chỉ mang marker, role
+  và budget đã validate, không nhận arbitrary URL. Session local có reconcile
+  stale và optimistic revision check để tab cũ không ghi đè queue mới.
 - Readiness tách content coverage khỏi learning progress, chỉ nhận question
   `verified`/owner-approved và cap hai card mỗi lesson để tránh coverage bị thổi
   phồng. Draft chờ duyệt được báo riêng cho owner, không đi vào Focus/Preparation
@@ -80,7 +86,8 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 
 - Mô hình WorldQuant nằm ở `web/src/lib/worldquant/readiness.ts`; transfer loop
   nằm ở `curriculum.ts`, `drills.ts`, `gap-closure.ts`, `mission.ts` và
-  `training-state.ts`. Focus session cũ vẫn ở `practice/focus-session.ts`;
+  `training-state.ts`; Guided onboarding/return/next-step nằm ở `guided-mode.ts`.
+  Focus session cũ vẫn ở `practice/focus-session.ts`;
   same-session retry ở `practice/repair-queue.ts`. Route server chỉ truyền dữ
   liệu serializable; analytics/training state không lưu candidate answer.
 - Question bank hiện chưa bao phủ đều Tick, CMake, Python, Linux/networking,
@@ -99,9 +106,11 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 
 - Content check, context refresh/check và `git diff --check`: pass.
 - Lint toàn repo và TypeScript `--noEmit`: pass.
-- Vitest: 70 test files, 379 tests pass.
+- Vitest: 71 test files, 392 tests pass.
 - Next.js production build: pass, gồm compile, type-check và 25 generated pages;
   năm route WorldQuant training và `/admin/coverage` đều có trong route graph.
+- CDP visual gate ở 320/375 px: Guided CTA nằm trong first fold, Hub/Mission
+  không horizontal overflow, không console/runtime error hoặc focus/shadow bị cắt.
 
 ## Quy tắc cập nhật
 

@@ -23,7 +23,13 @@ import {
 import {
   buildWorldQuantMission,
   type WorldQuantMissionItem,
+  worldQuantAttemptMatchesDrill,
 } from "@/lib/worldquant/mission";
+import {
+  isWorldQuantMissionComplete,
+  nextWorldQuantMissionStep,
+  withWorldQuantMissionReturn,
+} from "@/lib/worldquant/guided-mode";
 import { worldQuantRoleHref } from "@/lib/worldquant/navigation";
 import {
   ensureWorldQuantMissionSnapshot,
@@ -70,6 +76,7 @@ export function WorldQuantMissionApp({
   initialQuestionStates,
   today,
   initialMockCompletions,
+  mockAvailable,
 }: {
   accountId: string | null;
   initialRoleId: WorldQuantRoleProfileId;
@@ -79,9 +86,12 @@ export function WorldQuantMissionApp({
   initialQuestionStates: QuestionLearningState[];
   today: string;
   initialMockCompletions: MissionMockCompletion[];
+  mockAvailable: boolean;
 }) {
   const [roleId, setRoleId] = useState(initialRoleId);
   const [minutes, setMinutes] = useState(initialMinutes);
+  const [draftRoleId, setDraftRoleId] = useState(initialRoleId);
+  const [draftMinutes, setDraftMinutes] = useState(initialMinutes);
   const [snapshotWarning, setSnapshotWarning] =
     useState<string | null>(null);
   const [revealedRepairs, setRevealedRepairs] = useState<Set<string>>(
@@ -191,6 +201,7 @@ export function WorldQuantMissionApp({
         },
         questions,
         trainingState,
+        mockAvailable,
         build: () =>
           buildWorldQuantMission({
             roleProfileId: roleId,
@@ -199,6 +210,7 @@ export function WorldQuantMissionApp({
             trainingState,
             today,
             timeBudgetMinutes: minutes,
+            mockAvailable,
             daysSinceComparableMock: daysSinceLatestMock(
               initialMockCompletions,
               roleId,
@@ -215,6 +227,7 @@ export function WorldQuantMissionApp({
       initialMockCompletions,
       hydrated,
       minutes,
+      mockAvailable,
       missionScope,
       planningStates,
       questions,
@@ -302,7 +315,7 @@ export function WorldQuantMissionApp({
         item.kind === "drill" &&
         trainingState.attempts.some(
           (attempt) =>
-            attempt.drillId === item.drill.id &&
+            worldQuantAttemptMatchesDrill(attempt, item.drill) &&
             vietnamDateKey(new Date(attempt.completedAt)) ===
               today,
         )
@@ -339,6 +352,20 @@ export function WorldQuantMissionApp({
   const completedCount = actionableItems.filter((item) =>
     derivedCompletedIds.has(item.id),
   ).length;
+  const contentGapItems = mission.items.filter(
+    (item): item is Extract<
+      WorldQuantMissionItem,
+      { kind: "content_gap" }
+    > => item.kind === "content_gap",
+  );
+  const nextStep = nextWorldQuantMissionStep(
+    mission.items,
+    derivedCompletedIds,
+  );
+  const missionComplete = isWorldQuantMissionComplete(
+    mission.items,
+    derivedCompletedIds,
+  );
 
   if (!hydrated) {
     return (
@@ -354,14 +381,28 @@ export function WorldQuantMissionApp({
     item: Extract<WorldQuantMissionItem, { kind: "flashcards" }>,
   ) {
     const destination = prepareFocusSprint(item.focusPlan);
-    if (
-      destination.kind === "practice" ||
-      destination.kind === "guide"
-    ) {
+    if (destination.kind === "practice") {
+      window.location.assign(
+        withWorldQuantMissionReturn(
+          destination.href,
+          roleId,
+          minutes,
+        ),
+      );
+      return;
+    }
+    if (destination.kind === "guide") {
       window.location.assign(destination.href);
       return;
     }
     setNotice(destination.message);
+  }
+
+  function applyMissionSettings() {
+    setSnapshotWarning(null);
+    setRoleId(draftRoleId);
+    setMinutes(draftMinutes);
+    updateMissionUrl(draftRoleId, draftMinutes);
   }
 
   async function completeRepair(
@@ -394,7 +435,10 @@ export function WorldQuantMissionApp({
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
       <div className="mx-auto max-w-[1350px]">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
-          <Link href="/worldquant" className="flex items-center gap-3">
+          <Link
+            href={worldQuantRoleHref("/worldquant", roleId)}
+            className="flex min-w-0 items-center gap-3"
+          >
             <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
               WQ
             </span>
@@ -407,86 +451,265 @@ export function WorldQuantMissionApp({
               </span>
             </span>
           </Link>
-          <nav className="flex flex-wrap gap-2">
+          <nav
+            className="flex w-full flex-wrap items-center gap-2 sm:w-auto"
+            aria-label="Điều hướng Mission"
+          >
             <HeaderLink
-              href={worldQuantRoleHref(
-                "/worldquant/drills",
-                roleId,
-              )}
+              href={worldQuantRoleHref("/worldquant", roleId)}
             >
-              Scenario Lab
+              Readiness Hub
             </HeaderLink>
-            <HeaderLink
-              href={worldQuantRoleHref(
-                "/worldquant/curriculum",
-                roleId,
-              )}
-            >
-              Curriculum
-            </HeaderLink>
-            <HeaderLink
-              href={worldQuantRoleHref(
-                "/worldquant/full-round",
-                roleId,
-              )}
-            >
-              Full Round
-            </HeaderLink>
+            <HeaderLink href="/">Luyện thẻ</HeaderLink>
+            <details className="group relative w-full sm:w-auto">
+              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-xl border border-[#173f35]/12 bg-white/65 px-4 py-2 text-sm font-bold focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none sm:justify-start [&::-webkit-details-marker]:hidden">
+                Nâng cao
+                <span
+                  aria-hidden="true"
+                  className="transition group-open:rotate-180"
+                >
+                  ↓
+                </span>
+              </summary>
+              <div className="mt-2 grid w-full gap-1 rounded-2xl border border-[#173f35]/12 bg-[#fbfaf4] p-2 shadow-[0_18px_60px_rgb(23_63_53_/_12%)] sm:absolute sm:right-0 sm:z-30 sm:w-64">
+                <HeaderLink
+                  href={worldQuantRoleHref(
+                    "/worldquant/drills",
+                    roleId,
+                  )}
+                >
+                  Scenario Lab
+                </HeaderLink>
+                <HeaderLink
+                  href={worldQuantRoleHref(
+                    "/worldquant/curriculum",
+                    roleId,
+                  )}
+                >
+                  Curriculum
+                </HeaderLink>
+                <HeaderLink
+                  href={worldQuantRoleHref(
+                    "/worldquant/full-round",
+                    roleId,
+                  )}
+                >
+                  Full Round
+                </HeaderLink>
+                <HeaderLink href="/stats">Thống kê</HeaderLink>
+              </div>
+            </details>
           </nav>
         </header>
+
+        {notice ? (
+          <p className="mt-5 rounded-xl border border-[#ba4b2f]/20 bg-[#f8e8df] p-3 text-sm text-[#8e3825]">
+            {notice}
+          </p>
+        ) : null}
+        {snapshotWarning ? (
+          <p className="mt-5 rounded-xl border border-[#b8882f]/25 bg-[#f8edcf] p-3 text-sm text-[#70551e]">
+            {snapshotWarning}
+          </p>
+        ) : null}
+
+        <section
+          aria-live="polite"
+          className={`mt-6 w-full min-w-0 max-w-full rounded-[2rem] border p-6 shadow-[0_20px_70px_rgb(23_63_53_/_8%)] sm:p-8 ${
+            nextStep
+              ? "border-[#173f35]/12 bg-[#173f35] text-white"
+              : missionComplete
+                ? "border-[#356b58]/20 bg-[#edf3e7]"
+                : "border-[#b8882f]/25 bg-[#f8edcf]"
+          }`}
+        >
+          {nextStep ? (
+            <>
+              <div className="flex flex-wrap items-start justify-between gap-5">
+                <div className="min-w-0 max-w-3xl">
+                  <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
+                    Bước tiếp theo · {nextStep.position}/{nextStep.total}
+                  </p>
+                  <h1 className="mt-3 break-words text-3xl font-semibold tracking-tight sm:text-4xl">
+                    {itemTitle(nextStep.item)}
+                  </h1>
+                  <p className="mt-3 text-sm leading-6 text-white/68">
+                    {nextStep.item.reason}
+                  </p>
+                </div>
+                <MissionAction
+                  item={nextStep.item}
+                  completed={false}
+                  prominent
+                  revealedRepair={revealedRepairs.has(
+                    nextStep.item.id,
+                  )}
+                  onRevealRepair={() =>
+                    setRevealedRepairs((current) => {
+                      const next = new Set(current);
+                      next.add(nextStep.item.id);
+                      return next;
+                    })
+                  }
+                  onCompleteRepair={() =>
+                    nextStep.item.kind === "repair"
+                      ? completeRepair(nextStep.item)
+                      : undefined
+                  }
+                  onStartFlashcards={() =>
+                    nextStep.item.kind === "flashcards"
+                      ? startFlashcards(nextStep.item)
+                      : undefined
+                  }
+                  roleId={roleId}
+                  missionMinutes={minutes}
+                />
+              </div>
+              {nextStep.item.kind === "repair" &&
+              revealedRepairs.has(nextStep.item.id) ? (
+                <div className="mt-5 rounded-xl bg-white/10 p-4 text-sm leading-6 text-white/82">
+                  {nextStep.item.repairCard.explanation}
+                </div>
+              ) : null}
+            </>
+          ) : missionComplete ? (
+            <div className="flex flex-wrap items-center justify-between gap-5">
+              <div>
+                <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#356b58] uppercase">
+                  Mission hoàn tất
+                </p>
+                <h1 className="mt-3 text-3xl font-semibold tracking-tight">
+                  Xong buổi học hôm nay.
+                </h1>
+                <p className="mt-2 text-sm text-[#64736c]">
+                  Evidence đã lưu. Ngày mai Mission sẽ tự chọn queue mới.
+                </p>
+              </div>
+              <div className="flex w-full flex-wrap gap-3 sm:w-auto">
+                <Link
+                  href={worldQuantRoleHref("/worldquant", roleId)}
+                  className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-[#173f35] px-5 py-3 text-center text-sm font-bold text-white sm:flex-none"
+                >
+                  Về Readiness Hub
+                </Link>
+                <Link
+                  href={worldQuantRoleHref(
+                    "/worldquant/full-round",
+                    roleId,
+                  )}
+                  className="flex min-h-12 flex-1 items-center justify-center rounded-xl border border-[#173f35]/15 bg-white px-5 py-3 text-center text-sm font-bold sm:flex-none"
+                >
+                  Luyện Full Round
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center justify-between gap-5">
+              <div className="min-w-0 max-w-3xl">
+                <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#8e5a1f] uppercase">
+                  Chưa thể hoàn tất toàn bộ Mission
+                </p>
+                <h1 className="mt-3 text-3xl font-semibold tracking-tight">
+                  {actionableItems.length > 0
+                    ? "Các bước luyện khả dụng đã xong."
+                    : "Hôm nay chưa có bước luyện khả dụng."}
+                </h1>
+                <p className="mt-2 text-sm leading-6 text-[#765c39]">
+                  {contentGapItems.length > 0
+                    ? `Còn ${contentGapItems.length} content gap trong question bank. Đây là giới hạn nội dung, không phải evidence rằng mày đã hoàn tất competency.`
+                    : "Budget hiện tại chưa xếp được item phù hợp. Tăng thời gian hoặc quay lại Hub để đổi kế hoạch."}
+                </p>
+              </div>
+              <div className="flex w-full flex-wrap gap-3 sm:w-auto">
+                {contentGapItems[0]?.href ? (
+                  <Link
+                    href={contentGapItems[0].href}
+                    className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-[#173f35] px-5 py-3 text-center text-sm font-bold text-white sm:flex-none"
+                  >
+                    Mở nguồn cho content gap
+                  </Link>
+                ) : null}
+                <Link
+                  href={worldQuantRoleHref("/worldquant", roleId)}
+                  className="flex min-h-12 flex-1 items-center justify-center rounded-xl border border-[#173f35]/15 bg-white px-5 py-3 text-center text-sm font-bold sm:flex-none"
+                >
+                  Về Readiness Hub
+                </Link>
+              </div>
+            </div>
+          )}
+        </section>
 
         <section className="grid gap-6 py-9 lg:grid-cols-[1fr_360px]">
           <div>
             <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
               Mission v1
             </p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
+            <h2 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
               Một queue cho cả nhớ, sửa lỗi và transfer.
-            </h1>
+            </h2>
             <p className="mt-4 max-w-3xl leading-7 text-[#64736c]">
               Mỗi item nói rõ vì sao được chọn. Content gap được báo riêng;
               mock evidence không bị trộn vào Preparation Index.
             </p>
           </div>
-          <div className="rounded-2xl border border-[#173f35]/10 bg-white/65 p-5">
-            <label className="block text-xs font-bold">
-              Role
-              <select
-                value={roleId}
-                onChange={(event) => {
-                  const nextRole =
-                    event.target.value as WorldQuantRoleProfileId;
-                  setSnapshotWarning(null);
-                  setRoleId(nextRole);
-                  updateMissionUrl(nextRole, minutes);
-                }}
-                className="mt-2 w-full rounded-xl border border-[#173f35]/15 bg-white px-3 py-2"
+          <details className="rounded-2xl border border-[#173f35]/10 bg-white/65 p-3">
+            <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between rounded-xl px-3 py-2 font-bold focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none [&::-webkit-details-marker]:hidden">
+              <span>
+                {worldQuantRoleProfiles.find(
+                  (profile) => profile.id === roleId,
+                )?.label ?? roleId}
+                <span className="mt-1 block text-xs font-normal text-[#64736c]">
+                  {minutes} phút · bấm để tùy chỉnh
+                </span>
+              </span>
+              <span aria-hidden="true">⚙</span>
+            </summary>
+            <div className="border-t border-[#173f35]/10 px-3 pt-4">
+              <label className="block text-xs font-bold">
+                Role
+                <select
+                  value={draftRoleId}
+                  onChange={(event) =>
+                    setDraftRoleId(
+                      event.target.value as WorldQuantRoleProfileId,
+                    )
+                  }
+                  className="mt-2 min-h-11 w-full rounded-xl border border-[#173f35]/15 bg-white px-3 py-2 focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+                >
+                  {worldQuantRoleProfiles.map((profile) => (
+                    <option key={profile.id} value={profile.id}>
+                      {profile.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="mt-4 block text-xs font-bold">
+                Budget: {draftMinutes} phút
+                <input
+                  type="range"
+                  min={15}
+                  max={120}
+                  step={15}
+                  value={draftMinutes}
+                  onChange={(event) =>
+                    setDraftMinutes(Number(event.target.value))
+                  }
+                  className="mt-2 w-full accent-[#173f35]"
+                />
+              </label>
+              <button
+                type="button"
+                onClick={applyMissionSettings}
+                disabled={
+                  draftRoleId === roleId && draftMinutes === minutes
+                }
+                className="mt-4 min-h-11 w-full rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-45"
               >
-                {worldQuantRoleProfiles.map((profile) => (
-                  <option key={profile.id} value={profile.id}>
-                    {profile.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="mt-4 block text-xs font-bold">
-              Budget: {minutes} phút
-              <input
-                type="range"
-                min={15}
-                max={120}
-                step={15}
-                value={minutes}
-                onChange={(event) => {
-                  const nextMinutes = Number(event.target.value);
-                  setSnapshotWarning(null);
-                  setMinutes(nextMinutes);
-                  updateMissionUrl(roleId, nextMinutes);
-                }}
-                className="mt-2 w-full"
-              />
-            </label>
-          </div>
+                Áp dụng kế hoạch
+              </button>
+            </div>
+          </details>
         </section>
 
         <section className="grid gap-4 sm:grid-cols-3">
@@ -507,29 +730,40 @@ export function WorldQuantMissionApp({
           />
         </section>
 
-        {notice ? (
-          <p className="mt-5 rounded-xl border border-[#ba4b2f]/20 bg-[#f8e8df] p-3 text-sm text-[#8e3825]">
-            {notice}
-          </p>
-        ) : null}
-        {snapshotWarning ? (
-          <p className="mt-5 rounded-xl border border-[#b8882f]/25 bg-[#f8edcf] p-3 text-sm text-[#70551e]">
-            {snapshotWarning}
-          </p>
-        ) : null}
-
-        <section className="mt-6 space-y-4">
-          {mission.items.map((item, index) => {
-            const completed = derivedCompletedIds.has(item.id);
-            return (
-              <article
-                key={item.id}
-                className={`rounded-[2rem] border p-5 sm:p-7 ${
-                  completed
-                    ? "border-[#356b58]/20 bg-[#edf3e7]"
-                    : "border-[#173f35]/12 bg-white/65"
-                }`}
-              >
+        <details className="group mt-6 rounded-[2rem] border border-[#173f35]/12 bg-white/45 p-3 sm:p-4">
+          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 rounded-2xl bg-white/65 px-4 py-3 font-bold focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none [&::-webkit-details-marker]:hidden">
+            <span>
+              Xem toàn bộ kế hoạch
+              <span className="mt-1 block text-xs font-normal text-[#64736c]">
+                {completedCount}/{actionableItems.length} bước đã xong
+                {contentGapItems.length > 0
+                  ? ` · ${contentGapItems.length} content gap`
+                  : ""}
+              </span>
+            </span>
+            <span
+              aria-hidden="true"
+              className="transition group-open:rotate-180"
+            >
+              ↓
+            </span>
+          </summary>
+          <section className="mt-4 space-y-4">
+            {mission.items.map((item, index) => {
+              const completed = derivedCompletedIds.has(item.id);
+              const isNext = item.id === nextStep?.item.id;
+              return (
+                <article
+                  key={item.id}
+                  aria-current={isNext ? "step" : undefined}
+                  className={`rounded-[2rem] border p-5 sm:p-7 ${
+                    completed
+                      ? "border-[#356b58]/20 bg-[#edf3e7]"
+                      : isNext
+                        ? "border-[#ba4b2f]/35 bg-[#fff6ed]"
+                        : "border-[#173f35]/12 bg-white/65"
+                  }`}
+                >
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="flex items-start gap-4">
                     <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#173f35] font-mono text-xs font-bold text-white">
@@ -572,6 +806,7 @@ export function WorldQuantMissionApp({
                         : undefined
                     }
                     roleId={roleId}
+                    missionMinutes={minutes}
                   />
                 </div>
                 {item.kind === "repair" &&
@@ -580,10 +815,11 @@ export function WorldQuantMissionApp({
                     {item.repairCard.explanation}
                   </div>
                 ) : null}
-              </article>
-            );
-          })}
-        </section>
+                </article>
+              );
+            })}
+          </section>
+        </details>
       </div>
     </main>
   );
@@ -597,6 +833,8 @@ function MissionAction({
   onCompleteRepair,
   onStartFlashcards,
   roleId,
+  missionMinutes,
+  prominent = false,
 }: {
   item: WorldQuantMissionItem;
   completed: boolean;
@@ -605,7 +843,15 @@ function MissionAction({
   onCompleteRepair: () => void;
   onStartFlashcards: () => void;
   roleId: WorldQuantRoleProfileId;
+  missionMinutes: number;
+  prominent?: boolean;
 }) {
+  const primaryClass = prominent
+    ? "flex min-h-12 w-full items-center justify-center rounded-xl bg-[#d7ff91] px-6 py-3 text-sm font-bold text-[#173f35] transition hover:bg-[#e5ffb7] focus-visible:ring-4 focus-visible:ring-white focus-visible:outline-none sm:w-auto"
+    : "min-h-11 rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none";
+  const secondaryClass = prominent
+    ? "flex min-h-12 w-full items-center justify-center rounded-xl border border-white/20 bg-white/10 px-6 py-3 text-sm font-bold text-white focus-visible:ring-4 focus-visible:ring-white focus-visible:outline-none sm:w-auto"
+    : "min-h-11 rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-xs font-bold focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none";
   if (completed) {
     return (
       <span className="rounded-full bg-[#d7ff91] px-3 py-1 text-xs font-bold">
@@ -615,12 +861,12 @@ function MissionAction({
   }
   if (item.kind === "repair") {
     return (
-      <div className="flex gap-2">
+      <div className="flex w-full gap-2 sm:w-auto">
         {!revealedRepair ? (
           <button
             type="button"
             onClick={onRevealRepair}
-            className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-xs font-bold"
+            className={secondaryClass}
           >
             Mở feedback
           </button>
@@ -628,7 +874,7 @@ function MissionAction({
           <button
             type="button"
             onClick={onCompleteRepair}
-            className="rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white"
+            className={primaryClass}
           >
             Đã retrieval lại
           </button>
@@ -641,7 +887,7 @@ function MissionAction({
       <button
         type="button"
         onClick={onStartFlashcards}
-        className="rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white"
+        className={primaryClass}
       >
         Bắt đầu Focus
       </button>
@@ -650,8 +896,12 @@ function MissionAction({
   if (item.kind === "drill") {
     return (
       <Link
-        href={`/worldquant/drills?role=${roleId}&competency=${item.competency}&drill=${item.drill.id}`}
-        className="rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white"
+        href={withWorldQuantMissionReturn(
+          `/worldquant/drills?role=${roleId}&competency=${item.competency}&drill=${item.drill.id}`,
+          roleId,
+          missionMinutes,
+        )}
+        className={primaryClass}
       >
         Làm drill
       </Link>
@@ -660,8 +910,12 @@ function MissionAction({
   if (item.kind === "mock") {
     return (
       <Link
-        href={item.href}
-        className="rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white"
+        href={withWorldQuantMissionReturn(
+          item.href,
+          roleId,
+          missionMinutes,
+        )}
+        className={primaryClass}
       >
         Bắt đầu mock
       </Link>
@@ -670,7 +924,7 @@ function MissionAction({
   return item.href ? (
     <Link
       href={item.href}
-      className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-xs font-bold"
+      className={secondaryClass}
     >
       Mở nguồn
     </Link>
