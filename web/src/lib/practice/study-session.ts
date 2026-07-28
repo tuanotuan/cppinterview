@@ -4,6 +4,7 @@ import {
   coachFeedbackSchema,
   coachFollowUpResponseSchema,
 } from "../ai/contracts";
+import { rescueRetryStateSchema } from "./rescue-retry";
 
 const followUpChatMessageSchema = z.object({
   role: z.enum(["user", "assistant"]),
@@ -30,6 +31,7 @@ const questionStudySessionSchema = z.object({
   coachIdempotencyKey: z.string().uuid().optional(),
   coachModel: z.string().max(120).optional(),
   coachAnswer: z.string().optional(),
+  rescueRetry: rescueRetryStateSchema.optional(),
   followUpInput: z.string().max(2000).optional(),
   followUpChat: z.array(followUpChatMessageSchema).max(8).optional(),
   deepDiveOpen: z.boolean().optional(),

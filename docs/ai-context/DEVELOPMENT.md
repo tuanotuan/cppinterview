@@ -200,6 +200,11 @@ service-role-only/browser grants như contract hiện tại.
   answer/hidden execution evidence và không tính card cá nhân vào content coverage.
 - Same-session repair phải bind exact question version/source hash. Review đầu
   vẫn qua scheduler/cloud path; repair retry không tạo daily review thứ hai.
+- Blank AI Coach attempt phải vào Rescue và khóa rating kể cả khi đáp án tham
+  khảo đã mở. Chỉ current nonblank feedback hoặc reveal ngoài Rescue/Retry mới
+  mở rating. CTA Retry phải xóa attempt/idempotency/follow-up cũ; kết quả retry
+  chỉ hoàn tất qua `rateCurrent` để scheduler, Mistake capture và khoảng cách
+  Recall Repair 3/5 thẻ không bị tách đôi hoặc duplicate.
 - Async AI response phải bind request/session hiện hành; response của card cũ
   không được tái tạo feedback cho attempt mới.
 - Gap chỉ được `verified` bởi checkpoint clean đạt ≥80%, đủ hai follow-up và

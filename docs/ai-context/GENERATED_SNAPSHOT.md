@@ -15,8 +15,8 @@
 
 - App pages: 12 (/, /admin, /admin/coverage, /learn/cmake, /learn/tick-data-order-book, /mock-interview, /stats, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/mission)
 - API routes: 20 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/coach/evaluate, /api/coach/follow-up, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/progress/sync, /api/questions/approve, /auth/callback, /auth/login, /auth/logout)
-- TypeScript source files excluding tests: 127
-- Colocated test files: 70
+- TypeScript source files excluding tests: 128
+- Colocated test files: 71
 - Supabase migrations: 26
 - Latest migration filename: `20260730120000_allow_blank_unbounded_coach_answers.sql`
 
@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `e77d5bde8bd86b78e7bb95253cbd76c7c80234a066282090ca675e40ad31ef53`
-- Fingerprinted files: 319
+- Project input fingerprint: `11ed317024552c12a6a21b5524a5251fd3499d91a9b036122fedeec24b160f00`
+- Fingerprinted files: 321
 
 The fingerprint covers lesson sources, content files, application source/tests,
 scripts, package metadata, environment template, workflows, and Supabase files.

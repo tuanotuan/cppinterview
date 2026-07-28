@@ -66,7 +66,7 @@ API quan trọng:
 | `content` | `loader.ts`, `schema.ts`, `automation.ts` | Parse note, schema Zod, discover lesson, sinh manifest |
 | `content` | `question-store-server.ts` | Chọn `repo`/`shadow`/`db`, parity, apply override |
 | `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts` | Queue Anki, rating, due date, streak và browser progress store |
-| `practice` | `repair-queue.ts`, `fsrs-shadow.ts`, `browser-storage-lock.ts` | Same-session repair exact identity, cross-tab mutation lock và FSRS-6 chỉ quan sát |
+| `practice` | `repair-queue.ts`, `rescue-retry.ts`, `fsrs-shadow.ts`, `browser-storage-lock.ts` | Blank-answer Rescue → Retry, same-session repair exact identity, cross-tab mutation lock và FSRS-6 chỉ quan sát |
 | `practice` | `focus-session.ts`, `focus-eligibility.ts` | Session Focus Sprint identity-only, resume/reconcile/completion và lọc exact approved refs |
 | `practice` | `cloud-server.ts`, `cloud.ts` | Ghép auth, progress, approval, overrides, usage, manifest |
 | `practice` | `mistake-cards.ts`, `mistake-cards.server.ts` | Capture lỗi durable, dedupe, grounded generation và materialize draft |
@@ -171,9 +171,13 @@ không có migration hoặc cloud sync ngầm.
 Review `Again`/`Hard` vẫn ghi đúng một daily review qua scheduler chuẩn, đồng
 thời enqueue exact question revision để retrieval lại sau 3/5 thẻ xen kẽ.
 Repair attempt không tạo review ngày thứ hai. Study session giữ draft answer và
-các cờ hint/reveal/coach qua navigation/reload cho tới khi exact card được rate;
-practice không hỏi hoặc ghi mức tự tin. Answer rỗng được hiểu là chưa biết và AI
-coach vẫn dạy từ đầu; answer/code không có giới hạn ký tự ở tầng sản phẩm.
+Rescue → Retry phase cùng các cờ hint/reveal/coach qua navigation/reload cho tới
+khi exact card được rate; practice không hỏi hoặc ghi mức tự tin. Answer rỗng
+được hiểu là chưa biết: AI Rescue dạy từ đầu nhưng khóa rating, sau đó người học
+phải tự làm lại và nhờ AI chấm. Retry đạt tự hoàn tất bằng `Good`/`Easy`; retry
+chưa đạt tự hoàn tất bằng `Again`/`Hard` qua chính review path chuẩn để vào Recall
+Repair, không enqueue riêng trong AI response. Answer/code không có giới hạn ký
+tự ở tầng sản phẩm.
 Mutation repair queue dùng Web Locks theo key khi browser hỗ trợ và merge-reread
 làm fallback. Stats replay đúng question revision bằng `ts-fsrs` ở chế độ
 shadow; FSRS không mutation due date hay Preparation Index.
