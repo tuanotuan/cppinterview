@@ -7,6 +7,7 @@ vi.mock("@/lib/code-runner/contracts", async () =>
 
 import {
   createMockInterviewSession,
+  parseCompletedMockInterviewSessionHistory,
   parseMockInterviewSession,
   serializeMockInterviewSession,
   type MockInterviewSession,
@@ -30,6 +31,45 @@ const session: MockInterviewSession = {
   },
   elapsedByQuestion: { "worldquant-tick-feed-correctness": 92 },
   activeQuestionStartedAt: "2026-07-24T01:03:00.000Z",
+};
+
+const notAssessedCompetency = {
+  status: "not_assessed" as const,
+  score: null,
+  summary: "Chưa đủ bằng chứng.",
+  strengths: [],
+  gaps: [],
+  evidenceQuestionIds: [],
+};
+
+const completedSession: MockInterviewSession = {
+  ...baseSession,
+  status: "completed",
+  report: {
+    overallScore: 72,
+    readiness: "developing",
+    summary: "Có nền tảng nhưng cần luyện thêm.",
+    hiringSignal: "Bằng chứng hiện tại còn chưa đồng đều.",
+    competencies: {
+      modern_cpp: notAssessedCompetency,
+      tick_data_order_book: notAssessedCompetency,
+      data_pipeline_performance: notAssessedCompetency,
+      engineering_quality: notAssessedCompetency,
+      scripting: notAssessedCompetency,
+      communication_ownership: notAssessedCompetency,
+    },
+    questionAssessments: baseSession.questions.map((question) => ({
+      questionId: question.id,
+      score: 72,
+      verdict: "partial" as const,
+      summary: "Câu trả lời mới đáp ứng một phần.",
+      strengths: [],
+      missedCriteria: [],
+    })),
+    strengths: [],
+    priorityGaps: [],
+    studyPlan: [],
+  },
 };
 
 describe("mock interview session persistence", () => {
@@ -147,6 +187,47 @@ describe("mock interview session persistence", () => {
     expect(
       parseMockInterviewSession(
         JSON.stringify({ ...baseSession, schemaVersion: 2 }),
+      ),
+    ).toBeNull();
+  });
+
+  it("reads completed profile-v3 history without restoring an active v3 session", () => {
+    expect(
+      parseCompletedMockInterviewSessionHistory(
+        JSON.stringify(completedSession),
+      ),
+    ).toEqual(completedSession);
+
+    const legacyCompleted = {
+      ...completedSession,
+      profileVersion: 3,
+      questions: completedSession.questions.map((question) => ({
+        ...question,
+        version: Math.max(1, question.version - 1),
+        contentRevision: "worldquant-jd-2025-v1",
+      })),
+    };
+
+    expect(
+      parseMockInterviewSession(JSON.stringify(legacyCompleted)),
+    ).toBeNull();
+    expect(
+      parseCompletedMockInterviewSessionHistory(
+        JSON.stringify(legacyCompleted),
+      ),
+    ).toMatchObject({
+      sessionId: completedSession.sessionId,
+      profileVersion: 3,
+      status: "completed",
+      report: completedSession.report,
+    });
+    expect(
+      parseCompletedMockInterviewSessionHistory(
+        JSON.stringify({
+          ...legacyCompleted,
+          status: "in_progress",
+          report: undefined,
+        }),
       ),
     ).toBeNull();
   });

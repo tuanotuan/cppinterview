@@ -110,8 +110,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "cpp-lifetime-ownership",
     "modern_cpp",
-    "Lifetime & ownership",
-    "RAII, value semantics, references, views và resource lifetime trên hot path.",
+    "Vòng đời và quyền sở hữu",
+    "RAII, ngữ nghĩa giá trị, tham chiếu, đối tượng xem (view) và vòng đời tài nguyên trên luồng xử lý cần hiệu năng cao (hot path).",
     [],
     [
       "lifetime",
@@ -129,8 +129,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "cpp-types-templates",
     "modern_cpp",
-    "Type system & templates",
-    "Const-correctness, deduction, concepts, generic code và compile-time contracts.",
+    "Hệ thống kiểu và mẫu",
+    "Tính đúng đắn của const, suy luận kiểu, concept, mẫu (template), mã tổng quát và ràng buộc tại thời điểm biên dịch.",
     ["cpp-lifetime-ownership"],
     [
       "template",
@@ -147,8 +147,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "cpp-standards-idioms",
     "modern_cpp",
-    "C++11–23 idioms",
-    "Chọn đúng language feature, compatibility boundary và migration strategy.",
+    "Cách viết C++11–23 hiện đại",
+    "Chọn đúng tính năng ngôn ngữ, ranh giới tương thích và chiến lược nâng cấp.",
     ["cpp-lifetime-ownership", "cpp-types-templates"],
     [
       "cpp11",
@@ -167,8 +167,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "algorithms-complexity",
     "algorithms_data_structures",
-    "Complexity & trade-offs",
-    "Time/space complexity, amortization và reasoning dưới workload thực.",
+    "Độ phức tạp và đánh đổi",
+    "Độ phức tạp thời gian/bộ nhớ, chi phí trung bình và lập luận theo tải thực tế.",
     [],
     ["complexity", "big-o", "amortized", "algorithm", "trade-off"],
     null,
@@ -176,8 +176,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "algorithms-containers",
     "algorithms_data_structures",
-    "Containers & ordering",
-    "Chọn layout, ordering, hashing và invalidation phù hợp.",
+    "Cấu trúc chứa và thứ tự dữ liệu",
+    "Chọn cách bố trí, thứ tự, hàm băm và quy tắc mất hiệu lực phù hợp.",
     ["algorithms-complexity"],
     [
       "container",
@@ -195,8 +195,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "algorithms-streaming",
     "algorithms_data_structures",
-    "Streaming algorithms",
-    "Online aggregation, rolling window, bounded memory và deterministic output.",
+    "Thuật toán xử lý luồng",
+    "Tổng hợp trực tuyến, cửa sổ trượt, bộ nhớ có giới hạn và đầu ra xác định.",
     ["algorithms-complexity", "algorithms-containers"],
     [
       "streaming",
@@ -212,8 +212,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "concurrency-memory-model",
     "concurrency_memory",
-    "Memory model & atomics",
-    "Data race, happens-before, memory order và visibility giữa threads.",
+    "Mô hình bộ nhớ và thao tác nguyên tử",
+    "Tranh chấp dữ liệu, quan hệ thứ tự giữa thao tác (happens-before), thứ tự bộ nhớ và khả năng nhìn thấy dữ liệu giữa các luồng.",
     ["cpp-lifetime-ownership"],
     [
       "memory-model",
@@ -228,8 +228,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "concurrency-synchronization",
     "concurrency_memory",
-    "Synchronization & ownership",
-    "Mutex, condition variable, thread ownership và shutdown an toàn.",
+    "Đồng bộ và quyền sở hữu",
+    "Mutex, biến điều kiện, quyền sở hữu luồng và dừng hệ thống an toàn.",
     ["concurrency-memory-model"],
     [
       "mutex",
@@ -245,8 +245,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "concurrency-backpressure",
     "concurrency_memory",
-    "Queues & backpressure",
-    "Bounded queues, contention, overload policy và deterministic partitioning.",
+    "Hàng đợi và kiểm soát quá tải",
+    "Hàng đợi có giới hạn, tranh chấp tài nguyên, chính sách quá tải và phân vùng xác định.",
     ["concurrency-memory-model", "concurrency-synchronization"],
     [
       "queue",
@@ -262,8 +262,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "performance-cache-allocation",
     "performance_latency",
-    "Cache, layout & allocation",
-    "Locality, false sharing, allocation policy và copy cost.",
+    "Bộ nhớ đệm, bố trí và cấp phát",
+    "Tính cục bộ, chia sẻ giả (false sharing), chính sách cấp phát và chi phí sao chép.",
     ["cpp-lifetime-ownership", "algorithms-containers"],
     [
       "cache",
@@ -279,8 +279,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "performance-profiling",
     "performance_latency",
-    "Profiling & benchmark",
-    "Đo trước khi tối ưu, benchmark đúng và phân biệt CPU, I/O, allocation.",
+    "Phân tích và đo hiệu năng",
+    "Đo trước khi tối ưu, xây phép đo đúng và phân biệt chi phí CPU, I/O, cấp phát.",
     ["performance-cache-allocation"],
     [
       "profile",
@@ -296,8 +296,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "performance-capacity",
     "performance_latency",
-    "Throughput & tail latency",
-    "Capacity model, p99, overload, batching và latency/throughput trade-off.",
+    "Thông lượng và độ trễ đuôi",
+    "Mô hình năng lực xử lý, p99, quá tải, xử lý theo lô và đánh đổi giữa độ trễ với thông lượng.",
     ["performance-profiling", "concurrency-backpressure"],
     [
       "throughput",
@@ -313,8 +313,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "linux-process-io",
     "linux_networking",
-    "Linux process & I/O",
-    "Process, file descriptor, virtual memory và blocking/non-blocking I/O.",
+    "Tiến trình Linux và I/O",
+    "Tiến trình, bộ mô tả tệp (file descriptor), bộ nhớ ảo và I/O chặn hoặc không chặn.",
     [],
     [
       "linux",
@@ -331,8 +331,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "linux-network-protocols",
     "linux_networking",
-    "Sockets & protocols",
-    "TCP/UDP semantics, framing, reconnect và failure handling.",
+    "Socket và giao thức",
+    "Ngữ nghĩa TCP/UDP, phân khung thông điệp, kết nối lại và xử lý lỗi.",
     ["linux-process-io"],
     [
       "socket",
@@ -349,8 +349,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "linux-observability",
     "linux_networking",
-    "Production observability",
-    "Logs, metrics, traces, incident triage và evidence-driven diagnosis.",
+    "Khả năng quan sát hệ thống thực tế",
+    "Nhật ký, số liệu, dấu vết, phân loại sự cố và chẩn đoán dựa trên bằng chứng.",
     ["linux-process-io", "performance-profiling"],
     [
       "observability",
@@ -366,8 +366,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "distributed-partitioning",
     "distributed_data_platform",
-    "Partitioning & replication",
-    "Key ownership, replication, hot partitions và failure domains.",
+    "Phân vùng và sao chép",
+    "Quyền sở hữu khóa, sao chép, phân vùng quá tải và miền sự cố.",
     ["algorithms-containers"],
     [
       "partition",
@@ -382,8 +382,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "distributed-streaming",
     "distributed_data_platform",
-    "Streaming & backpressure",
-    "Ordering, delivery semantics, checkpoints và bounded flow control.",
+    "Xử lý luồng và kiểm soát quá tải",
+    "Thứ tự, bảo đảm giao nhận thông điệp, điểm kiểm tra và kiểm soát luồng có giới hạn.",
     ["distributed-partitioning", "concurrency-backpressure"],
     [
       "stream",
@@ -399,8 +399,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "distributed-consistency",
     "distributed_data_platform",
-    "Consistency & migration",
-    "Idempotency, replay, parity, cutover và rollback qua nhiều datasets.",
+    "Tính nhất quán và chuyển đổi hệ thống",
+    "Tính lặp an toàn, phát lại, đối chiếu tương đương, chuyển đổi chính thức và quay lui trên nhiều tập dữ liệu.",
     ["distributed-streaming"],
     [
       "consistency",
@@ -416,8 +416,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "tick-feed-integrity",
     "tick_market_data",
-    "Feed integrity",
-    "Sequence, duplicate, gap, snapshot và deterministic replay.",
+    "Tính toàn vẹn nguồn dữ liệu",
+    "Số thứ tự, dữ liệu trùng, khoảng thiếu, ảnh chụp trạng thái (snapshot) và phát lại xác định.",
     ["linux-network-protocols", "distributed-consistency"],
     [
       "tick-data",
@@ -434,8 +434,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "tick-order-book",
     "tick_market_data",
-    "Order-book state",
-    "L1/L2 updates, invariants, fixed-point price và resynchronization.",
+    "Trạng thái sổ lệnh",
+    "Cập nhật L1/L2, bất biến, giá biểu diễn bằng số nguyên có hệ số (fixed-point) và đồng bộ lại.",
     ["tick-feed-integrity", "algorithms-containers"],
     [
       "order-book",
@@ -451,8 +451,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "tick-interval-features",
     "tick_market_data",
-    "Interval features",
-    "OHLCV, VWAP, missingness, precision và parity với legacy outputs.",
+    "Đặc trưng theo khoảng thời gian",
+    "OHLCV, VWAP, dữ liệu thiếu, độ chính xác và tính tương đương với đầu ra hệ thống cũ.",
     ["tick-feed-integrity", "algorithms-streaming"],
     [
       "interval",
@@ -469,8 +469,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "build-target-cmake",
     "build_delivery",
-    "Target-based CMake",
-    "Target graph, usage requirements, transitive dependencies và portability.",
+    "CMake theo target",
+    "Đồ thị target, yêu cầu sử dụng, phụ thuộc bắc cầu và khả năng chạy trên nhiều nền tảng.",
     [],
     [
       "cmake",
@@ -484,8 +484,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "build-test-sanitizer",
     "build_delivery",
-    "Testing & sanitizers",
-    "CTest, unit/integration tests, ASan/UBSan/TSan và reproducibility.",
+    "Kiểm thử và công cụ phát hiện lỗi",
+    "CTest, kiểm thử đơn vị/tích hợp, ASan/UBSan/TSan và khả năng tái lập.",
     ["build-target-cmake"],
     [
       "ctest",
@@ -502,8 +502,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "build-ci-release",
     "build_delivery",
-    "CI/CD & release discipline",
-    "Git workflow, CI gates, packaging, deployment, rollback và SDLC.",
+    "CI/CD và quy trình phát hành",
+    "Quy trình Git, cổng kiểm tra CI, đóng gói, triển khai, quay lui và SDLC.",
     ["build-test-sanitizer"],
     [
       "ci",
@@ -520,8 +520,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "scripting-python-data",
     "scripting_automation",
-    "Python data tooling",
-    "Streaming files, iterators, validation và bounded-memory automation.",
+    "Công cụ dữ liệu bằng Python",
+    "Xử lý tệp theo luồng, bộ lặp (iterator), kiểm tra hợp lệ và tự động hóa với bộ nhớ có giới hạn.",
     [],
     [
       "python",
@@ -536,8 +536,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "scripting-perl-legacy",
     "scripting_automation",
-    "Perl & legacy automation",
-    "Đọc, bảo trì và thay thế script legacy với testable boundaries.",
+    "Perl và tự động hóa hệ thống cũ",
+    "Đọc, bảo trì và thay thế tập lệnh cũ với các ranh giới có thể kiểm thử.",
     [],
     ["perl", "legacy-script", "legacy", "automation", "migration-script"],
     null,
@@ -545,8 +545,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "scripting-reconciliation",
     "scripting_automation",
-    "Reconciliation tooling",
-    "Tolerance, mismatch reports, resume, audit trail và CI integration.",
+    "Công cụ đối soát",
+    "Ngưỡng sai số, báo cáo chênh lệch, tiếp tục tác vụ, lịch sử kiểm toán và tích hợp CI.",
     ["scripting-python-data", "distributed-consistency"],
     [
       "reconciliation",
@@ -562,8 +562,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "ownership-requirements",
     "ownership_communication",
-    "Requirements with researchers",
-    "Làm rõ ambiguous behavior, acceptance criteria và stakeholder sign-off.",
+    "Làm rõ yêu cầu với nhà nghiên cứu",
+    "Làm rõ hành vi còn mơ hồ, tiêu chí chấp nhận và xác nhận của bên liên quan.",
     [],
     [
       "requirements",
@@ -578,8 +578,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "ownership-incidents",
     "ownership_communication",
-    "Incident & product ownership",
-    "Investigation, risk communication, mitigation, follow-up và prevention.",
+    "Xử lý sự cố và làm chủ sản phẩm",
+    "Điều tra, trao đổi rủi ro, giảm thiểu tác động, theo dõi và phòng ngừa.",
     ["ownership-requirements", "linux-observability"],
     [
       "incident",
@@ -595,8 +595,8 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "ownership-english",
     "ownership_communication",
-    "English across time zones",
-    "Trình bày technical decision rõ, concise và phối hợp bất đồng bộ.",
+    "Tiếng Anh khi làm việc khác múi giờ",
+    "Trình bày quyết định kỹ thuật rõ ràng, súc tích và phối hợp bất đồng bộ.",
     ["ownership-requirements"],
     [
       "english",

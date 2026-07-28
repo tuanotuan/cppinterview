@@ -4,7 +4,7 @@ import type {
 } from "@/lib/content/schema";
 
 export const WORLDQUANT_PROFILE_ID = "worldquant-tick-data-engineer" as const;
-export const WORLDQUANT_PROFILE_VERSION = 3 as const;
+export const WORLDQUANT_PROFILE_VERSION = 4 as const;
 
 export const mockCompetencyKeys = [
   "modern_cpp",
@@ -74,28 +74,28 @@ export const mockDurationQuestionCounts: Record<
 };
 
 export const mockCompetencyLabels: Record<MockCompetencyKey, string> = {
-  modern_cpp: "Modern C++",
-  tick_data_order_book: "Tick data & order book",
-  data_pipeline_performance: "Data pipeline & performance",
-  engineering_quality: "CMake, testing & delivery",
-  scripting: "Python tooling",
-  communication_ownership: "Ownership & communication",
+  modern_cpp: "C++ hiện đại",
+  tick_data_order_book: "Dữ liệu tick và sổ lệnh",
+  data_pipeline_performance: "Luồng dữ liệu và hiệu năng",
+  engineering_quality: "CMake, kiểm thử và triển khai",
+  scripting: "Công cụ Python",
+  communication_ownership: "Tinh thần làm chủ và giao tiếp",
 };
 
 export const WORLDQUANT_PROFILE = {
   id: WORLDQUANT_PROFILE_ID,
   version: WORLDQUANT_PROFILE_VERSION,
   company: "WorldQuant",
-  role: "Modern C++ Tick Data Platform Engineer",
+  role: "Kỹ sư nền tảng dữ liệu tick bằng C++ hiện đại",
   badge: "WQ",
   disclaimer:
-    "Bộ mock được tạo từ JD mày cung cấp và question bank riêng; không phải câu hỏi nội bộ hay tài liệu tuyển dụng chính thức của WorldQuant.",
+    "Bộ phỏng vấn thử được tạo từ mô tả công việc và ngân hàng câu hỏi riêng; đây không phải câu hỏi nội bộ hay tài liệu tuyển dụng chính thức của WorldQuant.",
   focus: [
-    "C++11–23, lifetime, ownership, correctness và performance",
-    "Tick feeds, order-book data và interval features/statistics",
-    "Legacy migration, data parity, cutover và rollback",
-    "CMake, testing, CI/CD, Git và software quality",
-    "Python tooling, product ownership và phối hợp với researchers",
+    "C++11–23, vòng đời, quyền sở hữu, tính đúng đắn và hiệu năng",
+    "Luồng dữ liệu tick, dữ liệu sổ lệnh, đặc trưng và thống kê theo khoảng thời gian",
+    "Chuyển đổi hệ thống cũ, đối chiếu dữ liệu, chuyển đổi chính thức và khôi phục",
+    "CMake, kiểm thử, CI/CD, Git và chất lượng phần mềm",
+    "Công cụ Python, tinh thần làm chủ sản phẩm và phối hợp với nhóm nghiên cứu",
   ],
   competencies: [
     { key: "modern_cpp", weight: 30 },
@@ -107,13 +107,13 @@ export const WORLDQUANT_PROFILE = {
   ] satisfies Array<{ key: MockCompetencyKey; weight: number }>,
 } as const;
 
-const ROLE_CONTENT_REVISION = "worldquant-jd-2025-v1";
+const ROLE_CONTENT_REVISION = "worldquant-jd-2025-v2";
 
 export const WORLDQUANT_ROLE_QUESTIONS: MockInterviewQuestion[] = [
   {
     id: "worldquant-tick-feed-correctness",
     origin: "role_profile",
-    version: 1,
+    version: 2,
     contentRevision: ROLE_CONTENT_REVISION,
     language: "cpp",
     track: "cpp20",
@@ -127,12 +127,12 @@ export const WORLDQUANT_ROLE_QUESTIONS: MockInterviewQuestion[] = [
       "determinism",
     ],
     prompt:
-      "Một feed tick mới có sequence number nhưng đôi lúc gửi duplicate, gap và message đến lệch thứ tự. Hãy thiết kế luồng ingest/normalize để downstream interval features và order-book state vẫn deterministic. Mày sẽ xử lý snapshot, replay và giám sát data quality như thế nào?",
+      "Một luồng dữ liệu tick mới có số thứ tự (sequence number), nhưng đôi lúc gửi bản ghi trùng lặp, thiếu số thứ tự hoặc gửi thông điệp sai thứ tự. Hãy thiết kế luồng tiếp nhận và chuẩn hóa để các đặc trưng, thống kê theo khoảng thời gian ở phía sau cùng trạng thái sổ lệnh vẫn cho kết quả xác định. Bạn sẽ xử lý ảnh chụp trạng thái (snapshot), phát lại dữ liệu (replay) và giám sát chất lượng dữ liệu như thế nào?",
   },
   {
     id: "worldquant-interval-stats-cpp",
     origin: "role_profile",
-    version: 1,
+    version: 2,
     contentRevision: ROLE_CONTENT_REVISION,
     language: "cpp",
     track: "cpp20",
@@ -147,7 +147,7 @@ export const WORLDQUANT_ROLE_QUESTIONS: MockInterviewQuestion[] = [
       "performance",
     ],
     prompt:
-      "Cài đặt phần còn thiếu cho bộ thống kê của một interval tick. Sau phần code, giải thích complexity, chính sách với tick không hợp lệ và cách mày xử lý precision/overflow trong production.",
+      "Cài đặt phần còn thiếu cho bộ thống kê của một khoảng dữ liệu tick. Sau phần mã, hãy giải thích độ phức tạp, cách xử lý tick không hợp lệ, độ chính xác và nguy cơ tràn số trong môi trường thực tế.",
     code: `#include <cstdint>
 #include <optional>
 
@@ -173,7 +173,7 @@ struct IntervalStats {
   {
     id: "worldquant-legacy-migration",
     origin: "role_profile",
-    version: 1,
+    version: 2,
     contentRevision: ROLE_CONTENT_REVISION,
     language: "cpp",
     track: "cpp20",
@@ -187,13 +187,13 @@ struct IntervalStats {
       "product-ownership",
     ],
     prompt:
-      "Mày phải chuyển nhiều năm tick datasets từ platform C++ legacy sang platform mới trong khi researchers vẫn đang dùng kết quả cũ để tạo signal. Hãy trình bày kế hoạch migration, cách chứng minh parity, xử lý backfill, cutover/rollback và cách phối hợp với Research cùng Portfolio Management.",
+      "Bạn cần chuyển nhiều năm dữ liệu tick từ nền tảng C++ cũ sang nền tảng mới, trong khi nhóm nghiên cứu vẫn dùng kết quả cũ để tạo tín hiệu. Hãy trình bày kế hoạch chuyển đổi, cách chứng minh hai hệ thống cho kết quả tương đương, cách bổ sung dữ liệu lịch sử, chuyển đổi chính thức hoặc khôi phục, và cách phối hợp với bộ phận Nghiên cứu cùng Quản lý danh mục.",
   },
   {
     id: "worldquant-cmake-delivery",
     origin: "role_profile",
-    version: 2,
-    contentRevision: "worldquant-jd-2025-cmake-runner-v1",
+    version: 3,
+    contentRevision: "worldquant-jd-2025-cmake-runner-v2",
     language: "cmake",
     track: "cmake",
     responseMode: "code",
@@ -207,17 +207,17 @@ struct IntervalStats {
       "reproducible-build",
     ],
     prompt:
-      "Project mẫu có `include/feed/decoder.hpp`, `src/feed_decoder.cpp` và `tests/feed_decoder_test.cpp`. Hãy hoàn thiện `CMakeLists.txt` để tạo library target `feed_decoder`, executable test `feed_decoder_tests`, khai báo usage requirements đúng scope, dùng C++20 và đăng ký test với CTest. Sau code, giải thích cách mày mở rộng sang sanitizer/CI mà không dùng global flags.",
+      "Dự án mẫu có `include/feed/decoder.hpp`, `src/feed_decoder.cpp` và `tests/feed_decoder_test.cpp`. Hãy hoàn thiện `CMakeLists.txt` để tạo target thư viện `feed_decoder` và target kiểm thử `feed_decoder_tests`, khai báo yêu cầu sử dụng đúng phạm vi, dùng C++20 và đăng ký kiểm thử với CTest. Sau phần mã, hãy giải thích cách mở rộng sang sanitizer và CI mà không dùng cờ toàn cục.",
     code: `cmake_minimum_required(VERSION 3.20)
 project(tick_feed LANGUAGES CXX)
 
-# Hoàn thiện target graph ở đây.
-# Không dùng FetchContent hoặc tải dependency từ network.`,
+# Hoàn thiện đồ thị target ở đây.
+# Không dùng FetchContent hoặc tải thư viện phụ thuộc qua mạng.`,
   },
   {
     id: "worldquant-python-reconciliation",
     origin: "role_profile",
-    version: 1,
+    version: 2,
     contentRevision: ROLE_CONTENT_REVISION,
     language: "python",
     track: "python3",
@@ -231,12 +231,12 @@ project(tick_feed LANGUAGES CXX)
       "automation",
     ],
     prompt:
-      "Thiết kế một Python reconciliation tool so sánh output tick/interval giữa legacy và platform mới trên datasets rất lớn. Nêu data model, cách đọc streaming, quy tắc tolerance, báo cáo mismatch, khả năng resume và cách đưa tool vào CI hoặc migration workflow.",
+      "Thiết kế một công cụ đối chiếu bằng Python để so sánh kết quả tick và khoảng thời gian giữa hệ thống cũ với nền tảng mới trên tập dữ liệu rất lớn. Hãy nêu mô hình dữ liệu, cách đọc theo luồng, ngưỡng sai số, cách báo cáo khác biệt, khả năng tiếp tục sau gián đoạn và cách đưa công cụ vào CI hoặc quy trình chuyển đổi.",
   },
   {
     id: "worldquant-researcher-collaboration",
     origin: "role_profile",
-    version: 1,
+    version: 2,
     contentRevision: ROLE_CONTENT_REVISION,
     language: "cpp",
     track: "cpp20",
@@ -250,12 +250,12 @@ project(tick_feed LANGUAGES CXX)
       "english",
     ],
     prompt:
-      "Answer in English: A researcher reports that one interval feature changed after migration, but the requirement is ambiguous and the owner is in another time zone. Walk the interviewer through how you would investigate, communicate risk, agree on expected behavior, and own the resolution.",
+      "Trả lời bằng tiếng Anh: A researcher reports that one interval feature changed after migration, but the requirement is ambiguous and the owner is in another time zone. Walk the interviewer through how you would investigate, communicate risk, agree on expected behavior, and own the resolution.",
   },
   {
     id: "worldquant-order-book-update-cpp",
     origin: "role_profile",
-    version: 1,
+    version: 2,
     contentRevision: ROLE_CONTENT_REVISION,
     language: "cpp",
     track: "cpp20",
@@ -270,7 +270,7 @@ project(tick_feed LANGUAGES CXX)
       "correctness",
     ],
     prompt:
-      "Hoàn thiện phần lõi của L2 order book dưới đây. `apply` phải xử lý duplicate, gap, insert/update/delete level mà không làm hỏng state. Sau phần code, giải thích invariant, complexity và cách mày resync khi mất sequence.",
+      "Hoàn thiện phần lõi của sổ lệnh L2 dưới đây. `apply` phải xử lý bản cập nhật trùng lặp, thiếu số thứ tự, thêm, sửa hoặc xóa mức giá mà không làm hỏng trạng thái. Sau phần mã, hãy giải thích các bất biến, độ phức tạp và cách đồng bộ lại khi mất số thứ tự.",
     code: `#include <cstdint>
 #include <functional>
 #include <map>
@@ -281,12 +281,12 @@ struct LevelUpdate {
     std::uint64_t sequence;
     Side side;
     std::int64_t price_ticks;
-    std::int64_t quantity; // 0 means delete
+    std::int64_t quantity; // 0 nghĩa là xóa
 };
 
 class OrderBook {
 public:
-    // Return false when the update cannot be applied safely.
+    // Trả về false khi không thể áp dụng cập nhật một cách an toàn.
     bool apply(const LevelUpdate& update);
 
 private:
@@ -298,7 +298,7 @@ private:
   {
     id: "worldquant-cpp-event-lifetime",
     origin: "role_profile",
-    version: 1,
+    version: 2,
     contentRevision: ROLE_CONTENT_REVISION,
     language: "cpp",
     track: "cpp20",
@@ -312,7 +312,7 @@ private:
       "span",
     ],
     prompt:
-      "Đoạn code decode market event dưới đây có lỗi lifetime. Hãy chỉ ra đường đi đến dangling view và viết lại API để caller biết rõ ownership, vẫn hạn chế copy trên hot path. Giải thích khi nào thiết kế zero-copy của mày còn hợp lệ.",
+      "Đoạn mã giải mã sự kiện thị trường dưới đây có lỗi vòng đời. Hãy chỉ ra vì sao view trỏ vào dữ liệu đã hết vòng đời (dangling view) và viết lại API để bên gọi hiểu rõ quyền sở hữu, đồng thời hạn chế sao chép trên luồng xử lý cần hiệu năng cao (hot path). Giải thích khi nào thiết kế không sao chép (zero-copy) vẫn hợp lệ.",
     code: `#include <cstddef>
 #include <span>
 #include <string_view>
@@ -324,7 +324,7 @@ struct DecodedEvent {
 };
 
 DecodedEvent decode(std::vector<std::byte> packet) {
-    // Assume the first bytes contain a symbol followed by payload.
+    // Giả sử các byte đầu chứa mã giao dịch, sau đó là dữ liệu.
     return {
         std::string_view(
             reinterpret_cast<const char*>(packet.data()), 4),
@@ -335,7 +335,7 @@ DecodedEvent decode(std::vector<std::byte> packet) {
   {
     id: "worldquant-partitioned-pipeline-backpressure",
     origin: "role_profile",
-    version: 1,
+    version: 2,
     contentRevision: ROLE_CONTENT_REVISION,
     language: "cpp",
     track: "cpp20",
@@ -349,12 +349,12 @@ DecodedEvent decode(std::vector<std::byte> packet) {
       "hot-key",
     ],
     prompt:
-      "Một tick pipeline cần scale qua nhiều worker nhưng vẫn giữ đúng thứ tự theo instrument. Hãy thiết kế partitioning, bounded queues và backpressure. Mày xử lý hot instrument, worker failure, shutdown và đo latency/throughput ra sao để tối ưu không phá correctness?",
+      "Một quy trình xử lý dữ liệu tick cần mở rộng qua nhiều worker (luồng hoặc tiến trình xử lý) nhưng vẫn giữ đúng thứ tự theo từng mã giao dịch. Hãy thiết kế cách phân vùng, hàng đợi có giới hạn và cơ chế buộc nguồn gửi chậm lại khi hệ thống quá tải (backpressure). Bạn sẽ xử lý mã giao dịch quá tải, lỗi worker, dừng hệ thống và đo độ trễ cùng thông lượng ra sao để tối ưu mà vẫn bảo đảm tính đúng đắn?",
   },
   {
     id: "worldquant-feed-regression-testing",
     origin: "role_profile",
-    version: 1,
+    version: 2,
     contentRevision: ROLE_CONTENT_REVISION,
     language: "cmake",
     track: "cmake",
@@ -368,12 +368,12 @@ DecodedEvent decode(std::vector<std::byte> packet) {
       "benchmark",
     ],
     prompt:
-      "Mày sắp merge decoder cho một tick feed mới. Hãy thiết kế test pyramid và CI gates để bắt malformed packet, sequence gap, timezone/session boundary, numerical regression và performance regression. Những artifact nào phải được version hóa để lỗi production có thể replay chính xác?",
+      "Bạn sắp hợp nhất bộ giải mã cho một luồng dữ liệu tick mới. Hãy thiết kế kim tự tháp kiểm thử và các điều kiện kiểm soát CI để phát hiện gói tin sai định dạng, thiếu số thứ tự, ranh giới múi giờ hoặc phiên giao dịch, sai lệch số học và suy giảm hiệu năng. Những dữ liệu và tệp kết quả nào cần được quản lý phiên bản để có thể phát lại chính xác lỗi ở môi trường thực tế?",
   },
   {
     id: "worldquant-python-gap-audit",
     origin: "role_profile",
-    version: 1,
+    version: 2,
     contentRevision: ROLE_CONTENT_REVISION,
     language: "python",
     track: "python3",
@@ -388,7 +388,7 @@ DecodedEvent decode(std::vector<std::byte> packet) {
       "audit",
     ],
     prompt:
-      "Cài đặt `audit_sequences` theo kiểu streaming: phát hiện duplicate, gap và out-of-order riêng cho từng `(feed, instrument)` mà không load toàn bộ file. Sau code, nêu memory bound, giả định về input ordering và cách mở rộng để resume một job dài.",
+      "Cài đặt `audit_sequences` theo kiểu xử lý luồng: phát hiện bản ghi trùng lặp, thiếu số thứ tự và sai thứ tự riêng cho từng `(feed, instrument)` mà không nạp toàn bộ tệp. Sau phần mã, hãy nêu giới hạn bộ nhớ, giả định về thứ tự dữ liệu đầu vào và cách tiếp tục một tác vụ dài sau khi bị gián đoạn.",
     code: `from dataclasses import dataclass
 from typing import Iterable, Iterator, Literal
 
@@ -410,7 +410,7 @@ def audit_sequences(events: Iterable[Event]) -> Iterator[Issue]:
   {
     id: "worldquant-cpp-feed-api-evolution",
     origin: "role_profile",
-    version: 1,
+    version: 2,
     contentRevision: ROLE_CONTENT_REVISION,
     language: "cpp",
     track: "cpp20",
@@ -424,12 +424,12 @@ def audit_sequences(events: Iterable[Event]) -> Iterator[Issue]:
       "modern-cpp",
     ],
     prompt:
-      "Platform phải hỗ trợ thêm nhiều feed trong khi một số component legacy còn build bằng C++11 và platform mới dùng C++20/23. Hãy thiết kế boundary/API giữa decoder và normalized tick model: ownership, error handling, ABI/versioning và cách rollout để thêm feed không buộc rebuild hoặc sửa toàn hệ thống.",
+      "Nền tảng phải hỗ trợ thêm nhiều luồng dữ liệu, trong khi một số thành phần cũ vẫn được biên dịch bằng C++11 và nền tảng mới dùng C++20/23. Hãy thiết kế ranh giới và API giữa bộ giải mã với mô hình tick đã chuẩn hóa: quyền sở hữu, xử lý lỗi, quản lý phiên bản ABI và cách phát hành dần để thêm luồng mới mà không buộc biên dịch lại hoặc sửa toàn hệ thống.",
   },
   {
     id: "worldquant-production-data-incident",
     origin: "role_profile",
-    version: 1,
+    version: 2,
     contentRevision: ROLE_CONTENT_REVISION,
     language: "cpp",
     track: "cpp20",
@@ -443,12 +443,12 @@ def audit_sequences(events: Iterable[Event]) -> Iterator[Issue]:
       "ownership",
     ],
     prompt:
-      "Answer in English: Ten minutes before market open, monitoring shows stale prices for one venue after a deployment. Researchers are waiting for data and the feed owner is offline. Explain your first 30 minutes: how you contain risk, choose rollback or forward-fix, communicate status, preserve evidence, and close the incident.",
+      "Trả lời bằng tiếng Anh: Ten minutes before market open, monitoring shows stale prices for one venue after a deployment. Researchers are waiting for data and the feed owner is offline. Explain your first 30 minutes: how you contain risk, choose rollback or forward-fix, communicate status, preserve evidence, and close the incident.",
   },
   {
     id: "worldquant-parallel-replay-determinism",
     origin: "role_profile",
-    version: 1,
+    version: 2,
     contentRevision: ROLE_CONTENT_REVISION,
     language: "cpp",
     track: "cpp20",
@@ -462,7 +462,7 @@ def audit_sequences(events: Iterable[Event]) -> Iterator[Issue]:
       "floating-point",
     ],
     prompt:
-      "Historical replay đang chạy một luồng và quá chậm. Mày sẽ parallelize theo ngày, venue hoặc instrument như thế nào mà output interval features vẫn deterministic và đủ parity với bản cũ? Thảo luận ordering, reduction, floating-point, memory, checkpoint và benchmark methodology.",
+      "Việc phát lại dữ liệu lịch sử hiện chỉ chạy trên một luồng và quá chậm. Bạn sẽ song song hóa theo ngày, địa điểm giao dịch hoặc mã giao dịch như thế nào để kết quả thống kê theo khoảng thời gian vẫn xác định và tương đương với hệ thống cũ? Hãy thảo luận về thứ tự, cách gộp kết quả, số dấu phẩy động, bộ nhớ, điểm lưu trạng thái và phương pháp đo hiệu năng.",
   },
 ];
 

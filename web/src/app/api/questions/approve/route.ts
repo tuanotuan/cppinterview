@@ -9,7 +9,10 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   if (!isSupabaseConfigured()) {
-    return Response.json({ error: "Cloud approvals chưa được cấu hình." }, { status: 503 });
+    return Response.json(
+      { error: "Chức năng duyệt câu hỏi trực tuyến chưa được cấu hình." },
+      { status: 503 },
+    );
   }
 
   const supabase = await createSupabaseServerClient();
@@ -22,18 +25,24 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return Response.json({ error: "Request không phải JSON hợp lệ." }, { status: 400 });
+    return Response.json(
+      { error: "Yêu cầu không chứa JSON hợp lệ." },
+      { status: 400 },
+    );
   }
 
   const parsed = approveQuestionsSchema.safeParse(body);
   if (!parsed.success) {
-    return Response.json({ error: "Approval payload không hợp lệ." }, { status: 400 });
+    return Response.json(
+      { error: "Dữ liệu duyệt câu hỏi không hợp lệ." },
+      { status: 400 },
+    );
   }
 
   const loaded = await loadQuestionOverrides(supabase);
   if (loaded.error) {
     return Response.json(
-      { error: "Không đọc được question overrides." },
+      { error: "Không đọc được các thay đổi của câu hỏi." },
       { status: 502 },
     );
   }
@@ -58,7 +67,10 @@ export async function POST(request: Request) {
   });
   if (!valid) {
     return Response.json(
-      { error: "Question version hoặc source hash đã thay đổi; tải lại queue." },
+      {
+        error:
+          "Phiên bản câu hỏi hoặc mã nhận diện nguồn đã thay đổi; hãy tải lại danh sách chờ.",
+      },
       { status: 409 },
     );
   }
@@ -74,7 +86,10 @@ export async function POST(request: Request) {
     onConflict: "user_id,question_id",
   });
   if (error) {
-    return Response.json({ error: "Không lưu được approvals." }, { status: 502 });
+    return Response.json(
+      { error: "Không lưu được kết quả duyệt." },
+      { status: 502 },
+    );
   }
 
   return Response.json({ approved: parsed.data.questions });

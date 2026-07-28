@@ -342,7 +342,7 @@ export function normalizeMockInterviewReport({
       competencies[key] = {
         status: "not_assessed",
         score: null,
-        summary: "Buổi mock này chưa có câu đủ trực tiếp để đánh giá năng lực này.",
+        summary: "Buổi phỏng vấn thử này chưa có câu đủ trực tiếp để đánh giá năng lực này.",
         strengths: [],
         gaps: [],
         evidenceQuestionIds: [],
@@ -364,7 +364,7 @@ export function normalizeMockInterviewReport({
       summary:
         current.status === "assessed"
           ? current.summary
-          : `Đã đánh giá qua ${evidenceQuestionIds.length} câu trong buổi mock.`,
+          : `Đã đánh giá qua ${evidenceQuestionIds.length} câu trong buổi phỏng vấn thử.`,
       evidenceQuestionIds,
     };
     const weight = mockCompetencyWeight(key);

@@ -8,7 +8,13 @@ import {
   worldQuantConcepts,
   type WorldQuantConceptId,
 } from "./curriculum";
-import { worldQuantDrillById } from "./drills";
+import {
+  isWorldQuantDrillCatalogVersion,
+  WORLDQUANT_DRILL_CATALOG_VERSION,
+  worldQuantDrillAssessmentDescriptor,
+  worldQuantDrillById,
+  type WorldQuantDrillCatalogVersion,
+} from "./drills";
 import { worldQuantFullRoundBlueprintV1 } from "./full-round";
 import {
   worldQuantCompetencyKeys,
@@ -17,7 +23,8 @@ import {
   type WorldQuantRoleProfileId,
 } from "./readiness";
 
-export const WORLDQUANT_TRAINING_STATE_VERSION = 1 as const;
+export const WORLDQUANT_LEGACY_TRAINING_STATE_VERSION = 1 as const;
+export const WORLDQUANT_TRAINING_STATE_VERSION = 2 as const;
 export const WORLDQUANT_TRAINING_CHANGED_EVENT =
   "recall:worldquant-training-changed";
 export const CHECKPOINT_SPACED_RETEST_INTERVAL_MS =
@@ -32,12 +39,16 @@ const conceptIdSchema = z.enum(
 const competencySchema = z.enum(worldQuantCompetencyKeys);
 const roleProfileSchema = z.enum(worldQuantRoleProfileIds);
 const isoTimestampSchema = z.string().datetime({ offset: true });
+const drillCatalogVersionSchema =
+  z.custom<WorldQuantDrillCatalogVersion>(
+    isWorldQuantDrillCatalogVersion,
+  );
 
 export const drillAttemptSchema = z
   .object({
     attemptId: z.string().uuid(),
     drillId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-    drillVersion: z.literal(1),
+    drillVersion: drillCatalogVersionSchema,
     variant: z.enum(["practice", "checkpoint"]),
     competency: competencySchema,
     conceptIds: z.array(conceptIdSchema).min(1),
@@ -69,17 +80,19 @@ export const drillAttemptSchema = z
         message: "completedAt cannot be before startedAt",
       });
     }
-    const drill = worldQuantDrillById(attempt.drillId);
+    const drill = worldQuantDrillAssessmentDescriptor(
+      attempt.drillId,
+      attempt.drillVersion,
+    );
     if (
       !drill ||
-      drill.version !== attempt.drillVersion ||
       drill.variant !== attempt.variant ||
       drill.competency !== attempt.competency ||
       drill.conceptIds.length !== attempt.conceptIds.length ||
       drill.conceptIds.some(
         (conceptId, index) => conceptId !== attempt.conceptIds[index],
       ) ||
-      drill.rubric.length !== attempt.rubricTotal
+      drill.rubricTotal !== attempt.rubricTotal
     ) {
       context.addIssue({
         code: "custom",
@@ -156,12 +169,64 @@ export type WorldQuantMissionCompletion = z.infer<
   typeof missionCompletionSchema
 >;
 
+const fullRoundIdsV1 = [
+  "full-round-cpp-depth",
+  "full-round-coding-concurrency",
+  "full-round-market-system-design",
+  "full-round-delivery-automation",
+  "full-round-english-ownership",
+] as const;
+
+type HistoricalFullRoundDrillIds = Record<
+  WorldQuantRoleProfileId,
+  readonly [string, string, string, string, string]
+>;
+
+const fullRoundDrillIdsV1 = {
+  "tick-data-platform": [
+    "modern-cpp-lifetime-practice",
+    "concurrency-pipeline-practice",
+    "tick-market-data-practice",
+    "build-delivery-practice",
+    "ownership-communication-practice",
+  ],
+  "cpp-data-platform": [
+    "modern-cpp-lifetime-practice",
+    "algorithms-streaming-practice",
+    "distributed-data-practice",
+    "build-delivery-practice",
+    "ownership-communication-practice",
+  ],
+  "low-latency-cpp": [
+    "modern-cpp-lifetime-practice",
+    "concurrency-pipeline-practice",
+    "distributed-data-practice",
+    "build-delivery-practice",
+    "ownership-communication-practice",
+  ],
+  "senior-cpp-platform": [
+    "modern-cpp-lifetime-practice",
+    "concurrency-pipeline-practice",
+    "distributed-data-practice",
+    "build-delivery-practice",
+    "ownership-communication-practice",
+  ],
+} as const satisfies HistoricalFullRoundDrillIds;
+
+const historicalFullRoundDrillIds = {
+  1: fullRoundDrillIdsV1,
+  2: fullRoundDrillIdsV1,
+} as const satisfies Record<
+  WorldQuantDrillCatalogVersion,
+  HistoricalFullRoundDrillIds
+>;
+
 const fullRoundBlueprintRoundSchema = z
   .object({
     roundId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
     roundVersion: z.literal(1),
     drillId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-    drillVersion: z.literal(1),
+    drillVersion: drillCatalogVersionSchema,
     rubricTotal: z.number().int().positive(),
   })
   .strict();
@@ -189,9 +254,36 @@ export const fullRoundSummarySchema = z
     transcriptDeleted: z.literal(true),
   })
   .superRefine((summary, context) => {
-    const expectedBlueprint = worldQuantFullRoundBlueprintV1(
-      summary.roleProfileId,
+    const drillRevisions = new Set(
+      summary.completedRounds.map((round) => round.drillVersion),
     );
+    const historicalDrillVersion =
+      drillRevisions.size === 1
+        ? summary.completedRounds[0]?.drillVersion
+        : null;
+    const expectedBlueprint = historicalDrillVersion
+      ? historicalFullRoundBlueprint(
+          summary.roleProfileId,
+          historicalDrillVersion,
+        )
+      : null;
+    if (drillRevisions.size !== 1) {
+      context.addIssue({
+        code: "custom",
+        path: ["completedRounds"],
+        message:
+          "Full-round summary cannot mix drill catalog revisions",
+      });
+    }
+    if (!expectedBlueprint) {
+      context.addIssue({
+        code: "custom",
+        path: ["completedRounds"],
+        message:
+          "Full-round summary must bind a supported historical blueprint",
+      });
+      return;
+    }
     const expectedRoundIds = expectedBlueprint.rounds.map(
       (round) => round.roundId,
     );
@@ -276,6 +368,38 @@ export type WorldQuantFullRoundSummary = z.infer<
   typeof fullRoundSummarySchema
 >;
 
+function historicalFullRoundBlueprint(
+  roleProfileId: WorldQuantRoleProfileId,
+  drillVersion: WorldQuantDrillCatalogVersion,
+) {
+  const drillIds =
+    historicalFullRoundDrillIds[drillVersion][roleProfileId];
+  const rounds = fullRoundIdsV1.flatMap((roundId, index) => {
+    const drillId = drillIds[index];
+    const descriptor = worldQuantDrillAssessmentDescriptor(
+      drillId,
+      drillVersion,
+    );
+    return descriptor
+      ? [
+          {
+            roundId,
+            roundVersion: 1 as const,
+            drillId,
+            drillVersion,
+            rubricTotal: descriptor.rubricTotal,
+          },
+        ]
+      : [];
+  });
+  if (rounds.length !== fullRoundIdsV1.length) return null;
+  return {
+    fullRoundVersion: 1 as const,
+    roleProfileVersion: 1 as const,
+    rounds,
+  };
+}
+
 const checkpointVerificationKindSchema = z.enum([
   "unseen",
   "spaced_retest",
@@ -298,17 +422,19 @@ export const checkpointExposureSchema = z.preprocess(
   z
     .object({
       drillId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-      drillVersion: z.literal(1),
+      drillVersion: drillCatalogVersionSchema,
       exposedAt: isoTimestampSchema,
       exposureCount: z.number().int().positive().max(10_000),
       verificationKind: checkpointVerificationKindSchema,
     })
     .superRefine((exposure, context) => {
-      const drill = worldQuantDrillById(exposure.drillId);
+      const drill = worldQuantDrillAssessmentDescriptor(
+        exposure.drillId,
+        exposure.drillVersion,
+      );
       if (
         !drill ||
-        drill.variant !== "checkpoint" ||
-        drill.version !== exposure.drillVersion
+        drill.variant !== "checkpoint"
       ) {
         context.addIssue({
           code: "custom",
@@ -350,12 +476,33 @@ export const EMPTY_WORLDQUANT_TRAINING_STATE: WorldQuantTrainingState = {
   checkpointExposures: [],
 };
 
+function worldQuantTrainingStorageKeyForVersion(
+  accountId: string | null,
+  version:
+    | typeof WORLDQUANT_LEGACY_TRAINING_STATE_VERSION
+    | typeof WORLDQUANT_TRAINING_STATE_VERSION,
+) {
+  return accountId
+    ? `recall:worldquant-training:${z.string().uuid().parse(accountId)}:v${version}`
+    : `recall:worldquant-training:local:v${version}`;
+}
+
 export function worldQuantTrainingStorageKey(
   accountId: string | null,
 ) {
-  return accountId
-    ? `recall:worldquant-training:${z.string().uuid().parse(accountId)}:v1`
-    : "recall:worldquant-training:local:v1";
+  return worldQuantTrainingStorageKeyForVersion(
+    accountId,
+    WORLDQUANT_TRAINING_STATE_VERSION,
+  );
+}
+
+export function worldQuantLegacyTrainingStorageKey(
+  accountId: string | null,
+) {
+  return worldQuantTrainingStorageKeyForVersion(
+    accountId,
+    WORLDQUANT_LEGACY_TRAINING_STATE_VERSION,
+  );
 }
 
 export function parseWorldQuantTrainingState(
@@ -365,7 +512,10 @@ export function parseWorldQuantTrainingState(
   try {
     const envelope = z
       .object({
-        version: z.literal(WORLDQUANT_TRAINING_STATE_VERSION),
+        version: z.union([
+          z.literal(WORLDQUANT_LEGACY_TRAINING_STATE_VERSION),
+          z.literal(WORLDQUANT_TRAINING_STATE_VERSION),
+        ]),
       })
       .passthrough()
       .safeParse(JSON.parse(raw));
@@ -428,6 +578,12 @@ export function addDrillAttempt(
   attempt: WorldQuantDrillAttempt,
 ) {
   const validated = drillAttemptSchema.parse(attempt);
+  const currentDrill = worldQuantDrillById(validated.drillId);
+  if (currentDrill?.version !== validated.drillVersion) {
+    throw new Error(
+      `Stale drill revision cannot be added: ${validated.drillId}@${validated.drillVersion}`,
+    );
+  }
   return worldQuantTrainingStateSchema.parse({
     ...state,
     attempts: retainEvidenceAttempts(
@@ -513,7 +669,8 @@ export function markCheckpointExposed(
 export function wasCheckpointExposed(
   state: WorldQuantTrainingState,
   drillId: string,
-  drillVersion = 1,
+  drillVersion: WorldQuantDrillCatalogVersion =
+    WORLDQUANT_DRILL_CATALOG_VERSION,
 ) {
   return state.checkpointExposures.some(
     (item) =>
@@ -525,7 +682,8 @@ export function wasCheckpointExposed(
 export function checkpointExposureFor(
   state: WorldQuantTrainingState,
   drillId: string,
-  drillVersion = 1,
+  drillVersion: WorldQuantDrillCatalogVersion =
+    WORLDQUANT_DRILL_CATALOG_VERSION,
 ) {
   return (
     state.checkpointExposures
@@ -691,6 +849,36 @@ export function addFullRoundSummary(
   summary: WorldQuantFullRoundSummary,
 ) {
   const validated = fullRoundSummarySchema.parse(summary);
+  const currentBlueprint = worldQuantFullRoundBlueprintV1(
+    validated.roleProfileId,
+  );
+  if (
+    validated.completedRounds.some(
+      (round) =>
+        round.drillVersion !== WORLDQUANT_DRILL_CATALOG_VERSION,
+    ) ||
+    validated.roleProfileVersion !==
+      currentBlueprint.roleProfileVersion ||
+    validated.fullRoundVersion !==
+      currentBlueprint.fullRoundVersion ||
+    validated.completedRounds.length !==
+      currentBlueprint.rounds.length ||
+    validated.completedRounds.some((round, index) => {
+      const currentRound = currentBlueprint.rounds[index];
+      return (
+        !currentRound ||
+        round.roundId !== currentRound.roundId ||
+        round.roundVersion !== currentRound.roundVersion ||
+        round.drillId !== currentRound.drillId ||
+        round.drillVersion !== currentRound.drillVersion ||
+        round.rubricTotal !== currentRound.rubricTotal
+      );
+    })
+  ) {
+    throw new Error(
+      "Stale full-round revision cannot be added as a new completion",
+    );
+  }
   return worldQuantTrainingStateSchema.parse({
     ...state,
     fullRounds: [
@@ -794,9 +982,7 @@ export function readWorldQuantTrainingState(
   }
   try {
     return parseWorldQuantTrainingState(
-      window.localStorage.getItem(
-        worldQuantTrainingStorageKey(accountId),
-      ),
+      readWorldQuantTrainingStateRaw(accountId),
     );
   } catch {
     return EMPTY_WORLDQUANT_TRAINING_STATE;
@@ -808,12 +994,33 @@ export function readWorldQuantTrainingStateSnapshot(
 ) {
   if (typeof window === "undefined") return null;
   try {
-    return window.localStorage.getItem(
-      worldQuantTrainingStorageKey(accountId),
-    );
+    return readWorldQuantTrainingStateRaw(accountId);
   } catch {
     return null;
   }
+}
+
+function readWorldQuantTrainingStateRaw(
+  accountId: string | null,
+) {
+  const currentKey = worldQuantTrainingStorageKey(accountId);
+  const current = window.localStorage.getItem(currentKey);
+  if (current !== null) return current;
+
+  const legacy = window.localStorage.getItem(
+    worldQuantLegacyTrainingStorageKey(accountId),
+  );
+  if (legacy === null) return null;
+
+  const migrated = serializeWorldQuantTrainingState(
+    parseWorldQuantTrainingState(legacy),
+  );
+  try {
+    window.localStorage.setItem(currentKey, migrated);
+  } catch {
+    // Reading legacy history remains available even when migration cannot persist.
+  }
+  return migrated;
 }
 
 export function writeWorldQuantTrainingState(
@@ -879,8 +1086,15 @@ export function subscribeToWorldQuantTrainingState(
   callback: () => void,
 ) {
   const key = worldQuantTrainingStorageKey(accountId);
+  const legacyKey = worldQuantLegacyTrainingStorageKey(accountId);
   const onStorage = (event: StorageEvent) => {
-    if (event.key === key) callback();
+    if (
+      event.key === key ||
+      (event.key === legacyKey &&
+        window.localStorage.getItem(key) === null)
+    ) {
+      callback();
+    }
   };
   const onLocalChange = (event: Event) => {
     const detail = (event as CustomEvent<{ accountId: string | null }>)
@@ -1060,7 +1274,9 @@ function reconcileGapEvidence(
 function attemptPassedTransferGate(
   attempt: WorldQuantDrillAttempt,
 ) {
+  const current = worldQuantDrillById(attempt.drillId);
   return (
+    current?.version === attempt.drillVersion &&
     attempt.rubricPassed * 100 >= attempt.rubricTotal * 80 &&
     attempt.followUpsCompleted === 2 &&
     attempt.answerPresent

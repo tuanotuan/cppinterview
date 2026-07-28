@@ -21,9 +21,9 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "WorldQuant Scenario Drill Lab — Recall",
+  title: "Phòng luyện tình huống WorldQuant — Recall",
   description:
-    "Luyện flashcard → scenario → interviewer follow-up → unseen checkpoint cho C++ WorldQuant.",
+    "Luyện thẻ ghi nhớ → tình huống → câu hỏi tiếp nối của người phỏng vấn → bài kiểm tra xác nhận bằng đề mới cho C++ WorldQuant.",
 };
 
 export default async function WorldQuantDrillsPage({

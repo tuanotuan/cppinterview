@@ -260,13 +260,13 @@ export function WorldQuantMissionApp({
         setSnapshotWarning(
           persisted
             ? null
-            : "Không lưu được mission snapshot; plan vẫn khóa trong tab này nhưng có thể được build lại sau reload.",
+            : "Không lưu được bản kế hoạch; kế hoạch vẫn được giữ trong trang này nhưng có thể được tạo lại sau khi tải lại.",
         );
       })
       .catch(() => {
         if (!cancelled) {
           setSnapshotWarning(
-            "Không lưu được mission snapshot; plan vẫn khóa trong tab này nhưng có thể được build lại sau reload.",
+            "Không lưu được bản kế hoạch; kế hoạch vẫn được giữ trong trang này nhưng có thể được tạo lại sau khi tải lại.",
           );
         }
       });
@@ -371,7 +371,7 @@ export function WorldQuantMissionApp({
     return (
       <main className="grid min-h-screen place-items-center px-5">
         <p className="font-mono text-sm text-[#64736c]">
-          Đang khôi phục exact mission snapshot…
+          Đang khôi phục đúng kế hoạch đã lưu…
         </p>
       </main>
     );
@@ -424,7 +424,7 @@ export function WorldQuantMissionApp({
     ).catch(() => null);
     if (!persisted) {
       setNotice(
-        "Không lưu được repair completion; item chưa được đánh dấu xong. Hãy thử lại.",
+        "Không lưu được kết quả ôn lại; bước này chưa được đánh dấu hoàn tất. Hãy thử lại.",
       );
       return;
     }
@@ -444,21 +444,21 @@ export function WorldQuantMissionApp({
             </span>
             <span>
               <span className="block font-bold">
-                Today&apos;s Mission
+                Nhiệm vụ hôm nay
               </span>
               <span className="block text-xs text-[#64736c]">
-                {today} · deterministic plan
+                {today} · kế hoạch được giữ nguyên trong ngày
               </span>
             </span>
           </Link>
           <nav
             className="flex w-full flex-wrap items-center gap-2 sm:w-auto"
-            aria-label="Điều hướng Mission"
+            aria-label="Điều hướng nhiệm vụ"
           >
             <HeaderLink
               href={worldQuantRoleHref("/worldquant", roleId)}
             >
-              Readiness Hub
+              Trung tâm chuẩn bị
             </HeaderLink>
             <HeaderLink href="/">Luyện thẻ</HeaderLink>
             <details className="group relative w-full sm:w-auto">
@@ -478,7 +478,7 @@ export function WorldQuantMissionApp({
                     roleId,
                   )}
                 >
-                  Scenario Lab
+                  Phòng luyện tình huống
                 </HeaderLink>
                 <HeaderLink
                   href={worldQuantRoleHref(
@@ -486,7 +486,7 @@ export function WorldQuantMissionApp({
                     roleId,
                   )}
                 >
-                  Curriculum
+                  Lộ trình kiến thức
                 </HeaderLink>
                 <HeaderLink
                   href={worldQuantRoleHref(
@@ -494,7 +494,7 @@ export function WorldQuantMissionApp({
                     roleId,
                   )}
                 >
-                  Full Round
+                  Buổi mô phỏng phỏng vấn đầy đủ
                 </HeaderLink>
                 <HeaderLink href="/stats">Thống kê</HeaderLink>
               </div>
@@ -576,13 +576,14 @@ export function WorldQuantMissionApp({
             <div className="flex flex-wrap items-center justify-between gap-5">
               <div>
                 <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#356b58] uppercase">
-                  Mission hoàn tất
+                  Nhiệm vụ hoàn tất
                 </p>
                 <h1 className="mt-3 text-3xl font-semibold tracking-tight">
                   Xong buổi học hôm nay.
                 </h1>
                 <p className="mt-2 text-sm text-[#64736c]">
-                  Evidence đã lưu. Ngày mai Mission sẽ tự chọn queue mới.
+                  Kết quả đã được lưu. Ngày mai nhiệm vụ sẽ tự chọn danh sách
+                  học mới.
                 </p>
               </div>
               <div className="flex w-full flex-wrap gap-3 sm:w-auto">
@@ -590,7 +591,7 @@ export function WorldQuantMissionApp({
                   href={worldQuantRoleHref("/worldquant", roleId)}
                   className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-[#173f35] px-5 py-3 text-center text-sm font-bold text-white sm:flex-none"
                 >
-                  Về Readiness Hub
+                   Về Trung tâm chuẩn bị
                 </Link>
                 <Link
                   href={worldQuantRoleHref(
@@ -599,7 +600,7 @@ export function WorldQuantMissionApp({
                   )}
                   className="flex min-h-12 flex-1 items-center justify-center rounded-xl border border-[#173f35]/15 bg-white px-5 py-3 text-center text-sm font-bold sm:flex-none"
                 >
-                  Luyện Full Round
+                  Luyện buổi mô phỏng phỏng vấn đầy đủ
                 </Link>
               </div>
             </div>
@@ -607,17 +608,17 @@ export function WorldQuantMissionApp({
             <div className="flex flex-wrap items-center justify-between gap-5">
               <div className="min-w-0 max-w-3xl">
                 <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#8e5a1f] uppercase">
-                  Chưa thể hoàn tất toàn bộ Mission
+                  Chưa thể hoàn tất toàn bộ nhiệm vụ
                 </p>
                 <h1 className="mt-3 text-3xl font-semibold tracking-tight">
                   {actionableItems.length > 0
-                    ? "Các bước luyện khả dụng đã xong."
-                    : "Hôm nay chưa có bước luyện khả dụng."}
+                    ? "Các bước luyện có thể làm đã xong."
+                    : "Hôm nay chưa có bước luyện nào có thể làm."}
                 </h1>
                 <p className="mt-2 text-sm leading-6 text-[#765c39]">
                   {contentGapItems.length > 0
-                    ? `Còn ${contentGapItems.length} content gap trong question bank. Đây là giới hạn nội dung, không phải evidence rằng mày đã hoàn tất competency.`
-                    : "Budget hiện tại chưa xếp được item phù hợp. Tăng thời gian hoặc quay lại Hub để đổi kế hoạch."}
+                    ? `Còn ${contentGapItems.length} phần học liệu chưa đủ trong kho câu hỏi. Đây là giới hạn nội dung, không phải bằng chứng rằng bạn đã thành thạo năng lực đó.`
+                    : "Thời lượng hiện tại chưa xếp được bước phù hợp. Hãy tăng thời gian hoặc quay lại Trung tâm chuẩn bị để đổi kế hoạch."}
                 </p>
               </div>
               <div className="flex w-full flex-wrap gap-3 sm:w-auto">
@@ -626,14 +627,14 @@ export function WorldQuantMissionApp({
                     href={contentGapItems[0].href}
                     className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-[#173f35] px-5 py-3 text-center text-sm font-bold text-white sm:flex-none"
                   >
-                    Mở nguồn cho content gap
+                    Mở học liệu còn thiếu
                   </Link>
                 ) : null}
                 <Link
                   href={worldQuantRoleHref("/worldquant", roleId)}
                   className="flex min-h-12 flex-1 items-center justify-center rounded-xl border border-[#173f35]/15 bg-white px-5 py-3 text-center text-sm font-bold sm:flex-none"
                 >
-                  Về Readiness Hub
+                   Về Trung tâm chuẩn bị
                 </Link>
               </div>
             </div>
@@ -643,14 +644,15 @@ export function WorldQuantMissionApp({
         <section className="grid gap-6 py-9 lg:grid-cols-[1fr_360px]">
           <div>
             <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
-              Mission v1
+              Nhiệm vụ hôm nay
             </p>
             <h2 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
-              Một queue cho cả nhớ, sửa lỗi và transfer.
+               Một danh sách cho cả ghi nhớ, sửa lỗi và vận dụng.
             </h2>
             <p className="mt-4 max-w-3xl leading-7 text-[#64736c]">
-              Mỗi item nói rõ vì sao được chọn. Content gap được báo riêng;
-              mock evidence không bị trộn vào Preparation Index.
+              Mỗi bước đều nói rõ lý do được chọn. Phần học liệu còn thiếu được
+              báo riêng; kết quả phỏng vấn thử được theo dõi riêng và không tính
+              vào chỉ số chuẩn bị.
             </p>
           </div>
           <details className="rounded-2xl border border-[#173f35]/10 bg-white/65 p-3">
@@ -667,7 +669,7 @@ export function WorldQuantMissionApp({
             </summary>
             <div className="border-t border-[#173f35]/10 px-3 pt-4">
               <label className="block text-xs font-bold">
-                Role
+                 Vị trí
                 <select
                   value={draftRoleId}
                   onChange={(event) =>
@@ -685,7 +687,7 @@ export function WorldQuantMissionApp({
                 </select>
               </label>
               <label className="mt-4 block text-xs font-bold">
-                Budget: {draftMinutes} phút
+                 Thời lượng: {draftMinutes} phút
                 <input
                   type="range"
                   min={15}
@@ -718,11 +720,11 @@ export function WorldQuantMissionApp({
             value={`${completedCount}/${actionableItems.length}`}
           />
           <Metric
-            label="Planned"
+             label="Đã lên kế hoạch"
             value={`${mission.plannedMinutes} phút`}
           />
           <Metric
-            label="Primary gap"
+            label="Điểm cần ưu tiên cải thiện"
             value={
               worldQuantCompetencies[mission.primaryCompetency]
                 .shortLabel
@@ -737,7 +739,7 @@ export function WorldQuantMissionApp({
               <span className="mt-1 block text-xs font-normal text-[#64736c]">
                 {completedCount}/{actionableItems.length} bước đã xong
                 {contentGapItems.length > 0
-                  ? ` · ${contentGapItems.length} content gap`
+                  ? ` · ${contentGapItems.length} phần học liệu còn thiếu`
                   : ""}
               </span>
             </span>
@@ -771,7 +773,7 @@ export function WorldQuantMissionApp({
                     </span>
                     <div>
                       <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#ba4b2f] uppercase">
-                        {item.kind.replaceAll("_", " ")}
+                         {missionItemKindLabel(item.kind)}
                         {item.estimatedMinutes
                           ? ` · ${item.estimatedMinutes} phút`
                           : ""}
@@ -868,7 +870,7 @@ function MissionAction({
             onClick={onRevealRepair}
             className={secondaryClass}
           >
-            Mở feedback
+             Xem giải thích
           </button>
         ) : (
           <button
@@ -876,7 +878,7 @@ function MissionAction({
             onClick={onCompleteRepair}
             className={primaryClass}
           >
-            Đã retrieval lại
+            Đã ôn xong
           </button>
         )}
       </div>
@@ -889,7 +891,7 @@ function MissionAction({
         onClick={onStartFlashcards}
         className={primaryClass}
       >
-        Bắt đầu Focus
+         Bắt đầu phiên ôn trọng tâm
       </button>
     );
   }
@@ -903,7 +905,7 @@ function MissionAction({
         )}
         className={primaryClass}
       >
-        Làm drill
+         Làm bài luyện
       </Link>
     );
   }
@@ -917,7 +919,7 @@ function MissionAction({
         )}
         className={primaryClass}
       >
-        Bắt đầu mock
+         Bắt đầu phỏng vấn thử
       </Link>
     );
   }
@@ -926,11 +928,11 @@ function MissionAction({
       href={item.href}
       className={secondaryClass}
     >
-      Mở nguồn
+      Mở học liệu
     </Link>
   ) : (
     <span className="text-xs text-[#64736c]">
-      Cần bổ sung content
+       Cần bổ sung học liệu
     </span>
   );
 }
@@ -938,11 +940,22 @@ function MissionAction({
 function itemTitle(item: WorldQuantMissionItem) {
   if (item.kind === "repair") return item.repairCard.prompt;
   if (item.kind === "flashcards") {
-    return `${item.focusPlan.questions.length} approved flashcard`;
+    return `${item.focusPlan.questions.length} thẻ ghi nhớ đã duyệt`;
   }
   if (item.kind === "drill") return item.drill.title;
-  if (item.kind === "mock") return "Balanced mock checkpoint";
-  return `Content gap: ${worldQuantCompetencies[item.competency].label}`;
+  if (item.kind === "mock") return "Bài phỏng vấn thử tổng hợp";
+  return `Học liệu còn thiếu: ${worldQuantCompetencies[item.competency].label}`;
+}
+
+function missionItemKindLabel(kind: WorldQuantMissionItem["kind"]) {
+  const labels: Record<WorldQuantMissionItem["kind"], string> = {
+    repair: "ôn lại phần còn thiếu",
+    flashcards: "thẻ ghi nhớ",
+    drill: "bài luyện tình huống",
+    mock: "phỏng vấn thử",
+    content_gap: "học liệu còn thiếu",
+  };
+  return labels[kind];
 }
 
 function daysSinceLatestMock(

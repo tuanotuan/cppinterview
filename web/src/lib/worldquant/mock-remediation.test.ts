@@ -124,7 +124,7 @@ describe("WorldQuant mock remediation", () => {
           competency: "tick_market_data",
           gapKind: "content",
           href: "/learn/tick-data-order-book",
-          label: "Học Tick data",
+          label: "Học dữ liệu tick",
         },
       },
       {
@@ -135,7 +135,8 @@ describe("WorldQuant mock remediation", () => {
           competency: "ownership_communication",
           gapKind: "content",
           href: null,
-          label: "Question bank chưa đủ content cho Ownership",
+          label:
+            "Kho câu hỏi chưa đủ học liệu cho Làm chủ công việc",
         },
       },
     ]);

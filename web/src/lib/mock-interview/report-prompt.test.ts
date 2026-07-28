@@ -43,7 +43,9 @@ describe("mock interview report prompt execution evidence", () => {
       ],
     });
 
-    expect(prompt).toContain("SERVER-VERIFIED HIDDEN EXECUTION");
+    expect(prompt).toContain(
+      "KẾT QUẢ KIỂM THỬ ẨN ĐÃ ĐƯỢC MÁY CHỦ XÁC MINH",
+    );
     expect(prompt).toContain('"status":"tests_failed"');
     expect(prompt).toContain('"passedTests":1');
     expect(prompt).not.toContain("candidate diagnostic");
@@ -61,6 +63,8 @@ describe("mock interview report prompt execution evidence", () => {
       items: [{ ...baseItem, executionEvidence: undefined }],
     });
 
-    expect(prompt).not.toContain("SERVER-VERIFIED HIDDEN EXECUTION");
+    expect(prompt).not.toContain(
+      "KẾT QUẢ KIỂM THỬ ẨN ĐÃ ĐƯỢC MÁY CHỦ XÁC MINH",
+    );
   });
 });

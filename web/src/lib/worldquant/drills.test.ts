@@ -2,9 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { worldQuantConcepts } from "./curriculum";
 import {
+  areWorldQuantDrillRevisionsAssessmentEquivalent,
   assertCompleteDrillCatalog,
   curriculumDrillEvidence,
   drillsForCompetency,
+  WORLDQUANT_DRILL_CATALOG_VERSION,
+  worldQuantDrillAssessmentDescriptor,
   worldQuantDrillById,
   worldQuantDrillPacks,
   worldQuantDrills,
@@ -12,6 +15,40 @@ import {
 import { worldQuantCompetencyKeys } from "./readiness";
 
 describe("WorldQuant drill catalog", () => {
+  it("keeps revision equivalence reflexive and v1/v2 explicitly equivalent", () => {
+    expect(
+      areWorldQuantDrillRevisionsAssessmentEquivalent(1, 1),
+    ).toBe(true);
+    expect(
+      areWorldQuantDrillRevisionsAssessmentEquivalent(2, 2),
+    ).toBe(true);
+    expect(
+      areWorldQuantDrillRevisionsAssessmentEquivalent(1, 2),
+    ).toBe(true);
+    expect(
+      areWorldQuantDrillRevisionsAssessmentEquivalent(2, 1),
+    ).toBe(true);
+  });
+
+  it("retains a frozen v1 assessment descriptor for every localized v2 drill", () => {
+    for (const drill of worldQuantDrills) {
+      const historical = worldQuantDrillAssessmentDescriptor(
+        drill.id,
+        1,
+      );
+      expect(historical).toEqual({
+        id: drill.id,
+        variant: drill.variant,
+        competency: drill.competency,
+        conceptIds: drill.conceptIds,
+        rubricTotal: drill.rubric.length,
+      });
+      expect(
+        worldQuantDrillAssessmentDescriptor(drill.id, 2),
+      ).toBe(historical);
+    }
+  });
+
   it("provides one practice and two fresh checkpoints for every competency", () => {
     expect(assertCompleteDrillCatalog()).toBe(true);
     expect(worldQuantDrillPacks).toHaveLength(
@@ -35,8 +72,8 @@ describe("WorldQuant drill catalog", () => {
         drillPack.checkpointRetry,
       ]);
       expect(checkpoints.map((drill) => `${drill.id}@${drill.version}`)).toEqual([
-        `${drillPack.id}-checkpoint@1`,
-        `${drillPack.id}-checkpoint-retry@1`,
+        `${drillPack.id}-checkpoint@${WORLDQUANT_DRILL_CATALOG_VERSION}`,
+        `${drillPack.id}-checkpoint-retry@${WORLDQUANT_DRILL_CATALOG_VERSION}`,
       ]);
       expect(
         new Set([

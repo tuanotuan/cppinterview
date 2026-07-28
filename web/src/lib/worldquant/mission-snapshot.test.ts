@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { newQuestionLearningState } from "@/lib/practice/learning-state";
 
@@ -6,9 +6,11 @@ import { buildWorldQuantMission } from "./mission";
 import {
   createWorldQuantMissionSnapshot,
   parseWorldQuantMissionSnapshot,
+  readWorldQuantMissionSnapshot,
   rehydrateWorldQuantMissionSnapshot,
   restoreOrBuildWorldQuantMission,
   serializeWorldQuantMissionSnapshot,
+  WORLDQUANT_MISSION_SNAPSHOT_VERSION,
   worldQuantMissionSnapshotKeysToPrune,
   worldQuantMissionSnapshotStorageKey,
 } from "./mission-snapshot";
@@ -16,6 +18,22 @@ import {
   EMPTY_WORLDQUANT_TRAINING_STATE,
 } from "./training-state";
 import type { ReadinessQuestionSummary } from "./readiness";
+
+class MemoryStorage {
+  private readonly values = new Map<string, string>();
+
+  getItem(key: string) {
+    return this.values.get(key) ?? null;
+  }
+
+  setItem(key: string, value: string) {
+    this.values.set(key, value);
+  }
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 const question: ReadinessQuestionSummary = {
   id: "approved-lifetime-card",
@@ -110,6 +128,9 @@ describe("WorldQuant mission snapshot", () => {
       serializeWorldQuantMissionSnapshot(snapshot),
     );
 
+    expect(snapshot.version).toBe(
+      WORLDQUANT_MISSION_SNAPSHOT_VERSION,
+    );
     expect(parsed).toEqual(snapshot);
     expect(
       rehydrateWorldQuantMissionSnapshot({
@@ -226,7 +247,7 @@ describe("WorldQuant mission snapshot", () => {
         timeBudgetMinutes: 45,
       }),
     ).toBe(
-      "recall:worldquant-mission:local:2026-07-28:tick-data-platform:45:v1",
+      "recall:worldquant-mission:local:2026-07-28:tick-data-platform:45:v2",
     );
     expect(
       worldQuantMissionSnapshotStorageKey({
@@ -253,6 +274,57 @@ describe("WorldQuant mission snapshot", () => {
         }),
       ),
     ).toBeNull();
+  });
+
+  it("ignores a v1 snapshot and rebuilds a fresh v2 plan", () => {
+    const mission = missionFor(question);
+    const currentSnapshot = createWorldQuantMissionSnapshot(mission);
+    const legacyRaw = JSON.stringify({
+      ...currentSnapshot,
+      version: 1,
+    });
+
+    expect(parseWorldQuantMissionSnapshot(legacyRaw)).toBeNull();
+    const rebuilt = restoreOrBuildWorldQuantMission({
+      rawSnapshot: legacyRaw,
+      scope: {
+        date: mission.date,
+        roleProfileId: mission.roleProfileId,
+        timeBudgetMinutes: mission.timeBudgetMinutes,
+      },
+      questions: [question],
+      trainingState: EMPTY_WORLDQUANT_TRAINING_STATE,
+      build: () => mission,
+    });
+    expect(rebuilt).toMatchObject({
+      mission,
+      restored: false,
+      snapshot: {
+        version: WORLDQUANT_MISSION_SNAPSHOT_VERSION,
+      },
+    });
+  });
+
+  it("does not read, migrate, or delete a legacy v1 storage entry", () => {
+    const storage = new MemoryStorage();
+    vi.stubGlobal("window", { localStorage: storage });
+    const scope = {
+      accountId: null,
+      date: "2026-07-28",
+      roleProfileId: "tick-data-platform" as const,
+      timeBudgetMinutes: 45,
+    };
+    const currentKey = worldQuantMissionSnapshotStorageKey(scope);
+    const legacyKey = currentKey.replace(/:v2$/, ":v1");
+    const legacyRaw = JSON.stringify({
+      ...createWorldQuantMissionSnapshot(missionFor(question)),
+      version: 1,
+    });
+    storage.setItem(legacyKey, legacyRaw);
+
+    expect(readWorldQuantMissionSnapshot(scope)).toBeNull();
+    expect(storage.getItem(currentKey)).toBeNull();
+    expect(storage.getItem(legacyKey)).toBe(legacyRaw);
   });
 
   it("bounds retention per account while always preserving the current snapshot", () => {
@@ -289,7 +361,7 @@ describe("WorldQuant mission snapshot", () => {
     const foreignKeys = [
       "recall:worldquant-training:local:v1",
       "recall:worldquant-mission:local:not-a-valid-snapshot",
-      "recall:worldquant-mission:local:2026-07-22:tick-data-platform:45:v2",
+      "recall:worldquant-mission:local:2026-07-22:tick-data-platform:45:v1",
     ];
 
     expect(
@@ -306,5 +378,12 @@ describe("WorldQuant mission snapshot", () => {
         2,
       ),
     ).toEqual([nextNewest, oldest]);
+    expect(
+      worldQuantMissionSnapshotKeysToPrune(
+        [current, newest],
+        current.replace(/:v2$/, ":v1"),
+        1,
+      ),
+    ).toEqual([]);
   });
 });

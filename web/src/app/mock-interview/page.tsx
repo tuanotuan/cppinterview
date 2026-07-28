@@ -30,9 +30,9 @@ import { MockInterviewApp } from "./mock-interview-app";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "WorldQuant Mock Interview — Recall",
+  title: "Phỏng vấn thử WorldQuant — Recall",
   description:
-    "Mock interview cho vị trí Modern C++ Tick Data Platform Engineer.",
+    "Phỏng vấn thử cho vị trí Kỹ sư nền tảng dữ liệu tick bằng C++ hiện đại.",
 };
 
 export default async function MockInterviewPage({
@@ -209,15 +209,15 @@ function MockInterviewGate({
           WQ
         </div>
         <p className="mt-8 font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
-          Mock interview
+          Phỏng vấn thử
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight">
           Phòng phỏng vấn riêng
         </h1>
         <p className="mt-4 leading-7 text-[#64736c]">
           {mode === "login"
-            ? "Đăng nhập GitHub để dùng question bank riêng và AI tạo report cuối buổi."
-            : "Supabase chưa được cấu hình nên chưa thể xác thực và chấm mock interview."}
+            ? "Đăng nhập GitHub để dùng ngân hàng câu hỏi riêng và nhận báo cáo do AI tạo vào cuối buổi."
+            : "Supabase chưa được cấu hình nên chưa thể xác thực và chấm buổi phỏng vấn thử."}
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           {mode === "login" ? (

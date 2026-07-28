@@ -315,16 +315,16 @@ export function MockInterviewApp({
     });
   const hydrated = sessionSnapshot !== null;
   const notice = staleSession
-    ? "Nội dung bộ đề hoặc question bank đã đổi nên buổi cũ không được khôi phục để tránh chấm sai version."
+    ? "Nội dung bộ đề hoặc ngân hàng câu hỏi đã thay đổi nên không thể khôi phục buổi cũ. Hãy tạo buổi mới để tránh chấm sai phiên bản."
     : sessionSnapshot !== null &&
         sessionSnapshot !== EMPTY_MOCK_SESSION &&
         !storedSession
-      ? "Dữ liệu buổi mock cũ bị lỗi nên đã được bỏ qua."
+      ? "Dữ liệu buổi phỏng vấn thử cũ bị lỗi nên đã được bỏ qua."
       : null;
   const visibleReportError =
     reportError ??
     (interruptedEvaluation
-      ? "Lần chấm trước bị ngắt hoặc gặp lỗi. Submission đã được khóa; nhấn “Thử report lại” để gửi lại đúng dữ liệu cũ."
+      ? "Lần chấm trước bị gián đoạn hoặc gặp lỗi. Bài nộp đã được khóa; nhấn “Thử tạo lại báo cáo” để gửi lại đúng dữ liệu cũ."
       : null);
   const timerSessionKey =
     session?.status === "in_progress"
@@ -447,7 +447,7 @@ export function MockInterviewApp({
   function startInterview(selectedPlan: TargetedMockPlan) {
     if (selectedPlan.questions.length < 3) {
       setReportError(
-        "Blueprint này chưa đủ 3 câu đã duyệt để chấm report đáng tin cậy.",
+        "Bộ đề này chưa có đủ 3 câu đã duyệt để tạo báo cáo đáng tin cậy.",
       );
       return;
     }
@@ -521,14 +521,14 @@ export function MockInterviewApp({
     }
     if (!codeRunnerAvailable) {
       setCodeRunError(
-        "Sandbox runner chưa được cấu hình trên Vercel.",
+        "Môi trường chạy mã cô lập chưa được cấu hình trên Vercel.",
       );
       return;
     }
     const source =
       session.answers[currentQuestion.id]?.response ?? "";
     if (!source.trim()) {
-      setCodeRunError("Viết code trước khi chạy sample tests.");
+      setCodeRunError("Hãy viết mã trước khi chạy các kiểm thử mẫu.");
       return;
     }
 
@@ -587,7 +587,7 @@ export function MockInterviewApp({
           );
         }
         throw new Error(
-          payload.error || "Sandbox chưa trả kết quả hợp lệ.",
+          payload.error || "Môi trường chạy mã chưa trả về kết quả hợp lệ.",
         );
       }
 
@@ -612,7 +612,7 @@ export function MockInterviewApp({
       setCodeRunError(
         error instanceof Error
           ? error.message
-          : "Sandbox chưa chạy được. Thử lại sau.",
+          : "Môi trường chạy mã chưa hoạt động. Vui lòng thử lại sau.",
       );
     } finally {
       setRunningQuestionId(null);
@@ -764,7 +764,7 @@ export function MockInterviewApp({
       };
       if (!response.ok || !payload.report || !payload.debrief) {
         const requestError = new Error(
-          payload.error || "AI chưa tạo được report.",
+          payload.error || "AI chưa tạo được báo cáo.",
         ) as Error & { code?: string };
         requestError.code = payload.code;
         throw requestError;
@@ -823,7 +823,7 @@ export function MockInterviewApp({
           completedAt: completed.completedAt!,
           report: completed.report!,
           debrief: completed.debrief!,
-          model: completed.reportModel ?? "AI model",
+          model: completed.reportModel ?? "Mô hình AI",
           provider: completed.reportProvider ?? "openai",
           executionResults: Object.entries(hiddenCodeRuns).map(
             ([questionId, result]) => ({
@@ -846,9 +846,9 @@ export function MockInterviewApp({
       }
       const detected = payload.mistakeCapture?.candidates ?? [];
       const mistakeMessage = detected.length
-        ? `Đã đưa ${detected.length} lỗi từ buổi mock vào Mistake Inbox.`
+        ? `Đã đưa ${detected.length} lỗi từ buổi phỏng vấn thử vào hộp lỗi cần ôn.`
         : payload.mistakeQueueAvailable === false
-          ? "Mistake queue chưa được cài migration trong Supabase."
+          ? "Hàng chờ lỗi cần ôn chưa được cài đặt dữ liệu trên Supabase."
           : null;
       setHistoryError(
         [payload.historyWarning, mistakeMessage].filter(Boolean).join(" ") ||
@@ -900,7 +900,7 @@ export function MockInterviewApp({
       setReportError(
         error instanceof Error
           ? error.message
-          : "AI chưa tạo được report. Thử lại sau.",
+          : "AI chưa tạo được báo cáo. Vui lòng thử lại sau.",
       );
     } finally {
       evaluationInFlight.current = false;
@@ -914,7 +914,7 @@ export function MockInterviewApp({
     if (
       window.localStorage.getItem(FOCUS_SESSION_STORAGE_KEY) &&
       !window.confirm(
-        "Đang có Focus Sprint khác trong browser. Tạo remediation sprint mới và thay session đó?",
+        "Một phiên ôn trọng tâm khác đang mở trong trình duyệt. Bạn có muốn thay phiên đó bằng kế hoạch ôn mới không?",
       )
     ) {
       return;
@@ -932,7 +932,7 @@ export function MockInterviewApp({
   }
 
   async function deleteHistoryEntry(attemptId: string) {
-    if (!window.confirm("Xóa attempt này khỏi cloud history?")) return;
+    if (!window.confirm("Xóa lượt phỏng vấn này khỏi lịch sử trực tuyến?")) return;
     setHistoryError(null);
     try {
       const response = await fetch("/api/mock-interview/history", {
@@ -946,7 +946,7 @@ export function MockInterviewApp({
         error?: string;
       };
       if (!response.ok || !payload.ok || !payload.deleted) {
-        throw new Error(payload.error || "Không xóa được attempt.");
+        throw new Error(payload.error || "Không xóa được lượt phỏng vấn.");
       }
       setHistory((current) =>
         current.filter((entry) => entry.attemptId !== attemptId),
@@ -955,7 +955,7 @@ export function MockInterviewApp({
       setHistoryError(
         error instanceof Error
           ? error.message
-          : "Không xóa được attempt.",
+          : "Không xóa được lượt phỏng vấn.",
       );
     }
   }
@@ -964,7 +964,7 @@ export function MockInterviewApp({
     if (
       session?.status !== "completed" &&
       session &&
-      !window.confirm("Xóa buổi mock đang làm và tạo buổi mới?")
+      !window.confirm("Xóa buổi phỏng vấn thử đang làm và tạo buổi mới?")
     ) {
       return;
     }
@@ -1083,7 +1083,8 @@ export function MockInterviewApp({
         <section className="max-w-lg rounded-3xl border border-[#ba4b2f]/20 bg-white/70 p-8 text-center">
           <h1 className="text-2xl font-semibold">Không khôi phục được câu hỏi</h1>
           <p className="mt-3 text-[#64736c]">
-            Question bank đã đổi. Tạo buổi mới để tránh chấm nhầm version.
+            Ngân hàng câu hỏi đã thay đổi. Hãy tạo buổi mới để tránh chấm
+            nhầm phiên bản.
           </p>
           <button
             type="button"
@@ -1128,10 +1129,10 @@ export function MockInterviewApp({
               WQ
             </span>
             <div>
-              <p className="font-semibold">Mock interview</p>
+              <p className="font-semibold">Phỏng vấn thử</p>
               <p className="text-xs text-[#64736c]">
                 {worldQuantRoleProfileById(session.profileId).label} ·{" "}
-                {session.plan.mode === "targeted" ? "Targeted" : "Balanced"} ·{" "}
+                {session.plan.mode === "targeted" ? "Trọng tâm" : "Toàn diện"} ·{" "}
                 {session.plan.durationMinutes} phút
               </p>
             </div>
@@ -1161,7 +1162,7 @@ export function MockInterviewApp({
               className="rounded-xl border border-[#173f35]/15 bg-white/60 px-3 py-2 text-xs font-bold disabled:opacity-40"
             >
               {missionReturnHref && !guidedMissionMatchesSession
-                ? "Đổi sang mock Mission"
+                ? "Đổi sang buổi phỏng vấn của nhiệm vụ"
                 : "Dừng"}
             </button>
           </div>
@@ -1186,10 +1187,10 @@ export function MockInterviewApp({
           <article className="overflow-hidden rounded-[2rem] border border-[#173f35]/15 bg-white/68 shadow-[0_22px_80px_rgb(23_63_53_/_8%)]">
             <div className="border-b border-[#173f35]/10 bg-[#173f35] px-6 py-4 text-white sm:px-9">
               <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#d7ff91] uppercase">
-                Interviewer
+                Người phỏng vấn
               </p>
               <p className="mt-1 text-sm text-white/65">
-                Không hint · không tag · không feedback giữa buổi
+                Không gợi ý · không nhãn chủ đề · không phản hồi giữa buổi
               </p>
             </div>
             <div className="p-6 sm:p-9">
@@ -1210,14 +1211,14 @@ export function MockInterviewApp({
                     <div className="overflow-hidden rounded-2xl border border-[#173f35]/15 bg-[#0b241d]">
                       <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 text-white">
                         <span className="font-mono text-xs font-bold text-[#d7ff91]">
-                          Candidate solution
+                          Bài làm của ứng viên
                         </span>
                         <span className="text-[10px] text-white/45">
                           {currentQuestion.execution
                             ? codeRunnerAvailable
-                              ? "Sandbox cô lập · sample tests"
-                              : "Sandbox chưa được cấu hình"
-                            : "AI review · không có executable contract"}
+                              ? "Môi trường cô lập · kiểm thử mẫu"
+                              : "Môi trường cô lập chưa được cấu hình"
+                            : "AI đánh giá · không có đặc tả chạy tự động"}
                         </span>
                       </div>
                       <MonacoCodeEditor
@@ -1232,7 +1233,7 @@ export function MockInterviewApp({
                         }
                         height="420px"
                         expanded={false}
-                        placeholder="Viết solution của mày ở đây…"
+                        placeholder="Viết lời giải của bạn ở đây…"
                       />
                     </div>
                     {currentQuestion.execution ? (
@@ -1240,11 +1241,11 @@ export function MockInterviewApp({
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div>
                             <p className="text-sm font-bold text-[#29493d]">
-                              Chạy code thật
+                              Chạy mã
                             </p>
                             <p className="mt-1 text-xs leading-5 text-[#64736c]">
-                              Sample tests hiện chi tiết; hidden tests chỉ chạy
-                              khi kết thúc buổi.
+                              Kiểm thử mẫu hiển thị chi tiết; kiểm thử ẩn chỉ
+                              chạy khi kết thúc buổi.
                             </p>
                           </div>
                           <button
@@ -1258,8 +1259,8 @@ export function MockInterviewApp({
                             className="rounded-xl bg-[#173f35] px-4 py-2.5 text-sm font-bold text-white disabled:cursor-wait disabled:opacity-45"
                           >
                             {runningQuestionId === currentQuestion.id
-                              ? "Đang compile & test…"
-                              : "Chạy sample tests"}
+                              ? "Đang biên dịch và kiểm thử…"
+                              : "Chạy kiểm thử mẫu"}
                           </button>
                         </div>
                         {session.sampleCodeRuns[currentQuestion.id] ? (
@@ -1281,7 +1282,7 @@ export function MockInterviewApp({
                       </div>
                     ) : null}
                     <label className="block text-sm font-bold text-[#29493d]">
-                      Complexity, assumptions và trade-offs
+                      Độ phức tạp, giả định và các điểm đánh đổi
                       <textarea
                         value={currentDraft.explanation}
                         onChange={(event) =>
@@ -1294,14 +1295,14 @@ export function MockInterviewApp({
                         maxLength={4000}
                         rows={5}
                         disabled={session.status === "evaluating"}
-                        placeholder="Giải thích như đang nói với interviewer…"
+                        placeholder="Giải thích như đang trao đổi với người phỏng vấn…"
                         className="mt-2 w-full resize-y rounded-2xl border border-[#173f35]/15 bg-white/80 px-4 py-3 font-normal leading-7 outline-none focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/45"
                       />
                     </label>
                   </div>
                 ) : (
                   <label className="block text-sm font-bold text-[#29493d]">
-                    Câu trả lời của mày
+                    Câu trả lời của bạn
                     <textarea
                       value={currentDraft.response}
                       onChange={(event) =>
@@ -1314,7 +1315,7 @@ export function MockInterviewApp({
                       maxLength={8000}
                       rows={10}
                       disabled={session.status === "evaluating"}
-                      placeholder="Trả lời thành tiếng hoặc viết như đang trao đổi với interviewer…"
+                      placeholder="Trả lời thành tiếng hoặc viết như đang trao đổi với người phỏng vấn…"
                       className="mt-2 w-full resize-y rounded-2xl border border-[#173f35]/15 bg-white/80 px-4 py-3 font-normal leading-7 outline-none focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/45"
                     />
                   </label>
@@ -1365,11 +1366,11 @@ export function MockInterviewApp({
               >
                 {session.status === "evaluating"
                   ? visibleReportError
-                    ? "Thử report lại"
-                    : "Đang chạy hidden tests & tạo report…"
+                    ? "Thử tạo lại báo cáo"
+                    : "Đang chạy kiểm thử ẩn và tạo báo cáo…"
                   : remainingSeconds === 0
-                    ? "Thử tạo report lại"
-                    : "Kết thúc & tạo report"}
+                    ? "Thử tạo lại báo cáo"
+                    : "Kết thúc và tạo báo cáo"}
               </button>
             </div>
           </div>
@@ -1466,8 +1467,10 @@ function MockSetup({
               WQ
             </span>
             <div>
-              <p className="font-bold">Recall Mock Interview</p>
-              <p className="text-xs text-[#64736c]">WorldQuant role profile</p>
+              <p className="font-bold">Phỏng vấn thử cùng Recall</p>
+              <p className="text-xs text-[#64736c]">
+                Vị trí WorldQuant mục tiêu
+              </p>
             </div>
           </div>
           <nav className="flex flex-wrap items-center gap-2">
@@ -1475,13 +1478,13 @@ function MockSetup({
               href="/worldquant"
               className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
             >
-              WQ Hub
+              Trung tâm chuẩn bị
             </Link>
             <Link
               href="/learn/tick-data-order-book"
               className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
             >
-              Học Tick data
+              Học dữ liệu tick
             </Link>
             <Link
               href="/learn/cmake"
@@ -1493,7 +1496,7 @@ function MockSetup({
               href="/"
               className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
             >
-              Luyện tập
+              Luyện thẻ
             </Link>
             <Link
               href="/stats"
@@ -1516,14 +1519,15 @@ function MockSetup({
         <section className="grid gap-7 py-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
           <div>
             <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
-              Target role
+               Vị trí mục tiêu
             </p>
             <h1 className="mt-3 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl lg:text-6xl">
               {role.label}
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-[#52645c]">
-              {role.summary} Một lượt mô phỏng không lộ hint hay feedback;
-              report chỉ xuất hiện sau khi kết thúc toàn bộ buổi.
+              {role.summary} Trong buổi phỏng vấn, hệ thống không hiện gợi ý
+              hay phản hồi. Báo cáo chỉ xuất hiện sau khi bạn hoàn thành toàn
+              bộ câu hỏi.
             </p>
 
             <div className="mt-7 grid gap-3 sm:grid-cols-2">
@@ -1538,7 +1542,7 @@ function MockSetup({
                       {worldQuantCompetencies[competency].shortLabel}
                     </strong>
                     <span className="mt-1 block text-xs text-[#64736c]">
-                      Trọng số role {role.weights[competency]}%
+                      Trọng số của vị trí {role.weights[competency]}%
                     </span>
                   </span>
                 </div>
@@ -1548,7 +1552,7 @@ function MockSetup({
 
           <aside className="rounded-[2rem] border border-[#173f35]/15 bg-[#173f35] p-6 text-white shadow-[0_22px_80px_rgb(23_63_53_/_16%)] sm:p-7">
             <p className="font-mono text-[11px] font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
-              Chọn role
+              Chọn vị trí
             </p>
             <select
               value={roleProfileId}
@@ -1596,7 +1600,7 @@ function MockSetup({
               })}
             </div>
             <p className="mt-6 font-mono text-[11px] font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
-              Evidence scope
+              Phạm vi đánh giá
             </p>
             <div className="mt-3 grid grid-cols-2 gap-3">
               {(["balanced", "targeted"] as const).map((scope) => (
@@ -1612,12 +1616,12 @@ function MockSetup({
                   }`}
                 >
                   <strong>
-                    {scope === "balanced" ? "Balanced" : "Targeted"}
+                    {scope === "balanced" ? "Toàn diện" : "Trọng tâm"}
                   </strong>
                   <span className="mt-1 block text-[10px] text-white/50">
                     {scope === "balanced"
-                      ? "Phân bổ theo trọng số role"
-                      : "Chỉ chấm một competency"}
+                      ? "Phân bổ theo mức độ quan trọng của từng năng lực"
+                      : "Chỉ đánh giá một năng lực"}
                   </span>
                 </button>
               ))}
@@ -1663,9 +1667,10 @@ function MockSetup({
                 {plan?.scheduledMinutes ?? 0}/{duration} phút
               </strong>
               <span className="mt-1 block">
-                Sample {plannedCompetencies.length} competency · tối đa{" "}
-                {plannedRoleWeight}% trọng số role có evidence. Exact queue
-                được khóa theo role, mode, variant và content revision.
+                Đề gồm {plannedCompetencies.length} năng lực · đánh giá tối đa{" "}
+                {plannedRoleWeight}% nội dung quan trọng của vị trí. Thứ tự câu
+                hỏi được giữ cố định theo vị trí, phạm vi, bộ đề và phiên bản
+                nội dung.
               </span>
             </div>
             <button
@@ -1679,13 +1684,16 @@ function MockSetup({
               className="mt-5 w-full rounded-2xl bg-[#d7ff91] px-5 py-3.5 text-sm font-bold text-[#173f35] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-35"
             >
               {!historyAvailable
-                ? "Cloud history v4 chưa sẵn sàng"
+                ? "Lịch sử trực tuyến chưa sẵn sàng"
                 : plan && plan.questions.length >= 3
-                ? `Bắt đầu ${mode === "targeted" ? "targeted" : "balanced"} mock →`
+                ? `Bắt đầu buổi phỏng vấn ${
+                    mode === "targeted" ? "trọng tâm" : "toàn diện"
+                  } →`
                 : "Chưa đủ 3 câu đã duyệt"}
             </button>
             <p className="mt-4 text-center text-[11px] leading-5 text-white/45">
-              Timer và câu trả lời được tự lưu local nên F5 không làm mất buổi.
+              Đồng hồ và câu trả lời được lưu trên trình duyệt, vì vậy F5
+              không làm mất buổi đang thực hiện.
             </p>
           </aside>
         </section>
@@ -1693,7 +1701,7 @@ function MockSetup({
         <section className="grid gap-5 pb-10 lg:grid-cols-2">
           <article className="rounded-[2rem] border border-[#173f35]/12 bg-white/62 p-6 sm:p-7">
             <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
-              Question bank cho bộ mới
+              Câu hỏi cho bộ đề tiếp theo
             </p>
             <h2 className="mt-2 text-2xl font-semibold">
               {bankQuestionCount} câu đã duyệt sẵn sàng để tạo thêm bộ
@@ -1721,19 +1729,20 @@ function MockSetup({
 
           <article className="rounded-[2rem] border border-[#ba4b2f]/18 bg-[#fff4df] p-6 sm:p-7">
             <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
-              Coverage guard
+              Kiểm soát mức bao phủ
             </p>
             <h2 className="mt-2 text-2xl font-semibold">
-              Không giả vờ question bank đã biết mọi thứ
+              Không giả định ngân hàng câu hỏi đã đầy đủ
             </h2>
             <p className="mt-3 text-sm leading-6 text-[#6b5648]">
-              Các tình huống tick data, migration, CMake, Python và English được
-              curate từ chính JD. Report chỉ chấm explicit rubric; không nhận
-              chúng là câu hỏi thật của WorldQuant.
+              Các tình huống về dữ liệu tick, chuyển đổi hệ thống, CMake,
+              Python và tiếng Anh được biên soạn từ mô tả công việc. Báo cáo
+              chỉ chấm theo các tiêu chí đã nêu; đây không phải câu hỏi tuyển
+              dụng thật của WorldQuant.
             </p>
             {plan?.contentGaps.length ? (
               <p className="mt-4 text-xs leading-5 text-[#8e3825]">
-                Blueprint hiện thiếu câu đủ điều kiện cho:{" "}
+                Bộ đề hiện thiếu câu đủ điều kiện cho:{" "}
                 <strong>
                   {plan.contentGaps
                     .map(
@@ -1742,7 +1751,8 @@ function MockSetup({
                     )
                     .join(", ")}
                 </strong>
-                . Đây là content gap, không phải bằng chứng ứng viên yếu.
+                . Đây là phần nội dung còn thiếu, không phải bằng chứng cho
+                thấy ứng viên yếu.
               </p>
             ) : null}
           </article>
@@ -1752,16 +1762,16 @@ function MockSetup({
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
-                Interview history
+                Lịch sử phỏng vấn
               </p>
               <h2 className="mt-2 text-2xl font-semibold">
-                Những attempt đã hoàn thành
+                Những lượt đã hoàn thành
               </h2>
             </div>
             <span className="text-xs text-[#64736c]">
               {historyAvailable
-                ? "Cloud history theo account"
-                : "Cloud history chưa cấu hình"}
+                ? "Lịch sử trực tuyến theo tài khoản"
+                : "Lịch sử trực tuyến chưa được cấu hình"}
             </span>
           </div>
           {historyError ? (
@@ -1788,12 +1798,12 @@ function MockSetup({
                       </p>
                       <p className="mt-1 text-xs text-[#64736c]">
                         {entry.artifact.plan.mode === "targeted"
-                          ? `Targeted · ${
+                          ? `Trọng tâm · ${
                               worldQuantCompetencies[
                                 entry.artifact.plan.targetCompetency!
                               ].shortLabel
                             }`
-                          : "Balanced"}{" "}
+                          : "Toàn diện"}{" "}
                         · {entry.artifact.plan.durationMinutes} phút ·{" "}
                         {formatDateTime(entry.artifact.completedAt)}
                       </p>
@@ -1802,7 +1812,7 @@ function MockSetup({
                           entry.artifact.debrief
                             .assessedWeightPercent
                         }
-                        % trọng số role đã hỏi
+                        % nội dung quan trọng của vị trí đã được hỏi
                       </p>
                     </div>
                     <span className="rounded-full bg-[#d7ff91]/65 px-3 py-1 font-mono text-xs font-bold">
@@ -1811,7 +1821,7 @@ function MockSetup({
                   </div>
                   <details className="mt-3 text-xs text-[#52645c]">
                     <summary className="cursor-pointer font-bold">
-                      Xem evidence
+                      Xem bằng chứng
                     </summary>
                     <div className="mt-2 grid gap-1">
                       {entry.artifact.debrief.competencies
@@ -1836,7 +1846,7 @@ function MockSetup({
                       onClick={() => onDeleteHistory(entry.attemptId)}
                       className="mt-3 text-xs font-bold text-[#8e3825] underline decoration-[#8e3825]/30 underline-offset-4"
                     >
-                      Xóa attempt
+                      Xóa lượt phỏng vấn
                     </button>
                   ) : null}
                 </article>
@@ -1844,8 +1854,9 @@ function MockSetup({
             </div>
           ) : (
             <p className="mt-5 text-sm text-[#64736c]">
-              Chưa có attempt v4 hoàn chỉnh. Report cũ v3 vẫn được giữ nguyên
-              trong storage legacy và không bị tự gán sang account này.
+              Chưa có lượt phỏng vấn hoàn chỉnh ở phiên bản mới. Báo cáo cũ
+              vẫn được giữ trong bộ nhớ trước đây và không tự động gán vào tài
+              khoản này.
             </p>
           )}
         </section>
@@ -1911,7 +1922,7 @@ function MockReport({
               WQ
             </span>
             <div>
-              <p className="font-bold">Mock Interview Report</p>
+              <p className="font-bold">Báo cáo phỏng vấn thử</p>
               <p className="text-xs text-[#64736c]">
                 {role.label}
               </p>
@@ -1924,7 +1935,7 @@ function MockReport({
                 onClick={onStartMissionMock}
                 className="min-h-11 rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white"
               >
-                Tạo đúng mock cho Mission
+                Tạo buổi phỏng vấn theo nhiệm vụ
               </button>
             ) : (
               <Link
@@ -1936,15 +1947,15 @@ function MockReport({
                 }`}
               >
                 {missionReturnHref
-                  ? "Tiếp tục bước kế trong Mission"
-                  : "WQ Hub"}
+                  ? "Tiếp tục bước tiếp theo trong nhiệm vụ"
+                  : "Trung tâm chuẩn bị"}
               </Link>
             )}
             <Link
               href="/"
               className="rounded-xl border border-[#173f35]/15 bg-white/65 px-4 py-2 text-sm font-bold"
             >
-              Luyện tập
+              Luyện thẻ
             </Link>
             <button
               type="button"
@@ -1970,12 +1981,12 @@ function MockReport({
           <article className="rounded-[2rem] bg-[#173f35] p-7 text-white shadow-[0_22px_80px_rgb(23_63_53_/_16%)]">
             <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#d7ff91] uppercase">
               {debrief.scope === "targeted_evidence"
-                ? `Targeted · ${
+                ? `Trọng tâm · ${
                     worldQuantCompetencies[
                       session.plan.targetCompetency!
                     ].shortLabel
                   }`
-                : "Balanced role sample"}
+                : "Đánh giá toàn diện theo vị trí"}
             </p>
             <p className="mt-4 font-mono text-6xl font-bold text-[#d7ff91]">
               {debrief.roleInterviewScore ?? "—"}
@@ -1985,29 +1996,32 @@ function MockReport({
               Điểm trên phần đã hỏi
             </h1>
             <p className="mt-2 text-xs text-white/45">
-              Đã kiểm tra {debrief.assessedWeightPercent}% trọng số role. Điểm
-              này không cộng vào Preparation Index.
+              Đã kiểm tra {debrief.assessedWeightPercent}% nội dung quan trọng
+              của vị trí. Điểm này không cộng vào chỉ số chuẩn bị.
             </p>
             <p className="mt-3 text-sm leading-6 text-white/68">
-              Đây không phải readiness verdict hay quyết định tuyển dụng.
-              Competency “Chưa hỏi” không bị tính là 0.
+              Đây không phải kết luận về mức độ chuẩn bị hay quyết định tuyển
+              dụng. Năng lực “Chưa hỏi” không bị tính là 0.
             </p>
             <div className="mt-6 border-t border-white/12 pt-4 font-mono text-[10px] leading-5 text-white/42">
               <p>
-                {session.plan.mode} · bộ {session.plan.variant} · blueprint v
-                {session.plan.version}
+                {session.plan.mode === "targeted" ? "trọng tâm" : "toàn diện"} ·
+                bộ đề {session.plan.variant} · phiên bản {session.plan.version}
               </p>
               <p>
                 {session.plan.durationMinutes} phút · {questions.length} câu
               </p>
-              <p>{session.reportModel ?? "AI model"}</p>
-              <p>{session.reportProvider ?? "provider"} · chấm một lần cuối buổi</p>
+              <p>{session.reportModel ?? "Mô hình AI"}</p>
+              <p>
+                {session.reportProvider ?? "Nhà cung cấp AI"} · chấm một lần
+                vào cuối buổi
+              </p>
             </div>
           </article>
 
           <article className="rounded-[2rem] border border-[#173f35]/12 bg-white/65 p-7">
             <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
-              Interview summary
+              Tổng kết phỏng vấn
             </p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight">
               Báo cáo tổng hợp
@@ -2020,7 +2034,7 @@ function MockReport({
                 tone="positive"
               />
               <ReportList
-                title="Nhận xét cần làm rõ (AI, định tính)"
+                title="Nội dung AI cho rằng cần làm rõ"
                 items={report.priorityGaps}
                 tone="warning"
               />
@@ -2053,7 +2067,7 @@ function MockReport({
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#64736c] uppercase">
-                      Competency
+                      Năng lực
                     </p>
                     <h3 className="mt-1 font-semibold">
                       {
@@ -2076,8 +2090,8 @@ function MockReport({
                 </div>
                 <p className="mt-4 text-sm leading-6 text-[#52645c]">
                   {result.status === "assessed"
-                    ? `${result.evidenceCount} câu evidence · deficit ${result.scoreDeficit} · impact ${result.weightedDeficit}`
-                    : "Buổi mock này chưa kiểm tra competency này."}
+                    ? `${result.evidenceCount} câu làm bằng chứng · điểm còn thiếu ${result.scoreDeficit} · mức ưu tiên ${result.weightedDeficit}`
+                    : "Buổi phỏng vấn này chưa kiểm tra năng lực này."}
                 </p>
               </article>
             );
@@ -2086,11 +2100,11 @@ function MockReport({
 
         <section className="mt-5 rounded-[2rem] border border-[#173f35]/12 bg-white/62 p-6 sm:p-7">
           <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
-            Next preparation
+            Bước ôn tập tiếp theo
           </p>
           <h2 className="mt-2 text-2xl font-semibold">Kế hoạch ôn tiếp</h2>
           <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-bold text-[#64736c]">Budget:</span>
+            <span className="font-bold text-[#64736c]">Thời lượng:</span>
             {[15, 30, 45, 60].map((minutes) => (
               <button
                 key={minutes}
@@ -2119,7 +2133,8 @@ function MockReport({
                     className="rounded-2xl border border-[#173f35]/10 bg-[#f8faf5] p-4"
                   >
                     <span className="font-mono text-[10px] font-bold text-[#ba4b2f]">
-                      Gap #{option.rank} · impact {option.weightedDeficit}
+                      Điểm cần cải thiện #{option.rank} · mức ưu tiên{" "}
+                      {option.weightedDeficit}
                     </span>
                     <h3 className="mt-1 font-semibold">
                       {
@@ -2129,12 +2144,12 @@ function MockReport({
                     </h3>
                     <p className="mt-2 text-xs leading-5 text-[#64736c]">
                       {option.availability === "focus_sprint"
-                        ? `${option.plan.questions.length} thẻ approved · ~${option.plan.scheduledMinutes} phút`
+                        ? `${option.plan.questions.length} thẻ đã duyệt · ~${option.plan.scheduledMinutes} phút`
                         : option.availability === "guide"
-                          ? "Chưa đủ card; có guide nền tảng."
+                          ? "Chưa đủ thẻ; đã có bài hướng dẫn nền tảng."
                           : option.availability === "content_gap"
-                            ? "Content gap: chưa đủ card/guide approved."
-                            : "Hiện không có card đến hạn hoặc fallback phù hợp."}
+                            ? "Thiếu nội dung: chưa đủ thẻ hoặc bài hướng dẫn đã duyệt."
+                            : "Hiện không có thẻ đến hạn hoặc phương án thay thế phù hợp."}
                     </p>
                     {option.availability === "focus_sprint" ? (
                       <button
@@ -2142,14 +2157,14 @@ function MockReport({
                         onClick={() => onRemediate(option)}
                         className="mt-4 rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white"
                       >
-                        Tạo Focus Sprint
+                        Tạo phiên ôn trọng tâm
                       </button>
                     ) : guide?.kind === "guide" ? (
                       <Link
                         href={guide.href}
                         className="mt-4 inline-flex rounded-xl border border-[#173f35]/15 px-4 py-2 text-xs font-bold"
                       >
-                        Mở guide
+                        Mở bài hướng dẫn
                       </Link>
                     ) : null}
                   </article>
@@ -2163,7 +2178,7 @@ function MockReport({
             </p>
           ) : null}
           <h3 className="mt-7 text-sm font-bold text-[#356b58]">
-            Gợi ý định tính từ interviewer
+            Gợi ý tham khảo từ AI
           </h3>
           {report.studyPlan.length ? (
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -2173,7 +2188,7 @@ function MockReport({
                   className="rounded-2xl border border-[#173f35]/10 bg-[#f8faf5] p-4"
                 >
                   <span className="font-mono text-[10px] font-bold text-[#ba4b2f]">
-                    P{item.priority}
+                    Ưu tiên {item.priority}
                   </span>
                   <h3 className="mt-1 font-semibold">{item.topic}</h3>
                   <p className="mt-2 text-sm leading-6 text-[#52645c]">
@@ -2184,7 +2199,7 @@ function MockReport({
             </div>
           ) : (
             <p className="mt-4 text-sm text-[#64736c]">
-              Report chưa đề xuất thêm action.
+              Báo cáo chưa đề xuất thêm hành động.
             </p>
           )}
         </section>
@@ -2192,7 +2207,7 @@ function MockReport({
         <section className="mt-5 pb-10">
           <div className="mb-4">
             <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#356b58] uppercase">
-              Question review
+              Xem lại câu hỏi
             </p>
             <h2 className="mt-2 text-2xl font-semibold">Xem lại từng câu</h2>
           </div>
@@ -2225,7 +2240,7 @@ function MockReport({
                     {hiddenExecution ? (
                       <div>
                         <p className="text-xs font-bold text-[#356b58]">
-                          Hidden tests trong sandbox
+                          Kiểm thử ẩn trong môi trường cô lập
                         </p>
                         <ExecutionResultPanel
                           result={hiddenExecution}
@@ -2235,7 +2250,7 @@ function MockReport({
                     ) : null}
                     <div>
                       <p className="text-xs font-bold text-[#356b58]">
-                        Câu trả lời của mày
+                        Câu trả lời của bạn
                       </p>
                       <pre className="mt-2 max-h-72 overflow-auto whitespace-pre-wrap rounded-xl bg-[#102d26] p-4 font-mono text-xs leading-6 text-[#e8f4ec]">
                         {answer
@@ -2301,7 +2316,7 @@ function ReportList({
           ))}
         </ul>
       ) : (
-        <p className="mt-2 text-sm text-[#64736c]">Chưa có evidence.</p>
+        <p className="mt-2 text-sm text-[#64736c]">Chưa có bằng chứng.</p>
       )}
     </div>
   );
@@ -2312,13 +2327,13 @@ const executionStatusLabels: Record<
   string
 > = {
   passed: "Đã qua",
-  tests_failed: "Sai hidden/sample test",
+  tests_failed: "Không đạt kiểm thử ẩn hoặc kiểm thử mẫu",
   compile_error: "Lỗi biên dịch",
   runtime_error: "Lỗi khi chạy",
   time_limit: "Quá thời gian",
   memory_limit: "Quá bộ nhớ",
-  output_limit: "Output quá lớn",
-  sandbox_error: "Lỗi hạ tầng sandbox",
+  output_limit: "Kết quả xuất ra quá lớn",
+  sandbox_error: "Lỗi hạ tầng môi trường cô lập",
 };
 
 function ExecutionResultPanel({
@@ -2353,7 +2368,7 @@ function ExecutionResultPanel({
           {executionStatusLabels[result.status]}
         </strong>
         <span className="font-mono text-[10px] text-[#64736c]">
-          {result.passedTests}/{result.totalTests} tests ·{" "}
+          {result.passedTests}/{result.totalTests} kiểm thử ·{" "}
           {result.durationMs}ms · {result.toolchain}
         </span>
       </div>
@@ -2381,7 +2396,7 @@ function ExecutionResultPanel({
       {!compact && result.diagnostics ? (
         <div className="mt-3">
           <p className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#64736c] uppercase">
-            Compiler diagnostics
+            Thông báo của trình biên dịch
           </p>
           <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap rounded-lg bg-[#102d26] p-3 font-mono text-[11px] leading-5 text-[#e8f4ec]">
             {result.diagnostics}
@@ -2391,7 +2406,7 @@ function ExecutionResultPanel({
       {!compact && result.output ? (
         <div className="mt-3">
           <p className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#64736c] uppercase">
-            Test output
+            Kết quả kiểm thử
           </p>
           <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap rounded-lg bg-[#102d26] p-3 font-mono text-[11px] leading-5 text-[#e8f4ec]">
             {result.output}
@@ -2400,7 +2415,8 @@ function ExecutionResultPanel({
       ) : null}
       {result.suite === "hidden" ? (
         <p className="mt-2 text-[11px] leading-5 text-[#64736c]">
-          Chỉ hiện tổng hợp để không làm lộ hidden test cases.
+          Chỉ hiển thị kết quả tổng hợp để không làm lộ các trường hợp kiểm
+          thử ẩn.
         </p>
       ) : null}
     </div>

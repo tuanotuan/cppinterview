@@ -29,7 +29,7 @@ function attempt(
   return {
     attemptId,
     drillId: drill.id,
-    drillVersion: 1,
+    drillVersion: drill.version,
     variant,
     competency: drill.competency,
     conceptIds: [...drill.conceptIds],
@@ -46,6 +46,25 @@ function attempt(
 }
 
 describe("WorldQuant gap closure protocol", () => {
+  it("rejects a stale historical drill revision for a new completion", () => {
+    expect(() =>
+      completeDrillAndReconcileGap(
+        EMPTY_WORLDQUANT_TRAINING_STATE,
+        {
+          roleProfileId: "tick-data-platform",
+          attempt: {
+            ...attempt("practice", ids[0]),
+            drillVersion: 1,
+          },
+          failedRubricIndexes: [],
+          now: "2026-07-28T02:15:00.000Z",
+          today: "2026-07-28",
+          createId: () => ids[1],
+        },
+      ),
+    ).toThrow(/Stale drill revision/);
+  });
+
   it("does not turn not-assessed evidence into a gap", () => {
     const result = openOrReconcileGapFromMock(
       EMPTY_WORLDQUANT_TRAINING_STATE,

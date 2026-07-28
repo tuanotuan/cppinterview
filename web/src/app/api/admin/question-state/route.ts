@@ -34,24 +34,33 @@ export async function POST(request: Request) {
   const supabase = await createSupabaseServerClient();
   const { data: authData, error: authError } = await supabase.auth.getUser();
   if (authError || !authData.user || !isAllowedPracticeUser(authData.user)) {
-    return Response.json({ error: "Cần đăng nhập owner." }, { status: 401 });
+    return Response.json(
+      { error: "Cần đăng nhập bằng tài khoản quản trị viên." },
+      { status: 401 },
+    );
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return Response.json({ error: "Request không phải JSON hợp lệ." }, { status: 400 });
+    return Response.json(
+      { error: "Yêu cầu không chứa JSON hợp lệ." },
+      { status: 400 },
+    );
   }
   const parsed = requestSchema.safeParse(body);
   if (!parsed.success) {
-    return Response.json({ error: "Schedule action không hợp lệ." }, { status: 400 });
+    return Response.json(
+      { error: "Thao tác với lịch học không hợp lệ." },
+      { status: 400 },
+    );
   }
 
   const loaded = await loadQuestionOverrides(supabase);
   if (loaded.error) {
     return Response.json(
-      { error: "Không đọc được question overrides." },
+      { error: "Không đọc được các thay đổi của câu hỏi." },
       { status: 502 },
     );
   }
@@ -101,7 +110,10 @@ export async function POST(request: Request) {
       .order("reviewed_on", { ascending: false }),
   ]);
   if (stateResult.error || reviewsResult.error) {
-    return Response.json({ error: "Đã cập nhật nhưng chưa đọc lại được state." }, { status: 502 });
+    return Response.json(
+      { error: "Đã cập nhật nhưng chưa đọc lại được trạng thái." },
+      { status: 502 },
+    );
   }
 
   return Response.json({

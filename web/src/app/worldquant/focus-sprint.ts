@@ -57,7 +57,7 @@ export function prepareFocusSprint(
       message:
         contentGap?.kind === "content_gap"
           ? contentGap.label
-          : "Hôm nay không có câu đã duyệt phù hợp để tạo Focus Sprint.",
+          : "Hôm nay không có câu đã duyệt phù hợp để tạo Phiên ôn tập trọng tâm.",
     };
   }
 
@@ -72,7 +72,7 @@ export function prepareFocusSprint(
     if (!href) {
       return {
         kind: "unavailable",
-        message: "Focus Sprint không có câu hợp lệ để bắt đầu.",
+        message: "Phiên ôn tập trọng tâm không có câu hợp lệ để bắt đầu.",
       };
     }
 
@@ -86,7 +86,7 @@ export function prepareFocusSprint(
     return {
       kind: "storage_error",
       message:
-        "Không lưu được Focus Sprint trong trình duyệt. Chưa chuyển sang Practice; hãy bật local storage rồi thử lại.",
+        "Không lưu được Phiên ôn tập trọng tâm trong trình duyệt. Hệ thống chưa chuyển sang phần luyện tập; hãy cho phép lưu dữ liệu trên thiết bị rồi thử lại.",
     };
   }
 }
@@ -99,7 +99,7 @@ export function prepareFocusSprintResume(
   if (!href) {
     return {
       kind: "unavailable",
-      message: "Focus Sprint cũ không còn câu đã duyệt để tiếp tục.",
+      message: "Phiên ôn tập trọng tâm cũ không còn câu đã duyệt để tiếp tục.",
     };
   }
 
@@ -114,7 +114,7 @@ export function prepareFocusSprintResume(
     return {
       kind: "storage_error",
       message:
-        "Không đọc/ghi được Focus Sprint trong trình duyệt. Chưa chuyển sang Practice.",
+        "Không đọc hoặc ghi được Phiên ôn tập trọng tâm trong trình duyệt. Hệ thống chưa chuyển sang phần luyện tập.",
     };
   }
 }

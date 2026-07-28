@@ -14,17 +14,17 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "WorldQuant Curriculum Graph — Recall",
+  title: "Lộ trình kiến thức WorldQuant — Recall",
   description:
-    "Bản đồ concept, prerequisite, flashcard coverage và transfer drill cho track C++ WorldQuant.",
+    "Bản đồ khái niệm, kiến thức nền, mức bao phủ thẻ ghi nhớ và bài luyện vận dụng cho lộ trình C++ WorldQuant.",
 };
 
 const statusLabels = {
-  transfer_ready: "Card + transfer",
-  flashcard_only: "Chỉ có card",
+  transfer_ready: "Có thẻ + bài vận dụng",
+  flashcard_only: "Chỉ có thẻ",
   pending_review: "Chờ duyệt",
-  drill_only: "Chỉ có drill",
-  content_gap: "Thiếu content",
+  drill_only: "Chỉ có bài luyện",
+  content_gap: "Thiếu học liệu",
 } as const;
 
 const statusStyles = {
@@ -71,9 +71,9 @@ export default async function WorldQuantCurriculumPage({
               WQ
             </span>
             <span>
-              <span className="block font-bold">Curriculum Graph</span>
+              <span className="block font-bold">Lộ trình kiến thức</span>
               <span className="block text-xs text-[#64736c]">
-                Content ≠ learner evidence
+                Mức độ đầy đủ của học liệu khác với mức độ thành thạo
               </span>
             </span>
           </Link>
@@ -81,7 +81,7 @@ export default async function WorldQuantCurriculumPage({
             <HeaderLink
               href={worldQuantRoleHref("/worldquant", roleId)}
             >
-              Readiness Hub
+              Trung tâm chuẩn bị
             </HeaderLink>
             <HeaderLink
               href={worldQuantRoleHref(
@@ -89,7 +89,7 @@ export default async function WorldQuantCurriculumPage({
                 roleId,
               )}
             >
-              Scenario Lab
+              Phòng luyện tình huống
             </HeaderLink>
             <HeaderLink
               href={worldQuantRoleHref(
@@ -97,11 +97,11 @@ export default async function WorldQuantCurriculumPage({
                 roleId,
               )}
             >
-              Today&apos;s Mission
+              Nhiệm vụ hôm nay
             </HeaderLink>
             {cloud.account ? (
               <HeaderLink href="/admin/coverage">
-                Coverage Studio
+                Quản lý mức bao phủ
               </HeaderLink>
             ) : null}
           </nav>
@@ -110,20 +110,20 @@ export default async function WorldQuantCurriculumPage({
         <section className="grid gap-6 py-9 lg:grid-cols-[1fr_360px] lg:items-end">
           <div>
             <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
-              Curriculum v1 · 30 concepts
+              Lộ trình v1 · 30 khái niệm
             </p>
             <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
-              Học theo dependency, không học một đống thẻ rời.
+              Học theo kiến thức nền, không học một tập thẻ rời rạc.
             </h1>
             <p className="mt-4 max-w-3xl leading-7 text-[#64736c]">
-              Card coverage, drill transfer và content chờ duyệt được
-              hiển thị riêng. Một concept thiếu card không bị diễn giải
-              thành mày yếu.
+              Mức bao phủ thẻ, bài luyện vận dụng và học liệu chờ duyệt được
+              hiển thị riêng. Một khái niệm thiếu thẻ không đồng nghĩa với
+              việc bạn còn yếu.
             </p>
           </div>
           <form>
             <label className="block text-xs font-bold text-[#64736c]">
-              Role profile
+              Vị trí mục tiêu
               <select
                 name="role"
                 defaultValue={roleId}
@@ -137,7 +137,7 @@ export default async function WorldQuantCurriculumPage({
               </select>
             </label>
             <button className="mt-3 w-full rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white">
-              Xem graph
+              Xem lộ trình
             </button>
           </form>
         </section>
@@ -157,8 +157,8 @@ export default async function WorldQuantCurriculumPage({
                   {summary.coveredConceptCount}/{summary.conceptCount}
                 </p>
                 <p className="mt-1 text-[11px] text-[#64736c]">
-                  concept có card · {summary.transferReadyConceptCount} có
-                  checkpoint
+                  khái niệm có thẻ · {summary.transferReadyConceptCount} có
+                  bài kiểm tra xác nhận
                 </p>
               </div>
             );
@@ -179,7 +179,7 @@ export default async function WorldQuantCurriculumPage({
                 <div className="flex flex-wrap items-end justify-between gap-3">
                   <div>
                     <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
-                      Role weight {role.weights[competency]}%
+                      Mức độ quan trọng với vị trí {role.weights[competency]}%
                     </p>
                     <h2 className="mt-2 text-2xl font-semibold">
                       {definition.label}
@@ -189,7 +189,7 @@ export default async function WorldQuantCurriculumPage({
                     href={`/worldquant/drills?role=${roleId}&competency=${competency}`}
                     className="rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white"
                   >
-                    Luyện scenario
+                    Luyện tình huống
                   </Link>
                 </div>
                 <div className="mt-5 grid gap-4 lg:grid-cols-3">
@@ -216,27 +216,27 @@ export default async function WorldQuantCurriculumPage({
                       </p>
                       <dl className="mt-4 grid grid-cols-2 gap-2 text-[11px]">
                         <Metric
-                          label="Active cards"
+                          label="Thẻ đang dùng"
                           value={item.activeQuestionIds.length}
                         />
                         <Metric
-                          label="Pending"
+                          label="Chờ duyệt"
                           value={item.pendingQuestionIds.length}
                         />
                         <Metric
-                          label="Practice"
+                          label="Bài luyện"
                           value={item.practiceDrillIds.length}
                         />
                         <Metric
-                          label="Checkpoint"
+                          label="Bài xác nhận"
                           value={item.checkpointDrillIds.length}
                         />
                       </dl>
                       <p className="mt-4 text-[10px] leading-4 text-[#64736c]">
-                        Prerequisite:{" "}
+                        Kiến thức nền:{" "}
                         {item.concept.prerequisites.length
                           ? item.concept.prerequisites.join(", ")
-                          : "foundation"}
+                          : "nền tảng ban đầu"}
                       </p>
                     </article>
                   ))}

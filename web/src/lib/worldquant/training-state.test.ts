@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   addDrillAttempt,
@@ -7,8 +7,12 @@ import {
   markCheckpointExposed,
   mergeWorldQuantTrainingStates,
   parseWorldQuantTrainingState,
+  readWorldQuantTrainingState,
   serializeWorldQuantTrainingState,
   wasCheckpointExposed,
+  WORLDQUANT_LEGACY_TRAINING_STATE_VERSION,
+  WORLDQUANT_TRAINING_STATE_VERSION,
+  worldQuantLegacyTrainingStorageKey,
   worldQuantTrainingStorageKey,
   type WorldQuantDrillAttempt,
   type WorldQuantTrainingState,
@@ -38,12 +42,29 @@ const attempt: WorldQuantDrillAttempt = {
   answerPresent: true,
 };
 
+class MemoryStorage {
+  private readonly values = new Map<string, string>();
+
+  getItem(key: string) {
+    return this.values.get(key) ?? null;
+  }
+
+  setItem(key: string, value: string) {
+    this.values.set(key, value);
+  }
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
 describe("WorldQuant local training state", () => {
   it("round-trips versioned state and rejects corrupt input", () => {
     const state = addDrillAttempt(
       EMPTY_WORLDQUANT_TRAINING_STATE,
       attempt,
     );
+    expect(state.version).toBe(WORLDQUANT_TRAINING_STATE_VERSION);
     expect(
       parseWorldQuantTrainingState(
         serializeWorldQuantTrainingState(state),
@@ -80,6 +101,69 @@ describe("WorldQuant local training state", () => {
     );
     const twice = addDrillAttempt(once, attempt);
     expect(twice.attempts).toHaveLength(1);
+  });
+
+  it("retains assessment-equivalent v1 history after the localized v2 catalog", () => {
+    const legacyAttempt = {
+      ...attempt,
+      drillVersion: 1 as const,
+    };
+    const legacyExposure = {
+      drillId: checkpoint.id,
+      drillVersion: 1 as const,
+      exposedAt: "2026-07-28T03:00:00.000Z",
+      exposureCount: 1,
+      verificationKind: "repeat" as const,
+    };
+    const stored = {
+      ...EMPTY_WORLDQUANT_TRAINING_STATE,
+      version: WORLDQUANT_LEGACY_TRAINING_STATE_VERSION,
+      attempts: [legacyAttempt],
+      gaps: [
+        {
+          roleProfileId: "tick-data-platform" as const,
+          roleProfileVersion: 1 as const,
+          competency: legacyAttempt.competency,
+          status: "transfer_ready" as const,
+          openedAt: legacyAttempt.startedAt,
+          updatedAt: legacyAttempt.completedAt,
+          sourceKind: "drill" as const,
+          sourceId: legacyAttempt.attemptId,
+          sourceScore: 75,
+          practiceAttemptId: legacyAttempt.attemptId,
+          verificationAttemptId: null,
+        },
+      ],
+      checkpointExposures: [legacyExposure],
+    };
+
+    const parsed = parseWorldQuantTrainingState(
+      JSON.stringify(stored),
+    );
+
+    expect(parsed.attempts).toEqual([legacyAttempt]);
+    expect(parsed.checkpointExposures).toEqual([legacyExposure]);
+    expect(parsed.gaps[0]).toMatchObject({
+      status: "learning",
+      practiceAttemptId: null,
+    });
+    expect(
+      wasCheckpointExposed(parsed, checkpoint.id, 1),
+    ).toBe(true);
+    expect(
+      wasCheckpointExposed(
+        parsed,
+        checkpoint.id,
+        checkpoint.version,
+      ),
+    ).toBe(false);
+    expect(parsed.version).toBe(WORLDQUANT_TRAINING_STATE_VERSION);
+    expect(() =>
+      addDrillAttempt(
+        EMPTY_WORLDQUANT_TRAINING_STATE,
+        legacyAttempt,
+      ),
+    ).toThrow(/Stale drill revision/);
   });
 
   it("classifies first, recent-repeat and spaced checkpoint exposure", () => {
@@ -436,16 +520,120 @@ describe("WorldQuant local training state", () => {
         },
       ),
     ).toThrow(/exact ordered round and drill revisions/);
+    expect(() =>
+      addFullRoundSummary(
+        EMPTY_WORLDQUANT_TRAINING_STATE,
+        {
+          ...summary,
+          completedRounds: summary.completedRounds.map(
+            (round, index) => ({
+              ...round,
+              drillVersion:
+                index === 0 ? (1 as const) : round.drillVersion,
+            }),
+          ),
+        },
+      ),
+    ).toThrow(/cannot mix drill catalog revisions/);
+
+    const legacySummary = {
+      ...summary,
+      sessionId: "10000000-0000-4000-8000-000000000021",
+      completedRounds: summary.completedRounds.map((round) => ({
+        ...round,
+        drillVersion: 1 as const,
+      })),
+    };
+    expect(() =>
+      addFullRoundSummary(
+        EMPTY_WORLDQUANT_TRAINING_STATE,
+        legacySummary,
+      ),
+    ).toThrow(/Stale full-round revision/);
+
+    const historical = parseWorldQuantTrainingState(
+      JSON.stringify({
+        ...EMPTY_WORLDQUANT_TRAINING_STATE,
+        version: WORLDQUANT_LEGACY_TRAINING_STATE_VERSION,
+        fullRounds: [legacySummary],
+      }),
+    );
+    expect(historical.fullRounds).toEqual([legacySummary]);
+
+    const mixedSummary = {
+      ...summary,
+      sessionId: "10000000-0000-4000-8000-000000000022",
+      completedRounds: summary.completedRounds.map(
+        (round, index) => ({
+          ...round,
+          drillVersion:
+            index === 0 ? (1 as const) : round.drillVersion,
+        }),
+      ),
+    };
+    expect(
+      parseWorldQuantTrainingState(
+        JSON.stringify({
+          ...EMPTY_WORLDQUANT_TRAINING_STATE,
+          fullRounds: [mixedSummary],
+        }),
+      ).fullRounds,
+    ).toEqual([]);
   });
 
   it("isolates local mode from account-scoped state", () => {
     expect(worldQuantTrainingStorageKey(null)).toBe(
+      "recall:worldquant-training:local:v2",
+    );
+    expect(worldQuantLegacyTrainingStorageKey(null)).toBe(
       "recall:worldquant-training:local:v1",
     );
     expect(
       worldQuantTrainingStorageKey(
         "10000000-0000-4000-8000-000000000010",
       ),
-    ).toContain("10000000-0000-4000-8000-000000000010");
+    ).toBe(
+      "recall:worldquant-training:10000000-0000-4000-8000-000000000010:v2",
+    );
+  });
+
+  it("copies legacy v1 state once and ignores later writes to the legacy key", () => {
+    const storage = new MemoryStorage();
+    vi.stubGlobal("window", { localStorage: storage });
+    const legacyKey = worldQuantLegacyTrainingStorageKey(null);
+    const currentKey = worldQuantTrainingStorageKey(null);
+    const legacyAttempt = {
+      ...attempt,
+      drillVersion: 1 as const,
+    };
+    storage.setItem(
+      legacyKey,
+      JSON.stringify({
+        ...EMPTY_WORLDQUANT_TRAINING_STATE,
+        version: WORLDQUANT_LEGACY_TRAINING_STATE_VERSION,
+        attempts: [legacyAttempt],
+      }),
+    );
+
+    const migrated = readWorldQuantTrainingState(null);
+
+    expect(migrated).toMatchObject({
+      version: WORLDQUANT_TRAINING_STATE_VERSION,
+      attempts: [legacyAttempt],
+    });
+    expect(storage.getItem(legacyKey)).not.toBeNull();
+    expect(
+      parseWorldQuantTrainingState(storage.getItem(currentKey)),
+    ).toEqual(migrated);
+
+    storage.setItem(
+      legacyKey,
+      JSON.stringify({
+        ...EMPTY_WORLDQUANT_TRAINING_STATE,
+        version: WORLDQUANT_LEGACY_TRAINING_STATE_VERSION,
+        attempts: [],
+      }),
+    );
+    expect(readWorldQuantTrainingState(null)).toEqual(migrated);
   });
 });

@@ -295,7 +295,7 @@ function makeIntervalSpec(): MockExecutionSpec {
       const cases =
         suite === "sample"
           ? [
-              intervalCase("empty interval", "0\n", [
+              intervalCase("Khoảng không có giao dịch", "0\n", [
                 0,
                 0,
                 0,
@@ -306,7 +306,7 @@ function makeIntervalSpec(): MockExecutionSpec {
                 null,
               ]),
               intervalCase(
-                "OHLC and VWAP",
+                "Chỉ số OHLC và VWAP",
                 [
                   "3",
                   "1000000000 100.5 2",
@@ -359,12 +359,12 @@ function makeOrderBookSpec(): MockExecutionSpec {
         suite === "sample"
           ? [
               exactCase(
-                "insert bid and ask",
+                "Thêm lệnh mua và lệnh bán",
                 ["2", "1 0 100 10", "2 1 101 20", ""].join("\n"),
                 "1 1 2 1 100 10 1 101 20",
               ),
               exactCase(
-                "duplicate, gap and delete",
+                "Số thứ tự trùng, bị đứt quãng và thao tác xóa",
                 [
                   "4",
                   "1 0 100 10",
@@ -423,7 +423,7 @@ function makePythonAuditSpec(): MockExecutionSpec {
       const cases =
         suite === "sample"
           ? [
-              pythonCase("per-stream ordering", [
+              pythonCase("Thứ tự riêng cho từng luồng", [
                 event("A", "ES", 10),
                 event("A", "ES", 11),
                 event("B", "ES", 5),
@@ -437,7 +437,7 @@ function makePythonAuditSpec(): MockExecutionSpec {
                 issue("gap", "B", "ES", 7, 6),
                 issue("out_of_order", "A", "ES", 13, 15),
               ]),
-              pythonCase("independent instruments", [
+              pythonCase("Các mã giao dịch độc lập", [
                 event("X", "AAPL", 1),
                 event("X", "MSFT", 50),
                 event("X", "AAPL", 2),
@@ -548,7 +548,7 @@ function makeCmakeSpec(): MockExecutionSpec {
         ],
         tests: [
           {
-            name: "CTest registration",
+            name: "Đăng ký bài kiểm thử với CTest",
             command: {
               phase: "test",
               cmd: "ctest",
@@ -564,12 +564,12 @@ function makeCmakeSpec(): MockExecutionSpec {
                 message:
                   exitCode === 0 && count > 0
                     ? undefined
-                    : "CTest chưa tìm thấy test đã đăng ký.",
+                    : "CTest chưa tìm thấy bài kiểm thử đã đăng ký.",
               };
             },
           },
           {
-            name: "server-owned project test",
+            name: "Bài kiểm thử do máy chủ cung cấp",
             command: {
               phase: "test",
               cmd: "./build/feed_decoder_tests",
@@ -583,7 +583,7 @@ function makeCmakeSpec(): MockExecutionSpec {
                 message:
                   exitCode === 0
                     ? undefined
-                    : "Executable feed_decoder_tests báo test thất bại.",
+                    : "Chương trình feed_decoder_tests báo bài kiểm thử thất bại.",
               };
             },
           },
@@ -630,7 +630,7 @@ function intervalCase(
       if (tokens.length !== expected.length) {
         return {
           passed: false,
-          message: "Output không đúng contract của test harness.",
+          message: "Đầu ra không đúng quy ước của chương trình kiểm thử.",
         };
       }
       const passed = expected.every((value, index) => {
@@ -668,7 +668,7 @@ function exactCase(
         message: passed
           ? undefined
           : exitCode === 0
-            ? "State cuối hoặc kết quả apply chưa đúng."
+            ? "Trạng thái cuối hoặc kết quả từ apply chưa đúng."
             : "Chương trình thoát khác 0.",
       };
     },
@@ -707,7 +707,10 @@ function pythonCase(
     },
     validate({ exitCode, stdout }) {
       if (exitCode !== 0) {
-        return { passed: false, message: "Python process thoát khác 0." };
+        return {
+          passed: false,
+          message: "Tiến trình Python kết thúc với mã lỗi.",
+        };
       }
       try {
         const actual = JSON.parse(stdout);
@@ -716,12 +719,12 @@ function pythonCase(
           passed,
           message: passed
             ? undefined
-            : "Danh sách issue hoặc expected sequence chưa đúng.",
+            : "Danh sách lỗi hoặc số thứ tự mong đợi chưa đúng.",
         };
       } catch {
         return {
           passed: false,
-          message: "Output từ test harness không phải JSON hợp lệ.",
+          message: "Đầu ra từ chương trình kiểm thử không phải JSON hợp lệ.",
         };
       }
     },

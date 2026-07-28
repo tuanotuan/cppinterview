@@ -32,17 +32,17 @@ nhật file context tương ứng theo root `AGENTS.md`.
 | URL/vùng | Entry point | Chức năng |
 |---|---|---|
 | `/` | `web/src/app/page.tsx`, `practice-app.tsx` | Daily/custom study và Focus Sprint exact queue; answer không giới hạn sản phẩm, blank = chưa biết và vẫn gọi được AI, rating, scheduler, cloud sync, saved state và return về Guided Mission |
-| `/worldquant` | `worldquant/page.tsx`, `worldquant-readiness-app.tsx` | Guided entry theo role/budget, onboarding first-visit, menu Advanced thu gọn; analytics, Focus Sprint, mock v4 gần nhất và comparable trend |
+| `/worldquant` | `worldquant/page.tsx`, `worldquant-readiness-app.tsx` | Trung tâm chuẩn bị theo vị trí/thời lượng, giới thiệu lần đầu, mục Nâng cao thu gọn; thống kê, Phiên ôn tập trọng tâm, phỏng vấn thử v4 gần nhất và xu hướng có thể so sánh |
 | `/worldquant/curriculum` | `worldquant/curriculum/page.tsx` | Graph 30 concept theo prerequisite; tách card coverage, pending content và transfer drill |
-| `/worldquant/drills` | `worldquant/drills/page.tsx`, `worldquant-drill-app.tsx` | Scenario lab: approved warm-up → practice → follow-up → rubric → fresh/spaced checkpoint; giữ exact Guided Mission return |
-| `/worldquant/mission` | `worldquant/mission/page.tsx`, `worldquant-mission-app.tsx` | Guided daily queue deterministic, nêu một bước tiếp theo và giữ exact return qua Focus/Drill/Mock |
+| `/worldquant/drills` | `worldquant/drills/page.tsx`, `worldquant-drill-app.tsx` | Bài luyện tình huống: thẻ khởi động đã duyệt → luyện tập → câu hỏi tiếp nối → tiêu chí chấm → bài kiểm tra xác nhận mới/cách quãng; giữ đúng đường về Nhiệm vụ |
+| `/worldquant/mission` | `worldquant/mission/page.tsx`, `worldquant-mission-app.tsx` | Nhiệm vụ hằng ngày xác định, nêu một bước tiếp theo và giữ đúng đường về qua thẻ/bài luyện/phỏng vấn thử |
 | `/worldquant/full-round` | `worldquant/full-round/page.tsx`, `worldquant-full-round-app.tsx` | Năm non-certification round có hard deadline, rubric và English Web Speech tùy chọn; không lưu answer/audio |
-| `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Interview Loop v4 balanced/targeted 30/45/60 phút, hidden execution, scoped debrief, history và remediation |
+| `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Phỏng vấn thử v4 toàn diện/trọng tâm 30/45/60 phút, kiểm thử ẩn, tổng kết đúng phạm vi, lịch sử và kế hoạch ôn tiếp |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx` | Guide tick data/order book |
 | `/learn/cmake` | `learn/cmake/page.tsx`, `lib/learn/cmake-guide.ts` | Guide CMake target-based từ mental model tới CTest, packaging, CI và legacy migration |
 | `/stats` | `stats/page.tsx`, `fsrs-shadow-panel.tsx` | Analytics học tập và FSRS-6 shadow comparison |
 | `/admin` | `admin/page.tsx`, `admin-dashboard.tsx` | Review/edit/archive question, schedule, AI/job settings |
-| `/admin/coverage` | `admin/coverage/page.tsx` | Coverage Studio ưu tiên editorial gap theo concept và evidence kind |
+| `/admin/coverage` | `admin/coverage/page.tsx` | Mức bao phủ nội dung, ưu tiên phần học liệu còn thiếu theo khái niệm và loại bằng chứng |
 | `/auth/*` | `auth/{login,callback,logout}` | GitHub OAuth qua Supabase |
 
 API quan trọng:
@@ -163,8 +163,15 @@ thành Mission. Primary competency nằm trong mission identity; approved card c
 chỉ mở sau warm-up và
 sau khi durable exposure ledger đã ghi thành công. Browser thiếu Web Locks vẫn
 được luyện nhưng exposure fail closed thành non-verifying repeat. Training state
-mới chỉ ở localStorage theo account/local mode;
-không có migration hoặc cloud sync ngầm.
+mới chỉ ở localStorage theo account/local mode. Schema/key v2 sao chép một chiều
+từ khóa v1 khi khóa mới chưa tồn tại, không xóa hoặc ghi lại khóa cũ; không có
+cloud sync ngầm. Mission snapshot cũng dùng key/schema v2 nhưng không di chuyển
+v1: kế hoạch cũ bị bỏ qua và được dựng lại để không phục hồi drill revision đã
+lỗi thời.
+Danh mục bài luyện v2 chỉ tương đương v1 trên đường đọc lịch sử. Lượt hoàn tất
+mới, việc chuyển hoặc xác nhận điểm cần cải thiện và thống kê chọn năng lực ít
+được luyện đều dùng đúng phiên bản hiện hành; vòng phỏng vấn trộn phiên bản bị
+từ chối theo hướng an toàn.
 
 ### Practice repair và scheduler shadow
 

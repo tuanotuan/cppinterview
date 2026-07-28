@@ -20,9 +20,9 @@ import type { MissionMockCompletion } from "./worldquant-mission-app";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Today’s WorldQuant Mission — Recall",
+  title: "Nhiệm vụ WorldQuant hôm nay — Recall",
   description:
-    "Daily adaptive mission kết hợp due cards, repairs, scenario drill và mock checkpoint.",
+    "Nhiệm vụ thích ứng hằng ngày kết hợp thẻ đến hạn, phần cần sửa, bài luyện tình huống và phỏng vấn thử.",
 };
 
 export default async function WorldQuantMissionPage({

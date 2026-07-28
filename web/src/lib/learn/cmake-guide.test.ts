@@ -37,10 +37,10 @@ describe("CMake learning guide", () => {
       CMAKE_WORLDQUANT_OUTCOMES.map((item) => item.label),
     ).toEqual(
       expect.arrayContaining([
-        "Legacy ownership",
-        "Modern C++ platform",
-        "New feed onboarding",
-        "Software standards",
+        "Làm chủ hệ thống cũ",
+        "Nền tảng C++ hiện đại",
+        "Thêm nguồn dữ liệu mới",
+        "Tiêu chuẩn phần mềm",
       ]),
     );
   });

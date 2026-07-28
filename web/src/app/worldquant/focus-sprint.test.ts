@@ -81,7 +81,7 @@ describe("Focus Sprint Hub launch", () => {
     expect(result).toEqual({
       kind: "storage_error",
       message:
-        "Không lưu được Focus Sprint trong trình duyệt. Chưa chuyển sang Practice; hãy bật local storage rồi thử lại.",
+        "Không lưu được Phiên ôn tập trọng tâm trong trình duyệt. Hệ thống chưa chuyển sang phần luyện tập; hãy cho phép lưu dữ liệu trên thiết bị rồi thử lại.",
     });
   });
 

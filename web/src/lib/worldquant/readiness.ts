@@ -36,93 +36,93 @@ export const worldQuantCompetencies: Record<
 > = {
   modern_cpp: {
     key: "modern_cpp",
-    label: "Modern C++",
-    shortLabel: "Modern C++",
+    label: "C++ hiện đại",
+    shortLabel: "C++ hiện đại",
     description:
-      "Lifetime, ownership, type system, templates và các chuẩn C++11–23.",
+      "Vòng đời, quyền sở hữu, hệ thống kiểu, mẫu (template) và các chuẩn C++11–23.",
     practiceHref: "/?deck=cpp-interview",
     practiceLabel: "Luyện C++",
   },
   algorithms_data_structures: {
     key: "algorithms_data_structures",
-    label: "Algorithms & data structures",
-    shortLabel: "Algorithms",
+    label: "Thuật toán và cấu trúc dữ liệu",
+    shortLabel: "Thuật toán",
     description:
-      "Độ phức tạp, container, thuật toán và lựa chọn cấu trúc dữ liệu.",
+      "Độ phức tạp, cấu trúc chứa (container), thuật toán và cách lựa chọn cấu trúc dữ liệu.",
     practiceHref: "/?deck=cpp-interview",
-    practiceLabel: "Luyện algorithms",
+    practiceLabel: "Luyện thuật toán",
   },
   concurrency_memory: {
     key: "concurrency_memory",
-    label: "Concurrency & memory",
-    shortLabel: "Concurrency",
+    label: "Đồng thời và bộ nhớ",
+    shortLabel: "Lập trình đồng thời",
     description:
-      "Memory model, atomics, synchronization, races và ownership đa luồng.",
+      "Mô hình bộ nhớ, thao tác nguyên tử, đồng bộ, tranh chấp dữ liệu và quyền sở hữu đa luồng.",
     practiceHref: "/?deck=cpp-interview",
-    practiceLabel: "Luyện concurrency",
+    practiceLabel: "Luyện lập trình đồng thời",
   },
   performance_latency: {
     key: "performance_latency",
-    label: "Performance & latency",
-    shortLabel: "Performance",
+    label: "Hiệu năng và độ trễ",
+    shortLabel: "Hiệu năng",
     description:
-      "Allocation, cache, throughput, tail latency, profiling và benchmark.",
+      "Cấp phát bộ nhớ, bộ nhớ đệm, thông lượng, độ trễ đuôi, phân tích và đo hiệu năng.",
     practiceHref: "/?deck=cpp-interview",
-    practiceLabel: "Luyện performance",
+    practiceLabel: "Luyện hiệu năng",
   },
   linux_networking: {
     key: "linux_networking",
-    label: "Linux & networking",
-    shortLabel: "Linux / network",
+    label: "Linux và mạng",
+    shortLabel: "Linux / mạng",
     description:
-      "Unix/Linux, I/O, sockets, protocols và quan sát hệ thống production.",
+      "Unix/Linux, I/O, socket, giao thức và khả năng quan sát hệ thống thực tế.",
     practiceHref: "/?deck=cpp-interview",
-    practiceLabel: "Luyện systems",
+    practiceLabel: "Luyện hệ thống",
   },
   distributed_data_platform: {
     key: "distributed_data_platform",
-    label: "Distributed data platforms",
-    shortLabel: "Data platform",
+    label: "Nền tảng dữ liệu phân tán",
+    shortLabel: "Nền tảng dữ liệu",
     description:
-      "RPC, partitioning, replication, storage, streaming và backpressure.",
+      "RPC, phân vùng, sao chép, lưu trữ, xử lý luồng và kiểm soát quá tải.",
     practiceHref: "/?deck=cpp-interview",
-    practiceLabel: "Luyện data platform",
+    practiceLabel: "Luyện nền tảng dữ liệu",
   },
   tick_market_data: {
     key: "tick_market_data",
-    label: "Tick & market data",
-    shortLabel: "Tick data",
+    label: "Dữ liệu tick và dữ liệu thị trường",
+    shortLabel: "Dữ liệu tick",
     description:
-      "Feed sequencing, order book, replay, data quality và interval features.",
+      "Trình tự nguồn dữ liệu, sổ lệnh (order book), phát lại, chất lượng dữ liệu và đặc trưng theo khoảng thời gian.",
     practiceHref: "/learn/tick-data-order-book",
-    practiceLabel: "Học Tick data",
+    practiceLabel: "Học dữ liệu tick",
   },
   build_delivery: {
     key: "build_delivery",
-    label: "Build, testing & delivery",
-    shortLabel: "Build / delivery",
+    label: "Dựng, kiểm thử và phát hành",
+    shortLabel: "Dựng / phát hành",
     description:
-      "CMake, testing, sanitizers, CI/CD, Git và release discipline.",
+      "CMake, kiểm thử, công cụ phát hiện lỗi (sanitizer), CI/CD, Git và quy trình phát hành.",
     practiceHref: "/learn/cmake",
     practiceLabel: "Học CMake",
   },
   scripting_automation: {
     key: "scripting_automation",
-    label: "Scripting & automation",
-    shortLabel: "Scripting",
+    label: "Viết tập lệnh và tự động hóa",
+    shortLabel: "Tự động hóa",
     description:
-      "Python/Perl tooling, reconciliation, migration và vận hành dữ liệu.",
+      "Công cụ Python/Perl, đối soát, chuyển đổi và vận hành dữ liệu.",
     practiceHref: "/?deck=python-interview",
     practiceLabel: "Luyện Python",
   },
   ownership_communication: {
     key: "ownership_communication",
-    label: "Ownership & communication",
-    shortLabel: "Ownership",
+    label: "Tinh thần làm chủ và giao tiếp",
+    shortLabel: "Làm chủ công việc",
     description:
-      "Product ownership, incident thinking và phối hợp với researchers.",
+      "Chủ động chịu trách nhiệm về sản phẩm, xử lý sự cố và phối hợp với nhà nghiên cứu.",
     practiceHref: "/mock-interview",
-    practiceLabel: "Luyện qua mock",
+    practiceLabel: "Luyện qua phỏng vấn thử",
   },
 };
 
@@ -151,10 +151,10 @@ export const worldQuantRoleProfiles: readonly WorldQuantRoleProfile[] = [
   {
     id: "tick-data-platform",
     version: 1,
-    label: "Tick Data Platform Engineer",
-    eyebrow: "JD mục tiêu hiện tại",
+    label: "Kỹ sư nền tảng dữ liệu tick",
+    eyebrow: "Mô tả công việc mục tiêu hiện tại",
     summary:
-      "Modern C++, feed/order book, interval statistics, migration và phối hợp với research.",
+      "C++ hiện đại, nguồn dữ liệu và sổ lệnh, thống kê theo khoảng thời gian, chuyển đổi hệ thống và phối hợp nghiên cứu.",
     coreCompetencies: [
       "modern_cpp",
       "concurrency_memory",
@@ -189,10 +189,10 @@ export const worldQuantRoleProfiles: readonly WorldQuantRoleProfile[] = [
   {
     id: "cpp-data-platform",
     version: 1,
-    label: "C++ Data Platform Engineer",
-    eyebrow: "Distributed systems",
+    label: "Kỹ sư nền tảng dữ liệu C++",
+    eyebrow: "Hệ thống phân tán",
     summary:
-      "Storage/compute services, RPC, routing, partitioning, replication và Linux systems.",
+      "Dịch vụ lưu trữ/tính toán, RPC, định tuyến, phân vùng, sao chép và hệ thống Linux.",
     coreCompetencies: [
       "modern_cpp",
       "concurrency_memory",
@@ -227,10 +227,10 @@ export const worldQuantRoleProfiles: readonly WorldQuantRoleProfile[] = [
   {
     id: "low-latency-cpp",
     version: 1,
-    label: "Low-latency C++ Engineer",
-    eyebrow: "Performance systems",
+    label: "Kỹ sư C++ độ trễ thấp",
+    eyebrow: "Hệ thống hiệu năng cao",
     summary:
-      "High-throughput C++, memory/concurrency, networking, profiling và latency engineering.",
+      "C++ thông lượng cao, bộ nhớ/lập trình đồng thời, mạng, phân tích hiệu năng và kỹ thuật tối ưu độ trễ.",
     coreCompetencies: [
       "modern_cpp",
       "concurrency_memory",
@@ -265,10 +265,10 @@ export const worldQuantRoleProfiles: readonly WorldQuantRoleProfile[] = [
   {
     id: "senior-cpp-platform",
     version: 1,
-    label: "Senior C++ Platform Engineer",
-    eyebrow: "Broad platform ownership",
+    label: "Kỹ sư nền tảng C++ cấp cao",
+    eyebrow: "Làm chủ nền tảng toàn diện",
     summary:
-      "C++ design depth, production systems, delivery quality và technical ownership.",
+      "Thiết kế C++ chuyên sâu, hệ thống thực tế, chất lượng phát hành và tinh thần làm chủ kỹ thuật.",
     coreCompetencies: [
       "modern_cpp",
       "concurrency_memory",

@@ -10,6 +10,10 @@ import type {
 } from "@/lib/admin/dashboard";
 import { displayQuestionPrompt } from "@/lib/content/question-prompt";
 import type { EditableQuestionContent } from "@/lib/content/question-overrides";
+import {
+  questionTypeLabels,
+  taxonomyTopicLabel,
+} from "@/lib/content/user-facing-labels";
 import type {
   AiUsageSummary,
   ContentGenerationJobSummary,
@@ -46,6 +50,50 @@ const learningLabels = {
   review: "Ôn tập",
   relearning: "Học lại",
 } as const;
+
+const generationStatusLabels: Record<
+  ContentGenerationJobSummary["status"],
+  string
+> = {
+  pending: "Đang chờ",
+  running: "Đang chạy",
+  deferred: "Tạm hoãn",
+  completed: "Hoàn tất",
+  failed: "Thất bại",
+  dead_letter: "Cần xử lý thủ công",
+};
+
+const generationErrorLabels: Record<string, string> = {
+  generation_failed: "Không tạo được nội dung",
+  invalid_provider_json: "Dữ liệu AI trả về sai định dạng",
+  invalid_provider_output: "Nội dung AI trả về không hợp lệ",
+  provider_rate_limit: "Nhà cung cấp AI đang giới hạn yêu cầu",
+  stale_manifest: "Danh mục nội dung đã thay đổi",
+  stale_source: "Nguồn học liệu đã thay đổi",
+  storage_failure: "Không lưu được nội dung",
+};
+
+const mistakeStatusLabels: Record<
+  MistakeFlashcardCandidate["status"],
+  string
+> = {
+  detected: "Đã phát hiện",
+  needs_grounding: "Cần bổ sung nguồn",
+  generating: "Đang tạo thẻ",
+  pending_review: "Chờ duyệt",
+  approved: "Đã duyệt",
+  reinforce_existing: "Dùng câu đã có",
+  dismissed: "Đã bỏ qua",
+  failed: "Tạo thẻ thất bại",
+  dead_letter: "Cần xử lý thủ công",
+};
+
+const reviewRatingLabels: Record<string, string> = {
+  again: "Chưa nhớ",
+  hard: "Khó",
+  good: "Ổn",
+  easy: "Dễ",
+};
 type ScheduleAction = "suspend" | "unsuspend" | "reset" | "reschedule";
 
 export function AdminDashboard({
@@ -212,7 +260,28 @@ export function AdminDashboard({
       );
     }).length,
     repeated: visibleMistakes.filter((item) => item.occurrenceCount > 1).length,
-  };
+};
+
+function mistakeErrorMessage(code: string) {
+  return (
+    {
+      authentication_required: "Vui lòng đăng nhập lại.",
+      invalid_request: "Dữ liệu gửi đi không hợp lệ.",
+      question_store_unavailable: "Ngân hàng câu hỏi tạm thời chưa sẵn sàng.",
+      migration_required: "Supabase chưa được cài đặt dữ liệu cần thiết.",
+      ai_quota_exceeded: "Đã hết hạn mức AI. Vui lòng thử lại sau.",
+      all_ai_quotas_exceeded:
+        "Tất cả nguồn AI đều đã hết hạn mức. Vui lòng thử lại sau.",
+      daily_budget_exceeded:
+        "Đã hết hạn mức AI trong ngày. Vui lòng thử lại sau.",
+      generation_failed: "AI chưa tạo được thẻ ghi nhớ.",
+      history_unavailable: "Lịch sử phỏng vấn tạm thời chưa sẵn sàng.",
+      monthly_budget_exceeded:
+        "Đã hết hạn mức AI trong tháng. Vui lòng thử lại sau.",
+      quota: "Đã hết hạn mức AI. Vui lòng thử lại sau.",
+    }[code] ?? "Không hoàn tất được thao tác. Vui lòng thử lại."
+  );
+}
 
   async function saveMistakeMode(mode: MistakeGenerationMode) {
     const previous = mistakeMode;
@@ -224,7 +293,7 @@ export function AdminDashboard({
     });
     if (!response.ok) {
       setMistakeMode(previous);
-      setNotice("Không lưu được chế độ Mistake → flashcard.");
+      setNotice("Không lưu được chế độ chuyển lỗi thành thẻ ghi nhớ.");
     }
   }
 
@@ -242,12 +311,12 @@ export function AdminDashboard({
         error?: string;
       };
       if (!response.ok) throw new Error(payload.error ?? "generation_failed");
-      setNotice("Đã tạo thẻ sửa lỗi và đưa vào Review Queue.");
+      setNotice("Đã tạo thẻ sửa lỗi và đưa vào danh sách chờ duyệt.");
       window.location.reload();
     } catch (error) {
       setNotice(
         error instanceof Error
-          ? `Không tạo được thẻ: ${error.message}`
+          ? `Không tạo được thẻ: ${mistakeErrorMessage(error.message)}`
           : "Không tạo được thẻ sửa lỗi.",
       );
     } finally {
@@ -261,7 +330,7 @@ export function AdminDashboard({
   ) {
     const matchedQuestionId =
       action === "reinforce_existing"
-        ? window.prompt("Nhập question ID đã có để tăng cường:")
+        ? window.prompt("Nhập ID của câu hỏi đã có để tăng cường:")
         : null;
     if (action === "reinforce_existing" && !matchedQuestionId) return;
     setMistakeSavingId(candidateId);
@@ -284,7 +353,7 @@ export function AdminDashboard({
         ),
       );
     } else {
-      setNotice("Không cập nhật được mistake candidate.");
+      setNotice("Không cập nhật được lỗi đang chờ xử lý.");
     }
     setMistakeSavingId(null);
   }
@@ -299,20 +368,28 @@ export function AdminDashboard({
     };
     setMistakeBackfilling(false);
     if (!response.ok) {
-      setNotice(`Không khôi phục được history: ${payload.error ?? "unknown"}`);
+      setNotice(
+        `Không khôi phục được lịch sử: ${
+          payload.error
+            ? mistakeErrorMessage(payload.error)
+            : "lỗi không xác định"
+        }`,
+      );
       return;
     }
     setNotice(
-      `Đã quét ${payload.attemptsScanned ?? 0} mock v4 và khôi phục ${payload.observations ?? 0} observation mới.`,
+      `Đã quét ${payload.attemptsScanned ?? 0} buổi phỏng vấn và khôi phục ${
+        payload.observations ?? 0
+      } lỗi mới.`,
     );
     window.location.reload();
   }
 
   async function groundMistake(candidateId: string) {
-    const lessonId = window.prompt("Lesson ID dùng làm nguồn:");
+    const lessonId = window.prompt("ID bài học dùng làm nguồn:");
     if (!lessonId) return;
     const sections = window.prompt(
-      "Section IDs, phân cách bằng dấu phẩy:",
+      "Các ID mục nội dung, phân cách bằng dấu phẩy:",
     );
     if (!sections) return;
     setMistakeSavingId(candidateId);
@@ -330,7 +407,9 @@ export function AdminDashboard({
     });
     setMistakeSavingId(null);
     if (!response.ok) {
-      setNotice("Nguồn không hợp lệ hoặc section không thuộc lesson hiện tại.");
+      setNotice(
+        "Nguồn không hợp lệ hoặc mục nội dung không thuộc bài học hiện tại.",
+      );
       return;
     }
     setMistakeCandidates((items) =>
@@ -340,7 +419,7 @@ export function AdminDashboard({
           : item,
       ),
     );
-    setNotice("Đã bổ sung nguồn. Candidate sẵn sàng tạo flashcard.");
+    setNotice("Đã bổ sung nguồn. Lỗi này đã sẵn sàng để tạo thẻ ghi nhớ.");
   }
 
   async function approve(questionIds: string[]) {
@@ -402,14 +481,14 @@ export function AdminDashboard({
       setGeminiFallbackEnabled(payload.geminiFallbackEnabled);
       setNotice(
         payload.geminiFallbackEnabled
-          ? "Đã bật Gemini Free fallback."
-          : "Đã tắt Gemini Free fallback.",
+          ? "Đã bật Gemini miễn phí làm phương án dự phòng."
+          : "Đã tắt Gemini miễn phí làm phương án dự phòng.",
       );
     } catch (error) {
       setNotice(
         error instanceof Error
           ? error.message
-          : "Không lưu được cấu hình Gemini fallback.",
+          : "Không lưu được cấu hình Gemini dự phòng.",
       );
     } finally {
       setGeminiSettingSaving(false);
@@ -427,7 +506,7 @@ export function AdminDashboard({
       });
       const payload = (await response.json()) as { status?: string; error?: string };
       if (!response.ok || payload.status !== "pending") {
-        throw new Error(payload.error || "Không retry được generation job.");
+        throw new Error(payload.error || "Không thể chạy lại tác vụ tạo nội dung.");
       }
       setGenerationJobs((current) =>
         current.map((job) =>
@@ -436,10 +515,14 @@ export function AdminDashboard({
             : job,
         ),
       );
-      setNotice("Đã đưa job về pending; workflow kế tiếp sẽ chạy lại.");
+      setNotice(
+        "Đã đưa tác vụ về trạng thái chờ; hệ thống sẽ tự chạy lại ở lượt xử lý tiếp theo.",
+      );
     } catch (error) {
       setNotice(
-        error instanceof Error ? error.message : "Không retry được generation job.",
+        error instanceof Error
+          ? error.message
+          : "Không thể chạy lại tác vụ tạo nội dung.",
       );
     } finally {
       setRetryingJobId(null);
@@ -581,8 +664,9 @@ export function AdminDashboard({
         ),
       );
       const actionLabel = {
-        edit: "Đã lưu bản sửa; câu hỏi được đưa lại vào queue để duyệt.",
-        archive: "Đã archive; lịch sử ôn và AI attempt vẫn được giữ.",
+        edit: "Đã lưu bản sửa; câu hỏi được đưa lại vào danh sách chờ duyệt.",
+        archive:
+          "Đã lưu trữ; lịch sử ôn và các lần dùng AI vẫn được giữ nguyên.",
         restore: "Đã khôi phục câu hỏi vào ngân hàng.",
       }[action];
       setNotice(`${actionLabel} (${question.id})`);
@@ -607,19 +691,21 @@ export function AdminDashboard({
               R
             </div>
             <div>
-              <p className="text-lg font-bold">Recall Admin</p>
-              <p className="text-xs text-[#64736c]">Content & learning operations</p>
+              <p className="text-lg font-bold">Quản trị Recall</p>
+              <p className="text-xs text-[#64736c]">
+                Quản lý nội dung và hoạt động học tập
+              </p>
             </div>
           </div>
           <nav className="flex flex-wrap items-center gap-2">
             <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/admin/coverage">
-              Coverage Studio
+              Mức bao phủ nội dung
             </Link>
             <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/worldquant">
-              WQ Hub
+              Trung tâm chuẩn bị
             </Link>
             <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/learn/tick-data-order-book">
-              Học Tick data
+              Học dữ liệu tick
             </Link>
             <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/learn/cmake">
               Học CMake
@@ -628,10 +714,10 @@ export function AdminDashboard({
               Thống kê
             </Link>
             <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/mock-interview">
-              Mock interview
+              Phỏng vấn thử
             </Link>
             <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/">
-              Luyện tập
+              Luyện thẻ
             </Link>
             <span className="rounded-full border border-[#173f35]/15 bg-white/65 px-4 py-2 text-xs font-semibold">
               @{account.login ?? account.displayName}
@@ -654,7 +740,10 @@ export function AdminDashboard({
                 Quản lý Recall
               </h1>
               <p className="mt-3 text-[#64736c]">
-                Revision <span className="font-mono">{initialSnapshot.sourceRevision.slice(0, 10)}</span>
+                Phiên bản nguồn{" "}
+                <span className="font-mono">
+                  {initialSnapshot.sourceRevision.slice(0, 10)}
+                </span>
               </p>
             </div>
           </div>
@@ -668,16 +757,16 @@ export function AdminDashboard({
         <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
           <MetricCard label="Nguồn tri thức" value={initialSnapshot.metrics.lessons} detail={`${uncovered.length} bài chưa có câu hiện tại`} tone="dark" />
           <MetricCard label="Ngân hàng câu hỏi" value={questions.filter((item) => item.status !== "archived").length} detail={`${activeCount} câu đang dùng`} />
-          <MetricCard label="Review queue" value={reviewQueue.length} detail={`${staleCount} câu cần rà lại nguồn`} tone={reviewQueue.length ? "warning" : "default"} />
+          <MetricCard label="Danh sách chờ duyệt" value={reviewQueue.length} detail={`${staleCount} câu cần rà lại nguồn`} tone={reviewQueue.length ? "warning" : "default"} />
           <MetricCard label="Lượt ôn đã lưu" value={totalReviewCount} detail={`${practicedCount} câu đã từng luyện`} />
           <MetricCard
-            label="AI web tháng này"
+            label="AI trên trang web tháng này"
             value={`$${((aiUsage?.actualUsdMicros ?? 0) / 1_000_000).toFixed(3)}`}
-            detail={`${aiUsage?.requestCount ?? 0} lượt web · OpenAI Billing + realtime`}
+            detail={`${aiUsage?.requestCount ?? 0} lượt trên web · chi phí OpenAI được cập nhật tức thời`}
             tone={(aiUsage?.actualUsdMicros ?? 0) >= 4_000_000 ? "warning" : "default"}
           />
           <MetricCard
-            label="Gemini fallback hôm nay"
+            label="Gemini dự phòng hôm nay"
             value={geminiUsage?.requestCount ?? 0}
             detail={`${geminiUsage?.totalTokens ?? 0} token · ${geminiUsage?.lastModel ?? "chưa dùng"}`}
           />
@@ -685,9 +774,10 @@ export function AdminDashboard({
 
         <section className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#173f35]/15 bg-white/65 px-5 py-4">
           <div>
-            <p className="text-sm font-bold">Gemini Free fallback</p>
+            <p className="text-sm font-bold">Gemini miễn phí dự phòng</p>
             <p className="mt-1 text-xs leading-5 text-[#64736c]">
-              Chỉ dùng khi quota ngày/tháng của OpenAI đã hết; không dùng cho lỗi OpenAI thông thường.
+              Chỉ dùng khi đã hết hạn mức OpenAI theo ngày hoặc tháng; không
+              dùng cho các lỗi OpenAI thông thường.
             </p>
           </div>
           <button
@@ -713,13 +803,15 @@ export function AdminDashboard({
         <details className="group mt-4 overflow-hidden rounded-2xl border border-[#173f35]/15 bg-white/65">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4">
             <div>
-              <p className="text-sm font-bold">DB-native generation pipeline</p>
+              <p className="text-sm font-bold">
+                Quy trình tạo nội dung trực tiếp từ cơ sở dữ liệu
+              </p>
               <p className="mt-1 text-xs text-[#64736c]">
-                {generationJobs.filter((job) => ["pending", "running", "deferred"].includes(job.status)).length} job đang chờ/chạy · {generationJobs.filter((job) => ["failed", "dead_letter"].includes(job.status)).length} job cần xử lý
+                {generationJobs.filter((job) => ["pending", "running", "deferred"].includes(job.status)).length} tác vụ đang chờ hoặc đang chạy · {generationJobs.filter((job) => ["failed", "dead_letter"].includes(job.status)).length} tác vụ cần xử lý
               </p>
             </div>
             <span className="text-xs font-bold text-[#356b58]">
-              <span className="group-open:hidden">Xem pipeline ↓</span>
+              <span className="group-open:hidden">Xem quy trình ↓</span>
               <span className="hidden group-open:inline">Thu gọn ↑</span>
             </span>
           </summary>
@@ -735,8 +827,11 @@ export function AdminDashboard({
                     <div className="min-w-0">
                       <p className="truncate font-mono text-xs font-bold">#{job.id} · {job.lessonId}</p>
                       <p className="mt-1 text-xs text-[#64736c]">
-                        {job.status} · lần {job.attemptCount}/5 · {job.provider}/{job.model}
-                        {errorCode ? ` · ${errorCode}` : ""}
+                        {generationStatusLabels[job.status]} · lần{" "}
+                        {job.attemptCount}/5 · {job.provider}/{job.model}
+                        {errorCode
+                          ? ` · ${generationErrorLabels[errorCode] ?? "Lỗi chưa được nhận diện"}`
+                          : ""}
                       </p>
                     </div>
                     {retryable ? (
@@ -746,7 +841,7 @@ export function AdminDashboard({
                         onClick={() => void retryGenerationJob(job.id)}
                         className="rounded-xl border border-[#ba4b2f]/25 bg-white px-3 py-2 text-xs font-bold text-[#8e3825] disabled:opacity-50"
                       >
-                        {retryingJobId === job.id ? "Đang retry…" : "Retry"}
+                        {retryingJobId === job.id ? "Đang chạy lại…" : "Chạy lại"}
                       </button>
                     ) : null}
                   </div>
@@ -754,7 +849,8 @@ export function AdminDashboard({
               })}
               {!generationJobs.length ? (
                 <p className="rounded-xl border border-dashed border-[#173f35]/15 px-4 py-6 text-center text-sm text-[#64736c]">
-                  Chưa có generation job; lesson mới hoặc đổi nguồn sẽ tự tạo job.
+                  Chưa có tác vụ tạo nội dung; bài học mới hoặc nguồn thay đổi
+                  sẽ tự tạo tác vụ.
                 </p>
               ) : null}
             </div>
@@ -772,30 +868,32 @@ export function AdminDashboard({
               </span>
               <div>
                 <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
-                  Mistake → flashcard
+                  Lỗi sai → thẻ ghi nhớ
                 </p>
-                <h2 className="mt-1 text-xl font-semibold">Mistake Inbox</h2>
+                <h2 className="mt-1 text-xl font-semibold">Hộp lỗi cần ôn</h2>
                 <p className="mt-1 text-xs text-[#64736c]">
                   {mistakeFunnel.generated} đã tạo · {mistakeFunnel.approved} đã duyệt · {mistakeFunnel.firstReviewed} đã ôn · {mistakeFunnel.resolved} đạt 21 ngày · {mistakeFunnel.repeated} lỗi lặp lại
                 </p>
               </div>
             </div>
             <span className="text-xs font-bold text-[#356b58]">
-              <span className="group-open:hidden">Xem inbox ↓</span>
+              <span className="group-open:hidden">Xem hộp lỗi ↓</span>
               <span className="hidden group-open:inline">Thu gọn ↑</span>
             </span>
           </summary>
           <div className="border-t border-[#356b58]/15 px-5 py-6 sm:px-7">
             {!mistakeQueueAvailable ? (
               <p className="rounded-xl border border-[#ba4b2f]/20 bg-[#fff4df] p-4 text-sm text-[#8e3825]">
-                Chưa chạy migration Mistake → flashcard trong Supabase.
+                Chưa cài đặt dữ liệu chuyển lỗi thành thẻ ghi nhớ trong
+                Supabase.
               </p>
             ) : (
               <>
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <p className="max-w-2xl text-sm text-[#64736c]">
-                    Chỉ lỗi đã lưu bền vững từ AI Coach hoặc Mock v4 mới vào đây.
-                    AI tạo draft có nguồn; mày vẫn duyệt câu trước khi lịch Anki dùng nó.
+                    Chỉ những lỗi đã được lưu từ trợ lý AI hoặc buổi phỏng vấn
+                    thử mới xuất hiện ở đây. AI tạo bản nháp có nguồn; quản trị
+                    viên vẫn cần duyệt câu trước khi đưa vào lịch ôn.
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
                     <button
@@ -804,7 +902,9 @@ export function AdminDashboard({
                       onClick={() => void backfillMistakes()}
                       className="rounded-xl border border-[#173f35]/15 bg-white px-3 py-2 text-xs font-bold disabled:opacity-50"
                     >
-                      {mistakeBackfilling ? "Đang quét…" : "Khôi phục từ Mock history"}
+                      {mistakeBackfilling
+                        ? "Đang quét…"
+                        : "Khôi phục từ lịch sử phỏng vấn"}
                     </button>
                     <label className="flex items-center gap-2 text-xs font-bold">
                       Khi phát hiện lỗi
@@ -818,8 +918,8 @@ export function AdminDashboard({
                         className="rounded-xl border border-[#173f35]/15 bg-white px-3 py-2"
                       >
                         <option value="ask">Hỏi trước khi tạo</option>
-                        <option value="auto">Tự tạo vào queue</option>
-                        <option value="off">Tắt capture</option>
+                        <option value="auto">Tự tạo vào danh sách chờ</option>
+                        <option value="off">Không lưu lỗi</option>
                       </select>
                     </label>
                   </div>
@@ -832,21 +932,26 @@ export function AdminDashboard({
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <span className="rounded-full bg-[#e7eee3] px-3 py-1 font-mono text-[10px] font-bold uppercase">
-                          {candidate.status.replace("_", " ")}
+                          {mistakeStatusLabels[candidate.status]}
                         </span>
                         <span className="font-mono text-[10px] text-[#64736c]">
-                          {candidate.sourceKind} · x{candidate.occurrenceCount}
+                          {candidate.sourceKind === "coach"
+                            ? "Trợ lý AI"
+                            : "Phỏng vấn thử"}{" "}
+                          · {candidate.occurrenceCount} lần
                         </span>
                       </div>
                       <h3 className="mt-4 font-semibold leading-6">
                         {candidate.criterionText}
                       </h3>
                       <p className="mt-2 break-all font-mono text-[10px] text-[#64736c]">
-                        {candidate.sourceQuestionId} · {candidate.lessonId ?? "chưa có nguồn lesson"}
+                        {candidate.sourceQuestionId} ·{" "}
+                        {candidate.lessonId ?? "chưa có bài học nguồn"}
                       </p>
                       {candidate.lastErrorCode ? (
                         <p className="mt-2 text-xs text-[#a3321f]">
-                          Lỗi gần nhất: {candidate.lastErrorCode}
+                          Lỗi gần nhất:{" "}
+                          {mistakeErrorMessage(candidate.lastErrorCode)}
                         </p>
                       ) : null}
                       <div className="mt-4 flex flex-wrap gap-2">
@@ -859,7 +964,7 @@ export function AdminDashboard({
                           >
                             {mistakeSavingId === candidate.id
                               ? "Đang tạo…"
-                              : "Tạo flashcard"}
+                              : "Tạo thẻ ghi nhớ"}
                           </button>
                         ) : null}
                         {candidate.status === "needs_grounding" ? (
@@ -869,7 +974,7 @@ export function AdminDashboard({
                             onClick={() => void groundMistake(candidate.id)}
                             className="rounded-xl bg-[#fff4df] px-3 py-2 text-xs font-bold text-[#8e3825]"
                           >
-                            Bổ sung lesson nguồn
+                            Bổ sung bài học nguồn
                           </button>
                         ) : null}
                         {candidate.materializedQuestionId ? (
@@ -914,8 +1019,9 @@ export function AdminDashboard({
                   ))}
                   {!visibleMistakes.length ? (
                     <p className="rounded-2xl border border-dashed border-[#356b58]/25 p-8 text-center text-sm text-[#64736c] lg:col-span-2">
-                      Chưa có lỗi đủ điều kiện. Rating Again/Hard sau AI Coach hoặc
-                      hoàn tất Mock v4 sẽ tạo candidate.
+                      Chưa có lỗi đủ điều kiện. Khi bạn chọn “Chưa nhớ” hoặc
+                      “Khó” sau phản hồi của AI, hay hoàn tất một buổi phỏng
+                      vấn thử, hệ thống sẽ ghi nhận lỗi cần ôn.
                     </p>
                   ) : null}
                 </div>
@@ -932,7 +1038,7 @@ export function AdminDashboard({
               </span>
               <div className="min-w-0">
                 <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
-                  Review queue
+                  Danh sách chờ duyệt
                 </p>
                 <h2 className="mt-1 truncate text-xl font-semibold">
                   Danh sách chờ duyệt
@@ -949,13 +1055,14 @@ export function AdminDashboard({
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="max-w-2xl">
                 <p className="text-sm text-[#64736c]">
-                  Mở từng câu để đối chiếu đáp án, rubric và nguồn trước khi đưa vào lịch luyện.
+                  Mở từng câu để đối chiếu đáp án, tiêu chí chấm và nguồn trước
+                  khi đưa vào lịch luyện.
                 </p>
                 <Link
                   href="/learn/tick-data-order-book"
                   className="mt-2 inline-flex text-xs font-bold text-[#356b58] underline decoration-[#79b82a]/60 underline-offset-4"
                 >
-                  Chưa có nền Tick data? Đọc bài nhập môn trước →
+                  Chưa có nền tảng về dữ liệu tick? Đọc bài nhập môn trước →
                 </Link>
               </div>
               {reviewQueue.length ? (
@@ -981,7 +1088,7 @@ export function AdminDashboard({
               ))}
               {!reviewQueue.length ? (
                 <div className="rounded-2xl border border-dashed border-[#356b58]/25 bg-white/45 px-5 py-10 text-center text-sm text-[#52645c] lg:col-span-2">
-                  Queue đã sạch — không có câu nào cần duyệt.
+                  Danh sách đã trống — không có câu nào cần duyệt.
                 </div>
               ) : null}
             </div>
@@ -993,7 +1100,7 @@ export function AdminDashboard({
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#356b58] uppercase">
-                  Question bank
+                  Ngân hàng câu hỏi
                 </p>
                 <h2 className="mt-2 text-2xl font-semibold">Ngân hàng câu hỏi</h2>
               </div>
@@ -1013,12 +1120,12 @@ export function AdminDashboard({
                 setDeck(value);
                 setStandard("all");
                 setTopic("all");
-              }} label="Deck" options={[["all", "Mọi deck"], ["cpp-interview", "C++ Interview"], ["python-interview", "Python Interview"]]} />
-              <Filter value={standard} onChange={setStandard} label="Track" options={[['all', 'Mọi track'], ['cpp98', 'C++98'], ['cpp11', 'C++11'], ['cpp20', 'C++20'], ['python3', 'Python 3']]} />
-              <Filter value={status} onChange={setStatus} label="Trạng thái" options={[['current', 'Chưa archive'], ['all', 'Mọi trạng thái'], ['active', 'Đang dùng'], ['pending', 'Chờ duyệt'], ['stale', 'Nguồn đã đổi'], ['archived', 'Đã lưu trữ']]} />
-              <Filter value={type} onChange={setType} label="Loại câu" options={[['all', 'Mọi loại'], ['recall', 'Recall'], ['code_reasoning', 'Code reasoning'], ['pitfall', 'Pitfall'], ['scenario', 'Scenario']]} />
-              <Filter value={learningFilter} onChange={setLearningFilter} label="Trạng thái học" options={[['all', 'Mọi trạng thái học'], ['new', 'Mới'], ['learning', 'Đang học'], ['review', 'Ôn tập'], ['relearning', 'Học lại'], ['due', 'Đến hạn'], ['suspended', 'Tạm dừng'], ['leech', 'Leech']]} />
-              <Filter value={topic} onChange={setTopic} label="Topic" options={[['all', 'Mọi topic'], ...topics.map((item): [string, string] => [item, item])]} />
+              }} label="Bộ thẻ" options={[["all", "Mọi bộ thẻ"], ["cpp-interview", "Phỏng vấn C++"], ["python-interview", "Phỏng vấn Python"]]} />
+              <Filter value={standard} onChange={setStandard} label="Lộ trình" options={[['all', 'Mọi lộ trình'], ['cpp98', 'C++98'], ['cpp11', 'C++11'], ['cpp20', 'C++20'], ['python3', 'Python 3']]} />
+              <Filter value={status} onChange={setStatus} label="Trạng thái" options={[['current', 'Chưa lưu trữ'], ['all', 'Mọi trạng thái'], ['active', 'Đang dùng'], ['pending', 'Chờ duyệt'], ['stale', 'Nguồn đã đổi'], ['archived', 'Đã lưu trữ']]} />
+              <Filter value={type} onChange={setType} label="Loại câu" options={[['all', 'Mọi loại'], ['recall', 'Ghi nhớ'], ['code_reasoning', 'Phân tích mã'], ['pitfall', 'Bẫy thường gặp'], ['scenario', 'Tình huống']]} />
+              <Filter value={learningFilter} onChange={setLearningFilter} label="Trạng thái học" options={[['all', 'Mọi trạng thái học'], ['new', 'Mới'], ['learning', 'Đang học'], ['review', 'Ôn tập'], ['relearning', 'Học lại'], ['due', 'Đến hạn'], ['suspended', 'Tạm dừng'], ['leech', 'Câu khó nhớ']]} />
+              <Filter value={topic} onChange={setTopic} label="Chủ đề" options={[['all', 'Mọi chủ đề'], ...topics.map((item): [string, string] => [item, taxonomyTopicLabel(item)])]} />
             </div>
 
             <div className="mt-6 space-y-3">
@@ -1048,7 +1155,7 @@ export function AdminDashboard({
             <CoveragePanel lessons={lessonCoverage} />
             <div className="rounded-[2rem] bg-[#173f35] p-6 text-white">
               <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
-                Learning health
+                Tình trạng học tập
               </p>
               <div className="mt-5 grid grid-cols-2 gap-3">
                 <SmallStat label="Đến hạn" value={currentDueCount} />
@@ -1059,14 +1166,15 @@ export function AdminDashboard({
             </div>
             <div className="rounded-[2rem] border border-[#173f35]/15 bg-white/65 p-6">
               <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
-                Operations
+                Vận hành
               </p>
               <div className="mt-4 grid gap-2 text-sm font-bold">
                 <a className="rounded-xl bg-white px-4 py-3 hover:bg-[#edf0e8]" href="https://github.com/tuanotuan/modern-cpp-features/actions" target="_blank" rel="noreferrer">GitHub Actions ↗</a>
-                <a className="rounded-xl bg-white px-4 py-3 hover:bg-[#edf0e8]" href="https://github.com/tuanotuan/modern-cpp-features" target="_blank" rel="noreferrer">Source repository ↗</a>
+                <a className="rounded-xl bg-white px-4 py-3 hover:bg-[#edf0e8]" href="https://github.com/tuanotuan/modern-cpp-features" target="_blank" rel="noreferrer">Kho mã nguồn ↗</a>
               </div>
               <p className="mt-4 text-xs leading-5 text-[#64736c]">
-                Bản sửa và archive được lưu như overlay trong Supabase. Note và câu gốc trên GitHub vẫn giữ nguyên để đối chiếu.
+                Bản sửa và trạng thái lưu trữ được ghi đè trong Supabase. Ghi
+                chú và câu gốc trên GitHub vẫn được giữ để đối chiếu.
               </p>
             </div>
           </aside>
@@ -1086,7 +1194,7 @@ function QueueReviewCard({ question, saving, onApprove }: { question: AdminQuest
             {standardLabels[question.standard]}
           </span>
           <span className="rounded-full bg-[#edf0e8] px-2.5 py-1 font-mono text-[10px] font-bold uppercase">
-            {question.type.replace("_", " ")}
+            {questionTypeLabels[question.type]}
           </span>
         </div>
         <button
@@ -1106,7 +1214,9 @@ function QueueReviewCard({ question, saving, onApprove }: { question: AdminQuest
       </p>
       <details className="group mt-4 border-t border-[#173f35]/10 pt-4">
         <summary className="cursor-pointer list-none text-xs font-bold text-[#356b58]">
-          <span className="group-open:hidden">Xem đáp án, rubric và nguồn ↓</span>
+          <span className="group-open:hidden">
+            Xem đáp án, tiêu chí chấm và nguồn ↓
+          </span>
           <span className="hidden group-open:inline">Thu gọn ↑</span>
         </summary>
         <div className="mt-4">
@@ -1146,7 +1256,7 @@ function QuestionCard({
             <StatusBadge status={question.adminStatus} />
             <LearningBadge question={question} />
             <span className="rounded-full bg-[#edf0e8] px-2.5 py-1 font-mono text-[10px] font-bold uppercase">{standardLabels[question.standard]}</span>
-            <span className="rounded-full bg-[#edf0e8] px-2.5 py-1 font-mono text-[10px] font-bold uppercase">{question.type.replace('_', ' ')}</span>
+            <span className="rounded-full bg-[#edf0e8] px-2.5 py-1 font-mono text-[10px] font-bold uppercase">{questionTypeLabels[question.type]}</span>
           </div>
           <h3 className="mt-3 font-semibold leading-6">
             {displayQuestionPrompt(question)}
@@ -1177,7 +1287,7 @@ function QuestionCard({
                 onClick={() => {
                   if (
                     window.confirm(
-                      "Đặt câu này về New và xóa toàn bộ lịch sử review của riêng câu này?",
+                      "Đặt câu này về trạng thái Mới và xóa toàn bộ lịch sử ôn riêng của câu này?",
                     )
                   ) {
                     onManage("reset");
@@ -1185,7 +1295,7 @@ function QuestionCard({
                 }}
                 className="rounded-xl border border-[#ba4b2f]/25 bg-white px-3 py-2 text-xs font-bold text-[#8e3825] disabled:opacity-50"
               >
-                Reset thành New
+                Đặt lại thành câu mới
               </button>
               {question.learning.state !== "new" ? (
                 <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
@@ -1215,7 +1325,7 @@ function QuestionCard({
                 onClick={() => setEditing((current) => !current)}
                 className="rounded-xl border border-[#173f35]/20 bg-white px-3 py-2 text-xs font-bold text-[#356b58] disabled:opacity-50"
               >
-                {editing ? "Đóng form sửa" : "Chỉnh sửa"}
+                {editing ? "Đóng biểu mẫu chỉnh sửa" : "Chỉnh sửa"}
               </button>
               <button
                 type="button"
@@ -1223,7 +1333,7 @@ function QuestionCard({
                 onClick={() => {
                   if (
                     window.confirm(
-                      "Archive câu hỏi này? Nó sẽ biến mất khỏi lịch luyện nhưng lịch sử ôn và AI attempt vẫn được giữ.",
+                      "Lưu trữ câu hỏi này? Câu hỏi sẽ biến mất khỏi lịch luyện nhưng lịch sử ôn và các lần dùng AI vẫn được giữ.",
                     )
                   ) {
                     void onMutate("archive");
@@ -1231,7 +1341,7 @@ function QuestionCard({
                 }}
                 className="rounded-xl border border-[#ba4b2f]/30 bg-white px-3 py-2 text-xs font-bold text-[#8e3825] disabled:opacity-50"
               >
-                Xóa (archive)
+                Lưu trữ
               </button>
             </>
           ) : question.archivedByOwner ? (
@@ -1245,7 +1355,7 @@ function QuestionCard({
             </button>
           ) : (
             <span className="rounded-xl bg-[#edf0e8] px-3 py-2 text-xs font-bold text-[#64736c]">
-              Archived từ repository
+              Đã lưu trữ từ kho mã nguồn
             </span>
           )}
         </div>
@@ -1331,10 +1441,10 @@ function QuestionEditor({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
-            Question editor
+            Trình sửa câu hỏi
           </p>
           <p className="mt-1 text-sm text-[#64736c]">
-            Lưu sẽ tăng version và yêu cầu duyệt lại câu hỏi.
+            Khi lưu, hệ thống sẽ tăng phiên bản và yêu cầu duyệt lại câu hỏi.
           </p>
         </div>
         <span className="font-mono text-xs text-[#64736c]">
@@ -1347,23 +1457,23 @@ function QuestionEditor({
           value={type}
           onChange={(value) => setType(value as typeof type)}
           options={[
-            ["recall", "Recall"],
-            ["code_reasoning", "Code reasoning"],
-            ["pitfall", "Pitfall"],
-            ["scenario", "Scenario"],
+            ["recall", "Ghi nhớ"],
+            ["code_reasoning", "Phân tích mã"],
+            ["pitfall", "Bẫy thường gặp"],
+            ["scenario", "Tình huống"],
           ]}
         />
         <EditorSelect
           label="Cách trả lời"
           value={responseMode}
           onChange={(value) => setResponseMode(value as typeof responseMode)}
-          options={[["text", "Text"], ["code", "Code"]]}
+          options={[["text", "Văn bản"], ["code", "Mã"]]}
         />
         <EditorSelect
           label="Độ khó"
           value={difficulty}
           onChange={(value) => setDifficulty(value as typeof difficulty)}
-          options={[["beginner", "Beginner"], ["intermediate", "Intermediate"], ["advanced", "Advanced"]]}
+          options={[["beginner", "Cơ bản"], ["intermediate", "Trung cấp"], ["advanced", "Nâng cao"]]}
         />
         <label className="text-xs font-bold text-[#52645c]">
           Thời gian (phút)
@@ -1378,12 +1488,12 @@ function QuestionEditor({
         </label>
       </div>
       <EditorTextarea label="Đề bài" value={prompt} onChange={setPrompt} rows={4} />
-      <EditorTextarea label="Code mẫu (để trống nếu không có)" value={code} onChange={setCode} rows={7} mono required={false} />
+      <EditorTextarea label="Mã mẫu (để trống nếu không có)" value={code} onChange={setCode} rows={7} mono required={false} />
       <EditorTextarea label="Gợi ý" value={hint} onChange={setHint} rows={3} />
       <EditorTextarea label="Đáp án ngắn" value={shortAnswer} onChange={setShortAnswer} rows={3} />
       <EditorTextarea label="Giải thích chi tiết" value={detailedAnswer} onChange={setDetailedAnswer} rows={6} />
       <div className="grid gap-3 lg:grid-cols-3">
-        <EditorTextarea label="Rubric bắt buộc (mỗi dòng một ý)" value={required} onChange={setRequired} rows={6} />
+        <EditorTextarea label="Tiêu chí bắt buộc (mỗi dòng một ý)" value={required} onChange={setRequired} rows={6} />
         <EditorTextarea label="Điểm cộng (mỗi dòng một ý)" value={bonus} onChange={setBonus} rows={6} required={false} />
         <EditorTextarea label="Hiểu lầm thường gặp (mỗi dòng một ý)" value={misconceptions} onChange={setMisconceptions} rows={6} required={false} />
       </div>
@@ -1439,9 +1549,9 @@ function QuestionDetails({ question }: { question: AdminQuestion }) {
       ) : null}
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <InfoBlock label="Đáp án ngắn"><p>{question.answer.short}</p></InfoBlock>
-        <InfoBlock label="Hint"><p>{question.hint}</p></InfoBlock>
+        <InfoBlock label="Gợi ý"><p>{question.hint}</p></InfoBlock>
         <InfoBlock label="Giải thích"><p className="whitespace-pre-line">{question.answer.detailed}</p></InfoBlock>
-        <InfoBlock label="Rubric"><ul className="list-disc space-y-1 pl-4">{question.rubric.required.map((item) => <li key={item}>{item}</li>)}</ul></InfoBlock>
+        <InfoBlock label="Tiêu chí chấm"><ul className="list-disc space-y-1 pl-4">{question.rubric.required.map((item) => <li key={item}>{item}</li>)}</ul></InfoBlock>
       </div>
       <p className="mt-4 text-xs text-[#64736c]">
         Nguồn: {question.sourceHeadings.join(" · ")}
@@ -1458,16 +1568,19 @@ function QuestionDetails({ question }: { question: AdminQuestion }) {
             </p>
           </div>
           <p className="font-mono text-xs text-[#64736c]">
-            hạn {question.learning.dueOn ?? "—"} · interval {question.learning.intervalDays}d
+            hạn {question.learning.dueOn ?? "—"} · khoảng cách{" "}
+            {question.learning.intervalDays} ngày
           </p>
         </div>
         <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-[#64736c]">
           <span>{question.learning.reviewCount} lượt ôn</span>
-          <span>· {question.learning.lapseCount} lapse</span>
-          {question.learning.leech ? <span className="font-bold text-[#ba4b2f]">· Leech</span> : null}
+          <span>· {question.learning.lapseCount} lần quên</span>
+          {question.learning.leech ? (
+            <span className="font-bold text-[#ba4b2f]">· Câu khó nhớ</span>
+          ) : null}
           {question.taxonomy.topics.map((item) => (
             <span key={item} className="rounded-full bg-[#edf0e8] px-2 py-0.5 font-mono">
-              {item}
+              {taxonomyTopicLabel(item)}
             </span>
           ))}
         </div>
@@ -1483,13 +1596,15 @@ function QuestionDetails({ question }: { question: AdminQuestion }) {
                   className="flex items-center justify-between gap-3 rounded-lg bg-[#f3f4ee] px-3 py-2 text-xs"
                 >
                   <span>{review.reviewedOn}</span>
-                  <strong className="uppercase text-[#356b58]">{review.rating}</strong>
+                  <strong className="uppercase text-[#356b58]">
+                    {reviewRatingLabels[review.rating] ?? review.rating}
+                  </strong>
                   <span className="font-mono text-[#64736c]">→ {review.nextDueOn}</span>
                 </li>
               ))}
             </ol>
           ) : (
-            <p className="mt-3 text-xs text-[#64736c]">Chưa có lần review nào.</p>
+            <p className="mt-3 text-xs text-[#64736c]">Chưa có lần ôn nào.</p>
           )}
         </details>
       </div>
@@ -1502,12 +1617,12 @@ function CoveragePanel({ lessons }: { lessons: AdminDashboardSnapshot["lessons"]
   const waiting = lessons.filter((lesson) => lesson.currentQuestions > 0 && lesson.activeQuestions === 0);
   return (
     <div className="rounded-[2rem] border border-[#173f35]/15 bg-white/65 p-6">
-      <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#356b58] uppercase">Knowledge coverage</p>
+      <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#356b58] uppercase">Mức bao phủ kiến thức</p>
       <h2 className="mt-2 text-xl font-semibold">Độ phủ bài học</h2>
       <div className="mt-5 h-2 overflow-hidden rounded-full bg-[#dfe5dc]"><div className="h-full bg-[#7fb43d]" style={{ width: `${lessons.length ? ((lessons.length - missing.length) / lessons.length) * 100 : 0}%` }} /></div>
       <p className="mt-3 text-sm text-[#64736c]">{lessons.length - missing.length}/{lessons.length} bài đã có câu hỏi khớp nguồn.</p>
       {missing.length ? <div className="mt-5"><p className="text-xs font-bold text-[#ba4b2f] uppercase">Chưa có câu ({missing.length})</p><ul className="mt-2 space-y-2 text-sm">{missing.slice(0, 8).map((lesson) => <li key={lesson.id} className="rounded-xl bg-[#fff4df] px-3 py-2"><span className="font-semibold">{lesson.title}</span><span className="ml-2 font-mono text-[10px] text-[#64736c]">{standardLabels[lesson.standard]}</span></li>)}</ul>{missing.length > 8 ? <p className="mt-2 text-xs text-[#64736c]">+{missing.length - 8} bài khác</p> : null}</div> : null}
-      {waiting.length ? <p className="mt-4 text-xs text-[#86511f]">{waiting.length} bài đã có draft nhưng chưa được duyệt.</p> : null}
+      {waiting.length ? <p className="mt-4 text-xs text-[#86511f]">{waiting.length} bài đã có bản nháp nhưng chưa được duyệt.</p> : null}
     </div>
   );
 }
@@ -1525,7 +1640,7 @@ function LearningBadge({ question }: { question: AdminQuestion }) {
   const label = question.learning.suspended
     ? "Tạm dừng"
     : question.learning.leech
-      ? "Leech"
+      ? "Câu khó nhớ"
       : learningLabels[question.learning.state];
   const classes = question.learning.suspended
     ? "bg-[#e4e6e2] text-[#64736c]"
@@ -1551,9 +1666,9 @@ function InfoBlock({ label, children }: { label: string; children: React.ReactNo
 }
 
 function Filter({ value, onChange, label, options }: { value: string; onChange: (value: string) => void; label: string; options: Array<[string, string]> }) {
-  const resolvedOptions = label === "Deck"
-    ? [...options, ["cmake-build-systems", "CMake / Build Systems"] as [string, string]]
-    : label === "Track"
+  const resolvedOptions = label === "Bộ thẻ"
+    ? [...options, ["cmake-build-systems", "CMake / Hệ thống dựng"] as [string, string]]
+    : label === "Lộ trình"
       ? [...options, ["cmake", "CMake"] as [string, string]]
       : options;
   return <label><span className="sr-only">{label}</span><select value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-xl border border-[#173f35]/15 bg-white px-3 py-2.5 text-sm outline-none focus:ring-3 focus:ring-[#d7ff91]">{resolvedOptions.map(([optionValue, optionLabel]) => <option key={optionValue} value={optionValue}>{optionLabel}</option>)}</select></label>;

@@ -111,10 +111,12 @@ function single(value: string | string[] | undefined) {
 }
 
 function authNotice(code?: string): string | null {
-  if (code === "unauthorized") return "GitHub account này không được phép dùng private app.";
+  if (code === "unauthorized") {
+    return "Tài khoản GitHub này không được phép dùng ứng dụng riêng tư.";
+  }
   if (code === "not-configured") return "Supabase chưa được cấu hình.";
   if (code === "login-error" || code === "callback-error") {
-    return "Đăng nhập GitHub chưa thành công. Kiểm tra OAuth callback rồi thử lại.";
+    return "Đăng nhập GitHub chưa thành công. Hãy kiểm tra cấu hình đăng nhập rồi thử lại.";
   }
   return null;
 }

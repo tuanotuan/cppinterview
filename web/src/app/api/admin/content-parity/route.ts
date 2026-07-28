@@ -16,7 +16,10 @@ export async function GET() {
   const supabase = await createSupabaseServerClient();
   const { data: authData, error: authError } = await supabase.auth.getUser();
   if (authError || !authData.user || !isAllowedPracticeUser(authData.user)) {
-    return Response.json({ error: "Cần đăng nhập owner." }, { status: 401 });
+    return Response.json(
+      { error: "Cần đăng nhập bằng tài khoản quản trị viên." },
+      { status: 401 },
+    );
   }
   try {
     const [repository, database] = await Promise.all([
@@ -33,7 +36,7 @@ export async function GET() {
       name: error instanceof Error ? error.name : "UnknownError",
     });
     return Response.json(
-      { error: "Không đọc được question bank shadow." },
+      { error: "Không đọc được bản đối chiếu của ngân hàng câu hỏi." },
       { status: 502 },
     );
   }

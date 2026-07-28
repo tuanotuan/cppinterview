@@ -220,7 +220,7 @@ export async function generateMistakeCardWithGemini({
       model: geminiFallbackModel(),
       store: false,
       system_instruction:
-        "Generate one source-grounded remediation flashcard. Return only JSON.",
+        "Tạo một thẻ ghi nhớ giúp khắc phục điểm còn thiếu và bám sát tài liệu nguồn. Chỉ trả về JSON.",
       input: buildMistakeCardPrompt({
         ...candidate,
         question,

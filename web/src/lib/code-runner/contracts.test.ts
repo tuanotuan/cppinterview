@@ -11,6 +11,7 @@ import {
 } from "./contracts";
 import {
   WORLDQUANT_MOCK_SETS,
+  WORLDQUANT_PROFILE_VERSION,
   WORLDQUANT_ROLE_QUESTIONS,
 } from "../mock-interview/profile";
 
@@ -25,7 +26,7 @@ function validRunRequest() {
     idempotencyKey: "6a585fad-4933-4f9f-b3c3-bbb2bd2ecffc",
     sessionId: "9f58ceae-6ce7-4d56-bf6e-2be2256cc063",
     profileId: "worldquant-tick-data-engineer",
-    profileVersion: 3,
+    profileVersion: WORLDQUANT_PROFILE_VERSION,
     setId: mockSet.id,
     setVersion: mockSet.version,
     sourceRevision: "a".repeat(40),
@@ -56,7 +57,7 @@ function validExecutionResult() {
 }
 
 describe("mock code-run request contract", () => {
-  it("accepts a strict profile-v3 executable question request", () => {
+  it("accepts a strict current-profile executable question request", () => {
     expect(mockCodeRunRequestSchema.safeParse(validRunRequest()).success)
       .toBe(true);
   });

@@ -11,9 +11,17 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Coverage Studio — Recall",
+  title: "Mức bao phủ nội dung — Recall",
   description:
-    "Ưu tiên review content theo WorldQuant competency và transfer coverage.",
+    "Ưu tiên duyệt nội dung theo năng lực WorldQuant và mức bao phủ bài tập vận dụng.",
+};
+
+const coverageStatusLabels: Record<string, string> = {
+  pending_review: "Chờ duyệt",
+  content_gap: "Thiếu nội dung",
+  drill_only: "Chỉ có bài luyện",
+  flashcard_only: "Chỉ có thẻ ghi nhớ",
+  transfer_ready: "Sẵn sàng vận dụng",
 };
 
 export default async function CoverageStudioPage() {
@@ -28,16 +36,16 @@ export default async function CoverageStudioPage() {
       <main className="grid min-h-screen place-items-center px-5">
         <section className="max-w-lg rounded-[2rem] border border-[#173f35]/15 bg-white/70 p-8">
           <p className="font-mono text-xs font-bold text-[#ba4b2f] uppercase">
-            Owner-only
+            Dành cho quản trị viên
           </p>
           <h1 className="mt-3 text-3xl font-semibold">
-            Coverage Studio cần đăng nhập.
+            Bạn cần đăng nhập để xem mức bao phủ nội dung.
           </h1>
           <Link
             href="/admin"
             className="mt-6 inline-flex rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white"
           >
-            Về Admin
+            Về trang quản trị
           </Link>
         </section>
       </main>
@@ -67,9 +75,9 @@ export default async function CoverageStudioPage() {
               R
             </span>
             <span>
-              <span className="block font-bold">Coverage Studio</span>
+              <span className="block font-bold">Mức bao phủ nội dung</span>
               <span className="block text-xs text-[#64736c]">
-                Editorial control plane
+                Điều phối việc biên tập
               </span>
             </span>
           </Link>
@@ -78,28 +86,28 @@ export default async function CoverageStudioPage() {
               href="/admin"
               className="rounded-xl px-4 py-2 text-sm font-bold"
             >
-              Question Admin
+              Quản lý câu hỏi
             </Link>
             <Link
               href="/worldquant/curriculum"
               className="rounded-xl px-4 py-2 text-sm font-bold"
             >
-              Curriculum Graph
+              Sơ đồ chương trình học
             </Link>
           </nav>
         </header>
 
         <section className="py-9">
           <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
-            Phase 1 · Coverage-directed authoring
+            Ưu tiên bổ sung học liệu
           </p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
-            Duyệt đúng ô thiếu trước.
+            Ưu tiên duyệt những phần còn thiếu.
           </h1>
           <p className="mt-4 max-w-3xl leading-7 text-[#64736c]">
-            Personal mistake cards không được tính vào content coverage.
-            Drill cũng không thay thế approved flashcard; hai loại evidence
-            được theo dõi riêng.
+            Thẻ sửa lỗi cá nhân không được tính vào mức bao phủ nội dung. Bài
+            luyện cũng không thay thế thẻ ghi nhớ đã duyệt; hai loại bằng
+            chứng học tập được theo dõi riêng.
           </p>
         </section>
 
@@ -118,9 +126,9 @@ export default async function CoverageStudioPage() {
                   {summary.coveredConceptCount}/{summary.conceptCount}
                 </p>
                 <p className="mt-1 text-[10px] leading-4 text-[#64736c]">
-                  {summary.activeQuestionCount} active ·{" "}
-                  {summary.pendingQuestionCount} pending ·{" "}
-                  {summary.transferReadyConceptCount} transfer-ready
+                  {summary.activeQuestionCount} đang dùng ·{" "}
+                  {summary.pendingQuestionCount} chờ duyệt ·{" "}
+                  {summary.transferReadyConceptCount} sẵn sàng vận dụng
                 </p>
               </article>
             );
@@ -131,15 +139,16 @@ export default async function CoverageStudioPage() {
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
-                Editorial queue
+                Danh sách chờ biên tập
               </p>
               <h2 className="mt-2 text-2xl font-semibold">
-                {editorialQueue.length} concept chưa đủ vòng học
+                {editorialQueue.length} khái niệm chưa đủ học liệu để ôn và vận
+                dụng
               </h2>
             </div>
             <p className="text-xs text-[#64736c]">
-              {coverage.unclassifiedQuestionIds.length} question chưa map
-              được concept
+              {coverage.unclassifiedQuestionIds.length} câu hỏi chưa được gắn
+              với khái niệm
             </p>
           </div>
           <div className="mt-5 grid gap-3 lg:grid-cols-2">
@@ -162,18 +171,18 @@ export default async function CoverageStudioPage() {
                     </h3>
                   </div>
                   <span className="rounded-full bg-[#f1d6c9] px-3 py-1 text-[10px] font-bold text-[#8e3825]">
-                    {item.status.replaceAll("_", " ")}
+                    {coverageStatusLabels[item.status] ?? item.status}
                   </span>
                 </div>
                 <p className="mt-2 text-sm leading-6 text-[#64736c]">
                   {item.concept.summary}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2 text-[10px]">
-                  <Pill>active {item.activeQuestionIds.length}</Pill>
-                  <Pill>pending {item.pendingQuestionIds.length}</Pill>
-                  <Pill>practice {item.practiceDrillIds.length}</Pill>
+                  <Pill>đang dùng {item.activeQuestionIds.length}</Pill>
+                  <Pill>chờ duyệt {item.pendingQuestionIds.length}</Pill>
+                  <Pill>bài luyện {item.practiceDrillIds.length}</Pill>
                   <Pill>
-                    checkpoint {item.checkpointDrillIds.length}
+                    bài kiểm tra {item.checkpointDrillIds.length}
                   </Pill>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
@@ -181,7 +190,7 @@ export default async function CoverageStudioPage() {
                     href="/admin"
                     className="rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white"
                   >
-                    Mở Review Queue
+                    Mở danh sách chờ duyệt
                   </Link>
                   {item.concept.guideHref ? (
                     <Link

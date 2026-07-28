@@ -44,7 +44,10 @@ export async function POST(request: Request) {
 
   if (!limit.allowed) {
     return Response.json(
-      { error: "Mày gọi AI hơi nhanh. Chờ một chút rồi thử lại.", code: "rate_limited" },
+      {
+        error: "Bạn đang gọi AI quá nhanh. Vui lòng chờ một chút rồi thử lại.",
+        code: "rate_limited",
+      },
       {
         status: 429,
         headers: { "Retry-After": String(limit.retryAfterSeconds) },
@@ -57,7 +60,7 @@ export async function POST(request: Request) {
     body = await request.json();
   } catch {
     return Response.json(
-      { error: "Request không phải JSON hợp lệ.", code: "invalid_json" },
+      { error: "Yêu cầu không chứa JSON hợp lệ.", code: "invalid_json" },
       { status: 400 },
     );
   }
@@ -66,7 +69,8 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return Response.json(
       {
-        error: "Câu hỏi bổ sung không hợp lệ hoặc hội thoại đã quá 8 message.",
+        error:
+          "Câu hỏi bổ sung không hợp lệ hoặc cuộc trò chuyện đã vượt quá 8 tin nhắn.",
         code: "invalid_request",
       },
       { status: 400 },
@@ -84,7 +88,10 @@ export async function POST(request: Request) {
       !isAllowedPracticeUser(authResult.data.user))
   ) {
     return Response.json(
-      { error: "Đăng nhập GitHub để hỏi tiếp AI coach.", code: "authentication_required" },
+      {
+        error: "Đăng nhập GitHub để hỏi tiếp trợ lý AI.",
+        code: "authentication_required",
+      },
       { status: 401 },
     );
   }
@@ -100,7 +107,10 @@ export async function POST(request: Request) {
     ]);
     if (approvalsResult.error || overridesResult.error) {
       return Response.json(
-        { error: "Không đọc được question bank.", code: "approval_lookup_failed" },
+        {
+          error: "Không đọc được ngân hàng câu hỏi.",
+          code: "approval_lookup_failed",
+        },
         { status: 502 },
       );
     }
@@ -129,7 +139,7 @@ export async function POST(request: Request) {
   const lesson = manifest.lessons.find((item) => item.id === question.lessonId);
   if (!lesson) {
     return Response.json(
-      { error: "Lesson nguồn đang thiếu.", code: "lesson_not_found" },
+      { error: "Bài học nguồn đang thiếu.", code: "lesson_not_found" },
       { status: 500 },
     );
   }
@@ -169,7 +179,9 @@ export async function POST(request: Request) {
       provider = "gemini";
     }
     const modelLabel =
-      provider === "gemini" ? `Gemini fallback · ${result.model}` : result.model;
+      provider === "gemini"
+        ? `Gemini dự phòng · ${result.model}`
+        : result.model;
     return Response.json({
       reply: result.data,
       model: modelLabel,
@@ -181,7 +193,8 @@ export async function POST(request: Request) {
     if (error instanceof AllAiQuotasExceededError) {
       return Response.json(
         {
-          error: "OpenAI đã hết quota và Gemini Free cũng đang bận hoặc hết quota. Thử lại sau nhé.",
+          error:
+            "OpenAI đã hết hạn mức và Gemini miễn phí cũng đang bận hoặc hết hạn mức. Vui lòng thử lại sau.",
           code: "all_ai_quotas_exceeded",
         },
         { status: 429 },
@@ -193,7 +206,8 @@ export async function POST(request: Request) {
       });
       return Response.json(
         {
-          error: "Gemini fallback chưa giải thích thêm được. Thử lại sau nhé.",
+          error:
+            "Gemini dự phòng chưa giải thích thêm được. Vui lòng thử lại sau.",
           code: "fallback_provider_error",
         },
         { status: 502 },
@@ -201,7 +215,10 @@ export async function POST(request: Request) {
     }
     if (error instanceof CoachConfigurationError) {
       return Response.json(
-        { error: "AI coach chưa được cấu hình key.", code: "not_configured" },
+        {
+          error: "Trợ lý AI chưa được cấu hình khóa truy cập.",
+          code: "not_configured",
+        },
         { status: 503 },
       );
     }
@@ -219,7 +236,8 @@ export async function POST(request: Request) {
     if (error instanceof AiDailyBudgetExceededError) {
       return Response.json(
         {
-          error: "Đã dùng hết quota AI hôm nay. Quota sẽ tự reset lúc 00:00 giờ Việt Nam.",
+          error:
+            "Đã dùng hết hạn mức AI hôm nay. Hạn mức sẽ tự đặt lại lúc 00:00 giờ Việt Nam.",
           code: "daily_budget_exceeded",
         },
         { status: 429 },
@@ -229,7 +247,8 @@ export async function POST(request: Request) {
     if (error instanceof AiBudgetConfigurationError) {
       return Response.json(
         {
-          error: "Bộ giới hạn chi phí AI chưa được cài trong Supabase.",
+          error:
+            "Cơ chế giới hạn chi phí AI chưa được cài đặt trong Supabase.",
           code: "budget_not_configured",
         },
         { status: 503 },
@@ -244,19 +263,30 @@ export async function POST(request: Request) {
     });
     if (providerCode === "insufficient_quota") {
       return Response.json(
-        { error: "OpenAI project chưa có credit hoặc đã dùng hết ngân sách tháng.", code: "provider_quota_exceeded" },
+        {
+          error:
+            "Dự án OpenAI chưa có tín dụng hoặc đã dùng hết ngân sách tháng.",
+          code: "provider_quota_exceeded",
+        },
         { status: 429 },
       );
     }
 
     if (status === 429) {
       return Response.json(
-        { error: "OpenAI đang giới hạn tạm thời hoặc project đã chạm ngân sách. Thử lại sau.", code: "provider_rate_limited" },
+        {
+          error:
+            "OpenAI đang giới hạn tạm thời hoặc dự án đã chạm ngân sách. Vui lòng thử lại sau.",
+          code: "provider_rate_limited",
+        },
         { status: 429 },
       );
     }
     return Response.json(
-      { error: "AI chưa giải thích thêm được. Thử lại sau nhé.", code: "provider_error" },
+        {
+          error: "AI chưa giải thích thêm được. Vui lòng thử lại sau.",
+          code: "provider_error",
+        },
       { status: 502 },
     );
   }

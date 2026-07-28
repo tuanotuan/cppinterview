@@ -46,7 +46,7 @@ export async function GET(request: Request) {
     return Response.json(
       {
         ok: false,
-        error: "History cursor không hợp lệ.",
+        error: "Vị trí phân trang của lịch sử không hợp lệ.",
         code: "invalid_cursor",
       },
       { status: 400, headers: privateNoStoreHeaders() },
@@ -98,7 +98,7 @@ export async function DELETE(request: Request) {
     return Response.json(
       {
         ok: false,
-        error: "History delete chỉ nhận application/json.",
+        error: "API xóa lịch sử chỉ nhận application/json.",
         code: "unsupported_media_type",
       },
       { status: 415 },
@@ -114,7 +114,7 @@ export async function DELETE(request: Request) {
     return Response.json(
       {
         ok: false,
-        error: "History delete body vượt giới hạn.",
+        error: "Dữ liệu xóa lịch sử vượt giới hạn.",
         code: "request_too_large",
       },
       { status: 413 },
@@ -127,7 +127,7 @@ export async function DELETE(request: Request) {
       return Response.json(
         {
           ok: false,
-          error: "History delete body vượt giới hạn.",
+          error: "Dữ liệu xóa lịch sử vượt giới hạn.",
           code: "request_too_large",
         },
         { status: 413 },
@@ -153,7 +153,7 @@ export async function DELETE(request: Request) {
     return Response.json(
       {
         ok: false,
-        error: "Attempt ID không hợp lệ.",
+        error: "ID lượt phỏng vấn không hợp lệ.",
         code: "invalid_attempt",
       },
       { status: 400 },
@@ -206,7 +206,7 @@ async function authorizeHistory(): Promise<
       response: Response.json(
         {
           ok: false,
-          error: "Đăng nhập để xem mock history.",
+          error: "Đăng nhập để xem lịch sử phỏng vấn.",
           code: "authentication_required",
         },
         { status: 401 },
@@ -219,7 +219,7 @@ async function authorizeHistory(): Promise<
       response: Response.json(
         {
           ok: false,
-          error: "Tài khoản này không có quyền xem mock history.",
+          error: "Tài khoản này không có quyền xem lịch sử phỏng vấn.",
           code: "forbidden",
         },
         { status: 403 },
@@ -235,7 +235,7 @@ function historyError(error: unknown) {
       {
         ok: false,
         error:
-          "Cloud history chưa được cấu hình hoặc migration chưa được apply.",
+          "Lịch sử trực tuyến chưa được cấu hình hoặc dữ liệu cần thiết chưa được cài đặt.",
         code: "history_not_configured",
       },
       { status: 503 },
@@ -247,7 +247,7 @@ function historyError(error: unknown) {
   return Response.json(
     {
       ok: false,
-      error: "Không đọc được mock history.",
+      error: "Không đọc được lịch sử phỏng vấn.",
       code: "history_failed",
     },
     { status: 502 },

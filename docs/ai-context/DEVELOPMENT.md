@@ -42,6 +42,20 @@ package metadata, env template, CI và Supabase. CI chặn snapshot cũ. Nếu b
 hay kiến trúc đổi, vẫn phải cập nhật file context semantic theo `AGENTS.md`;
 fingerprint không thể tự giải thích ý nghĩa thay đổi.
 
+## Ngôn ngữ sản phẩm
+
+Nội dung người dùng nhìn thấy, thông báo lỗi từ API và lời nhắc tạo phản hồi AI
+phải dùng “bạn” hoặc câu trung tính. Ưu tiên tiếng Việt tự nhiên; chỉ giữ tên
+riêng, mã nguồn và thuật ngữ kỹ thuật phổ biến hoặc không có cách dịch chính xác.
+Không dịch route, khóa lưu trữ, trường schema hay giá trị enum. Quy ước chi tiết
+nằm trong `web/AGENTS.md`.
+
+`src/lib/content/user-facing-language.test.ts` quét giao diện, lời nhắc và học
+liệu để ngăn cách xưng hô “mày/tao”; riêng danh sách nhãn sản phẩm cũ được quét
+trong các tệp giao diện `.tsx`. Khi thêm một nhãn khó hiểu mới, mở rộng kiểm thử
+này. Không sửa máy móc câu hỏi đã duyệt: thay đổi nội dung câu hỏi phải tuân theo
+quy tắc tăng phiên bản, `sourceHash` và duyệt lại ở phần dưới.
+
 ## Recipe: sửa/thêm lesson
 
 1. Tạo hoặc sửa `<source-root>/<lesson>/knowledge.md`; cần một `#` title và ít
@@ -110,7 +124,10 @@ Các feature Curriculum/Drill/Mission/Full Round không thêm migration:
 
 - `worldquant/training-state.ts` và `practice/repair-queue.ts` dùng key
   localStorage versioned, tách `account UUID`/`local`; state local không tự gán
-  sang account sau login.
+  sang account sau login. Training state hiện dùng schema/key v2; nếu khóa v2
+  chưa tồn tại, đường đọc sao chép hợp lệ từ khóa v1 sang v2 đúng một chiều,
+  không xóa hay ghi lại v1. Khi v2 đã tồn tại, mọi thay đổi tiếp theo ở khóa v1
+  bị bỏ qua để tab ứng dụng cũ không thể ghi đè lịch sử mới.
 - Mutation read-modify-write dùng Web Locks theo exact storage key khi browser
   hỗ trợ; fallback vẫn reread/merge ngay trước write nhưng không thể cam kết
   atomic giữa hai tab trên browser không có Web Locks. Vì vậy checkpoint exposure
@@ -122,8 +139,10 @@ Các feature Curriculum/Drill/Mission/Full Round không thêm migration:
   `content_gap` trái với canonical approved content hiện tại. Personal remediation
   có thể cùng tồn tại với canonical gap và vẫn phải round-trip. Snapshot chứa
   mock cũng phải rebuild khi account/history backend không đủ capability lưu
-  completion bền vững. Mỗi account chỉ giữ tối đa 24 key snapshot v1; prune không
-  được chạm key account/namespace khác.
+  completion bền vững. Mỗi account chỉ giữ tối đa 24 key snapshot v2; prune
+  không được chạm key account/namespace khác hoặc key v1. Snapshot v1 không được
+  di chuyển vì kế hoạch có thể chứa revision cũ; đường đọc phải bỏ qua và dựng
+  lại bản v2 từ dữ liệu hiện hành.
 - Guided onboarding là UI state versioned riêng theo `account UUID`/`local`,
   không phải learning evidence. Return từ Focus/Drill/Mock chỉ dùng allowlisted
   marker + role + budget 15 phút hợp lệ để dựng lại `/worldquant/mission`; không
@@ -137,6 +156,15 @@ Các feature Curriculum/Drill/Mission/Full Round không thêm migration:
   Speech do browser/OS cung cấp, có thể dùng dịch vụ của vendor. Timer dùng deadline
   tuyệt đối và khóa mutator khi hết giờ; voice metrics loại text gõ tay và chỉ tính
   thời gian microphone thực. Summary bind exact role/full-round/round/drill revision.
+- Danh mục bài luyện v2 chỉ viết lại câu chữ của v1; cấu trúc bài và tiêu chí
+  chấm không đổi. Lượt làm, lần mở bài kiểm tra và kết quả vòng phỏng vấn v1 vẫn
+  được giữ làm lịch sử, nhưng chỉ phiên bản hiện hành được phép cập nhật điểm
+  cần cải thiện, xác nhận năng lực hoặc ghi một lượt hoàn thành mới. Mọi phiên
+  bản sau chỉ được coi là tương đương khi được thêm rõ ràng vào nhóm tương đương;
+  không tự suy ra chỉ vì ID và số tiêu chí giống nhau.
+- Bộ đọc phiên phỏng vấn cũ chỉ chấp nhận phiên đã hoàn tất có báo cáo. Hồ sơ
+  bản 3 được giữ để Hub hiển thị lịch sử, nhưng parser phiên đang hoạt động vẫn
+  yêu cầu đúng hồ sơ hiện hành và không được khôi phục phiên bản cũ.
 - `ts-fsrs` dùng default FSRS-6 deterministic, retention 90%, fuzz tắt, chỉ
   replay exact question version/source hash trong Stats. Scheduler hiện hữu vẫn
   là nguồn due date duy nhất.
@@ -179,6 +207,15 @@ service-role-only/browser grants như contract hiện tại.
 - Server-only module/secret không được import vào client component.
 - Zod schema là boundary cho manifest, API body và AI structured output.
 - Giữ stable IDs, immutable audit history và source/version/hash binding.
+- Chỉ khai báo hai phiên bản danh mục bài luyện tương đương khi ID, loại bài,
+  năng lực, khái niệm, cấu trúc tiêu chí và ý nghĩa chấm đều không đổi. Quan hệ
+  bản 1 ↔ bản 2 được khai báo thủ công vì bản 2 chỉ bản địa hóa; phiên bản sau
+  mặc định không tương đương. Bộ đọc có thể giữ lịch sử tương đương, nhưng lượt
+  hoàn tất và bằng chứng cập nhật điểm cần cải thiện mới luôn phải khớp đúng bản
+  hiện hành; một vòng phỏng vấn không được trộn phiên bản.
+- Khi sửa `WORLDQUANT_ROLE_QUESTIONS`, tăng cả `version` và
+  `contentRevision`; tăng `specRevision` nếu quy ước chạy mã thay đổi. Không tái
+  sử dụng định danh nội dung cũ cho câu hỏi đã đổi.
 - Đừng cho stale/archived/unapproved question vào practice hoặc AI coach.
 - Focus Sprint chỉ persist exact question identity/version/hash/deck, không
   prompt/answer; chỉ reconcile với approved bank. Rating vẫn phải đi qua
