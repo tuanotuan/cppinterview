@@ -33,11 +33,16 @@ nhật file context tương ứng theo root `AGENTS.md`.
 |---|---|---|
 | `/` | `web/src/app/page.tsx`, `practice-app.tsx` | Daily/custom study và Focus Sprint exact queue; answer, rating, scheduler, cloud sync và saved state |
 | `/worldquant` | `worldquant/page.tsx`, `worldquant-readiness-app.tsx` | Readiness Hub theo role; Focus Sprint, targeted-mock CTA, account-scoped mock v4 gần nhất và comparable trend |
+| `/worldquant/curriculum` | `worldquant/curriculum/page.tsx` | Graph 30 concept theo prerequisite; tách card coverage, pending content và transfer drill |
+| `/worldquant/drills` | `worldquant/drills/page.tsx`, `worldquant-drill-app.tsx` | Scenario lab: approved warm-up → practice → follow-up → rubric → fresh/spaced checkpoint |
+| `/worldquant/mission` | `worldquant/mission/page.tsx`, `worldquant-mission-app.tsx` | Daily mission deterministic từ repair, due card, gap, drill và mock history thật |
+| `/worldquant/full-round` | `worldquant/full-round/page.tsx`, `worldquant-full-round-app.tsx` | Năm non-certification round có hard deadline, rubric và English Web Speech tùy chọn; không lưu answer/audio |
 | `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Interview Loop v4 balanced/targeted 30/45/60 phút, hidden execution, scoped debrief, history và remediation |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx` | Guide tick data/order book |
 | `/learn/cmake` | `learn/cmake/page.tsx`, `lib/learn/cmake-guide.ts` | Guide CMake target-based từ mental model tới CTest, packaging, CI và legacy migration |
-| `/stats` | `stats/page.tsx` | Analytics học tập |
+| `/stats` | `stats/page.tsx`, `calibration-shadow-panel.tsx` | Analytics học tập, confidence calibration và FSRS-6 shadow comparison |
 | `/admin` | `admin/page.tsx`, `admin-dashboard.tsx` | Review/edit/archive question, schedule, AI/job settings |
+| `/admin/coverage` | `admin/coverage/page.tsx` | Coverage Studio ưu tiên editorial gap theo concept và evidence kind |
 | `/auth/*` | `auth/{login,callback,logout}` | GitHub OAuth qua Supabase |
 
 API quan trọng:
@@ -61,10 +66,13 @@ API quan trọng:
 | `content` | `loader.ts`, `schema.ts`, `automation.ts` | Parse note, schema Zod, discover lesson, sinh manifest |
 | `content` | `question-store-server.ts` | Chọn `repo`/`shadow`/`db`, parity, apply override |
 | `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts` | Queue Anki, rating, due date, streak và browser progress store |
+| `practice` | `repair-queue.ts`, `signals.ts`, `fsrs-shadow.ts`, `browser-storage-lock.ts` | Same-session repair exact identity, private confidence signals, cross-tab mutation lock và FSRS-6 chỉ quan sát |
 | `practice` | `focus-session.ts`, `focus-eligibility.ts` | Session Focus Sprint identity-only, resume/reconcile/completion và lọc exact approved refs |
 | `practice` | `cloud-server.ts`, `cloud.ts` | Ghép auth, progress, approval, overrides, usage, manifest |
 | `practice` | `mistake-cards.ts`, `mistake-cards.server.ts` | Capture lỗi durable, dedupe, grounded generation và materialize draft |
 | `worldquant` | `readiness.ts`, `focus-plan.ts` | Role/competency model, preparation evidence và planner queue deterministic theo gap/time budget |
+| `worldquant` | `curriculum.ts`, `curriculum-evidence.ts`, `drills.ts` | Concept graph, content/transfer coverage và catalog 30 scenario: một practice + hai checkpoint mỗi competency |
+| `worldquant` | `training-state.ts`, `gap-closure.ts`, `mission.ts`, `mission-snapshot.ts`, `full-round.ts`, `navigation.ts` | Account-scoped training evidence, closure protocol, bounded frozen daily mission, role-aware navigation và versioned five-round simulator |
 | `ai` | `openai.ts`, `gemini.ts`, `fallback.ts` | Provider calls và fallback |
 | `ai` | `budget.ts`, `usage.ts`, `billing.ts` | Admission daily, accounting monthly, Costs API reconciliation |
 | `mock-interview` | `catalog.ts`, `target-plan.ts`, `session-v4.ts`, `contracts-v4.ts` | Canonical competency mapping, deterministic balanced/targeted blueprint, account-scoped frozen session và exact API contract |
@@ -134,6 +142,50 @@ tiến queue. Session dùng optimistic revision check để tab cũ không phụ
 đã tiến ở tab khác. Khi bank thiếu coverage, Hub mở guide thật hoặc báo content
 gap/draft chờ owner review, không tạo queue giả.
 
+### WorldQuant transfer loop
+
+Manifest + approval tạo curriculum evidence; repository/owner card, pending
+content, personal remediation và drill luôn là các loại bằng chứng riêng.
+Scenario practice đạt rubric/follow-up đưa gap sang `transfer_ready`; checkpoint
+clean không hint và đạt ngưỡng chỉ xác minh khi unseen hoặc spaced retest sau
+cooldown 24 giờ. Mỗi competency có hai prompt checkpoint khác nhau; Rubric atom còn
+thiếu sinh repair prompt grounded, không sao chép candidate answer. Today’s
+Mission ghép due repair, exact approved Focus card, practice/checkpoint và mock
+history thật trong time budget. Exact mission được snapshot theo
+account/local + ngày + role + budget, cap 24 snapshot/account; reload chỉ rebuild
+khi catalog revision không còn hợp lệ. Primary competency nằm trong mission
+identity; approved card chưa đến hạn/không vừa budget không bị gắn nhầm thành
+content gap. Checkpoint prompt chỉ mở sau warm-up và
+sau khi durable exposure ledger đã ghi thành công. Browser thiếu Web Locks vẫn
+được luyện nhưng exposure fail closed thành non-verifying repeat. Training state
+mới chỉ ở localStorage theo account/local mode;
+không có migration hoặc cloud sync ngầm.
+
+### Practice repair, calibration và scheduler shadow
+
+Review `Again`/`Hard` vẫn ghi đúng một daily review qua scheduler chuẩn, đồng
+thời enqueue exact question revision để retrieval lại sau 3/5 thẻ xen kẽ.
+Repair attempt không tạo review ngày thứ hai. Browser ghi confidence, response
+time và các cờ hint/reveal/coach đã từng dùng nhưng không ghi candidate answer;
+các cờ giữ nguyên qua navigation/reload cho tới khi exact card được rate, nên
+đổi câu không thể rửa bằng chứng hỗ trợ. Mutation
+localStorage dùng Web Locks theo key khi browser hỗ trợ và merge-reread làm
+fallback. Stats tính calibration/ECE và replay đúng question revision bằng
+`ts-fsrs` ở chế độ shadow; FSRS không mutation due date hay Preparation Index.
+
+### Full Round và English Voice
+
+Role weights chọn năm non-certification scenario theo C++ depth,
+coding/concurrency, tick/system design, delivery/automation và English ownership;
+không dùng lại checkpoint có quyền verify gap. Answer/transcript
+chỉ sống trong React memory; Recall không upload/lưu audio. Web Speech là engine
+của browser/OS và có privacy policy riêng. Timer tính từ deadline tuyệt đối;
+WPM chỉ dùng transcript microphone và thời gian mic thật, không tính text gõ
+tay. Deadline khóa answer/rubric/mic nhưng vẫn cho chuyển round với zero evidence;
+voice stop có phase riêng để chờ final transcript. Khi kết thúc, app chỉ xóa
+response sau durable write và lưu summary số (rubric, word/filler count) cùng
+exact role/full-round/round/drill revision vào training state.
+
 ### AI coach
 
 Request được validate + rate-limit + auth/approval check → reserve daily OpenAI
@@ -169,3 +221,4 @@ trừ điểm.
 - Supabase SSR/Postgres/RLS
 - OpenAI SDK, Google GenAI fallback
 - Vercel Sandbox; Monaco editor
+- `ts-fsrs` cho scheduler FSRS-6 shadow, không làm scheduler thẩm quyền

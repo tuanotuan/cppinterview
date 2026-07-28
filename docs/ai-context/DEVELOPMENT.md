@@ -104,6 +104,36 @@ Xem danh sách chuẩn trong `web/.env.example`.
 App local không có Supabase vẫn chạy local-only. AI/runner/cloud feature cần
 config tương ứng và có thể fail closed theo thiết kế.
 
+## WorldQuant training state và browser privacy
+
+Các feature Curriculum/Drill/Mission/Full Round không thêm migration:
+
+- `worldquant/training-state.ts`, `practice/repair-queue.ts` và
+  `practice/signals.ts` dùng key localStorage versioned, tách
+  `account UUID`/`local`; state local không tự gán sang account sau login.
+- Mutation read-modify-write dùng Web Locks theo exact storage key khi browser
+  hỗ trợ; fallback vẫn reread/merge ngay trước write nhưng không thể cam kết
+  atomic giữa hai tab trên browser không có Web Locks. Vì vậy checkpoint exposure
+  trên browser thiếu Web Locks bị phân loại bảo thủ là repeat, không được dùng
+  làm bằng chứng unseen.
+- Mission snapshot tách theo account/local, ngày Việt Nam, role và budget; chỉ
+  giữ identity/version/hash, drill revision và repair ID. Snapshot stale phải
+  fail closed rồi rebuild, không được giữ card revision cũ. Mỗi account chỉ giữ
+  tối đa 24 key snapshot v1; prune không được chạm key account/namespace khác.
+- Drill/full-round answer không được ghi vào training state. Practice signal chỉ
+  chứa identity/version/hash, rating, confidence, timing, cờ từng dùng
+  hint/reveal/coach, coach score và outcome. Cờ hỗ trợ là irreversible trong
+  attempt chưa rate và sống qua navigation/reload; chỉ rating mới kết thúc và
+  xóa cờ của exact card đó.
+- Full Round không lưu/upload audio. Transcript chỉ ở React memory và bị xóa
+  sau khi summary đã lưu; write fail phải giữ response trong tab để retry. Web
+  Speech do browser/OS cung cấp, có thể dùng dịch vụ của vendor. Timer dùng deadline
+  tuyệt đối và khóa mutator khi hết giờ; voice metrics loại text gõ tay và chỉ tính
+  thời gian microphone thực. Summary bind exact role/full-round/round/drill revision.
+- `ts-fsrs` dùng default FSRS-6 deterministic, retention 90%, fuzz tắt, chỉ
+  replay exact question version/source hash trong Stats. Scheduler hiện hữu vẫn
+  là nguồn due date duy nhất.
+
 ## Supabase
 
 Migration là append-only, chạy theo timestamp trong `web/supabase/migrations/`.
@@ -159,6 +189,21 @@ service-role-only/browser grants như contract hiện tại.
 - Mistake capture chỉ chạy sau durable coach/review hoặc completed Mock v4.
   Generated remediation luôn là DB-native draft chờ duyệt; không lưu candidate
   answer/hidden execution evidence và không tính card cá nhân vào content coverage.
+- Same-session repair phải bind exact question version/source hash. Review đầu
+  vẫn qua scheduler/cloud path; repair retry không tạo daily review thứ hai.
+- Async AI response phải bind request/session hiện hành; response của card cũ
+  không được tái tạo feedback hoặc mở khóa/khóa confidence cho attempt mới.
+- Gap chỉ được `verified` bởi checkpoint clean đạt ≥80%, đủ hai follow-up và
+  không dùng hint sau khi practice đã `transfer_ready`. Exposure phải được ghi
+  ngay trước khi prompt mở; bằng chứng hợp lệ là checkpoint unseen hoặc clean
+  spaced retest sau tối thiểu 24 giờ. Catalog giữ hai checkpoint khác nhau mỗi
+  competency; Full Round không tái sử dụng chúng. Evidence cũ không được ghi đè
+  state mới hơn; `not_assessed` không mở/verify gap.
+- Collision exposure của hai tab phải fail closed thành repeat. Mission chỉ báo
+  `content_gap` khi không có approved card cho competency; card mature/chưa đến
+  hạn hoặc không vừa budget không phải content gap.
+- Personal remediation, drill và draft không được tính thay approved card trong
+  content coverage.
 
 ## Chọn validation theo phạm vi
 

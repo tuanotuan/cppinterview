@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 import {
   MOCK_INTERVIEW_STORAGE_KEY,
@@ -15,7 +20,10 @@ import {
   mockCompetencyKeys,
   mockCompetencyLabels,
 } from "@/lib/mock-interview/profile";
-import type { MockInterviewCompletedArtifactV4 } from "@/lib/mock-interview/contracts-v4";
+import {
+  mockInterviewCompletedArtifactV4Schema,
+  type MockInterviewCompletedArtifactV4,
+} from "@/lib/mock-interview/contracts-v4";
 import {
   buildWorldQuantMockTrends,
   type MockInterviewHistoryEntry,
@@ -45,6 +53,16 @@ import {
   type WorldQuantFocusPlan,
 } from "@/lib/worldquant/focus-plan";
 import { buildWorldQuantMockRemediation } from "@/lib/worldquant/mock-remediation";
+import { worldQuantRoleHref } from "@/lib/worldquant/navigation";
+import { openOrReconcileGapFromMock } from "@/lib/worldquant/gap-closure";
+import {
+  EMPTY_WORLDQUANT_TRAINING_STATE,
+  gapForCompetency,
+  readWorldQuantTrainingState,
+  subscribeToWorldQuantTrainingState,
+  writeWorldQuantTrainingStateLocked,
+  type WorldQuantTrainingState,
+} from "@/lib/worldquant/training-state";
 import {
   buildWorldQuantReadiness,
   DEFAULT_WORLDQUANT_ROLE_PROFILE_ID,
@@ -110,6 +128,7 @@ export function WorldQuantReadinessApp({
   today,
   initialMockHistory,
   mockHistoryAvailable,
+  initialRoleId,
 }: {
   questions: ReadinessQuestionSummary[];
   pendingReviewCounts: Partial<Record<WorldQuantCompetencyKey, number>>;
@@ -121,9 +140,16 @@ export function WorldQuantReadinessApp({
   today: string;
   initialMockHistory: MockInterviewHistoryEntry[];
   mockHistoryAvailable: boolean;
+  initialRoleId: WorldQuantRoleProfileId | null;
 }) {
   const [focusFeedback, setFocusFeedback] =
     useState<FocusFeedback | null>(null);
+  const [routeRoleId, setRouteRoleId] =
+    useState<WorldQuantRoleProfileId | null>(initialRoleId);
+  const [trainingState, setTrainingState] =
+    useState<WorldQuantTrainingState>(
+      EMPTY_WORLDQUANT_TRAINING_STATE,
+    );
   const progressSnapshot = useSyncExternalStore(
     subscribeToPracticeProgress,
     readPracticeProgressSnapshot,
@@ -161,10 +187,12 @@ export function WorldQuantReadinessApp({
     readFocusSessionSnapshot,
     () => null,
   );
-  const preferences = useMemo(
-    () => parseHubPreferences(preferencesSnapshot, today),
-    [preferencesSnapshot, today],
-  );
+  const preferences = useMemo(() => {
+    const stored = parseHubPreferences(preferencesSnapshot, today);
+    return routeRoleId
+      ? { ...stored, roleId: routeRoleId }
+      : stored;
+  }, [preferencesSnapshot, routeRoleId, today]);
   const profile = worldQuantRoleProfileById(preferences.roleId);
   const roleQuestions = useMemo(
     () =>
@@ -348,7 +376,62 @@ export function WorldQuantReadinessApp({
     mode: "balanced",
   });
 
+  useEffect(() => {
+    const accountId = account?.id ?? null;
+    const refresh = async () => {
+      const current = readWorldQuantTrainingState(accountId);
+      let reconciled = current;
+      for (const entry of initialMockHistory) {
+        if (
+          entry.status !== "completed" ||
+          !entry.completedAt ||
+          entry.roleProfileId !== preferences.roleId
+        ) {
+          continue;
+        }
+        const report =
+          mockInterviewCompletedArtifactV4Schema.safeParse(
+            entry.report,
+          );
+        if (!report.success) continue;
+        for (const competency of report.data.debrief.competencies) {
+          reconciled = openOrReconcileGapFromMock(reconciled, {
+            attemptId: entry.attemptId,
+            completedAt: entry.completedAt,
+            roleProfileId: entry.roleProfileId,
+            competency: competency.competency,
+            status: competency.status,
+            score: competency.score,
+            // Mock v4 can repeat a deterministic blueprint, so it may open a
+            // gap but cannot claim unseen verification by itself.
+            unseen: false,
+          });
+        }
+      }
+      if (JSON.stringify(reconciled) !== JSON.stringify(current)) {
+        const persisted = await writeWorldQuantTrainingStateLocked(
+          accountId,
+          reconciled,
+        ).catch(() => null);
+        setTrainingState(persisted ?? current);
+        return;
+      }
+      setTrainingState(reconciled);
+    };
+    void refresh();
+    return subscribeToWorldQuantTrainingState(
+      account?.id ?? null,
+      () => void refresh(),
+    );
+  }, [account?.id, initialMockHistory, preferences.roleId]);
+
   function updatePreferences(next: Partial<HubPreferences>) {
+    if (next.roleId) {
+      setRouteRoleId(next.roleId);
+      const url = new URL(window.location.href);
+      url.searchParams.set("role", next.roleId);
+      window.history.replaceState(null, "", url);
+    }
     writeHubPreferences({ ...preferences, ...next });
   }
 
@@ -408,7 +491,46 @@ export function WorldQuantReadinessApp({
               Học Tick
             </HeaderLink>
             <HeaderLink href="/learn/cmake">Học CMake</HeaderLink>
-            <HeaderLink href="/mock-interview">Mock interview</HeaderLink>
+            <HeaderLink
+              href={worldQuantRoleHref(
+                "/worldquant/curriculum",
+                preferences.roleId,
+              )}
+            >
+              Curriculum
+            </HeaderLink>
+            <HeaderLink
+              href={worldQuantRoleHref(
+                "/worldquant/drills",
+                preferences.roleId,
+              )}
+            >
+              Drill Lab
+            </HeaderLink>
+            <HeaderLink
+              href={worldQuantRoleHref(
+                "/worldquant/mission",
+                preferences.roleId,
+              )}
+            >
+              Today&apos;s Mission
+            </HeaderLink>
+            <HeaderLink
+              href={worldQuantRoleHref(
+                "/worldquant/full-round",
+                preferences.roleId,
+              )}
+            >
+              Full Round
+            </HeaderLink>
+            <HeaderLink
+              href={worldQuantRoleHref(
+                "/mock-interview",
+                preferences.roleId,
+              )}
+            >
+              Mock interview
+            </HeaderLink>
             <HeaderLink href="/stats">Thống kê</HeaderLink>
             {account ? (
               <HeaderLink href="/admin">Duyệt question</HeaderLink>
@@ -782,6 +904,11 @@ export function WorldQuantReadinessApp({
                   (item) => item.key === key,
                 )!;
                 const definition = worldQuantCompetencies[key];
+                const closureGap = gapForCompetency(
+                  trainingState,
+                  preferences.roleId,
+                  key,
+                );
                 const competencyPlan = buildWorldQuantFocusPlan({
                   profileId: preferences.roleId,
                   questions,
@@ -804,6 +931,9 @@ export function WorldQuantReadinessApp({
                         <p className="mt-1 text-xs text-[#64736c]">
                           {gapDescription(competency.gapKind)}
                         </p>
+                        <p className="mt-1 font-mono text-[10px] text-[#52645c]">
+                          Gap closure: {closureGap?.status ?? "chưa mở"}
+                        </p>
                       </div>
                     </div>
                     <button
@@ -822,6 +952,12 @@ export function WorldQuantReadinessApp({
                       className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-xs font-bold"
                     >
                       Mock đúng gap
+                    </Link>
+                    <Link
+                      href={`/worldquant/drills?role=${preferences.roleId}&competency=${key}`}
+                      className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-xs font-bold"
+                    >
+                      Scenario drill
                     </Link>
                     {focusFeedback?.competency === key ? (
                       <p

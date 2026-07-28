@@ -68,6 +68,24 @@ import {
   type QuestionStudySession,
 } from "@/lib/practice/study-session";
 import {
+  EMPTY_RECALL_REPAIR_QUEUE,
+  advanceRecallRepairQueue,
+  enqueueRecallRepair,
+  nextRecallRepair,
+  rateRecallRepair,
+  readRecallRepairQueue,
+  reconcileRecallRepairQueue,
+  subscribeToRecallRepairQueue,
+  updateRecallRepairQueueLocked,
+  type RecallRepairQueue,
+} from "@/lib/practice/repair-queue";
+import {
+  outcomeForReview,
+  readPracticeSignalStore,
+  recordPracticeAttemptSignal,
+  writePracticeSignalStoreLocked,
+} from "@/lib/practice/signals";
+import {
   calculateStreak,
   latestReviews,
   localDateKey,
@@ -215,8 +233,21 @@ export function PracticeApp({
   );
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [codeAnswers, setCodeAnswers] = useState<Record<string, string>>({});
+  const [confidenceByQuestion, setConfidenceByQuestion] = useState<
+    Record<string, number>
+  >({});
+  const [repairQueue, setRepairQueue] = useState<RecallRepairQueue>(
+    EMPTY_RECALL_REPAIR_QUEUE,
+  );
   const [revealed, setRevealed] = useState<Set<string>>(() => new Set());
   const [hints, setHints] = useState<Set<string>>(() => new Set());
+  const [answerRevealUsedByQuestion, setAnswerRevealUsedByQuestion] =
+    useState<Set<string>>(() => new Set());
+  const [hintUsedByQuestion, setHintUsedByQuestion] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [coachFeedbackUsedByQuestion, setCoachFeedbackUsedByQuestion] =
+    useState<Set<string>>(() => new Set());
   const [visibleSources, setVisibleSources] = useState<Set<string>>(
     () => new Set(),
   );
@@ -284,6 +315,9 @@ export function PracticeApp({
   const focusHydrationStarted = useRef<string | null>(null);
   const scrollToRatingWhenAvailable = useRef(false);
   const pendingSessionSaveRef = useRef<(() => void) | null>(null);
+  const attemptStartedAtRef = useRef<Record<string, number>>({});
+  const coachRequestTokensRef = useRef<Record<string, string>>({});
+  const studySessionGenerationRef = useRef(0);
   const [sessionHydrated, setSessionHydrated] = useState(false);
   const sessionQuestions = useMemo(() => {
     const byId = new Map<string, PracticeQuestion>();
@@ -347,6 +381,7 @@ export function PracticeApp({
     );
     const restoredAnswers: Record<string, string> = {};
     const restoredCodeAnswers: Record<string, string> = {};
+    const restoredConfidence: Record<string, number> = {};
     const restoredFeedback: Record<string, CoachFeedback> = {};
     const restoredModels: Record<string, string> = {};
     const restoredCoachAnswers: Record<string, string> = {};
@@ -360,6 +395,9 @@ export function PracticeApp({
     const restoredDeepDiveOpen = new Set<string>();
     const restoredRevealed = new Set<string>();
     const restoredHints = new Set<string>();
+    const restoredAnswerRevealUsed = new Set<string>();
+    const restoredHintUsed = new Set<string>();
+    const restoredCoachFeedbackUsed = new Set<string>();
     const restoredVisibleSources = new Set<string>();
 
     Object.entries(session.questions).forEach(([questionId, saved]) => {
@@ -367,8 +405,18 @@ export function PracticeApp({
       if (saved.codeAnswer !== undefined) {
         restoredCodeAnswers[questionId] = saved.codeAnswer;
       }
+      if (saved.confidencePercent !== undefined) {
+        restoredConfidence[questionId] = saved.confidencePercent;
+      }
       if (saved.revealed) restoredRevealed.add(questionId);
       if (saved.hint) restoredHints.add(questionId);
+      if (saved.answerRevealUsed || saved.revealed) {
+        restoredAnswerRevealUsed.add(questionId);
+      }
+      if (saved.hintUsed || saved.hint) restoredHintUsed.add(questionId);
+      if (saved.coachFeedbackUsed || saved.coachFeedback) {
+        restoredCoachFeedbackUsed.add(questionId);
+      }
       if (saved.sourceVisible) restoredVisibleSources.add(questionId);
       if (saved.coachFeedback) restoredFeedback[questionId] = saved.coachFeedback;
       if (saved.coachModel) restoredModels[questionId] = saved.coachModel;
@@ -391,8 +439,12 @@ export function PracticeApp({
 
     setAnswers(restoredAnswers);
     setCodeAnswers(restoredCodeAnswers);
+    setConfidenceByQuestion(restoredConfidence);
     setRevealed(restoredRevealed);
     setHints(restoredHints);
+    setAnswerRevealUsedByQuestion(restoredAnswerRevealUsed);
+    setHintUsedByQuestion(restoredHintUsed);
+    setCoachFeedbackUsedByQuestion(restoredCoachFeedbackUsed);
     setVisibleSources(restoredVisibleSources);
     setCoachFeedback(restoredFeedback);
     setCoachModels(restoredModels);
@@ -421,6 +473,7 @@ export function PracticeApp({
       sessionQuestions.forEach((question) => {
         const answer = answers[question.id];
         const codeAnswer = codeAnswers[question.id];
+        const confidencePercent = confidenceByQuestion[question.id];
         const feedback = coachFeedback[question.id];
         const model = coachModels[question.id];
         const coachAnswer = coachAnswers[question.id];
@@ -434,10 +487,15 @@ export function PracticeApp({
         const isDeepDiveOpen = deepDiveOpen.has(question.id);
         const isRevealed = revealed.has(question.id);
         const hasHint = hints.has(question.id);
+        const answerRevealUsed = answerRevealUsedByQuestion.has(question.id);
+        const hintUsed = hintUsedByQuestion.has(question.id);
+        const coachFeedbackUsed =
+          coachFeedbackUsedByQuestion.has(question.id);
         const sourceVisible = visibleSources.has(question.id);
         const hasSession = Boolean(
           answer ||
             codeAnswer ||
+            confidencePercent !== undefined ||
             feedback ||
             coachIdempotencyKey ||
             followUpInput ||
@@ -447,6 +505,9 @@ export function PracticeApp({
             isDeepDiveOpen ||
             isRevealed ||
             hasHint ||
+            answerRevealUsed ||
+            hintUsed ||
+            coachFeedbackUsed ||
             sourceVisible,
         );
         if (!hasSession) return;
@@ -456,8 +517,12 @@ export function PracticeApp({
           sourceHash: question.sourceHash,
           ...(answer ? { answer } : {}),
           ...(codeAnswer ? { codeAnswer } : {}),
+          ...(confidencePercent !== undefined ? { confidencePercent } : {}),
           ...(isRevealed ? { revealed: true } : {}),
           ...(hasHint ? { hint: true } : {}),
+          ...(answerRevealUsed ? { answerRevealUsed: true } : {}),
+          ...(hintUsed ? { hintUsed: true } : {}),
+          ...(coachFeedbackUsed ? { coachFeedbackUsed: true } : {}),
           ...(sourceVisible ? { sourceVisible: true } : {}),
           ...(feedback ? { coachFeedback: feedback } : {}),
           ...(model ? { coachModel: model } : {}),
@@ -497,12 +562,15 @@ export function PracticeApp({
     return () => window.clearTimeout(timeoutId);
   }, [
     answers,
+    answerRevealUsedByQuestion,
     coachAnswers,
     coachAttemptIds,
     coachFeedback,
+    coachFeedbackUsedByQuestion,
     coachIdempotencyKeys,
     coachModels,
     codeAnswers,
+    confidenceByQuestion,
     deepDiveAnswers,
     deepDiveFeedback,
     deepDiveModels,
@@ -510,6 +578,7 @@ export function PracticeApp({
     followUpChats,
     followUpInputs,
     hints,
+    hintUsedByQuestion,
     revealed,
     selectedQuestionId,
     sessionHydrated,
@@ -630,6 +699,47 @@ export function PracticeApp({
       })),
     };
   }, [availableQuestions, cloudQuestionStates, focusProgressReviews]);
+
+  const validRepairQuestions = useMemo(
+    () =>
+      new Map(
+      allQuestionIdentities.map((question) => [
+        question.id,
+        {
+          version: question.version,
+          sourceHash: question.sourceHash,
+        },
+      ]),
+      ),
+    [allQuestionIdentities],
+  );
+
+  useEffect(() => {
+    const refresh = () => {
+      const stored = readRecallRepairQueue(accountId);
+      const reconciled = reconcileRecallRepairQueue(
+        stored,
+        validRepairQuestions,
+      );
+      if (JSON.stringify(reconciled) !== JSON.stringify(stored)) {
+        void updateRecallRepairQueueLocked(
+          accountId,
+          (current) =>
+            reconcileRecallRepairQueue(
+              current,
+              validRepairQuestions,
+            ),
+        )
+          .then(setRepairQueue)
+          .catch(() => {
+            // A stale repair card can still be dropped for this tab.
+          });
+      }
+      setRepairQueue(reconciled);
+    };
+    refresh();
+    return subscribeToRecallRepairQueue(accountId, refresh);
+  }, [accountId, validRepairQuestions]);
 
   useEffect(() => {
     if (
@@ -881,10 +991,6 @@ export function PracticeApp({
     today,
   ]);
 
-  if (snapshot === null) {
-    return <LoadingScreen />;
-  }
-
   const selectedQuestion = selectedQuestionId
     ? questionById.get(selectedQuestionId)
     : undefined;
@@ -907,28 +1013,67 @@ export function PracticeApp({
       : customStudyIds
         ? questionById.get(customRemainingIds[0])
         : questionById.get(remainingIds[0]);
-  const current = isFocusActive ? focusQuestion : normalCurrent;
+  const repairItem = isFocusActive
+    ? null
+    : nextRecallRepair(
+        repairQueue,
+        allQuestionById,
+        { allowEarly: !normalCurrent },
+      );
+  const repairQuestion = repairItem
+    ? allQuestionById.get(repairItem.questionId)
+    : undefined;
+  const current = isFocusActive
+    ? focusQuestion
+    : repairQuestion ?? normalCurrent;
+  const currentId = current?.id;
+
+  useEffect(() => {
+    if (!currentId || snapshot === null || !sessionHydrated) return;
+    attemptStartedAtRef.current[currentId] ??= Date.now();
+  }, [currentId, sessionHydrated, snapshot]);
+
+  if (snapshot === null) {
+    return <LoadingScreen />;
+  }
+
+  const isRepairActive = Boolean(
+    repairItem && current?.id === repairItem.questionId,
+  );
   const currentPrompt = current ? displayQuestionPrompt(current) : "";
   const currentLearningState = current
-    ? isFocusActive
+    ? isFocusActive || isRepairActive
       ? allLearningStates.get(current.id)
       : learningStates.get(current.id)
     : undefined;
   const isRandomQuestion = Boolean(
     !isFocusActive &&
+      !isRepairActive &&
       current &&
       selectedQuestionId === current.id &&
       !remainingIds.includes(current.id),
   );
   const isCustomStudyQuestion = Boolean(
-    !isFocusActive && current && customStudyIds?.includes(current.id),
+    !isFocusActive &&
+      !isRepairActive &&
+      current &&
+      customStudyIds?.includes(current.id),
   );
   const randomCandidates = deckQuestions.filter(
     (question) =>
       question.id !== current?.id && latest.get(question.id)?.reviewedOn !== today,
   );
   const hasAnswered = Boolean(
-    current && (coachFeedback[current.id] || revealed.has(current.id)),
+    current &&
+      (coachFeedback[current.id] ||
+        coachFeedbackUsedByQuestion.has(current.id) ||
+        answerRevealUsedByQuestion.has(current.id)),
+  );
+  const confidenceLocked = Boolean(
+    current &&
+      (hasAnswered ||
+        hintUsedByQuestion.has(current.id) ||
+        coachFeedbackUsedByQuestion.has(current.id)),
   );
   const currentSuggestedRating = current
     ? ratingOptions.find(
@@ -1016,6 +1161,74 @@ export function PracticeApp({
 
   function rateCurrent(rating: Rating) {
     if (!current || !currentLearningState) return;
+    const occurredAt = new Date();
+    const occurredAtIso = occurredAt.toISOString();
+    const startedAt =
+      attemptStartedAtRef.current[current.id] ?? occurredAt.getTime();
+    const responseTimeMs = Math.min(
+      4 * 60 * 60 * 1000,
+      Math.max(0, occurredAt.getTime() - startedAt),
+    );
+    try {
+      const nextSignals = recordPracticeAttemptSignal(
+        readPracticeSignalStore(accountId),
+        {
+          eventId: crypto.randomUUID(),
+          questionId: current.id,
+          questionVersion: current.version,
+          sourceHash: current.sourceHash,
+          occurredAt: occurredAtIso,
+          mode: isRepairActive ? "repair" : "scheduled",
+          rating,
+          confidencePercent:
+            confidenceByQuestion[current.id] ?? null,
+          responseTimeMs,
+          hintUsed: hintUsedByQuestion.has(current.id),
+          answerRevealed: answerRevealUsedByQuestion.has(current.id),
+          coachFeedbackUsed:
+            coachFeedbackUsedByQuestion.has(current.id),
+          coachScore: coachFeedback[current.id]?.score ?? null,
+          outcome: outcomeForReview({
+            rating,
+            coachScore: coachFeedback[current.id]?.score,
+          }),
+        },
+      );
+      void writePracticeSignalStoreLocked(
+        accountId,
+        nextSignals,
+      ).catch(() => {
+        // Review scheduling remains available when analytics cannot persist.
+      });
+    } catch {
+      // Review scheduling remains available when private analytics cannot persist.
+    }
+
+    if (isRepairActive) {
+      const updateRepair = (queue: RecallRepairQueue) =>
+        rateRecallRepair(
+          reconcileRecallRepairQueue(
+            queue,
+            validRepairQuestions,
+          ),
+          current.id,
+          rating,
+        );
+      setRepairQueue(updateRepair(repairQueue));
+      void updateRecallRepairQueueLocked(
+        accountId,
+        updateRepair,
+      )
+        .then(setRepairQueue)
+        .catch(() => {
+          // The optimistic in-tab queue remains usable without storage.
+        });
+      setSelectedQuestionId(null);
+      clearRecordedAttemptEvidence(current.id);
+      clearStudySessionState();
+      return;
+    }
+
     const scheduled = scheduleQuestionReview(
       currentLearningState,
       rating,
@@ -1060,7 +1273,35 @@ export function PracticeApp({
         window.history.replaceState(null, "", url);
       }
     }
+    const updateQueueAfterReview = (queue: RecallRepairQueue) => {
+      let next = advanceRecallRepairQueue(
+        reconcileRecallRepairQueue(
+          queue,
+          validRepairQuestions,
+        ),
+      );
+      if (rating === "again" || rating === "hard") {
+        next = enqueueRecallRepair(next, {
+          questionId: current.id,
+          questionVersion: current.version,
+          sourceHash: current.sourceHash,
+          rating,
+          now: occurredAtIso,
+        });
+      }
+      return next;
+    };
+    setRepairQueue(updateQueueAfterReview(repairQueue));
+    void updateRecallRepairQueueLocked(
+      accountId,
+      updateQueueAfterReview,
+    )
+      .then(setRepairQueue)
+      .catch(() => {
+        // The optimistic in-tab queue remains usable without storage.
+      });
     setSelectedQuestionId(null);
+    clearRecordedAttemptEvidence(current.id);
     clearStudySessionState();
   }
 
@@ -1149,7 +1390,16 @@ export function PracticeApp({
 
   function toggleReferenceAnswer() {
     if (!current) return;
-    scrollToRatingWhenAvailable.current = !revealed.has(current.id);
+    const willReveal = !revealed.has(current.id);
+    scrollToRatingWhenAvailable.current = willReveal;
+    if (willReveal) {
+      setAnswerRevealUsedByQuestion((used) => {
+        if (used.has(current.id)) return used;
+        const next = new Set(used);
+        next.add(current.id);
+        return next;
+      });
+    }
     toggleSet(setRevealed, current.id);
   }
 
@@ -1162,24 +1412,43 @@ export function PracticeApp({
   }
 
   function clearStudySessionState() {
+    studySessionGenerationRef.current += 1;
+    coachRequestTokensRef.current = {};
     setAnswers({});
     setCodeAnswers({});
+    setConfidenceByQuestion({});
+    attemptStartedAtRef.current = {};
     setCoachFeedback({});
     setCoachModels({});
     setCoachAnswers({});
     setCoachAttemptIds({});
     setCoachIdempotencyKeys({});
     setCoachErrors({});
+    setCoachLoading(null);
     setFollowUpInputs({});
     setFollowUpChats({});
     setFollowUpErrors({});
+    setFollowUpLoading(null);
     setDeepDiveAnswers({});
     setDeepDiveFeedback({});
     setDeepDiveErrors({});
+    setDeepDiveLoading(null);
     setDeepDiveOpen(new Set());
     setRevealed(new Set());
     setHints(new Set());
     setVisibleSources(new Set());
+  }
+
+  function clearRecordedAttemptEvidence(questionId: string) {
+    setAnswerRevealUsedByQuestion((used) =>
+      withoutSetValue(used, questionId),
+    );
+    setHintUsedByQuestion((used) =>
+      withoutSetValue(used, questionId),
+    );
+    setCoachFeedbackUsedByQuestion((used) =>
+      withoutSetValue(used, questionId),
+    );
   }
 
   async function syncReviews(
@@ -1241,6 +1510,7 @@ export function PracticeApp({
 
   async function askCoach() {
     if (!current) return;
+    const questionId = current.id;
     const answer = buildCandidateAnswer(
       current,
       answers[current.id] ?? "",
@@ -1248,21 +1518,23 @@ export function PracticeApp({
     );
     if (answer.length < 10) return;
 
-    setCoachLoading(current.id);
-    setCoachErrors((errors) => ({ ...errors, [current.id]: "" }));
+    const requestToken = crypto.randomUUID();
+    coachRequestTokensRef.current[questionId] = requestToken;
+    setCoachLoading(questionId);
+    setCoachErrors((errors) => ({ ...errors, [questionId]: "" }));
 
     try {
       const idempotencyKey =
-        coachIdempotencyKeys[current.id] ?? crypto.randomUUID();
+        coachIdempotencyKeys[questionId] ?? crypto.randomUUID();
       setCoachIdempotencyKeys((keys) => ({
         ...keys,
-        [current.id]: idempotencyKey,
+        [questionId]: idempotencyKey,
       }));
       const response = await fetch("/api/coach/evaluate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          questionId: current.id,
+          questionId,
           answer,
           idempotencyKey,
         }),
@@ -1276,6 +1548,20 @@ export function PracticeApp({
         error?: string;
       };
 
+      if (
+        coachRequestTokensRef.current[questionId] !== requestToken
+      ) {
+        if (payload.aiDailyBudget) {
+          setAiDailyBudget((current) =>
+            mergeAiDailyBudgetSnapshot(
+              current,
+              payload.aiDailyBudget!,
+            ),
+          );
+        }
+        return;
+      }
+
       if (!response.ok || !payload.feedback) {
         throw new Error(payload.error || "AI coach chưa trả lời được.");
       }
@@ -1283,20 +1569,26 @@ export function PracticeApp({
       scrollToRatingWhenAvailable.current = true;
       setCoachFeedback((feedback) => ({
         ...feedback,
-        [current.id]: payload.feedback!,
+        [questionId]: payload.feedback!,
       }));
+      setCoachFeedbackUsedByQuestion((used) => {
+        if (used.has(questionId)) return used;
+        const next = new Set(used);
+        next.add(questionId);
+        return next;
+      });
       setCoachModels((models) => ({
         ...models,
-        [current.id]: payload.model || "OpenAI",
+        [questionId]: payload.model || "OpenAI",
       }));
       setCoachAnswers((evaluatedAnswers) => ({
         ...evaluatedAnswers,
-        [current.id]: answer,
+        [questionId]: answer,
       }));
       if (payload.attemptId) {
         setCoachAttemptIds((ids) => ({
           ...ids,
-          [current.id]: payload.attemptId!,
+          [questionId]: payload.attemptId!,
         }));
       }
       if (payload.aiDailyBudget) {
@@ -1307,28 +1599,42 @@ export function PracticeApp({
       if (payload.aiUsageRecorded === false) {
         setCoachErrors((errors) => ({
           ...errors,
-          [current.id]:
+          [questionId]:
             "AI đã chấm xong nhưng bộ đếm usage chưa ghi được. Tạm dừng gọi thêm OpenAI và kiểm tra log.",
         }));
       }
-      setFollowUpChats((chats) => ({ ...chats, [current.id]: [] }));
-      setDeepDiveOpen((open) => withoutSetValue(open, current.id));
-      setDeepDiveAnswers((answers) => omitRecordKey(answers, current.id));
-      setDeepDiveFeedback((feedback) => omitRecordKey(feedback, current.id));
-      setDeepDiveModels((models) => omitRecordKey(models, current.id));
+      setFollowUpChats((chats) => ({ ...chats, [questionId]: [] }));
+      setDeepDiveOpen((open) => withoutSetValue(open, questionId));
+      setDeepDiveAnswers((answers) => omitRecordKey(answers, questionId));
+      setDeepDiveFeedback((feedback) => omitRecordKey(feedback, questionId));
+      setDeepDiveModels((models) => omitRecordKey(models, questionId));
     } catch (error) {
+      if (
+        coachRequestTokensRef.current[questionId] !== requestToken
+      ) {
+        return;
+      }
       setCoachErrors((errors) => ({
         ...errors,
-        [current.id]:
+        [questionId]:
           error instanceof Error ? error.message : "AI coach chưa trả lời được.",
       }));
     } finally {
-      setCoachLoading(null);
+      if (
+        coachRequestTokensRef.current[questionId] === requestToken
+      ) {
+        delete coachRequestTokensRef.current[questionId];
+        setCoachLoading((loading) =>
+          loading === questionId ? null : loading,
+        );
+      }
     }
   }
 
   async function askCoachFollowUp(contentOverride?: string) {
     if (!current || !coachFeedback[current.id]) return;
+    const questionId = current.id;
+    const sessionGeneration = studySessionGenerationRef.current;
     const content =
       contentOverride?.trim() ?? followUpInputs[current.id]?.trim() ?? "";
     const existingMessages = followUpChats[current.id] ?? [];
@@ -1341,17 +1647,17 @@ export function PracticeApp({
       })),
       { role: "user" as const, content },
     ];
-    setFollowUpLoading(current.id);
-    setFollowUpErrors((errors) => ({ ...errors, [current.id]: "" }));
+    setFollowUpLoading(questionId);
+    setFollowUpErrors((errors) => ({ ...errors, [questionId]: "" }));
 
     try {
       const response = await fetch("/api/coach/follow-up", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          questionId: current.id,
-          candidateAnswer: coachAnswers[current.id],
-          feedback: coachFeedback[current.id],
+          questionId,
+          candidateAnswer: coachAnswers[questionId],
+          feedback: coachFeedback[questionId],
           messages: requestMessages,
         }),
       });
@@ -1362,14 +1668,25 @@ export function PracticeApp({
         aiUsageRecorded?: boolean;
         error?: string;
       };
+      if (studySessionGenerationRef.current !== sessionGeneration) {
+        if (payload.aiDailyBudget) {
+          setAiDailyBudget((current) =>
+            mergeAiDailyBudgetSnapshot(
+              current,
+              payload.aiDailyBudget!,
+            ),
+          );
+        }
+        return;
+      }
       if (!response.ok || !payload.reply) {
         throw new Error(payload.error || "AI chưa giải thích thêm được.");
       }
 
       setFollowUpChats((chats) => ({
         ...chats,
-        [current.id]: [
-          ...(chats[current.id] ?? []),
+        [questionId]: [
+          ...(chats[questionId] ?? []),
           { role: "user", content },
           {
             role: "assistant",
@@ -1380,7 +1697,7 @@ export function PracticeApp({
           },
         ],
       }));
-      setFollowUpInputs((inputs) => ({ ...inputs, [current.id]: "" }));
+      setFollowUpInputs((inputs) => ({ ...inputs, [questionId]: "" }));
       if (payload.aiDailyBudget) {
         setAiDailyBudget((current) =>
           mergeAiDailyBudgetSnapshot(current, payload.aiDailyBudget!),
@@ -1389,36 +1706,45 @@ export function PracticeApp({
       if (payload.aiUsageRecorded === false) {
         setFollowUpErrors((errors) => ({
           ...errors,
-          [current.id]: "AI đã trả lời nhưng bộ đếm usage chưa ghi được.",
+          [questionId]: "AI đã trả lời nhưng bộ đếm usage chưa ghi được.",
         }));
       }
     } catch (error) {
+      if (studySessionGenerationRef.current !== sessionGeneration) {
+        return;
+      }
       setFollowUpErrors((errors) => ({
         ...errors,
-        [current.id]:
+        [questionId]:
           error instanceof Error ? error.message : "AI chưa giải thích thêm được.",
       }));
     } finally {
-      setFollowUpLoading(null);
+      if (studySessionGenerationRef.current === sessionGeneration) {
+        setFollowUpLoading((loading) =>
+          loading === questionId ? null : loading,
+        );
+      }
     }
   }
 
   async function submitDeepDiveAnswer() {
     if (!current || !coachFeedback[current.id]) return;
-    const answer = deepDiveAnswers[current.id]?.trim() ?? "";
-    const followUpQuestion = coachFeedback[current.id].followUpQuestion;
+    const questionId = current.id;
+    const sessionGeneration = studySessionGenerationRef.current;
+    const answer = deepDiveAnswers[questionId]?.trim() ?? "";
+    const followUpQuestion = coachFeedback[questionId].followUpQuestion;
     if (answer.length < 10) return;
 
-    setDeepDiveLoading(current.id);
-    setDeepDiveErrors((errors) => ({ ...errors, [current.id]: "" }));
+    setDeepDiveLoading(questionId);
+    setDeepDiveErrors((errors) => ({ ...errors, [questionId]: "" }));
     try {
       const response = await fetch("/api/coach/follow-up", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          questionId: current.id,
-          candidateAnswer: coachAnswers[current.id],
-          feedback: coachFeedback[current.id],
+          questionId,
+          candidateAnswer: coachAnswers[questionId],
+          feedback: coachFeedback[questionId],
           messages: [
             {
               role: "user",
@@ -1434,16 +1760,27 @@ export function PracticeApp({
         aiUsageRecorded?: boolean;
         error?: string;
       };
+      if (studySessionGenerationRef.current !== sessionGeneration) {
+        if (payload.aiDailyBudget) {
+          setAiDailyBudget((current) =>
+            mergeAiDailyBudgetSnapshot(
+              current,
+              payload.aiDailyBudget!,
+            ),
+          );
+        }
+        return;
+      }
       if (!response.ok || !payload.reply) {
         throw new Error(payload.error || "AI chưa chấm được câu mở rộng.");
       }
       setDeepDiveFeedback((feedback) => ({
         ...feedback,
-        [current.id]: payload.reply!,
+        [questionId]: payload.reply!,
       }));
       setDeepDiveModels((models) => ({
         ...models,
-        [current.id]: payload.model || "OpenAI",
+        [questionId]: payload.model || "OpenAI",
       }));
       if (payload.aiDailyBudget) {
         setAiDailyBudget((current) =>
@@ -1453,17 +1790,24 @@ export function PracticeApp({
       if (payload.aiUsageRecorded === false) {
         setDeepDiveErrors((errors) => ({
           ...errors,
-          [current.id]: "AI đã trả lời nhưng bộ đếm usage chưa ghi được.",
+          [questionId]: "AI đã trả lời nhưng bộ đếm usage chưa ghi được.",
         }));
       }
     } catch (error) {
+      if (studySessionGenerationRef.current !== sessionGeneration) {
+        return;
+      }
       setDeepDiveErrors((errors) => ({
         ...errors,
-        [current.id]:
+        [questionId]:
           error instanceof Error ? error.message : "AI chưa chấm được câu mở rộng.",
       }));
     } finally {
-      setDeepDiveLoading(null);
+      if (studySessionGenerationRef.current === sessionGeneration) {
+        setDeepDiveLoading((loading) =>
+          loading === questionId ? null : loading,
+        );
+      }
     }
   }
 
@@ -1502,6 +1846,7 @@ export function PracticeApp({
   }
 
   function updateAnswer(questionId: string, value: string) {
+    invalidateCoachRequest(questionId);
     setAnswers((currentAnswers) => ({
       ...currentAnswers,
       [questionId]: value,
@@ -1518,6 +1863,7 @@ export function PracticeApp({
   }
 
   function updateCodeAnswer(questionId: string, value: string) {
+    invalidateCoachRequest(questionId);
     setCodeAnswers((currentAnswers) => ({
       ...currentAnswers,
       [questionId]: value,
@@ -1543,6 +1889,14 @@ export function PracticeApp({
       else next.add(id);
       return next;
     });
+  }
+
+  function invalidateCoachRequest(questionId: string) {
+    studySessionGenerationRef.current += 1;
+    delete coachRequestTokensRef.current[questionId];
+    setCoachLoading((loading) =>
+      loading === questionId ? null : loading,
+    );
   }
 
   function omitRecordKey<T>(values: Record<string, T>, key: string) {
@@ -1825,7 +2179,7 @@ export function PracticeApp({
                   >
                     {isSaved(`question:${current.id}`) ? "★ Đã lưu" : "☆ Lưu câu hỏi"}
                   </button>
-                  {!isFocusActive ? (
+                  {!isFocusActive && !isRepairActive ? (
                     <button
                       type="button"
                       onClick={showRandomQuestion}
@@ -1841,6 +2195,18 @@ export function PracticeApp({
 
               <article className="overflow-hidden rounded-[2rem] border border-[#173f35]/15 bg-white/65 shadow-[0_20px_70px_rgba(23,63,53,0.08)] backdrop-blur-sm">
                 <div className="p-6 sm:p-9 lg:p-11">
+                  {isRepairActive ? (
+                    <div className="mb-6 rounded-2xl border border-[#ba4b2f]/25 bg-[#f8e8df] p-4 text-sm leading-6 text-[#713929]">
+                      <p className="font-mono text-[11px] font-bold uppercase tracking-[0.16em]">
+                        Recall repair · lần {(repairItem?.attempts ?? 0) + 1}
+                      </p>
+                      <p className="mt-1 font-semibold">
+                        Câu này quay lại sau các thẻ xen kẽ. Lần trả lời này
+                        chỉ kiểm tra đã sửa được lỗ hổng hay chưa, không tạo
+                        thêm một review ngày.
+                      </p>
+                    </div>
+                  ) : null}
                   {hasAnswered ? (
                     <div className="flex flex-wrap gap-2">
                       <Tag>{standardLabels[current.standard]}</Tag>
@@ -1915,10 +2281,58 @@ export function PracticeApp({
                     </>
                   )}
 
+                  <fieldset
+                    className="mt-5 rounded-2xl border border-[#173f35]/12 bg-[#f4f3ec] p-4"
+                    disabled={confidenceLocked}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <legend className="text-sm font-bold text-[#173f35]">
+                        Trước khi xem feedback, mày tự tin bao nhiêu?
+                      </legend>
+                      <span className="font-mono text-[11px] text-[#6c7b73]">
+                        {confidenceByQuestion[current.id] === undefined
+                          ? "không bắt buộc"
+                          : `${confidenceByQuestion[current.id]}%`}
+                      </span>
+                    </div>
+                    <div className="mt-3 grid grid-cols-5 gap-2">
+                      {[20, 40, 60, 80, 100].map((confidence) => (
+                        <button
+                          key={confidence}
+                          type="button"
+                          onClick={() => {
+                            setConfidenceByQuestion((values) => ({
+                              ...values,
+                              [current.id]: confidence,
+                            }));
+                          }}
+                          aria-pressed={
+                            confidenceByQuestion[current.id] === confidence
+                          }
+                          className={`rounded-xl border px-2 py-2 font-mono text-xs font-bold transition focus:ring-4 focus:ring-[#d7ff91] focus:outline-none disabled:cursor-not-allowed ${
+                            confidenceByQuestion[current.id] === confidence
+                              ? "border-[#356b58] bg-[#d7ff91] text-[#173f35]"
+                              : "border-[#173f35]/15 bg-white/70 text-[#5c6e65] hover:border-[#356b58]/45"
+                          }`}
+                        >
+                          {confidence}%
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
+
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                     <button
                       type="button"
-                      onClick={() => toggleSet(setHints, current.id)}
+                      onClick={() => {
+                        setHintUsedByQuestion((used) => {
+                          if (used.has(current.id)) return used;
+                          const next = new Set(used);
+                          next.add(current.id);
+                          return next;
+                        });
+                        toggleSet(setHints, current.id);
+                      }}
                       className="rounded-xl px-1 py-2 text-sm font-semibold text-[#356b58] underline-offset-4 hover:underline"
                     >
                       {hints.has(current.id) ? "Ẩn gợi ý" : "Cần một gợi ý?"}
@@ -1971,10 +2385,14 @@ export function PracticeApp({
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div>
                           <p className="text-sm font-bold text-[#173f35]">
-                            Chấm mức độ ghi nhớ để sang câu tiếp theo
+                            {isRepairActive
+                              ? "Câu này đã được sửa chưa?"
+                              : "Chấm mức độ ghi nhớ để sang câu tiếp theo"}
                           </p>
                           <p className="mt-0.5 text-xs text-[#5c6e65]">
-                            {revealed.has(current.id)
+                            {isRepairActive
+                              ? "Good/Easy kết thúc repair; Again/Hard sẽ chèn lại sau vài thẻ."
+                              : revealed.has(current.id)
                               ? "So với đáp án, mày nhớ được tới đâu?"
                               : "AI đã chấm xong — giờ mày tự chọn mức phù hợp."}
                           </p>
@@ -1996,10 +2414,16 @@ export function PracticeApp({
                           >
                             <span className="block text-sm font-bold">{option.label}</span>
                             <span className="mt-1 block font-mono text-[11px] opacity-65">
-                              lại sau{" "}
-                              {currentLearningState
-                                ? `${ratingIntervalDays(currentLearningState, option.value)} ngày`
-                                : option.interval}
+                              {isRepairActive
+                                ? option.value === "good" ||
+                                  option.value === "easy"
+                                  ? "đã phục hồi"
+                                  : "lặp lại trong phiên"
+                                : `lại sau ${
+                                    currentLearningState
+                                      ? `${ratingIntervalDays(currentLearningState, option.value)} ngày`
+                                      : option.interval
+                                  }`}
                             </span>
                           </button>
                         ))}
