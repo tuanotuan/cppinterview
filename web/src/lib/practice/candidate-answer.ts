@@ -1,6 +1,3 @@
-export const SCENARIO_EXPLANATION_MAX = 2200;
-export const SCENARIO_CODE_MAX = 3200;
-
 const LEGACY_CODE_RESPONSE_IDS = new Set([
   "cpp11-mutable-lambda-002",
   "cpp11-override-004",
@@ -28,11 +25,9 @@ export function buildCandidateAnswer(
 ) {
   if (!requiresCodeAnswer(question)) return explanation.trim();
 
-  const trimmedCode = code.trim().slice(0, SCENARIO_CODE_MAX);
+  const trimmedCode = code.trim();
   if (!trimmedCode) return "";
-  const trimmedExplanation = explanation
-    .trim()
-    .slice(0, SCENARIO_EXPLANATION_MAX);
+  const trimmedExplanation = explanation.trim();
   const language = question.language === "python"
     ? "Python"
     : question.language === "cmake"

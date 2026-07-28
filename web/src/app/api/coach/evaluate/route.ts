@@ -69,7 +69,7 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return Response.json(
       {
-        error: "Câu trả lời cần ít nhất 10 ký tự và không quá 6.000 ký tự.",
+        error: "Yêu cầu AI coach không hợp lệ.",
         code: "invalid_request",
       },
       { status: 400 },

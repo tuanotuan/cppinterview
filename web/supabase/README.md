@@ -309,3 +309,13 @@ No new secret is required. Capture uses the authenticated owner session and RLS;
 generation uses the existing OpenAI daily/monthly budget with Gemini fallback.
 Cards are inserted as immutable DB-native `draft` revisions and remain inactive
 until the owner approves their exact question version and source hash.
+
+## Blank and long AI-coach answers
+
+Apply `20260730120000_allow_blank_unbounded_coach_answers.sql` after the mistake
+queue migration. It removes the old 10–6,000 character check from
+`coach_attempts.candidate_answer` while retaining `NOT NULL`: an empty string
+means the learner does not know, and PostgreSQL `text` stores longer answers
+without a product-level cap. Deploy it with the matching coach UI/API change so
+blank or long attempts keep their idempotent history instead of failing the
+history insert.

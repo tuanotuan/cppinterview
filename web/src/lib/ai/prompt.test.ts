@@ -30,17 +30,50 @@ describe("AI coach contract", () => {
 
     expect(prompt).toContain(question.rubric.required[0]);
     expect(prompt).toContain(`<source id="${question.sources[0].sectionId}"`);
-    expect(prompt).toContain("<candidate_answer>");
+    expect(prompt).toContain('<candidate_answer status="provided">');
   });
 
-  it("rejects short requests and malformed coach responses", () => {
+  it("accepts blank, short and long answers while rejecting malformed data", () => {
     expect(
-      coachRequestSchema.safeParse({ questionId: "cpp11-auto-001", answer: "ngắn" })
+      coachRequestSchema.safeParse({ questionId: "cpp11-auto-001", answer: "" })
         .success,
+    ).toBe(true);
+    expect(
+      coachRequestSchema.safeParse({
+        questionId: "cpp11-auto-001",
+        answer: "ngắn",
+      }).success,
+    ).toBe(true);
+    expect(
+      coachRequestSchema.safeParse({
+        questionId: "cpp11-auto-001",
+        answer: "x".repeat(7000),
+      }).success,
+    ).toBe(true);
+    expect(
+      coachRequestSchema.safeParse({
+        questionId: "cpp11-auto-001",
+        answer: 42,
+      }).success,
     ).toBe(false);
     expect(
       coachFeedbackSchema.safeParse({ score: 120, verdict: "perfect" }).success,
     ).toBe(false);
+  });
+
+  it("treats a blank answer as not knowing and asks the coach to teach", () => {
+    const question = manifest.questions[0];
+    const lesson = manifest.lessons.find((item) => item.id === question.lessonId)!;
+    const prompt = buildCoachPrompt({
+      question,
+      lesson,
+      candidateAnswer: "   ",
+    });
+
+    expect(prompt).toContain('status="not_provided"');
+    expect(prompt).toContain("chưa biết cách làm");
+    expect(prompt).toContain("score 0");
+    expect(prompt).toContain("dạy lời giải từ nền tảng");
   });
 
   it("converts an accidental 8/10 score when verdict and rubric mean solid", () => {
@@ -91,6 +124,20 @@ describe("AI coach contract", () => {
         messages: [{ role: "assistant", content: "Giải thích" }],
       }).success,
     ).toBe(false);
+    expect(
+      coachFollowUpRequestSchema.safeParse({
+        ...base,
+        candidateAnswer: "",
+        messages: [{ role: "user", content: "Hãy dạy tôi từ đầu." }],
+      }).success,
+    ).toBe(true);
+    expect(
+      coachFollowUpRequestSchema.safeParse({
+        ...base,
+        candidateAnswer: "x".repeat(7000),
+        messages: [{ role: "user", content: "Hãy giải thích tiếp." }],
+      }).success,
+    ).toBe(true);
   });
 
   it("grounds follow-up prompts in feedback, conversation and source notes", () => {

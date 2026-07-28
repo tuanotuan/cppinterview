@@ -5,7 +5,7 @@ export const coachRequestSchema = z.object({
     .string()
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
     .max(100),
-  answer: z.string().trim().min(10).max(6000),
+  answer: z.string().trim(),
   idempotencyKey: z.string().uuid().optional(),
 });
 
@@ -85,7 +85,7 @@ export function normalizeCoachFeedback(
 
 export const coachFollowUpMessageSchema = z.object({
   role: z.enum(["user", "assistant"]),
-  content: z.string().trim().min(1).max(2000),
+  content: z.string().trim().min(1),
 });
 
 export const coachFollowUpRequestSchema = z
@@ -94,7 +94,7 @@ export const coachFollowUpRequestSchema = z
       .string()
       .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
       .max(100),
-    candidateAnswer: z.string().trim().min(10).max(6000),
+    candidateAnswer: z.string().trim(),
     feedback: coachFeedbackSchema,
     messages: z.array(coachFollowUpMessageSchema).min(1).max(8),
   })

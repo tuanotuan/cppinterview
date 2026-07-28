@@ -12,7 +12,7 @@ import { buildPracticeAnalytics } from "@/lib/practice/analytics";
 import { loadCloudContext } from "@/lib/practice/cloud-server";
 import { buildLearningStates } from "@/lib/practice/learning-state";
 import type { Rating } from "@/lib/practice/scheduler";
-import { CalibrationShadowPanel } from "./calibration-shadow-panel";
+import { FsrsShadowPanel } from "./fsrs-shadow-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -152,8 +152,7 @@ export default async function StatsPage({
           <MetricCard label="Interval trung bình" value={`${analytics.summary.averageIntervalDays} ngày`} note={`${analytics.summary.totalReviews} lượt review tổng cộng`} />
         </section>
 
-        <CalibrationShadowPanel
-          accountId={cloud.account.id}
+        <FsrsShadowPanel
           questionIdentities={questions.map((question) => ({
             id: question.id,
             version: question.version,

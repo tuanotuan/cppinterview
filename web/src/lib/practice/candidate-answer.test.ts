@@ -3,8 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   buildCandidateAnswer,
   requiresCodeAnswer,
-  SCENARIO_CODE_MAX,
-  SCENARIO_EXPLANATION_MAX,
 } from "./candidate-answer";
 
 describe("buildCandidateAnswer", () => {
@@ -76,7 +74,7 @@ describe("buildCandidateAnswer", () => {
     );
   });
 
-  it("requires code and stays below the API/database answer limit", () => {
+  it("requires code and preserves long code and explanations", () => {
     expect(
       buildCandidateAnswer(
         { type: "scenario", responseMode: "code" },
@@ -85,11 +83,14 @@ describe("buildCandidateAnswer", () => {
       ),
     ).toBe("");
 
+    const explanation = "x".repeat(7000);
+    const code = "y".repeat(8000);
     const result = buildCandidateAnswer(
       { type: "scenario", responseMode: "code" },
-      "x".repeat(SCENARIO_EXPLANATION_MAX + 100),
-      "y".repeat(SCENARIO_CODE_MAX + 100),
+      explanation,
+      code,
     );
-    expect(result.length).toBeLessThanOrEqual(6000);
+    expect(result).toContain(code);
+    expect(result).toContain(explanation);
   });
 });

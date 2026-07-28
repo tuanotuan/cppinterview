@@ -24,11 +24,12 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
   `open → learning → transfer_ready → verified`; checkpoint clean phải đạt
   rubric/follow-up và là unseen hoặc spaced retest sau cooldown 24 giờ mới verify.
 - Practice có same-session Recall Repair: `Again` quay lại sau 3 thẻ, `Hard`
-  sau 5 thẻ; retry không tạo daily review thứ hai. Confidence/timing/hint/reveal
-  và việc đã dùng coach được lưu thành private signal không chứa answer; exposure
-  giữ qua navigation/reload cho tới khi card được rate, nên đổi câu không thể
-  rửa cờ hỗ trợ. Stats hiển thị calibration, high-confidence
-  mistakes và FSRS-6 shadow theo exact revision; shadow không đổi lịch hiện tại.
+  sau 5 thẻ; retry không tạo daily review thứ hai. Practice không còn hỏi mức tự
+  tin hoặc hiển thị confidence calibration. Draft answer/code không có giới hạn
+  ký tự ở tầng sản phẩm; để trống nghĩa là chưa biết, nút AI vẫn hoạt động và
+  prompt buộc coach dạy từ nền tảng. Cờ hint/reveal/coach vẫn giữ qua
+  navigation/reload tới khi card được rate. Stats chỉ giữ FSRS-6 shadow theo
+  exact revision và không đổi lịch hiện tại.
 - Today’s Mission khóa exact snapshot qua reload theo account/local + ngày + role
   + budget, đưa duy nhất item chưa xong đầu tiên lên “Bước tiếp theo” và return
   về đúng Mission sau Focus/Drill/Mock. Snapshot giữ tối đa 24 bản/account và
@@ -101,16 +102,20 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 - Migration `20260730110000_create_mistake_flashcard_queue.sql` phải được apply
   trước khi dùng Mistake Inbox; practice/report fail-soft còn Admin báo migration
   bị thiếu.
+- Migration `20260730120000_allow_blank_unbounded_coach_answers.sql` phải được
+  apply để `coach_attempts` lưu được answer rỗng hoặc dài; file tồn tại không
+  chứng minh remote database đã chạy migration.
 
 ## Validation gần nhất
 
 - Content check, context refresh/check và `git diff --check`: pass.
 - Lint toàn repo và TypeScript `--noEmit`: pass.
-- Vitest: 71 test files, 392 tests pass.
+- Vitest: 70 test files, 388 tests pass.
 - Next.js production build: pass, gồm compile, type-check và 25 generated pages;
   năm route WorldQuant training và `/admin/coverage` đều có trong route graph.
-- CDP visual gate ở 320/375 px: Guided CTA nằm trong first fold, Hub/Mission
-  không horizontal overflow, không console/runtime error hoặc focus/shadow bị cắt.
+- Headless Chrome smoke ở 1440×1200: confidence selector đã biến mất và nút
+  `Nhờ AI giải` vẫn active khi textarea trống; mobile visual gate chưa chạy lại
+  cho thay đổi này.
 
 ## Quy tắc cập nhật
 

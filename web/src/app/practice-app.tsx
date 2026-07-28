@@ -37,8 +37,6 @@ import type { PracticeAccount } from "@/lib/practice/cloud-server";
 import {
   buildCandidateAnswer,
   requiresCodeAnswer,
-  SCENARIO_CODE_MAX,
-  SCENARIO_EXPLANATION_MAX,
 } from "@/lib/practice/candidate-answer";
 import {
   buildCustomStudyQueue,
@@ -79,12 +77,6 @@ import {
   updateRecallRepairQueueLocked,
   type RecallRepairQueue,
 } from "@/lib/practice/repair-queue";
-import {
-  outcomeForReview,
-  readPracticeSignalStore,
-  recordPracticeAttemptSignal,
-  writePracticeSignalStoreLocked,
-} from "@/lib/practice/signals";
 import {
   calculateStreak,
   latestReviews,
@@ -235,9 +227,6 @@ export function PracticeApp({
   );
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [codeAnswers, setCodeAnswers] = useState<Record<string, string>>({});
-  const [confidenceByQuestion, setConfidenceByQuestion] = useState<
-    Record<string, number>
-  >({});
   const [repairQueue, setRepairQueue] = useState<RecallRepairQueue>(
     EMPTY_RECALL_REPAIR_QUEUE,
   );
@@ -317,7 +306,6 @@ export function PracticeApp({
   const focusHydrationStarted = useRef<string | null>(null);
   const scrollToRatingWhenAvailable = useRef(false);
   const pendingSessionSaveRef = useRef<(() => void) | null>(null);
-  const attemptStartedAtRef = useRef<Record<string, number>>({});
   const coachRequestTokensRef = useRef<Record<string, string>>({});
   const studySessionGenerationRef = useRef(0);
   const [sessionHydrated, setSessionHydrated] = useState(false);
@@ -383,7 +371,6 @@ export function PracticeApp({
     );
     const restoredAnswers: Record<string, string> = {};
     const restoredCodeAnswers: Record<string, string> = {};
-    const restoredConfidence: Record<string, number> = {};
     const restoredFeedback: Record<string, CoachFeedback> = {};
     const restoredModels: Record<string, string> = {};
     const restoredCoachAnswers: Record<string, string> = {};
@@ -407,9 +394,6 @@ export function PracticeApp({
       if (saved.codeAnswer !== undefined) {
         restoredCodeAnswers[questionId] = saved.codeAnswer;
       }
-      if (saved.confidencePercent !== undefined) {
-        restoredConfidence[questionId] = saved.confidencePercent;
-      }
       if (saved.revealed) restoredRevealed.add(questionId);
       if (saved.hint) restoredHints.add(questionId);
       if (saved.answerRevealUsed || saved.revealed) {
@@ -422,7 +406,9 @@ export function PracticeApp({
       if (saved.sourceVisible) restoredVisibleSources.add(questionId);
       if (saved.coachFeedback) restoredFeedback[questionId] = saved.coachFeedback;
       if (saved.coachModel) restoredModels[questionId] = saved.coachModel;
-      if (saved.coachAnswer) restoredCoachAnswers[questionId] = saved.coachAnswer;
+      if (saved.coachAnswer !== undefined) {
+        restoredCoachAnswers[questionId] = saved.coachAnswer;
+      }
       if (saved.coachAttemptId) restoredAttemptIds[questionId] = saved.coachAttemptId;
       if (saved.coachIdempotencyKey) {
         restoredIdempotencyKeys[questionId] = saved.coachIdempotencyKey;
@@ -441,7 +427,6 @@ export function PracticeApp({
 
     setAnswers(restoredAnswers);
     setCodeAnswers(restoredCodeAnswers);
-    setConfidenceByQuestion(restoredConfidence);
     setRevealed(restoredRevealed);
     setHints(restoredHints);
     setAnswerRevealUsedByQuestion(restoredAnswerRevealUsed);
@@ -475,10 +460,10 @@ export function PracticeApp({
       sessionQuestions.forEach((question) => {
         const answer = answers[question.id];
         const codeAnswer = codeAnswers[question.id];
-        const confidencePercent = confidenceByQuestion[question.id];
         const feedback = coachFeedback[question.id];
         const model = coachModels[question.id];
         const coachAnswer = coachAnswers[question.id];
+        const hasCoachAnswer = coachAnswer !== undefined;
         const coachAttemptId = coachAttemptIds[question.id];
         const coachIdempotencyKey = coachIdempotencyKeys[question.id];
         const followUpInput = followUpInputs[question.id];
@@ -497,7 +482,6 @@ export function PracticeApp({
         const hasSession = Boolean(
           answer ||
             codeAnswer ||
-            confidencePercent !== undefined ||
             feedback ||
             coachIdempotencyKey ||
             followUpInput ||
@@ -519,7 +503,6 @@ export function PracticeApp({
           sourceHash: question.sourceHash,
           ...(answer ? { answer } : {}),
           ...(codeAnswer ? { codeAnswer } : {}),
-          ...(confidencePercent !== undefined ? { confidencePercent } : {}),
           ...(isRevealed ? { revealed: true } : {}),
           ...(hasHint ? { hint: true } : {}),
           ...(answerRevealUsed ? { answerRevealUsed: true } : {}),
@@ -528,7 +511,7 @@ export function PracticeApp({
           ...(sourceVisible ? { sourceVisible: true } : {}),
           ...(feedback ? { coachFeedback: feedback } : {}),
           ...(model ? { coachModel: model } : {}),
-          ...(coachAnswer ? { coachAnswer } : {}),
+          ...(hasCoachAnswer ? { coachAnswer: coachAnswer ?? "" } : {}),
           ...(coachAttemptId ? { coachAttemptId } : {}),
           ...(coachIdempotencyKey ? { coachIdempotencyKey } : {}),
           ...(followUpInput ? { followUpInput } : {}),
@@ -572,7 +555,6 @@ export function PracticeApp({
     coachIdempotencyKeys,
     coachModels,
     codeAnswers,
-    confidenceByQuestion,
     deepDiveAnswers,
     deepDiveFeedback,
     deepDiveModels,
@@ -1028,12 +1010,6 @@ export function PracticeApp({
   const current = isFocusActive
     ? focusQuestion
     : repairQuestion ?? normalCurrent;
-  const currentId = current?.id;
-
-  useEffect(() => {
-    if (!currentId || snapshot === null || !sessionHydrated) return;
-    attemptStartedAtRef.current[currentId] ??= Date.now();
-  }, [currentId, sessionHydrated, snapshot]);
 
   if (snapshot === null) {
     return <LoadingScreen />;
@@ -1043,6 +1019,13 @@ export function PracticeApp({
     repairItem && current?.id === repairItem.questionId,
   );
   const currentPrompt = current ? displayQuestionPrompt(current) : "";
+  const currentCandidateAnswer = current
+    ? buildCandidateAnswer(
+        current,
+        answers[current.id] ?? "",
+        codeAnswers[current.id] ?? "",
+      )
+    : "";
   const currentLearningState = current
     ? isFocusActive || isRepairActive
       ? allLearningStates.get(current.id)
@@ -1070,12 +1053,6 @@ export function PracticeApp({
       (coachFeedback[current.id] ||
         coachFeedbackUsedByQuestion.has(current.id) ||
         answerRevealUsedByQuestion.has(current.id)),
-  );
-  const confidenceLocked = Boolean(
-    current &&
-      (hasAnswered ||
-        hintUsedByQuestion.has(current.id) ||
-        coachFeedbackUsedByQuestion.has(current.id)),
   );
   const currentSuggestedRating = current
     ? ratingOptions.find(
@@ -1165,46 +1142,6 @@ export function PracticeApp({
     if (!current || !currentLearningState) return;
     const occurredAt = new Date();
     const occurredAtIso = occurredAt.toISOString();
-    const startedAt =
-      attemptStartedAtRef.current[current.id] ?? occurredAt.getTime();
-    const responseTimeMs = Math.min(
-      4 * 60 * 60 * 1000,
-      Math.max(0, occurredAt.getTime() - startedAt),
-    );
-    try {
-      const nextSignals = recordPracticeAttemptSignal(
-        readPracticeSignalStore(accountId),
-        {
-          eventId: crypto.randomUUID(),
-          questionId: current.id,
-          questionVersion: current.version,
-          sourceHash: current.sourceHash,
-          occurredAt: occurredAtIso,
-          mode: isRepairActive ? "repair" : "scheduled",
-          rating,
-          confidencePercent:
-            confidenceByQuestion[current.id] ?? null,
-          responseTimeMs,
-          hintUsed: hintUsedByQuestion.has(current.id),
-          answerRevealed: answerRevealUsedByQuestion.has(current.id),
-          coachFeedbackUsed:
-            coachFeedbackUsedByQuestion.has(current.id),
-          coachScore: coachFeedback[current.id]?.score ?? null,
-          outcome: outcomeForReview({
-            rating,
-            coachScore: coachFeedback[current.id]?.score,
-          }),
-        },
-      );
-      void writePracticeSignalStoreLocked(
-        accountId,
-        nextSignals,
-      ).catch(() => {
-        // Review scheduling remains available when analytics cannot persist.
-      });
-    } catch {
-      // Review scheduling remains available when private analytics cannot persist.
-    }
 
     if (isRepairActive) {
       const updateRepair = (queue: RecallRepairQueue) =>
@@ -1418,8 +1355,6 @@ export function PracticeApp({
     coachRequestTokensRef.current = {};
     setAnswers({});
     setCodeAnswers({});
-    setConfidenceByQuestion({});
-    attemptStartedAtRef.current = {};
     setCoachFeedback({});
     setCoachModels({});
     setCoachAnswers({});
@@ -1513,12 +1448,7 @@ export function PracticeApp({
   async function askCoach() {
     if (!current) return;
     const questionId = current.id;
-    const answer = buildCandidateAnswer(
-      current,
-      answers[current.id] ?? "",
-      codeAnswers[current.id] ?? "",
-    );
-    if (answer.length < 10) return;
+    const answer = currentCandidateAnswer;
 
     const requestToken = crypto.randomUUID();
     coachRequestTokensRef.current[questionId] = requestToken;
@@ -1658,7 +1588,7 @@ export function PracticeApp({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           questionId,
-          candidateAnswer: coachAnswers[questionId],
+          candidateAnswer: coachAnswers[questionId] ?? "",
           feedback: coachFeedback[questionId],
           messages: requestMessages,
         }),
@@ -1735,7 +1665,9 @@ export function PracticeApp({
     const sessionGeneration = studySessionGenerationRef.current;
     const answer = deepDiveAnswers[questionId]?.trim() ?? "";
     const followUpQuestion = coachFeedback[questionId].followUpQuestion;
-    if (answer.length < 10) return;
+    const answerContext = answer
+      ? `Câu trả lời tôi tự làm: ${answer}\n\nHãy nhận xét câu trả lời như interviewer: chỉ ra phần đúng, phần thiếu hoặc sai, rồi mới giải thích để tôi hiểu sâu hơn.`
+      : "Tôi để trống vì chưa biết cách trả lời. Hãy dạy tôi từ đầu, giải thích từng ý và đưa ra một câu trả lời phỏng vấn mẫu dễ học.";
 
     setDeepDiveLoading(questionId);
     setDeepDiveErrors((errors) => ({ ...errors, [questionId]: "" }));
@@ -1745,12 +1677,12 @@ export function PracticeApp({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           questionId,
-          candidateAnswer: coachAnswers[questionId],
+          candidateAnswer: coachAnswers[questionId] ?? "",
           feedback: coachFeedback[questionId],
           messages: [
             {
               role: "user",
-              content: `Đây là câu hỏi phỏng vấn mở rộng: ${followUpQuestion}\n\nCâu trả lời tôi tự làm: ${answer}\n\nHãy nhận xét câu trả lời như interviewer: chỉ ra phần đúng, phần thiếu hoặc sai, rồi mới giải thích để tôi hiểu sâu hơn.`,
+              content: `Đây là câu hỏi phỏng vấn mở rộng: ${followUpQuestion}\n\n${answerContext}`,
             },
           ],
         }),
@@ -2247,14 +2179,13 @@ export function PracticeApp({
                             Giải thích lựa chọn thiết kế
                           </label>
                           <span className="font-mono text-[11px] text-[#6c7b73]">
-                            không bắt buộc · {(answers[current.id] ?? "").length}/{SCENARIO_EXPLANATION_MAX}
+                            không bắt buộc · tự lưu
                           </span>
                         </div>
                         <textarea
                           id="candidate-answer"
                           value={answers[current.id] ?? ""}
                           onChange={(event) => updateAnswer(current.id, event.target.value)}
-                          maxLength={SCENARIO_EXPLANATION_MAX}
                           className="mt-2 min-h-28 w-full resize-y rounded-2xl border border-[#173f35]/20 bg-[#fbfaf5] px-4 py-3 leading-7 outline-none transition focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/45"
                           placeholder="Giải thích ownership, API, trade-off và các quyết định quan trọng…"
                         />
@@ -2277,52 +2208,16 @@ export function PracticeApp({
                         id="candidate-answer"
                         value={answers[current.id] ?? ""}
                         onChange={(event) => updateAnswer(current.id, event.target.value)}
-                        maxLength={6000}
                         className="mt-2 min-h-36 w-full resize-y rounded-2xl border border-[#173f35]/20 bg-[#fbfaf5] px-4 py-3 leading-7 outline-none transition focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/45"
-                        placeholder="Tự trả lời như đang ngồi phỏng vấn…"
+                        placeholder="Tự trả lời như đang ngồi phỏng vấn, hoặc để trống nếu chưa biết…"
                       />
                     </>
                   )}
 
-                  <fieldset
-                    className="mt-5 rounded-2xl border border-[#173f35]/12 bg-[#f4f3ec] p-4"
-                    disabled={confidenceLocked}
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <legend className="text-sm font-bold text-[#173f35]">
-                        Trước khi xem feedback, mày tự tin bao nhiêu?
-                      </legend>
-                      <span className="font-mono text-[11px] text-[#6c7b73]">
-                        {confidenceByQuestion[current.id] === undefined
-                          ? "không bắt buộc"
-                          : `${confidenceByQuestion[current.id]}%`}
-                      </span>
-                    </div>
-                    <div className="mt-3 grid grid-cols-5 gap-2">
-                      {[20, 40, 60, 80, 100].map((confidence) => (
-                        <button
-                          key={confidence}
-                          type="button"
-                          onClick={() => {
-                            setConfidenceByQuestion((values) => ({
-                              ...values,
-                              [current.id]: confidence,
-                            }));
-                          }}
-                          aria-pressed={
-                            confidenceByQuestion[current.id] === confidence
-                          }
-                          className={`rounded-xl border px-2 py-2 font-mono text-xs font-bold transition focus:ring-4 focus:ring-[#d7ff91] focus:outline-none disabled:cursor-not-allowed ${
-                            confidenceByQuestion[current.id] === confidence
-                              ? "border-[#356b58] bg-[#d7ff91] text-[#173f35]"
-                              : "border-[#173f35]/15 bg-white/70 text-[#5c6e65] hover:border-[#356b58]/45"
-                          }`}
-                        >
-                          {confidence}%
-                        </button>
-                      ))}
-                    </div>
-                  </fieldset>
+                  <p className="mt-3 text-xs leading-5 text-[#64736c]">
+                    Chưa biết thì cứ để trống. Nhờ AI sẽ giải từ đầu; câu trả lời
+                    không bị giới hạn ký tự.
+                  </p>
 
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                     <button
@@ -2344,15 +2239,14 @@ export function PracticeApp({
                       <button
                         type="button"
                         onClick={askCoach}
-                        disabled={
-                          (requiresCodeAnswer(current)
-                            ? (codeAnswers[current.id]?.trim().length ?? 0) < 10
-                            : (answers[current.id]?.trim().length ?? 0) < 10) ||
-                          coachLoading === current.id
-                        }
+                        disabled={coachLoading === current.id}
                         className="rounded-xl border border-[#356b58]/25 bg-[#d7ff91] px-5 py-3 text-sm font-bold text-[#173f35] shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#d7ff91]/60 focus:outline-none"
                       >
-                        {coachLoading === current.id ? "AI đang chấm…" : "Nhờ AI chấm"}
+                        {coachLoading === current.id
+                          ? "AI đang giúp…"
+                          : currentCandidateAnswer
+                            ? "Nhờ AI chấm"
+                            : "Nhờ AI giải"}
                       </button>
                       <button
                         type="button"
@@ -3401,9 +3295,7 @@ function ScenarioCodeEditor({
           <MonacoCodeEditor
             language={language}
             value={value}
-            onChange={(nextValue) =>
-              onChange(nextValue.slice(0, SCENARIO_CODE_MAX))
-            }
+            onChange={onChange}
             height={expanded ? "calc(100vh - 9rem)" : "24rem"}
             expanded={expanded}
             placeholder={editor.placeholder}
@@ -3411,7 +3303,7 @@ function ScenarioCodeEditor({
         </div>
         <div className="flex items-center justify-between border-t border-white/8 bg-[#102f27] px-4 py-2 font-mono text-[10px] text-white/40">
           <span>Monaco · Ctrl+F tìm kiếm · Alt+↑↓ chuyển dòng · Ctrl+S đã tự lưu</span>
-          <span>{value.length}/{SCENARIO_CODE_MAX}</span>
+          <span>{value.length} ký tự</span>
         </div>
       </div>
     </section>
@@ -3787,7 +3679,8 @@ function DeepDivePracticePanel({
         <InlineCode text={prompt} />
       </h3>
       <p className="mt-2 text-sm leading-6 text-[#64736c]">
-        Tự trả lời trước như một câu phỏng vấn mới. AI chỉ được gọi sau khi mày gửi bài.
+        Tự trả lời như một câu phỏng vấn mới, hoặc để trống nếu chưa biết để AI
+        dạy từ đầu.
       </p>
 
       <form
@@ -3804,7 +3697,6 @@ function DeepDivePracticePanel({
           id={`deep-dive-${question.id}`}
           value={answer}
           onChange={(event) => onAnswer(event.target.value)}
-          maxLength={6000}
           rows={5}
           disabled={loading}
           placeholder="Trả lời câu mở rộng trước khi xem nhận xét của AI…"
@@ -3816,10 +3708,14 @@ function DeepDivePracticePanel({
           </span>
           <button
             type="submit"
-            disabled={answer.trim().length < 10 || loading}
+            disabled={loading}
             className="rounded-xl bg-[#173f35] px-5 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#d7ff91] focus:outline-none"
           >
-            {loading ? "AI đang chấm…" : "Nhờ AI chấm câu mở rộng"}
+            {loading
+              ? "AI đang giúp…"
+              : answer.trim()
+                ? "Nhờ AI chấm câu mở rộng"
+                : "Nhờ AI giải câu mở rộng"}
           </button>
         </div>
       </form>
