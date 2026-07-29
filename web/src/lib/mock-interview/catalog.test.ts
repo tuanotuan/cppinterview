@@ -27,18 +27,20 @@ describe("WorldQuant mock catalog", () => {
 
   it("uses the approved readiness classifier for bank questions", () => {
     const manifest = contentManifestSchema.parse(manifestJson);
-    const tickSource = manifest.questions.find((question) =>
-      question.taxonomy.topics.includes("tick-data"),
-    )!;
+    const source = manifest.questions[0]!;
+    const tickSource = {
+      ...source,
+      id: "test-tick-source",
+      status: "verified" as const,
+      taxonomy: {
+        ...source.taxonomy,
+        topics: ["tick-data"],
+        tags: ["tick-data"],
+      },
+    };
     const questions = buildWorldQuantBankCatalog({
-      manifest,
-      approvals: [
-        {
-          questionId: tickSource.id,
-          questionVersion: tickSource.version,
-          sourceHash: tickSource.sourceHash,
-        },
-      ],
+      manifest: { ...manifest, questions: [tickSource] },
+      approvals: [],
     });
 
     const tickQuestion = questions.find(

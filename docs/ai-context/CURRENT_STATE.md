@@ -85,9 +85,10 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 - AI admission reset theo ngày Việt Nam và practice ưu tiên question New.
 - Tiêu đề question trong practice tự giảm cỡ chữ theo độ dài; câu ngắn giữ cỡ
   nổi bật, câu dài dùng typography gọn và line-height thoáng hơn.
-- Curriculum/guide tick-data và order-book đã có trong C++20; tranche question
-  phỏng vấn nâng cao mới vẫn là Git-owned `draft`, cần owner review đúng
-  version/source hash trước khi đủ điều kiện học.
+- Guide độc lập `/learn/tick-data-order-book` vẫn còn làm tài liệu tham khảo.
+  Năm lesson tự tạo `cpp20/02_...` đến `cpp20/06_...` và sáu question Git-owned
+  phụ thuộc các lesson đó đã bị gỡ theo yêu cầu; pipeline sync sẽ archive lesson,
+  question và mọi draft DB-native liên quan thay vì hard-delete audit history.
 - Guide `/learn/cmake` có 16 chương target-based, dùng một TickPlatform xuyên
   suốt từ mental model, code generation và CTest tới packaging, CI và migration
   legacy; baseline thực hành là CMake 3.25.
@@ -137,7 +138,7 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 
 - `npm run validate` pass toàn bộ: content/context check, lint, TypeScript,
   Vitest và production build.
-- Vitest: 73 test files, 423 tests pass.
+- Vitest: 73 test files, 422 tests pass.
 - Next.js production build: pass, gồm compile, type-check; `/profile`, năm route
   WorldQuant training và `/admin/coverage` đều có trong route graph.
 - Headless Chrome production smoke ở 1440×1200 và mobile CDP 390×844: trang

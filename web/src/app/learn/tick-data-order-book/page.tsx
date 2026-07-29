@@ -4,7 +4,6 @@ import Link from "next/link";
 import {
   TICK_DATA_GUIDE_CHAPTERS,
   TICK_DATA_GUIDE_SOURCES,
-  TICK_DATA_REPO_LESSONS,
 } from "@/lib/learn/tick-data-guide";
 
 export const metadata: Metadata = {
@@ -54,10 +53,10 @@ export default function TickDataOrderBookGuide() {
                 Bắt đầu từ giá mua / giá bán ↓
               </a>
               <Link
-                href="/admin#review-queue"
+                href="/worldquant"
                 className="w-full rounded-2xl border border-white/20 bg-white/8 px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-white/14 sm:w-auto"
               >
-                Xem 10 câu chờ duyệt
+                Về Trung tâm chuẩn bị
               </Link>
             </div>
           </div>
@@ -737,34 +736,6 @@ std::visit(EventRouter{book, tape, session}, event);`}</code>
                   </a>
                 ))}
               </div>
-
-              <details className="group mt-5 overflow-hidden rounded-2xl border border-[#173f35]/12 bg-white/55">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-bold">
-                  <span>Đọc 5 ghi chú kỹ thuật đầy đủ trong kho mã nguồn</span>
-                  <span className="text-xs text-[#356b58] group-open:hidden">
-                    Mở ↓
-                  </span>
-                  <span className="hidden text-xs text-[#356b58] group-open:inline">
-                    Thu gọn ↑
-                  </span>
-                </summary>
-                <div className="grid gap-2 border-t border-[#173f35]/10 p-4 sm:grid-cols-2">
-                  {TICK_DATA_REPO_LESSONS.map((lesson, index) => (
-                    <a
-                      key={lesson.href}
-                      href={lesson.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rounded-xl px-4 py-3 text-sm font-semibold transition hover:bg-[#edf0e8]"
-                    >
-                      <span className="mr-2 font-mono text-[10px] text-[#ba4b2f]">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-                      {lesson.label} ↗
-                    </a>
-                  ))}
-                </div>
-              </details>
             </section>
           </article>
         </div>
