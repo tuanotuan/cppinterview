@@ -7,6 +7,11 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 
 ## Tính năng gần đây đáng biết
 
+- `/profile` là trang cá nhân owner-private với contribution graph 53 tuần theo
+  ngày Việt Nam. Mỗi lượt ôn thẻ, AI coach và phỏng vấn thử hoàn tất là một hoạt
+  động riêng; tooltip tách từng loại, còn summary hiển thị active days và chuỗi
+  hiện tại/dài nhất. Trang đọc các bảng RLS hiện hữu theo từng page, không cần
+  migration, không gọi AI và không trừ quota.
 - Quy ước nội dung người dùng nhìn thấy nằm ở `web/AGENTS.md`; giao diện công
   khai, thông báo API và phản hồi AI dùng “bạn” hoặc câu trung tính, chỉ giữ
   thuật ngữ chuẩn khi cần. `user-facing-language.test.ts` chặn đại từ suồng sã
@@ -132,9 +137,9 @@ Git ở đầu mỗi session; không lưu chúng tại đây vì sẽ lỗi th�
 
 - `npm run validate` pass toàn bộ: content/context check, lint, TypeScript,
   Vitest và production build.
-- Vitest: 72 test files, 418 tests pass.
-- Next.js production build: pass, gồm compile, type-check và 25 generated pages;
-  năm route WorldQuant training và `/admin/coverage` đều có trong route graph.
+- Vitest: 73 test files, 423 tests pass.
+- Next.js production build: pass, gồm compile, type-check; `/profile`, năm route
+  WorldQuant training và `/admin/coverage` đều có trong route graph.
 - Headless Chrome production smoke ở 1440×1200 và mobile CDP 390×844: trang
   luyện thẻ, Trung tâm chuẩn bị, hướng dẫn CMake, hướng dẫn dữ liệu tick và Full
   Round hiển thị đúng bố cục; không có tràn ngang ở cấp trang. Các trạng thái
