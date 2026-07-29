@@ -42,7 +42,6 @@ export const TICK_DATA_GUIDE_CHAPTERS = [
     shortTitle: "Khung phỏng vấn",
   },
 ] as const;
-
 export const TICK_DATA_GUIDE_SOURCES = [
   {
     label: "Nasdaq TotalView-ITCH 5.0",
@@ -85,33 +84,5 @@ export const TICK_DATA_GUIDE_SOURCES = [
     description:
       "Giao dịch, hủy hoặc điều chỉnh, khả năng công bố và mốc thời gian dữ liệu thị trường.",
     href: "https://www.nyse.com/publicdocs/nyse/data/NYSE_Pillar_Integrated_Feed_Client_Specification_v2.5.pdf",
-  },
-] as const;
-
-export const TICK_DATA_REPO_LESSONS = [
-  {
-    lessonId: "cpp20-tick-event-model-and-binary-parsing",
-    label: "Phân tích dữ liệu nhị phân an toàn",
-    href: "https://github.com/tuanotuan/modern-cpp-features/blob/main/cpp20/02_tick%20event%20model%20and%20binary%20parsing/knowledge.md",
-  },
-  {
-    lessonId: "cpp20-market-by-order-reconstruction",
-    label: "Dựng lại sổ lệnh Market-by-Order",
-    href: "https://github.com/tuanotuan/modern-cpp-features/blob/main/cpp20/03_market%20by%20order%20reconstruction/knowledge.md",
-  },
-  {
-    lessonId: "cpp20-market-by-price-and-book-invariants",
-    label: "Market-by-Price và các bất biến của sổ lệnh",
-    href: "https://github.com/tuanotuan/modern-cpp-features/blob/main/cpp20/04_market%20by%20price%20and%20book%20invariants/knowledge.md",
-  },
-  {
-    lessonId: "cpp20-sequencing-gaps-and-recovery",
-    label: "Thứ tự, phần dữ liệu thiếu và phục hồi",
-    href: "https://github.com/tuanotuan/modern-cpp-features/blob/main/cpp20/05_sequencing%20gaps%20and%20recovery/knowledge.md",
-  },
-  {
-    lessonId: "cpp20-trade-statistics-timestamps-and-corrections",
-    label: "Thống kê giao dịch, mốc thời gian và điều chỉnh",
-    href: "https://github.com/tuanotuan/modern-cpp-features/blob/main/cpp20/06_trade%20statistics%20timestamps%20and%20corrections/knowledge.md",
   },
 ] as const;
