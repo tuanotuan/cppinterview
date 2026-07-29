@@ -1,7 +1,8 @@
 # Supabase setup
 
-Supabase stores private cross-device progress, AI history, question approvals,
-and the atomic monthly AI spend guard.
+Supabase stores private cross-device progress, AI and mock-interview history,
+question approvals and immutable revisions, content automation state, code-runner
+admission, the Mistake Inbox, and atomic daily/monthly AI accounting.
 
 1. Create a free project at <https://database.new>.
 2. Copy the Project URL and publishable key into `web/.env.local`.
@@ -184,6 +185,10 @@ and service-role RPCs to enqueue, lease, complete, fail, and retry generation
 jobs. Completion inserts the question, its immutable revision, provenance, and
 audit event in one transaction. Generated IDs use a separate `-ai-NNN`
 namespace, so future repository questions cannot silently collide with them.
+The ownership guard prevents repository sync from changing a DB-owned row to
+`archived`. If its parent lesson is archived, the effective current-question
+view still reports that question as archived without deleting its row,
+revisions, or audit history.
 
 The main workflow now runs `content:refresh`, `content:sync`, and then
 `content:generate:db`. A lesson revision is enqueued only when it has no current,

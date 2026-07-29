@@ -52,7 +52,7 @@ The enqueue job and the stored prompt metadata share
 `QUESTION_GENERATOR_PROMPT_VERSION`; changing the multilingual prompt therefore
 creates an auditable generator revision instead of silently reusing an old one.
 
-The C++, Python, and future CMake notes in the repository root remain the source
+The C++, Python, and CMake notes in the repository root remain the source
 of truth. The web app adds stable metadata and interview questions without
 requiring existing notes to be reformatted.
 
@@ -122,7 +122,9 @@ On `main`, GitHub Actions runs the safe automation automatically after a note is
 added, edited, renamed, or deleted. It:
 
 - registers new lessons and preserves stable IDs across detectable renames;
-- archives questions whose lesson was deleted;
+- archives repository-owned questions whose lesson was deleted; DB-owned rows
+  keep their lifecycle under the ownership guard, while the current-question
+  view hides them when their lesson is archived;
 - marks questions grounded in an older hash as `needs_review`;
 - validates and commits only the deterministic lesson registry and Git manifest;
 - transactionally syncs that committed snapshot into Supabase before the Vercel

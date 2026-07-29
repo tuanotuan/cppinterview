@@ -6,8 +6,8 @@
 ## Content
 
 - Manifest schema: 1
-- Source revision: `64d87f4995ad4a617d11e48a2bc2ae545be723022f5b289c599a882ce8847e09`
-- Lessons: 30 (cpp11: 23, cpp20: 1, cpp98: 5, python3: 1)
+- Source revision: `245498ebfea59f329e4727a9b052bf0d42d6e6eec2799db4f20ba3f139857967`
+- Lessons: 31 (cpp11: 24, cpp20: 1, cpp98: 5, python3: 1)
 - Questions: 48 (draft: 38, verified: 10)
 - Question decks: cpp-interview: 48
 
@@ -33,10 +33,10 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `164846caf71e12f33e85a0c85d83942d1bb366de265700dcbbf0db1171c482d7`
-- Fingerprinted files: 318
+- Project input fingerprint: `a7a120a510d1247087c7c6e4ee8e45de68717c53cd7666560a5b8c3136828ba3`
+- Fingerprinted files: 320
 
 The fingerprint covers lesson sources, content files, application source/tests,
 scripts, package metadata, environment template, workflows, and Supabase files.
-It proves this snapshot was refreshed for the tracked inputs; semantic behavior
+It proves this snapshot was refreshed for the discovered inputs; semantic behavior
 changes must still be described in the human-maintained context files.

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sourceRevision": "64d87f4995ad4a617d11e48a2bc2ae545be723022f5b289c599a882ce8847e09",
+  "sourceRevision": "245498ebfea59f329e4727a9b052bf0d42d6e6eec2799db4f20ba3f139857967",
   "lessons": [
     {
       "id": "cpp98-object-variable-memory",
@@ -2335,6 +2335,95 @@
       ],
       "checklistItems": [],
       "code": "#include <iostream>\r\n\r\nclass Order {\r\npublic:\r\n    Order(int id, int quantity)\r\n        : id_(id), quantity_(quantity) {}\r\n\r\n    Order(const Order& other)\r\n        : id_(other.id_), quantity_(other.quantity_) {\r\n        std::cout << \"Order copied\\n\";\r\n    }\r\n\r\n    void print() const {\r\n        std::cout << \"ID: \" << id_\r\n                  << \", Quantity: \" << quantity_\r\n                  << '\\n';\r\n    }\r\n\r\nprivate:\r\n    int id_;\r\n    int quantity_;\r\n};\r\n\r\nint main() {\r\n    Order original{101, 50};\r\n    Order copy{original};\r\n\r\n    original.print();\r\n    copy.print();\r\n}"
+    },
+    {
+      "id": "cpp11-copy-assignment",
+      "sourcePath": "cpp11/29_copy assignment",
+      "order": 24,
+      "tags": [
+        "copy",
+        "assignment"
+      ],
+      "prerequisites": [
+        "cpp11-copy-constructor"
+      ],
+      "language": "cpp",
+      "track": "cpp11",
+      "standard": "cpp11",
+      "title": "Day 29 — Copy Assignment Operators",
+      "knowledgePath": "cpp11/29_copy assignment/knowledge.md",
+      "codePath": "cpp11/29_copy assignment/main.cpp",
+      "sourceHash": "a6fdb5c645300d5333fe50ef28cd8f0ff30cf7ca1ba205b05362f198bb8289a7",
+      "sections": [
+        {
+          "id": "purpose",
+          "heading": "1. Purpose",
+          "bodyMarkdown": "A copy assignment operator replaces the state of one existing object with a\r\ncopy of another existing object of the same type:\r\n\r\n```cpp\r\nsecond = first;\r\n```\r\n\r\nUnlike a copy constructor, both objects already exist before the assignment.\r\nAssignment changes the target's state; it does not create a new object or change\r\nthe target's identity.",
+          "bodyText": "A copy assignment operator replaces the state of one existing object with a\r\ncopy of another existing object of the same type:second = first;Unlike a copy constructor, both objects already exist before the assignment.\r\nAssignment changes the target's state; it does not create a new object or change\r\nthe target's identity."
+        },
+        {
+          "id": "canonical-syntax",
+          "heading": "2. Canonical Syntax",
+          "bodyMarkdown": "```cpp\r\nclass Order {\r\npublic:\r\n    Order& operator=(const Order& other) {\r\n        id_ = other.id_;\r\n        quantity_ = other.quantity_;\r\n        return *this;\r\n    }\r\n\r\nprivate:\r\n    int id_{};\r\n    int quantity_{};\r\n};\r\n```\r\n\r\nThe conventional form is:\r\n\r\n```cpp\r\nClassName& operator=(const ClassName& other);\r\n```\r\n\r\n- `const ClassName&` avoids a parameter copy and prevents this operator from\r\n  modifying the source through `other`.\r\n- `ClassName&` returns the assigned object and supports chained assignment.\r\n- `return *this` returns the current object by reference.\r\n\r\nA by-value parameter is also useful in the copy-and-swap idiom, but `const&` is\r\nthe usual starting point.",
+          "bodyText": "class Order {\r\npublic:\r\n    Order& operator=(const Order& other) {\r\n        id_ = other.id_;\r\n        quantity_ = other.quantity_;\r\n        return *this;\r\n    }\r\n\r\nprivate:\r\n    int id_{};\r\n    int quantity_{};\r\n};The conventional form is:ClassName& operator=(const ClassName& other);const ClassName& avoids a parameter copy and prevents this operator from\r\nmodifying the source through other.ClassName& returns the assigned object and supports chained assignment.return *this returns the current object by reference.A by-value parameter is also useful in the copy-and-swap idiom, but const& is\r\nthe usual starting point."
+        },
+        {
+          "id": "copy-construction-vs-copy-assignment",
+          "heading": "3. Copy Construction vs Copy Assignment",
+          "bodyMarkdown": "Copy construction creates a new object:\r\n\r\n```cpp\r\nOrder second{first};\r\n```\r\n\r\nCopy assignment updates an object that already exists:\r\n\r\n```cpp\r\nOrder second{202, 10};\r\nsecond = first;\r\n```\r\n\r\nThese are different special member functions and may need different resource\r\nhandling.",
+          "bodyText": "Copy construction creates a new object:Order second{first};Copy assignment updates an object that already exists:Order second{202, 10};\r\nsecond = first;These are different special member functions and may need different resource\r\nhandling."
+        },
+        {
+          "id": "returning-this-and-chained-assignment",
+          "heading": "4. Returning *this and Chained Assignment",
+          "bodyMarkdown": "The operator normally returns the current object:\r\n\r\n```cpp\r\nreturn *this;\r\n```\r\n\r\nThis enables:\r\n\r\n```cpp\r\nthird = second = first;\r\n```\r\n\r\nAssignment operators associate from right to left, so this is parsed as:\r\n\r\n```cpp\r\nthird = (second = first);\r\n```\r\n\r\nThe inner assignment returns `second` by reference, which becomes the source for\r\nthe outer assignment.",
+          "bodyText": "The operator normally returns the current object:return *this;This enables:third = second = first;Assignment operators associate from right to left, so this is parsed as:third = (second = first);The inner assignment returns second by reference, which becomes the source for\r\nthe outer assignment."
+        },
+        {
+          "id": "self-assignment-and-exception-safety",
+          "heading": "5. Self-Assignment and Exception Safety",
+          "bodyMarkdown": "Self-assignment is legal:\r\n\r\n```cpp\r\norder = order;\r\n```\r\n\r\nFor simple value members, member-wise assignment is already safe. A resource-\r\nowning implementation may use an explicit guard:\r\n\r\n```cpp\r\nif (this == &other) {\r\n    return *this;\r\n}\r\n```\r\n\r\nThe guard alone does not provide exception safety. Code that owns a resource\r\nmust not destroy the target's old resource before the replacement has been\r\nacquired successfully. Copy-and-swap is one common way to make self-assignment\r\nsafe and, when `swap` does not throw, provide a strong exception guarantee:\r\n\r\n```cpp\r\nBuffer& operator=(Buffer other) {\r\n    swap(*this, other);\r\n    return *this;\r\n}\r\n```",
+          "bodyText": "Self-assignment is legal:order = order;For simple value members, member-wise assignment is already safe. A resource-\r\nowning implementation may use an explicit guard:if (this == &other) {\r\n    return *this;\r\n}The guard alone does not provide exception safety. Code that owns a resource\r\nmust not destroy the target's old resource before the replacement has been\r\nacquired successfully. Copy-and-swap is one common way to make self-assignment\r\nsafe and, when swap does not throw, provide a strong exception guarantee:Buffer& operator=(Buffer other) {\r\n    swap(*this, other);\r\n    return *this;\r\n}"
+        },
+        {
+          "id": "implicit-and-defaulted-copy-assignment",
+          "heading": "6. Implicit and Defaulted Copy Assignment",
+          "bodyMarkdown": "If no copy assignment operator is declared, C++ may implicitly declare one. A\r\nusable implicit operator assigns base-class subobjects and data members\r\nmember-wise. This is normally correct for value-like members such as:\r\n\r\n- integers and other scalar values;\r\n- `std::string`;\r\n- `std::vector`;\r\n- other classes with correct copy assignment.\r\n\r\nThe implicit operator can be defined as deleted when a member cannot be copy-\r\nassigned, such as a reference member, a non-static `const` data member, or a\r\nmove-only owner such as `std::unique_ptr`. Declaring a move constructor or move\r\nassignment operator also causes the implicitly declared copy assignment operator\r\nto be defined as deleted.\r\n\r\nMake the intended member-wise behavior explicit when useful:\r\n\r\n```cpp\r\nOrder& operator=(const Order&) = default;\r\n```",
+          "bodyText": "If no copy assignment operator is declared, C++ may implicitly declare one. A\r\nusable implicit operator assigns base-class subobjects and data members\r\nmember-wise. This is normally correct for value-like members such as:integers and other scalar values;std::string;std::vector;other classes with correct copy assignment.The implicit operator can be defined as deleted when a member cannot be copy-\r\nassigned, such as a reference member, a non-static const data member, or a\r\nmove-only owner such as std::unique_ptr. Declaring a move constructor or move\r\nassignment operator also causes the implicitly declared copy assignment operator\r\nto be defined as deleted.Make the intended member-wise behavior explicit when useful:Order& operator=(const Order&) = default;"
+        },
+        {
+          "id": "raw-pointer-and-resource-risks",
+          "heading": "7. Raw-Pointer and Resource Risks",
+          "bodyMarkdown": "A compiler-generated copy assignment operator copies pointer addresses, not the\r\npointed-to allocation. For an owning raw pointer, this can:\r\n\r\n- leak the target's old allocation;\r\n- make two objects delete the same allocation;\r\n- create dangling pointers;\r\n- introduce unintended shared state.\r\n\r\nClasses that own resources must define a correct ownership policy. Prefer RAII\r\ntypes and standard containers so member-wise assignment is correct.",
+          "bodyText": "A compiler-generated copy assignment operator copies pointer addresses, not the\r\npointed-to allocation. For an owning raw pointer, this can:leak the target's old allocation;make two objects delete the same allocation;create dangling pointers;introduce unintended shared state.Classes that own resources must define a correct ownership policy. Prefer RAII\r\ntypes and standard containers so member-wise assignment is correct."
+        },
+        {
+          "id": "disabling-copying",
+          "heading": "8. Disabling Copying",
+          "bodyMarkdown": "Disable both copy construction and copy assignment when copying has no valid\r\nmeaning:\r\n\r\n```cpp\r\nclass Connection {\r\npublic:\r\n    Connection(const Connection&) = delete;\r\n    Connection& operator=(const Connection&) = delete;\r\n};\r\n```\r\n\r\nUnique sockets, mutexes, exchange sessions, and exclusive file handles are\r\ntypical examples.",
+          "bodyText": "Disable both copy construction and copy assignment when copying has no valid\r\nmeaning:class Connection {\r\npublic:\r\n    Connection(const Connection&) = delete;\r\n    Connection& operator=(const Connection&) = delete;\r\n};Unique sockets, mutexes, exchange sessions, and exclusive file handles are\r\ntypical examples."
+        },
+        {
+          "id": "trading-system-relevance",
+          "heading": "9. Trading-System Relevance",
+          "bodyMarkdown": "Copy assignment may appear when reusing existing objects:\r\n\r\n- replacing an order or risk snapshot;\r\n- updating a cached market-data value;\r\n- assigning a strategy configuration;\r\n- replacing a value in a preallocated container.\r\n\r\nLarge accidental assignments can add allocations and latency. Prefer references\r\nor views when no independent copy is required and their lifetime is guaranteed,\r\nand measure before introducing a more complicated reuse strategy.",
+          "bodyText": "Copy assignment may appear when reusing existing objects:replacing an order or risk snapshot;updating a cached market-data value;assigning a strategy configuration;replacing a value in a preallocated container.Large accidental assignments can add allocations and latency. Prefer references\r\nor views when no independent copy is required and their lifetime is guaranteed,\r\nand measure before introducing a more complicated reuse strategy."
+        },
+        {
+          "id": "best-practices",
+          "heading": "10. Best Practices",
+          "bodyMarkdown": "- Prefer the Rule of Zero: compose value-like RAII members and let the compiler\r\n  generate copy assignment.\r\n- Use `= default` when member-wise assignment is intentionally correct.\r\n- Use `= delete` when copying is invalid.\r\n- If a class manually owns a resource, consider the Rule of Three or Rule of\r\n  Five and design copy assignment together with destruction, copy construction,\r\n  and move operations.\r\n- Return `*this` by reference.\r\n- Make self-assignment and exception guarantees explicit in resource-owning\r\n  code.\r\n- Avoid unnecessary copies of large objects in latency-sensitive paths.",
+          "bodyText": "Prefer the Rule of Zero: compose value-like RAII members and let the compiler\r\ngenerate copy assignment.Use = default when member-wise assignment is intentionally correct.Use = delete when copying is invalid.If a class manually owns a resource, consider the Rule of Three or Rule of\r\nFive and design copy assignment together with destruction, copy construction,\r\nand move operations.Return *this by reference.Make self-assignment and exception guarantees explicit in resource-owning\r\ncode.Avoid unnecessary copies of large objects in latency-sensitive paths."
+        },
+        {
+          "id": "key-takeaway",
+          "heading": "Key Takeaway",
+          "bodyMarkdown": "A copy assignment operator replaces the state of an existing object. Prefer\r\ncompiler-generated member-wise assignment for value-like classes; write a custom\r\noperator only when ownership or another class invariant requires it.",
+          "bodyText": "A copy assignment operator replaces the state of an existing object. Prefer\r\ncompiler-generated member-wise assignment for value-like classes; write a custom\r\noperator only when ownership or another class invariant requires it."
+        }
+      ],
+      "checklistItems": [],
+      "code": "#include <iostream>\r\n\r\nclass Order {\r\npublic:\r\n    Order(int id, int quantity)\r\n        : id_(id), quantity_(quantity) {}\r\n\r\n    Order& operator=(const Order& other) {\r\n        if (this == &other) {\r\n            return *this;\r\n        }\r\n\r\n        id_ = other.id_;\r\n        quantity_ = other.quantity_;\r\n        std::cout << \"Order assigned\\n\";\r\n        return *this;\r\n    }\r\n\r\n    void print() const {\r\n        std::cout << \"ID: \" << id_\r\n                  << \", Quantity: \" << quantity_\r\n                  << '\\n';\r\n    }\r\n\r\nprivate:\r\n    int id_;\r\n    int quantity_;\r\n};\r\n\r\nint main() {\r\n    Order first{101, 50};\r\n    Order second{202, 10};\r\n    Order third{303, 5};\r\n\r\n    third = second = first;\r\n\r\n    first.print();\r\n    second.print();\r\n    third.print();\r\n}\r\n"
     }
   ],
   "questions": [

@@ -303,3 +303,13 @@ lessons:
     prerequisites: []
     language: cpp
     track: cpp11
+  - id: cpp11-copy-assignment
+    sourcePath: cpp11/29_copy assignment
+    language: cpp
+    track: cpp11
+    order: 24
+    tags:
+      - copy
+      - assignment
+    prerequisites:
+      - cpp11-copy-constructor
