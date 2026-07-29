@@ -149,9 +149,9 @@ export default async function ProfilePage() {
             </div>
           </div>
 
-          <div className="mt-2 overflow-x-auto pt-12 pb-3">
-            <div className="min-w-[760px]">
-              <div className="ml-8 grid grid-cols-[repeat(53,minmax(0,1fr))] gap-1.5">
+          <div className="mx-auto mt-2 max-w-[960px] pt-12 pb-3">
+            <div>
+              <div className="ml-6 grid grid-cols-[repeat(53,minmax(0,1fr))] gap-[2px] sm:ml-8 sm:gap-1">
                 {weeks.map((week, index) => (
                   <span
                     key={week[0]?.date}
@@ -162,7 +162,7 @@ export default async function ProfilePage() {
                 ))}
               </div>
               <div className="mt-1 flex">
-                <div className="mr-2 grid w-6 grid-rows-7 gap-1.5 font-mono text-[9px] text-[#64736c]">
+                <div className="mr-1 grid w-5 shrink-0 grid-rows-7 gap-[2px] font-mono text-[8px] text-[#64736c] sm:mr-2 sm:w-6 sm:gap-1 sm:text-[9px]">
                   <span />
                   <span>T2</span>
                   <span />
@@ -171,7 +171,7 @@ export default async function ProfilePage() {
                   <span>T6</span>
                   <span />
                 </div>
-                <div className="grid flex-1 grid-flow-col grid-rows-7 gap-1.5">
+                <div className="grid min-w-0 flex-1 grid-flow-col grid-rows-7 gap-[2px] sm:gap-1">
                   {calendar.days.map((day) => (
                     <ContributionCell
                       key={day.date}
