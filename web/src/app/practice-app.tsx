@@ -3371,12 +3371,11 @@ function AccountControl({
         >
           Quản trị
         </HeaderNavLink>
-        <form action="/auth/logout" method="post">
-          <button
-            type="submit"
-            title="Đăng xuất"
-            className="flex items-center gap-2 rounded-full border border-[#173f35]/15 bg-white/65 px-2.5 py-1.5 transition hover:border-[#356b58]/40"
-          >
+        <Link
+          href="/profile"
+          title="Mở trang cá nhân"
+          className="flex items-center gap-2 rounded-full border border-[#173f35]/15 bg-white/65 px-2.5 py-1.5 transition hover:border-[#356b58]/40"
+        >
             <span className="grid size-7 place-items-center rounded-full bg-[#173f35] text-xs font-bold text-[#d7ff91]">
               {account.displayName.slice(0, 1).toUpperCase()}
             </span>
@@ -3384,6 +3383,15 @@ function AccountControl({
               {account.login ? `@${account.login}` : account.displayName}
             </span>
             <SyncDot status={syncStatus} />
+        </Link>
+        <form action="/auth/logout" method="post">
+          <button
+            type="submit"
+            title="Đăng xuất"
+            aria-label="Đăng xuất"
+            className="grid size-9 place-items-center rounded-full border border-[#173f35]/15 bg-white/65 text-sm font-bold transition hover:border-[#ba4b2f]/40 hover:text-[#ba4b2f]"
+          >
+            ↪
           </button>
         </form>
       </div>

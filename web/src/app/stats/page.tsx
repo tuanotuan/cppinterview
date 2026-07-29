@@ -126,9 +126,12 @@ export default async function StatsPage({
             <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/admin">
               Quản trị
             </Link>
-            <span className="rounded-full border border-[#173f35]/15 bg-white/65 px-4 py-2 text-xs font-semibold">
+            <Link
+              href="/profile"
+              className="rounded-full border border-[#173f35]/15 bg-white/65 px-4 py-2 text-xs font-semibold transition hover:border-[#356b58]/40"
+            >
               @{cloud.account.login ?? cloud.account.displayName}
-            </span>
+            </Link>
           </nav>
         </header>
 

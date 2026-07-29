@@ -41,6 +41,7 @@ nhật file context tương ứng theo root `AGENTS.md`.
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx` | Guide tick data/order book |
 | `/learn/cmake` | `learn/cmake/page.tsx`, `lib/learn/cmake-guide.ts` | Guide CMake target-based từ mental model tới CTest, packaging, CI và legacy migration |
 | `/stats` | `stats/page.tsx`, `fsrs-shadow-panel.tsx` | Analytics học tập và FSRS-6 shadow comparison |
+| `/profile` | `profile/page.tsx`, `lib/profile/{contribution-activity,profile-activity.server}.ts` | Trang cá nhân và contribution graph 53 tuần từ lượt ôn, AI coach và phỏng vấn thử đã hoàn tất |
 | `/admin` | `admin/page.tsx`, `admin-dashboard.tsx` | Review/edit/archive question, schedule, AI/job settings |
 | `/admin/coverage` | `admin/coverage/page.tsx` | Mức bao phủ nội dung, ưu tiên phần học liệu còn thiếu theo khái niệm và loại bằng chứng |
 | `/auth/*` | `auth/{login,callback,logout}` | GitHub OAuth qua Supabase |
@@ -79,6 +80,7 @@ API quan trọng:
 | `mock-interview` | `history.server.ts`, `trends.ts` | Lease/cache/idempotency cho report history và trend chỉ trên attempt comparable |
 | `worldquant` | `mock-debrief.ts`, `mock-remediation.ts` | Role-scoped evidence, assessed/not-assessed matrix, deterministic ranked gaps và Focus remediation |
 | `code-runner` | `admission.server.ts`, `execution-specs.server.ts`, `vercel-sandbox.server.ts` | Quota/idempotency, harness server-owned, VM cô lập |
+| `profile` | `contribution-activity.ts`, `profile-activity.server.ts` | Tổng hợp nhật ký theo ngày Việt Nam, phân trang dữ liệu owner-private và dựng contribution calendar |
 | `supabase` | `server.ts`, `config.ts`, `authorization.ts` | SSR client và owner allowlist |
 | `admin` | `dashboard.ts` | Tổng hợp dữ liệu admin |
 
@@ -107,6 +109,13 @@ Quy tắc:
 Không có Supabase: localStorage và app vẫn dùng được. Có Supabase + đúng owner:
 server tải review history, Anki projection, approvals, overrides và usage; browser
 merge offline state rồi sync. RPC DB là nguồn thẩm quyền cho cloud transition.
+
+### Nhật ký trang cá nhân
+
+`practice_reviews` + `coach_attempts` + `mock_interview_attempts` đã hoàn tất →
+server đọc qua RLS của account, phân trang toàn bộ khoảng 53 tuần → đổi timestamp
+sang ngày Việt Nam → contribution calendar, streak và nhật ký gần đây. Luồng này
+chỉ đọc dữ liệu đã có, không gọi AI và không tạo thêm bảng activity.
 
 ### WorldQuant readiness
 
