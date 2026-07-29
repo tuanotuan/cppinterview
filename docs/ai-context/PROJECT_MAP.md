@@ -8,8 +8,9 @@ Tài liệu ổn định để tìm đúng vùng code. Xác minh lại nếu sou
 |---|---|
 | `cpp98_foundation/`, `cpp11/`, `cpp20/` | Lesson C++; mỗi thư mục bài có `knowledge.md`, thường có `main.cpp` |
 | `python/` | Lesson Python; `knowledge.md` + tùy chọn `main.py` |
-| `cmake/` | Source root được hỗ trợ; mỗi bài dùng `knowledge.md` + tùy chọn `CMakeLists.txt` |
+| `cmake/` | Source root tùy chọn đã được pipeline hỗ trợ nhưng hiện chưa có lesson tracked; mỗi bài dùng `knowledge.md` + tùy chọn `CMakeLists.txt` |
 | `web/` | App Recall: Next.js App Router, React, TypeScript |
+| `web/src/proxy.ts` | Entry point refresh cookie/session Supabase qua `lib/supabase/proxy.ts` |
 | `web/content/` | Registry lesson và question YAML do Git quản lý |
 | `web/src/generated/content-manifest.json` | Manifest deterministic, không sửa tay |
 | `web/supabase/migrations/` | Schema/RPC/RLS theo thứ tự timestamp |
@@ -38,7 +39,7 @@ nhật file context tương ứng theo root `AGENTS.md`.
 | `/worldquant/mission` | `worldquant/mission/page.tsx`, `worldquant-mission-app.tsx` | Nhiệm vụ hằng ngày xác định, nêu một bước tiếp theo và giữ đúng đường về qua thẻ/bài luyện/phỏng vấn thử |
 | `/worldquant/full-round` | `worldquant/full-round/page.tsx`, `worldquant-full-round-app.tsx` | Năm non-certification round có hard deadline, rubric và English Web Speech tùy chọn; không lưu answer/audio |
 | `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Phỏng vấn thử v4 toàn diện/trọng tâm 30/45/60 phút, kiểm thử ẩn, tổng kết đúng phạm vi, lịch sử và kế hoạch ôn tiếp |
-| `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx` | Guide tick data/order book |
+| `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx`, `lib/learn/tick-data-guide.ts` | Guide tick data/order book |
 | `/learn/cmake` | `learn/cmake/page.tsx`, `lib/learn/cmake-guide.ts` | Guide CMake target-based từ mental model tới CTest, packaging, CI và legacy migration |
 | `/stats` | `stats/page.tsx`, `fsrs-shadow-panel.tsx` | Analytics học tập và FSRS-6 shadow comparison |
 | `/profile` | `profile/page.tsx`, `lib/profile/{contribution-activity,profile-activity.server}.ts` | Trang cá nhân và contribution graph 53 tuần từ lượt ôn, AI coach và phỏng vấn thử đã hoàn tất |
@@ -66,7 +67,7 @@ API quan trọng:
 |---|---|---|
 | `content` | `loader.ts`, `schema.ts`, `automation.ts` | Parse note, schema Zod, discover lesson, sinh manifest |
 | `content` | `question-store-server.ts` | Chọn `repo`/`shadow`/`db`, parity, apply override |
-| `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts` | Queue Anki, rating, due date, streak và browser progress store |
+| `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts`, `study-session.ts` | Queue Anki, rating, due date, streak, browser progress và draft/phase Trợ giúp → Làm lại |
 | `practice` | `repair-queue.ts`, `rescue-retry.ts`, `fsrs-shadow.ts`, `browser-storage-lock.ts` | Blank-answer Rescue → Retry, same-session repair exact identity, cross-tab mutation lock và FSRS-6 chỉ quan sát |
 | `practice` | `focus-session.ts`, `focus-eligibility.ts` | Session Focus Sprint identity-only, resume/reconcile/completion và lọc exact approved refs |
 | `practice` | `cloud-server.ts`, `cloud.ts` | Ghép auth, progress, approval, overrides, usage, manifest |
@@ -76,7 +77,8 @@ API quan trọng:
 | `worldquant` | `training-state.ts`, `gap-closure.ts`, `mission.ts`, `mission-snapshot.ts`, `guided-mode.ts`, `full-round.ts`, `navigation.ts` | Account-scoped training evidence, closure protocol, bounded frozen daily mission, Guided onboarding/return contract, role-aware navigation và versioned five-round simulator |
 | `ai` | `openai.ts`, `gemini.ts`, `fallback.ts` | Provider calls và fallback |
 | `ai` | `budget.ts`, `usage.ts`, `billing.ts` | Admission daily, accounting monthly, Costs API reconciliation |
-| `mock-interview` | `catalog.ts`, `target-plan.ts`, `session-v4.ts`, `contracts-v4.ts` | Canonical competency mapping, deterministic balanced/targeted blueprint, account-scoped frozen session và exact API contract |
+| `mock-interview` | `profile.ts`, `profile-server.ts`, `catalog.ts`, `target-plan.ts` | JD question/version grounding, canonical competency mapping và deterministic balanced/targeted blueprint |
+| `mock-interview` | `session-v4.ts`, `contracts-v4.ts`, `session.ts`, `contracts.ts` | Account-scoped frozen v4 session/API contract và bộ đọc lịch sử hoàn tất v3 còn được hỗ trợ |
 | `mock-interview` | `history.server.ts`, `trends.ts` | Lease/cache/idempotency cho report history và trend chỉ trên attempt comparable |
 | `worldquant` | `mock-debrief.ts`, `mock-remediation.ts` | Role-scoped evidence, assessed/not-assessed matrix, deterministic ranked gaps và Focus remediation |
 | `code-runner` | `admission.server.ts`, `execution-specs.server.ts`, `vercel-sandbox.server.ts` | Quota/idempotency, harness server-owned, VM cô lập |
@@ -112,10 +114,11 @@ merge offline state rồi sync. RPC DB là nguồn thẩm quyền cho cloud tran
 
 ### Nhật ký trang cá nhân
 
-`practice_reviews` + `coach_attempts` + `mock_interview_attempts` đã hoàn tất →
-server đọc qua RLS của account, phân trang toàn bộ khoảng 53 tuần → đổi timestamp
-sang ngày Việt Nam → contribution calendar, streak và nhật ký gần đây. Luồng này
-chỉ đọc dữ liệu đã có, không gọi AI và không tạo thêm bảng activity.
+Mọi `practice_reviews` + mọi `coach_attempts` đã lưu + các
+`mock_interview_attempts` có `status = completed` → server đọc qua RLS của
+account, phân trang toàn bộ khoảng 53 tuần → đổi timestamp sang ngày Việt Nam →
+contribution calendar, streak và nhật ký gần đây. Luồng này chỉ đọc dữ liệu đã
+có, không gọi AI và không tạo thêm bảng activity.
 
 ### WorldQuant readiness
 

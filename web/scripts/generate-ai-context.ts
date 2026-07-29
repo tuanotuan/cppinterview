@@ -142,7 +142,7 @@ async function main() {
 
 The fingerprint covers lesson sources, content files, application source/tests,
 scripts, package metadata, environment template, workflows, and Supabase files.
-It proves this snapshot was refreshed for the tracked inputs; semantic behavior
+It proves this snapshot was refreshed for the discovered inputs; semantic behavior
 changes must still be described in the human-maintained context files.
 `;
 

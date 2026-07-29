@@ -4,6 +4,12 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
+## Bàn giao sau mọi thay đổi
+
+Mọi thay đổi trong `web/` phải tuân theo luật cập nhật tài liệu tự động ở
+`../AGENTS.md`. Không chờ người dùng nhắc: cập nhật file ngữ nghĩa liên quan,
+chạy `npm run context:refresh` và `npm run context:check` trong cùng task.
+
 ## Ngôn ngữ giao diện
 
 - Nội dung người dùng nhìn thấy phải dùng “bạn” hoặc câu trung tính; không dùng

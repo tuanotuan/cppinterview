@@ -193,11 +193,13 @@ service-role-only/browser grants như contract hiện tại.
 
 `.github/workflows/web-validate.yml`:
 
-- PR hoặc non-main branch: `npm ci` + `npm run validate`, gồm
-  `context:check`.
-- Push `main`, schedule mỗi 6 giờ, manual dispatch: refresh + validate; commit
-  deterministic content nếu đổi; sync Supabase; generate tối đa một batch DB
-  drafts.
+- Cả hai job dùng Node.js 22 và `npm ci`.
+- PR hoặc non-main branch: chạy riêng các gate tương đương `npm run validate`
+  để CI chú thích lỗi rõ hơn, gồm `content:check`, `context:check`, lint,
+  typecheck, test và build.
+- Push `main`, schedule mỗi 6 giờ, manual dispatch: refresh + các gate tương
+  đương validate; commit deterministic content nếu đổi; sync Supabase; xử lý
+  tối đa 8 công việc tạo câu hỏi DB-native mỗi lượt.
 - Workflow có `contents: write`; main run không bị cancel giữa chừng.
 
 ## Invariants dễ làm hỏng

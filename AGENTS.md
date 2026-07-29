@@ -6,6 +6,13 @@ Read `AI_START_HERE.md` before making changes.
 
 Every project change must leave the handoff consistent with the code:
 
+This is an automatic rule, not an optional follow-up and not something the user
+must remember to request. Whenever source code, tests, lesson content, tooling,
+configuration, schema, migrations, or CI changes, update the handoff in the same
+task. The change is not complete until the generated snapshot is refreshed, the
+relevant semantic Markdown is updated, and `npm run context:check` passes. Do
+not postpone documentation to a later session, even for a small refactor.
+
 1. From `web/`, run `npm run context:refresh` before finishing. Commit the
    resulting `docs/ai-context/GENERATED_SNAPSHOT.md` change with the code.
 2. If architecture, a core data flow, an entry point, or module ownership

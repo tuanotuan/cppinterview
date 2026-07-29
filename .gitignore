@@ -19,3 +19,5 @@ test.cpp
 
 # Local Vercel project link and OIDC metadata
 .vercel/
+
+prompt.txt

@@ -5,14 +5,16 @@ không đọc toàn repo nếu yêu cầu chưa cần.
 
 ## Project trong một câu
 
-Đây là repo học/phỏng vấn kỹ thuật cá nhân: các note C++/Python/CMake là nguồn
-nội dung; app Next.js tên **Recall** biến note thành question bank, lịch ôn kiểu
-Anki, AI coach, mock interview WorldQuant và code runner cô lập.
+Đây là repo học/phỏng vấn kỹ thuật cá nhân: note C++/Python là nguồn bài học hiện
+có, pipeline hỗ trợ thêm source CMake tùy chọn; app Next.js **Recall** cung cấp
+thẻ ghi nhớ, AI coach, lộ trình WorldQuant, guide CMake/tick data và code runner
+cô lập.
 
 ## Cách nạp ngữ cảnh ít token
 
 1. Luôn chạy `git status --short --branch` và đọc yêu cầu hiện tại.
-2. Đọc đúng **một** file sau theo loại việc:
+2. Bắt đầu bằng **một** file phù hợp nhất dưới đây; chỉ đọc thêm khi yêu cầu thật
+   sự giao nhau giữa nhiều phạm vi:
    - Kiến trúc, tìm file cần sửa: [docs/ai-context/PROJECT_MAP.md](docs/ai-context/PROJECT_MAP.md)
    - Build/test, thêm lesson, DB/env/deploy: [docs/ai-context/DEVELOPMENT.md](docs/ai-context/DEVELOPMENT.md)
    - Task dở, blocker, giới hạn chưa xác nhận: [docs/ai-context/CURRENT_STATE.md](docs/ai-context/CURRENT_STATE.md)
@@ -48,7 +50,9 @@ Nếu việc tiếp nối đúng một task dở dang, thêm:
 
 ## Khi kết thúc một thay đổi
 
-Làm theo `AGENTS.md`: luôn chạy `cd web && npm run context:refresh` và commit
-generated snapshot cùng code. Cập nhật file semantic tương ứng khi kiến trúc,
-workflow, invariant, task hoặc blocker đổi. Giữ các file ngắn; thay fact cũ và
-link tới source thay vì chép source.
+Đây là luật tự động, không chờ người dùng nhắc. Hễ code, test, lesson, tooling,
+cấu hình, schema, migration hoặc CI thay đổi, phải làm theo `AGENTS.md` ngay
+trong cùng task: chạy `cd web && npm run context:refresh`, cập nhật file semantic
+liên quan, chạy `npm run context:check` và commit generated snapshot cùng thay
+đổi. Công việc chưa hoàn tất nếu tài liệu bàn giao chưa khớp code. Giữ các file
+ngắn; thay fact cũ và link tới source thay vì chép source.
