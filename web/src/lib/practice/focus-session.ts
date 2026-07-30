@@ -6,14 +6,25 @@ import {
   type FocusQuestionRef,
   type WorldQuantFocusPlan,
 } from "../worldquant/focus-plan";
+import {
+  withBrowserStorageLock,
+  type BrowserLockManager,
+} from "./browser-storage-lock";
 
-export const FOCUS_SESSION_STORAGE_KEY = "recall:focus-session:v1";
-export const FOCUS_SESSION_VERSION = 1 as const;
+export const EMPTY_FOCUS_SESSION_STORAGE_SNAPSHOT =
+  "__empty_focus_session__";
+export const FOCUS_SESSION_VERSION = 2 as const;
+const FOCUS_SESSION_CHANGED_EVENT = "recall:focus-session-changed";
 const focusSessionIdSchema = z.string().uuid();
+const focusSessionScopeSchema = z.union([
+  z.literal("local"),
+  z.string().uuid(),
+]);
 
 const focusSessionSchema = z
   .object({
     version: z.literal(FOCUS_SESSION_VERSION),
+    accountScope: focusSessionScopeSchema,
     sessionId: focusSessionIdSchema,
     status: z.enum(["active", "completed"]),
     startedAt: z.string().datetime({ offset: true }),
@@ -47,16 +58,6 @@ const focusSessionSchema = z
         code: "custom",
         path: ["completedAt"],
         message: "A completed focus session requires completedAt",
-      });
-    }
-    if (
-      session.status === "active" &&
-      session.remainingQuestions.length === 0
-    ) {
-      context.addIssue({
-        code: "custom",
-        path: ["remainingQuestions"],
-        message: "An active focus session requires a remaining question",
       });
     }
     if (Date.parse(session.updatedAt) < Date.parse(session.startedAt)) {
@@ -138,6 +139,7 @@ export function parseFocusSessionId(value: string | undefined): string | null {
 }
 
 type CreateFocusSessionOptions = {
+  accountId?: string | null;
   now?: string;
   sessionId?: string;
 };
@@ -149,11 +151,13 @@ export function createFocusSession(
   const validPlan = focusPlanSchema.parse(plan);
   const now = options.now ?? new Date().toISOString();
   const sessionId = options.sessionId ?? globalThis.crypto.randomUUID();
+  const accountScope = focusSessionAccountScope(options.accountId ?? null);
   const remainingQuestions = validPlan.questions.map(({ question }) => question);
   const completed = remainingQuestions.length === 0;
 
   return focusSessionSchema.parse({
     version: FOCUS_SESSION_VERSION,
+    accountScope,
     sessionId,
     status: completed ? "completed" : "active",
     startedAt: now,
@@ -181,6 +185,139 @@ export function parseFocusSession(raw: string | null): FocusSession | null {
 
 export function serializeFocusSession(session: FocusSession): string {
   return JSON.stringify(focusSessionSchema.parse(session));
+}
+
+export function focusSessionAccountScope(accountId: string | null) {
+  return accountId ? z.string().uuid().parse(accountId) : "local";
+}
+
+export function focusSessionStorageKey(accountId: string | null) {
+  return `recall:focus-session:${focusSessionAccountScope(accountId)}:v2`;
+}
+
+export function focusSessionMatchesAccount(
+  session: FocusSession,
+  accountId: string | null,
+) {
+  return session.accountScope === focusSessionAccountScope(accountId);
+}
+
+export function readFocusSessionSnapshot(accountId: string | null) {
+  try {
+    return (
+      window.localStorage.getItem(focusSessionStorageKey(accountId)) ??
+      EMPTY_FOCUS_SESSION_STORAGE_SNAPSHOT
+    );
+  } catch {
+    return EMPTY_FOCUS_SESSION_STORAGE_SNAPSHOT;
+  }
+}
+
+export function writeFocusSessionSnapshot(
+  accountId: string | null,
+  session: FocusSession,
+) {
+  if (!focusSessionMatchesAccount(session, accountId)) {
+    throw new Error(
+      "Focus session account scope does not match its storage key",
+    );
+  }
+  const storageKey = focusSessionStorageKey(accountId);
+  window.localStorage.setItem(
+    storageKey,
+    serializeFocusSession(session),
+  );
+  window.dispatchEvent(
+    new CustomEvent(FOCUS_SESSION_CHANGED_EVENT, {
+      detail: { storageKey },
+    }),
+  );
+}
+
+export function removeFocusSessionSnapshot(accountId: string | null) {
+  const storageKey = focusSessionStorageKey(accountId);
+  window.localStorage.removeItem(storageKey);
+  window.dispatchEvent(
+    new CustomEvent(FOCUS_SESSION_CHANGED_EVENT, {
+      detail: { storageKey },
+    }),
+  );
+}
+
+export function readFocusSessionSnapshotLocked(
+  accountId: string | null,
+  lockManager?: BrowserLockManager | null,
+) {
+  const storageKey = focusSessionStorageKey(accountId);
+  return withBrowserStorageLock(
+    storageKey,
+    () => readStoredFocusSession(accountId, storageKey),
+    lockManager,
+  );
+}
+
+export function compareAndSetFocusSessionSnapshotLocked(
+  accountId: string | null,
+  expected: FocusSession,
+  replacement: FocusSession | null,
+  lockManager?: BrowserLockManager | null,
+) {
+  const storageKey = focusSessionStorageKey(accountId);
+  return withBrowserStorageLock(
+    storageKey,
+    () => {
+      const current = readStoredFocusSession(accountId, storageKey);
+      if (!sameFocusSessionRevision(current, expected)) {
+        return { applied: false as const, session: current };
+      }
+      if (replacement) {
+        writeFocusSessionSnapshot(accountId, replacement);
+      } else {
+        removeFocusSessionSnapshot(accountId);
+      }
+      return { applied: true as const, session: replacement };
+    },
+    lockManager,
+  );
+}
+
+export function subscribeToFocusSession(
+  accountId: string | null,
+  callback: () => void,
+) {
+  const storageKey = focusSessionStorageKey(accountId);
+  const onStorage = (event: StorageEvent) => {
+    if (
+      event.storageArea === window.localStorage &&
+      event.key === storageKey
+    ) {
+      callback();
+    }
+  };
+  const onChanged = (event: Event) => {
+    const detail = (
+      event as CustomEvent<{ storageKey?: string }>
+    ).detail;
+    if (detail?.storageKey === storageKey) callback();
+  };
+  window.addEventListener("storage", onStorage);
+  window.addEventListener(FOCUS_SESSION_CHANGED_EVENT, onChanged);
+  return () => {
+    window.removeEventListener("storage", onStorage);
+    window.removeEventListener(FOCUS_SESSION_CHANGED_EVENT, onChanged);
+  };
+}
+
+function readStoredFocusSession(
+  accountId: string | null,
+  storageKey = focusSessionStorageKey(accountId),
+) {
+  const parsed = parseFocusSession(
+    window.localStorage.getItem(storageKey),
+  );
+  return parsed && focusSessionMatchesAccount(parsed, accountId)
+    ? parsed
+    : null;
 }
 
 export function sameFocusSessionRevision(

@@ -2,12 +2,25 @@ import {
   AiBudgetConfigurationError,
   AiDailyBudgetExceededError,
   AiMonthlyBudgetExceededError,
+  AiOperationNotStartedError,
+  AiOperationOutcomeUnknownError,
   withAiBudget,
 } from "@/lib/ai/budget";
+import { isUnmeteredLocalAiEnabled } from "@/lib/ai/access";
+import { coachRequestSchema } from "@/lib/ai/contracts";
 import {
-  coachFeedbackSchema,
-  coachRequestSchema,
-} from "@/lib/ai/contracts";
+  CoachEvaluationBusyError,
+  CoachEvaluationConfigurationError,
+  CoachEvaluationIdempotencyConflictError,
+  coachEvaluationRequestFingerprint,
+  completeCoachEvaluation,
+  markCoachEvaluationDispatched,
+  markCoachEvaluationOutcomeUnknown,
+  releaseCoachEvaluation,
+  reserveCoachEvaluation,
+  type CoachEvaluationRequestIdentity,
+  type CoachEvaluationReservation,
+} from "@/lib/ai/coach-reservation.server";
 import {
   AllAiQuotasExceededError,
   GeminiFallbackProviderError,
@@ -79,7 +92,19 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = isSupabaseConfigured()
+  const supabaseConfigured = isSupabaseConfigured();
+  if (!supabaseConfigured && !isUnmeteredLocalAiEnabled()) {
+    return Response.json(
+      {
+        error:
+          "Trợ lý AI chưa có xác thực và cơ chế giới hạn chi phí an toàn.",
+        code: "service_not_configured",
+      },
+      { status: 503 },
+    );
+  }
+
+  const supabase = supabaseConfigured
     ? await createSupabaseServerClient()
     : null;
   const authResult = supabase ? await supabase.auth.getUser() : null;
@@ -95,6 +120,16 @@ export async function POST(request: Request) {
         code: "authentication_required",
       },
       { status: 401 },
+    );
+  }
+  if (supabase && !parsed.data.idempotencyKey) {
+    return Response.json(
+      {
+        error:
+          "Yêu cầu chấm bài đang thiếu khóa chống gửi trùng. Vui lòng tải lại trang rồi thử lại.",
+        code: "idempotency_key_required",
+      },
+      { status: 400 },
     );
   }
 
@@ -147,30 +182,104 @@ export async function POST(request: Request) {
     );
   }
 
+  const evaluationIdentity: CoachEvaluationRequestIdentity = {
+    questionId: question.id,
+    questionVersion: question.version,
+    sourceRevision: manifest.sourceRevision,
+    candidateAnswer: parsed.data.answer,
+  };
+
+  let evaluationReservation: CoachEvaluationReservation | null = null;
+  let evaluationFingerprint: string | null = null;
   if (supabase && authResult?.data.user && parsed.data.idempotencyKey) {
-    const cached = await supabase
-      .from("coach_attempts")
-      .select("id, feedback, model")
-      .eq("user_id", authResult.data.user.id)
-      .eq("idempotency_key", parsed.data.idempotencyKey)
-      .maybeSingle();
-    if (!cached.error && cached.data) {
-      const feedback = coachFeedbackSchema.safeParse(cached.data.feedback);
-      if (feedback.success) {
+    evaluationFingerprint =
+      coachEvaluationRequestFingerprint(evaluationIdentity);
+    try {
+      const reservation = await reserveCoachEvaluation(supabase, {
+        idempotencyKey: parsed.data.idempotencyKey,
+        requestFingerprint: evaluationFingerprint,
+        identity: evaluationIdentity,
+      });
+      if (reservation.status === "completed") {
+        if (!reservation.feedback || !reservation.model) {
+          throw new CoachEvaluationConfigurationError(
+            "Completed coach evaluation cache is incomplete",
+          );
+        }
         return Response.json({
-          feedback: feedback.data,
-          model: cached.data.model,
-          provider: cached.data.model.startsWith("Gemini")
-            ? "gemini"
-            : "openai",
-          attemptId: cached.data.id,
+          feedback: reservation.feedback,
+          model: reservation.model,
+          provider: providerFromModel(reservation.model),
+          attemptId: reservation.attemptId,
           cached: true,
           aiDailyBudget: null,
           aiUsageRecorded: true,
         });
       }
+      if (reservation.status === "outcome_unknown") {
+        return Response.json(
+          {
+            error:
+              "Không thể xác nhận kết quả lượt chấm trước. Để tránh tính phí hai lần, hệ thống sẽ không tự chạy lại cùng câu trả lời; hãy sửa câu trả lời hoặc chuyển sang thẻ khác.",
+            code: "evaluation_outcome_unconfirmed",
+          },
+          { status: 409 },
+        );
+      }
+      evaluationReservation = reservation;
+    } catch (error) {
+      if (error instanceof CoachEvaluationIdempotencyConflictError) {
+        return Response.json(
+          {
+            error:
+              "Khóa chống gửi trùng không còn khớp với câu hỏi hoặc câu trả lời này.",
+            code: "idempotency_conflict",
+          },
+          { status: 409 },
+        );
+      }
+      if (error instanceof CoachEvaluationBusyError) {
+        return Response.json(
+          {
+            error:
+              "Câu trả lời này đang được chấm. Vui lòng chờ một chút rồi thử lại.",
+            code: "evaluation_in_progress",
+          },
+          {
+            status: 409,
+            headers: {
+              "Retry-After": String(error.retryAfterSeconds),
+            },
+          },
+        );
+      }
+      console.error("AI coach reservation failed", {
+        name: error instanceof Error ? error.name : "UnknownError",
+      });
+      return Response.json(
+        {
+          error:
+            "Cơ chế chống gửi trùng của trợ lý AI chưa sẵn sàng. Vui lòng thử lại sau.",
+          code: "idempotency_not_configured",
+        },
+        { status: 503 },
+      );
     }
   }
+
+  const markEvaluationProviderDispatched = async () => {
+    if (!supabase || !evaluationReservation?.leaseToken) return;
+    try {
+      await markCoachEvaluationDispatched(supabase, {
+        idempotencyKey: evaluationReservation.idempotencyKey,
+        leaseToken: evaluationReservation.leaseToken,
+      });
+    } catch {
+      throw new AiOperationNotStartedError(
+        "Coach evaluation dispatch could not be confirmed",
+      );
+    }
+  };
 
   try {
     let provider: "openai" | "gemini" = "openai";
@@ -180,26 +289,30 @@ export async function POST(request: Request) {
       const openAiResult = await withAiBudget(
         supabase,
         COACH_RESERVATION_USD_MICROS.luna,
-        () =>
-          evaluateWithOpenAI({
-            question,
-            lesson,
-            candidateAnswer: parsed.data.answer,
-            safetyIdentifier: safetyIdentifier(
-              authResult?.data.user?.id || clientKey,
-            ),
-          }),
+        {
+          beforeProviderDispatch: markEvaluationProviderDispatched,
+          invokeProvider: () =>
+            evaluateWithOpenAI({
+              question,
+              lesson,
+              candidateAnswer: parsed.data.answer,
+              safetyIdentifier: safetyIdentifier(
+                authResult?.data.user?.id || clientKey,
+              ),
+            }),
+        },
       );
       result = openAiResult.result;
       dailyBudget = openAiResult.dailyBudget;
     } catch (error) {
-      result = await runGeminiBudgetFallback(error, supabase, () =>
-        evaluateWithGemini({
+      result = await runGeminiBudgetFallback(error, supabase, async () => {
+        await markEvaluationProviderDispatched();
+        return evaluateWithGemini({
           question,
           lesson,
           candidateAnswer: parsed.data.answer,
-        }),
-      );
+        });
+      });
       provider = "gemini";
     }
     const { data: feedback, model } = result;
@@ -207,7 +320,59 @@ export async function POST(request: Request) {
       provider === "gemini" ? `Gemini dự phòng · ${model}` : model;
 
     let attemptId: number | null = null;
-    if (supabase && authResult?.data.user) {
+    let responseFeedback = feedback;
+    let responseModel = modelLabel;
+    if (
+      supabase &&
+      parsed.data.idempotencyKey &&
+      evaluationFingerprint &&
+      evaluationReservation?.leaseToken
+    ) {
+      let completion: CoachEvaluationReservation;
+      try {
+        completion = await completeCoachEvaluation(supabase, {
+          idempotencyKey: evaluationReservation.idempotencyKey,
+          requestFingerprint: evaluationFingerprint,
+          leaseToken: evaluationReservation.leaseToken,
+          identity: evaluationIdentity,
+          feedback,
+          model: modelLabel,
+        });
+      } catch {
+        try {
+          completion = await completeCoachEvaluation(supabase, {
+            idempotencyKey: evaluationReservation.idempotencyKey,
+            requestFingerprint: evaluationFingerprint,
+            leaseToken: evaluationReservation.leaseToken,
+            identity: evaluationIdentity,
+            feedback,
+            model: modelLabel,
+          });
+        } catch (retryError) {
+          try {
+            completion = await markCoachEvaluationOutcomeUnknown(supabase, {
+              idempotencyKey: evaluationReservation.idempotencyKey,
+              leaseToken: evaluationReservation.leaseToken,
+            });
+          } catch {
+            throw new CoachEvaluationFinalizationError(retryError, false);
+          }
+          if (completion.status !== "completed") {
+            throw new CoachEvaluationFinalizationError(retryError, true);
+          }
+        }
+      }
+      if (!completion.feedback || !completion.model) {
+        throw new CoachEvaluationFinalizationError(
+          new Error("Completed coach evaluation cache is incomplete"),
+          true,
+        );
+      }
+      attemptId = completion.attemptId;
+      responseFeedback = completion.feedback;
+      responseModel = completion.model;
+      provider = providerFromModel(responseModel);
+    } else if (supabase && authResult?.data.user) {
       const attempt = await supabase.from("coach_attempts").insert({
         user_id: authResult.data.user.id,
         question_id: question.id,
@@ -229,14 +394,128 @@ export async function POST(request: Request) {
     }
 
     return Response.json({
-      feedback,
-      model: modelLabel,
+      feedback: responseFeedback,
+      model: responseModel,
       provider,
       aiDailyBudget: dailyBudget,
       aiUsageRecorded: provider === "gemini" || dailyBudget !== null,
       attemptId,
     });
   } catch (error) {
+    if (error instanceof CoachEvaluationFinalizationError) {
+      console.error("AI coach completion could not be confirmed", {
+        name:
+          error.cause instanceof Error
+            ? error.cause.name
+            : "UnknownError",
+      });
+      return Response.json(
+        {
+          error:
+            error.terminalized
+              ? "Câu trả lời đã được chấm nhưng không thể xác nhận việc lưu kết quả. Để tránh tính phí hai lần, hệ thống sẽ không tự chấm lại cùng lượt này."
+              : "Câu trả lời đã được chấm nhưng chưa thể lưu kết quả an toàn. Hệ thống đang khóa lượt này để tránh chấm trùng.",
+          code: "evaluation_completion_unconfirmed",
+        },
+        error.terminalized
+          ? { status: 409 }
+          : {
+              status: 503,
+              headers: { "Retry-After": "10" },
+            },
+      );
+    }
+
+    if (error instanceof AiOperationOutcomeUnknownError) {
+      console.error("AI coach provider outcome could not be confirmed", {
+        name:
+          error.cause instanceof Error
+            ? error.cause.name
+            : "UnknownError",
+      });
+      let terminalized = false;
+      if (
+        supabase &&
+        evaluationReservation?.leaseToken
+      ) {
+        try {
+          const terminal = await markCoachEvaluationOutcomeUnknown(supabase, {
+            idempotencyKey: evaluationReservation.idempotencyKey,
+            leaseToken: evaluationReservation.leaseToken,
+          });
+          if (
+            terminal.status === "completed" &&
+            terminal.feedback &&
+            terminal.model
+          ) {
+            return Response.json({
+              feedback: terminal.feedback,
+              model: terminal.model,
+              provider: providerFromModel(terminal.model),
+              attemptId: terminal.attemptId,
+              cached: true,
+              aiDailyBudget: null,
+              aiUsageRecorded: true,
+            });
+          }
+          terminalized = terminal.status === "outcome_unknown";
+        } catch (transitionError) {
+          console.error("AI coach unknown-outcome transition failed", {
+            name:
+              transitionError instanceof Error
+                ? transitionError.name
+                : "UnknownError",
+          });
+        }
+      }
+      return Response.json(
+        {
+          error:
+            terminalized
+              ? "Nhà cung cấp AI không xác nhận được kết quả lượt chấm. Để tránh tính phí hai lần, hệ thống sẽ không tự chạy lại cùng câu trả lời."
+              : "Nhà cung cấp AI chưa xác nhận được kết quả lượt chấm. Hệ thống đang khóa lượt này để tránh tính phí hai lần.",
+          code: "evaluation_outcome_unconfirmed",
+        },
+        terminalized
+          ? { status: 409 }
+          : {
+              status: 503,
+              headers: { "Retry-After": "10" },
+            },
+      );
+    }
+
+    if (
+      supabase &&
+      parsed.data.idempotencyKey &&
+      evaluationReservation?.leaseToken
+    ) {
+      try {
+        await releaseCoachEvaluation(supabase, {
+          idempotencyKey: evaluationReservation.idempotencyKey,
+          leaseToken: evaluationReservation.leaseToken,
+        });
+      } catch (releaseError) {
+        console.error("AI coach reservation release failed", {
+          name:
+            releaseError instanceof Error
+              ? releaseError.name
+              : "UnknownError",
+        });
+        return Response.json(
+          {
+            error:
+              "Không thể mở lại lượt chấm sau sự cố. Vui lòng thử lại sau.",
+            code: "evaluation_release_failed",
+          },
+          {
+            status: 503,
+            headers: { "Retry-After": "10" },
+          },
+        );
+      }
+    }
+
     if (error instanceof AllAiQuotasExceededError) {
       return Response.json(
         {
@@ -349,4 +628,18 @@ function getProviderStatus(error: unknown): number | undefined {
 function getProviderCode(error: unknown): string | undefined {
   if (typeof error !== "object" || error === null || !("code" in error)) return undefined;
   return typeof error.code === "string" ? error.code : undefined;
+}
+
+function providerFromModel(model: string): "openai" | "gemini" {
+  return model.startsWith("Gemini") ? "gemini" : "openai";
+}
+
+class CoachEvaluationFinalizationError extends Error {
+  constructor(
+    readonly cause: unknown,
+    readonly terminalized: boolean,
+  ) {
+    super("Coach evaluation completion could not be confirmed");
+    this.name = "CoachEvaluationFinalizationError";
+  }
 }

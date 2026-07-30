@@ -16,6 +16,10 @@ import {
   type TargetedMockPlan,
 } from "./target-plan";
 import type { WorldQuantMockQuestion } from "./catalog";
+import {
+  withBrowserStorageLock,
+  type BrowserLockManager,
+} from "../practice/browser-storage-lock";
 
 export const MOCK_INTERVIEW_SESSION_VERSION = 4 as const;
 export const MOCK_INTERVIEW_PROFILE_VERSION = 1 as const;
@@ -238,6 +242,22 @@ export const mockInterviewSessionV4Schema = z
 export type MockInterviewSessionV4 = z.infer<
   typeof mockInterviewSessionV4Schema
 >;
+export type MockInterviewSessionV4Patch = Partial<
+  Omit<
+    MockInterviewSessionV4,
+    | "schemaVersion"
+    | "sessionId"
+    | "accountId"
+    | "profileId"
+    | "profileVersion"
+    | "sourceRevision"
+    | "plan"
+    | "questions"
+    | "startedAt"
+    | "deadlineAt"
+    | "sessionRevision"
+  >
+>;
 
 export function mockInterviewSessionMatchesGuidedRequest({
   session,
@@ -274,6 +294,152 @@ export function mockInterviewSessionMatchesGuidedRequest({
 
 export function mockInterviewStorageKey(accountId: string) {
   return `recall:mock-interview:${z.string().uuid().parse(accountId)}:v4:active`;
+}
+
+export function mockInterviewSessionMatchesAccount(
+  session: MockInterviewSessionV4,
+  accountId: string,
+) {
+  return session.accountId === z.string().uuid().parse(accountId);
+}
+
+export function sameMockInterviewSessionRevision(
+  left: MockInterviewSessionV4 | null,
+  right: MockInterviewSessionV4 | null,
+) {
+  if (!left || !right) return left === right;
+  return (
+    left.accountId === right.accountId &&
+    left.sessionId === right.sessionId &&
+    left.sessionRevision === right.sessionRevision
+  );
+}
+
+export function compareAndSetMockInterviewSessionSnapshotLocked(
+  accountId: string,
+  expected: MockInterviewSessionV4 | null,
+  replacement: MockInterviewSessionV4 | null,
+  lockManager?: BrowserLockManager | null,
+) {
+  const storageKey = mockInterviewStorageKey(accountId);
+  if (
+    expected &&
+    !mockInterviewSessionMatchesAccount(expected, accountId)
+  ) {
+    throw new Error(
+      "Expected mock session account does not match its storage key",
+    );
+  }
+  if (
+    replacement &&
+    !mockInterviewSessionMatchesAccount(replacement, accountId)
+  ) {
+    throw new Error(
+      "Replacement mock session account does not match its storage key",
+    );
+  }
+
+  return withBrowserStorageLock(
+    storageKey,
+    () => {
+      const parsed = parseMockInterviewSessionV4(
+        window.localStorage.getItem(storageKey),
+      );
+      const current =
+        parsed && mockInterviewSessionMatchesAccount(parsed, accountId)
+          ? parsed
+          : null;
+      if (!sameMockInterviewSessionRevision(current, expected)) {
+        return { applied: false as const, session: current };
+      }
+
+      if (!replacement) {
+        window.localStorage.removeItem(storageKey);
+        return { applied: true as const, session: null };
+      }
+
+      const continuingSameSession =
+        expected !== null &&
+        expected.sessionId === replacement.sessionId;
+      if (!continuingSameSession && replacement.sessionRevision !== 1) {
+        throw new Error(
+          "A replacement mock session must start at revision 1",
+        );
+      }
+      const next = continuingSameSession
+        ? mockInterviewSessionV4Schema.parse({
+            ...replacement,
+            sessionRevision: expected.sessionRevision + 1,
+          })
+        : replacement;
+      window.localStorage.setItem(
+        storageKey,
+        serializeMockInterviewSessionV4(next),
+      );
+      return { applied: true as const, session: next };
+    },
+    lockManager,
+  );
+}
+
+export function mutateMockInterviewSessionSnapshotLocked(
+  accountId: string,
+  expected: MockInterviewSessionV4,
+  mutation: (
+    current: MockInterviewSessionV4,
+  ) => MockInterviewSessionV4Patch,
+  lockManager?: BrowserLockManager | null,
+) {
+  const storageKey = mockInterviewStorageKey(accountId);
+  if (!mockInterviewSessionMatchesAccount(expected, accountId)) {
+    throw new Error(
+      "Expected mock session account does not match its storage key",
+    );
+  }
+
+  return withBrowserStorageLock(
+    storageKey,
+    () => {
+      const parsed = parseMockInterviewSessionV4(
+        window.localStorage.getItem(storageKey),
+      );
+      const current =
+        parsed && mockInterviewSessionMatchesAccount(parsed, accountId)
+          ? parsed
+          : null;
+      if (
+        !current ||
+        current.sessionId !== expected.sessionId ||
+        current.status !== expected.status ||
+        current.sessionRevision < expected.sessionRevision
+      ) {
+        return { applied: false as const, session: current };
+      }
+
+      // A revision change within the same active state can be rebased safely
+      // because the caller supplies an intent patch derived from `current`,
+      // never a stale full-session snapshot. State transitions still use the
+      // strict compare-and-set helper above.
+      const next = advanceMockInterviewSessionV4(
+        current,
+        mutation(current),
+      );
+      if (
+        next.sessionId !== current.sessionId ||
+        !mockInterviewSessionMatchesAccount(next, accountId)
+      ) {
+        throw new Error(
+          "Mock session mutation changed its immutable owner or identity",
+        );
+      }
+      window.localStorage.setItem(
+        storageKey,
+        serializeMockInterviewSessionV4(next),
+      );
+      return { applied: true as const, session: next };
+    },
+    lockManager,
+  );
 }
 
 export function createMockInterviewSessionV4({
@@ -356,22 +522,7 @@ export function createMockInterviewSessionV4({
 
 export function advanceMockInterviewSessionV4(
   session: MockInterviewSessionV4,
-  patch: Partial<
-    Omit<
-      MockInterviewSessionV4,
-      | "schemaVersion"
-      | "sessionId"
-      | "accountId"
-      | "profileId"
-      | "profileVersion"
-      | "sourceRevision"
-      | "plan"
-      | "questions"
-      | "startedAt"
-      | "deadlineAt"
-      | "sessionRevision"
-    >
-  >,
+  patch: MockInterviewSessionV4Patch,
 ) {
   return mockInterviewSessionV4Schema.parse({
     ...session,

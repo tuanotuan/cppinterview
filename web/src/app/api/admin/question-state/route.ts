@@ -5,9 +5,10 @@ import { loadQuestionStoreManifest } from "@/lib/content/question-store-server";
 import {
   rowsToLearningStates,
   rowsToProgress,
-  type PracticeReviewRow,
-  type QuestionLearningStateRow,
 } from "@/lib/practice/cloud";
+import { filterReviewsForLearningHistory } from "@/lib/practice/learning-state";
+import { readAllPracticeReviewRows } from "@/lib/practice/practice-review-reader.server";
+import { readQuestionLearningStateRows } from "@/lib/practice/question-learning-state-reader.server";
 import { isAllowedPracticeUser } from "@/lib/supabase/authorization";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -93,35 +94,34 @@ export async function POST(request: Request) {
     );
   }
 
-  const [stateResult, reviewsResult] = await Promise.all([
-    supabase
-      .from("user_question_states")
-      .select(
-        "question_id, question_version, source_hash, learning_state, due_on, interval_days, review_count, lapse_count, last_rating, last_reviewed_on, is_suspended, is_leech, content_changed, history_reset_on",
-      )
-      .eq("question_id", question.id)
-      .single(),
-    supabase
-      .from("practice_reviews")
-      .select(
-        "question_id, reviewed_on, rating, next_due_on, question_version, source_hash, learning_state_after, interval_days_after, lapse_count_after",
-      )
-      .eq("question_id", question.id)
-      .order("reviewed_on", { ascending: false }),
-  ]);
-  if (stateResult.error || reviewsResult.error) {
+  const reviewsResult = await readAllPracticeReviewRows(supabase, {
+    questionId: question.id,
+  });
+  const stateResult = await readQuestionLearningStateRows(supabase, {
+    questionId: question.id,
+  });
+  if (
+    stateResult.error ||
+    reviewsResult.error ||
+    stateResult.rows.length !== 1
+  ) {
     return Response.json(
       { error: "Đã cập nhật nhưng chưa đọc lại được trạng thái." },
       { status: 502 },
     );
   }
 
+  const learning = rowsToLearningStates(stateResult.rows)[0]!;
+  const progress = rowsToProgress(reviewsResult.rows);
+
   return Response.json({
-    learning: rowsToLearningStates([
-      stateResult.data as QuestionLearningStateRow,
-    ])[0],
-    reviewHistory: rowsToProgress(
-      (reviewsResult.data ?? []) as PracticeReviewRow[],
-    ).reviews,
+    learning,
+    reviewHistory: filterReviewsForLearningHistory(
+      progress.reviews,
+      [learning],
+    ).sort(
+      (left, right) =>
+        right.reviewedOn.localeCompare(left.reviewedOn),
+    ),
   });
 }

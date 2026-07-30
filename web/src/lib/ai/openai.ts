@@ -28,6 +28,7 @@ import {
   buildCoachSystemInstruction,
 } from "./prompt";
 import type { AiTokenUsage } from "./usage";
+import { AiOperationNotStartedError } from "./budget";
 
 export const DEFAULT_LUNA_MODEL = "gpt-5.6-luna";
 export const DEFAULT_TERRA_MODEL = "gpt-5.6-terra";
@@ -203,7 +204,10 @@ export async function generateMistakeCardWithOpenAI({
 export function openAIClient() {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new CoachConfigurationError("OPENAI_API_KEY is missing");
-  return new OpenAI({ apiKey, timeout: 45_000, maxRetries: 1 });
+  // The Responses API does not expose a provider idempotency key. A transport
+  // retry can therefore create a second paid response after an ambiguous
+  // timeout, so application-level leases own retries instead.
+  return new OpenAI({ apiKey, timeout: 45_000, maxRetries: 0 });
 }
 
 export function openAIModel(tier: "luna" | "terra") {
@@ -246,4 +250,4 @@ function parsedResult<T>(
   };
 }
 
-export class CoachConfigurationError extends Error {}
+export class CoachConfigurationError extends AiOperationNotStartedError {}

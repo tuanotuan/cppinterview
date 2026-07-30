@@ -23,6 +23,7 @@ import {
   type CoachFollowUpMessage,
   type CoachFollowUpResponse,
 } from "./contracts";
+import { AiOperationNotStartedError } from "./budget";
 import {
   buildCoachFollowUpPrompt,
   buildCoachPrompt,
@@ -84,7 +85,7 @@ export async function evaluateWithGemini({
         schema: coachFeedbackJsonSchema,
       },
     },
-    { timeout: 45_000, maxRetries: 1 },
+    { timeout: 45_000, maxRetries: 0 },
   );
 
   if (!interaction.output_text) {
@@ -136,7 +137,7 @@ export async function answerCoachFollowUpWithGemini({
         schema: coachFollowUpResponseJsonSchema,
       },
     },
-    { timeout: 45_000, maxRetries: 1 },
+    { timeout: 45_000, maxRetries: 0 },
   );
 
   if (!interaction.output_text) {
@@ -184,7 +185,7 @@ export async function evaluateMockInterviewWithGemini({
         schema: mockInterviewReportJsonSchema,
       },
     },
-    { timeout: 60_000, maxRetries: 1 },
+    { timeout: 60_000, maxRetries: 0 },
   );
 
   if (!interaction.output_text) {
@@ -238,7 +239,7 @@ export async function generateMistakeCardWithGemini({
         schema: mistakeFlashcardDraftJsonSchema,
       },
     },
-    { timeout: 45_000, maxRetries: 1 },
+    { timeout: 45_000, maxRetries: 0 },
   );
   if (!interaction.output_text) {
     throw new Error("Gemini returned an empty remediation flashcard");
@@ -276,5 +277,5 @@ function tokenUsage(usage: {
   };
 }
 
-export class GeminiConfigurationError extends Error {}
+export class GeminiConfigurationError extends AiOperationNotStartedError {}
 

@@ -11,7 +11,11 @@ import { fileURLToPath } from "node:url";
 type Manifest = {
   schemaVersion: number;
   sourceRevision: string;
-  lessons: Array<{ track: string }>;
+  lessons: Array<{
+    track: string;
+    knowledgePath: string;
+    codePath?: string | null;
+  }>;
   questions: Array<{
     status: string;
     taxonomy: { deckId: string };
@@ -72,11 +76,14 @@ async function main() {
         path.join(webRoot, "package-lock.json"),
       ]),
       findFiles(path.join(repoRoot, ".github", "workflows"), () => true),
-      findFiles(path.join(repoRoot, "cpp98_foundation"), isLessonSource),
-      findFiles(path.join(repoRoot, "cpp11"), isLessonSource),
-      findFiles(path.join(repoRoot, "cpp20"), isLessonSource),
-      findFiles(path.join(repoRoot, "python"), isLessonSource),
-      findFiles(path.join(repoRoot, "cmake"), isLessonSource),
+      collectExistingFiles(
+        manifest.lessons.flatMap((lesson) => [
+          path.join(repoRoot, lesson.knowledgePath),
+          ...(lesson.codePath
+            ? [path.join(repoRoot, lesson.codePath)]
+            : []),
+        ]),
+      ),
       findFiles(path.join(webRoot, "content"), (file) =>
         /\.(md|yaml|yml)$/.test(file),
       ),
@@ -140,10 +147,12 @@ async function main() {
 - Project input fingerprint: \`${fingerprint}\`
 - Fingerprinted files: ${new Set(fingerprintFiles.map(normalizePath)).size}
 
-The fingerprint covers lesson sources, content files, application source/tests,
-scripts, package metadata, environment template, workflows, and Supabase files.
-It proves this snapshot was refreshed for the discovered inputs; semantic behavior
-changes must still be described in the human-maintained context files.
+The fingerprint covers registered lesson sources, content files, application
+source/tests, scripts, package metadata, environment template, workflows, and
+Supabase files.
+It proves this snapshot was refreshed for the registered project inputs;
+semantic behavior changes must still be described in the human-maintained
+context files.
 `;
 
   if (checkOnly) {
@@ -244,15 +253,6 @@ function appUrl(file: string) {
     .filter((part) => part && !part.startsWith("("))
     .join("/");
   return `/${visible}`.replace(/\/$/, "") || "/";
-}
-
-function isLessonSource(file: string) {
-  return (
-    file.endsWith("knowledge.md") ||
-    file.endsWith("main.cpp") ||
-    file.endsWith("main.py") ||
-    file.endsWith("CMakeLists.txt")
-  );
 }
 
 function normalizePath(value: string) {

@@ -1,16 +1,17 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { ContentManifest } from "./schema";
 
 vi.mock("server-only", () => ({}));
 
 let compareContentManifests: typeof import("./question-store-server")["compareContentManifests"];
+let readAllPages: typeof import("./question-store-server")["readAllPages"];
 let rowsToContentManifest: typeof import("./question-store-server")["rowsToContentManifest"];
 
 beforeAll(async () => {
-  ({ compareContentManifests, rowsToContentManifest } = await import(
-    "./question-store-server"
-  ));
+  ({ compareContentManifests, readAllPages, rowsToContentManifest } =
+    await import("./question-store-server"));
 });
 
 const hash = "a".repeat(64);
@@ -258,5 +259,32 @@ describe("Supabase question store", () => {
     expect(mismatch.ok).toBe(false);
     expect(mismatch.readyForCutover).toBe(false);
     expect(mismatch.mismatchedQuestionIds).toEqual(["cpp11-example-001"]);
+  });
+
+  it("continues through a Supabase server cap smaller than the requested page", async () => {
+    const pages = [[{ id: 1 }, { id: 2 }], [{ id: 3 }], []];
+    const range = vi.fn(async () => ({
+      data: pages.shift() ?? [],
+      error: null,
+    }));
+    const builder = {
+      select: vi.fn(),
+      order: vi.fn(),
+      range,
+    };
+    builder.select.mockReturnValue(builder);
+    builder.order.mockReturnValue(builder);
+    const supabase = {
+      from: vi.fn(() => builder),
+    } as unknown as SupabaseClient;
+
+    await expect(
+      readAllPages<{ id: number }>(supabase, "content_lessons", "id"),
+    ).resolves.toEqual([{ id: 1 }, { id: 2 }, { id: 3 }]);
+    expect(range.mock.calls).toEqual([
+      [0, 499],
+      [2, 501],
+      [3, 502],
+    ]);
   });
 });

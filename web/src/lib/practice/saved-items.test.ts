@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   parseSavedItems,
   removeSavedItem,
+  savedItemsStorageKey,
   upsertSavedItem,
   type SavedItem,
 } from "./saved-items";
@@ -17,6 +18,15 @@ const item: SavedItem = {
 };
 
 describe("saved learning items", () => {
+  it("uses a separate v2 storage key for each account and local mode", () => {
+    expect(savedItemsStorageKey("10000000-0000-4000-8000-000000000001")).toBe(
+      "cpp-recall:saved-items:10000000-0000-4000-8000-000000000001:v2",
+    );
+    expect(savedItemsStorageKey(null)).toBe(
+      "cpp-recall:saved-items:local:v2",
+    );
+  });
+
   it("round-trips valid saved items and rejects malformed storage", () => {
     expect(parseSavedItems(JSON.stringify([item]))).toEqual([item]);
     expect(parseSavedItems("not-json")).toEqual([]);

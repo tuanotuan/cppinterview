@@ -11,6 +11,7 @@ const repairItemSchema = z.object({
   questionId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
   questionVersion: z.number().int().positive(),
   sourceHash: z.string().regex(/^[a-f0-9]{64}$/),
+  historyResetToken: z.string().uuid().nullable().default(null),
   attempts: z.number().int().min(0).max(6),
   dueAfterCard: z.number().int().nonnegative(),
   enqueuedAt: z.string().datetime({ offset: true }),
@@ -26,6 +27,12 @@ export const recallRepairQueueSchema = z.object({
 export type RecallRepairQueue = z.infer<
   typeof recallRepairQueueSchema
 >;
+
+export type RecallRepairQuestionIdentity = {
+  version: number;
+  sourceHash: string;
+  historyResetToken: string | null;
+};
 
 export const EMPTY_RECALL_REPAIR_QUEUE: RecallRepairQueue = {
   version: RECALL_REPAIR_QUEUE_VERSION,
@@ -63,12 +70,14 @@ export function enqueueRecallRepair(
     questionId,
     questionVersion,
     sourceHash,
+    historyResetToken = null,
     rating,
     now,
   }: {
     questionId: string;
     questionVersion: number;
     sourceHash: string;
+    historyResetToken?: string | null;
     rating: Extract<Rating, "again" | "hard">;
     now: string;
   },
@@ -81,6 +90,7 @@ export function enqueueRecallRepair(
     questionId,
     questionVersion,
     sourceHash,
+    historyResetToken,
     attempts: existing?.attempts ?? 0,
     dueAfterCard: queue.cardsSeen + distance,
     enqueuedAt: existing?.enqueuedAt ?? now,
@@ -106,11 +116,102 @@ export function advanceRecallRepairQueue(
   });
 }
 
+export function alignRecallRepairQueueWithAuthoritativeReviews(
+  queue: RecallRepairQueue,
+  reviews: ReadonlyArray<{
+    questionId: string;
+    questionVersion: number;
+    sourceHash: string;
+    historyResetToken: string | null;
+    localRating: Rating;
+    rating: Rating;
+    now: string;
+  }>,
+) {
+  const reviewByQuestion = new Map(
+    reviews.map((review) => [review.questionId, review]),
+  );
+  if (!reviewByQuestion.size) return queue;
+
+  let aligned = recallRepairQueueSchema.parse({
+    ...queue,
+    items: queue.items.flatMap((item) => {
+      const review = reviewByQuestion.get(item.questionId);
+      if (!review) return [item];
+      if (review.rating === "good" || review.rating === "easy") {
+        return [];
+      }
+      if (
+        item.questionVersion !== review.questionVersion ||
+        item.sourceHash !== review.sourceHash ||
+        item.historyResetToken !== review.historyResetToken
+      ) {
+        return [
+          {
+            questionId: review.questionId,
+            questionVersion: review.questionVersion,
+            sourceHash: review.sourceHash,
+            historyResetToken: review.historyResetToken,
+            attempts: 0,
+            dueAfterCard:
+              queue.cardsSeen +
+              (review.rating === "again" ? 3 : 5),
+            enqueuedAt: review.now,
+            lastRating: review.rating,
+          },
+        ];
+      }
+
+      // A repair attempt is local, same-session evidence that happened after
+      // the daily review. Do not let a delayed cloud response rewind it.
+      if (
+        item.attempts > 0 ||
+        item.lastRating === review.rating
+      ) {
+        return [item];
+      }
+
+      const previousDistance = item.lastRating === "again" ? 3 : 5;
+      const nextDistance = review.rating === "again" ? 3 : 5;
+      return [
+        {
+          ...item,
+          dueAfterCard: Math.max(
+            queue.cardsSeen,
+            item.dueAfterCard - previousDistance + nextDistance,
+          ),
+          lastRating: review.rating,
+        },
+      ];
+    }),
+  });
+
+  for (const review of reviewByQuestion.values()) {
+    if (
+      review.rating === "good" ||
+      review.rating === "easy" ||
+      (review.localRating !== "good" &&
+        review.localRating !== "easy") ||
+      aligned.items.some(
+        (item) => item.questionId === review.questionId,
+      )
+    ) {
+      continue;
+    }
+    aligned = enqueueRecallRepair(aligned, {
+      ...review,
+      rating: review.rating,
+    });
+  }
+
+  return aligned;
+}
+
 export function nextRecallRepair(
   queue: RecallRepairQueue,
   validQuestions: ReadonlyMap<
     string,
-    { version: number; sourceHash: string }
+    RecallRepairQuestionIdentity
   >,
   { allowEarly = false }: { allowEarly?: boolean } = {},
 ) {
@@ -121,6 +222,7 @@ export function nextRecallRepair(
         return (
           current?.version === item.questionVersion &&
           current.sourceHash === item.sourceHash &&
+          current.historyResetToken === item.historyResetToken &&
           (allowEarly || item.dueAfterCard <= queue.cardsSeen)
         );
       })
@@ -174,7 +276,7 @@ export function reconcileRecallRepairQueue(
   queue: RecallRepairQueue,
   validQuestions: ReadonlyMap<
     string,
-    { version: number; sourceHash: string }
+    RecallRepairQuestionIdentity
   >,
 ) {
   return recallRepairQueueSchema.parse({
@@ -183,7 +285,8 @@ export function reconcileRecallRepairQueue(
       const current = validQuestions.get(item.questionId);
       return (
         current?.version === item.questionVersion &&
-        current.sourceHash === item.sourceHash
+        current.sourceHash === item.sourceHash &&
+        current.historyResetToken === item.historyResetToken
       );
     }),
   });

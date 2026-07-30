@@ -1,13 +1,38 @@
 import type { User } from "@supabase/supabase-js";
 
 export function isAllowedPracticeUser(user: User): boolean {
-  const login = user.user_metadata.user_name;
-  if (typeof login !== "string") return false;
+  const allowedUserIds = allowlist(process.env.ALLOWED_SUPABASE_USER_ID);
+  if (allowedUserIds.includes(user.id.trim().toLowerCase())) return true;
 
-  const allowedLogins = (process.env.ALLOWED_GITHUB_LOGIN || "tuanotuan")
+  const allowedLogins = allowlist(process.env.ALLOWED_GITHUB_LOGIN);
+  if (!allowedLogins.length) return false;
+
+  return Boolean(
+    user.identities?.some((identity) => {
+      if (identity.provider !== "github") return false;
+      const login = githubLogin(identity.identity_data);
+      return login !== null && allowedLogins.includes(login);
+    }),
+  );
+}
+
+function githubLogin(identityData: Record<string, unknown> | undefined) {
+  if (!identityData) return null;
+  const login =
+    stringValue(identityData.user_name) ??
+    stringValue(identityData.preferred_username);
+  return login?.toLowerCase() ?? null;
+}
+
+function stringValue(value: unknown) {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim();
+  return normalized || null;
+}
+
+function allowlist(value: string | undefined) {
+  return (value ?? "")
     .split(",")
     .map((item) => item.trim().toLowerCase())
     .filter(Boolean);
-
-  return allowedLogins.includes(login.toLowerCase());
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { buildAdminDashboardSnapshot } from "@/lib/admin/dashboard";
+import { QUESTION_GENERATOR_PROMPT_VERSION } from "@/lib/content/drafts";
 import { loadCloudContext } from "@/lib/practice/cloud-server";
 import { loadMistakeCandidates } from "@/lib/practice/mistake-cards.server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -45,6 +46,7 @@ export default async function AdminPage() {
       geminiUsage={cloud.geminiUsage}
       initialGeminiFallbackEnabled={cloud.geminiFallbackEnabled}
       initialGenerationJobs={cloud.generationJobs}
+      currentGeneratorVersion={QUESTION_GENERATOR_PROMPT_VERSION}
       initialSnapshot={snapshot}
       initialMistakeCandidates={mistakes.candidates}
       initialMistakeGenerationMode={mistakes.generationMode}

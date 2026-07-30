@@ -41,6 +41,10 @@ Snapshot máy sinh có fingerprint của lesson, content, source/test, scripts,
 package metadata, env template, CI và Supabase. CI chặn snapshot cũ. Nếu behavior
 hay kiến trúc đổi, vẫn phải cập nhật file context semantic theo `AGENTS.md`;
 fingerprint không thể tự giải thích ý nghĩa thay đổi.
+Chỉ lesson đã đăng ký và được manifest tham chiếu mới thuộc fingerprint; thư
+mục nháp chưa đăng ký không được làm snapshot của project đã commit lệch theo
+file local. Chạy `content:refresh` để đăng ký lesson sẵn sàng đưa vào sản phẩm,
+rồi refresh context.
 
 ## Ngôn ngữ sản phẩm
 
@@ -85,6 +89,8 @@ Supabase, rồi enqueue/generate DB-native drafts. Không dùng `content:auto` h
 - Approval phải bind đúng `version` và `sourceHash`.
 - Sửa nội dung làm tăng version và vô hiệu approval cũ.
 - “Delete” ở Admin là archive overlay, không xóa history.
+- Khi xóa lesson, câu hỏi của lesson được lưu trữ trong YAML để giữ lịch sử nhưng
+  không còn xuất hiện trong generated manifest; DB sync lưu trữ câu hỏi vắng mặt.
 - Production AI drafts nằm ở Supabase immutable revisions, không append vào
   `generated.yaml`.
 
@@ -112,27 +118,44 @@ Xem danh sách chuẩn trong `web/.env.example`.
 - Code runner và Mock v4 history dùng hai secret Supabase riêng
   (`CODE_RUNNER_SUPABASE_SECRET_KEY`, `MOCK_HISTORY_SUPABASE_SECRET_KEY`);
   không tái dùng content-sync key hay dùng chung với nhau.
-- `ALLOWED_GITHUB_LOGIN` mặc định `tuanotuan`; auth/API trả quyền chỉ cho owner.
+- Production nên cấu hình `ALLOWED_SUPABASE_USER_ID` bằng danh sách UUID
+  Supabase Auth bất biến, phân tách bằng dấu phẩy. `ALLOWED_GITHUB_LOGIN` mặc
+  định trống và chỉ là phương án dự phòng chủ động bật; giá trị này chỉ được so
+  với GitHub OAuth identity, không tin `user_metadata` do người dùng tự sửa.
+- Khi không cấu hình Supabase, route AI chỉ được chạy không tính quota nếu
+  `NODE_ENV=development` và `ALLOW_UNMETERED_LOCAL_AI=true`; production và test
+  luôn bỏ qua cờ này rồi từ chối theo hướng an toàn.
 - Không log secret, không commit `.env.local`, không truyền secret vào sandbox.
 
 App local không có Supabase vẫn chạy local-only. AI/runner/cloud feature cần
 config tương ứng và có thể fail closed theo thiết kế.
 
-## WorldQuant training state và browser privacy
+## Browser state và privacy
 
-Các feature Curriculum/Drill/Mission/Full Round không thêm migration:
+Trạng thái trình duyệt không thêm migration:
 
+- Progress, study session, Focus session, saved item/AI answer, Hub preference,
+  Guided onboarding, WorldQuant training state và Mission snapshot đều dùng
+  namespace theo `account UUID`/`local`. Không đọc hoặc tự nhận dữ liệu legacy
+  không có chủ sở hữu; đăng nhập hay đổi tài khoản không được mang state của
+  local/tài khoản cũ sang tài khoản mới.
 - `worldquant/training-state.ts` và `practice/repair-queue.ts` dùng key
   localStorage versioned, tách `account UUID`/`local`; state local không tự gán
   sang account sau login. Training state hiện dùng schema/key v2; nếu khóa v2
   chưa tồn tại, đường đọc sao chép hợp lệ từ khóa v1 sang v2 đúng một chiều,
   không xóa hay ghi lại v1. Khi v2 đã tồn tại, mọi thay đổi tiếp theo ở khóa v1
   bị bỏ qua để tab ứng dụng cũ không thể ghi đè lịch sử mới.
-- Mutation read-modify-write dùng Web Locks theo exact storage key khi browser
-  hỗ trợ; fallback vẫn reread/merge ngay trước write nhưng không thể cam kết
-  atomic giữa hai tab trên browser không có Web Locks. Vì vậy checkpoint exposure
-  trên browser thiếu Web Locks bị phân loại bảo thủ là repeat, không được dùng
-  làm bằng chứng unseen.
+- Training state, Mission snapshot, repair queue, practice progress và Focus CAS
+  dùng Web Locks theo exact storage key khi browser hỗ trợ. Practice chỉ tính
+  lịch và chấp nhận lượt rating đầu tiên của một câu/ngày bên trong cùng lock;
+  Focus resume đọc lại snapshot mới nhất trong lock trước khi ghi. Mock report
+  và mọi transition của phiên Mock v4 dùng CAS revision dưới exact account key;
+  session sai owner bị bỏ. Answer intent được rebase lên revision mới nhất của
+  đúng session/status để nhập nhanh cùng tab không mất ký tự, còn freeze/complete/
+  reset giữ CAS nghiêm ngặt. Fallback vẫn reread/merge ngay trước write nhưng
+  không thể cam kết atomic giữa hai tab trên browser không có Web Locks. Vì vậy
+  checkpoint exposure trên browser thiếu Web Locks bị phân loại bảo thủ là
+  repeat, không được dùng làm bằng chứng unseen.
 - Mission snapshot tách theo account/local, ngày Việt Nam, role và budget; chỉ
   giữ identity/version/hash, drill revision và repair ID. Snapshot stale phải
   fail closed rồi rebuild, không được giữ card revision/competency cũ hoặc
@@ -162,9 +185,9 @@ Các feature Curriculum/Drill/Mission/Full Round không thêm migration:
   cần cải thiện, xác nhận năng lực hoặc ghi một lượt hoàn thành mới. Mọi phiên
   bản sau chỉ được coi là tương đương khi được thêm rõ ràng vào nhóm tương đương;
   không tự suy ra chỉ vì ID và số tiêu chí giống nhau.
-- Bộ đọc phiên phỏng vấn cũ chỉ chấp nhận phiên đã hoàn tất có báo cáo. Hồ sơ
-  bản 3 được giữ để Hub hiển thị lịch sử, nhưng parser phiên đang hoạt động vẫn
-  yêu cầu đúng hồ sơ hiện hành và không được khôi phục phiên bản cũ.
+- Hub chỉ đọc phiên v4 theo account hoặc lịch sử v4 từ máy chủ; không đọc khóa
+  v3 dùng chung. Parser legacy chỉ còn là compatibility boundary, không được
+  dùng để khôi phục phiên cũ đang làm dở hay đưa dữ liệu không có owner vào Hub.
 - `ts-fsrs` dùng default FSRS-6 deterministic, retention 90%, fuzz tắt, chỉ
   replay exact question version/source hash trong Stats. Scheduler hiện hữu vẫn
   là nguồn due date duy nhất.
@@ -177,7 +200,8 @@ Migration là append-only, chạy theo timestamp trong `web/supabase/migrations/
 Các nhóm schema hiện có:
 
 - auth-scoped progress, reviews, Anki state, approvals, overrides;
-- AI daily/monthly accounting, provider reconciliation, Gemini usage/settings;
+- AI daily/monthly accounting, provider reconciliation, Gemini usage/settings
+  và reservation ledger UUID cho từng lượt OpenAI;
 - immutable lesson/question revisions, sync runs, generation jobs;
 - multi-language/CMake metadata;
 - code execution admission/quota/idempotency.
@@ -185,6 +209,46 @@ Các nhóm schema hiện có:
 - owner-private Mistake Inbox, observation dedupe và grounded remediation drafts.
 - coach attempt cho phép `candidate_answer` rỗng (nghĩa là chưa biết) và không có
   product-level character limit sau migration `20260730120000`.
+- Coach evaluation có reservation account-scoped theo request fingerprint,
+  canonical idempotency key và lease sau migration `20260730130000`; xóa attempt
+  cũng xóa cache reservation liên quan.
+- Migration `20260730140000` dùng retry protocol v3 cho Mistake: lease hết hạn
+  trước marker provider được thu hồi và claim lại, còn lease đã marker hoặc kết
+  quả provider/completion không xác định chuyển `dead_letter`. Trigger chặn
+  materialize draft nếu chưa có marker. Migration `20260730150000` thay thân hàm
+  backfill content legacy bằng lỗi SQLSTATE `55000`, thu hồi mọi role và bỏ các
+  lệnh `content:backfill:*`; luồng hiện hành là `content:sync`.
+- Migration `20260730160000` thêm cache/ambiguity barrier cho Coach follow-up.
+  Coach evaluation/follow-up xóa lease hết hạn chưa dispatch để thử lại, nhưng
+  terminalize lease đã dispatch. `20260730170000` áp dụng cùng nguyên tắc cho
+  Mock report. `20260730190000` thêm sổ hạn mức theo reservation UUID, marker
+  `dispatched`, transition idempotent và thu hồi mọi overload
+  reserve/finalize/release tổng hợp cũ. RPC giới hạn mỗi reservation 500.000
+  micros, daily limit do caller truyền 4.000.000 micros, 256 row/account/ngày
+  Việt Nam, actual 4.000.000 micros, mỗi token counter 10.000.000 và model 200
+  byte. `20260730200000` khóa theo account/question để rating đầu tiên mỗi ngày
+  với đúng version/hash thắng nguyên tử; daily row của nội dung cũ được thay,
+  còn review offline cũ hơn state máy chủ chỉ bổ sung lịch sử mà không ghi lùi
+  lịch học. Reset tạo UUID generation mới; review chỉ được nhận khi token tại
+  thời điểm tạo khớp generation hiện hành. Token tồn tại suốt generation và chỉ
+  đổi ở lần reset tiếp theo; review, response đồng bộ và repair queue đều giữ
+  token đó. Vì vậy stale tab không phục hồi lịch sử, còn reset và học lại cùng
+  ngày vẫn hợp lệ. `20260730220000` backfill generation hiện hữu, khóa reset
+  chung advisory lock và gỡ overload RPC năm tham số dùng trong giai đoạn mở
+  rộng.
+- `20260730210000` là retry protocol v2 cho content generation. Worker phải
+  preflight đúng protocol trước khi claim và đánh dấu exact lease ngay trước
+  mỗi OpenAI/Gemini request. Chỉ 429 đã nhận chắc chắn được tự động retry; lease
+  đã dispatch mà hết hạn hoặc gặp kết quả mơ hồ phải terminalize để tránh gọi
+  provider lần hai. Enqueue/claim/completion/retry dùng chung global advisory
+  lock; ba bước điều phối còn khóa thêm theo lesson/source để serialize mọi
+  generator version. Question đúng source đã materialize sẽ đóng queue còn lại.
+  Sibling khác version đang chờ/chạy hoặc có kết quả provider chưa xác định làm
+  claim trả `generation_history_conflict` trước khi gọi AI. Admin phải đóng rõ
+  row obsolete; `pending` chỉ được đóng khi version khác bộ sinh hiện hành, còn
+  outcome mơ hồ vẫn cần xác nhận chi phí trùng và lưu audit. Nếu queue chưa có
+  exact version hiện hành, worker trả `generator_version_mismatch` và yêu cầu
+  chạy `content:sync`.
 
 Không sửa migration đã áp dụng; thêm migration mới. Giữ RLS và RPC
 service-role-only/browser grants như contract hiện tại.
@@ -197,10 +261,14 @@ service-role-only/browser grants như contract hiện tại.
 - PR hoặc non-main branch: chạy riêng các gate tương đương `npm run validate`
   để CI chú thích lỗi rõ hơn, gồm `content:check`, `context:check`, lint,
   typecheck, test và build.
-- Push `main`, schedule mỗi 6 giờ, manual dispatch: refresh + các gate tương
-  đương validate; commit deterministic content nếu đổi; sync Supabase; xử lý
-  tối đa 8 công việc tạo câu hỏi DB-native mỗi lượt.
-- Workflow có `contents: write`; main run không bị cancel giữa chừng.
+- Push `main`, schedule mỗi 6 giờ và manual dispatch trên `main`: refresh + các
+  gate tương đương validate; commit deterministic content nếu đổi; sync
+  Supabase; xử lý tối đa 8 công việc tạo câu hỏi DB-native mỗi lượt.
+- Manual dispatch trên nhánh khác chỉ chạy validation. Mọi job có thể commit,
+  push, sync Supabase hoặc tạo câu hỏi DB-native phải được khóa bằng
+  `github.ref == 'refs/heads/main'`.
+- Workflow mặc định chỉ có `contents: read`; riêng job refresh trên `main` mới có
+  `contents: write`. Main run không bị cancel giữa chừng.
 
 ## Invariants dễ làm hỏng
 
@@ -222,23 +290,79 @@ service-role-only/browser grants như contract hiện tại.
 - Focus Sprint chỉ persist exact question identity/version/hash/deck, không
   prompt/answer; chỉ reconcile với approved bank. Rating vẫn phải đi qua
   scheduler/cloud path chuẩn trước khi tiến session, và mọi local session write
-  phải kiểm tra đúng revision để tab cũ không ghi đè queue mới.
-- OpenAI admission theo ngày Việt Nam; monthly row là accounting/backstop, không
+  phải kiểm tra đúng revision dưới Focus lock; resume phải reread snapshot trong
+  lock để tab cũ không ghi đè queue mới.
+- Practice progress dùng key `account UUID`/`local`:v2. Rating tính transition
+  từ progress vừa reread trong Web Lock, giữ lượt đầu tiên của exact
+  question/ngày/phiên bản nội dung và chỉ enqueue repair cho lượt thắng. RPC
+  `record_practice_review` dùng advisory lock account/question, thay daily row
+  stale nếu nội dung vừa đổi, giữ review offline cũ hơn dưới dạng history-only và
+  trả rating thẩm quyền. Review archive, sai version/hash hoặc transition thiếu
+  trường không được đưa vào batch sync.
+- OpenAI admission theo ngày Việt Nam. Mỗi request tạo reservation UUID trước
+  RPC đầu tiên, ghi marker `dispatched` cho cả reservation ứng dụng
+  (Coach/Mock/Mistake) và ledger hạn mức ngay trước provider, rồi chỉ
+  finalize/release đúng UUID/lease đó; monthly row là accounting/backstop, không
   được khóa nhầm ngày mới.
+- OpenAI/Gemini transport retry phải để `0` cho request trả phí. Lỗi cấu hình hoặc
+  lỗi 4xx xác định trước/sau dispatch theo classifier hiện hành mới được release
+  reservation; timeout, mất mạng, 408, 5xx hoặc parse response thất bại là kết
+  quả mơ hồ: finalize budget bảo thủ và terminalize application reservation để
+  request sau không gọi AI lần hai. RPC ledger được thử lại tối đa một lần với
+  cùng UUID; không tạo reservation mới. Khi đã có response provider hợp lệ nhưng
+  chưa đọc được kết quả accounting, trả response với budget snapshot rỗng.
+  Background content job chỉ tự chạy lại khi nhận 429 xác định;
+  timeout/mất mạng/5xx dừng để quản trị viên xem xét.
+- Không suy phiên bản bộ sinh mới hơn từ ID hoặc thời điểm của generation job.
+  Main workflow serialize run và luôn `content:sync` bằng
+  `QUESTION_GENERATOR_PROMPT_VERSION` trước worker. Không chạy đồng thời worker
+  service-role thuộc hai bản deploy; khi đổi version, conflict khác version
+  phải được đóng rõ từ Admin của bản hiện hành trước lượt tạo tiếp theo.
 - Daily web allowance chỉ dùng cost do interactive coach/report finalization
   ghi lại. Costs API là toàn project và có background generation, nên chỉ dùng
   cho project/monthly accounting; không đưa nó vào phần trăm hay admission web.
+- Mọi bộ đọc cần toàn bộ lịch sử phải phân trang đến khi nhận trang rỗng, tiến
+  cursor/offset theo số row thực nhận và fail closed nếu trang sau lỗi; không
+  giả định backend luôn trả đủ page size yêu cầu.
 - Queue ưu tiên question New theo giới hạn trước các review còn lại theo policy
   trong `learning-state.ts`.
 - Hidden test/code-runner metadata không lộ ra client hay response.
 - Mock v4 phải reserve durable history trước hidden runner/paid AI. Retry dùng
   frozen submission; chỉ token hiện hành được release/abort lease. Không chạy
-  lại paid AI chỉ để khắc phục một completion response bất định.
+  lại paid AI để khắc phục provider/completion response bất định. Lease hết hạn
+  chưa dispatch được xóa để reserve lại; lease đã dispatch chuyển `failed` và
+  không retry. Nếu provider đã trả nhưng normalize, debrief hoặc dựng artifact
+  lỗi, route cũng terminalize reservation bằng `report_processing_failed`, không
+  release để chấm lại.
 - Mistake capture chỉ chạy sau durable coach/review hoặc completed Mock v4.
   Generated remediation luôn là DB-native draft chờ duyệt; không lưu candidate
   answer/hidden execution evidence và không tính card cá nhân vào content coverage.
-- Same-session repair phải bind exact question version/source hash. Review đầu
-  vẫn qua scheduler/cloud path; repair retry không tạo daily review thứ hai.
+  Client giữ `coachAttemptId` trên exact local review cho tới khi route trả
+  resolution `acknowledged`/`discarded`; response sync cũ hoặc lỗi mạng không
+  được xóa marker đang chờ. Route chỉ capture khi exact attempt/question/ngày/
+  rating khớp kết quả DB thẩm quyền.
+  Marker ứng dụng phải được DB xác nhận ngay trước từng provider. Lease hết hạn
+  chưa marker được claim lại; nếu provider có kết quả mơ hồ thì terminalize đúng
+  lease. Completion RPC chỉ được thử lại với cùng draft rồi chuyển `dead_letter`
+  nếu vẫn không xác nhận; không gọi AI lại.
+- Rollout bắt buộc theo thứ tự **deploy app mới trước, rồi mới chạy migration**
+  `20260730130000`–`20260730170000` và
+  `20260730190000`–`20260730220000`. Đặc biệt không chạy
+  `20260730140000`, `20260730170000` hoặc `20260730210000` khi app/worker cũ
+  còn phục vụ request. App mới chạy trước migration sẽ preflight/fail closed
+  trước provider; migration budget chạy trước code cũng làm app cũ fail closed
+  tại admission, nhưng không dùng điều đó để đảo thứ tự rollout. Riêng progress
+  có đường tương thích hẹp trước migration: bỏ cột generation khi đúng lỗi thiếu
+  cột và chỉ gọi RPC năm tham số khi RPC sáu tham số thật sự chưa tồn tại, review
+  chưa mang token. Migration `20260730200000` giữ overload cũ tạm thời;
+  `20260730220000` backfill generation rồi gỡ nó. Các giao thức AI không fallback
+  sang RPC cũ để “khắc phục” lệch phiên bản.
+- Same-session repair phải bind exact question version/source hash/history
+  generation. Review đầu vẫn qua scheduler/cloud path; repair retry không tạo
+  daily review thứ hai.
+  Review `Again`/`Hard` phải giữ `repairPendingAt` trong progress cho tới khi
+  exact repair queue write thành công; recovery được phép dựng lại item từ
+  marker rồi mới xóa marker, không xóa trước.
 - Blank AI Coach attempt phải vào Rescue và khóa rating kể cả khi đáp án tham
   khảo đã mở. Chỉ current nonblank feedback hoặc reveal ngoài Rescue/Retry mới
   mở rating. CTA Retry phải xóa attempt/idempotency/follow-up cũ; kết quả retry

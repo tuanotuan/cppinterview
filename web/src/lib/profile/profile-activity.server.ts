@@ -111,13 +111,13 @@ type ActivityReadResult = {
 
 const ACTIVITY_PAGE_SIZE = 1000;
 
-async function readReviewEvents(
+export async function readReviewEvents(
   supabase: SupabaseClient,
   startDate: string,
   today: string,
 ): Promise<ActivityReadResult> {
   const events: ContributionEvent[] = [];
-  for (let offset = 0; ; offset += ACTIVITY_PAGE_SIZE) {
+  for (let offset = 0; ;) {
     const { data, error } = await supabase
       .from("practice_reviews")
       .select("id, reviewed_on")
@@ -127,18 +127,20 @@ async function readReviewEvents(
       .order("id", { ascending: true })
       .range(offset, offset + ACTIVITY_PAGE_SIZE - 1);
     if (error) return { events, error };
-    for (const row of data ?? []) {
+    const page = data ?? [];
+    for (const row of page) {
       if (typeof row.reviewed_on === "string") {
         events.push({ occurredOn: row.reviewed_on, source: "review" });
       }
     }
-    if ((data?.length ?? 0) < ACTIVITY_PAGE_SIZE) {
+    if (page.length === 0) {
       return { events, error: null };
     }
+    offset += page.length;
   }
 }
 
-async function readTimestampEvents({
+export async function readTimestampEvents({
   supabase,
   table,
   column,
@@ -156,7 +158,7 @@ async function readTimestampEvents({
   completedOnly?: boolean;
 }): Promise<ActivityReadResult> {
   const events: ContributionEvent[] = [];
-  for (let offset = 0; ; offset += ACTIVITY_PAGE_SIZE) {
+  for (let offset = 0; ;) {
     let query = supabase
       .from(table)
       .select(`id, ${column}`)
@@ -168,7 +170,8 @@ async function readTimestampEvents({
       .order("id", { ascending: true })
       .range(offset, offset + ACTIVITY_PAGE_SIZE - 1);
     if (error) return { events, error };
-    for (const row of data ?? []) {
+    const page = data ?? [];
+    for (const row of page) {
       const value =
         column === "created_at" && "created_at" in row
           ? row.created_at
@@ -179,9 +182,10 @@ async function readTimestampEvents({
       const occurredOn = timestampToVietnamDateKey(value);
       if (occurredOn) events.push({ occurredOn, source });
     }
-    if ((data?.length ?? 0) < ACTIVITY_PAGE_SIZE) {
+    if (page.length === 0) {
       return { events, error: null };
     }
+    offset += page.length;
   }
 }
 

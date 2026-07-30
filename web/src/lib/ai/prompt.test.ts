@@ -115,9 +115,17 @@ describe("AI coach contract", () => {
     expect(
       coachFollowUpRequestSchema.safeParse({
         ...base,
+        idempotencyKey: "23966699-ebc3-4b74-9a16-0ca48f4a47c7",
         messages: [{ role: "user", content: "Tại sao lại tạo copy?" }],
       }).success,
     ).toBe(true);
+    expect(
+      coachFollowUpRequestSchema.safeParse({
+        ...base,
+        idempotencyKey: "not-a-uuid",
+        messages: [{ role: "user", content: "Tại sao lại tạo copy?" }],
+      }).success,
+    ).toBe(false);
     expect(
       coachFollowUpRequestSchema.safeParse({
         ...base,

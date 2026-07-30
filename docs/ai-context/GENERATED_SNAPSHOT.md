@@ -6,8 +6,8 @@
 ## Content
 
 - Manifest schema: 1
-- Source revision: `245498ebfea59f329e4727a9b052bf0d42d6e6eec2799db4f20ba3f139857967`
-- Lessons: 31 (cpp11: 24, cpp20: 1, cpp98: 5, python3: 1)
+- Source revision: `ae5e7be8d9f703e000cc75795347a023df23d130c6d6fd8984e53e32b9e3d2bd`
+- Lessons: 32 (cpp11: 25, cpp20: 1, cpp98: 5, python3: 1)
 - Questions: 48 (draft: 38, verified: 10)
 - Question decks: cpp-interview: 48
 
@@ -15,10 +15,10 @@
 
 - App pages: 13 (/, /admin, /admin/coverage, /learn/cmake, /learn/tick-data-order-book, /mock-interview, /profile, /stats, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/mission)
 - API routes: 20 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/coach/evaluate, /api/coach/follow-up, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/progress/sync, /api/questions/approve, /auth/callback, /auth/login, /auth/logout)
-- TypeScript source files excluding tests: 132
-- Colocated test files: 73
-- Supabase migrations: 26
-- Latest migration filename: `20260730120000_allow_blank_unbounded_coach_answers.sql`
+- TypeScript source files excluding tests: 141
+- Colocated test files: 94
+- Supabase migrations: 35
+- Latest migration filename: `20260730220000_finalize_practice_history_generations.sql`
 
 ## Toolchain declared in package.json
 
@@ -29,14 +29,16 @@
 - OpenAI SDK: ^6.48.0
 - Supabase JS: ^2.110.7
 - Vercel Sandbox: ^2.8.0
-- npm scripts: 25
+- npm scripts: 23
 
 ## Consistency marker
 
-- Project input fingerprint: `a7a120a510d1247087c7c6e4ee8e45de68717c53cd7666560a5b8c3136828ba3`
-- Fingerprinted files: 320
+- Project input fingerprint: `eb94c1f4ea04ec929de834d8d7671d282e5eafa7ff3d903cd02a9671bce5169d`
+- Fingerprinted files: 360
 
-The fingerprint covers lesson sources, content files, application source/tests,
-scripts, package metadata, environment template, workflows, and Supabase files.
-It proves this snapshot was refreshed for the discovered inputs; semantic behavior
-changes must still be described in the human-maintained context files.
+The fingerprint covers registered lesson sources, content files, application
+source/tests, scripts, package metadata, environment template, workflows, and
+Supabase files.
+It proves this snapshot was refreshed for the registered project inputs;
+semantic behavior changes must still be described in the human-maintained
+context files.

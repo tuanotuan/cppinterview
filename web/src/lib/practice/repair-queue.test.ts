@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   EMPTY_RECALL_REPAIR_QUEUE,
   advanceRecallRepairQueue,
+  alignRecallRepairQueueWithAuthoritativeReviews,
   enqueueRecallRepair,
   nextRecallRepair,
   parseRecallRepairQueue,
@@ -16,6 +17,7 @@ const identity = {
   questionId: "cpp-lifetime",
   questionVersion: 2,
   sourceHash: "a".repeat(64),
+  historyResetToken: null,
 };
 const valid = new Map([
   [
@@ -23,9 +25,14 @@ const valid = new Map([
     {
       version: identity.questionVersion,
       sourceHash: identity.sourceHash,
+      historyResetToken: identity.historyResetToken,
     },
   ],
 ]);
+const resetGenerationA =
+  "d89ed8d0-7b1f-4c62-9ca4-90a14b8cfa86";
+const resetGenerationB =
+  "a779d019-f226-4f8f-9db5-41cd44c687e9";
 
 describe("same-session Recall Repair queue", () => {
   it("returns Again only after three intervening cards", () => {
@@ -79,6 +86,217 @@ describe("same-session Recall Repair queue", () => {
     );
   });
 
+  it("removes a failed local repair when another device's Good rating won", () => {
+    const queued = enqueueRecallRepair(EMPTY_RECALL_REPAIR_QUEUE, {
+      ...identity,
+      rating: "again",
+      now: "2026-07-28T00:00:00.000Z",
+    });
+
+    const aligned = alignRecallRepairQueueWithAuthoritativeReviews(
+      queued,
+      [
+        {
+          ...identity,
+          localRating: "again",
+          rating: "good",
+          now: "2026-07-28T00:01:00.000Z",
+        },
+      ],
+    );
+
+    expect(aligned.items).toEqual([]);
+    expect(aligned.cardsSeen).toBe(queued.cardsSeen);
+  });
+
+  it("aligns an unattempted repair with the server-winning failed rating", () => {
+    const queued = enqueueRecallRepair(EMPTY_RECALL_REPAIR_QUEUE, {
+      ...identity,
+      rating: "again",
+      now: "2026-07-28T00:00:00.000Z",
+    });
+
+    const aligned = alignRecallRepairQueueWithAuthoritativeReviews(
+      queued,
+      [
+        {
+          ...identity,
+          localRating: "again",
+          rating: "hard",
+          now: "2026-07-28T00:01:00.000Z",
+        },
+      ],
+    );
+
+    expect(aligned.items[0]).toMatchObject({
+      questionId: identity.questionId,
+      lastRating: "hard",
+      attempts: 0,
+    });
+    expect(aligned.items[0].dueAfterCard).toBe(
+      queued.items[0].dueAfterCard + 2,
+    );
+    expect(aligned.cardsSeen).toBe(queued.cardsSeen);
+  });
+
+  it("does not rewind a later same-session repair attempt", () => {
+    const queued = enqueueRecallRepair(EMPTY_RECALL_REPAIR_QUEUE, {
+      ...identity,
+      rating: "again",
+      now: "2026-07-28T00:00:00.000Z",
+    });
+    const repaired = rateRecallRepair(
+      queued,
+      identity.questionId,
+      "hard",
+    );
+
+    expect(
+      alignRecallRepairQueueWithAuthoritativeReviews(repaired, [
+        {
+          ...identity,
+          localRating: "again",
+          rating: "again",
+          now: "2026-07-28T00:01:00.000Z",
+        },
+      ]),
+    ).toEqual(repaired);
+  });
+
+  it("creates a missing repair when another device's Hard rating won", () => {
+    const aligned = alignRecallRepairQueueWithAuthoritativeReviews(
+      EMPTY_RECALL_REPAIR_QUEUE,
+      [
+        {
+          ...identity,
+          localRating: "good",
+          rating: "hard",
+          now: "2026-07-28T00:01:00.000Z",
+        },
+      ],
+    );
+
+    expect(aligned.items[0]).toMatchObject({
+      ...identity,
+      lastRating: "hard",
+      attempts: 0,
+    });
+    expect(aligned.cardsSeen).toBe(0);
+  });
+
+  it("replaces a stale identity before applying a failed server winner", () => {
+    const stale = enqueueRecallRepair(
+      EMPTY_RECALL_REPAIR_QUEUE,
+      {
+        ...identity,
+        questionVersion: 1,
+        sourceHash: "b".repeat(64),
+        rating: "again",
+        now: "2026-07-28T00:00:00.000Z",
+      },
+    );
+
+    const aligned = alignRecallRepairQueueWithAuthoritativeReviews(
+      stale,
+      [
+        {
+          ...identity,
+          localRating: "again",
+          rating: "hard",
+          now: "2026-07-28T00:01:00.000Z",
+        },
+      ],
+    );
+
+    expect(aligned.items).toHaveLength(1);
+    expect(aligned.items[0]).toMatchObject({
+      ...identity,
+      lastRating: "hard",
+      attempts: 0,
+    });
+  });
+
+  it("does not resurrect a repair completed before cloud sync returns", () => {
+    const queued = enqueueRecallRepair(EMPTY_RECALL_REPAIR_QUEUE, {
+      ...identity,
+      rating: "again",
+      now: "2026-07-28T00:00:00.000Z",
+    });
+    const completed = rateRecallRepair(
+      queued,
+      identity.questionId,
+      "good",
+    );
+
+    expect(
+      alignRecallRepairQueueWithAuthoritativeReviews(completed, [
+        {
+          ...identity,
+          localRating: "again",
+          rating: "again",
+          now: "2026-07-28T00:01:00.000Z",
+        },
+      ]),
+    ).toEqual(completed);
+  });
+
+  it("drops a repair created before the current history reset generation", () => {
+    const queued = enqueueRecallRepair(EMPTY_RECALL_REPAIR_QUEUE, {
+      ...identity,
+      historyResetToken: resetGenerationA,
+      rating: "again",
+      now: "2026-07-28T00:00:00.000Z",
+    });
+    const currentGeneration = new Map([
+      [
+        identity.questionId,
+        {
+          version: identity.questionVersion,
+          sourceHash: identity.sourceHash,
+          historyResetToken: resetGenerationB,
+        },
+      ],
+    ]);
+
+    expect(
+      nextRecallRepair(queued, currentGeneration, {
+        allowEarly: true,
+      }),
+    ).toBeNull();
+    expect(
+      reconcileRecallRepairQueue(queued, currentGeneration).items,
+    ).toEqual([]);
+  });
+
+  it("replaces a stale generation with the authoritative failed review", () => {
+    const queued = enqueueRecallRepair(EMPTY_RECALL_REPAIR_QUEUE, {
+      ...identity,
+      historyResetToken: resetGenerationA,
+      rating: "again",
+      now: "2026-07-28T00:00:00.000Z",
+    });
+
+    const aligned = alignRecallRepairQueueWithAuthoritativeReviews(
+      queued,
+      [
+        {
+          ...identity,
+          historyResetToken: resetGenerationB,
+          localRating: "again",
+          rating: "hard",
+          now: "2026-07-28T00:01:00.000Z",
+        },
+      ],
+    );
+
+    expect(aligned.items).toHaveLength(1);
+    expect(aligned.items[0]).toMatchObject({
+      historyResetToken: resetGenerationB,
+      lastRating: "hard",
+      attempts: 0,
+    });
+  });
+
   it("drops stale question versions and can surface early when normal queue is empty", () => {
     const queued = enqueueRecallRepair(EMPTY_RECALL_REPAIR_QUEUE, {
       ...identity,
@@ -94,7 +312,11 @@ describe("same-session Recall Repair queue", () => {
         new Map([
           [
             identity.questionId,
-            { version: 3, sourceHash: "b".repeat(64) },
+            {
+              version: 3,
+              sourceHash: "b".repeat(64),
+              historyResetToken: null,
+            },
           ],
         ]),
       ).items,
@@ -115,6 +337,28 @@ describe("same-session Recall Repair queue", () => {
     );
   });
 
+  it("normalizes legacy queue items to the pre-reset generation", () => {
+    const parsed = parseRecallRepairQueue(
+      JSON.stringify({
+        version: 1,
+        cardsSeen: 0,
+        items: [
+          {
+            questionId: identity.questionId,
+            questionVersion: identity.questionVersion,
+            sourceHash: identity.sourceHash,
+            attempts: 0,
+            dueAfterCard: 3,
+            enqueuedAt: "2026-07-28T00:00:00.000Z",
+            lastRating: "again",
+          },
+        ],
+      }),
+    );
+
+    expect(parsed.items[0]?.historyResetToken).toBeNull();
+  });
+
   it("rereads persisted state before applying an atomic-ish update", () => {
     const first = enqueueRecallRepair(EMPTY_RECALL_REPAIR_QUEUE, {
       ...identity,
@@ -127,6 +371,7 @@ describe("same-session Recall Repair queue", () => {
       questionId: "cpp-containers",
       questionVersion: 1,
       sourceHash: "b".repeat(64),
+      historyResetToken: null,
     };
     const updated = updateRecallRepairQueue(
       null,

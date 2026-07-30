@@ -84,6 +84,7 @@ function state(
     lastRating: "good",
     contentChanged: false,
     historyResetOn: null,
+    historyResetToken: null,
     ...overrides,
   };
 }

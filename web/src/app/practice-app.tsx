@@ -3,6 +3,7 @@
 import Link, { useLinkStatus } from "next/link";
 import dynamic from "next/dynamic";
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -19,6 +20,10 @@ import {
   mergeAiDailyBudgetSnapshot,
   type AiDailyBudgetSnapshot,
 } from "@/lib/ai/budget";
+import {
+  coachEvaluationIdempotencyKey,
+  coachFollowUpIdempotencyKey,
+} from "@/lib/ai/coach-idempotency-client";
 import {
   aiDailyBudgetStorageKey,
   parseCurrentAiDailyBudgetSnapshot,
@@ -49,30 +54,32 @@ import {
 } from "@/lib/practice/custom-study";
 import { focusEligibleQuestionIdentities } from "@/lib/practice/focus-eligibility";
 import {
+  compareAndSetFocusSessionSnapshotLocked,
   completeFocusSessionQuestion,
-  FOCUS_SESSION_STORAGE_KEY,
+  focusSessionMatchesAccount,
   parseFocusSession,
+  readFocusSessionSnapshot,
   reconcileFocusSession,
-  sameFocusSessionRevision,
-  serializeFocusSession,
   type FocusSession,
 } from "@/lib/practice/focus-session";
 import { scenarioEditorConfig } from "@/lib/practice/scenario-editor";
 import {
   parseSavedItems,
   removeSavedItem,
-  SAVED_ITEMS_KEY,
+  savedItemsStorageKey,
   upsertSavedItem,
   type SavedItem,
 } from "@/lib/practice/saved-items";
 import {
   parseStudySession,
   serializeStudySession,
+  studySessionStorageKey,
   type QuestionStudySession,
 } from "@/lib/practice/study-session";
 import {
   EMPTY_RECALL_REPAIR_QUEUE,
   advanceRecallRepairQueue,
+  alignRecallRepairQueueWithAuthoritativeReviews,
   enqueueRecallRepair,
   nextRecallRepair,
   rateRecallRepair,
@@ -82,6 +89,14 @@ import {
   updateRecallRepairQueueLocked,
   type RecallRepairQueue,
 } from "@/lib/practice/repair-queue";
+import {
+  mergeProgressAfterCloudSync,
+  parseDiscardedPracticeReviews,
+  parseMistakeCaptureResolutions,
+  partitionReviewsForCurrentQuestions,
+  practiceReviewDiscardIdentity,
+  type MistakeCaptureResolution,
+} from "@/lib/practice/progress-sync";
 import {
   beginRescueRetry,
   canRateRescueRetryAttempt,
@@ -104,16 +119,18 @@ import {
 } from "@/lib/practice/scheduler";
 import {
   EMPTY_PROGRESS_STORAGE_SNAPSHOT as EMPTY_SNAPSHOT,
+  acknowledgePracticeRepairSnapshotLocked,
+  mutatePracticeProgressSnapshotLocked,
+  recordPracticeReviewSnapshotLocked,
   readPracticeProgressSnapshot as getProgressSnapshot,
   subscribeToPracticeProgress as subscribeToProgress,
-  writePracticeProgressSnapshot as saveProgress,
 } from "@/lib/practice/storage";
 import {
   buildAnkiDailyQueue,
   buildLearningStates,
   countLearningStates,
+  filterReviewsForLearningHistory,
   ratingIntervalDays,
-  recordScheduledReview,
   scheduleQuestionReview,
   type QuestionLearningState,
 } from "@/lib/practice/learning-state";
@@ -122,8 +139,6 @@ import {
   worldQuantCompetencies,
   type WorldQuantCompetencyKey,
 } from "@/lib/worldquant/readiness";
-
-const STUDY_SESSION_KEY = "cpp-recall:study-session:v1";
 
 const MonacoCodeEditor = dynamic(
   () =>
@@ -138,6 +153,17 @@ const MonacoCodeEditor = dynamic(
   },
 );
 type SyncStatus = "local" | "syncing" | "synced" | "error";
+type ProgressSyncPayload = {
+  progress: PracticeProgress;
+  questionStates: QuestionLearningState[];
+  mistakeCapture?: {
+    candidates: Array<{ id: string }>;
+    generationMode: "ask" | "auto" | "off";
+  } | null;
+  mistakeCaptureResolutions?: unknown;
+  discardedReviews?: unknown;
+  mistakeQueueAvailable?: boolean;
+};
 type FocusHydrationStatus =
   | "idle"
   | "loading"
@@ -196,6 +222,85 @@ function getServerProgressSnapshot() {
   return null;
 }
 
+function readScopedFocusSession(accountId: string | null) {
+  const session = parseFocusSession(
+    readFocusSessionSnapshot(accountId),
+  );
+  return session && focusSessionMatchesAccount(session, accountId)
+    ? session
+    : null;
+}
+
+function authoritativeRecallRepairReviews(
+  cloudProgress: PracticeProgress,
+  localReviews: readonly Review[],
+  now: string,
+) {
+  const cloudByKey = new Map(
+    cloudProgress.reviews.map((review) => [
+      `${review.questionId}:${review.reviewedOn}`,
+      review,
+    ]),
+  );
+  const byQuestion = new Map<
+    string,
+    {
+      questionId: string;
+      questionVersion: number;
+      sourceHash: string;
+      historyResetToken: string | null;
+      localRating: Rating;
+      rating: Rating;
+      now: string;
+    }
+  >();
+  const reviewedOnByQuestion = new Map<string, string>();
+
+  for (const localReview of localReviews) {
+    const cloudReview = cloudByKey.get(
+      `${localReview.questionId}:${localReview.reviewedOn}`,
+    );
+    const questionVersion =
+      cloudReview?.questionVersion ?? localReview.questionVersion;
+    const sourceHash =
+      cloudReview?.sourceHash ?? localReview.sourceHash;
+    if (
+      !cloudReview ||
+      !questionVersion ||
+      !sourceHash
+    ) {
+      continue;
+    }
+    const previousReviewedOn = reviewedOnByQuestion.get(
+      localReview.questionId,
+    );
+    if (
+      previousReviewedOn &&
+      previousReviewedOn > localReview.reviewedOn
+    ) {
+      continue;
+    }
+    reviewedOnByQuestion.set(
+      localReview.questionId,
+      localReview.reviewedOn,
+    );
+    byQuestion.set(localReview.questionId, {
+      questionId: localReview.questionId,
+      questionVersion,
+      sourceHash,
+      historyResetToken:
+        cloudReview.historyResetToken ??
+        localReview.historyResetToken ??
+        null,
+      localRating: localReview.rating,
+      rating: cloudReview.rating,
+      now,
+    });
+  }
+
+  return [...byQuestion.values()];
+}
+
 export function PracticeApp({
   questions,
   reviewQueue,
@@ -229,10 +334,28 @@ export function PracticeApp({
   focusReturnHref: string | null;
   mistakeQuestionIds: string[];
 }) {
+  const accountId = account?.id ?? null;
+  const studySessionKey = useMemo(
+    () => studySessionStorageKey(accountId),
+    [accountId],
+  );
+  const savedItemsKey = useMemo(
+    () => savedItemsStorageKey(accountId),
+    [accountId],
+  );
+  const subscribeToScopedProgress = useMemo(
+    () => (callback: () => void) =>
+      subscribeToProgress(accountId, callback),
+    [accountId],
+  );
+  const getScopedProgressSnapshot = useMemo(
+    () => () => getProgressSnapshot(accountId),
+    [accountId],
+  );
   const hasFocusRequest = requestedFocusId !== null || invalidFocusRequest;
   const snapshot = useSyncExternalStore(
-    subscribeToProgress,
-    getProgressSnapshot,
+    subscribeToScopedProgress,
+    getScopedProgressSnapshot,
     getServerProgressSnapshot,
   );
   const progress = useMemo(
@@ -290,6 +413,9 @@ export function PracticeApp({
   const [cloudQuestionStates, setCloudQuestionStates] = useState(
     initialQuestionStates,
   );
+  const [cloudProgress, setCloudProgress] = useState(
+    initialCloudProgress,
+  );
   const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(
     null,
   );
@@ -310,6 +436,7 @@ export function PracticeApp({
   const [syncStatus, setSyncStatus] = useState<SyncStatus>(() =>
     cloudSetupError ? "error" : account ? "syncing" : "local",
   );
+  const [syncRetryNonce, setSyncRetryNonce] = useState(0);
   const [availableQuestions, setAvailableQuestions] = useState(questions);
   const [pendingReview, setPendingReview] = useState(reviewQueue);
   const [selectedDeck, setSelectedDeck] = useState(initialDeck);
@@ -318,8 +445,10 @@ export function PracticeApp({
   const [approvalStatus, setApprovalStatus] = useState<
     "idle" | "saving" | "error"
   >("idle");
-  const initialSyncStarted = useRef(false);
-  const sessionHydrationStarted = useRef(false);
+  const initialSyncStarted = useRef<string | null>(null);
+  const initialSyncRetryCountRef = useRef(0);
+  const initialSyncRetryTimerRef = useRef<number | null>(null);
+  const sessionHydrationStarted = useRef<string | null>(null);
   const focusHydrationStarted = useRef<string | null>(null);
   const scrollToRatingWhenAvailable = useRef(false);
   const scrollToCoachFeedbackWhenAvailable = useRef(false);
@@ -327,7 +456,40 @@ export function PracticeApp({
   const coachRequestTokensRef = useRef<Record<string, string>>({});
   const reviewCompletionLocksRef = useRef<Set<string>>(new Set());
   const studySessionGenerationRef = useRef(0);
-  const [sessionHydrated, setSessionHydrated] = useState(false);
+  const [hydratedStudySessionKey, setHydratedStudySessionKey] =
+    useState<string | null>(null);
+  const sessionHydrated =
+    hydratedStudySessionKey === studySessionKey;
+  const handleMistakeSyncPayload = useCallback(
+    (payload: ProgressSyncPayload) => {
+      const candidates = payload.mistakeCapture?.candidates ?? [];
+      if (candidates.length) {
+        if (payload.mistakeCapture?.generationMode === "auto") {
+          setMistakeNotice(
+            `Đã phát hiện ${candidates.length} điểm cần cải thiện; đang tạo thẻ ôn tập để chờ duyệt.`,
+          );
+          void Promise.allSettled(
+            candidates.map((candidate) =>
+              fetch("/api/mistakes/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ candidateId: candidate.id }),
+              }),
+            ),
+          );
+        } else if (payload.mistakeCapture?.generationMode === "ask") {
+          setMistakeNotice(
+            `Đã đưa ${candidates.length} lỗi vào Hộp lỗi cần ôn. Mở trang Quản trị để tạo thẻ.`,
+          );
+        }
+      } else if (payload.mistakeQueueAvailable === false) {
+        setMistakeNotice(
+          "Danh sách lỗi chưa được cài bản cập nhật cơ sở dữ liệu trong Supabase.",
+        );
+      }
+    },
+    [],
+  );
   const sessionQuestions = useMemo(() => {
     const byId = new Map<string, PracticeQuestion>();
     [...availableQuestions, ...pendingReview].forEach((question) =>
@@ -335,8 +497,6 @@ export function PracticeApp({
     );
     return [...byId.values()];
   }, [availableQuestions, pendingReview]);
-  const accountId = account?.id ?? null;
-
   useEffect(() => {
     if (initialAiDailyBudget) {
       setAiDailyBudget((current) =>
@@ -381,11 +541,11 @@ export function PracticeApp({
   }, [accountId, aiBudgetCacheHydrated, aiDailyBudget]);
 
   useEffect(() => {
-    if (sessionHydrationStarted.current) return;
-    sessionHydrationStarted.current = true;
+    if (sessionHydrationStarted.current === studySessionKey) return;
+    sessionHydrationStarted.current = studySessionKey;
 
     const session = parseStudySession(
-      window.localStorage.getItem(STUDY_SESSION_KEY),
+      window.localStorage.getItem(studySessionKey),
       sessionQuestions,
     );
     const restoredAnswers: Record<string, string> = {};
@@ -474,12 +634,12 @@ export function PracticeApp({
     setDeepDiveFeedback(restoredDeepDiveFeedback);
     setDeepDiveModels(restoredDeepDiveModels);
     setSelectedQuestionId(session.activeQuestionId ?? null);
-    setSessionHydrated(true);
-  }, [sessionQuestions]);
+    setHydratedStudySessionKey(studySessionKey);
+  }, [sessionQuestions, studySessionKey]);
 
   useEffect(() => {
-    setSavedItems(parseSavedItems(window.localStorage.getItem(SAVED_ITEMS_KEY)));
-  }, []);
+    setSavedItems(parseSavedItems(window.localStorage.getItem(savedItemsKey)));
+  }, [savedItemsKey]);
 
   useEffect(() => {
     if (!sessionHydrated) return;
@@ -559,7 +719,7 @@ export function PracticeApp({
 
       try {
         window.localStorage.setItem(
-          STUDY_SESSION_KEY,
+          studySessionKey,
           serializeStudySession(
             savedQuestions,
             selectedQuestionId ?? undefined,
@@ -600,6 +760,7 @@ export function PracticeApp({
     selectedQuestionId,
     sessionHydrated,
     sessionQuestions,
+    studySessionKey,
     visibleSources,
   ]);
 
@@ -612,74 +773,222 @@ export function PracticeApp({
   );
 
   useEffect(() => {
-    if (snapshot === null || !account || initialSyncStarted.current) return;
-    initialSyncStarted.current = true;
-
-    const resetCutoffs = new Map(
-      initialQuestionStates
-        .filter((state) => state.historyResetOn)
-        .map((state) => [state.questionId, state.historyResetOn!]),
-    );
-    const parsedLocalProgress = parseProgress(
-      snapshot === EMPTY_SNAPSHOT ? null : snapshot,
-    );
-    const localProgress: PracticeProgress = {
-      ...parsedLocalProgress,
-      reviews: parsedLocalProgress.reviews.filter((review) => {
-        const resetOn = resetCutoffs.get(review.questionId);
-        return !resetOn || review.reviewedOn > resetOn;
-      }),
+    const retryWhenOnline = () => {
+      if (!accountId) return;
+      if (initialSyncRetryTimerRef.current !== null) {
+        window.clearTimeout(initialSyncRetryTimerRef.current);
+        initialSyncRetryTimerRef.current = null;
+      }
+      initialSyncRetryCountRef.current = 0;
+      initialSyncStarted.current = null;
+      setSyncRetryNonce((value) => value + 1);
     };
-    const merged = mergeProgress(initialCloudProgress, localProgress);
-    saveProgress(JSON.stringify(merged));
+    window.addEventListener("online", retryWhenOnline);
+    return () => {
+      window.removeEventListener("online", retryWhenOnline);
+      if (initialSyncRetryTimerRef.current !== null) {
+        window.clearTimeout(initialSyncRetryTimerRef.current);
+        initialSyncRetryTimerRef.current = null;
+      }
+    };
+  }, [accountId]);
+
+  useEffect(() => {
+    if (!account) {
+      initialSyncStarted.current = null;
+      return;
+    }
+    if (
+      snapshot === null ||
+      initialSyncStarted.current === account.id
+    ) {
+      return;
+    }
+    initialSyncStarted.current = account.id;
+
     const cloudReviewKeys = new Set(
       initialCloudProgress.reviews.map(
         (review) => `${review.questionId}:${review.reviewedOn}`,
       ),
     );
-    const localOnlyReviews = reviewsForCloudSync(merged.reviews).filter(
-      (review) => {
-        const resetOn = resetCutoffs.get(review.questionId);
-        return (
-          (!resetOn || review.reviewedOn > resetOn) &&
-          !cloudReviewKeys.has(`${review.questionId}:${review.reviewedOn}`)
-        );
-      },
+    const currentQuestionIdentities = availableQuestions.map(
+      (question) => ({
+        id: question.id,
+        version: question.version,
+        sourceHash: question.sourceHash,
+      }),
     );
-
-    void fetch("/api/progress/sync", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reviews: localOnlyReviews }),
-    })
-      .then(async (response) => {
+    const localRecallReviews =
+      partitionReviewsForCurrentQuestions(
+        parseProgress(
+          snapshot === EMPTY_SNAPSHOT ? null : snapshot,
+        ).reviews.filter(
+          (review) => review.reviewedOn === localDateKey(),
+        ),
+        currentQuestionIdentities,
+      ).accepted;
+    void (async () => {
+      try {
+        const merged =
+          await mutatePracticeProgressSnapshotLocked(
+            account.id,
+            (current) => {
+              const localProgress: PracticeProgress = {
+                ...current,
+                reviews: filterReviewsForLearningHistory(
+                  current.reviews,
+                  initialQuestionStates,
+                ),
+              };
+              return mergeProgress(
+                initialCloudProgress,
+                localProgress,
+              );
+            },
+          );
+        const syncCandidates = filterReviewsForLearningHistory(
+          reviewsForCloudSync(merged.reviews),
+          initialQuestionStates,
+        ).filter(
+          (review) =>
+            review.coachAttemptId !== undefined ||
+            !cloudReviewKeys.has(
+              `${review.questionId}:${review.reviewedOn}`,
+            ),
+        );
+        const partitionedReviews =
+          partitionReviewsForCurrentQuestions(
+            syncCandidates,
+            currentQuestionIdentities,
+          );
+        const localDiscardedResolutions =
+          partitionedReviews.discarded.flatMap(
+            ({ review }): MistakeCaptureResolution[] =>
+              review.coachAttemptId === undefined
+                ? []
+                : [
+                    {
+                      coachAttemptId: review.coachAttemptId,
+                      questionId: review.questionId,
+                      reviewedOn: review.reviewedOn,
+                      rating: review.rating,
+                      disposition: "discarded",
+                    },
+                  ],
+          );
+        const localDiscardedReviews =
+          partitionedReviews.discarded.map(({ review }) =>
+            practiceReviewDiscardIdentity(review),
+          );
+        const localOnlyReviews = partitionedReviews.accepted;
+        const response = await fetch("/api/progress/sync", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reviews: localOnlyReviews }),
+        });
         if (!response.ok) throw new Error("Cloud sync failed");
-        const payload = (await response.json()) as {
-          progress: PracticeProgress;
-          questionStates: QuestionLearningState[];
-        };
-        const currentLocal = parseProgress(getProgressSnapshot());
-        saveProgress(JSON.stringify(mergeProgress(currentLocal, payload.progress)));
+        const payload = (await response.json()) as ProgressSyncPayload;
+        const captureResolutions = [
+          ...localDiscardedResolutions,
+          ...parseMistakeCaptureResolutions(
+            payload.mistakeCaptureResolutions,
+          ),
+        ];
+        await mutatePracticeProgressSnapshotLocked(
+          account.id,
+          (current) =>
+            mergeProgressAfterCloudSync(
+              {
+                ...current,
+                reviews: filterReviewsForLearningHistory(
+                  current.reviews,
+                  payload.questionStates,
+                ),
+              },
+              payload.progress,
+              captureResolutions,
+              [
+                ...localDiscardedReviews,
+                ...parseDiscardedPracticeReviews(
+                  payload.discardedReviews,
+                ),
+              ],
+            ),
+        );
+        setCloudProgress(payload.progress);
         setCloudQuestionStates(payload.questionStates);
+        const authoritativeRepairs =
+          authoritativeRecallRepairReviews(
+            payload.progress,
+            localRecallReviews,
+            new Date().toISOString(),
+          );
+        if (authoritativeRepairs.length) {
+          const alignRepairQueue = (queue: RecallRepairQueue) =>
+            alignRecallRepairQueueWithAuthoritativeReviews(
+              queue,
+              authoritativeRepairs,
+            );
+          setRepairQueue(alignRepairQueue);
+          try {
+            setRepairQueue(
+              await updateRecallRepairQueueLocked(
+                account.id,
+                alignRepairQueue,
+              ),
+            );
+          } catch {
+            // The authoritative in-tab queue remains usable without storage.
+          }
+        }
+        handleMistakeSyncPayload(payload);
+        initialSyncRetryCountRef.current = 0;
+        if (initialSyncRetryTimerRef.current !== null) {
+          window.clearTimeout(initialSyncRetryTimerRef.current);
+          initialSyncRetryTimerRef.current = null;
+        }
         setSyncStatus("synced");
-      })
-      .catch(() => setSyncStatus("error"));
-  }, [account, initialCloudProgress, initialQuestionStates, snapshot]);
+      } catch {
+        if (initialSyncStarted.current === account.id) {
+          initialSyncStarted.current = null;
+          if (
+            navigator.onLine &&
+            initialSyncRetryCountRef.current < 3
+          ) {
+            const delayMs =
+              1_000 * 2 ** initialSyncRetryCountRef.current;
+            initialSyncRetryCountRef.current += 1;
+            initialSyncRetryTimerRef.current = window.setTimeout(
+              () => {
+                initialSyncRetryTimerRef.current = null;
+                setSyncRetryNonce((value) => value + 1);
+              },
+              delayMs,
+            );
+          }
+        }
+        setSyncStatus("error");
+      }
+    })();
+  }, [
+    account,
+    availableQuestions,
+    handleMistakeSyncPayload,
+    initialCloudProgress,
+    initialQuestionStates,
+    snapshot,
+    syncRetryNonce,
+  ]);
 
   const today = localDateKey();
-  const focusProgressReviews = useMemo(() => {
-    const resetCutoffs = new Map(
-      initialQuestionStates
-        .filter((state) => state.historyResetOn)
-        .map((state) => [state.questionId, state.historyResetOn!]),
-    );
-    return mergeProgress(initialCloudProgress, progress).reviews.filter(
-      (review) => {
-        const resetOn = resetCutoffs.get(review.questionId);
-        return !resetOn || review.reviewedOn > resetOn;
-      },
-    );
-  }, [initialCloudProgress, initialQuestionStates, progress]);
+  const focusProgressReviews = useMemo(
+    () =>
+      filterReviewsForLearningHistory(
+        mergeProgress(cloudProgress, progress).reviews,
+        cloudQuestionStates,
+      ),
+    [cloudProgress, cloudQuestionStates, progress],
+  );
   const {
     allLatest,
     allLearningStates,
@@ -720,16 +1029,87 @@ export function PracticeApp({
   const validRepairQuestions = useMemo(
     () =>
       new Map(
-      allQuestionIdentities.map((question) => [
-        question.id,
-        {
-          version: question.version,
-          sourceHash: question.sourceHash,
-        },
-      ]),
+        allQuestionIdentities.map((question) => [
+          question.id,
+          {
+            version: question.version,
+            sourceHash: question.sourceHash,
+            historyResetToken:
+              allLearningStates.get(question.id)?.historyResetToken ??
+              null,
+          },
+        ]),
       ),
-    [allQuestionIdentities],
+    [allLearningStates, allQuestionIdentities],
   );
+
+  useEffect(() => {
+    const markedReviews = progress.reviews.filter(
+      (
+        review,
+      ): review is Review & { repairPendingAt: string } =>
+        review.repairPendingAt !== undefined,
+    );
+    if (!markedReviews.length) return;
+
+    const recoverable = markedReviews.filter((review) => {
+      const identity = validRepairQuestions.get(review.questionId);
+      if (!identity) return false;
+      return (
+        (review.rating === "again" || review.rating === "hard") &&
+        identity.version === review.questionVersion &&
+        identity.sourceHash === review.sourceHash &&
+        identity.historyResetToken ===
+          (review.historyResetToken ?? null)
+      );
+    });
+    const discarded = markedReviews.filter(
+      (review) => !recoverable.includes(review),
+    );
+    const acknowledge = (
+      review: Review & { repairPendingAt: string },
+    ) =>
+      acknowledgePracticeRepairSnapshotLocked(accountId, {
+        questionId: review.questionId,
+        reviewedOn: review.reviewedOn,
+        repairPendingAt: review.repairPendingAt,
+      });
+
+    void Promise.allSettled(discarded.map(acknowledge));
+    if (!recoverable.length) return;
+
+    void updateRecallRepairQueueLocked(accountId, (queue) => {
+      let next = reconcileRecallRepairQueue(
+        queue,
+        validRepairQuestions,
+      );
+      for (const review of recoverable) {
+        if (
+          next.items.some(
+            (item) => item.questionId === review.questionId,
+          )
+        ) {
+          continue;
+        }
+        next = enqueueRecallRepair(next, {
+          questionId: review.questionId,
+          questionVersion: review.questionVersion!,
+          sourceHash: review.sourceHash!,
+          historyResetToken: review.historyResetToken ?? null,
+          rating: review.rating as "again" | "hard",
+          now: review.repairPendingAt,
+        });
+      }
+      return next;
+    })
+      .then(async (queue) => {
+        setRepairQueue(queue);
+        await Promise.all(recoverable.map(acknowledge));
+      })
+      .catch(() => {
+        // Keep the journal markers for the next storage/reload retry.
+      });
+  }, [accountId, progress.reviews, validRepairQuestions]);
 
   useEffect(() => {
     const refresh = () => {
@@ -759,20 +1139,21 @@ export function PracticeApp({
   }, [accountId, validRepairQuestions]);
 
   useEffect(() => {
+    const hydrationIdentity = requestedFocusId
+      ? `${accountId ?? "local"}:${requestedFocusId}`
+      : null;
     if (
       !requestedFocusId ||
       snapshot === null ||
-      focusHydrationStarted.current === requestedFocusId
+      focusHydrationStarted.current === hydrationIdentity
     ) {
       return;
     }
-    focusHydrationStarted.current = requestedFocusId;
+    focusHydrationStarted.current = hydrationIdentity;
     setFocusHydrationStatus("loading");
 
     try {
-      const stored = parseFocusSession(
-        window.localStorage.getItem(FOCUS_SESSION_STORAGE_KEY),
-      );
+      const stored = readScopedFocusSession(accountId);
       if (!stored || stored.sessionId !== requestedFocusId) {
         setFocusSession(null);
         setFocusHydrationStatus("missing");
@@ -792,27 +1173,30 @@ export function PracticeApp({
           today,
         }),
       );
-      let hydratedSession = reconciled.session;
-      let hydratedStaleDroppedCount = reconciled.staleDroppedCount;
+      const hydratedSession = reconciled.session;
+      const hydratedStaleDroppedCount = reconciled.staleDroppedCount;
 
       if (reconciled.staleDroppedCount > 0) {
-        const currentStored = parseFocusSession(
-          window.localStorage.getItem(FOCUS_SESSION_STORAGE_KEY),
-        );
-        if (sameFocusSessionRevision(currentStored, stored)) {
-          window.localStorage.setItem(
-            FOCUS_SESSION_STORAGE_KEY,
-            serializeFocusSession(reconciled.session),
-          );
-        } else {
-          if (currentStored?.sessionId === requestedFocusId) {
-            hydratedSession = currentStored;
-            hydratedStaleDroppedCount = 0;
-          }
-          setFocusNotice(
-            "Phiên ôn tập trọng tâm đã được tiếp tục ở một thẻ trình duyệt khác. Trang này đã tải tiến độ mới nhất và sẽ không ghi đè.",
-          );
-        }
+        void compareAndSetFocusSessionSnapshotLocked(
+          accountId,
+          stored,
+          reconciled.session,
+        )
+          .then((result) => {
+            if (result.applied) return;
+            if (result.session?.sessionId === requestedFocusId) {
+              setFocusSession(result.session);
+              setFocusStaleDroppedCount(0);
+            }
+            setFocusNotice(
+              "Phiên ôn tập trọng tâm đã được tiếp tục ở một thẻ trình duyệt khác. Trang này đã tải tiến độ mới nhất và sẽ không ghi đè.",
+            );
+          })
+          .catch(() => {
+            setFocusNotice(
+              "Danh sách đã được đối chiếu trong thẻ này nhưng trình duyệt không lưu được thay đổi.",
+            );
+          });
       }
       setFocusSession(hydratedSession);
       setFocusStaleDroppedCount(hydratedStaleDroppedCount);
@@ -834,6 +1218,7 @@ export function PracticeApp({
       setFocusHydrationStatus("storage_error");
     }
   }, [
+    accountId,
     allLatest,
     allLearningStates,
     allQuestionIdentities,
@@ -866,26 +1251,29 @@ export function PracticeApp({
     );
     if (reconciled.staleDroppedCount === 0) return;
 
-    let sessionForTab = reconciled.session;
-    let staleDroppedCount = reconciled.staleDroppedCount;
+    const sessionForTab = reconciled.session;
+    const staleDroppedCount = reconciled.staleDroppedCount;
     try {
-      const stored = parseFocusSession(
-        window.localStorage.getItem(FOCUS_SESSION_STORAGE_KEY),
-      );
-      if (sameFocusSessionRevision(stored, focusSession)) {
-        window.localStorage.setItem(
-          FOCUS_SESSION_STORAGE_KEY,
-          serializeFocusSession(reconciled.session),
-        );
-      } else {
-        if (stored?.sessionId === requestedFocusId) {
-          sessionForTab = stored;
-          staleDroppedCount = 0;
-        }
-        setFocusNotice(
-          "Phiên ôn tập trọng tâm đã được tiếp tục ở một thẻ trình duyệt khác. Trang này đã tải tiến độ mới nhất và sẽ không ghi đè.",
-        );
-      }
+      void compareAndSetFocusSessionSnapshotLocked(
+        accountId,
+        focusSession,
+        reconciled.session,
+      )
+        .then((result) => {
+          if (result.applied) return;
+          if (result.session?.sessionId === requestedFocusId) {
+            setFocusSession(result.session);
+            setFocusStaleDroppedCount(0);
+          }
+          setFocusNotice(
+            "Phiên ôn tập trọng tâm đã được tiếp tục ở một thẻ trình duyệt khác. Trang này đã tải tiến độ mới nhất và sẽ không ghi đè.",
+          );
+        })
+        .catch(() => {
+          setFocusNotice(
+            "Danh sách đã được đối chiếu trong thẻ này nhưng trình duyệt không lưu được thay đổi.",
+          );
+        });
     } catch {
       setFocusNotice(
         "Danh sách đã được đối chiếu trong thẻ này nhưng trình duyệt không lưu được thay đổi.",
@@ -906,6 +1294,7 @@ export function PracticeApp({
       );
     }
   }, [
+    accountId,
     allLatest,
     allLearningStates,
     allQuestionIdentities,
@@ -944,9 +1333,10 @@ export function PracticeApp({
     const deckQuestionIds = new Set(
       nextDeckQuestions.map((question) => question.id),
     );
-    const nextDeckReviews = progress.reviews.filter((review) =>
-      deckQuestionIds.has(review.questionId),
-    );
+    const nextDeckReviews = filterReviewsForLearningHistory(
+      progress.reviews,
+      cloudQuestionStates,
+    ).filter((review) => deckQuestionIds.has(review.questionId));
     const nextSelectedPendingReview = pendingReview.filter(
       (question) => question.taxonomy.deckId === selectedDeck,
     );
@@ -1034,7 +1424,7 @@ export function PracticeApp({
     ? null
     : nextRecallRepair(
         repairQueue,
-        allQuestionById,
+        validRepairQuestions,
         { allowEarly: !normalCurrent },
       );
   const repairQuestion = repairItem
@@ -1154,26 +1544,30 @@ export function PracticeApp({
     }
   }
 
-  function persistFocusSessionIfCurrent(
+  async function persistFocusSessionIfCurrent(
     baseSession: FocusSession,
     nextSession: FocusSession,
   ) {
     try {
-      const stored = parseFocusSession(
-        window.localStorage.getItem(FOCUS_SESSION_STORAGE_KEY),
-      );
-      if (!requestedFocusId || !sameFocusSessionRevision(stored, baseSession)) {
+      if (!requestedFocusId) {
         setFocusNotice(
           "Phiên ôn tập trọng tâm đã được tiếp tục ở một thẻ trình duyệt khác. Trang này đã tải tiến độ mới nhất và sẽ không khôi phục danh sách cũ.",
         );
-        return stored?.sessionId === requestedFocusId
-          ? stored
+        return nextSession;
+      }
+      const result = await compareAndSetFocusSessionSnapshotLocked(
+        accountId,
+        baseSession,
+        nextSession,
+      );
+      if (!result.applied) {
+        setFocusNotice(
+          "Phiên ôn tập trọng tâm đã được tiếp tục ở một thẻ trình duyệt khác. Trang này đã tải tiến độ mới nhất và sẽ không khôi phục danh sách cũ.",
+        );
+        return result.session?.sessionId === requestedFocusId
+          ? result.session
           : nextSession;
       }
-      window.localStorage.setItem(
-        FOCUS_SESSION_STORAGE_KEY,
-        serializeFocusSession(nextSession),
-      );
       setFocusNotice(null);
       return nextSession;
     } catch {
@@ -1184,120 +1578,234 @@ export function PracticeApp({
     }
   }
 
-  function rateCurrent(rating: Rating) {
+  async function rateCurrent(rating: Rating) {
     if (!current || !currentLearningState || !canRateCurrent) return;
     const rescueRetry = rescueRetryByQuestion[current.id];
     if (rescueRetryBlocksRating(rescueRetry)) return;
     if (reviewCompletionLocksRef.current.has(current.id)) return;
-    reviewCompletionLocksRef.current.add(current.id);
-    window.setTimeout(() => {
-      reviewCompletionLocksRef.current.delete(current.id);
-    }, 1_000);
-    const reviewRating =
-      rescueRetryOutcomeRating(rescueRetry) ?? rating;
-    const occurredAt = new Date();
-    const occurredAtIso = occurredAt.toISOString();
+    const lockedQuestionId = current.id;
+    const ratingSessionGeneration =
+      studySessionGenerationRef.current;
+    const ratingStillOwnsSession = () =>
+      studySessionGenerationRef.current ===
+      ratingSessionGeneration;
+    const releaseAfter = Date.now() + 1_000;
+    reviewCompletionLocksRef.current.add(lockedQuestionId);
+    try {
+      const reviewRating =
+        rescueRetryOutcomeRating(rescueRetry) ?? rating;
+      const occurredAt = new Date();
+      const occurredAtIso = occurredAt.toISOString();
+      const reviewedOn = localDateKey(occurredAt);
 
-    if (isRepairActive) {
-      const updateRepair = (queue: RecallRepairQueue) =>
-        rateRecallRepair(
-          reconcileRecallRepairQueue(
-            queue,
-            validRepairQuestions,
-          ),
-          current.id,
-          reviewRating,
+      if (isRepairActive) {
+        const updateRepair = (queue: RecallRepairQueue) =>
+          rateRecallRepair(
+            reconcileRecallRepairQueue(
+              queue,
+              validRepairQuestions,
+            ),
+            current.id,
+            reviewRating,
+          );
+        setRepairQueue(updateRepair);
+        void updateRecallRepairQueueLocked(
+          accountId,
+          updateRepair,
+        )
+          .then(async (queue) => {
+            setRepairQueue(queue);
+            const pendingMarkers = progress.reviews.filter(
+              (
+                review,
+              ): review is Review & { repairPendingAt: string } =>
+                review.questionId === current.id &&
+                review.repairPendingAt !== undefined,
+            );
+            await Promise.all(
+              pendingMarkers.map((review) =>
+                acknowledgePracticeRepairSnapshotLocked(
+                  accountId,
+                  {
+                    questionId: review.questionId,
+                    reviewedOn: review.reviewedOn,
+                    repairPendingAt: review.repairPendingAt,
+                  },
+                ),
+              ),
+            );
+          })
+          .catch(() => {
+            // Keep a pending journal marker if durable queue completion fails.
+          });
+        setSelectedQuestionId(null);
+        clearRecordedAttemptEvidence(current.id);
+        clearStudySessionState();
+        return;
+      }
+
+      let persistedReview: Review;
+      let reviewWasRecorded: boolean;
+      try {
+        const result = await recordPracticeReviewSnapshotLocked(
+          accountId,
+          {
+            questionId: current.id,
+            questionVersion: current.version,
+            sourceHash: current.sourceHash,
+            reviewedOn,
+            prepareProgress: (storedProgress) => {
+              const merged = mergeProgress(
+                cloudProgress,
+                storedProgress,
+              );
+              return {
+                ...merged,
+                reviews: filterReviewsForLearningHistory(
+                  merged.reviews,
+                  cloudQuestionStates,
+                ),
+              };
+            },
+            createReview: (lockedProgress) => {
+              const lockedState = buildLearningStates(
+                [
+                  {
+                    id: current.id,
+                    version: current.version,
+                    sourceHash: current.sourceHash,
+                  },
+                ],
+                lockedProgress.reviews,
+                cloudQuestionStates.filter(
+                  (state) => state.questionId === current.id,
+                ),
+              ).get(current.id);
+              if (!lockedState) {
+                throw new Error(
+                  "Practice learning state is unavailable while rating",
+                );
+              }
+              const scheduledReview = scheduleQuestionReview(
+                lockedState,
+                reviewRating,
+                reviewedOn,
+              ).review;
+              const attemptId = coachAttemptIds[current.id];
+              const needsRepair =
+                scheduledReview.rating === "again" ||
+                scheduledReview.rating === "hard";
+              return {
+                ...scheduledReview,
+                ...(needsRepair
+                  ? { repairPendingAt: occurredAtIso }
+                  : {}),
+                ...(account && attemptId && needsRepair
+                  ? { coachAttemptId: attemptId }
+                  : {}),
+              };
+            },
+          },
         );
-      setRepairQueue(updateRepair(repairQueue));
-      void updateRecallRepairQueueLocked(
-        accountId,
-        updateRepair,
-      )
-        .then(setRepairQueue)
-        .catch(() => {
-          // The optimistic in-tab queue remains usable without storage.
-        });
-      setSelectedQuestionId(null);
-      clearRecordedAttemptEvidence(current.id);
-      clearStudySessionState();
-      return;
-    }
-
-    const scheduled = scheduleQuestionReview(
-      currentLearningState,
-      reviewRating,
-      today,
-    );
-    const updated = recordScheduledReview(progress, scheduled.review);
-    saveProgress(JSON.stringify(updated));
-    if (account) {
-      const attemptId = coachAttemptIds[current.id];
-      void syncReviews(
-        [scheduled.review],
-        attemptId &&
-          (reviewRating === "again" || reviewRating === "hard")
-          ? {
-              coachAttemptId: attemptId,
+        persistedReview = result.review;
+        reviewWasRecorded = result.status === "recorded";
+      } catch {
+        setSyncStatus("error");
+        return;
+      }
+      if (reviewWasRecorded) {
+        const updateQueueAfterReview = (queue: RecallRepairQueue) => {
+          let next = advanceRecallRepairQueue(
+            reconcileRecallRepairQueue(
+              queue,
+              validRepairQuestions,
+            ),
+          );
+          if (
+            persistedReview.rating === "again" ||
+            persistedReview.rating === "hard"
+          ) {
+            next = enqueueRecallRepair(next, {
               questionId: current.id,
-              rating: reviewRating,
-            }
-          : undefined,
-      );
-    }
-    if (isCustomStudyQuestion && customRemainingIds.length <= 1) {
-      setCustomStudyIds(null);
-      setCustomStudyNotice("Đã hoàn thành phiên học tự chọn.");
-    }
-    if (isFocusActive && focusSession) {
-      const nextSession = completeFocusSessionQuestion(
-        focusSession,
-        current.id,
-      );
-      const sessionForTab = persistFocusSessionIfCurrent(
-        focusSession,
-        nextSession,
-      );
-      setFocusSession(sessionForTab);
+              questionVersion: current.version,
+              sourceHash: current.sourceHash,
+              historyResetToken:
+                persistedReview.historyResetToken ?? null,
+              rating: persistedReview.rating,
+              now: occurredAtIso,
+            });
+          }
+          return next;
+        };
+        setRepairQueue(updateQueueAfterReview);
+        try {
+          const queue = await updateRecallRepairQueueLocked(
+            accountId,
+            updateQueueAfterReview,
+          );
+          setRepairQueue(queue);
+          if (persistedReview.repairPendingAt) {
+            await acknowledgePracticeRepairSnapshotLocked(
+              accountId,
+              {
+                questionId: persistedReview.questionId,
+                reviewedOn: persistedReview.reviewedOn,
+                repairPendingAt: persistedReview.repairPendingAt,
+              },
+            );
+          }
+        } catch {
+          // The progress marker remains durable so a later load can finish
+          // this queue write without losing the failed review.
+        }
+      }
+      if (account) {
+        void syncReviews([persistedReview]);
+      }
+      if (
+        ratingStillOwnsSession() &&
+        isCustomStudyQuestion &&
+        customRemainingIds.length <= 1
+      ) {
+        setCustomStudyIds(null);
+        setCustomStudyNotice("Đã hoàn thành phiên học tự chọn.");
+      }
+      if (
+        ratingStillOwnsSession() &&
+        isFocusActive &&
+        focusSession
+      ) {
+        const nextSession = completeFocusSessionQuestion(
+          focusSession,
+          current.id,
+        );
+        const sessionForTab = await persistFocusSessionIfCurrent(
+          focusSession,
+          nextSession,
+        );
+        if (ratingStillOwnsSession()) {
+          setFocusSession(sessionForTab);
 
-      const nextQuestion = sessionForTab.remainingQuestions[0];
-      if (sessionForTab.status === "active" && nextQuestion) {
-        setRequestedDeck(nextQuestion.deckId);
-        setSelectedDeck(nextQuestion.deckId);
-        const url = new URL(window.location.href);
-        url.searchParams.set("deck", nextQuestion.deckId);
-        window.history.replaceState(null, "", url);
+          const nextQuestion = sessionForTab.remainingQuestions[0];
+          if (sessionForTab.status === "active" && nextQuestion) {
+            setRequestedDeck(nextQuestion.deckId);
+            setSelectedDeck(nextQuestion.deckId);
+            const url = new URL(window.location.href);
+            url.searchParams.set("deck", nextQuestion.deckId);
+            window.history.replaceState(null, "", url);
+          }
+        }
       }
+      if (ratingStillOwnsSession()) {
+        setSelectedQuestionId(null);
+        clearRecordedAttemptEvidence(lockedQuestionId);
+        clearStudySessionState();
+      }
+    } finally {
+      window.setTimeout(() => {
+        reviewCompletionLocksRef.current.delete(lockedQuestionId);
+      }, Math.max(0, releaseAfter - Date.now()));
     }
-    const updateQueueAfterReview = (queue: RecallRepairQueue) => {
-      let next = advanceRecallRepairQueue(
-        reconcileRecallRepairQueue(
-          queue,
-          validRepairQuestions,
-        ),
-      );
-      if (reviewRating === "again" || reviewRating === "hard") {
-        next = enqueueRecallRepair(next, {
-          questionId: current.id,
-          questionVersion: current.version,
-          sourceHash: current.sourceHash,
-          rating: reviewRating,
-          now: occurredAtIso,
-        });
-      }
-      return next;
-    };
-    setRepairQueue(updateQueueAfterReview(repairQueue));
-    void updateRecallRepairQueueLocked(
-      accountId,
-      updateQueueAfterReview,
-    )
-      .then(setRepairQueue)
-      .catch(() => {
-        // The optimistic in-tab queue remains usable without storage.
-      });
-    setSelectedQuestionId(null);
-    clearRecordedAttemptEvidence(current.id);
-    clearStudySessionState();
   }
 
   function startCustomStudy(filters: CustomStudyFilters) {
@@ -1348,20 +1856,28 @@ export function PracticeApp({
     window.location.assign(focusReturnHref ?? "/worldquant");
   }
 
-  function cancelFocusSprint() {
+  async function cancelFocusSprint() {
     try {
-      const stored = parseFocusSession(
-        window.localStorage.getItem(FOCUS_SESSION_STORAGE_KEY),
-      );
       if (
         !requestedFocusId ||
-        !focusSession ||
-        !sameFocusSessionRevision(stored, focusSession)
+        !focusSession
       ) {
-        if (stored?.sessionId === requestedFocusId) {
-          setFocusSession(stored);
-          const storedHead = stored.remainingQuestions[0];
-          if (stored.status === "active" && storedHead) {
+        setFocusNotice(
+          "Phiên ôn tập đã được tiếp tục ở một thẻ trình duyệt khác. Trang này sẽ không xóa tiến độ mới nhất; hãy tạm dừng để về Trung tâm chuẩn bị.",
+        );
+        return;
+      }
+      const result = await compareAndSetFocusSessionSnapshotLocked(
+        accountId,
+        focusSession,
+        null,
+      );
+      if (!result.applied) {
+        const latest = result.session;
+        if (latest?.sessionId === requestedFocusId) {
+          setFocusSession(latest);
+          const storedHead = latest.remainingQuestions[0];
+          if (latest.status === "active" && storedHead) {
             setRequestedDeck(storedHead.deckId);
             setSelectedDeck(storedHead.deckId);
             const url = new URL(window.location.href);
@@ -1374,7 +1890,6 @@ export function PracticeApp({
         );
         return;
       }
-      window.localStorage.removeItem(FOCUS_SESSION_STORAGE_KEY);
       window.location.assign(focusReturnHref ?? "/worldquant");
     } catch {
       setFocusNotice(
@@ -1456,59 +1971,114 @@ export function PracticeApp({
     );
   }
 
-  async function syncReviews(
-    reviews: Review[],
-    mistakeCapture?: {
-      coachAttemptId: number;
-      questionId: string;
-      rating: "again" | "hard";
-    },
-  ) {
+  async function syncReviews(reviews: Review[]) {
     setSyncStatus("syncing");
     try {
+      const storedSnapshot = getProgressSnapshot(accountId);
+      const storedProgress = parseProgress(
+        storedSnapshot === EMPTY_SNAPSHOT ? null : storedSnapshot,
+      );
+      const reviewsByKey = new Map(
+        [
+          ...reviewsForCloudSync(storedProgress.reviews),
+          ...reviews,
+        ].map((review) => [
+          `${review.questionId}:${review.reviewedOn}`,
+          review,
+        ]),
+      );
+      const partitionedReviews =
+        partitionReviewsForCurrentQuestions(
+          [...reviewsByKey.values()],
+          availableQuestions.map((question) => ({
+            id: question.id,
+            version: question.version,
+            sourceHash: question.sourceHash,
+          })),
+        );
+      const localDiscardedResolutions =
+        partitionedReviews.discarded.flatMap(
+          ({ review }): MistakeCaptureResolution[] =>
+            review.coachAttemptId === undefined
+              ? []
+              : [
+                  {
+                    coachAttemptId: review.coachAttemptId,
+                    questionId: review.questionId,
+                    reviewedOn: review.reviewedOn,
+                    rating: review.rating,
+                    disposition: "discarded",
+                  },
+                ],
+        );
+      const localDiscardedReviews =
+        partitionedReviews.discarded.map(({ review }) =>
+          practiceReviewDiscardIdentity(review),
+        );
+      const outboundReviews = partitionedReviews.accepted;
       const response = await fetch("/api/progress/sync", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reviews, mistakeCapture }),
+        body: JSON.stringify({ reviews: outboundReviews }),
       });
       if (!response.ok) throw new Error("Cloud sync failed");
-      const payload = (await response.json()) as {
-        progress: PracticeProgress;
-        questionStates: QuestionLearningState[];
-        mistakeCapture?: {
-          candidates: Array<{ id: string }>;
-          generationMode: "ask" | "auto" | "off";
-        } | null;
-        mistakeQueueAvailable?: boolean;
-      };
-      const currentLocal = parseProgress(getProgressSnapshot());
-      saveProgress(JSON.stringify(mergeProgress(currentLocal, payload.progress)));
+      const payload = (await response.json()) as ProgressSyncPayload;
+      const captureResolutions = [
+        ...localDiscardedResolutions,
+        ...parseMistakeCaptureResolutions(
+          payload.mistakeCaptureResolutions,
+        ),
+      ];
+      await mutatePracticeProgressSnapshotLocked(
+        accountId,
+        (current) =>
+          mergeProgressAfterCloudSync(
+            {
+              ...current,
+              reviews: filterReviewsForLearningHistory(
+                current.reviews,
+                payload.questionStates,
+              ),
+            },
+            payload.progress,
+            captureResolutions,
+            [
+              ...localDiscardedReviews,
+              ...parseDiscardedPracticeReviews(
+                payload.discardedReviews,
+              ),
+            ],
+          ),
+      );
+      setCloudProgress(payload.progress);
       setCloudQuestionStates(payload.questionStates);
-      const candidates = payload.mistakeCapture?.candidates ?? [];
-      if (candidates.length) {
-        if (payload.mistakeCapture?.generationMode === "auto") {
-          setMistakeNotice(
-            `Đã phát hiện ${candidates.length} điểm cần cải thiện; đang tạo thẻ ôn tập để chờ duyệt.`,
+      const authoritativeRepairs =
+        authoritativeRecallRepairReviews(
+          payload.progress,
+          outboundReviews.filter(
+            (review) => review.reviewedOn === localDateKey(),
+          ),
+          new Date().toISOString(),
+        );
+      if (authoritativeRepairs.length) {
+        const alignRepairQueue = (queue: RecallRepairQueue) =>
+          alignRecallRepairQueueWithAuthoritativeReviews(
+            queue,
+            authoritativeRepairs,
           );
-          void Promise.allSettled(
-            candidates.map((candidate) =>
-              fetch("/api/mistakes/generate", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ candidateId: candidate.id }),
-              }),
+        setRepairQueue(alignRepairQueue);
+        try {
+          setRepairQueue(
+            await updateRecallRepairQueueLocked(
+              accountId,
+              alignRepairQueue,
             ),
           );
-        } else if (payload.mistakeCapture?.generationMode === "ask") {
-          setMistakeNotice(
-            `Đã đưa ${candidates.length} lỗi vào Hộp lỗi cần ôn. Mở trang Quản trị để tạo thẻ.`,
-          );
+        } catch {
+          // The authoritative in-tab queue remains usable without storage.
         }
-      } else if (payload.mistakeQueueAvailable === false) {
-        setMistakeNotice(
-          "Danh sách lỗi chưa được cài bản cập nhật cơ sở dữ liệu trong Supabase.",
-        );
       }
+      handleMistakeSyncPayload(payload);
       setSyncStatus("synced");
     } catch {
       setSyncStatus("error");
@@ -1529,8 +2099,12 @@ export function PracticeApp({
     setCoachErrors((errors) => ({ ...errors, [questionId]: "" }));
 
     try {
-      const idempotencyKey =
-        coachIdempotencyKeys[questionId] ?? crypto.randomUUID();
+      const idempotencyKey = await coachEvaluationIdempotencyKey({
+        questionId,
+        questionVersion: current.version,
+        sourceRevision,
+        candidateAnswer: answer,
+      });
       setCoachIdempotencyKeys((keys) => ({
         ...keys,
         [questionId]: idempotencyKey,
@@ -1668,6 +2242,14 @@ export function PracticeApp({
     setFollowUpErrors((errors) => ({ ...errors, [questionId]: "" }));
 
     try {
+      const idempotencyKey = await coachFollowUpIdempotencyKey({
+        questionId,
+        questionVersion: current.version,
+        sourceRevision,
+        candidateAnswer: coachAnswers[questionId] ?? "",
+        feedback: coachFeedback[questionId],
+        messages: requestMessages,
+      });
       const response = await fetch("/api/coach/follow-up", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1676,6 +2258,7 @@ export function PracticeApp({
           candidateAnswer: coachAnswers[questionId] ?? "",
           feedback: coachFeedback[questionId],
           messages: requestMessages,
+          idempotencyKey,
         }),
       });
       const payload = (await response.json()) as {
@@ -1757,6 +2340,20 @@ export function PracticeApp({
     setDeepDiveLoading(questionId);
     setDeepDiveErrors((errors) => ({ ...errors, [questionId]: "" }));
     try {
+      const requestMessages = [
+        {
+          role: "user" as const,
+          content: `Đây là câu hỏi phỏng vấn mở rộng: ${followUpQuestion}\n\n${answerContext}`,
+        },
+      ];
+      const idempotencyKey = await coachFollowUpIdempotencyKey({
+        questionId,
+        questionVersion: current.version,
+        sourceRevision,
+        candidateAnswer: coachAnswers[questionId] ?? "",
+        feedback: coachFeedback[questionId],
+        messages: requestMessages,
+      });
       const response = await fetch("/api/coach/follow-up", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1764,12 +2361,8 @@ export function PracticeApp({
           questionId,
           candidateAnswer: coachAnswers[questionId] ?? "",
           feedback: coachFeedback[questionId],
-          messages: [
-            {
-              role: "user",
-              content: `Đây là câu hỏi phỏng vấn mở rộng: ${followUpQuestion}\n\n${answerContext}`,
-            },
-          ],
+          messages: requestMessages,
+          idempotencyKey,
         }),
       });
       const payload = (await response.json()) as {
@@ -1840,7 +2433,7 @@ export function PracticeApp({
             savedAt: new Date().toISOString(),
           });
       try {
-        window.localStorage.setItem(SAVED_ITEMS_KEY, JSON.stringify(next));
+        window.localStorage.setItem(savedItemsKey, JSON.stringify(next));
       } catch {
         // Saving remains optional when browser storage is unavailable.
       }
@@ -1856,7 +2449,7 @@ export function PracticeApp({
     setSavedItems((items) => {
       const next = removeSavedItem(items, itemId);
       try {
-        window.localStorage.setItem(SAVED_ITEMS_KEY, JSON.stringify(next));
+        window.localStorage.setItem(savedItemsKey, JSON.stringify(next));
       } catch {
         // Saved library remains usable in memory for this page view.
       }
@@ -2759,7 +3352,7 @@ export function PracticeApp({
                 <p className="mt-2 text-sm leading-6 text-[#64736c]">
                   {account
                     ? syncStatus === "error"
-                      ? "Dữ liệu trên thiết bị vẫn an toàn; hệ thống sẽ thử đồng bộ trực tuyến lại ở lần tải sau."
+                      ? "Dữ liệu trên thiết bị vẫn an toàn; hệ thống sẽ tự thử lại và đồng bộ phần còn chờ khi kết nối trở lại."
                       : "Đồng bộ riêng tư giữa các thiết bị bằng tài khoản GitHub."
                     : cloudEnabled
                       ? "Đăng nhập GitHub để bật đồng bộ nhiều thiết bị."

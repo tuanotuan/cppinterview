@@ -4,6 +4,8 @@ import {
   AiBudgetConfigurationError,
   AiDailyBudgetExceededError,
   AiMonthlyBudgetExceededError,
+  AiOperationNotStartedError,
+  AiOperationOutcomeUnknownError,
   withAiBudget,
 } from "@/lib/ai/budget";
 import {
@@ -33,8 +35,8 @@ import {
   type CodeExecutionResult,
 } from "@/lib/code-runner/contracts";
 import {
+  CodeRunnerConfigurationError,
   getCodeRunnerConfig,
-  isCodeRunnerConfigured,
 } from "@/lib/code-runner/config.server";
 import {
   mockExecutionSpecForQuestion,
@@ -62,7 +64,6 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   mockInterviewReportRequestSchema,
   normalizeMockInterviewReport,
-  type MockInterviewReportRequest,
 } from "@/lib/mock-interview/contracts";
 import {
   mockInterviewCompletedArtifactV4Schema,
@@ -82,6 +83,8 @@ import {
   abortMockInterviewAttempt,
   createMockHistoryAdminClient,
   completeMockInterviewAttempt,
+  failMockInterviewAttempt,
+  markMockInterviewAttemptDispatched,
   MockHistoryBusyError,
   MockHistoryConfigurationError,
   MockHistoryIdempotencyConflictError,
@@ -91,10 +94,7 @@ import {
   reserveMockInterviewAttempt,
   type MockHistoryAttempt,
 } from "@/lib/mock-interview/history.server";
-import {
-  inferMockCompetency,
-  WORLDQUANT_PROFILE_VERSION,
-} from "@/lib/mock-interview/profile";
+import { inferMockCompetency } from "@/lib/mock-interview/profile";
 import { worldQuantRoleQuestionForEvaluation } from "@/lib/mock-interview/profile-server";
 import {
   buildMockInterviewReportPrompt,
@@ -196,10 +196,17 @@ export async function POST(request: Request) {
     );
   }
   const parsedV4 = mockInterviewReportRequestV4Schema.safeParse(body);
-  const parsedLegacy = parsedV4.success
-    ? null
-    : mockInterviewReportRequestSchema.safeParse(body);
-  if (!parsedV4.success && !parsedLegacy?.success) {
+  if (!parsedV4.success) {
+    if (mockInterviewReportRequestSchema.safeParse(body).success) {
+      return Response.json(
+        {
+          error:
+            "Phiên bản phỏng vấn cũ không còn được hỗ trợ tạo báo cáo. Vui lòng tạo một buổi phỏng vấn mới.",
+          code: "legacy_report_unsupported",
+        },
+        { status: 410 },
+      );
+    }
     return Response.json(
       {
         error:
@@ -209,14 +216,8 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
-  const reportRequest = parsedV4.success
-    ? normalizeV4ReportRequest(parsedV4.data)
-    : normalizeLegacyReportRequest(
-        mockInterviewReportRequestSchema.parse(body),
-      );
+  const reportRequest = normalizeV4ReportRequest(parsedV4.data);
   if (
-    (reportRequest.kind === "legacy" &&
-      reportRequest.profileVersion !== WORLDQUANT_PROFILE_VERSION) ||
     reportRequest.items.reduce(
       (sum, item) =>
         sum + item.response.length + item.explanation.length,
@@ -266,12 +267,7 @@ export async function POST(request: Request) {
 
   let approvals: QuestionApproval[] = [];
   let manifest = getRepoContentManifest();
-  const needsQuestionBank =
-    reportRequest.kind === "v4" ||
-    reportRequest.items.some(
-    (item) => item.origin === "question_bank",
-    );
-  if (needsQuestionBank) {
+  {
     const [approvalsResult, overridesResult] = await Promise.all([
       supabase
         .from("question_approvals")
@@ -299,7 +295,7 @@ export async function POST(request: Request) {
   let resolvedV4Questions:
     | ReturnType<typeof resolveTargetedMockPlan>
     | null = null;
-  if (reportRequest.kind === "v4") {
+  {
     const catalog = [
       ...buildWorldQuantBankCatalog({ manifest, approvals }),
       ...WORLDQUANT_CURATED_CATALOG,
@@ -489,7 +485,7 @@ export async function POST(request: Request) {
         reservation: MockHistoryAttempt;
       }
     | null = null;
-  if (reportRequest.kind === "v4") {
+  {
     const blueprintFingerprint = sha256Json(reportRequest.plan);
     const requestFingerprint = sha256Json(reportRequest.raw);
     try {
@@ -613,8 +609,23 @@ export async function POST(request: Request) {
     }
   }
 
+  const markReportProviderDispatched = async () => {
+    if (!history?.reservation.leaseToken) return;
+    try {
+      await markMockInterviewAttemptDispatched(history.client, {
+        userId: authResult.data.user.id,
+        attemptId: history.reservation.attemptId,
+        leaseToken: history.reservation.leaseToken,
+      });
+    } catch {
+      throw new AiOperationNotStartedError(
+        "Mock report dispatch could not be confirmed",
+      );
+    }
+  };
+
   let hiddenExecutionResults: CodeExecutionResult[] = [];
-  if (executionTargets.length && isCodeRunnerConfigured()) {
+  if (executionTargets.length) {
     try {
       hiddenExecutionResults = await runHiddenExecutionBatch({
         userId: authResult.data.user.id,
@@ -665,22 +676,17 @@ export async function POST(request: Request) {
   const questionCompetencies = Object.fromEntries(
     evaluationItems.map((item) => [item.questionId, item.competency]),
   );
-  const role =
-    reportRequest.kind === "v4"
-      ? worldQuantRoleProfileById(reportRequest.profileId)
-      : null;
+  const role = worldQuantRoleProfileById(reportRequest.profileId);
   const instructions = buildMockInterviewSystemInstruction(role?.label);
   const prompt = buildMockInterviewReportPrompt({
     durationMinutes: reportRequest.durationMinutes,
     elapsedSeconds: reportRequest.elapsedSeconds,
     items: evaluationItems,
     roleLabel: role?.label,
-    evidenceScope:
-      reportRequest.kind === "v4"
-        ? reportRequest.plan.mode
-        : undefined,
+    evidenceScope: reportRequest.plan.mode,
   });
 
+  let providerCompleted = false;
   try {
     let provider: "openai" | "gemini" = "openai";
     let dailyBudget = null;
@@ -689,23 +695,28 @@ export async function POST(request: Request) {
       const openAiResult = await withAiBudget(
         supabase,
         COACH_RESERVATION_USD_MICROS.mockReport,
-        () =>
-          evaluateMockInterviewWithOpenAI({
-            instructions,
-            prompt,
-            safetyIdentifier: safetyIdentifier(
-              authResult?.data.user?.id || clientKey,
-            ),
-          }),
+        {
+          beforeProviderDispatch: markReportProviderDispatched,
+          invokeProvider: () =>
+            evaluateMockInterviewWithOpenAI({
+              instructions,
+              prompt,
+              safetyIdentifier: safetyIdentifier(
+                authResult?.data.user?.id || clientKey,
+              ),
+            }),
+        },
       );
       result = openAiResult.result;
       dailyBudget = openAiResult.dailyBudget;
     } catch (error) {
-      result = await runGeminiBudgetFallback(error, supabase, () =>
-        evaluateMockInterviewWithGemini({ instructions, prompt }),
-      );
+      result = await runGeminiBudgetFallback(error, supabase, async () => {
+        await markReportProviderDispatched();
+        return evaluateMockInterviewWithGemini({ instructions, prompt });
+      });
       provider = "gemini";
     }
+    providerCompleted = true;
 
     const report = normalizeMockInterviewReport({
       rawReport: result.data,
@@ -736,7 +747,7 @@ export async function POST(request: Request) {
       },
     );
 
-    if (reportRequest.kind === "v4") {
+    {
       const debrief = buildWorldQuantMockDebrief({
         profileId: reportRequest.profileId,
         plan: {
@@ -845,10 +856,14 @@ export async function POST(request: Request) {
               storedAttempt?.status === "reserved" &&
               history.reservation.leaseToken
             ) {
-              await releaseMockInterviewAttempt(history.client, {
+              await failMockInterviewAttempt(history.client, {
                 userId: authResult.data.user.id,
                 attemptId: history.reservation.attemptId,
                 leaseToken: history.reservation.leaseToken,
+                failure: {
+                  code: "history_completion_unconfirmed",
+                  retryable: false,
+                },
               });
             }
           } catch {
@@ -882,15 +897,94 @@ export async function POST(request: Request) {
       });
     }
 
-    return Response.json({
-      report,
-      model: modelLabel,
-      provider,
-      executionResults,
-      aiDailyBudget: dailyBudget,
-      aiUsageRecorded: provider === "gemini" || dailyBudget !== null,
-    });
   } catch (error) {
+    if (error instanceof AiOperationOutcomeUnknownError) {
+      console.error("Mock report provider outcome could not be confirmed", {
+        name:
+          error.cause instanceof Error
+            ? error.cause.name
+            : "UnknownError",
+      });
+      let terminalized = false;
+      if (history?.reservation.leaseToken) {
+        try {
+          const failed = await failMockInterviewAttempt(history.client, {
+            userId: authResult.data.user.id,
+            attemptId: history.reservation.attemptId,
+            leaseToken: history.reservation.leaseToken,
+            failure: {
+              code: "provider_outcome_unknown",
+              retryable: false,
+            },
+          });
+          terminalized = failed.status === "failed";
+        } catch (transitionError) {
+          console.error("Mock report unknown-outcome transition failed", {
+            name:
+              transitionError instanceof Error
+                ? transitionError.name
+                : "UnknownError",
+          });
+        }
+      }
+      return Response.json(
+        {
+          error:
+            terminalized
+              ? "Nhà cung cấp AI không xác nhận được kết quả chấm. Để tránh tính phí hai lần, hệ thống sẽ không tự chấm lại buổi này; hãy tạo buổi phỏng vấn mới nếu muốn thử lại."
+              : "Nhà cung cấp AI chưa xác nhận được kết quả chấm. Hệ thống đang khóa báo cáo để tránh tính phí hai lần.",
+          code: "report_outcome_unconfirmed",
+        },
+        terminalized
+          ? { status: 409 }
+          : {
+              status: 503,
+              headers: { "Retry-After": "10" },
+        },
+      );
+    }
+    if (providerCompleted) {
+      console.error("Mock report post-provider processing failed", {
+        name: error instanceof Error ? error.name : "UnknownError",
+      });
+      let terminalized = false;
+      if (history?.reservation.leaseToken) {
+        try {
+          const failed = await failMockInterviewAttempt(history.client, {
+            userId: authResult.data.user.id,
+            attemptId: history.reservation.attemptId,
+            leaseToken: history.reservation.leaseToken,
+            failure: {
+              code: "report_processing_failed",
+              retryable: false,
+            },
+          });
+          terminalized = failed.status === "failed";
+        } catch (transitionError) {
+          console.error("Mock report processing transition failed", {
+            name:
+              transitionError instanceof Error
+                ? transitionError.name
+                : "UnknownError",
+          });
+        }
+      }
+      return Response.json(
+        {
+          error:
+            terminalized
+              ? "AI đã trả kết quả nhưng báo cáo không qua được bước kiểm tra an toàn. Hệ thống sẽ không tự gọi lại AI cho buổi này để tránh tính phí hai lần."
+              : "AI đã trả kết quả nhưng báo cáo chưa qua được bước kiểm tra an toàn. Buổi này đang được khóa để tránh gọi AI lần hai.",
+          code: "report_processing_failed",
+        },
+        terminalized
+          ? { status: 409 }
+          : {
+              status: 503,
+              headers: { "Retry-After": "10" },
+            },
+      );
+    }
     if (history?.reservation.leaseToken) {
       try {
         await releaseMockInterviewAttempt(history.client, {
@@ -1037,20 +1131,7 @@ type NormalizedReportItem = {
   readinessCompetency?: WorldQuantCompetencyKey;
 };
 
-type NormalizedLegacyReportRequest = {
-  kind: "legacy";
-  idempotencyKey: string;
-  sessionId: string;
-  profileId: "worldquant-tick-data-engineer";
-  profileVersion: number;
-  sourceRevision: string;
-  durationMinutes: 30 | 45 | 60;
-  elapsedSeconds: number;
-  items: NormalizedReportItem[];
-};
-
 type NormalizedV4ReportRequest = {
-  kind: "v4";
   idempotencyKey: string;
   sessionId: string;
   profileId: WorldQuantRoleProfileId;
@@ -1065,27 +1146,10 @@ type NormalizedV4ReportRequest = {
   raw: MockInterviewReportRequestV4;
 };
 
-function normalizeLegacyReportRequest(
-  request: MockInterviewReportRequest,
-): NormalizedLegacyReportRequest {
-  return {
-    kind: "legacy",
-    idempotencyKey: request.idempotencyKey,
-    sessionId: request.sessionId,
-    profileId: request.profileId,
-    profileVersion: request.profileVersion,
-    sourceRevision: request.sourceRevision,
-    durationMinutes: request.durationMinutes,
-    elapsedSeconds: request.elapsedSeconds,
-    items: request.items,
-  };
-}
-
 function normalizeV4ReportRequest(
   request: MockInterviewReportRequestV4,
 ): NormalizedV4ReportRequest {
   return {
-    kind: "v4",
     idempotencyKey: request.idempotencyKey,
     sessionId: request.sessionId,
     profileId: request.profileId,
@@ -1331,7 +1395,10 @@ function hiddenExecutionErrorResponse(error: unknown) {
       { status: 409 },
     );
   }
-  if (error instanceof CodeExecutionConfigurationError) {
+  if (
+    error instanceof CodeExecutionConfigurationError ||
+    error instanceof CodeRunnerConfigurationError
+  ) {
     return Response.json(
       {
         error:

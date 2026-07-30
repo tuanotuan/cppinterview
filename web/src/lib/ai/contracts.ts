@@ -97,6 +97,7 @@ export const coachFollowUpRequestSchema = z
     candidateAnswer: z.string().trim(),
     feedback: coachFeedbackSchema,
     messages: z.array(coachFollowUpMessageSchema).min(1).max(8),
+    idempotencyKey: z.string().uuid().optional(),
   })
   .superRefine(({ messages }, context) => {
     if (messages.at(-1)?.role !== "user") {

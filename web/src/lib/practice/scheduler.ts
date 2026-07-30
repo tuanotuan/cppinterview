@@ -13,6 +13,9 @@ export type Review = {
   stateAfter?: "learning" | "review" | "relearning";
   intervalDaysAfter?: number;
   lapseCountAfter?: number;
+  historyResetToken?: string;
+  coachAttemptId?: number;
+  repairPendingAt?: string;
 };
 
 export type PracticeProgress = {
@@ -166,6 +169,11 @@ export function reviewsForCloudSync(
   latestReviews(reviews).forEach((review) => {
     selected.set(`${review.questionId}:${review.reviewedOn}`, review);
   });
+  reviews
+    .filter((review) => review.coachAttemptId !== undefined)
+    .forEach((review) => {
+      selected.set(`${review.questionId}:${review.reviewedOn}`, review);
+    });
 
   return [...selected.values()];
 }
@@ -211,11 +219,33 @@ export function parseProgress(raw: string | null): PracticeProgress {
             review.intervalDaysAfter >= 1)) &&
         (review.lapseCountAfter === undefined ||
           (Number.isInteger(review.lapseCountAfter) &&
-            review.lapseCountAfter >= 0)),
+            review.lapseCountAfter >= 0)) &&
+        hasCompleteTransitionMetadata(review) &&
+        (review.historyResetToken === undefined ||
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+            review.historyResetToken,
+          )) &&
+        (review.coachAttemptId === undefined ||
+          (Number.isInteger(review.coachAttemptId) &&
+            review.coachAttemptId > 0)) &&
+        (review.repairPendingAt === undefined ||
+          (typeof review.repairPendingAt === "string" &&
+            Number.isFinite(Date.parse(review.repairPendingAt)))),
     );
 
     return { version: PROGRESS_VERSION, reviews };
   } catch {
     return EMPTY_PROGRESS;
   }
+}
+
+function hasCompleteTransitionMetadata(review: Partial<Review>) {
+  const supplied = [
+    review.questionVersion,
+    review.sourceHash,
+    review.stateAfter,
+    review.intervalDaysAfter,
+    review.lapseCountAfter,
+  ].filter((value) => value !== undefined).length;
+  return supplied === 0 || supplied === 5;
 }

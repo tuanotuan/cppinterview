@@ -273,6 +273,7 @@ function learningState(
     leech: false,
     contentChanged: false,
     historyResetOn: null,
+    historyResetToken: null,
     ...overrides,
   };
 }

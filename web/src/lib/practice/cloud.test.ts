@@ -11,6 +11,8 @@ describe("cloud progress contract", () => {
           reviewed_on: "2026-07-19",
           rating: "good",
           next_due_on: "2026-07-23",
+          history_reset_token:
+            "d89ed8d0-7b1f-4c62-9ca4-90a14b8cfa86",
         },
       ]).reviews[0],
     ).toEqual({
@@ -18,6 +20,8 @@ describe("cloud progress contract", () => {
       reviewedOn: "2026-07-19",
       rating: "good",
       nextDueOn: "2026-07-23",
+      historyResetToken:
+        "d89ed8d0-7b1f-4c62-9ca4-90a14b8cfa86",
     });
   });
 
@@ -46,6 +50,72 @@ describe("cloud progress contract", () => {
     ).toBe(false);
   });
 
+  it("accepts a positive durable coach capture marker", () => {
+    const baseReview = {
+      questionId: "cpp11-auto-001",
+      reviewedOn: "2026-07-19",
+      rating: "again",
+      nextDueOn: "2026-07-20",
+    };
+
+    expect(
+      reviewSchema.safeParse({
+        ...baseReview,
+        coachAttemptId: 42,
+      }).success,
+    ).toBe(true);
+    expect(
+      reviewSchema.safeParse({
+        ...baseReview,
+        coachAttemptId: 0,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("accepts only an ISO timestamp for a pending repair journal entry", () => {
+    const baseReview = {
+      questionId: "cpp11-auto-001",
+      reviewedOn: "2026-07-19",
+      rating: "again",
+      nextDueOn: "2026-07-20",
+    };
+
+    expect(
+      reviewSchema.safeParse({
+        ...baseReview,
+        repairPendingAt: "2026-07-19T08:30:00.000Z",
+      }).success,
+    ).toBe(true);
+    expect(
+      reviewSchema.safeParse({
+        ...baseReview,
+        repairPendingAt: "not-a-timestamp",
+      }).success,
+    ).toBe(false);
+  });
+
+  it("accepts only a UUID reset generation on a newly created review", () => {
+    const baseReview = {
+      questionId: "cpp11-auto-001",
+      reviewedOn: "2026-07-19",
+      rating: "good",
+      nextDueOn: "2026-07-22",
+    };
+
+    expect(
+      reviewSchema.safeParse({
+        ...baseReview,
+        historyResetToken: "d89ed8d0-7b1f-4c62-9ca4-90a14b8cfa86",
+      }).success,
+    ).toBe(true);
+    expect(
+      reviewSchema.safeParse({
+        ...baseReview,
+        historyResetToken: "not-a-reset-token",
+      }).success,
+    ).toBe(false);
+  });
+
   it("maps the current private learning-state projection", () => {
     expect(
       rowsToLearningStates([
@@ -64,6 +134,8 @@ describe("cloud progress contract", () => {
           is_leech: false,
           content_changed: false,
           history_reset_on: null,
+          history_reset_token:
+            "d89ed8d0-7b1f-4c62-9ca4-90a14b8cfa86",
         },
       ])[0],
     ).toMatchObject({
@@ -71,6 +143,8 @@ describe("cloud progress contract", () => {
       state: "relearning",
       intervalDays: 1,
       lapseCount: 2,
+      historyResetToken:
+        "d89ed8d0-7b1f-4c62-9ca4-90a14b8cfa86",
     });
   });
 });

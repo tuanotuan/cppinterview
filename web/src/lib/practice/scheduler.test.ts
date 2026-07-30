@@ -73,6 +73,118 @@ describe("practice scheduler", () => {
     expect(parseProgress("not-json").reviews).toEqual([]);
   });
 
+  it("keeps a valid pending coach capture marker in browser progress", () => {
+    const persisted = parseProgress(
+      JSON.stringify({
+        version: 1,
+        reviews: [
+          {
+            questionId: "q-1",
+            reviewedOn: "2026-07-19",
+            rating: "again",
+            nextDueOn: "2026-07-20",
+            coachAttemptId: 42,
+          },
+        ],
+      }),
+    );
+
+    expect(persisted.reviews[0]?.coachAttemptId).toBe(42);
+  });
+
+  it("keeps a durable pending repair marker until its queue write succeeds", () => {
+    const persisted = parseProgress(
+      JSON.stringify({
+        version: 1,
+        reviews: [
+          {
+            questionId: "q-1",
+            reviewedOn: "2026-07-19",
+            rating: "again",
+            nextDueOn: "2026-07-20",
+            repairPendingAt: "2026-07-19T08:30:00.000Z",
+          },
+        ],
+      }),
+    );
+
+    expect(persisted.reviews[0]?.repairPendingAt).toBe(
+      "2026-07-19T08:30:00.000Z",
+    );
+  });
+
+  it("keeps only a valid reset generation token on browser progress", () => {
+    const baseReview = {
+      questionId: "q-1",
+      reviewedOn: "2026-07-19",
+      rating: "good",
+      nextDueOn: "2026-07-22",
+    };
+    const valid = parseProgress(
+      JSON.stringify({
+        version: 1,
+        reviews: [
+          {
+            ...baseReview,
+            historyResetToken:
+              "d89ed8d0-7b1f-4c62-9ca4-90a14b8cfa86",
+          },
+        ],
+      }),
+    );
+    const invalid = parseProgress(
+      JSON.stringify({
+        version: 1,
+        reviews: [
+          { ...baseReview, historyResetToken: "not-a-uuid" },
+        ],
+      }),
+    );
+
+    expect(valid.reviews[0]?.historyResetToken).toBe(
+      "d89ed8d0-7b1f-4c62-9ca4-90a14b8cfa86",
+    );
+    expect(invalid.reviews).toEqual([]);
+  });
+
+  it("drops a review with an invalid pending coach capture marker", () => {
+    const persisted = parseProgress(
+      JSON.stringify({
+        version: 1,
+        reviews: [
+          {
+            questionId: "q-1",
+            reviewedOn: "2026-07-19",
+            rating: "again",
+            nextDueOn: "2026-07-20",
+            coachAttemptId: 0,
+          },
+        ],
+      }),
+    );
+
+    expect(persisted.reviews).toEqual([]);
+  });
+
+  it("drops partial transition metadata that cloud sync cannot accept", () => {
+    const persisted = parseProgress(
+      JSON.stringify({
+        version: 1,
+        reviews: [
+          {
+            questionId: "q-1",
+            reviewedOn: "2026-07-19",
+            rating: "hard",
+            nextDueOn: "2026-07-21",
+            questionVersion: 2,
+          },
+        ],
+      }),
+    );
+
+    expect(persisted.reviews).toEqual([]);
+  });
+
   it("merges local and cloud reviews without duplicate question-days", () => {
     const local = recordReview(
       { version: 1, reviews: [] },
@@ -102,5 +214,20 @@ describe("practice scheduler", () => {
 
     expect(selected).toHaveLength(4);
     expect(selected.some((review) => review.questionId === "old-question")).toBe(true);
+  });
+
+  it("always syncs an older pending mistake marker outside the recent window", () => {
+    const reviews: Review[] = Array.from({ length: 8 }, (_, index) => ({
+      questionId: "active-question",
+      reviewedOn: `2026-07-${String(index + 10).padStart(2, "0")}`,
+      rating: "again",
+      nextDueOn: `2026-07-${String(index + 11).padStart(2, "0")}`,
+      ...(index === 0 ? { coachAttemptId: 42 } : {}),
+    }));
+
+    const selected = reviewsForCloudSync(reviews, 3);
+
+    expect(selected).toHaveLength(4);
+    expect(selected).toContainEqual(reviews[0]);
   });
 });

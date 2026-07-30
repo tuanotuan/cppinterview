@@ -1,9 +1,12 @@
 import {
-  FOCUS_SESSION_STORAGE_KEY,
   createFocusSession,
+  focusSessionMatchesAccount,
+  focusSessionStorageKey,
   parseFocusSession,
+  readFocusSessionSnapshotLocked,
   reconcileFocusSession,
   serializeFocusSession,
+  writeFocusSessionSnapshot,
   type FocusSession,
 } from "../../lib/practice/focus-session";
 import type {
@@ -18,6 +21,10 @@ type FocusSprintRuntime = {
   createSessionId?: () => string;
   now?: () => string;
   writeSession?: FocusSessionWriter;
+};
+
+type FocusSprintScope = {
+  accountId: string | null;
 };
 
 export type FocusSprintDestination =
@@ -41,6 +48,7 @@ export type FocusSprintDestination =
 
 export function prepareFocusSprint(
   plan: WorldQuantFocusPlan,
+  scope: FocusSprintScope,
   runtime: FocusSprintRuntime = {},
 ): FocusSprintDestination {
   if (plan.questions.length === 0) {
@@ -64,6 +72,7 @@ export function prepareFocusSprint(
   try {
     const now = runtime.now?.() ?? new Date().toISOString();
     const session = createFocusSession(plan, {
+      accountId: scope.accountId,
       now,
       sessionId:
         runtime.createSessionId?.() ?? globalThis.crypto.randomUUID(),
@@ -76,11 +85,15 @@ export function prepareFocusSprint(
       };
     }
 
-    const writeSession =
-      runtime.writeSession ??
-      ((key: string, value: string) =>
-        globalThis.localStorage.setItem(key, value));
-    writeSession(FOCUS_SESSION_STORAGE_KEY, serializeFocusSession(session));
+    const serialized = serializeFocusSession(session);
+    if (runtime.writeSession) {
+      runtime.writeSession(
+        focusSessionStorageKey(scope.accountId),
+        serialized,
+      );
+    } else {
+      writeFocusSessionSnapshot(scope.accountId, session);
+    }
     return { kind: "practice", href, session };
   } catch {
     return {
@@ -91,25 +104,39 @@ export function prepareFocusSprint(
   }
 }
 
-export function prepareFocusSprintResume(
+export async function prepareFocusSprintResume(
   session: FocusSession,
-  runtime: Pick<FocusSprintRuntime, "writeSession"> = {},
-): FocusSprintDestination {
-  const href = focusSessionHref(session);
-  if (!href) {
+  scope: FocusSprintScope,
+): Promise<FocusSprintDestination> {
+  if (!focusSessionMatchesAccount(session, scope.accountId)) {
     return {
       kind: "unavailable",
-      message: "Phiên ôn tập trọng tâm cũ không còn câu đã duyệt để tiếp tục.",
+      message:
+        "Phiên ôn tập trọng tâm thuộc một tài khoản khác nên không thể tiếp tục.",
     };
   }
-
   try {
-    const writeSession =
-      runtime.writeSession ??
-      ((key: string, value: string) =>
-        globalThis.localStorage.setItem(key, value));
-    writeSession(FOCUS_SESSION_STORAGE_KEY, serializeFocusSession(session));
-    return { kind: "practice", href, session };
+    const latest = await readFocusSessionSnapshotLocked(scope.accountId);
+    if (
+      !latest ||
+      latest.sessionId !== session.sessionId ||
+      latest.status !== "active"
+    ) {
+      return {
+        kind: "unavailable",
+        message:
+          "Phiên ôn tập trọng tâm cũ không còn câu đã duyệt để tiếp tục.",
+      };
+    }
+    const href = focusSessionHref(latest);
+    if (!href) {
+      return {
+        kind: "unavailable",
+        message:
+          "Phiên ôn tập trọng tâm cũ không còn câu đã duyệt để tiếp tục.",
+      };
+    }
+    return { kind: "practice", href, session: latest };
   } catch {
     return {
       kind: "storage_error",
@@ -121,11 +148,13 @@ export function prepareFocusSprintResume(
 
 export function restoreMatchingFocusSession({
   raw,
+  accountId,
   profileId,
   questions,
   now,
 }: {
   raw: string | null;
+  accountId: string | null;
   profileId: WorldQuantRoleProfileId;
   questions: readonly ReadinessQuestionSummary[];
   now?: string;
@@ -133,6 +162,7 @@ export function restoreMatchingFocusSession({
   const parsed = parseFocusSession(raw);
   if (
     !parsed ||
+    !focusSessionMatchesAccount(parsed, accountId) ||
     parsed.status !== "active" ||
     parsed.plan.profileId !== profileId
   ) {

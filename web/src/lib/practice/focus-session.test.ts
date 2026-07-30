@@ -1,12 +1,14 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { WorldQuantFocusPlan } from "../worldquant/focus-plan";
+import type { BrowserLockManager } from "./browser-storage-lock";
 
 import {
-  FOCUS_SESSION_STORAGE_KEY,
+  compareAndSetFocusSessionSnapshotLocked,
   completeFocusSession,
   completeFocusSessionQuestion,
   createFocusSession,
+  focusSessionStorageKey,
   parseFocusSession,
   parseFocusSessionId,
   reconcileFocusSession,
@@ -18,6 +20,7 @@ const startedAt = "2026-07-26T02:00:00.000Z";
 const later = "2026-07-26T02:10:00.000Z";
 const finishedAt = "2026-07-26T02:20:00.000Z";
 const sessionId = "71e8a36a-3e0f-4e2f-8b31-33293fbb4627";
+const accountId = "10000000-0000-4000-8000-000000000001";
 
 const references = [
   {
@@ -75,6 +78,10 @@ const plan: WorldQuantFocusPlan = {
   fallbacks: [],
 };
 
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
 describe("focus session persistence", () => {
   it("accepts only a real UUID as a focus URL session id", () => {
     expect(parseFocusSessionId(sessionId)).toBe(sessionId);
@@ -84,13 +91,19 @@ describe("focus session persistence", () => {
   });
 
   it("round-trips a versioned plan without storing question content", () => {
-    expect(FOCUS_SESSION_STORAGE_KEY).toBe("recall:focus-session:v1");
+    expect(focusSessionStorageKey(null)).toBe(
+      "recall:focus-session:local:v2",
+    );
 
     const session = createFocusSession(plan, { now: startedAt, sessionId });
     const serialized = serializeFocusSession(session);
     const restored = parseFocusSession(serialized);
 
     expect(restored).toEqual(session);
+    expect(restored).toMatchObject({
+      version: 2,
+      accountScope: "local",
+    });
     expect(restored?.remainingQuestions).toEqual(references);
     expect(serialized).not.toContain("prompt");
     expect(serialized).not.toContain("answer");
@@ -276,4 +289,85 @@ describe("focus session persistence", () => {
     });
     expect(reconciled.session.plan.questions).toHaveLength(references.length);
   });
+
+  it("rejects a stale compare-and-set under the scoped Web Lock", async () => {
+    const storage = new MemoryStorage();
+    vi.stubGlobal("window", new BrowserWindow(storage));
+    const base = createFocusSession(plan, {
+      accountId,
+      now: startedAt,
+      sessionId,
+    });
+    const progressed = completeFocusSessionQuestion(
+      base,
+      references[0].id,
+      later,
+    );
+    const replacement = completeFocusSession(base, finishedAt);
+    storage.setItem(
+      focusSessionStorageKey(accountId),
+      serializeFocusSession(progressed),
+    );
+    const lockNames: string[] = [];
+    const lockManager: BrowserLockManager = {
+      request: async (name, _options, callback) => {
+        lockNames.push(name);
+        return callback();
+      },
+    };
+
+    const result = await compareAndSetFocusSessionSnapshotLocked(
+      accountId,
+      base,
+      replacement,
+      lockManager,
+    );
+
+    expect(result).toEqual({
+      applied: false,
+      session: progressed,
+    });
+    expect(
+      parseFocusSession(
+        storage.getItem(focusSessionStorageKey(accountId)),
+      ),
+    ).toEqual(progressed);
+    expect(lockNames).toEqual([
+      `recall:storage:${focusSessionStorageKey(accountId)}`,
+    ]);
+  });
 });
+
+class MemoryStorage implements Storage {
+  private readonly values = new Map<string, string>();
+
+  get length() {
+    return this.values.size;
+  }
+
+  clear() {
+    this.values.clear();
+  }
+
+  getItem(key: string) {
+    return this.values.get(key) ?? null;
+  }
+
+  key(index: number) {
+    return [...this.values.keys()][index] ?? null;
+  }
+
+  removeItem(key: string) {
+    this.values.delete(key);
+  }
+
+  setItem(key: string, value: string) {
+    this.values.set(key, value);
+  }
+}
+
+class BrowserWindow extends EventTarget {
+  constructor(readonly localStorage: Storage) {
+    super();
+  }
+}

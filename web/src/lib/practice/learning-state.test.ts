@@ -5,6 +5,7 @@ import {
   buildLearningStates,
   countLearningStates,
   deriveLearningStateFromReviews,
+  filterReviewsForLearningHistory,
   learningQueuePriority,
   newQuestionLearningState,
   ratingIntervalDays,
@@ -111,6 +112,67 @@ describe("Anki-style learning-state foundation", () => {
       dueOn: "2026-07-25",
       lapseCount: 1,
     });
+  });
+
+  it("binds the first post-reset review to its exact reset generation", () => {
+    const resetToken =
+      "d89ed8d0-7b1f-4c62-9ca4-90a14b8cfa86";
+    const reset = {
+      ...newQuestionLearningState({
+        questionId: "cpp11-auto-001",
+        questionVersion: 2,
+        sourceHash: "a".repeat(64),
+      }),
+      historyResetOn: "2026-07-21",
+      historyResetToken: resetToken,
+    };
+
+    const scheduled = scheduleQuestionReview(
+      reset,
+      "good",
+      "2026-07-21",
+    );
+
+    expect(scheduled.review.historyResetToken).toBe(resetToken);
+    expect(scheduled.state).toMatchObject({
+      historyResetOn: "2026-07-21",
+      historyResetToken: resetToken,
+    });
+  });
+
+  it("keeps only reviews from the current durable history generation", () => {
+    const currentToken =
+      "d89ed8d0-7b1f-4c62-9ca4-90a14b8cfa86";
+    const staleToken =
+      "eab7afc2-ae26-4663-b200-8c404d0a7df3";
+    const state = {
+      ...newQuestionLearningState({
+        questionId: "cpp11-auto-001",
+        questionVersion: 2,
+        sourceHash: "a".repeat(64),
+      }),
+      historyResetOn: "2026-07-21",
+      historyResetToken: currentToken,
+    };
+    const baseReview: Review = {
+      questionId: state.questionId,
+      reviewedOn: "2026-07-21",
+      rating: "good",
+      nextDueOn: "2026-07-24",
+    };
+
+    expect(
+      filterReviewsForLearningHistory(
+        [
+          { ...baseReview, historyResetToken: staleToken },
+          { ...baseReview, historyResetToken: currentToken },
+          baseReview,
+        ],
+        [state],
+      ),
+    ).toEqual([
+      { ...baseReview, historyResetToken: currentToken },
+    ]);
   });
 
   it("grows Review intervals according to Hard, Good, and Easy", () => {

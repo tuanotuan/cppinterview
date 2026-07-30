@@ -7,6 +7,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   AiDailyBudgetExceededError,
   AiMonthlyBudgetExceededError,
+  AiOperationNotStartedError,
+  AiOperationOutcomeUnknownError,
   withAiBudget,
 } from "@/lib/ai/budget";
 import {
@@ -384,6 +386,13 @@ export async function generateMistakeCandidate({
   candidateId: string;
   manifest: ContentManifest;
 }) {
+  const { data: protocolVersion, error: protocolError } = await supabase.rpc(
+    "mistake_generation_retry_protocol_version",
+  );
+  if (protocolError || protocolVersion !== 3) {
+    throw new MistakeQueueConfigurationError();
+  }
+
   const { data: claimData, error: claimError } = await supabase.rpc(
     "claim_mistake_flashcard_candidate",
     { p_candidate_id: candidateId, p_lease_seconds: 300 },
@@ -446,6 +455,20 @@ export async function generateMistakeCandidate({
     return { status: "source_changed", questionId: null, aiDailyBudget: null };
   }
 
+  const markProviderDispatched = async () => {
+    try {
+      await markMistakeGenerationDispatched(supabase, {
+        candidateId,
+        leaseToken: claim.leaseToken!,
+      });
+    } catch {
+      throw new AiOperationNotStartedError(
+        "Mistake generation dispatch could not be confirmed",
+      );
+    }
+  };
+
+  let providerCompleted = false;
   try {
     let provider: "openai" | "gemini" = "openai";
     let result;
@@ -454,24 +477,28 @@ export async function generateMistakeCandidate({
       const openAi = await withAiBudget(
         supabase,
         COACH_RESERVATION_USD_MICROS.mistakeCard,
-        () =>
-          generateMistakeCardWithOpenAI({
-            candidate: {
-              criterion: candidate.criterion_text,
-              evidence: candidate.safe_evidence,
-              occurrenceCount: candidate.occurrence_count,
-            },
-            question: sourceQuestion,
-            lesson,
-            sections,
-            safetyIdentifier: safetyIdentifier(userId),
-          }),
+        {
+          beforeProviderDispatch: markProviderDispatched,
+          invokeProvider: () =>
+            generateMistakeCardWithOpenAI({
+              candidate: {
+                criterion: candidate.criterion_text,
+                evidence: candidate.safe_evidence,
+                occurrenceCount: candidate.occurrence_count,
+              },
+              question: sourceQuestion,
+              lesson,
+              sections,
+              safetyIdentifier: safetyIdentifier(userId),
+            }),
+        },
       );
       result = openAi.result;
       aiDailyBudget = openAi.dailyBudget;
     } catch (error) {
-      result = await runGeminiBudgetFallback(error, supabase, () =>
-        generateMistakeCardWithGemini({
+      result = await runGeminiBudgetFallback(error, supabase, async () => {
+        await markProviderDispatched();
+        return generateMistakeCardWithGemini({
           candidate: {
             criterion: candidate.criterion_text,
             evidence: candidate.safe_evidence,
@@ -480,38 +507,85 @@ export async function generateMistakeCandidate({
           question: sourceQuestion,
           lesson,
           sections,
-        }),
-      );
+        });
+      });
       provider = "gemini";
     }
+    providerCompleted = true;
     const draft = buildMaterializedDraft({
       draft: result.data,
       sourceQuestion,
       lesson,
       sourceSectionIds,
     });
-    const { data: completed, error: completionError } = await supabase.rpc(
-      "complete_mistake_flashcard_candidate",
-      {
-        p_candidate_id: candidateId,
-        p_lease_token: claim.leaseToken,
-        p_draft: draft,
-        p_provider: provider,
-        p_model: result.model,
-        p_prompt_version: MISTAKE_CARD_PROMPT_VERSION,
-      },
-    );
-    if (completionError) {
-      await failCandidate(supabase, candidateId, claim.leaseToken, "completion_failed");
-      throw new Error(`Mistake completion failed: ${completionError.code}`);
-    }
-    const completion = completed as { status?: string; questionId?: string };
+    const completion = await completeMistakeCandidateWithRetry(supabase, {
+      candidateId,
+      leaseToken: claim.leaseToken,
+      draft,
+      provider,
+      model: result.model,
+    });
     return {
       status: completion.status ?? "pending_review",
       questionId: completion.questionId ?? null,
       aiDailyBudget,
     };
   } catch (error) {
+    if (error instanceof AiOperationOutcomeUnknownError) {
+      try {
+        await terminateCandidateGeneration(
+          supabase,
+          candidateId,
+          claim.leaseToken,
+          "provider_outcome_unknown",
+        );
+        throw new MistakeCandidateCompletionUnconfirmedError(
+          error,
+          true,
+        );
+      } catch (transitionError) {
+        if (
+          transitionError instanceof
+            MistakeCandidateCompletionUnconfirmedError
+        ) {
+          throw transitionError;
+        }
+        // If this transition response is also lost, protocol v3 converts the
+        // expired lease to dead_letter before any future claim can call AI.
+        throw new MistakeCandidateCompletionUnconfirmedError({
+          cause: error,
+          transitionError,
+        });
+      }
+    }
+    if (error instanceof MistakeCandidateCompletionUnconfirmedError) {
+      throw error;
+    }
+    if (error instanceof MistakeCandidateCompletionRejectedError) {
+      // The completion helper already terminalized this exact lease. Calling
+      // the retryable failure transition now would only return lease_invalid
+      // and hide the definitive completion error.
+      throw error;
+    }
+    if (providerCompleted) {
+      try {
+        // Protocol v3 already defines completion_rejected as a terminal,
+        // dispatched-lease transition. Local materialization failures belong
+        // on that path because retrying them would purchase the same result.
+        await terminateCandidateGeneration(
+          supabase,
+          candidateId,
+          claim.leaseToken,
+          "completion_rejected",
+        );
+      } catch (transitionError) {
+        throw new MistakeCandidateCompletionUnconfirmedError({
+          cause: error,
+          transitionError,
+        });
+      }
+      throw error;
+    }
     const errorCode =
       error instanceof AiDailyBudgetExceededError
         ? "daily_budget_exceeded"
@@ -522,6 +596,174 @@ export async function generateMistakeCandidate({
             : "generation_failed";
     await failCandidate(supabase, candidateId, claim.leaseToken, errorCode);
     throw error;
+  }
+}
+
+export async function markMistakeGenerationDispatched(
+  supabase: SupabaseClient,
+  input: {
+    candidateId: string;
+    leaseToken: string;
+  },
+) {
+  const { data, error } = await supabase.rpc(
+    "mark_mistake_generation_dispatched",
+    {
+      p_candidate_id: input.candidateId,
+      p_lease_token: input.leaseToken,
+    },
+  );
+  if (error) {
+    if (isMissingMistakeSchema(error)) {
+      throw new MistakeQueueConfigurationError();
+    }
+    throw new Error(`Mistake dispatch failed: ${error.code}`);
+  }
+  if (
+    !isRecord(data) ||
+    data.status !== "dispatched" ||
+    typeof data.dispatchedAt !== "string" ||
+    !Number.isFinite(Date.parse(data.dispatchedAt))
+  ) {
+    throw new MistakeQueueConfigurationError();
+  }
+}
+
+type MistakeCompletionInput = {
+  candidateId: string;
+  leaseToken: string;
+  draft: Record<string, unknown>;
+  provider: "openai" | "gemini";
+  model: string;
+};
+
+export async function completeMistakeCandidateWithRetry(
+  supabase: SupabaseClient,
+  input: MistakeCompletionInput,
+) {
+  const args = {
+    p_candidate_id: input.candidateId,
+    p_lease_token: input.leaseToken,
+    p_draft: input.draft,
+    p_provider: input.provider,
+    p_model: input.model,
+    p_prompt_version: MISTAKE_CARD_PROMPT_VERSION,
+  };
+  let firstOutcomeWasAmbiguous = false;
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const { data, error, status } = await supabase.rpc(
+        "complete_mistake_flashcard_candidate",
+        args,
+      );
+      if (error) {
+        if (
+          firstOutcomeWasAmbiguous ||
+          databaseMutationOutcomeIsUnknown(error, status)
+        ) {
+          firstOutcomeWasAmbiguous = true;
+          if (attempt === 0) continue;
+          const terminal = await terminalizeAmbiguousCompletion(
+            supabase,
+            input,
+            error,
+          );
+          if (terminal) return terminal;
+          throw new MistakeCandidateCompletionUnconfirmedError(error, true);
+        }
+        try {
+          const terminal = await terminateCandidateGeneration(
+            supabase,
+            input.candidateId,
+            input.leaseToken,
+            "completion_rejected",
+          );
+          if (
+            terminal.status === "pending_review" ||
+            terminal.status === "needs_grounding"
+          ) {
+            return terminal;
+          }
+        } catch (transitionError) {
+          throw new MistakeCandidateCompletionUnconfirmedError(
+            transitionError,
+          );
+        }
+        throw new MistakeCandidateCompletionRejectedError(error);
+      }
+      if (
+        !isRecord(data) ||
+        (data.status !== "pending_review" &&
+          data.status !== "needs_grounding")
+      ) {
+        throw new MistakeCandidateCompletionUnconfirmedError(
+          new Error("Unexpected mistake completion response"),
+        );
+      }
+      return {
+        status: data.status,
+        questionId:
+          typeof data.questionId === "string"
+            ? data.questionId
+            : null,
+      };
+    } catch (error) {
+      if (error instanceof MistakeCandidateCompletionRejectedError) {
+        throw error;
+      }
+      if (error instanceof MistakeCandidateCompletionUnconfirmedError) {
+        if (error.terminalized) throw error;
+        const terminal = await terminalizeAmbiguousCompletion(
+          supabase,
+          input,
+          error.cause,
+        );
+        if (terminal) return terminal;
+        throw new MistakeCandidateCompletionUnconfirmedError(
+          error.cause,
+          true,
+        );
+      }
+      firstOutcomeWasAmbiguous = true;
+      if (attempt === 1) {
+        const terminal = await terminalizeAmbiguousCompletion(
+          supabase,
+          input,
+          error,
+        );
+        if (terminal) return terminal;
+        throw new MistakeCandidateCompletionUnconfirmedError(error, true);
+      }
+    }
+  }
+
+  throw new MistakeCandidateCompletionUnconfirmedError(
+    new Error("Mistake completion retry exhausted"),
+  );
+}
+
+async function terminalizeAmbiguousCompletion(
+  supabase: SupabaseClient,
+  input: MistakeCompletionInput,
+  cause: unknown,
+) {
+  try {
+    const terminal = await terminateCandidateGeneration(
+      supabase,
+      input.candidateId,
+      input.leaseToken,
+      "completion_outcome_unknown",
+    );
+    return terminal.status === "pending_review" ||
+      terminal.status === "needs_grounding"
+      ? terminal
+      : null;
+  } catch (transitionError) {
+    throw new MistakeCandidateCompletionUnconfirmedError({
+      cause,
+      transitionError,
+    });
   }
 }
 
@@ -651,11 +893,71 @@ async function failCandidate(
   leaseToken: string,
   code: string,
 ) {
-  await supabase.rpc("fail_mistake_flashcard_candidate", {
+  const { data, error } = await supabase.rpc(
+    "fail_mistake_flashcard_candidate",
+    {
     p_candidate_id: candidateId,
     p_lease_token: leaseToken,
     p_error_code: code,
-  });
+    },
+  );
+  if (error) {
+    throw new Error(`Mistake failure transition failed: ${error.code}`);
+  }
+  const status =
+    isRecord(data) && typeof data.status === "string"
+      ? data.status
+      : null;
+  if (
+    status !== "failed" &&
+    status !== "dead_letter"
+  ) {
+    throw new Error("Mistake failure transition was not confirmed");
+  }
+  return status;
+}
+
+async function terminateCandidateGeneration(
+  supabase: SupabaseClient,
+  candidateId: string,
+  leaseToken: string,
+  errorCode:
+    | "provider_outcome_unknown"
+    | "completion_outcome_unknown"
+    | "completion_rejected",
+) {
+  const { data, error } = await supabase.rpc(
+    "terminate_mistake_flashcard_generation",
+    {
+      p_candidate_id: candidateId,
+      p_lease_token: leaseToken,
+      p_error_code: errorCode,
+    },
+  );
+  if (error) {
+    throw new Error(`Mistake generation termination failed: ${error.code}`);
+  }
+  if (
+    !isRecord(data) ||
+    typeof data.status !== "string" ||
+    ![
+      "dead_letter",
+      "needs_grounding",
+      "pending_review",
+      "approved",
+      "reinforce_existing",
+      "dismissed",
+    ].includes(data.status)
+  ) {
+    throw new Error("Mistake generation termination was not confirmed");
+  }
+  return {
+    status: data.status,
+    questionId:
+      typeof data.materializedQuestionId === "string"
+        ? data.materializedQuestionId
+        : null,
+  };
 }
 
 function sha256(value: string) {
@@ -668,6 +970,22 @@ function stringArray(value: unknown) {
     : [];
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function databaseMutationOutcomeIsUnknown(
+  error: { code?: string | null },
+  status: number | undefined,
+) {
+  return (
+    status === 0 ||
+    status === 408 ||
+    (typeof status === "number" && status >= 500) ||
+    (status === undefined && !error.code)
+  );
+}
+
 function isMissingMistakeSchema(error: { code?: string | null }) {
   return new Set(["42P01", "42703", "42883", "PGRST202", "PGRST204"]).has(
     error.code ?? "",
@@ -678,5 +996,22 @@ export class MistakeQueueConfigurationError extends Error {
   constructor() {
     super("Mistake flashcard migration is missing");
     this.name = "MistakeQueueConfigurationError";
+  }
+}
+
+export class MistakeCandidateCompletionUnconfirmedError extends Error {
+  constructor(
+    readonly cause: unknown,
+    readonly terminalized = false,
+  ) {
+    super("Mistake flashcard completion could not be confirmed");
+    this.name = "MistakeCandidateCompletionUnconfirmedError";
+  }
+}
+
+export class MistakeCandidateCompletionRejectedError extends Error {
+  constructor(readonly cause: unknown) {
+    super("Mistake flashcard completion was rejected");
+    this.name = "MistakeCandidateCompletionRejectedError";
   }
 }

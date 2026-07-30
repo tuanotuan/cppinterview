@@ -9,6 +9,7 @@ import { loadQuestionOverrides } from "@/lib/content/question-overrides-server";
 import { loadQuestionStoreManifest } from "@/lib/content/question-store-server";
 import {
   generateMistakeCandidate,
+  MistakeCandidateCompletionUnconfirmedError,
   MistakeQueueConfigurationError,
 } from "@/lib/practice/mistake-cards.server";
 import { isAllowedPracticeUser } from "@/lib/supabase/authorization";
@@ -46,6 +47,17 @@ export async function POST(request: Request) {
       }),
     );
   } catch (cause) {
+    if (cause instanceof MistakeCandidateCompletionUnconfirmedError) {
+      return Response.json(
+        { error: "generation_outcome_unconfirmed" },
+        cause.terminalized
+          ? { status: 409 }
+          : {
+              status: 503,
+              headers: { "Retry-After": "10" },
+            },
+      );
+    }
     if (cause instanceof MistakeQueueConfigurationError) {
       return Response.json({ error: "migration_required" }, { status: 503 });
     }

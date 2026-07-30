@@ -67,20 +67,21 @@ API quan trọng:
 |---|---|---|
 | `content` | `loader.ts`, `schema.ts`, `automation.ts` | Parse note, schema Zod, discover lesson, sinh manifest |
 | `content` | `question-store-server.ts` | Chọn `repo`/`shadow`/`db`, parity, apply override |
-| `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts`, `study-session.ts` | Queue Anki, rating, due date, streak, browser progress và draft/phase Trợ giúp → Làm lại |
+| `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts`, `progress-sync.ts`, `study-session.ts` | Queue Anki, rating nguyên tử, due date, streak, browser/cloud progress và draft/phase Trợ giúp → Làm lại |
 | `practice` | `repair-queue.ts`, `rescue-retry.ts`, `fsrs-shadow.ts`, `browser-storage-lock.ts` | Blank-answer Rescue → Retry, same-session repair exact identity, cross-tab mutation lock và FSRS-6 chỉ quan sát |
 | `practice` | `focus-session.ts`, `focus-eligibility.ts` | Session Focus Sprint identity-only, resume/reconcile/completion và lọc exact approved refs |
-| `practice` | `cloud-server.ts`, `cloud.ts` | Ghép auth, progress, approval, overrides, usage, manifest |
+| `practice` | `cloud-server.ts`, `cloud.ts`, `practice-review-reader.server.ts`, `question-learning-state-reader.server.ts` | Ghép auth, đọc review trước/state generation sau với fallback migration hẹp, approval, overrides, usage và manifest |
 | `practice` | `mistake-cards.ts`, `mistake-cards.server.ts` | Capture lỗi durable, dedupe, grounded generation và materialize draft |
 | `worldquant` | `readiness.ts`, `focus-plan.ts` | Role/competency model, preparation evidence và planner queue deterministic theo gap/time budget |
 | `worldquant` | `curriculum.ts`, `curriculum-evidence.ts`, `drills.ts` | Concept graph, content/transfer coverage và catalog 30 scenario: một practice + hai checkpoint mỗi competency |
 | `worldquant` | `training-state.ts`, `gap-closure.ts`, `mission.ts`, `mission-snapshot.ts`, `guided-mode.ts`, `full-round.ts`, `navigation.ts` | Account-scoped training evidence, closure protocol, bounded frozen daily mission, Guided onboarding/return contract, role-aware navigation và versioned five-round simulator |
-| `ai` | `openai.ts`, `gemini.ts`, `fallback.ts` | Provider calls và fallback |
-| `ai` | `budget.ts`, `usage.ts`, `billing.ts` | Admission daily, accounting monthly, Costs API reconciliation |
+| `ai` | `openai.ts`, `gemini.ts`, `fallback.ts`, `access.ts` | Provider call không transport retry, fallback và chặn AI không quota ngoài local development |
+| `ai` | `budget.ts`, `usage.ts`, `billing.ts`, `coach-idempotency-client.ts`, `coach-reservation.server.ts`, `coach-follow-up-reservation.server.ts` | Sổ hạn mức UUID, phân loại kết quả provider và terminal cache Coach theo exact request |
 | `mock-interview` | `profile.ts`, `profile-server.ts`, `catalog.ts`, `target-plan.ts` | JD question/version grounding, canonical competency mapping và deterministic balanced/targeted blueprint |
-| `mock-interview` | `session-v4.ts`, `contracts-v4.ts`, `session.ts`, `contracts.ts` | Account-scoped frozen v4 session/API contract và bộ đọc lịch sử hoàn tất v3 còn được hỗ trợ |
-| `mock-interview` | `history.server.ts`, `trends.ts` | Lease/cache/idempotency cho report history và trend chỉ trên attempt comparable |
+| `mock-interview` | `session-v4.ts`, `contracts-v4.ts`, `session.ts`, `contracts.ts` | Account-scoped frozen v4 session/API contract, owner check và revision CAS; legacy parser không cấp dữ liệu cho Hub |
+| `mock-interview` | `history.server.ts`, `report-submission-client.ts`, `trends.ts` | Lease/cache/idempotency cho report, chống stale cross-tab submission và trend chỉ trên attempt comparable |
 | `worldquant` | `mock-debrief.ts`, `mock-remediation.ts` | Role-scoped evidence, assessed/not-assessed matrix, deterministic ranked gaps và Focus remediation |
+| `worldquant` | `hub-preferences.ts` | Preference của Readiness Hub tách theo account/local và đồng bộ giữa tab cùng scope |
 | `code-runner` | `admission.server.ts`, `execution-specs.server.ts`, `vercel-sandbox.server.ts` | Quota/idempotency, harness server-owned, VM cô lập |
 | `profile` | `contribution-activity.ts`, `profile-activity.server.ts` | Tổng hợp nhật ký theo ngày Việt Nam, phân trang dữ liệu owner-private và dựng contribution calendar |
 | `supabase` | `server.ts`, `config.ts`, `authorization.ts` | SSR client và owner allowlist |
@@ -104,13 +105,39 @@ Quy tắc:
   `needs_review`.
 - AI chỉ tạo `draft`; con người mới duyệt.
 - Archive giữ history, không hard-delete question.
+- Câu hỏi đã archive có lesson bị gỡ không vào manifest; câu hỏi còn hoạt động mà
+  mất lesson làm loader fail closed thay vì âm thầm tạo orphan.
 - Review được key theo question ID; queue/analytics tách theo deck.
+
+Nhánh DB-native chạy `content:sync` rồi enqueue exact
+`QUESTION_GENERATOR_PROMPT_VERSION`. Enqueue, claim, completion và thao tác
+Admin được serialize trước khi worker gọi provider; exact lesson/source chỉ có
+một lịch sử tạo nội dung được mở. Question cùng source đã materialize sẽ đóng
+queue còn lại. Sibling khác version đang chờ/chạy hoặc có outcome AI chưa xác
+định trả conflict, không gọi AI; Admin của bản hiện hành phải đóng row obsolete
+và xác nhận riêng nếu có nguy cơ chi phí trùng. Marker exact lease được ghi
+trước mỗi OpenAI/Gemini request, nên chỉ 429 xác định mới tự mở lại queue.
 
 ### Practice state
 
-Không có Supabase: localStorage và app vẫn dùng được. Có Supabase + đúng owner:
-server tải review history, Anki projection, approvals, overrides và usage; browser
-merge offline state rồi sync. RPC DB là nguồn thẩm quyền cho cloud transition.
+Không có Supabase: localStorage và app vẫn dùng được. Progress, study/Focus
+session, mục đã lưu/đáp án AI và Hub preference đều tách theo `account UUID` hoặc
+`local`; không nhận dữ liệu legacy không có chủ sở hữu. Có Supabase + đúng owner:
+server phân trang đến hết review history, tải Anki projection, approvals,
+overrides và usage; browser merge offline state rồi sync. RPC DB là nguồn thẩm
+quyền cho cloud transition. Practice progress dùng Web Lock theo scope và chỉ
+chấp nhận rating đầu tiên của exact question/ngày/content identity; RPC tiếp tục
+khóa theo account/question để hai thiết bị không ghi hai transition cạnh tranh.
+Review offline cũ hơn chỉ bổ sung history, không ghi lùi state; daily review của
+version/hash cũ được thay khi nội dung đổi trong ngày. Batch sync loại review
+archive/stale/không đủ transition trước khi gửi. Mỗi reset lịch tạo một UUID
+generation bền; review và repair item giữ UUID đó cho tới lần reset tiếp theo,
+nên tab cũ bị loại nhưng người học vẫn có thể reset rồi học lại trong cùng ngày.
+Server đọc review trước rồi state generation sau và lọc response theo state mới
+nhất. Browser giữ journal trên review `Again`/`Hard` cho tới khi repair queue đã
+ghi bền; sau crash chỉ dựng lại item có đúng version/hash/generation. Bản cloud
+progress/state sau mỗi sync thay ảnh chụp lúc mở trang, tránh tái nhập lịch sử đã
+reset ở tab khác.
 
 ### Nhật ký trang cá nhân
 
@@ -135,10 +162,17 @@ chỉ so trend cùng role/profile version, duration và evidence scope; mục
 
 Catalog question đã duyệt + curated JD question → canonical competency →
 deterministic blueprint theo role/mode/duration/variant → exact account-scoped
-session. Submission đầu tiên được đóng băng cùng idempotency key; server dựng
-lại blueprint và version trước runner/AI. Supabase giữ một token-scoped report
-lease, trả cached artifact khi response trước bị mất, release retryable AI
-failure và abort reservation khi hidden runner bắt buộc key mới. Targeted report
+session. Mọi read/write kiểm tra account owner; transition dùng Web Lock + CAS
+revision. Answer intent được rebase trên đúng session/status để hai lần nhập
+nhanh không ghi đè nhau, còn freeze/complete/reset không chấp nhận base cũ.
+Submission đầu tiên được đóng băng cùng idempotency key nên tab cũ không gửi
+report trả phí, rồi server dựng lại blueprint và version trước runner/AI.
+Supabase giữ một token-scoped report lease,
+trả cached artifact khi response trước bị mất, release lỗi chắc chắn có thể thử
+lại, terminalize provider/completion outcome mơ hồ và abort reservation khi
+hidden runner bắt buộc key mới. Lease hết hạn chưa dispatch bị xóa để reserve
+lại; lease đã dispatch hoặc đã nhận provider response nhưng lỗi hậu xử lý trở
+thành `failed`, không được renew để gọi provider lần nữa. Targeted report
 chỉ là evidence cho competency đã chọn; balanced cũng là sample trên phần trọng
 số đã hỏi, không phải hiring/readiness verdict. Canonical debrief tạo remediation
 từ assessed gap; AI text chỉ là nhận xét định tính.
@@ -151,7 +185,8 @@ thứ tự qua nhiều deck và chỉ lấy card `verified`/owner-approved. Hub 
 local trước khi hard-navigate tới Practice; Practice reconcile exact identity,
 suspended và reviewed-today rồi dùng rating/scheduler/cloud path bình thường để
 tiến queue. Session dùng optimistic revision check để tab cũ không phục hồi queue
-đã tiến ở tab khác. Khi bank thiếu coverage, Hub mở guide thật hoặc báo content
+đã tiến ở tab khác; resume reread snapshot mới nhất trong cùng Web Lock trước
+khi compare-and-set. Khi bank thiếu coverage, Hub mở guide thật hoặc báo content
 gap/draft chờ owner review, không tạo queue giả.
 
 ### WorldQuant transfer loop
@@ -197,9 +232,11 @@ phải tự làm lại và nhờ AI chấm. Retry đạt tự hoàn tất bằng
 chưa đạt tự hoàn tất bằng `Again`/`Hard` qua chính review path chuẩn để vào Recall
 Repair, không enqueue riêng trong AI response. Answer/code không có giới hạn ký
 tự ở tầng sản phẩm.
-Mutation repair queue dùng Web Locks theo key khi browser hỗ trợ và merge-reread
-làm fallback. Stats replay đúng question revision bằng `ts-fsrs` ở chế độ
-shadow; FSRS không mutation due date hay Preparation Index.
+Mutation repair queue và practice progress dùng Web Locks theo key khi browser
+hỗ trợ và merge-reread làm fallback. Rating được tính từ progress vừa reread
+trong lock; tab thua không sync cloud hoặc enqueue repair lần hai. Stats replay
+đúng question revision bằng `ts-fsrs` ở chế độ shadow; FSRS không mutation due
+date hay Preparation Index.
 
 ### Full Round và English Voice
 
@@ -216,13 +253,20 @@ exact role/full-round/round/drill revision vào training state.
 
 ### AI coach
 
-Request được validate + rate-limit + auth/approval check → reserve daily OpenAI
-web budget → gọi model → finalize usage → lưu attempt. Daily allowance chỉ tính
+Request được validate + rate-limit + auth/approval check → reserve durable
+evaluation/follow-up theo fingerprint và idempotency key → reserve daily OpenAI
+budget bằng UUID → ghi riêng marker `dispatched` của reservation ứng dụng và
+ledger hạn mức ngay trước provider → gọi model một lần → finalize exact ledger
+row → hoàn tất terminal cache. Lease ứng dụng hết hạn trước marker được thu hồi;
+lease đã marker mới terminalize bảo thủ. Tab/reload gửi cùng exact request nhận
+canonical cache; request khác không được tái dùng key. Daily allowance chỉ tính
 interactive web requests; Costs API toàn project và background generation chỉ
 tham gia monthly accounting/hard-spend backstop. Khi daily/hard quota OpenAI
-hết, Gemini có thể fallback nếu config và owner toggle cho phép. Múi giờ budget
-là `Asia/Ho_Chi_Minh`. Candidate answer là field bắt buộc nhưng được phép rỗng;
-prompt đánh dấu rõ blank là “chưa biết” để trả feedback dạy từ nền tảng.
+hết, Gemini có thể fallback nếu config và owner toggle cho phép. Timeout, mất
+mạng hoặc 5xx terminalize request và quyết toán bảo thủ, không tự gọi provider
+lần hai. Múi giờ budget là `Asia/Ho_Chi_Minh`.
+Candidate answer là field bắt buộc nhưng được phép rỗng; prompt đánh dấu rõ blank
+là “chưa biết” để trả feedback dạy từ nền tảng.
 
 ### Mistake → flashcard
 
@@ -232,7 +276,14 @@ không chứa candidate answer hay hidden runner data. Candidate được dedupe
 concept/source, có chế độ `ask`/`auto`/`off`; AI chỉ sinh draft có lesson section
 được xác minh, rồi owner phải duyệt exact revision trước khi học. Remediation card
 được ưu tiên trong quota New, có thể đóng góp learning evidence nhưng không làm
-tăng WorldQuant content coverage.
+tăng WorldQuant content coverage. Completion RPC có thể thử lại cùng draft một
+lần sau response mơ hồ; nếu vẫn không xác nhận, hoặc provider outcome không xác
+định, đúng lease chuyển `dead_letter`. Retry protocol v3 reclaim lease hết hạn
+chưa có marker provider; lease đã marker mới bị dead-letter và trigger DB chặn
+materialize draft chưa dispatch. Candidate kết thúc không được claim lại để gọi
+AI lần nữa. Với Coach mistake, browser giữ attempt marker trên exact review cho
+tới khi sync route xác nhận đã capture hoặc chủ động loại; response cũ không thể
+xóa marker của request mới.
 
 ### Code runner
 

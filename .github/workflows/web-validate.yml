@@ -30,7 +30,7 @@ on:
       - ".github/workflows/web-validate.yml"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: web-validate-${{ github.ref }}
@@ -38,10 +38,9 @@ concurrency:
 
 jobs:
   refresh-content:
-    if: >-
-      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      github.event_name == 'schedule' ||
-      github.event_name == 'workflow_dispatch'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     defaults:
       run:

@@ -29,13 +29,17 @@ import {
   WORLDQUANT_PROFILE,
   type MockInterviewDuration,
 } from "@/lib/mock-interview/profile";
+import { submitFrozenMockInterviewReport } from "@/lib/mock-interview/report-submission-client";
 import {
+  compareAndSetMockInterviewSessionSnapshotLocked,
   createMockInterviewSessionV4,
+  mockInterviewSessionMatchesAccount,
   mockInterviewSessionMatchesGuidedRequest,
   mockInterviewStorageKey,
+  mutateMockInterviewSessionSnapshotLocked,
   parseMockInterviewSessionV4,
-  serializeMockInterviewSessionV4,
   type MockInterviewSessionV4,
+  type MockInterviewSessionV4Patch,
 } from "@/lib/mock-interview/session-v4";
 import {
   buildWorldQuantTargetedMockPlan,
@@ -45,9 +49,13 @@ import {
 } from "@/lib/mock-interview/target-plan";
 import {
   buildLearningStates,
+  filterReviewsForLearningHistory,
   type QuestionLearningState,
 } from "@/lib/practice/learning-state";
-import { FOCUS_SESSION_STORAGE_KEY } from "@/lib/practice/focus-session";
+import {
+  EMPTY_FOCUS_SESSION_STORAGE_SNAPSHOT,
+  readFocusSessionSnapshot,
+} from "@/lib/practice/focus-session";
 import {
   mergeProgress,
   parseProgress,
@@ -101,15 +109,38 @@ type MockInterviewAppProps = {
 };
 
 const EMPTY_MOCK_SESSION = "__empty_mock_session__";
-const mockSessionListeners = new Set<() => void>();
+const mockSessionListeners = new Map<string, Set<() => void>>();
 
-function subscribeToMockSession(callback: () => void) {
-  mockSessionListeners.add(callback);
-  window.addEventListener("storage", callback);
-  return () => {
-    mockSessionListeners.delete(callback);
-    window.removeEventListener("storage", callback);
+function subscribeToMockSession(
+  storageKey: string,
+  callback: () => void,
+) {
+  const listeners =
+    mockSessionListeners.get(storageKey) ?? new Set<() => void>();
+  listeners.add(callback);
+  mockSessionListeners.set(storageKey, listeners);
+  const onStorage = (event: StorageEvent) => {
+    if (
+      event.storageArea === window.localStorage &&
+      event.key === storageKey
+    ) {
+      callback();
+    }
   };
+  window.addEventListener("storage", onStorage);
+  return () => {
+    listeners.delete(callback);
+    if (listeners.size === 0) {
+      mockSessionListeners.delete(storageKey);
+    }
+    window.removeEventListener("storage", onStorage);
+  };
+}
+
+function notifyMockSessionListeners(storageKey: string) {
+  mockSessionListeners
+    .get(storageKey)
+    ?.forEach((listener) => listener());
 }
 
 function getMockSessionSnapshot(storageKey: string) {
@@ -123,44 +154,67 @@ function getServerMockSessionSnapshot() {
   return null;
 }
 
-function saveMockSession(
-  storageKey: string,
-  session: MockInterviewSessionV4,
-  options: { replace?: boolean } = {},
+async function saveMockSession(
+  accountId: string,
+  expected: MockInterviewSessionV4 | null,
+  replacement: MockInterviewSessionV4,
 ) {
-  const current = parseMockInterviewSessionV4(
-    window.localStorage.getItem(storageKey),
-  );
-  if (
-    current &&
-    !options.replace &&
-    (current.sessionId !== session.sessionId ||
-      current.sessionRevision > session.sessionRevision)
-  ) {
-    return false;
+  const result =
+    await compareAndSetMockInterviewSessionSnapshotLocked(
+      accountId,
+      expected,
+      replacement,
+    );
+  if (result.applied) {
+    notifyMockSessionListeners(mockInterviewStorageKey(accountId));
   }
-  const next =
-    current?.sessionId === session.sessionId &&
-    current.sessionRevision === session.sessionRevision
-      ? { ...session, sessionRevision: session.sessionRevision + 1 }
-      : session;
-  window.localStorage.setItem(
-    storageKey,
-    serializeMockInterviewSessionV4(next),
-  );
-  mockSessionListeners.forEach((listener) => listener());
-  return true;
+  return result;
 }
 
-function clearMockSession(storageKey: string) {
-  window.localStorage.removeItem(storageKey);
-  mockSessionListeners.forEach((listener) => listener());
+async function mutateMockSession(
+  accountId: string,
+  expected: MockInterviewSessionV4,
+  mutation: (
+    current: MockInterviewSessionV4,
+  ) => MockInterviewSessionV4Patch,
+) {
+  const result =
+    await mutateMockInterviewSessionSnapshotLocked(
+      accountId,
+      expected,
+      mutation,
+    );
+  if (result.applied) {
+    notifyMockSessionListeners(mockInterviewStorageKey(accountId));
+  }
+  return result;
 }
 
-function readStoredMockSession(storageKey: string) {
+async function clearMockSession(
+  accountId: string,
+  expected: MockInterviewSessionV4 | null,
+) {
+  const result =
+    await compareAndSetMockInterviewSessionSnapshotLocked(
+      accountId,
+      expected,
+      null,
+    );
+  if (result.applied) {
+    notifyMockSessionListeners(mockInterviewStorageKey(accountId));
+  }
+  return result;
+}
+
+function readStoredMockSession(accountId: string) {
   if (typeof window === "undefined") return null;
-  const raw = window.localStorage.getItem(storageKey);
-  return raw ? parseMockInterviewSessionV4(raw) : null;
+  const raw = window.localStorage.getItem(
+    mockInterviewStorageKey(accountId),
+  );
+  const parsed = raw ? parseMockInterviewSessionV4(raw) : null;
+  return parsed && mockInterviewSessionMatchesAccount(parsed, accountId)
+    ? parsed
+    : null;
 }
 
 function withoutKey<T>(record: Record<string, T>, key: string) {
@@ -169,14 +223,14 @@ function withoutKey<T>(record: Record<string, T>, key: string) {
   ) as Record<string, T>;
 }
 
-function clearPendingCodeRun(
-  storageKey: string,
+async function clearPendingCodeRun(
+  accountId: string,
   sessionId: string,
   questionId: string,
 ) {
-  const latest = readStoredMockSession(storageKey);
+  const latest = readStoredMockSession(accountId);
   if (!latest || latest.sessionId !== sessionId) return;
-  saveMockSession(storageKey, {
+  await saveMockSession(accountId, latest, {
     ...latest,
     pendingCodeRuns: withoutKey(latest.pendingCodeRuns, questionId),
   });
@@ -246,14 +300,28 @@ export function MockInterviewApp({
     () => mockInterviewStorageKey(account.id),
     [account.id],
   );
+  const subscribeToScopedMockSession = useMemo(
+    () => (callback: () => void) =>
+      subscribeToMockSession(storageKey, callback),
+    [storageKey],
+  );
+  const subscribeToScopedProgress = useMemo(
+    () => (callback: () => void) =>
+      subscribeToPracticeProgress(account.id, callback),
+    [account.id],
+  );
+  const readScopedProgress = useMemo(
+    () => () => readPracticeProgressSnapshot(account.id),
+    [account.id],
+  );
   const sessionSnapshot = useSyncExternalStore(
-    subscribeToMockSession,
+    subscribeToScopedMockSession,
     () => getMockSessionSnapshot(storageKey),
     getServerMockSessionSnapshot,
   );
   const progressSnapshot = useSyncExternalStore(
-    subscribeToPracticeProgress,
-    readPracticeProgressSnapshot,
+    subscribeToScopedProgress,
+    readScopedProgress,
     () => null,
   );
 
@@ -272,11 +340,17 @@ export function MockInterviewApp({
     [allQuestions],
   );
   const storedSession = useMemo(
-    () =>
-      sessionSnapshot && sessionSnapshot !== EMPTY_MOCK_SESSION
-        ? parseMockInterviewSessionV4(sessionSnapshot)
-        : null,
-    [sessionSnapshot],
+    () => {
+      const parsed =
+        sessionSnapshot && sessionSnapshot !== EMPTY_MOCK_SESSION
+          ? parseMockInterviewSessionV4(sessionSnapshot)
+          : null;
+      return parsed &&
+        mockInterviewSessionMatchesAccount(parsed, account.id)
+        ? parsed
+        : null;
+    },
+    [account.id, sessionSnapshot],
   );
   const staleSession = Boolean(
     storedSession?.status !== "completed" &&
@@ -378,16 +452,11 @@ export function MockInterviewApp({
         ? null
         : progressSnapshot,
     );
-    const resetCutoffs = new Map(
-      initialQuestionStates
-        .filter((state) => state.historyResetOn)
-        .map((state) => [state.questionId, state.historyResetOn!]),
-    );
     const merged = mergeProgress(initialCloudProgress, local);
-    const reviews = merged.reviews.filter((review) => {
-      const resetOn = resetCutoffs.get(review.questionId);
-      return !resetOn || review.reviewedOn > resetOn;
-    });
+    const reviews = filterReviewsForLearningHistory(
+      merged.reviews,
+      initialQuestionStates,
+    );
     return buildLearningStates(
       readinessQuestions.map((question) => ({
         id: question.id,
@@ -444,7 +513,7 @@ export function MockInterviewApp({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remainingSeconds, session?.sessionId, session?.status]);
 
-  function startInterview(selectedPlan: TargetedMockPlan) {
+  async function startInterview(selectedPlan: TargetedMockPlan) {
     if (selectedPlan.questions.length < 3) {
       setReportError(
         "Bộ đề này chưa có đủ 3 câu đã duyệt để tạo báo cáo đáng tin cậy.",
@@ -461,52 +530,71 @@ export function MockInterviewApp({
       catalog: allQuestions,
       startedAt,
     });
-    autoSubmitted.current = false;
-    evaluationInFlight.current = false;
     setReportError(null);
     setHistoryError(null);
     setCodeRunError(null);
     setRunningQuestionId(null);
+    const saved = await saveMockSession(
+      account.id,
+      storedSession,
+      nextSession,
+    );
+    if (!saved.applied) {
+      setReportError(
+        "Phiên phỏng vấn đã được cập nhật ở thẻ trình duyệt khác. Hãy kiểm tra lại trước khi tạo phiên mới.",
+      );
+      return;
+    }
+    autoSubmitted.current = false;
+    evaluationInFlight.current = false;
     setNow(startedAt.getTime());
-    saveMockSession(storageKey, nextSession, { replace: true });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function updateAnswer(
+  async function updateAnswer(
     questionId: string,
     field: "response" | "explanation",
     value: string,
   ) {
     if (!session || session.status !== "in_progress") return;
-    const answer = session.answers[questionId] ?? {
-      response: "",
-      explanation: "",
-    };
-    const sourceChanged =
-      field === "response" && answer.response !== value;
-    const sampleCodeRuns = sourceChanged
-      ? withoutKey(session.sampleCodeRuns, questionId)
-      : session.sampleCodeRuns;
-    const hiddenCodeRuns = sourceChanged
-      ? withoutKey(session.hiddenCodeRuns, questionId)
-      : session.hiddenCodeRuns;
-    const pendingCodeRuns = sourceChanged
-      ? withoutKey(session.pendingCodeRuns, questionId)
-      : session.pendingCodeRuns;
-    if (sourceChanged) setCodeRunError(null);
-    saveMockSession(storageKey, {
-      ...session,
-      answers: {
-        ...session.answers,
-        [questionId]: { ...answer, [field]: value },
-      },
-      sampleCodeRuns,
-      hiddenCodeRuns,
-      pendingCodeRuns,
-      reportIdempotencyKey: sourceChanged
-        ? undefined
-        : session.reportIdempotencyKey,
+    const saved = await mutateMockSession(account.id, session, (current) => {
+      const answer = current.answers[questionId] ?? {
+        response: "",
+        explanation: "",
+      };
+      const sourceChanged =
+        field === "response" && answer.response !== value;
+      return {
+        answers: {
+          ...current.answers,
+          [questionId]: { ...answer, [field]: value },
+        },
+        sampleCodeRuns: sourceChanged
+          ? withoutKey(current.sampleCodeRuns, questionId)
+          : current.sampleCodeRuns,
+        hiddenCodeRuns: sourceChanged
+          ? withoutKey(current.hiddenCodeRuns, questionId)
+          : current.hiddenCodeRuns,
+        pendingCodeRuns: sourceChanged
+          ? withoutKey(current.pendingCodeRuns, questionId)
+          : current.pendingCodeRuns,
+        reportIdempotencyKey: sourceChanged
+          ? undefined
+          : current.reportIdempotencyKey,
+      };
     });
+    if (
+      field === "response" &&
+      saved.applied &&
+      saved.session.answers[questionId]?.response === value
+    ) {
+      setCodeRunError(null);
+    }
+    if (!saved.applied) {
+      setReportError(
+        "Câu trả lời đã được cập nhật ở thẻ trình duyệt khác. Trang đang giữ phiên bản mới hơn.",
+      );
+    }
   }
 
   async function runCurrentCode() {
@@ -539,13 +627,19 @@ export function MockInterviewApp({
         idempotencyKey: crypto.randomUUID(),
         requestedAt: new Date().toISOString(),
       };
-    saveMockSession(storageKey, {
+    const pendingSaved = await saveMockSession(account.id, session, {
       ...session,
       pendingCodeRuns: {
         ...session.pendingCodeRuns,
         [currentQuestion.id]: pending,
       },
     });
+    if (!pendingSaved.applied) {
+      setCodeRunError(
+        "Phiên phỏng vấn đã được cập nhật ở thẻ trình duyệt khác. Hãy kiểm tra lại trước khi chạy mã.",
+      );
+      return;
+    }
     setCodeRunError(null);
     setRunningQuestionId(currentQuestion.id);
 
@@ -580,8 +674,8 @@ export function MockInterviewApp({
           payload.code !== "runner_busy" &&
           payload.code !== "run_finalization_indeterminate"
         ) {
-          clearPendingCodeRun(
-            storageKey,
+          await clearPendingCodeRun(
+            account.id,
             session.sessionId,
             currentQuestion.id,
           );
@@ -591,12 +685,12 @@ export function MockInterviewApp({
         );
       }
 
-      const latest = readStoredMockSession(storageKey);
+      const latest = readStoredMockSession(account.id);
       if (
         latest?.sessionId === session.sessionId &&
         latest.answers[currentQuestion.id]?.response === source
       ) {
-        saveMockSession(storageKey, {
+        await saveMockSession(account.id, latest, {
           ...latest,
           sampleCodeRuns: {
             ...latest.sampleCodeRuns,
@@ -619,7 +713,7 @@ export function MockInterviewApp({
     }
   }
 
-  function moveToQuestion(nextIndex: number) {
+  async function moveToQuestion(nextIndex: number) {
     if (
       !session ||
       session.status !== "in_progress" ||
@@ -628,10 +722,17 @@ export function MockInterviewApp({
     ) {
       return;
     }
-    saveMockSession(
-      storageKey,
+    const saved = await saveMockSession(
+      account.id,
+      session,
       commitCurrentQuestionTime(session, Date.now(), nextIndex),
     );
+    if (!saved.applied) {
+      setReportError(
+        "Phiên phỏng vấn đã được cập nhật ở thẻ trình duyệt khác. Trang đang giữ phiên bản mới hơn.",
+      );
+      return;
+    }
     setCodeRunError(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -733,14 +834,30 @@ export function MockInterviewApp({
       pendingReportRequest,
     };
     setReportError(null);
-    saveMockSession(storageKey, evaluatingSession);
 
     try {
-      const response = await fetch("/api/mock-interview/report", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(pendingReportRequest),
+      const submission = await submitFrozenMockInterviewReport({
+        lockName: `recall:mock-report:${storageKey}`,
+        persistFrozenSession: () =>
+          saveMockSession(
+            account.id,
+            session,
+            evaluatingSession,
+          ).then((result) => result.applied),
+        sendReport: () =>
+          fetch("/api/mock-interview/report", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(pendingReportRequest),
+          }),
       });
+      if (submission.kind === "storage_conflict") {
+        setReportError(
+          "Buổi phỏng vấn đã được cập nhật ở thẻ trình duyệt khác. Trang đã giữ phiên bản mới hơn; hãy kiểm tra lại rồi nộp lần nữa.",
+        );
+        return;
+      }
+      const response = submission.response;
       const payload = (await response.json()) as {
         report?: MockInterviewScopedReportV4;
         debrief?: MockInterviewSessionV4["debrief"];
@@ -790,7 +907,7 @@ export function MockInterviewApp({
           return [[entry.questionId, localResult] as const];
         }),
       );
-      const latest = readStoredMockSession(storageKey);
+      const latest = readStoredMockSession(account.id);
       if (
         !latest ||
         latest.sessionId !== committed.sessionId ||
@@ -810,7 +927,17 @@ export function MockInterviewApp({
         reportModel: payload.model,
         reportProvider: payload.provider,
       };
-      saveMockSession(storageKey, completed);
+      const completedSaved = await saveMockSession(
+        account.id,
+        latest,
+        completed,
+      );
+      if (!completedSaved.applied) {
+        setReportError(
+          "Báo cáo đã tạo xong nhưng phiên trong trình duyệt vừa được cập nhật ở thẻ khác. Hãy nộp lại để tải kết quả đã lưu mà không gọi AI lần nữa.",
+        );
+        return;
+      }
       if (payload.historyPersisted) {
         setHistoryCloudAvailable(true);
         const artifact = {
@@ -875,7 +1002,7 @@ export function MockInterviewApp({
         error instanceof Error && "code" in error
           ? (error as Error & { code?: string }).code
           : undefined;
-      const latest = readStoredMockSession(storageKey);
+      const latest = readStoredMockSession(account.id);
       if (
         latest?.sessionId === committed.sessionId &&
         latest.reportIdempotencyKey === reportIdempotencyKey
@@ -895,7 +1022,7 @@ export function MockInterviewApp({
                 reportIdempotencyKey,
                 pendingReportRequest,
               };
-        saveMockSession(storageKey, retryable);
+        await saveMockSession(account.id, latest, retryable);
       }
       setReportError(
         error instanceof Error
@@ -912,14 +1039,17 @@ export function MockInterviewApp({
   ) {
     setRemediationMessage(null);
     if (
-      window.localStorage.getItem(FOCUS_SESSION_STORAGE_KEY) &&
+      readFocusSessionSnapshot(account.id) !==
+        EMPTY_FOCUS_SESSION_STORAGE_SNAPSHOT &&
       !window.confirm(
         "Một phiên ôn trọng tâm khác đang mở trong trình duyệt. Bạn có muốn thay phiên đó bằng kế hoạch ôn mới không?",
       )
     ) {
       return;
     }
-    const destination = prepareFocusSprint(option.plan);
+    const destination = prepareFocusSprint(option.plan, {
+      accountId: account.id,
+    });
     if (destination.kind === "practice") {
       window.location.assign(destination.href);
       return;
@@ -960,12 +1090,19 @@ export function MockInterviewApp({
     }
   }
 
-  function resetInterview(preferInitialRequest = false) {
+  async function resetInterview(preferInitialRequest = false) {
     if (
       session?.status !== "completed" &&
       session &&
       !window.confirm("Xóa buổi phỏng vấn thử đang làm và tạo buổi mới?")
     ) {
+      return;
+    }
+    const cleared = await clearMockSession(account.id, session);
+    if (!cleared.applied) {
+      setReportError(
+        "Phiên phỏng vấn đã được cập nhật ở thẻ trình duyệt khác. Hãy kiểm tra lại trước khi xóa.",
+      );
       return;
     }
     if (session && !preferInitialRequest) {
@@ -985,7 +1122,6 @@ export function MockInterviewApp({
       );
       setVariant(1);
     }
-    clearMockSession(storageKey);
     autoSubmitted.current = false;
     evaluationInFlight.current = false;
     setReportError(null);

@@ -13,15 +13,35 @@ import {
 import { materializeDatabaseQuestionDrafts } from "../src/lib/content/db-generation";
 import { contentManifestSchema } from "../src/lib/content/schema";
 
+const CONTENT_GENERATION_RETRY_PROTOCOL_VERSION = 2;
+
 const jobSchema = z.object({
   id: z.coerce.number().int().positive(),
   lessonId: z.string(),
   sourceHash: z.string().regex(/^[a-f0-9]{64}$/),
+  generatorVersion: z.literal(QUESTION_GENERATOR_PROMPT_VERSION),
   requestedCount: z.number().int().min(1).max(5),
   attemptCount: z.number().int().positive(),
   leaseToken: z.string().uuid(),
   leaseExpiresAt: z.string(),
 });
+const generatorMismatchSchema = z.object({
+  status: z.literal("generator_version_mismatch"),
+  expectedGeneratorVersion: z.string(),
+  foundGeneratorVersion: z.string(),
+});
+const generationHistoryConflictSchema = z.object({
+  status: z.literal("generation_history_conflict"),
+  expectedGeneratorVersion: z.string(),
+  foundGeneratorVersion: z.string(),
+  foundStatus: z.string(),
+  providerOutcomeUnconfirmed: z.boolean(),
+});
+const claimSchema = z.union([
+  jobSchema,
+  generatorMismatchSchema,
+  generationHistoryConflictSchema,
+]);
 const completionSchema = z.object({
   ok: z.literal(true),
   stale: z.boolean(),
@@ -31,6 +51,12 @@ const failureSchema = z.object({
   ok: z.literal(true),
   status: z.enum(["deferred", "failed", "dead_letter"]),
   nextAttemptAt: z.string(),
+});
+const dispatchSchema = z.object({
+  status: z.literal("dispatched"),
+  dispatchedAt: z.string().datetime({ offset: true }),
+  provider: z.enum(["openai", "gemini"]),
+  model: z.string().min(1),
 });
 
 async function main() {
@@ -47,6 +73,7 @@ async function main() {
     ),
     { auth: { autoRefreshToken: false, persistSession: false } },
   );
+  await assertContentGenerationRetryProtocol(supabase);
   const manifest = contentManifestSchema.parse(manifestJson);
   const maxJobs = positiveInteger(
     process.env.CONTENT_GENERATION_MAX_JOBS,
@@ -57,7 +84,11 @@ async function main() {
   for (let processed = 0; processed < maxJobs; processed += 1) {
     const { data: claimData, error: claimError } = await supabase.rpc(
       "claim_content_generation_job",
-      { p_lease_seconds: 600 },
+      {
+        p_protocol_version: CONTENT_GENERATION_RETRY_PROTOCOL_VERSION,
+        p_generator_version: QUESTION_GENERATOR_PROMPT_VERSION,
+        p_lease_seconds: 600,
+      },
     );
     if (claimError) {
       throw new Error(
@@ -65,7 +96,18 @@ async function main() {
       );
     }
     if (claimData === null) break;
-    const job = jobSchema.parse(claimData);
+    const claim = claimSchema.parse(claimData);
+    if ("status" in claim) {
+      if (claim.status === "generation_history_conflict") {
+        throw new Error(
+          `Generation for this lesson revision is blocked by ${claim.foundGeneratorVersion}/${claim.foundStatus}${claim.providerOutcomeUnconfirmed ? " with an unconfirmed provider outcome" : ""}. Resolve that job in Admin before generation.`,
+        );
+      }
+      throw new Error(
+        `Queued generation job uses ${claim.foundGeneratorVersion}; worker requires ${claim.expectedGeneratorVersion}. Run content:sync with the current worker before generation.`,
+      );
+    }
+    const job = claim;
     const lesson = manifest.lessons.find(
       (item) => item.id === job.lessonId && item.sourceHash === job.sourceHash,
     );
@@ -80,6 +122,8 @@ async function main() {
       const batch = await generateQuestionDraftBatchWithFallback({
         lesson,
         count: job.requestedCount,
+        beforeProviderRequest: (provider, model) =>
+          markContentGenerationDispatched(supabase, job, provider, model),
       });
       const drafts = materializeDatabaseQuestionDrafts(
         lesson,
@@ -127,6 +171,54 @@ async function main() {
   );
 }
 
+async function assertContentGenerationRetryProtocol(
+  supabase: SupabaseClient,
+) {
+  const { data, error } = await supabase.rpc(
+    "content_generation_retry_protocol_version",
+  );
+  if (error) {
+    throw new Error(
+      `Content generation retry protocol preflight failed: ${error.code} ${error.message}`,
+    );
+  }
+  if (data !== CONTENT_GENERATION_RETRY_PROTOCOL_VERSION) {
+    throw new Error(
+      `Content generation retry protocol ${CONTENT_GENERATION_RETRY_PROTOCOL_VERSION} is required`,
+    );
+  }
+}
+
+async function markContentGenerationDispatched(
+  supabase: SupabaseClient,
+  job: z.infer<typeof jobSchema>,
+  provider: "openai" | "gemini",
+  model: string,
+) {
+  const { data, error } = await supabase.rpc(
+    "mark_content_generation_dispatched",
+    {
+      p_job_id: job.id,
+      p_lease_token: job.leaseToken,
+      p_provider: provider,
+      p_model: model,
+    },
+  );
+  if (error) {
+    throw new NonRetryableGenerationError(
+      "dispatch_failure",
+      `Could not persist generation dispatch: ${error.code} ${error.message}`,
+    );
+  }
+  const parsed = dispatchSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new NonRetryableGenerationError(
+      "dispatch_failure",
+      "Could not confirm the generation dispatch lease",
+    );
+  }
+}
+
 async function failJob(
   supabase: SupabaseClient,
   job: z.infer<typeof jobSchema>,
@@ -136,6 +228,7 @@ async function failJob(
   const { data, error: rpcError } = await supabase.rpc(
     "fail_content_generation_job",
     {
+      p_protocol_version: CONTENT_GENERATION_RETRY_PROTOCOL_VERSION,
       p_job_id: job.id,
       p_lease_token: job.leaseToken,
       p_error: {
@@ -154,16 +247,10 @@ async function failJob(
 
 function isRetryableGenerationError(error: unknown) {
   if (error instanceof NonRetryableGenerationError) return false;
-  if (isProviderRateLimitError(error)) return true;
-  if (typeof error === "object" && error !== null) {
-    const status = "status" in error ? error.status : undefined;
-    if (typeof status === "number" && status >= 500) return true;
-    const code = "code" in error ? error.code : undefined;
-    if (typeof code === "string" && ["ETIMEDOUT", "ECONNRESET", "ENOTFOUND"].includes(code)) {
-      return true;
-    }
-  }
-  return false;
+  // Only a confirmed 429 is safe to retry automatically. A timeout,
+  // connection reset, or 5xx may happen after a paid generation completed,
+  // so leave that job terminal for explicit administrator review.
+  return isProviderRateLimitError(error);
 }
 
 function errorCode(error: unknown) {
@@ -195,7 +282,10 @@ function positiveInteger(value: string | undefined, fallback: number) {
 
 class NonRetryableGenerationError extends Error {
   constructor(
-    readonly code: "stale_manifest" | "storage_failure",
+    readonly code:
+      | "stale_manifest"
+      | "storage_failure"
+      | "dispatch_failure",
     message: string,
   ) {
     super(message);
