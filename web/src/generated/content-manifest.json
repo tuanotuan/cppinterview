@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sourceRevision": "ae5e7be8d9f703e000cc75795347a023df23d130c6d6fd8984e53e32b9e3d2bd",
+  "sourceRevision": "1ae36468eb6accc5a13fafabd23e09822270581bd0f9f3b99bfdb2dd48956943",
   "lessons": [
     {
       "id": "cpp98-object-variable-memory",
@@ -2510,6 +2510,98 @@
       ],
       "checklistItems": [],
       "code": "#include <iostream>\r\n\r\nint main() {\r\n    // Fixed market data so the output is easy to verify.\r\n    const char* symbol = \"AAPL\";\r\n    const double bid_price = 189.10;\r\n    const double ask_price = 189.14;\r\n    const int bid_volume = 500;\r\n    const int ask_volume = 400;\r\n\r\n    // A simple validity check for one quote snapshot.\r\n    const bool price_order_is_valid = bid_price <= ask_price;\r\n    const double spread = ask_price - bid_price;\r\n\r\n    std::cout << \"C++11 quote check\\n\";\r\n    std::cout << \"Symbol: \" << symbol << '\\n';\r\n    std::cout << \"Bid: \" << bid_price\r\n              << \" x \" << bid_volume << '\\n';\r\n    std::cout << \"Ask: \" << ask_price\r\n              << \" x \" << ask_volume << '\\n';\r\n    std::cout << \"Spread: \" << spread << '\\n';\r\n\r\n    if (!price_order_is_valid) {\r\n        std::cerr << \"Error: bid price is greater than ask price.\\n\";\r\n        return 1; // Non-zero means the program detected an error.\r\n    }\r\n\r\n    std::cout << \"Quote is valid.\\n\";\r\n    return 0; // Zero means successful execution.\r\n}"
+    },
+    {
+      "id": "cpp11-const-pointer-lvalue-reference",
+      "sourcePath": "cpp11/31_const pointer lvalue reference",
+      "order": 26,
+      "tags": [
+        "const",
+        "pointer",
+        "lvalue",
+        "reference"
+      ],
+      "prerequisites": [
+        "cpp98-address-pointer",
+        "cpp11-reference"
+      ],
+      "language": "cpp",
+      "track": "cpp11",
+      "standard": "cpp11",
+      "title": "Day 31 — const, Pointers, and Lvalue References",
+      "knowledgePath": "cpp11/31_const pointer lvalue reference/knowledge.md",
+      "codePath": "cpp11/31_const pointer lvalue reference/main.cpp",
+      "sourceHash": "15ab8c14dabca12bcef1a2d1c78999481d755ccd70fdd56ff98c4d3278dd6f54",
+      "sections": [
+        {
+          "id": "problem-it-solves",
+          "heading": "1. Problem It Solves",
+          "bodyMarkdown": "C++ programs often need to access the same object from several places without\r\nmaking unnecessary copies. The type system should also communicate whether:\r\n\r\n- the object may be changed through a particular name;\r\n- an object is required or optional;\r\n- a function works with the caller's original object; and\r\n- an address may later be redirected to another object.\r\n\r\n`const`, pointers, and lvalue references express these constraints directly in\r\nfunction signatures and variable declarations.",
+          "bodyText": "C++ programs often need to access the same object from several places without\r\nmaking unnecessary copies. The type system should also communicate whether:the object may be changed through a particular name;an object is required or optional;a function works with the caller's original object; andan address may later be redirected to another object.const, pointers, and lvalue references express these constraints directly in\r\nfunction signatures and variable declarations."
+        },
+        {
+          "id": "prerequisites",
+          "heading": "2. Prerequisites",
+          "bodyMarkdown": "Before this lesson, you should know:\r\n\r\n- how to define a `.cpp` file and `main()`;\r\n- how to compile in C++11 mode;\r\n- basic variables such as `int` and `double`; and\r\n- the address-of operator `&` and dereference operator `*`.",
+          "bodyText": "Before this lesson, you should know:how to define a .cpp file and main();how to compile in C++11 mode;basic variables such as int and double; andthe address-of operator & and dereference operator *."
+        },
+        {
+          "id": "core-idea",
+          "heading": "3. Core Idea",
+          "bodyMarkdown": "A normal variable owns its stored value.\r\n\r\nA pointer stores the address of an object. It can represent “no object” with\r\n`nullptr`, and a non-const pointer can later point to another compatible object.\r\n\r\nAn lvalue reference is another name for an existing object. It must be\r\ninitialized when declared and cannot later be rebound to a different object.\r\n\r\n`const` prevents modification through the name, pointer, or reference on which\r\nit appears. It does not necessarily make the underlying object globally\r\nimmutable because another non-const access path may still change that object.",
+          "bodyText": "A normal variable owns its stored value.A pointer stores the address of an object. It can represent “no object” with\r\nnullptr, and a non-const pointer can later point to another compatible object.An lvalue reference is another name for an existing object. It must be\r\ninitialized when declared and cannot later be rebound to a different object.const prevents modification through the name, pointer, or reference on which\r\nit appears. It does not necessarily make the underlying object globally\r\nimmutable because another non-const access path may still change that object."
+        },
+        {
+          "id": "minimal-syntax",
+          "heading": "4. Minimal Syntax",
+          "bodyMarkdown": "```cpp\r\ndouble price = 189.10;\r\n\r\ndouble* price_ptr = &price;\r\ndouble& price_ref = price;\r\nconst double& read_only_price = price;\r\n```\r\n\r\nUse `*price_ptr` to access the object addressed by a pointer. A reference is\r\nused with the same syntax as the original variable.",
+          "bodyText": "double price = 189.10;\r\n\r\ndouble* price_ptr = &price;\r\ndouble& price_ref = price;\r\nconst double& read_only_price = price;Use *price_ptr to access the object addressed by a pointer. A reference is\r\nused with the same syntax as the original variable."
+        },
+        {
+          "id": "reading-const-pointer-declarations",
+          "heading": "5. Reading const Pointer Declarations",
+          "bodyMarkdown": "The position of `const` changes what may be modified:\r\n\r\n```cpp\r\ndouble price = 189.10;\r\ndouble other_price = 189.14;\r\n\r\nconst double* pointer_to_const = &price;\r\ndouble* const const_pointer = &price;\r\nconst double* const const_pointer_to_const = &price;\r\n```\r\n\r\n- `const double*` means a pointer to a read-only `double`. The pointer may be\r\n  redirected, but the value cannot be changed through that pointer.\r\n- `double* const` means a fixed pointer to a mutable `double`. The pointer\r\n  cannot be redirected, but the value may be changed through it.\r\n- `const double* const` means neither the pointer nor the value may be changed\r\n  through that declaration.\r\n\r\nFor example:\r\n\r\n```cpp\r\npointer_to_const = &other_price;  // Valid.\r\n*const_pointer = 189.12;          // Valid.\r\n```",
+          "bodyText": "The position of const changes what may be modified:double price = 189.10;\r\ndouble other_price = 189.14;\r\n\r\nconst double* pointer_to_const = &price;\r\ndouble* const const_pointer = &price;\r\nconst double* const const_pointer_to_const = &price;const double* means a pointer to a read-only double. The pointer may be\r\nredirected, but the value cannot be changed through that pointer.double* const means a fixed pointer to a mutable double. The pointer\r\ncannot be redirected, but the value may be changed through it.const double* const means neither the pointer nor the value may be changed\r\nthrough that declaration.For example:pointer_to_const = &other_price;  // Valid.\r\n*const_pointer = 189.12;          // Valid."
+        },
+        {
+          "id": "how-references-and-pointers-work",
+          "heading": "6. How References and Pointers Work",
+          "bodyMarkdown": "`&price` obtains the address of `price`. A pointer stores that address, and\r\n`*price_ptr` accesses the object at the stored address.\r\n\r\nThe declaration below binds `price_ref` to `price`:\r\n\r\n```cpp\r\ndouble& price_ref = price;\r\n```\r\n\r\nAssigning through `price_ref` changes `price`. A later statement such as\r\n`price_ref = other_price` copies the value of `other_price` into `price`; it\r\ndoes not rebind the reference.\r\n\r\nA `const double&` also refers to the original object, but code using that\r\nreference cannot modify the object through the reference. For large objects,\r\nthis commonly avoids a copy while preserving read-only access.",
+          "bodyText": "&price obtains the address of price. A pointer stores that address, and\r\n*price_ptr accesses the object at the stored address.The declaration below binds price_ref to price:double& price_ref = price;Assigning through price_ref changes price. A later statement such as\r\nprice_ref = other_price copies the value of other_price into price; it\r\ndoes not rebind the reference.A const double& also refers to the original object, but code using that\r\nreference cannot modify the object through the reference. For large objects,\r\nthis commonly avoids a copy while preserving read-only access."
+        },
+        {
+          "id": "lifetime-and-validity",
+          "heading": "7. Lifetime and Validity",
+          "bodyMarkdown": "Pointers and references do not own the objects they refer to. The referenced\r\nobject must remain alive and at a stable address for the entire use.\r\n\r\nProduction code must check:\r\n\r\n- a pointer is not `nullptr` before dereferencing it;\r\n- the pointed-to or referenced object has not been destroyed;\r\n- a container operation has not invalidated an address or reference; and\r\n- an asynchronous callback does not outlive the captured object.\r\n\r\nFor example, growing a `std::vector` may reallocate its storage and invalidate\r\npointers and references to its elements. Erasing an element can also invalidate\r\naccess paths to that element and later elements.",
+          "bodyText": "Pointers and references do not own the objects they refer to. The referenced\r\nobject must remain alive and at a stable address for the entire use.Production code must check:a pointer is not nullptr before dereferencing it;the pointed-to or referenced object has not been destroyed;a container operation has not invalidated an address or reference; andan asynchronous callback does not outlive the captured object.For example, growing a std::vector may reallocate its storage and invalidate\r\npointers and references to its elements. Erasing an element can also invalidate\r\naccess paths to that element and later elements."
+        },
+        {
+          "id": "common-mistakes",
+          "heading": "8. Common Mistakes",
+          "bodyMarkdown": "- Dereferencing `nullptr` causes undefined behavior.\r\n- Reading through an uninitialized pointer may access an invalid address.\r\n- Returning a pointer or reference to a local variable creates a dangling\r\n  access after the function returns.\r\n- Assigning to a reference changes the referred-to object; it does not rebind\r\n  the reference.\r\n- Confusing `const double*` with `double* const` grants or removes the wrong\r\n  mutation capability.\r\n- Keeping a pointer or reference across a container reallocation may leave it\r\n  dangling.",
+          "bodyText": "Dereferencing nullptr causes undefined behavior.Reading through an uninitialized pointer may access an invalid address.Returning a pointer or reference to a local variable creates a dangling\r\naccess after the function returns.Assigning to a reference changes the referred-to object; it does not rebind\r\nthe reference.Confusing const double* with double* const grants or removes the wrong\r\nmutation capability.Keeping a pointer or reference across a container reallocation may leave it\r\ndangling."
+        },
+        {
+          "id": "trading-use-case",
+          "heading": "9. Trading Use Case",
+          "bodyMarkdown": "A quote-processing function can receive a quote through a `const` reference,\r\navoiding a copy and preventing accidental modification. A pointer can represent\r\nan optional selected price level. A non-const reference can update an existing\r\nvolume counter directly.\r\n\r\nBefore retaining any of these access paths, the program must define who owns\r\nthe quote and whether order-book updates, container growth, erasure, or thread\r\nhandoff can invalidate its address.",
+          "bodyText": "A quote-processing function can receive a quote through a const reference,\r\navoiding a copy and preventing accidental modification. A pointer can represent\r\nan optional selected price level. A non-const reference can update an existing\r\nvolume counter directly.Before retaining any of these access paths, the program must define who owns\r\nthe quote and whether order-book updates, container growth, erasure, or thread\r\nhandoff can invalidate its address."
+        },
+        {
+          "id": "key-takeaways",
+          "heading": "10. Key Takeaways",
+          "bodyMarkdown": "- Use `const` to express read-only access through a specific path.\r\n- Use a reference when a valid object must exist.\r\n- Use a pointer when “no object” or reselection is meaningful.\r\n- A pointer or reference does not extend an ordinary object's lifetime.\r\n- Check lifetime and invalidation rules before storing either one.\r\n- Never dereference a pointer before establishing that it is valid.",
+          "bodyText": "Use const to express read-only access through a specific path.Use a reference when a valid object must exist.Use a pointer when “no object” or reselection is meaningful.A pointer or reference does not extend an ordinary object's lifetime.Check lifetime and invalidation rules before storing either one.Never dereference a pointer before establishing that it is valid."
+        },
+        {
+          "id": "self-check-questions",
+          "heading": "11. Self-Check Questions",
+          "bodyMarkdown": "1. Why can a pointer be `nullptr` while a valid reference cannot?\r\n2. What changes when assigning through a non-const lvalue reference?\r\n3. What is the difference between `const double*` and `double* const`?\r\n4. Why can growing a `std::vector` invalidate a pointer to one of its elements?\r\n5. When should an API prefer `const T&` over `T*`?",
+          "bodyText": "Why can a pointer be nullptr while a valid reference cannot?What changes when assigning through a non-const lvalue reference?What is the difference between const double* and double* const?Why can growing a std::vector invalidate a pointer to one of its elements?When should an API prefer const T& over T*?"
+        }
+      ],
+      "checklistItems": [],
+      "code": "#include <iostream>\r\n\r\nvoid print_quote(const double& bid, const double& ask) {\r\n    // const references read the original values without copying or\r\n    // modifying them.\r\n    std::cout << \"Bid: \" << bid << '\\n';\r\n    std::cout << \"Ask: \" << ask << '\\n';\r\n}\r\n\r\nvoid add_volume(int& volume, int added_volume) {\r\n    // A non-const reference can modify the original variable.\r\n    volume += added_volume;\r\n}\r\n\r\nint main() {\r\n    const char* const symbol = \"AAPL\";\r\n\r\n    double bid = 189.10;\r\n    double ask = 189.14;\r\n    int bid_volume = 500;\r\n\r\n    const double* selected_price = &bid;\r\n    double& price_alias = bid;\r\n\r\n    std::cout << \"Symbol: \" << symbol << '\\n';\r\n    print_quote(bid, ask);\r\n\r\n    std::cout << \"Selected price: \" << *selected_price << '\\n';\r\n\r\n    price_alias = 189.12; // Changes bid because price_alias refers to bid.\r\n    add_volume(bid_volume, 100);\r\n\r\n    // A pointer-to-const can be redirected, but it cannot modify the price.\r\n    selected_price = &ask;\r\n\r\n    std::cout << \"Updated bid: \" << bid << '\\n';\r\n    std::cout << \"Updated bid volume: \" << bid_volume << '\\n';\r\n    std::cout << \"Pointer now selects ask: \" << *selected_price << '\\n';\r\n\r\n    const double& read_only_ask = ask;\r\n    std::cout << \"Read-only ask reference: \" << read_only_ask << '\\n';\r\n\r\n    return 0;\r\n}\r\n"
     }
   ],
   "questions": [

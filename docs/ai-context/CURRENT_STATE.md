@@ -11,7 +11,8 @@ trạng thái từ tên nhánh.
 - Đợt rà soát bug tiềm ẩn đã gia cố auth owner, account-scoped browser state,
   phân trang lịch sử, AI budget/retry, Coach idempotency, Mock report, Mistake
   generation, rating nhiều tab/thiết bị, content archive, dependency production
-  và quyền CI. Lesson `cpp11-toolchain` đã được đăng ký cùng ví dụ C++11 có
+  và quyền CI. Hai lesson `cpp11-toolchain` và
+  `cpp11-const-pointer-lvalue-reference` đã được đăng ký cùng ví dụ C++11 có
   warning sạch. Không có task sản phẩm tiếp theo đã được chốt; session mới lấy
   yêu cầu hiện tại từ người dùng.
 
