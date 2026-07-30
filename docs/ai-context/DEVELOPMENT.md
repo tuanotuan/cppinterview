@@ -63,9 +63,10 @@ quy tắc tăng phiên bản, `sourceHash` và duyệt lại ở phần dưới.
 ## Recipe: sửa/thêm lesson
 
 Có thể bắt đầu từ prompt dùng lại
-[`docs/prompts/cpp-daily-lesson.md`](../prompts/cpp-daily-lesson.md). Prompt có
-contract H1/H2 bắt buộc và tách chế độ tạo tệp tải xuống khỏi chế độ ghi thẳng
-vào repo.
+[`docs/prompts/cpp-daily-lesson.md`](../prompts/cpp-daily-lesson.md): dán prompt
+vào GPT Web để tra nguồn trong Google Drive và nhận đúng hai tệp bài học tải
+xuống với contract H1/H2 bắt buộc. Đưa hai tệp đó vào source lesson là bước riêng
+và vẫn phải làm theo recipe dưới đây.
 
 1. Tạo hoặc sửa `<source-root>/<lesson>/knowledge.md`; cần một `#` title và ít
    nhất một `##` section.

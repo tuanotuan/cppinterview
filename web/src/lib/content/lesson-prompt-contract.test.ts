@@ -54,24 +54,24 @@ describe("daily C++ lesson prompt", () => {
     ]);
   });
 
-  it("keeps download and repository output modes unambiguous", async () => {
+  it("requires exactly two GPT Web downloadable files", async () => {
     const repoRoot = await findRepoRoot(import.meta.dirname);
     const prompt = await readFile(
       path.join(repoRoot, "docs", "prompts", "cpp-daily-lesson.md"),
       "utf8",
     );
+    const gptWebPrompt = /````text\r?\n([\s\S]*?)\r?\n````/u.exec(
+      prompt,
+    )?.[1];
 
-    expect(prompt).toContain("day_[SỐ NGÀY]_[topic_slug].cpp");
-    expect(prompt).toContain("day_[SỐ NGÀY]_[topic_slug].md");
-    expect(prompt).toContain(
-      "[THƯ MỤC GỐC]/[SỐ NGÀY]_[topic_slug]/",
+    expect(gptWebPrompt).toBeDefined();
+    expect(gptWebPrompt).toContain("SimplifyCPP_Books");
+    expect(gptWebPrompt).toContain("Tạo đúng hai tệp thật");
+    expect(gptWebPrompt).toContain("day_[SỐ NGÀY]_[topic_slug].cpp");
+    expect(gptWebPrompt).toContain("day_[SỐ NGÀY]_[topic_slug].md");
+    expect(gptWebPrompt).toContain("đúng hai liên kết tải trực tiếp");
+    expect(gptWebPrompt).not.toMatch(
+      /\b(?:REPOSITORY|AI_START_HERE\.md|AGENTS\.md|main\.cpp|knowledge\.md|npm run|git|commit|push|pull request)\b/iu,
     );
-    expect(prompt).toContain(
-      "Hai tệp bài học phải là `main.cpp` và `knowledge.md`.",
-    );
-    expect(prompt).toContain("npm run content:refresh");
-    expect(prompt).toContain("npm run context:check");
-    expect(prompt).toContain("npm run validate");
-    expect(prompt).toContain("Không push trực tiếp lên `main`.");
   });
 });

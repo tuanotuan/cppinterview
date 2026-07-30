@@ -13,10 +13,11 @@ trạng thái từ tên nhánh.
   generation, rating nhiều tab/thiết bị, content archive, dependency production
   và quyền CI. Hai lesson `cpp11-toolchain` và
   `cpp11-const-pointer-lvalue-reference` đã được đăng ký cùng ví dụ C++11 có
-  warning sạch. Prompt `docs/prompts/cpp-daily-lesson.md` khóa format lesson và
-  quy trình tạo/kiểm tra/push để các ngày sau không cần sửa Markdown thủ công.
-  Không có task sản phẩm tiếp theo đã được chốt; session mới lấy yêu cầu hiện
-  tại từ người dùng.
+  warning sạch. Prompt `docs/prompts/cpp-daily-lesson.md` dành riêng cho GPT Web:
+  tra nguồn trong Google Drive rồi tạo đúng hai tệp tải xuống có format lesson
+  chuẩn. Việc đưa tệp vào repo, refresh, kiểm tra và push là workflow riêng.
+  Không có task sản phẩm tiếp theo đã được chốt; session mới lấy yêu cầu hiện tại
+  từ người dùng.
 
 ## Giới hạn và trạng thái chưa xác minh
 
