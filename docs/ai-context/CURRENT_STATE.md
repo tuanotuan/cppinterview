@@ -13,8 +13,10 @@ trạng thái từ tên nhánh.
   generation, rating nhiều tab/thiết bị, content archive, dependency production
   và quyền CI. Hai lesson `cpp11-toolchain` và
   `cpp11-const-pointer-lvalue-reference` đã được đăng ký cùng ví dụ C++11 có
-  warning sạch. Không có task sản phẩm tiếp theo đã được chốt; session mới lấy
-  yêu cầu hiện tại từ người dùng.
+  warning sạch. Prompt `docs/prompts/cpp-daily-lesson.md` khóa format lesson và
+  quy trình tạo/kiểm tra/push để các ngày sau không cần sửa Markdown thủ công.
+  Không có task sản phẩm tiếp theo đã được chốt; session mới lấy yêu cầu hiện
+  tại từ người dùng.
 
 ## Giới hạn và trạng thái chưa xác minh
 
@@ -76,7 +78,7 @@ trạng thái từ tên nhánh.
 
 - `npm run validate` đạt toàn bộ: content/context check, lint, TypeScript,
   Vitest và production build.
-- Vitest: 94 test files, 605 tests đạt.
+- Vitest: 95 test files, 607 tests đạt.
 - Next.js production build đạt và sinh đủ 25 trang tĩnh/động trong route graph,
   gồm `/profile`, năm route WorldQuant training và `/admin/coverage`.
 - `npm audit --omit=dev --audit-level=moderate` không tìm thấy lỗ hổng production.

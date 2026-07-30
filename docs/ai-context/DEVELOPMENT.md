@@ -62,6 +62,11 @@ quy tắc tăng phiên bản, `sourceHash` và duyệt lại ở phần dưới.
 
 ## Recipe: sửa/thêm lesson
 
+Có thể bắt đầu từ prompt dùng lại
+[`docs/prompts/cpp-daily-lesson.md`](../prompts/cpp-daily-lesson.md). Prompt có
+contract H1/H2 bắt buộc và tách chế độ tạo tệp tải xuống khỏi chế độ ghi thẳng
+vào repo.
+
 1. Tạo hoặc sửa `<source-root>/<lesson>/knowledge.md`; cần một `#` title và ít
    nhất một `##` section.
 2. Thêm code mẫu đúng ngôn ngữ nếu cần: `main.cpp`, `main.py`, hoặc
