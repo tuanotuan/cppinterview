@@ -18,6 +18,9 @@ export const reviewSchema = z
     stateAfter: z.enum(["learning", "review", "relearning"]).optional(),
     intervalDaysAfter: z.number().int().positive().optional(),
     lapseCountAfter: z.number().int().nonnegative().optional(),
+    historyResetToken: z.string().uuid().optional(),
+    coachAttemptId: z.number().int().positive().optional(),
+    repairPendingAt: z.string().datetime({ offset: true }).optional(),
   })
   .superRefine((review, context) => {
     if (review.nextDueOn < review.reviewedOn) {
@@ -66,6 +69,7 @@ export type PracticeReviewRow = {
   learning_state_after?: Review["stateAfter"] | null;
   interval_days_after?: number | null;
   lapse_count_after?: number | null;
+  history_reset_token?: string | null;
 };
 
 export type QuestionLearningStateRow = {
@@ -83,6 +87,7 @@ export type QuestionLearningStateRow = {
   is_leech: boolean;
   content_changed: boolean;
   history_reset_on: string | null;
+  history_reset_token: string | null;
 };
 
 export function rowsToProgress(rows: PracticeReviewRow[]): PracticeProgress {
@@ -109,6 +114,9 @@ export function rowsToProgress(rows: PracticeReviewRow[]): PracticeProgress {
         review.intervalDaysAfter = row.interval_days_after;
         review.lapseCountAfter = row.lapse_count_after;
       }
+      if (row.history_reset_token) {
+        review.historyResetToken = row.history_reset_token;
+      }
       return review;
     }),
   };
@@ -132,6 +140,7 @@ export function rowsToLearningStates(
     leech: row.is_leech,
     contentChanged: row.content_changed,
     historyResetOn: row.history_reset_on,
+    historyResetToken: row.history_reset_token,
   }));
 }
 

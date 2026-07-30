@@ -1,7 +1,11 @@
 import { z } from "zod";
 
-export const SAVED_ITEMS_KEY = "cpp-recall:saved-items:v1";
 export const MAX_SAVED_ITEMS = 100;
+
+export function savedItemsStorageKey(accountId: string | null) {
+  const scope = accountId ? z.string().uuid().parse(accountId) : "local";
+  return `cpp-recall:saved-items:${scope}:v2`;
+}
 
 const savedItemSchema = z.object({
   id: z.string().min(1).max(240),

@@ -192,6 +192,15 @@ export async function reserveMockInterviewAttempt(
     );
   }
 
+  const protocol = await client.rpc(
+    "mock_interview_retry_protocol_version",
+  );
+  if (protocol.error || protocol.data !== 2) {
+    throw new MockHistoryConfigurationError(
+      "Mock history retry protocol 2 is not configured",
+    );
+  }
+
   const { data, error } = await client.rpc(
     "reserve_mock_interview_attempt",
     {
@@ -213,6 +222,43 @@ export async function reserveMockInterviewAttempt(
   );
   if (error) throw mapMockHistoryRpcError(error);
   return parseMockHistoryAttempt(data, { requireLeaseToken: true });
+}
+
+export async function markMockInterviewAttemptDispatched(
+  client: SupabaseClient,
+  input: {
+    userId: string;
+    attemptId: string;
+    leaseToken: string;
+  },
+) {
+  assertUuid(input.userId, "user");
+  assertUuid(input.attemptId, "attempt");
+  assertUuid(input.leaseToken, "lease");
+  const { data, error } = await client.rpc(
+    "mark_mock_interview_attempt_dispatched",
+    {
+      p_attempt_id: input.attemptId,
+      p_lease_token: input.leaseToken,
+      p_user_id: input.userId,
+    },
+  );
+  if (error) throw mapMockHistoryRpcError(error);
+  if (
+    !isRecord(data) ||
+    data.status !== "dispatched" ||
+    !readTimestamp(data.dispatched_at)
+  ) {
+    if (isRecord(data) && data.status === "lease_invalid") {
+      throw new MockHistoryLeaseInvalidError();
+    }
+    if (isRecord(data) && data.status === "not_found") {
+      throw new MockHistoryAttemptNotFoundError();
+    }
+    throw new MockHistoryConfigurationError(
+      "Mock history provider dispatch was not confirmed",
+    );
+  }
 }
 
 export async function completeMockInterviewAttempt(

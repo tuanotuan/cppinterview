@@ -1,15 +1,23 @@
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
 import { describe, expect, it } from "vitest";
+import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 
 import {
   approveQuestion,
+  archiveQuestionsForLessons,
   discoverKnowledgeDirectories,
   mergeDiscoveredLessons,
+  writeLessonRegistry,
 } from "./automation";
-import type { LessonRegistry, Question } from "./schema";
+import { loadContentManifest } from "./loader";
+import {
+  questionFileSchema,
+  type LessonRegistry,
+  type Question,
+} from "./schema";
 
 const registry: LessonRegistry = {
   schemaVersion: 1,
@@ -163,6 +171,112 @@ describe("content automation", () => {
       { id: "cpp11-auto", from: "cpp11/1_auto", to: "cpp11/99_auto" },
     ]);
     expect(moved.registry.lessons[0].sourcePath).toBe("cpp11/99_auto");
+  });
+
+  it("omits archived questions whose removed lesson is no longer in the manifest", async () => {
+    const repoRoot = await mkdtemp(path.join(tmpdir(), "recall-removal-"));
+    const webRoot = path.join(repoRoot, "web");
+    const questionPath = path.join(
+      webRoot,
+      "content",
+      "questions",
+      "pilot.yaml",
+    );
+    const fullRegistry: LessonRegistry = {
+      schemaVersion: 1,
+      lessons: [
+        registry.lessons[0],
+        {
+          id: "cpp11-removed",
+          sourcePath: "cpp11/2_removed",
+          language: "cpp",
+          track: "cpp11",
+          standard: "cpp11",
+          order: 2,
+          tags: ["removed"],
+          prerequisites: [],
+        },
+      ],
+    };
+    const removedQuestion = {
+      id: "cpp11-removed-001",
+      lessonId: "cpp11-removed",
+      type: "recall",
+      difficulty: "beginner",
+      estimatedMinutes: 2,
+      prompt: "Explain the lesson that is about to be removed.",
+      hint: "Use the removed lesson section.",
+      answer: {
+        short: "A short valid answer.",
+        detailed: "A detailed valid answer for the removed lesson.",
+      },
+      rubric: {
+        required: ["Explain the removed lesson"],
+        bonus: [],
+        misconceptions: [],
+      },
+      sources: [{ sectionId: "details" }],
+      sourceHash: "a".repeat(64),
+      status: "verified",
+      version: 1,
+    } satisfies Question;
+
+    try {
+      await Promise.all([
+        mkdir(path.join(repoRoot, "cpp11", "1_auto"), { recursive: true }),
+        mkdir(path.join(repoRoot, "cpp11", "2_removed"), { recursive: true }),
+        mkdir(path.dirname(questionPath), { recursive: true }),
+      ]);
+      await Promise.all([
+        writeFile(
+          path.join(repoRoot, "cpp11", "1_auto", "knowledge.md"),
+          "# Auto\n\n## Details\n\nCurrent lesson.",
+        ),
+        writeFile(
+          path.join(repoRoot, "cpp11", "2_removed", "knowledge.md"),
+          "# Removed\n\n## Details\n\nRemoved lesson.",
+        ),
+        writeFile(
+          questionPath,
+          stringifyYaml({
+            schemaVersion: 1,
+            questions: [removedQuestion],
+          }),
+        ),
+      ]);
+      await writeLessonRegistry(webRoot, fullRegistry);
+      await rm(path.join(repoRoot, "cpp11", "2_removed"), {
+        recursive: true,
+        force: true,
+      });
+
+      const reconciliation = mergeDiscoveredLessons(
+        fullRegistry,
+        await discoverKnowledgeDirectories(repoRoot),
+      );
+      await writeLessonRegistry(webRoot, reconciliation.registry);
+      const archived = await archiveQuestionsForLessons(
+        webRoot,
+        reconciliation.removals.map((lesson) => lesson.id),
+      );
+      const manifest = await loadContentManifest(repoRoot, webRoot);
+      const questionDocument = questionFileSchema.parse(
+        parseYaml(await readFile(questionPath, "utf8")),
+      );
+
+      expect(archived).toEqual([removedQuestion.id]);
+      expect(questionDocument.questions[0]).toMatchObject({
+        id: removedQuestion.id,
+        status: "archived",
+        version: 2,
+      });
+      expect(manifest.lessons.map((lesson) => lesson.id)).toEqual([
+        "cpp11-auto",
+      ]);
+      expect(manifest.questions).toEqual([]);
+    } finally {
+      await rm(repoRoot, { recursive: true, force: true });
+    }
   });
 
   it("approves drafts without bumping v1 and bumps reviewed questions", () => {

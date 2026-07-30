@@ -9,17 +9,10 @@ import {
 } from "react";
 
 import {
-  MOCK_INTERVIEW_STORAGE_KEY,
-  parseCompletedMockInterviewSessionHistory,
-} from "@/lib/mock-interview/session";
-import {
+  mockInterviewSessionMatchesAccount,
   mockInterviewStorageKey,
   parseMockInterviewSessionV4,
 } from "@/lib/mock-interview/session-v4";
-import {
-  mockCompetencyKeys,
-  mockCompetencyLabels,
-} from "@/lib/mock-interview/profile";
 import {
   mockInterviewCompletedArtifactV4Schema,
   type MockInterviewCompletedArtifactV4,
@@ -34,9 +27,14 @@ import type { PracticeAccount } from "@/lib/practice/cloud-server";
 import {
   buildAnkiDailyQueue,
   buildLearningStates,
+  filterReviewsForLearningHistory,
   type QuestionLearningState,
 } from "@/lib/practice/learning-state";
-import { FOCUS_SESSION_STORAGE_KEY } from "@/lib/practice/focus-session";
+import {
+  EMPTY_FOCUS_SESSION_STORAGE_SNAPSHOT,
+  readFocusSessionSnapshot,
+  subscribeToFocusSession,
+} from "@/lib/practice/focus-session";
 import {
   addDays,
   mergeProgress,
@@ -63,6 +61,12 @@ import {
   worldQuantGuidedMissionHref,
   worldQuantGuidedModeStorageKey,
 } from "@/lib/worldquant/guided-mode";
+import {
+  EMPTY_WORLDQUANT_HUB_PREFERENCES_SNAPSHOT,
+  readWorldQuantHubPreferencesSnapshot,
+  subscribeToWorldQuantHubPreferences,
+  writeWorldQuantHubPreferencesSnapshot,
+} from "@/lib/worldquant/hub-preferences";
 import { buildWorldQuantMockRemediation } from "@/lib/worldquant/mock-remediation";
 import { worldQuantRoleHref } from "@/lib/worldquant/navigation";
 import { openOrReconcileGapFromMock } from "@/lib/worldquant/gap-closure";
@@ -78,7 +82,6 @@ import {
   buildWorldQuantReadiness,
   DEFAULT_WORLDQUANT_ROLE_PROFILE_ID,
   isValidReadinessDateKey,
-  mapLegacyMockCompetency,
   parseWorldQuantRoleProfile,
   worldQuantCompetencies,
   worldQuantCompetencyKeys,
@@ -97,8 +100,6 @@ import {
   restoreMatchingFocusSession,
 } from "./focus-sprint";
 
-const HUB_PREFERENCES_STORAGE_KEY = "recall:worldquant-hub:v1";
-const HUB_PREFERENCES_CHANGED_EVENT = "recall:worldquant-hub-changed";
 const GUIDED_MODE_CHANGED_EVENT = "recall:worldquant-guided-changed";
 const EMPTY_STORAGE_SNAPSHOT = "__empty__";
 const GUIDED_MISSION_MINUTE_OPTIONS = [
@@ -157,6 +158,34 @@ export function WorldQuantReadinessApp({
   mockHistoryAvailable: boolean;
   initialRoleId: WorldQuantRoleProfileId | null;
 }) {
+  const accountId = account?.id ?? null;
+  const subscribeToScopedProgress = useMemo(
+    () => (callback: () => void) =>
+      subscribeToPracticeProgress(accountId, callback),
+    [accountId],
+  );
+  const readScopedProgress = useMemo(
+    () => () => readPracticeProgressSnapshot(accountId),
+    [accountId],
+  );
+  const subscribeToScopedHubPreferences = useMemo(
+    () => (callback: () => void) =>
+      subscribeToWorldQuantHubPreferences(accountId, callback),
+    [accountId],
+  );
+  const readScopedHubPreferences = useMemo(
+    () => () => readWorldQuantHubPreferencesSnapshot(accountId),
+    [accountId],
+  );
+  const subscribeToScopedFocusSession = useMemo(
+    () => (callback: () => void) =>
+      subscribeToFocusSession(accountId, callback),
+    [accountId],
+  );
+  const readScopedFocusSession = useMemo(
+    () => () => readFocusSessionSnapshot(accountId),
+    [accountId],
+  );
   const [focusFeedback, setFocusFeedback] =
     useState<FocusFeedback | null>(null);
   const [guideOverrideOpen, setGuideOverrideOpen] = useState(false);
@@ -184,17 +213,17 @@ export function WorldQuantReadinessApp({
       ),
     );
   const progressSnapshot = useSyncExternalStore(
-    subscribeToPracticeProgress,
-    readPracticeProgressSnapshot,
+    subscribeToScopedProgress,
+    readScopedProgress,
     () => null,
   );
   const preferencesSnapshot = useSyncExternalStore(
-    subscribeToHubPreferences,
-    readHubPreferencesSnapshot,
+    subscribeToScopedHubPreferences,
+    readScopedHubPreferences,
     () => null,
   );
   const guidedModeStorageKey = worldQuantGuidedModeStorageKey(
-    account?.id ?? null,
+    accountId,
   );
   const subscribeToGuidedModeSnapshot = useMemo(
     () => (callback: () => void) =>
@@ -208,11 +237,6 @@ export function WorldQuantReadinessApp({
   const guidedModeSnapshot = useSyncExternalStore(
     subscribeToGuidedModeSnapshot,
     readGuidedModeSnapshot,
-    () => null,
-  );
-  const mockSnapshot = useSyncExternalStore(
-    subscribeToMockSession,
-    readMockSessionSnapshot,
     () => null,
   );
   const v4MockStorageKey = account
@@ -233,8 +257,8 @@ export function WorldQuantReadinessApp({
     () => null,
   );
   const focusSessionSnapshot = useSyncExternalStore(
-    subscribeToFocusSession,
-    readFocusSessionSnapshot,
+    subscribeToScopedFocusSession,
+    readScopedFocusSession,
     () => null,
   );
   const preferences = useMemo(() => {
@@ -262,18 +286,13 @@ export function WorldQuantReadinessApp({
         ? null
         : progressSnapshot,
     );
-    const resetCutoffs = new Map(
-      initialQuestionStates
-        .filter((state) => state.historyResetOn)
-        .map((state) => [state.questionId, state.historyResetOn!]),
-    );
     const merged = mergeProgress(initialCloudProgress, local);
     return {
       ...merged,
-      reviews: merged.reviews.filter((review) => {
-        const resetOn = resetCutoffs.get(review.questionId);
-        return !resetOn || review.reviewedOn > resetOn;
-      }),
+      reviews: filterReviewsForLearningHistory(
+        merged.reviews,
+        initialQuestionStates,
+      ),
     };
   }, [initialCloudProgress, initialQuestionStates, progressSnapshot]);
   const learningStates = useMemo(
@@ -321,13 +340,15 @@ export function WorldQuantReadinessApp({
       restoreMatchingFocusSession({
         raw:
           focusSessionSnapshot === null ||
-          focusSessionSnapshot === EMPTY_STORAGE_SNAPSHOT
+          focusSessionSnapshot ===
+            EMPTY_FOCUS_SESSION_STORAGE_SNAPSHOT
             ? null
             : focusSessionSnapshot,
+        accountId,
         profileId: preferences.roleId,
         questions,
       }),
-    [focusSessionSnapshot, preferences.roleId, questions],
+    [accountId, focusSessionSnapshot, preferences.roleId, questions],
   );
   const dailyQueue = useMemo(
     () => {
@@ -353,13 +374,6 @@ export function WorldQuantReadinessApp({
     },
     [learningStates, roleQuestions, today],
   );
-  const mockSession = useMemo(
-    () =>
-      mockSnapshot === null || mockSnapshot === EMPTY_STORAGE_SNAPSHOT
-        ? null
-        : parseCompletedMockInterviewSessionHistory(mockSnapshot),
-    [mockSnapshot],
-  );
   const activeCompetencies = readiness.competencies
     .filter((competency) => competency.weight > 0)
     .sort(
@@ -372,14 +386,16 @@ export function WorldQuantReadinessApp({
     minutesPerDay: preferences.minutesPerDay,
     readiness,
   });
-  const completedMock =
-    mockSession?.status === "completed" && mockSession.report
-      ? mockSession
-      : null;
-  const activeV4Mock =
+  const parsedV4Mock =
     v4MockSnapshot &&
     v4MockSnapshot !== EMPTY_STORAGE_SNAPSHOT
       ? parseMockInterviewSessionV4(v4MockSnapshot)
+      : null;
+  const activeV4Mock =
+    parsedV4Mock &&
+    account &&
+    mockInterviewSessionMatchesAccount(parsedV4Mock, account.id)
+      ? parsedV4Mock
       : null;
   const roleMockHistory = useMemo(
     () =>
@@ -441,7 +457,6 @@ export function WorldQuantReadinessApp({
     (guidedMode.onboardingCompletedAt === null || guideOverrideOpen);
 
   useEffect(() => {
-    const accountId = account?.id ?? null;
     const refresh = async () => {
       const current = readWorldQuantTrainingState(accountId);
       let reconciled = current;
@@ -484,10 +499,10 @@ export function WorldQuantReadinessApp({
     };
     void refresh();
     return subscribeToWorldQuantTrainingState(
-      account?.id ?? null,
+      accountId,
       () => void refresh(),
     );
-  }, [account?.id, initialMockHistory, preferences.roleId]);
+  }, [accountId, initialMockHistory, preferences.roleId]);
 
   function updatePreferences(next: Partial<HubPreferences>) {
     if (next.roleId) {
@@ -496,7 +511,10 @@ export function WorldQuantReadinessApp({
       url.searchParams.set("role", next.roleId);
       window.history.replaceState(null, "", url);
     }
-    writeHubPreferences({ ...preferences, ...next });
+    writeWorldQuantHubPreferencesSnapshot(
+      accountId,
+      JSON.stringify({ ...preferences, ...next }),
+    );
   }
 
   function startFocusSprint(
@@ -504,7 +522,9 @@ export function WorldQuantReadinessApp({
     competency: WorldQuantCompetencyKey | null = null,
   ) {
     setFocusFeedback(null);
-    const destination = prepareFocusSprint(selectedPlan);
+    const destination = prepareFocusSprint(selectedPlan, {
+      accountId,
+    });
     if (
       destination.kind === "practice" ||
       destination.kind === "guide"
@@ -515,10 +535,13 @@ export function WorldQuantReadinessApp({
     setFocusFeedback({ competency, message: destination.message });
   }
 
-  function resumeFocusSprint() {
+  async function resumeFocusSprint() {
     if (!activeFocusSession) return;
     setFocusFeedback(null);
-    const destination = prepareFocusSprintResume(activeFocusSession);
+    const destination = await prepareFocusSprintResume(
+      activeFocusSession,
+      { accountId },
+    );
     if (destination.kind === "practice") {
       window.location.assign(
         withWorldQuantMissionReturn(
@@ -938,16 +961,12 @@ export function WorldQuantReadinessApp({
             value={
               latestV4Artifact
                 ? `${latestV4Artifact.debrief.roleInterviewScore ?? "—"}/100`
-                : completedMock
-                  ? `${completedMock.report!.overallScore}/100`
-                  : "Chưa có"
+                : "Chưa có"
             }
             note={
               latestV4Artifact
                 ? `${latestV4Artifact.debrief.assessedWeightPercent}% nội dung quan trọng của vị trí đã được hỏi · theo dõi riêng`
-                : completedMock
-                  ? "Phiên bản cũ · hiển thị riêng, chưa tính vào chỉ số"
-                  : "Làm phỏng vấn thử để thêm kết quả phỏng vấn"
+                : "Làm phỏng vấn thử để thêm kết quả phỏng vấn"
             }
           />
         </section>
@@ -1483,68 +1502,6 @@ export function WorldQuantReadinessApp({
                     : "Lịch sử đồng bộ chưa được cấu hình; hệ thống chỉ hiện dữ liệu máy chủ đã tải được."}
                 </p>
               </>
-            ) : completedMock ? (
-              <>
-                <div className="mt-5 flex flex-wrap items-end justify-between gap-4 rounded-2xl bg-[#edf3e7] p-5">
-                  <div>
-                    <p className="text-4xl font-semibold">
-                      {completedMock.report!.overallScore}
-                      <span className="text-lg text-[#64736c]">/100</span>
-                    </p>
-                    <p className="mt-2 text-sm text-[#64736c]">
-                      {formatMockReadiness(completedMock.report!.readiness)} ·
-                      bắt đầu {formatDateTime(completedMock.startedAt)}
-                    </p>
-                  </div>
-                  <Link
-                    href={balancedMockHref}
-                    className="rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white"
-                  >
-                    Xem / làm lại
-                  </Link>
-                </div>
-                <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {mockCompetencyKeys
-                    .map((key) => ({
-                      legacyKey: key,
-                      assessment: completedMock.report!.competencies[key],
-                      mapped: mapLegacyMockCompetency({ key }),
-                    }))
-                    .filter(
-                      (item) =>
-                        item.assessment.status === "assessed" &&
-                        item.assessment.score !== null,
-                    )
-                    .map((item) => (
-                      <div
-                        key={item.legacyKey}
-                        className="rounded-xl border border-[#173f35]/10 px-4 py-3"
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="text-xs font-semibold">
-                            {mockCompetencyLabels[item.legacyKey]}
-                          </span>
-                          <span className="font-mono text-xs font-bold">
-                            {item.assessment.score}
-                          </span>
-                        </div>
-                        <p className="mt-1 text-[10px] text-[#64736c]">
-                          Tương ứng với{" "}
-                          {worldQuantCompetencies[item.mapped.key].shortLabel}
-                          {item.mapped.granularity === "legacy_fallback"
-                             ? " (phiên bản cũ)"
-                            : ""}
-                        </p>
-                      </div>
-                    ))}
-                </div>
-                <p className="mt-4 text-xs leading-5 text-[#64736c]">
-                  Phiên bản phỏng vấn thử cũ chỉ lưu kết quả gần nhất trong
-                  trình duyệt. Điểm này được hiển thị riêng và chưa cộng vào chỉ
-                  số chuẩn bị
-                  để tránh trộn các kết quả không tương đương.
-                </p>
-              </>
             ) : (
               <div className="mt-5 rounded-2xl border border-dashed border-[#173f35]/20 p-6">
                 <p className="font-semibold">
@@ -1840,41 +1797,6 @@ function GuidedStep({
   );
 }
 
-function subscribeToHubPreferences(callback: () => void) {
-  const onStorage = (event: StorageEvent) => {
-    if (event.key === HUB_PREFERENCES_STORAGE_KEY) callback();
-  };
-  window.addEventListener("storage", onStorage);
-  window.addEventListener(HUB_PREFERENCES_CHANGED_EVENT, callback);
-  return () => {
-    window.removeEventListener("storage", onStorage);
-    window.removeEventListener(HUB_PREFERENCES_CHANGED_EVENT, callback);
-  };
-}
-
-function readHubPreferencesSnapshot() {
-  try {
-    return (
-      window.localStorage.getItem(HUB_PREFERENCES_STORAGE_KEY) ??
-      EMPTY_STORAGE_SNAPSHOT
-    );
-  } catch {
-    return EMPTY_STORAGE_SNAPSHOT;
-  }
-}
-
-function writeHubPreferences(preferences: HubPreferences) {
-  try {
-    window.localStorage.setItem(
-      HUB_PREFERENCES_STORAGE_KEY,
-      JSON.stringify(preferences),
-    );
-    window.dispatchEvent(new Event(HUB_PREFERENCES_CHANGED_EVENT));
-  } catch {
-    // The hub remains usable with defaults when browser storage is unavailable.
-  }
-}
-
 function parseHubPreferences(
   raw: string | null,
   today: string,
@@ -1884,7 +1806,12 @@ function parseHubPreferences(
     targetDate: addDays(today, 60),
     minutesPerDay: 45,
   };
-  if (!raw || raw === EMPTY_STORAGE_SNAPSHOT) return fallback;
+  if (
+    !raw ||
+    raw === EMPTY_WORLDQUANT_HUB_PREFERENCES_SNAPSHOT
+  ) {
+    return fallback;
+  }
   try {
     const value = JSON.parse(raw) as Partial<HubPreferences>;
     return {
@@ -1897,25 +1824,6 @@ function parseHubPreferences(
     };
   } catch {
     return fallback;
-  }
-}
-
-function subscribeToMockSession(callback: () => void) {
-  const onStorage = (event: StorageEvent) => {
-    if (event.key === MOCK_INTERVIEW_STORAGE_KEY) callback();
-  };
-  window.addEventListener("storage", onStorage);
-  return () => window.removeEventListener("storage", onStorage);
-}
-
-function readMockSessionSnapshot() {
-  try {
-    return (
-      window.localStorage.getItem(MOCK_INTERVIEW_STORAGE_KEY) ??
-      EMPTY_STORAGE_SNAPSHOT
-    );
-  } catch {
-    return EMPTY_STORAGE_SNAPSHOT;
   }
 }
 
@@ -1970,25 +1878,6 @@ function writeGuidedModeState(
     return true;
   } catch {
     return false;
-  }
-}
-
-function subscribeToFocusSession(callback: () => void) {
-  const onStorage = (event: StorageEvent) => {
-    if (event.key === FOCUS_SESSION_STORAGE_KEY) callback();
-  };
-  window.addEventListener("storage", onStorage);
-  return () => window.removeEventListener("storage", onStorage);
-}
-
-function readFocusSessionSnapshot() {
-  try {
-    return (
-      window.localStorage.getItem(FOCUS_SESSION_STORAGE_KEY) ??
-      EMPTY_STORAGE_SNAPSHOT
-    );
-  } catch {
-    return EMPTY_STORAGE_SNAPSHOT;
   }
 }
 
@@ -2136,17 +2025,6 @@ function compareMockHistoryNewestFirst(
       ? rightTime - leftTime
       : 0;
   return timeOrder || right.attemptId.localeCompare(left.attemptId);
-}
-
-function formatMockReadiness(
-  readiness: "not_ready" | "developing" | "interview_ready" | "strong",
-) {
-  return {
-    not_ready: "Cần luyện thêm",
-    developing: "Đang phát triển",
-    interview_ready: "Sẵn sàng phỏng vấn",
-    strong: "Vững",
-  }[readiness];
 }
 
 function formatDateTime(value: string) {

@@ -21,8 +21,10 @@ admission, the Mistake Inbox, and atomic daily/monthly AI accounting.
    `http://localhost:3000/auth/callback` for local development. Add the deployed
    `/auth/callback` URL later.
 
-`ALLOWED_GITHUB_LOGIN` defaults to `tuanotuan`. Authentication, progress, and AI
-routes reject every other GitHub identity so the paid AI quota remains personal.
+Set `ALLOWED_SUPABASE_USER_ID` to the immutable Supabase Auth UUIDs that may use
+the private learning and AI routes. `ALLOWED_GITHUB_LOGIN` is an explicit,
+optional fallback and is disabled when left blank; do not rely on a reusable
+GitHub handle for production ownership.
 
 The migrations enable RLS. Authenticated users can only read and mutate rows
 whose `user_id` matches their JWT identity. Question approvals are bound to an
@@ -44,29 +46,62 @@ usage twice.
 
 `20260729120000_isolate_web_daily_ai_quota.sql` clears provider-contaminated
 daily floors, keeps provider cost as project observability, and adds
-`reserve_web_ai_budget(...)`. Deploy this migration with the matching app code.
-The app temporarily offsets project-only daily cost when talking to an older
-database, but the migration is the durable admission path.
+`reserve_web_ai_budget(...)` for the earlier aggregate protocol.
+`20260730190000_ai_budget_reservation_ledger.sql` supersedes that admission path
+with exact account-scoped reservation UUIDs and a durable dispatch marker. It
+revokes every aggregate reserve/finalize/release overload, so mismatched old app
+code fails closed instead of mutating an anonymous aggregate.
+
+The ledger limits one reservation to 500,000 USD micros, the caller-supplied
+daily limit to 4,000,000 micros, and one account to 256 reservation rows per
+Vietnam day. Finalization also bounds actual cost at 4,000,000 micros, each token
+counter at 10,000,000, and the model label at 200 bytes. A user/day index keeps
+the row-count guard bounded. Apply the migration with the matching app version;
+the migrations in this repository have not been integration-tested against a
+local PostgreSQL instance.
 
 Gemini fallback requests are counted separately in `gemini_usage_daily`; they do
 not reduce the OpenAI dollar budget. `ai_provider_settings` stores the owner's
 Admin toggle for that fallback. Both tables remain private under RLS.
 
 `user_question_states` is the Anki-style current-state projection for each
-user/question pair. `practice_reviews` remains the immutable learning history.
-The Phase A migration backfills practiced questions as Review or Relearning;
-unseen questions are created lazily as New when the Phase B scheduler is wired
-to the practice flow.
+user/question pair. `practice_reviews` is durable per-question history inside
+the current reset generation. An explicit reset deletes that question's prior
+rows and rotates `history_reset_token`; a same-day row for an obsolete
+version/source hash may be replaced atomically. The Phase A migration backfills
+practiced questions as Review or Relearning; unseen questions are created
+lazily as New when the Phase B scheduler is wired to the practice flow.
 
 Phase B extends `practice_reviews` with the state produced by each rating and
 uses `record_practice_review(...)` to update review history plus
 `user_question_states` in one database transaction. The browser may calculate
 an optimistic interval, but the RPC remains authoritative for cloud progress.
+`20260730200000_serialize_practice_reviews.sql` adds a per-account/question
+advisory lock and returns `recorded`, `already_recorded`, or `history_recorded`
+with the authoritative rating. It returns terminal `reset_discarded` for a
+review created against another reset generation, so a stale device removes its
+local copy instead of restoring deleted progress. Each reset creates a UUID;
+every review in that history generation keeps the same UUID until the next
+reset, including when reset and review happen on the same Vietnam date. The
+first rating for an exact question/day/version/hash/generation wins atomically
+across tabs and devices. A same-day row for stale content is replaced; a new
+backdated offline review increases the aggregate review count but does not move
+the authoritative due date, interval, or latest-review date backwards.
+
+`20260730200000` is the expand stage: it adds the generation columns and keeps a
+temporary five-argument compatibility wrapper. Deploy the backward-compatible
+app first. `20260730220000_finalize_practice_history_generations.sql` then
+backfills one generation per existing question history, serializes reset with
+review writes, removes the old cutoff-clearing trigger, and drops the wrapper.
+The app falls back to the legacy projection/RPC only for a confirmed missing
+column/function before these migrations; generation-bearing reviews never use
+the legacy RPC.
 
 Phase C adds owner-only scheduling operations through
 `manage_question_schedule(...)`: suspend, unsuspend, reset, and reschedule.
-Reset removes that question's review history and records a cutoff so stale
-browser storage on another device cannot silently restore the deleted progress.
+Reset removes that question's review history, records the legacy cutoff, and
+rotates its durable generation token so stale browser storage on another device
+cannot silently restore the deleted progress.
 
 Phase D adds a server-rendered learning analytics page from the existing review
 history and question-state projection. Retention, 28-day activity, 14-day due
@@ -95,34 +130,18 @@ Current pointers and lifecycle state live on `content_lessons` and
 idempotency and retry ledger for the future Git-to-Supabase automation.
 
 Only authenticated readers that pass RLS can see content. Browser roles receive no
-direct write grants. Add the owner to `content_admins` during the Phase B backfill;
-do not expose a service-role key through a `NEXT_PUBLIC_` variable.
+direct write grants. Provision `content_admins` explicitly with an immutable
+Supabase Auth user UUID; do not expose a service-role key through a `NEXT_PUBLIC_`
+variable.
 
-## Content bank backfill
+## Retired content bank backfill
 
-`20260723130000_backfill_content_question_bank.sql` installs the Phase B importer.
-The function is not executable by browser roles. Run it through the Supabase SQL
-Editor with the deterministic payload generated from the checked-out Git commit:
-
-```powershell
-npm.cmd run --silent content:backfill:sql | Set-Clipboard
-```
-
-Paste the clipboard into a new SQL query and run it. The returned JSON must contain
-`"ok": true`; it also reports expected/imported lesson and question counts,
-checksum mismatches, missing current revisions, and materialized Admin overrides.
-
-The importer is idempotent. Re-running the same payload does not create duplicate
-revisions or audit events. If an existing question ID/version has different
-content, the transaction raises a checksum conflict and rolls back instead of
-overwriting history. Existing approvals, practice reviews, Anki state, coach
-attempts, and overrides are never mutated.
-
-For a local payload-only dry run that does not connect to Supabase:
-
-```powershell
-npm.cmd run --silent content:backfill:check
-```
+`20260723130000_backfill_content_question_bank.sql` was a one-time Phase B
+importer and must not be called again. Migration
+`20260730150000_retire_legacy_content_backfill.sql` replaces it with an
+unconditional SQLSTATE `55000` retirement error and revokes every API role.
+Current repository-to-database updates use `sync_content_question_bank` through
+the `content:sync` command described below.
 
 The monotonic AI budget migration stores a conservative usage floor before each
 OpenAI Billing reconciliation. Billing data can lag realtime requests, but that
@@ -193,8 +212,43 @@ revisions, or audit history.
 The main workflow now runs `content:refresh`, `content:sync`, and then
 `content:generate:db`. A lesson revision is enqueued only when it has no current,
 non-archived question grounded in the same source hash. Jobs use a 10-minute
-lease, exponential retry, and dead-letter after five attempts. OpenAI Luna is
-primary; Gemini is used only after an OpenAI 429 when `GEMINI_API_KEY` exists.
+lease and dead-letter after five attempts. Automatic retry/fallback is allowed
+only after a confirmed provider 429; timeout, connection reset, DNS failure or
+5xx stops the job for administrator review because a paid result may already
+exist. OpenAI Luna is primary; Gemini requires `GEMINI_API_KEY`.
+
+`20260730210000_harden_content_generation_dispatch.sql` adds retry protocol v2.
+The worker preflights that exact protocol, then passes both protocol v2 and the
+exact generator version to every claim. The migration removes the old claim and
+failure signatures, so an older worker cannot acquire or reopen v2 work. It
+also moves every legacy `deferred` and `pending` row to `dead_letter`, because
+protocol v1 could defer or erase the evidence for an ambiguous timeout, 5xx
+response, or internally retried request and could not distinguish that history
+from untouched pending work.
+
+Enqueue, claim, completion, and manual rollover resolution share one global
+advisory lock; enqueue, claim, and retry additionally serialize the exact
+lesson/source pair across all generator versions. A completed exact-source
+question closes queued siblings before another claim. A current-version job is
+blocked by any other-version `pending`, `deferred`, or `running` sibling, or by
+a terminal sibling with an unconfirmed provider outcome. The worker returns
+`generation_history_conflict` without calling AI. An administrator must
+explicitly close the obsolete row; pending rows are eligible for this action
+only when their generator version differs from the deployed version. Ambiguous
+rows still require the separate duplicate-cost confirmation. If no matching
+current-version job exists, generation returns `generator_version_mismatch` and
+asks the operator to run `content:sync`.
+
+The worker durably marks the current lease immediately before every OpenAI or
+Gemini request and keeps a bounded history of the exact provider, model, time,
+and lease. An expired undispatched lease is safe to reclaim; an expired
+dispatched lease becomes terminal `dead_letter`. Only a confirmed provider 429
+clears the marker for an automatic retry. Every other post-dispatch failure
+remains terminal. The Admin retry endpoint first asks the database whether the
+exact row needs confirmation; it never infers ambiguity from a status label.
+Retrying an unconfirmed outcome requires an explicit confirmation, and the job
+keeps a bounded audit history with the previous error and dispatch marker before
+opening a new lease.
 
 Required GitHub Actions secrets:
 
@@ -205,9 +259,11 @@ Required GitHub Actions secrets:
 
 The service-role key must remain GitHub-only. OpenAI generation shares the same
 OpenAI project hard budget as the web app, so keep that project budget at $5.
-The Admin page shows the latest generation jobs and can move a deferred, failed,
-or dead-letter job back to `pending`; execution resumes on the next scheduled or
-manually dispatched workflow.
+The Admin page shows the latest generation jobs. It can move a current-version
+deferred, failed, or dead-letter job back to `pending`, or explicitly close an
+obsolete-version pending/deferred/terminal row while preserving bounded audit
+evidence. Execution resumes on the next scheduled or manually dispatched
+workflow.
 
 Rollback is non-destructive: disable the generation step in the workflow. DB
 drafts, immutable revisions, jobs, and events remain available for audit, while
@@ -297,11 +353,16 @@ to the web runtime as `MOCK_HISTORY_SUPABASE_SECRET_KEY`. Do not reuse
 
 The report route reserves history before hidden execution or paid AI. A frozen
 submission and idempotency key can recover a cached completed report after a
-lost response. Retryable provider failures expire only the current token-owned
-lease; hidden terminal failures token-abort the unfinished history row before
-the client rotates its downstream execution key. Browser deletion is owner-only
-and cannot delete a live reservation. Until both the migration and dedicated
-secret exist, starting a new Mock v4 session is intentionally disabled.
+lost response. Apply
+`20260730170000_terminalize_mock_report_outcomes.sql` with the route: it adds a
+provider dispatch marker, deletes an expired undispatched reservation so it can
+be retried, and changes an expired dispatched reservation to terminal `failed`.
+Ambiguous provider/completion outcomes and post-provider report-processing
+failures are never renewed for another paid call.
+Hidden terminal failures token-abort the unfinished history row before the
+client rotates its downstream execution key. Browser deletion is owner-only and
+cannot delete a live reservation. Until the migrations and dedicated secret
+exist, starting a new Mock v4 session is intentionally disabled.
 
 ## Mistake → flashcard queue
 
@@ -314,6 +375,27 @@ No new secret is required. Capture uses the authenticated owner session and RLS;
 generation uses the existing OpenAI daily/monthly budget with Gemini fallback.
 Cards are inserted as immutable DB-native `draft` revisions and remain inactive
 until the owner approves their exact question version and source hash.
+For Coach-originated mistakes, the browser keeps the `coachAttemptId` on the
+exact pending local review until the sync route explicitly acknowledges capture
+or discards it against the authoritative rating. An older concurrent sync
+response cannot clear that marker.
+
+Apply `20260730140000_harden_mistake_generation_retries.sql` with generation
+code. Retry protocol v3 marks the exact lease immediately before each provider.
+An expired undispatched lease is reclaimed; an expired dispatched lease becomes
+`dead_letter`. Completion retries only the same draft, and a database trigger
+rejects materialization before the dispatch marker exists.
+
+For this hardening set, deploy the new app and generation workflow first, then
+apply `20260730130000`–`20260730170000` and
+`20260730190000`–`20260730220000` in timestamp order. In particular, never
+apply protocol-breaking `20260730140000`, `20260730170000`, or
+`20260730210000` while an older app or generation worker can still run. The new
+code preflights each AI protocol and fails closed before a provider call while
+its migration is absent. Practice history uses a two-stage rollout:
+`20260730200000` temporarily keeps the five-argument review RPC, and
+`20260730220000` may backfill generations and remove that overload only after
+the generation-aware app is serving requests.
 
 ## Blank and long AI-coach answers
 
@@ -324,3 +406,12 @@ means the learner does not know, and PostgreSQL `text` stores longer answers
 without a product-level cap. Deploy it with the matching coach UI/API change so
 blank or long attempts keep their idempotent history instead of failing the
 history insert.
+
+## Coach request idempotency
+
+Apply `20260730130000_create_coach_evaluation_reservations.sql` and
+`20260730160000_create_coach_follow_up_reservations.sql`. Evaluation and
+follow-up cache exact account/request fingerprints under canonical idempotency
+keys. Each lease is marked immediately before a provider call: expired
+undispatched work is removed for a safe retry, while dispatched ambiguous work
+becomes terminal `outcome_unknown`.

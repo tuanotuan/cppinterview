@@ -6,6 +6,11 @@ import {
 } from "../ai/contracts";
 import { rescueRetryStateSchema } from "./rescue-retry";
 
+export function studySessionStorageKey(accountId: string | null) {
+  const scope = accountId ? z.string().uuid().parse(accountId) : "local";
+  return `cpp-recall:study-session:${scope}:v2`;
+}
+
 const followUpChatMessageSchema = z.object({
   role: z.enum(["user", "assistant"]),
   content: z.string().max(2000),

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sourceRevision": "245498ebfea59f329e4727a9b052bf0d42d6e6eec2799db4f20ba3f139857967",
+  "sourceRevision": "ae5e7be8d9f703e000cc75795347a023df23d130c6d6fd8984e53e32b9e3d2bd",
   "lessons": [
     {
       "id": "cpp98-object-variable-memory",
@@ -2424,6 +2424,92 @@
       ],
       "checklistItems": [],
       "code": "#include <iostream>\r\n\r\nclass Order {\r\npublic:\r\n    Order(int id, int quantity)\r\n        : id_(id), quantity_(quantity) {}\r\n\r\n    Order& operator=(const Order& other) {\r\n        if (this == &other) {\r\n            return *this;\r\n        }\r\n\r\n        id_ = other.id_;\r\n        quantity_ = other.quantity_;\r\n        std::cout << \"Order assigned\\n\";\r\n        return *this;\r\n    }\r\n\r\n    void print() const {\r\n        std::cout << \"ID: \" << id_\r\n                  << \", Quantity: \" << quantity_\r\n                  << '\\n';\r\n    }\r\n\r\nprivate:\r\n    int id_;\r\n    int quantity_;\r\n};\r\n\r\nint main() {\r\n    Order first{101, 50};\r\n    Order second{202, 10};\r\n    Order third{303, 5};\r\n\r\n    third = second = first;\r\n\r\n    first.print();\r\n    second.print();\r\n    third.print();\r\n}\r\n"
+    },
+    {
+      "id": "cpp11-toolchain",
+      "sourcePath": "cpp11/30_toolchain",
+      "order": 25,
+      "tags": [
+        "toolchain"
+      ],
+      "prerequisites": [],
+      "language": "cpp",
+      "track": "cpp11",
+      "standard": "cpp11",
+      "title": "Day 30 — Toolchain, Compiler Flags, and C++11 Mode",
+      "knowledgePath": "cpp11/30_toolchain/knowledge.md",
+      "codePath": "cpp11/30_toolchain/main.cpp",
+      "sourceHash": "ab2ce89cd945206847b75a5ad0a4160e4d057cde4208f7923b225c0d124df5b4",
+      "sections": [
+        {
+          "id": "problem-it-solves",
+          "heading": "1. Problem It Solves",
+          "bodyMarkdown": "C++ source code is plain text. A toolchain turns that source into a runnable\r\nprogram and reports many mistakes before the program reaches production.\r\n\r\nFor this lesson, the compiler must use C++11 mode. Warning flags are enabled so\r\nsuspicious code is visible even when it is technically valid C++.",
+          "bodyText": "C++ source code is plain text. A toolchain turns that source into a runnable\r\nprogram and reports many mistakes before the program reaches production.For this lesson, the compiler must use C++11 mode. Warning flags are enabled so\r\nsuspicious code is visible even when it is technically valid C++."
+        },
+        {
+          "id": "prerequisites",
+          "heading": "2. Prerequisites",
+          "bodyMarkdown": "No previous C++ lesson is required. You only need to know how to open a terminal,\r\nmove to a directory, and identify a file ending in `.cpp`.",
+          "bodyText": "No previous C++ lesson is required. You only need to know how to open a terminal,\r\nmove to a directory, and identify a file ending in .cpp."
+        },
+        {
+          "id": "core-idea",
+          "heading": "3. Core Idea",
+          "bodyMarkdown": "A simple native build has four conceptual stages:\r\n\r\n1. The preprocessor expands directives such as `#include`.\r\n2. The compiler checks C++ grammar and types, then produces object code.\r\n3. The linker combines object files with required library code.\r\n4. The operating system loads and starts the executable at `main()`.\r\n\r\nThe executable is a separate file from the source code. A failed build does not\r\nreplace an older executable, so running the command again after a failure may\r\naccidentally run stale code.",
+          "bodyText": "A simple native build has four conceptual stages:The preprocessor expands directives such as #include.The compiler checks C++ grammar and types, then produces object code.The linker combines object files with required library code.The operating system loads and starts the executable at main().The executable is a separate file from the source code. A failed build does not\r\nreplace an older executable, so running the command again after a failure may\r\naccidentally run stale code."
+        },
+        {
+          "id": "minimal-commands",
+          "heading": "4. Minimal Commands",
+          "bodyMarkdown": "Compile with GCC:\r\n\r\n```text\r\ng++ -std=c++11 -Wall -Wextra -Wpedantic source.cpp -o program\r\n```\r\n\r\nRun on Linux or macOS:\r\n\r\n```text\r\n./program\r\n```\r\n\r\nRun on Windows PowerShell:\r\n\r\n```text\r\n.\\program.exe\r\n```\r\n\r\nImportant options:\r\n\r\n- `-std=c++11` selects the C++11 language rules.\r\n- `-Wall` enables many common diagnostics.\r\n- `-Wextra` enables additional useful diagnostics.\r\n- `-Wpedantic` reports extensions outside the selected standard.\r\n- `-o program` chooses the executable name.\r\n\r\nUse `g++`, not `gcc`, for the final C++ link command. `g++` automatically links\r\nthe C++ standard library.",
+          "bodyText": "Compile with GCC:g++ -std=c++11 -Wall -Wextra -Wpedantic source.cpp -o programRun on Linux or macOS:./programRun on Windows PowerShell:.\\program.exeImportant options:-std=c++11 selects the C++11 language rules.-Wall enables many common diagnostics.-Wextra enables additional useful diagnostics.-Wpedantic reports extensions outside the selected standard.-o program chooses the executable name.Use g++, not gcc, for the final C++ link command. g++ automatically links\r\nthe C++ standard library."
+        },
+        {
+          "id": "compile-and-link-separately",
+          "heading": "5. Compile and Link Separately",
+          "bodyMarkdown": "A multi-file build can compile each source file first:\r\n\r\n```text\r\ng++ -std=c++11 -Wall -Wextra -Wpedantic -c feed.cpp -o feed.o\r\ng++ -std=c++11 -Wall -Wextra -Wpedantic -c main.cpp -o main.o\r\n```\r\n\r\nThen link the object files:\r\n\r\n```text\r\ng++ feed.o main.o -o feed-check\r\n```\r\n\r\nThis separation matters because changing one source file should not require\r\nrecompiling every other source file. Build systems such as CMake model these\r\ndependencies and issue the necessary compiler and linker commands.",
+          "bodyText": "A multi-file build can compile each source file first:g++ -std=c++11 -Wall -Wextra -Wpedantic -c feed.cpp -o feed.o\r\ng++ -std=c++11 -Wall -Wextra -Wpedantic -c main.cpp -o main.oThen link the object files:g++ feed.o main.o -o feed-checkThis separation matters because changing one source file should not require\r\nrecompiling every other source file. Build systems such as CMake model these\r\ndependencies and issue the necessary compiler and linker commands."
+        },
+        {
+          "id": "debug-and-release-options",
+          "heading": "6. Debug and Release Options",
+          "bodyMarkdown": "A useful local debug build commonly adds:\r\n\r\n```text\r\n-O0 -g\r\n```\r\n\r\n`-O0` keeps optimization low, while `-g` emits debugging information. A release\r\nbuild commonly uses an optimization level such as `-O2`. Optimization affects\r\nperformance and generated code; it is not a substitute for correctness checks,\r\ntests, or warnings.\r\n\r\nThe exact compiler version and options are build inputs. CI and production\r\nshould record them so a failure can be reproduced.",
+          "bodyText": "A useful local debug build commonly adds:-O0 -g-O0 keeps optimization low, while -g emits debugging information. A release\r\nbuild commonly uses an optimization level such as -O2. Optimization affects\r\nperformance and generated code; it is not a substitute for correctness checks,\r\ntests, or warnings.The exact compiler version and options are build inputs. CI and production\r\nshould record them so a failure can be reproduced."
+        },
+        {
+          "id": "exit-status",
+          "heading": "7. Exit Status",
+          "bodyMarkdown": "A return value of `0` from `main()` means success. A non-zero value normally\r\nsignals an error:\r\n\r\n```cpp\r\nif (bid_price > ask_price) {\r\n    std::cerr << \"Invalid quote\\n\";\r\n    return 1;\r\n}\r\n```\r\n\r\nShell scripts and CI jobs use this exit status to decide whether a step passed.",
+          "bodyText": "A return value of 0 from main() means success. A non-zero value normally\r\nsignals an error:if (bid_price > ask_price) {\r\n    std::cerr << \"Invalid quote\\n\";\r\n    return 1;\r\n}Shell scripts and CI jobs use this exit status to decide whether a step passed."
+        },
+        {
+          "id": "common-mistakes",
+          "heading": "8. Common Mistakes",
+          "bodyMarkdown": "- Forgetting `-std=c++11`, so the compiler default varies between machines.\r\n- Ignoring warnings because the program still builds.\r\n- Using `gcc` instead of `g++` for the final C++ link command.\r\n- Running an old executable after compilation failed.\r\n- Assuming successful compilation proves the program is correct.\r\n- Mixing incompatible compiler, standard-library, or ABI settings.\r\n- Applying `-Werror` blindly to third-party headers and turning external\r\n  warnings into local build failures.",
+          "bodyText": "Forgetting -std=c++11, so the compiler default varies between machines.Ignoring warnings because the program still builds.Using gcc instead of g++ for the final C++ link command.Running an old executable after compilation failed.Assuming successful compilation proves the program is correct.Mixing incompatible compiler, standard-library, or ABI settings.Applying -Werror blindly to third-party headers and turning external\r\nwarnings into local build failures."
+        },
+        {
+          "id": "trading-system-relevance",
+          "heading": "9. Trading-System Relevance",
+          "bodyMarkdown": "A tick-data program may validate a quote where the bid price must not exceed the\r\nask price. The same source should behave consistently on a developer laptop, a\r\ntest server, and a production machine. An explicit standard mode, strict\r\nwarnings, repeatable compiler versions, and a failing exit status reduce\r\nenvironment-dependent surprises.",
+          "bodyText": "A tick-data program may validate a quote where the bid price must not exceed the\r\nask price. The same source should behave consistently on a developer laptop, a\r\ntest server, and a production machine. An explicit standard mode, strict\r\nwarnings, repeatable compiler versions, and a failing exit status reduce\r\nenvironment-dependent surprises."
+        },
+        {
+          "id": "key-takeaways",
+          "heading": "10. Key Takeaways",
+          "bodyMarkdown": "- Select the C++ version explicitly.\r\n- Compile with warnings and investigate them.\r\n- Treat compilation and linking as distinct build stages.\r\n- Do not confuse a successful build with a correct program.\r\n- Make toolchain versions and options reproducible.",
+          "bodyText": "Select the C++ version explicitly.Compile with warnings and investigate them.Treat compilation and linking as distinct build stages.Do not confuse a successful build with a correct program.Make toolchain versions and options reproducible."
+        },
+        {
+          "id": "self-check-questions",
+          "heading": "11. Self-Check Questions",
+          "bodyMarkdown": "1. What does `-std=c++11` control?\r\n2. Why should warnings be fixed even when compilation succeeds?\r\n3. What is the difference between a `.cpp` file, an object file, and an\r\n   executable?\r\n4. Why can running a command after a failed build execute stale code?\r\n5. Why should CI preserve the compiler version and build options?",
+          "bodyText": "What does -std=c++11 control?Why should warnings be fixed even when compilation succeeds?What is the difference between a .cpp file, an object file, and an\r\nexecutable?Why can running a command after a failed build execute stale code?Why should CI preserve the compiler version and build options?"
+        }
+      ],
+      "checklistItems": [],
+      "code": "#include <iostream>\r\n\r\nint main() {\r\n    // Fixed market data so the output is easy to verify.\r\n    const char* symbol = \"AAPL\";\r\n    const double bid_price = 189.10;\r\n    const double ask_price = 189.14;\r\n    const int bid_volume = 500;\r\n    const int ask_volume = 400;\r\n\r\n    // A simple validity check for one quote snapshot.\r\n    const bool price_order_is_valid = bid_price <= ask_price;\r\n    const double spread = ask_price - bid_price;\r\n\r\n    std::cout << \"C++11 quote check\\n\";\r\n    std::cout << \"Symbol: \" << symbol << '\\n';\r\n    std::cout << \"Bid: \" << bid_price\r\n              << \" x \" << bid_volume << '\\n';\r\n    std::cout << \"Ask: \" << ask_price\r\n              << \" x \" << ask_volume << '\\n';\r\n    std::cout << \"Spread: \" << spread << '\\n';\r\n\r\n    if (!price_order_is_valid) {\r\n        std::cerr << \"Error: bid price is greater than ask price.\\n\";\r\n        return 1; // Non-zero means the program detected an error.\r\n    }\r\n\r\n    std::cout << \"Quote is valid.\\n\";\r\n    return 0; // Zero means successful execution.\r\n}"
     }
   ],
   "questions": [

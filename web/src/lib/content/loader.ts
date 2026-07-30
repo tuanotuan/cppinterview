@@ -273,14 +273,14 @@ export async function loadContentManifest(
     }
   }
 
-  const questionsWithReviewStatus = questions.map((question) => {
+  const questionsWithReviewStatus = questions.flatMap((question) => {
     const lesson = lessonById.get(question.lessonId);
     if (!lesson) {
-      if (question.status === "archived") return question;
+      if (question.status === "archived") return [];
       throw new Error(`Missing lesson ${question.lessonId}`);
     }
 
-    return {
+    return [{
       ...question,
       taxonomy: buildQuestionTaxonomy(question, lesson),
       status: resolveQuestionStatus(
@@ -288,7 +288,7 @@ export async function loadContentManifest(
         question.sourceHash,
         lesson.sourceHash,
       ),
-    };
+    }];
   });
 
   return contentManifestSchema.parse({

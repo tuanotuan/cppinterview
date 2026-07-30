@@ -9,7 +9,10 @@ import {
 } from "react";
 
 import type { QuestionLearningState } from "@/lib/practice/learning-state";
-import { buildLearningStates } from "@/lib/practice/learning-state";
+import {
+  buildLearningStates,
+  filterReviewsForLearningHistory,
+} from "@/lib/practice/learning-state";
 import {
   mergeProgress,
   parseProgress,
@@ -88,6 +91,15 @@ export function WorldQuantMissionApp({
   initialMockCompletions: MissionMockCompletion[];
   mockAvailable: boolean;
 }) {
+  const subscribeToScopedProgress = useMemo(
+    () => (callback: () => void) =>
+      subscribeToPracticeProgress(accountId, callback),
+    [accountId],
+  );
+  const readScopedProgress = useMemo(
+    () => () => readPracticeProgressSnapshot(accountId),
+    [accountId],
+  );
   const [roleId, setRoleId] = useState(initialRoleId);
   const [minutes, setMinutes] = useState(initialMinutes);
   const [draftRoleId, setDraftRoleId] = useState(initialRoleId);
@@ -105,8 +117,8 @@ export function WorldQuantMissionApp({
     getServerHydratedSnapshot,
   );
   const progressSnapshot = useSyncExternalStore(
-    subscribeToPracticeProgress,
-    readPracticeProgressSnapshot,
+    subscribeToScopedProgress,
+    readScopedProgress,
     () => null,
   );
   const localProgress = useMemo(
@@ -164,8 +176,20 @@ export function WorldQuantMissionApp({
   );
 
   const progress = useMemo(
-    () => mergeProgress(initialCloudProgress, localProgress),
-    [initialCloudProgress, localProgress],
+    () => {
+      const merged = mergeProgress(
+        initialCloudProgress,
+        localProgress,
+      );
+      return {
+        ...merged,
+        reviews: filterReviewsForLearningHistory(
+          merged.reviews,
+          initialQuestionStates,
+        ),
+      };
+    },
+    [initialCloudProgress, initialQuestionStates, localProgress],
   );
   const planningStates = useMemo(
     () =>
@@ -380,7 +404,9 @@ export function WorldQuantMissionApp({
   function startFlashcards(
     item: Extract<WorldQuantMissionItem, { kind: "flashcards" }>,
   ) {
-    const destination = prepareFocusSprint(item.focusPlan);
+    const destination = prepareFocusSprint(item.focusPlan, {
+      accountId,
+    });
     if (destination.kind === "practice") {
       window.location.assign(
         withWorldQuantMissionReturn(

@@ -24,10 +24,8 @@ import type {
   MistakeFlashcardCandidate,
   MistakeGenerationMode,
 } from "@/lib/practice/mistake-cards";
-import { parseProgress } from "@/lib/practice/scheduler";
 import {
-  readPracticeProgressSnapshot,
-  writePracticeProgressSnapshot,
+  mutatePracticeProgressSnapshotLocked,
 } from "@/lib/practice/storage";
 
 const statusLabels: Record<AdminQuestionStatus, string> = {
@@ -64,9 +62,19 @@ const generationStatusLabels: Record<
 };
 
 const generationErrorLabels: Record<string, string> = {
+  dispatch_failure: "Không xác nhận được dấu mốc trước khi gọi AI",
   generation_failed: "Không tạo được nội dung",
+  generation_lease_expired_after_dispatch:
+    "Phiên xử lý hết hạn sau khi đã gửi yêu cầu tới AI",
+  generation_lease_expired_before_dispatch:
+    "Phiên xử lý hết hạn trước khi gửi yêu cầu tới AI",
   invalid_provider_json: "Dữ liệu AI trả về sai định dạng",
   invalid_provider_output: "Nội dung AI trả về không hợp lệ",
+  legacy_deferred_outcome_unconfirmed:
+    "Kết quả từ giao thức cũ chưa thể xác nhận",
+  legacy_pending_retry_outcome_unconfirmed:
+    "Lần chạy lại từ giao thức cũ chưa thể xác nhận",
+  obsolete_generator_version: "Tác vụ dùng phiên bản bộ sinh câu hỏi cũ",
   provider_rate_limit: "Nhà cung cấp AI đang giới hạn yêu cầu",
   stale_manifest: "Danh mục nội dung đã thay đổi",
   stale_source: "Nguồn học liệu đã thay đổi",
@@ -102,6 +110,7 @@ export function AdminDashboard({
   geminiUsage,
   initialGeminiFallbackEnabled,
   initialGenerationJobs,
+  currentGeneratorVersion,
   initialSnapshot,
   initialMistakeCandidates,
   initialMistakeGenerationMode,
@@ -112,6 +121,7 @@ export function AdminDashboard({
   geminiUsage: GeminiUsageSummary | null;
   initialGeminiFallbackEnabled: boolean;
   initialGenerationJobs: ContentGenerationJobSummary[];
+  currentGeneratorVersion: string;
   initialSnapshot: AdminDashboardSnapshot;
   initialMistakeCandidates: MistakeFlashcardCandidate[];
   initialMistakeGenerationMode: MistakeGenerationMode;
@@ -274,6 +284,8 @@ function mistakeErrorMessage(code: string) {
         "Tất cả nguồn AI đều đã hết hạn mức. Vui lòng thử lại sau.",
       daily_budget_exceeded:
         "Đã hết hạn mức AI trong ngày. Vui lòng thử lại sau.",
+      generation_outcome_unconfirmed:
+        "Không thể xác nhận kết quả tạo thẻ. Hệ thống sẽ không tự gọi lại AI để tránh tính phí hai lần.",
       generation_failed: "AI chưa tạo được thẻ ghi nhớ.",
       history_unavailable: "Lịch sử phỏng vấn tạm thời chưa sẵn sàng.",
       monthly_budget_exceeded:
@@ -495,28 +507,71 @@ function mistakeErrorMessage(code: string) {
     }
   }
 
-  async function retryGenerationJob(jobId: number) {
-    setRetryingJobId(jobId);
+  async function retryGenerationJob(job: ContentGenerationJobSummary) {
+    setRetryingJobId(job.id);
     setNotice(null);
     try {
-      const response = await fetch("/api/admin/generation-jobs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jobId }),
-      });
-      const payload = (await response.json()) as { status?: string; error?: string };
-      if (!response.ok || payload.status !== "pending") {
+      const submitRetry = async (confirmAmbiguousOutcome: boolean) => {
+        const response = await fetch("/api/admin/generation-jobs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jobId: job.id,
+            confirmAmbiguousOutcome,
+          }),
+        });
+        const payload = (await response.json()) as {
+          status?: string;
+          error?: string;
+          requiresConfirmation?: boolean;
+          confirmedAmbiguousOutcome?: boolean;
+        };
+        return { response, payload };
+      };
+
+      let result = await submitRetry(false);
+      if (!result.response.ok && result.payload.requiresConfirmation) {
+        const confirmed = window.confirm(
+          "Nhà cung cấp AI có thể đã xử lý yêu cầu trước đó. Chạy lại có thể tạo thêm một yêu cầu tính phí. Bạn chỉ nên tiếp tục sau khi đã kiểm tra lịch sử sử dụng. Tiếp tục chạy lại?",
+        );
+        if (!confirmed) return;
+        result = await submitRetry(true);
+      }
+
+      const { response, payload } = result;
+      if (
+        !response.ok ||
+        (payload.status !== "pending" &&
+          payload.status !== "superseded")
+      ) {
         throw new Error(payload.error || "Không thể chạy lại tác vụ tạo nội dung.");
       }
       setGenerationJobs((current) =>
-        current.map((job) =>
-          job.id === jobId
-            ? { ...job, status: "pending", attemptCount: 0, lastError: null }
-            : job,
+        current.map((item) =>
+          item.id === job.id
+            ? payload.status === "superseded"
+              ? {
+                  ...item,
+                  status: "completed",
+                  lastError: {
+                    code: "obsolete_generator_version_acknowledged",
+                  },
+                }
+              : {
+                  ...item,
+                  status: "pending",
+                  attemptCount: 0,
+                  lastError: null,
+                }
+            : item,
         ),
       );
       setNotice(
-        "Đã đưa tác vụ về trạng thái chờ; hệ thống sẽ tự chạy lại ở lượt xử lý tiếp theo.",
+        payload.status === "superseded"
+          ? "Đã đóng tác vụ dùng bộ sinh cũ và giữ dấu vết xác nhận. Tác vụ phiên bản hiện tại có thể chạy ở lượt xử lý tiếp theo."
+          : payload.confirmedAmbiguousOutcome
+          ? "Đã ghi nhận xác nhận và đưa tác vụ về trạng thái chờ. Dấu vết của lần xử lý trước vẫn được giữ để kiểm tra."
+          : "Đã đưa tác vụ về trạng thái chờ; hệ thống sẽ tự chạy lại ở lượt xử lý tiếp theo.",
       );
     } catch (error) {
       setNotice(
@@ -563,11 +618,11 @@ function mistakeErrorMessage(code: string) {
       );
       if (action === "reset") {
         try {
-          const local = parseProgress(readPracticeProgressSnapshot());
-          writePracticeProgressSnapshot(
-            JSON.stringify({
-              ...local,
-              reviews: local.reviews.filter(
+          await mutatePracticeProgressSnapshotLocked(
+            account.id,
+            (current) => ({
+              ...current,
+              reviews: current.reviews.filter(
                 (review) => review.questionId !== question.id,
               ),
             }),
@@ -818,7 +873,11 @@ function mistakeErrorMessage(code: string) {
           <div className="border-t border-[#173f35]/10 px-5 py-4">
             <div className="space-y-2">
               {generationJobs.slice(0, 20).map((job) => {
-                const retryable = ["deferred", "failed", "dead_letter"].includes(job.status);
+                const obsoleteGenerator =
+                  job.generatorVersion !== currentGeneratorVersion;
+                const retryable =
+                  ["deferred", "failed", "dead_letter"].includes(job.status) ||
+                  (job.status === "pending" && obsoleteGenerator);
                 const errorCode = typeof job.lastError?.code === "string"
                   ? job.lastError.code
                   : null;
@@ -829,6 +888,7 @@ function mistakeErrorMessage(code: string) {
                       <p className="mt-1 text-xs text-[#64736c]">
                         {generationStatusLabels[job.status]} · lần{" "}
                         {job.attemptCount}/5 · {job.provider}/{job.model}
+                        {obsoleteGenerator ? " · phiên bản bộ sinh cũ" : ""}
                         {errorCode
                           ? ` · ${generationErrorLabels[errorCode] ?? "Lỗi chưa được nhận diện"}`
                           : ""}
@@ -838,10 +898,14 @@ function mistakeErrorMessage(code: string) {
                       <button
                         type="button"
                         disabled={retryingJobId !== null}
-                        onClick={() => void retryGenerationJob(job.id)}
+                        onClick={() => void retryGenerationJob(job)}
                         className="rounded-xl border border-[#ba4b2f]/25 bg-white px-3 py-2 text-xs font-bold text-[#8e3825] disabled:opacity-50"
                       >
-                        {retryingJobId === job.id ? "Đang chạy lại…" : "Chạy lại"}
+                        {retryingJobId === job.id
+                          ? "Đang xử lý…"
+                          : obsoleteGenerator
+                            ? "Đóng phiên bản cũ"
+                            : "Chạy lại"}
                       </button>
                     ) : null}
                   </div>
@@ -1134,6 +1198,7 @@ function mistakeErrorMessage(code: string) {
                   key={question.id}
                   question={question}
                   saving={savingIds.has(question.id)}
+                  today={initialSnapshot.today}
                   onApprove={() => void approve([question.id])}
                   onManage={(action, dueOn) =>
                     void manageSchedule(question, action, dueOn)
@@ -1230,12 +1295,14 @@ function QueueReviewCard({ question, saving, onApprove }: { question: AdminQuest
 function QuestionCard({
   question,
   saving,
+  today,
   onApprove,
   onManage,
   onMutate,
 }: {
   question: AdminQuestion;
   saving: boolean;
+  today: string;
   onApprove: () => void;
   onManage: (action: ScheduleAction, dueOn?: string) => void;
   onMutate: (
@@ -1245,7 +1312,7 @@ function QuestionCard({
 }) {
   const reviewable = question.adminStatus === "pending" || question.adminStatus === "stale";
   const [dueOn, setDueOn] = useState(
-    question.learning.dueOn ?? new Date().toISOString().slice(0, 10),
+    question.learning.dueOn ?? today,
   );
   const [editing, setEditing] = useState(false);
   return (

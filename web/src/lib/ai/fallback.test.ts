@@ -1,8 +1,17 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+const mocks = vi.hoisted(() => ({
+  recordGeminiFallbackUsage: vi.fn(),
+}));
+
+vi.mock("./gemini-usage", () => ({
+  recordGeminiFallbackUsage: mocks.recordGeminiFallbackUsage,
+}));
+
 import {
   AiDailyBudgetExceededError,
   AiMonthlyBudgetExceededError,
+  AiOperationOutcomeUnknownError,
 } from "./budget";
 import {
   AllAiQuotasExceededError,
@@ -19,6 +28,8 @@ const usage = {
 
 afterEach(() => {
   vi.unstubAllEnvs();
+  vi.restoreAllMocks();
+  mocks.recordGeminiFallbackUsage.mockReset();
 });
 
 describe("runGeminiBudgetFallback", () => {
@@ -130,9 +141,63 @@ describe("runGeminiBudgetFallback", () => {
         new AiDailyBudgetExceededError(),
         null,
         async () => {
-          throw new Error("bad response");
+          throw Object.assign(new Error("bad request"), { status: 400 });
         },
       ),
     ).rejects.toBeInstanceOf(GeminiFallbackProviderError);
+  });
+
+  it("returns a valid Gemini result when usage logging throws", async () => {
+    vi.stubEnv("GEMINI_API_KEY", "test-key");
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.recordGeminiFallbackUsage.mockRejectedValueOnce(
+      new Error("usage response lost"),
+    );
+    const result = {
+      data: { answer: "ok" },
+      model: "gemini-test",
+      usage,
+    };
+
+    await expect(
+      runGeminiBudgetFallback(
+        new AiDailyBudgetExceededError(),
+        null,
+        async () => result,
+      ),
+    ).resolves.toBe(result);
+    expect(consoleError).toHaveBeenCalledWith(
+      "Gemini fallback usage logging threw",
+      { name: "Error" },
+    );
+  });
+
+  it("preserves an ambiguous Gemini outcome for application leases", async () => {
+    vi.stubEnv("GEMINI_API_KEY", "test-key");
+    const transportError = new Error("connection closed after dispatch");
+
+    await expect(
+      runGeminiBudgetFallback(
+        new AiDailyBudgetExceededError(),
+        null,
+        async () => {
+          throw transportError;
+        },
+      ),
+    ).rejects.toMatchObject({
+      name: "AiOperationOutcomeUnknownError",
+      cause: transportError,
+    });
+    await expect(
+      runGeminiBudgetFallback(
+        new AiDailyBudgetExceededError(),
+        null,
+        async () => {
+          throw Object.assign(new Error("timeout response"), {
+            status: 408,
+          });
+        },
+      ),
+    ).rejects.toBeInstanceOf(AiOperationOutcomeUnknownError);
   });
 });

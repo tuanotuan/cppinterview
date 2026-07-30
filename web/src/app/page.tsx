@@ -83,10 +83,10 @@ export default async function Home({
 
   return (
     <PracticeApp
-      key={
+      key={`${cloud.account?.id ?? "local"}:${
         requestedFocusId ??
         (invalidFocusRequest ? "invalid-focus" : "normal-practice")
-      }
+      }`}
       questions={questions}
       reviewQueue={reviewQueue}
       sourceRevision={manifest.sourceRevision}

@@ -184,10 +184,13 @@ describe("mock interview history response mapping", () => {
 
 describe("mock interview history RPC calls", () => {
   it("reserves a safe snapshot against exact session and blueprint hashes", async () => {
-    const rpc = vi.fn().mockResolvedValue({
-      data: reservedAttempt,
-      error: null,
-    });
+    const rpc = vi
+      .fn()
+      .mockResolvedValueOnce({ data: 2, error: null })
+      .mockResolvedValueOnce({
+        data: reservedAttempt,
+        error: null,
+      });
     const client = {
       rpc,
     } as unknown as Parameters<typeof reserveMockInterviewAttempt>[0];
@@ -208,7 +211,12 @@ describe("mock interview history RPC calls", () => {
       publicAttempt: reservedAttempt.public_attempt,
     });
 
-    expect(rpc).toHaveBeenCalledWith(
+    expect(rpc).toHaveBeenNthCalledWith(
+      1,
+      "mock_interview_retry_protocol_version",
+    );
+    expect(rpc).toHaveBeenNthCalledWith(
+      2,
       "reserve_mock_interview_attempt",
       expect.objectContaining({
         p_user_id: userId,
@@ -220,6 +228,35 @@ describe("mock interview history RPC calls", () => {
         p_lease_seconds: 1200,
       }),
     );
+  });
+
+  it("fails before reservation when retry protocol 2 is unavailable", async () => {
+    const rpc = vi.fn().mockResolvedValue({
+      data: null,
+      error: { code: "PGRST202" },
+    });
+    const client = {
+      rpc,
+    } as unknown as Parameters<typeof reserveMockInterviewAttempt>[0];
+
+    await expect(
+      reserveMockInterviewAttempt(client, {
+        userId,
+        sessionId,
+        idempotencyKey,
+        requestFingerprint: "a".repeat(64),
+        profileId: "worldquant-interview-loop",
+        profileVersion: 4,
+        roleProfileId: "tick-data-platform",
+        roleProfileVersion: 1,
+        blueprintId: "targeted-tick-data",
+        blueprintVersion: 1,
+        blueprintFingerprint: "b".repeat(64),
+        durationMinutes: 45,
+        publicAttempt: reservedAttempt.public_attempt,
+      }),
+    ).rejects.toBeInstanceOf(MockHistoryConfigurationError);
+    expect(rpc).toHaveBeenCalledTimes(1);
   });
 
   it("rejects private material before making a reservation RPC", async () => {

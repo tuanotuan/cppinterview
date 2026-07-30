@@ -29,15 +29,18 @@ import { EMPTY_PROGRESS, type PracticeProgress } from "./scheduler";
 import {
   rowsToLearningStates,
   rowsToProgress,
-  type PracticeReviewRow,
-  type QuestionLearningStateRow,
 } from "./cloud";
-import type { QuestionLearningState } from "./learning-state";
+import {
+  filterReviewsForLearningHistory,
+  type QuestionLearningState,
+} from "./learning-state";
 import {
   rowsToApprovals,
   type QuestionApproval,
   type QuestionApprovalRow,
 } from "./approvals";
+import { readAllPracticeReviewRows } from "./practice-review-reader.server";
+import { readQuestionLearningStateRows } from "./question-learning-state-reader.server";
 
 export type PracticeAccount = {
   id: string;
@@ -66,6 +69,7 @@ export type ContentGenerationJobSummary = {
   id: number;
   lessonId: string;
   sourceHash: string;
+  generatorVersion: string;
   status: "pending" | "running" | "deferred" | "completed" | "failed" | "dead_letter";
   attemptCount: number;
   requestedCount: number;
@@ -184,7 +188,7 @@ export async function loadCloudContext(
     ? supabase
         .from("content_generation_jobs")
         .select(
-          "id, lesson_id, source_hash, status, attempt_count, requested_count, provider, model, next_attempt_at, last_error, updated_at",
+          "id, lesson_id, source_hash, generator_version, status, attempt_count, requested_count, provider, model, next_attempt_at, last_error, updated_at",
         )
         .order("updated_at", { ascending: false })
         .limit(50)
@@ -193,9 +197,11 @@ export async function loadCloudContext(
     .from("mistake_flashcard_candidates")
     .select("materialized_question_id")
     .not("materialized_question_id", "is", null);
+  // Keep the generation-bearing state read after the review pages so a reset
+  // between the two snapshots can only remove older-generation rows.
+  const reviewsResult = await readAllPracticeReviewRows(supabase);
+  const statesResult = await readQuestionLearningStateRows(supabase);
   const [
-    reviewsResult,
-    statesResult,
     approvalsResult,
     overridesResult,
     monthlyUsageResult,
@@ -207,14 +213,6 @@ export async function loadCloudContext(
     baseManifest,
   ] =
     await Promise.all([
-      supabase
-        .from("practice_reviews")
-        .select("question_id, reviewed_on, rating, next_due_on, question_version, source_hash, learning_state_after, interval_days_after, lapse_count_after")
-        .order("reviewed_on", { ascending: false })
-        .limit(1000),
-      supabase
-        .from("user_question_states")
-        .select("question_id, question_version, source_hash, learning_state, due_on, interval_days, review_count, lapse_count, last_rating, last_reviewed_on, is_suspended, is_leech, content_changed, history_reset_on"),
       supabase
         .from("question_approvals")
         .select("question_id, question_version, source_hash"),
@@ -229,8 +227,8 @@ export async function loadCloudContext(
       mistakeQuestionsPromise,
       loadQuestionStoreManifest({ supabase }),
     ]);
-  const { data: rows, error } = reviewsResult;
-  const { data: stateRows, error: statesError } = statesResult;
+  const { rows, error } = reviewsResult;
+  const { rows: stateRows, error: statesError } = statesResult;
   const { data: approvalRows, error: approvalError } = approvalsResult;
   const { data: overrideRows, error: overridesError } = overridesResult;
   const { data: usageRow, error: usageError } = monthlyUsageResult;
@@ -257,18 +255,26 @@ export async function loadCloudContext(
     ? []
     : rowsToQuestionOverrides((overrideRows ?? []) as QuestionOverrideRow[]);
   const manifest = applyQuestionOverrides(baseManifest, questionOverrides);
+  const questionStates = statesError
+    ? []
+    : rowsToLearningStates(stateRows);
+  const rawProgress = error ? EMPTY_PROGRESS : rowsToProgress(rows);
+  const progress =
+    error || statesError
+      ? EMPTY_PROGRESS
+      : {
+          ...rawProgress,
+          reviews: filterReviewsForLearningHistory(
+            rawProgress.reviews,
+            questionStates,
+          ),
+        };
 
   return {
     enabled: true,
     account: toPracticeAccount(data.user),
-    progress: error
-      ? EMPTY_PROGRESS
-      : rowsToProgress((rows ?? []) as PracticeReviewRow[]),
-    questionStates: statesError
-      ? []
-      : rowsToLearningStates(
-          (stateRows ?? []) as QuestionLearningStateRow[],
-        ),
+    progress,
+    questionStates,
     approvals: approvalError
       ? []
       : rowsToApprovals((approvalRows ?? []) as QuestionApprovalRow[]),
@@ -323,6 +329,7 @@ export async function loadCloudContext(
             id: Number(row.id),
             lessonId: String(row.lesson_id),
             sourceHash: String(row.source_hash),
+            generatorVersion: String(row.generator_version),
             status,
             attemptCount: Number(row.attempt_count),
             requestedCount: Number(row.requested_count),

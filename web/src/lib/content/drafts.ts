@@ -45,6 +45,10 @@ export type GeneratedQuestionDraftBatch = {
   provider: "openai" | "gemini";
   model: string;
 };
+export type BeforeQuestionDraftProviderRequest = (
+  provider: GeneratedQuestionDraftBatch["provider"],
+  model: string,
+) => Promise<void>;
 
 export const QUESTION_GENERATOR_PROMPT_VERSION = "multilanguage-trading-v3";
 
@@ -61,26 +65,38 @@ export async function generateQuestionDraftsWithOpenAI({
 export async function generateQuestionDraftBatchWithFallback({
   lesson,
   count,
+  beforeProviderRequest,
 }: {
   lesson: GeneratedLesson;
   count: number;
+  beforeProviderRequest?: BeforeQuestionDraftProviderRequest;
 }): Promise<GeneratedQuestionDraftBatch> {
   try {
-    return await generateQuestionDraftBatchWithOpenAI({ lesson, count });
+    return await generateQuestionDraftBatchWithOpenAI({
+      lesson,
+      count,
+      beforeProviderRequest,
+    });
   } catch (error) {
     if (!isProviderRateLimitError(error) || !isGeminiFallbackConfigured()) {
       throw error;
     }
-    return generateQuestionDraftBatchWithGemini({ lesson, count });
+    return generateQuestionDraftBatchWithGemini({
+      lesson,
+      count,
+      beforeProviderRequest,
+    });
   }
 }
 
 export async function generateQuestionDraftBatchWithOpenAI({
   lesson,
   count,
+  beforeProviderRequest,
 }: {
   lesson: GeneratedLesson;
   count: number;
+  beforeProviderRequest?: BeforeQuestionDraftProviderRequest;
 }): Promise<GeneratedQuestionDraftBatch> {
   if (!Number.isInteger(count) || count < 1 || count > 5) {
     throw new Error("Draft count must be an integer from 1 to 5");
@@ -88,21 +104,23 @@ export async function generateQuestionDraftBatchWithOpenAI({
 
   const client = openAIClient();
   const model = openAIModel("luna");
-  const interaction = await retryProviderRateLimit(() =>
-    client.responses.parse({
-      model,
-      store: false,
-      safety_identifier: safetyIdentifier("content-automation"),
-      instructions: buildGeneratorSystemInstruction(lesson),
-      input: buildDraftPrompt(lesson, count),
-      reasoning: { effort: "low" },
-      max_output_tokens: 6000,
-      text: {
-        format: zodTextFormat(aiDraftResponseSchema, "question_drafts"),
-        verbosity: "medium",
-      },
-    }),
-  );
+  const request = {
+    model,
+    store: false,
+    safety_identifier: safetyIdentifier("content-automation"),
+    instructions: buildGeneratorSystemInstruction(lesson),
+    input: buildDraftPrompt(lesson, count),
+    reasoning: { effort: "low" as const },
+    max_output_tokens: 6000,
+    text: {
+      format: zodTextFormat(aiDraftResponseSchema, "question_drafts"),
+      verbosity: "medium" as const,
+    },
+  };
+  const interaction = await retryProviderRateLimit(async () => {
+    await beforeProviderRequest?.("openai", model);
+    return client.responses.parse(request);
+  });
 
   if (!interaction.output_parsed) {
     throw new Error("OpenAI returned an empty draft response");
@@ -122,9 +140,11 @@ export async function generateQuestionDraftBatchWithOpenAI({
 export async function generateQuestionDraftBatchWithGemini({
   lesson,
   count,
+  beforeProviderRequest,
 }: {
   lesson: GeneratedLesson;
   count: number;
+  beforeProviderRequest?: BeforeQuestionDraftProviderRequest;
 }): Promise<GeneratedQuestionDraftBatch> {
   if (!Number.isInteger(count) || count < 1 || count > 5) {
     throw new Error("Draft count must be an integer from 1 to 5");
@@ -132,24 +152,27 @@ export async function generateQuestionDraftBatchWithGemini({
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY is missing");
   const model = geminiFallbackModel();
-  const interaction = await new GoogleGenAI({ apiKey }).interactions.create(
-    {
-      model,
-      store: false,
-      system_instruction: buildGeneratorSystemInstruction(lesson),
-      input: buildDraftPrompt(lesson, count),
-      generation_config: {
-        thinking_level: "low",
-        temperature: 0.2,
-        max_output_tokens: 6000,
-      },
-      response_format: {
-        type: "text",
-        mime_type: "application/json",
-        schema: z.toJSONSchema(aiDraftResponseSchema),
-      },
+  const client = new GoogleGenAI({ apiKey });
+  const request = {
+    model,
+    store: false,
+    system_instruction: buildGeneratorSystemInstruction(lesson),
+    input: buildDraftPrompt(lesson, count),
+    generation_config: {
+      thinking_level: "low" as const,
+      temperature: 0.2,
+      max_output_tokens: 6000,
     },
-    { timeout: 45_000, maxRetries: 1 },
+    response_format: {
+      type: "text" as const,
+      mime_type: "application/json",
+      schema: z.toJSONSchema(aiDraftResponseSchema),
+    },
+  };
+  await beforeProviderRequest?.("gemini", model);
+  const interaction = await client.interactions.create(
+    request,
+    { timeout: 45_000, maxRetries: 0 },
   );
   if (!interaction.output_text) {
     throw new Error("Gemini returned an empty draft response");

@@ -3,6 +3,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   AiDailyBudgetExceededError,
   AiMonthlyBudgetExceededError,
+  AiOperationOutcomeUnknownError,
+  isAiOperationSafeToRetry,
 } from "./budget";
 import {
   type GeminiStructuredResult,
@@ -48,18 +50,29 @@ export async function runGeminiBudgetFallback<T>(
     throw openAiError;
   }
 
+  let result: GeminiStructuredResult<T>;
   try {
-    const result = await operation();
-    await recordGeminiFallbackUsage(client, result.model, result.usage);
-    return result;
+    result = await operation();
   } catch (error) {
     if (providerStatus(error) === 429) {
       throw new AllAiQuotasExceededError(
         "OpenAI and Gemini quotas are exhausted",
       );
     }
+    if (!isAiOperationSafeToRetry(error)) {
+      throw new AiOperationOutcomeUnknownError(error);
+    }
     throw new GeminiFallbackProviderError({ cause: error });
   }
+
+  try {
+    await recordGeminiFallbackUsage(client, result.model, result.usage);
+  } catch (error) {
+    console.error("Gemini fallback usage logging threw", {
+      name: error instanceof Error ? error.name : "UnknownError",
+    });
+  }
+  return result;
 }
 
 export async function isGeminiFallbackEnabled(client: SupabaseClient | null) {

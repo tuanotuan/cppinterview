@@ -60,6 +60,7 @@ function state(
     leech: false,
     contentChanged: false,
     historyResetOn: null,
+    historyResetToken: null,
   };
 }
 

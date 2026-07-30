@@ -341,13 +341,13 @@ export function compareContentManifests(
   };
 }
 
-async function readAllPages<T>(
+export async function readAllPages<T>(
   supabase: SupabaseClient,
   relation: string,
   columns: string,
 ): Promise<T[]> {
   const rows: T[] = [];
-  for (let from = 0; ; from += PAGE_SIZE) {
+  for (let from = 0; ;) {
     const { data, error } = await supabase
       .from(relation)
       .select(columns)
@@ -357,7 +357,8 @@ async function readAllPages<T>(
     if (error) throw new ContentQuestionStoreError(`${relation}: ${error.code}`);
     const page = (data ?? []) as T[];
     rows.push(...page);
-    if (page.length < PAGE_SIZE) return rows;
+    if (page.length === 0) return rows;
+    from += page.length;
   }
 }
 

@@ -34,6 +34,7 @@ export type QuestionLearningState = {
   leech: boolean;
   contentChanged: boolean;
   historyResetOn: string | null;
+  historyResetToken: string | null;
 };
 
 export type QuestionIdentity = {
@@ -68,6 +69,7 @@ export function newQuestionLearningState({
     leech: false,
     contentChanged: false,
     historyResetOn: null,
+    historyResetToken: null,
   };
 }
 
@@ -117,7 +119,38 @@ export function deriveLearningStateFromReviews(
     leech: lapseCount >= LEECH_LAPSE_THRESHOLD,
     contentChanged: false,
     historyResetOn: null,
+    historyResetToken: latest.historyResetToken ?? null,
   };
+}
+
+export function reviewBelongsToLearningHistory(
+  review: Review,
+  state: QuestionLearningState | undefined,
+) {
+  if (!state) return true;
+  if (state.historyResetToken) {
+    return review.historyResetToken === state.historyResetToken;
+  }
+  if (review.historyResetToken !== undefined) return false;
+  return (
+    !state.historyResetOn ||
+    review.reviewedOn > state.historyResetOn
+  );
+}
+
+export function filterReviewsForLearningHistory(
+  reviews: readonly Review[],
+  states: readonly QuestionLearningState[],
+) {
+  const stateByQuestion = new Map(
+    states.map((state) => [state.questionId, state]),
+  );
+  return reviews.filter((review) =>
+    reviewBelongsToLearningHistory(
+      review,
+      stateByQuestion.get(review.questionId),
+    ),
+  );
 }
 
 export function buildLearningStates(
@@ -126,12 +159,16 @@ export function buildLearningStates(
   cloudStates: QuestionLearningState[] = [],
 ): Map<string, QuestionLearningState> {
   const cloudById = new Map(cloudStates.map((state) => [state.questionId, state]));
+  const currentReviews = filterReviewsForLearningHistory(
+    reviews,
+    cloudStates,
+  );
   return new Map(
     questions.map((question) => {
       const cloud = cloudById.get(question.id);
       const local = deriveLearningStateFromReviews(
         question.id,
-        reviews,
+        currentReviews,
         question.version,
         question.sourceHash,
       );
@@ -193,6 +230,9 @@ export function scheduleQuestionReview(
       stateAfter: next.state === "new" ? undefined : next.state,
       intervalDaysAfter: next.intervalDays,
       lapseCountAfter: next.lapseCount,
+      ...(current.historyResetToken
+        ? { historyResetToken: current.historyResetToken }
+        : {}),
     },
   };
 }

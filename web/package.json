@@ -14,8 +14,6 @@
     "content:discover": "tsx scripts/discover-content.ts",
     "content:generate": "tsx scripts/generate-content.ts",
     "content:check": "tsx scripts/generate-content.ts --check",
-    "content:backfill:sql": "tsx scripts/generate-content-backfill-sql.ts",
-    "content:backfill:check": "tsx scripts/generate-content-backfill-sql.ts --check",
     "content:sync": "tsx scripts/sync-content-question-bank.ts",
     "content:sync:check": "tsx scripts/sync-content-question-bank.ts --check",
     "content:generate:db": "tsx scripts/generate-db-question-drafts.ts",
@@ -64,6 +62,8 @@
     "vitest": "^4.1.10"
   },
   "overrides": {
+    "dompurify": "^3.4.12",
+    "sharp": "^0.35.3",
     "postcss": "^8.5.19"
   }
 }

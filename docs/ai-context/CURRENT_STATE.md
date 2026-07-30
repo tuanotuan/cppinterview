@@ -8,8 +8,12 @@ trạng thái từ tên nhánh.
 
 ## Handoff hiện tại
 
-- Không có task sản phẩm tiếp theo đã được chốt trong tài liệu. Session mới lấy
-  yêu cầu hiện tại từ người dùng, rồi chỉ đọc thêm file context phù hợp.
+- Đợt rà soát bug tiềm ẩn đã gia cố auth owner, account-scoped browser state,
+  phân trang lịch sử, AI budget/retry, Coach idempotency, Mock report, Mistake
+  generation, rating nhiều tab/thiết bị, content archive, dependency production
+  và quyền CI. Lesson `cpp11-toolchain` đã được đăng ký cùng ví dụ C++11 có
+  warning sạch. Không có task sản phẩm tiếp theo đã được chốt; session mới lấy
+  yêu cầu hiện tại từ người dùng.
 
 ## Giới hạn và trạng thái chưa xác minh
 
@@ -27,14 +31,32 @@ trạng thái từ tên nhánh.
   v2, tách account/local và chưa cloud sync. Training state chỉ sao chép hợp lệ
   từ v1 sang v2 một chiều khi v2 chưa tồn tại; Mission v1 bị bỏ qua và dựng lại.
   Không tự gán dữ liệu local sang account sau khi đăng nhập.
-- Hồ sơ phỏng vấn WorldQuant hiện hành là v4, danh mục bài luyện là v2. Bộ đọc
-  chỉ giữ lịch sử tương thích theo các quy tắc version trong `DEVELOPMENT.md`;
-  không khôi phục phiên cũ đang làm dở hoặc trộn phiên bản trong một vòng.
+- Hồ sơ phỏng vấn WorldQuant hiện hành là v4, local snapshot nằm dưới exact
+  account UUID và danh mục bài luyện là v2. Mọi transition dùng Web Lock +
+  revision CAS; answer intent chỉ được rebase trong cùng session/status, còn
+  freeze/complete/reset giữ CAS nghiêm ngặt. Phiên đúng owner nhưng stale theo
+  question revision được thay nguyên tử khi tạo buổi mới. Hub chỉ đọc local v4
+  theo account hoặc server history v4; không nhận shared v3/ownerless state.
 - Repo không chứng minh trạng thái deploy Vercel, `QUESTION_STORE` production,
-  secret, quota hay migration remote. Đặc biệt Mock v4, Mistake Inbox và câu trả
-  lời AI rỗng/dài cần lần lượt migration `20260730100000`,
-  `20260730110000`, `20260730120000` cùng secret được mô tả trong
-  `DEVELOPMENT.md`; file migration tồn tại không có nghĩa remote đã áp dụng.
+  secret, quota hay migration remote. Bản code này cần áp dụng các migration
+  `20260730130000`–`20260730170000` và
+  `20260730190000`–`20260730220000` theo timestamp. Migration budget khóa các
+  RPC hạn mức tổng hợp cũ. Thứ tự rollout bắt buộc là app/worker mới trước,
+  migration sau; không chạy riêng protocol-breaking
+  `20260730140000`/`20260730170000`/`20260730210000` khi phiên bản cũ còn phục
+  vụ. Practice dùng expand `20260730200000` giữ RPC năm tham số tạm thời, rồi
+  finalize `20260730220000` mới backfill generation và gỡ overload sau khi app
+  generation-aware đã phục vụ. Các migration mới chưa được chạy integration
+  trên PostgreSQL thật trong môi trường local.
+- Main workflow serialize content generation và sync exact generator version.
+  Không chạy đồng thời worker service-role từ hai bản deploy. Conflict giữa các
+  version phải được đóng rõ trong Admin của bản hiện hành; outcome AI chưa xác
+  định vẫn cần xác nhận riêng trước khi mở lại hoặc đóng row.
+- Hàm content backfill legacy từng có thể cấp `content_admins` từ
+  `raw_user_meta_data`; migration mới thay thân hàm bằng lỗi SQLSTATE `55000` và
+  thu hồi mọi quyền gọi, nhưng không thể xác minh dữ liệu remote. Khi deploy cần
+  kiểm tra membership hiện hữu trong `content_admins` và xóa row không thuộc
+  owner bằng quy trình vận hành có audit.
 
 ## Hành vi cần giữ khi sửa tiếp
 
@@ -53,9 +75,14 @@ trạng thái từ tên nhánh.
 
 - `npm run validate` đạt toàn bộ: content/context check, lint, TypeScript,
   Vitest và production build.
-- Vitest: 73 test files, 422 tests đạt.
-- Next.js production build đạt; route graph gồm `/profile`, năm route
-  WorldQuant training và `/admin/coverage`.
+- Vitest: 94 test files, 605 tests đạt.
+- Next.js production build đạt và sinh đủ 25 trang tĩnh/động trong route graph,
+  gồm `/profile`, năm route WorldQuant training và `/admin/coverage`.
+- `npm audit --omit=dev --audit-level=moderate` không tìm thấy lỗ hổng production.
+  Audit gồm dev dependency còn 9 cảnh báo mức cao trong chuỗi công cụ ESLint
+  (`minimatch`/`brace-expansion`); cách sửa tự động hiện yêu cầu nâng cưỡng bức lên
+  ESLint 10, không tương thích bộ Next.js hiện dùng. Các gói này không nằm trong
+  dependency production, nên giữ cảnh báo này được ghi nhận thay vì phá vỡ lint.
 - Lần smoke production gần nhất dùng Chrome 1440×1200 và mobile CDP 390×844:
   Practice, WorldQuant, guide CMake/tick và Full Round không tràn ngang ở cấp
   trang. Đây không phải bằng chứng deployment hiện tại đang hoạt động.
