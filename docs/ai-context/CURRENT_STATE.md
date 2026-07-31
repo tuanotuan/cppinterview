@@ -18,6 +18,9 @@ trạng thái từ tên nhánh.
   chuẩn. Việc đưa tệp vào repo, refresh, kiểm tra và push là workflow riêng.
   Không có task sản phẩm tiếp theo đã được chốt; session mới lấy yêu cầu hiện tại
   từ người dùng.
+- Bộ tính chi phí AI dùng giá GPT-5.6 hiện hành: Luna $0.20 input/$1.20 output
+  mỗi triệu token, Terra $2/$12. Ngân sách ứng dụng mặc định vẫn là $5/tháng;
+  reservation đã giảm tương ứng để cùng ngân sách cho phép nhiều lượt hơn.
 
 ## Giới hạn và trạng thái chưa xác minh
 

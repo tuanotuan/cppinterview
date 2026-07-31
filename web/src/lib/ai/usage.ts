@@ -14,24 +14,24 @@ type ModelRates = {
 
 const MODEL_RATES_USD_PER_MILLION: Record<string, ModelRates> = {
   "gpt-5.6-luna": {
-    input: 1,
-    cachedInput: 0.1,
-    cacheWrite: 1.25,
-    output: 6,
+    input: 0.2,
+    cachedInput: 0.02,
+    cacheWrite: 0.25,
+    output: 1.2,
   },
   "gpt-5.6-terra": {
-    input: 2.5,
-    cachedInput: 0.25,
-    cacheWrite: 3.125,
-    output: 15,
+    input: 2,
+    cachedInput: 0.2,
+    cacheWrite: 2.5,
+    output: 12,
   },
 };
 
 export const COACH_RESERVATION_USD_MICROS = {
-  luna: 100_000,
-  terra: 150_000,
-  mockReport: 100_000,
-  mistakeCard: 60_000,
+  luna: 20_000,
+  terra: 120_000,
+  mockReport: 20_000,
+  mistakeCard: 12_000,
 } as const;
 
 export const DAILY_BUDGET_DAYS = 30;
