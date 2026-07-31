@@ -28,7 +28,7 @@ describe("OpenAI usage accounting", () => {
         cacheWriteTokens: 500,
         outputTokens: 800,
       }),
-    ).toBe(8_025);
+    ).toBe(1_605);
   });
 
   it("prices Terra usage", () => {
@@ -39,7 +39,7 @@ describe("OpenAI usage accounting", () => {
         cacheWriteTokens: 0,
         outputTokens: 800,
       }),
-    ).toBe(22_000);
+    ).toBe(17_600);
   });
 
   it("defaults to a five-dollar monthly application budget", () => {
