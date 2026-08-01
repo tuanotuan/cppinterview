@@ -21,7 +21,10 @@ import {
   reconciledUsageUsdMicros,
   vietnamUsageDate,
 } from "@/lib/ai/usage";
-import { isAllowedPracticeUser } from "@/lib/supabase/authorization";
+import {
+  isAllowedPracticeUser,
+  isTuanotuanQuestionAdmin,
+} from "@/lib/supabase/authorization";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -51,6 +54,7 @@ export type PracticeAccount = {
 export type CloudContext = {
   enabled: boolean;
   account: PracticeAccount | null;
+  canManageQuestionBank: boolean;
   progress: PracticeProgress;
   questionStates: QuestionLearningState[];
   approvals: QuestionApproval[];
@@ -116,6 +120,7 @@ export async function loadCloudContext(
     return {
       enabled: false,
       account: null,
+      canManageQuestionBank: false,
       progress: EMPTY_PROGRESS,
       questionStates: [],
       approvals: [],
@@ -137,6 +142,7 @@ export async function loadCloudContext(
     return {
       enabled: true,
       account: null,
+      canManageQuestionBank: false,
       progress: EMPTY_PROGRESS,
       questionStates: [],
       approvals: [],
@@ -273,6 +279,7 @@ export async function loadCloudContext(
   return {
     enabled: true,
     account: toPracticeAccount(data.user),
+    canManageQuestionBank: isTuanotuanQuestionAdmin(data.user),
     progress,
     questionStates,
     approvals: approvalError

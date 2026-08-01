@@ -74,7 +74,7 @@ trạng thái từ tên nhánh.
 ## Validation gần nhất
 
 - Đã đạt toàn bộ gate: `content:check`, `context:check`, ESLint, TypeScript,
-  Vitest (101 file/631 test) và production build (60 route). Một lượt test đầy đủ
+  Vitest (101 file/632 test) và production build (60 route). Một lượt test đầy đủ
   trước đó có timeout đơn lẻ ở `billing.test.ts`; chạy lại chính test đó và toàn
   bộ suite đều đạt, nên không có thay đổi nào ở billing.
 - Next.js production build đạt và sinh đủ 25 trang tĩnh/động trong route graph,

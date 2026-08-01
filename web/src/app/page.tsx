@@ -113,6 +113,7 @@ export default async function Home({
       sourceRevision={manifest.sourceRevision}
       cloudEnabled={cloud.enabled}
       account={cloud.account}
+      canManageQuestionBank={cloud.canManageQuestionBank}
       initialCloudProgress={cloud.progress}
       initialQuestionStates={cloud.questionStates}
       cloudSetupError={cloud.error}

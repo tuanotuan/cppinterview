@@ -8,7 +8,7 @@ import {
 import { loadQuestionOverrides } from "@/lib/content/question-overrides-server";
 import { loadQuestionStoreManifest } from "@/lib/content/question-store-server";
 import { isQuestionApproved } from "@/lib/practice/approvals";
-import { isAllowedPracticeUser } from "@/lib/supabase/authorization";
+import { isTuanotuanQuestionAdmin } from "@/lib/supabase/authorization";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -20,7 +20,11 @@ export async function POST(request: Request) {
   }
   const supabase = await createSupabaseServerClient();
   const { data: authData, error: authError } = await supabase.auth.getUser();
-  if (authError || !authData.user || !isAllowedPracticeUser(authData.user)) {
+  if (
+    authError ||
+    !authData.user ||
+    !isTuanotuanQuestionAdmin(authData.user)
+  ) {
     return Response.json(
       { error: "Cần đăng nhập bằng tài khoản quản trị viên." },
       { status: 401 },
