@@ -402,7 +402,14 @@ grant select on table public.content_sync_runs to authenticated;
 grant select on table public.content_generation_jobs to authenticated;
 grant select on table public.content_question_events to authenticated;
 
-create or replace view public.content_current_questions
+-- A project may contain unversioned predecessor views. PostgreSQL cannot
+-- remove columns through CREATE OR REPLACE VIEW, so replace those stale
+-- shapes explicitly. Do not use CASCADE: an unknown dependent object must
+-- stop this bootstrap migration rather than be removed implicitly.
+drop view if exists public.content_current_repository_questions;
+drop view if exists public.content_current_questions;
+
+create view public.content_current_questions
 with (security_invoker = true)
 as
 select

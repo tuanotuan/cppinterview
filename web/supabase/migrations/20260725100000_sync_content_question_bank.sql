@@ -9,6 +9,15 @@ alter table public.content_lessons
   add column if not exists current_tags jsonb,
   add column if not exists current_prerequisites jsonb;
 
+-- This is cache metadata populated by sync_content_question_bank. A legacy,
+-- unversioned catalog can contain an unsupported standard; clear only that
+-- cache value so the bootstrap constraint remains valid. The next content sync
+-- repopulates it from the repository manifest.
+update public.content_lessons
+set current_standard = null
+where current_standard is not null
+  and current_standard not in ('cpp98', 'cpp11', 'cpp20');
+
 alter table public.content_lessons
   drop constraint if exists content_lessons_current_source_path_check,
   add constraint content_lessons_current_source_path_check check (
