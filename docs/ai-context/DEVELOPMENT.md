@@ -95,6 +95,9 @@ Supabase, rồi enqueue/generate DB-native drafts. Không dùng `content:auto` h
 - Approval phải bind đúng `version` và `sourceHash`.
 - Sửa nội dung làm tăng version và vô hiệu approval cũ.
 - “Delete” ở Admin là archive overlay, không xóa history.
+- Điều khiển sửa/xóa trên thẻ đang học chỉ hiện với GitHub provider identity
+  `tuanotuan`; API question mutation phải kiểm tra lại identity này ở server.
+  Sau khi sửa, revision cũ phải rời phiên học và bản mới trở về hàng chờ duyệt.
 - Khi xóa lesson, câu hỏi của lesson được lưu trữ trong YAML để giữ lịch sử nhưng
   không còn xuất hiện trong generated manifest; DB sync lưu trữ câu hỏi vắng mặt.
 - Production AI drafts nằm ở Supabase immutable revisions, không append vào

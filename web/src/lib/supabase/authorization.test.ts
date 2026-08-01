@@ -1,7 +1,10 @@
 import type { User } from "@supabase/supabase-js";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { isAllowedPracticeUser } from "./authorization";
+import {
+  isAllowedPracticeUser,
+  isTuanotuanQuestionAdmin,
+} from "./authorization";
 
 const originalAllowedLogin = process.env.ALLOWED_GITHUB_LOGIN;
 const originalAllowedUserId = process.env.ALLOWED_SUPABASE_USER_ID;
@@ -100,6 +103,30 @@ describe("practice user authorization", () => {
         }),
       ),
     ).toBe(true);
+  });
+
+  it("allows question-bank mutation only for the trusted tuanotuan GitHub identity", () => {
+    process.env.ALLOWED_GITHUB_LOGIN = "tuanotuan,another-admin";
+    delete process.env.ALLOWED_SUPABASE_USER_ID;
+
+    expect(
+      isTuanotuanQuestionAdmin(
+        user({ identities: [identity("github", { user_name: "TuanOTuan" })] }),
+      ),
+    ).toBe(true);
+    expect(
+      isTuanotuanQuestionAdmin(
+        user({ identities: [identity("github", { user_name: "another-admin" })] }),
+      ),
+    ).toBe(false);
+    expect(
+      isTuanotuanQuestionAdmin(
+        user({
+          user_metadata: { user_name: "tuanotuan" },
+          identities: [],
+        }),
+      ),
+    ).toBe(false);
   });
 });
 

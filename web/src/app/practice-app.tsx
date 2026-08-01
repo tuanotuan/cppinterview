@@ -37,6 +37,7 @@ import type {
   ContentQuestion,
   PracticeDeckId,
 } from "@/lib/content/schema";
+import type { EditableQuestionContent } from "@/lib/content/question-overrides";
 import { displayQuestionPrompt } from "@/lib/content/question-prompt";
 import {
   questionDifficultyLabels,
@@ -48,6 +49,7 @@ import {
   buildCandidateAnswer,
   requiresCodeAnswer,
 } from "@/lib/practice/candidate-answer";
+import { QuestionEditorDialog } from "./question-editor-dialog";
 import {
   buildCustomStudyQueue,
   type CustomStudyFilters,
@@ -307,6 +309,7 @@ export function PracticeApp({
   sourceRevision,
   cloudEnabled,
   account,
+  canManageQuestionBank,
   initialCloudProgress,
   initialQuestionStates,
   cloudSetupError,
@@ -324,6 +327,7 @@ export function PracticeApp({
   sourceRevision: string;
   cloudEnabled: boolean;
   account: PracticeAccount | null;
+  canManageQuestionBank: boolean;
   initialCloudProgress: PracticeProgress;
   initialQuestionStates: QuestionLearningState[];
   cloudSetupError: boolean;
@@ -447,6 +451,11 @@ export function PracticeApp({
   const [approvalStatus, setApprovalStatus] = useState<
     "idle" | "saving" | "error"
   >("idle");
+  const [questionAdminEditing, setQuestionAdminEditing] = useState(false);
+  const [questionAdminSaving, setQuestionAdminSaving] = useState(false);
+  const [questionAdminError, setQuestionAdminError] = useState<string | null>(
+    null,
+  );
   const initialSyncStarted = useRef<string | null>(null);
   const initialSyncRetryCountRef = useRef(0);
   const initialSyncRetryTimerRef = useRef<number | null>(null);
@@ -2129,6 +2138,81 @@ export function PracticeApp({
     }
   }
 
+  async function mutateCurrentQuestion(
+    action: "edit" | "archive",
+    content?: EditableQuestionContent,
+  ) {
+    if (!current || !canManageQuestionBank || questionAdminSaving) return;
+    const questionId = current.id;
+    setQuestionAdminSaving(true);
+    setQuestionAdminError(null);
+    try {
+      const response = await fetch("/api/admin/questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, questionId, content }),
+      });
+      const payload = (await response.json()) as {
+        question?: ContentQuestion;
+        error?: string;
+      };
+      if (!response.ok || !payload.question) {
+        throw new Error(payload.error || "Không thể lưu thay đổi của thẻ.");
+      }
+
+      if (action === "archive") {
+        setAvailableQuestions((items) =>
+          items.filter((item) => item.id !== questionId),
+        );
+        setPendingReview((items) =>
+          items.filter((item) => item.id !== questionId),
+        );
+        setSelectedQuestionId((selected) =>
+          selected === questionId ? null : selected,
+        );
+        deleteSavedItem(`question:${questionId}`);
+        clearStudySessionState();
+      } else {
+        const nextQuestion: PracticeQuestion = {
+          ...current,
+          ...payload.question,
+          code: payload.question.code,
+        };
+        // An edit invalidates its approval. Remove the old revision from this
+        // study session immediately; the replacement is visible only after it
+        // returns through the normal review queue.
+        setAvailableQuestions((items) =>
+          items.filter((item) => item.id !== questionId),
+        );
+        setPendingReview((items) => {
+          const withoutCurrent = items.filter((item) => item.id !== questionId);
+          return [...withoutCurrent, nextQuestion];
+        });
+        setSelectedQuestionId((selected) =>
+          selected === questionId ? null : selected,
+        );
+        invalidateCoachRequest(questionId);
+        clearCoachEvaluation(questionId);
+        clearRecordedAttemptEvidence(questionId);
+        setAnswers((items) => omitRecordKey(items, questionId));
+        setCodeAnswers((items) => omitRecordKey(items, questionId));
+        setRevealed((items) => withoutSetValue(items, questionId));
+        setHints((items) => withoutSetValue(items, questionId));
+        setVisibleSources((items) => withoutSetValue(items, questionId));
+        clearStudySessionState();
+      }
+      setQuestionAdminEditing(false);
+    } catch (error) {
+      setQuestionAdminError(
+        error instanceof Error
+          ? error.message
+          : "Không thể lưu thay đổi của thẻ.",
+      );
+    } finally {
+      setQuestionAdminSaving(false);
+    }
+  }
+
   async function askCoach() {
     if (!current) return;
     const questionId = current.id;
@@ -2724,6 +2808,15 @@ export function PracticeApp({
           </p>
         ) : null}
 
+        {canManageQuestionBank && questionAdminError && !questionAdminEditing ? (
+          <p
+            role="alert"
+            className="mt-5 rounded-2xl border border-[#ba4b2f]/25 bg-[#f8e8df] px-4 py-3 text-sm text-[#8e3825]"
+          >
+            {questionAdminError}
+          </p>
+        ) : null}
+
         {mistakeNotice ? (
           <div
             role="status"
@@ -2882,6 +2975,36 @@ export function PracticeApp({
                   >
                     {isSaved(`question:${current.id}`) ? "★ Đã lưu" : "☆ Lưu câu hỏi"}
                   </button>
+                  {canManageQuestionBank && !isFocusActive && !isRepairActive ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setQuestionAdminError(null);
+                          setQuestionAdminEditing(true);
+                        }}
+                        className="rounded-xl border border-[#356b58]/30 bg-[#eaf4df] px-3 py-2 text-xs font-bold text-[#245748] transition hover:-translate-y-0.5 hover:bg-[#dff0d3] focus:ring-4 focus:ring-[#d7ff91]/55 focus:outline-none"
+                      >
+                        Chỉnh sửa thẻ
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              "Xóa thẻ này khỏi lịch học? Lịch sử ôn và các phản hồi AI vẫn được giữ để có thể kiểm tra lại.",
+                            )
+                          ) {
+                            void mutateCurrentQuestion("archive");
+                          }
+                        }}
+                        disabled={questionAdminSaving}
+                        className="rounded-xl border border-[#ba4b2f]/30 bg-white px-3 py-2 text-xs font-bold text-[#8e3825] transition hover:-translate-y-0.5 hover:bg-[#fff3eb] disabled:cursor-wait disabled:opacity-50 focus:ring-4 focus:ring-[#f8d1bc] focus:outline-none"
+                      >
+                        Xóa thẻ
+                      </button>
+                    </>
+                  ) : null}
                   {!isFocusActive && !isRepairActive ? (
                     <button
                       type="button"
@@ -3428,7 +3551,7 @@ export function PracticeApp({
                   hỏi tiếp nối.
                 </p>
                 <span className="mt-4 inline-block rounded-full bg-[#d7ff91] px-3 py-1 font-mono text-[11px] font-semibold text-[#356b58]">
-                  OpenAI · Luna chấm bài / Terra tìm hiểu sâu · Gemini khi hết hạn mức
+                  OpenAI · Luna cho AI Coach · Terra cho tổng kết phỏng vấn thử · Gemini khi hết hạn mức
                 </span>
               </div>
             </aside>
@@ -3447,6 +3570,21 @@ export function PracticeApp({
             pendingCount={selectedPendingReview.length}
           />
         )}
+
+        {canManageQuestionBank && questionAdminEditing && current ? (
+          <QuestionEditorDialog
+            key={`${current.id}:${current.version}`}
+            question={current}
+            saving={questionAdminSaving}
+            error={questionAdminError}
+            onClose={() => {
+              if (questionAdminSaving) return;
+              setQuestionAdminError(null);
+              setQuestionAdminEditing(false);
+            }}
+            onSave={(content) => mutateCurrentQuestion("edit", content)}
+          />
+        ) : null}
 
         <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[#173f35]/12 py-5 font-mono text-[11px] text-[#78857f]">
           <span>
