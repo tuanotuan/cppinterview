@@ -74,6 +74,7 @@ import {
   EMPTY_WORLDQUANT_TRAINING_STATE,
   gapForCompetency,
   readWorldQuantTrainingState,
+  syncWorldQuantTrainingStateToCloud,
   subscribeToWorldQuantTrainingState,
   writeWorldQuantTrainingStateLocked,
   type WorldQuantTrainingState,
@@ -158,6 +159,9 @@ export function WorldQuantReadinessApp({
   mockHistoryAvailable: boolean;
   initialRoleId: WorldQuantRoleProfileId | null;
 }) {
+  useEffect(() => {
+    void syncWorldQuantTrainingStateToCloud(account?.id ?? null);
+  }, [account?.id]);
   const accountId = account?.id ?? null;
   const subscribeToScopedProgress = useMemo(
     () => (callback: () => void) =>
@@ -636,6 +640,9 @@ export function WorldQuantReadinessApp({
                 </span>
               </summary>
               <div className="mt-2 grid w-full grid-cols-1 gap-1 rounded-2xl border border-[#173f35]/12 bg-[#fbfaf4] p-2 shadow-[0_18px_60px_rgb(23_63_53_/_12%)] sm:absolute sm:right-0 sm:z-30 sm:w-80 sm:grid-cols-2">
+                <AdvancedLink href="/learn">
+                  Thư viện bài học
+                </AdvancedLink>
                 <AdvancedLink
                   href={worldQuantRoleHref(
                     "/worldquant/curriculum",
@@ -670,6 +677,12 @@ export function WorldQuantReadinessApp({
                 </AdvancedLink>
                 <AdvancedLink href="/learn/tick-data-order-book">
                   Học dữ liệu tick
+                </AdvancedLink>
+                <AdvancedLink href="/worldquant/tick-replay-lab">
+                  Tick Replay Lab
+                </AdvancedLink>
+                <AdvancedLink href="/worldquant/legacy-modern-capstone">
+                  Legacy → Modern C++ Capstone
                 </AdvancedLink>
                 <AdvancedLink href="/learn/cmake">
                   Học CMake

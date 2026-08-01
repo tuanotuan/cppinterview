@@ -38,6 +38,10 @@ nhật file context tương ứng theo root `AGENTS.md`.
 | `/worldquant/drills` | `worldquant/drills/page.tsx`, `worldquant-drill-app.tsx` | Bài luyện tình huống: thẻ khởi động đã duyệt → luyện tập → câu hỏi tiếp nối → tiêu chí chấm → bài kiểm tra xác nhận mới/cách quãng; giữ đúng đường về Nhiệm vụ |
 | `/worldquant/mission` | `worldquant/mission/page.tsx`, `worldquant-mission-app.tsx` | Nhiệm vụ hằng ngày xác định, nêu một bước tiếp theo và giữ đúng đường về qua thẻ/bài luyện/phỏng vấn thử |
 | `/worldquant/full-round` | `worldquant/full-round/page.tsx`, `worldquant-full-round-app.tsx` | Năm non-certification round có hard deadline, rubric và English Web Speech tùy chọn; không lưu answer/audio |
+| `/worldquant/tick-replay-lab` | `worldquant/tick-replay-lab/page.tsx` | Mô phỏng chuỗi tick, recovery và kiểm tra bất biến sổ lệnh bằng kịch bản xác định |
+| `/worldquant/toolchain-dojo` | `worldquant/toolchain-dojo/page.tsx` | Năm bài CMake/C++ target-based tuần tự: scope, public/private, CTest, sanitizer và CI |
+| `/worldquant/legacy-modern-capstone` | `worldquant/legacy-modern-capstone/page.tsx` | Sáu checkpoint quyết định an toàn khi chuyển nền tảng tick data cũ sang modern C++ |
+| `/learn` | `learn/page.tsx`, `learn/[lessonId]/page.tsx` | Thư viện lesson từ manifest, Markdown an toàn, tự kiểm tra và mở phiên ôn tập trọng tâm |
 | `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Phỏng vấn thử v4 toàn diện/trọng tâm 30/45/60 phút, kiểm thử ẩn, tổng kết đúng phạm vi, lịch sử và kế hoạch ôn tiếp |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx`, `lib/learn/tick-data-guide.ts` | Guide tick data/order book |
 | `/learn/cmake` | `learn/cmake/page.tsx`, `lib/learn/cmake-guide.ts` | Guide CMake target-based từ mental model tới CTest, packaging, CI và legacy migration |
@@ -54,6 +58,8 @@ API quan trọng:
 - `api/mock-interview/{run,report,history}`: chạy sample code, xác minh exact
   blueprint, tạo report có hidden evaluation và đọc/xóa history theo account.
 - `api/progress/sync`: đồng bộ review/Anki state.
+- `api/worldquant/{training-state,mission-snapshot}`: đọc/ghi state WorldQuant
+  account-scoped bằng revision CAS; browser fallback về local khi API/database chưa sẵn sàng.
 - `api/mistakes/{generate,preferences,resolve,ground,backfill}`: Mistake Inbox
   owner-private, grounded card generation và recovery từ Mock v4.
 - `api/questions/approve`: duyệt đúng question version + source hash.
@@ -74,7 +80,7 @@ API quan trọng:
 | `practice` | `mistake-cards.ts`, `mistake-cards.server.ts` | Capture lỗi durable, dedupe, grounded generation và materialize draft |
 | `worldquant` | `readiness.ts`, `focus-plan.ts` | Role/competency model, preparation evidence và planner queue deterministic theo gap/time budget |
 | `worldquant` | `curriculum.ts`, `curriculum-evidence.ts`, `drills.ts` | Concept graph, content/transfer coverage và catalog 30 scenario: một practice + hai checkpoint mỗi competency |
-| `worldquant` | `training-state.ts`, `gap-closure.ts`, `mission.ts`, `mission-snapshot.ts`, `guided-mode.ts`, `full-round.ts`, `navigation.ts` | Account-scoped training evidence, closure protocol, bounded frozen daily mission, Guided onboarding/return contract, role-aware navigation và versioned five-round simulator |
+| `worldquant` | `training-state.ts`, `mission-snapshot.ts`, `tick-replay.ts`, `toolchain-dojo.ts`, `legacy-modern-capstone.ts` | Evidence account-scoped, cloud CAS/local fallback, Mission frozen, mô phỏng tick, bài thực hành CMake và capstone chuyển đổi legacy |
 | `ai` | `openai.ts`, `gemini.ts`, `fallback.ts`, `access.ts` | Provider call không transport retry, fallback và chặn AI không quota ngoài local development |
 | `ai` | `budget.ts`, `usage.ts`, `billing.ts`, `coach-idempotency-client.ts`, `coach-reservation.server.ts`, `coach-follow-up-reservation.server.ts` | Sổ hạn mức UUID, phân loại kết quả provider và terminal cache Coach theo exact request |
 | `mock-interview` | `profile.ts`, `profile-server.ts`, `catalog.ts`, `target-plan.ts` | JD question/version grounding, canonical competency mapping và deterministic balanced/targeted blueprint |

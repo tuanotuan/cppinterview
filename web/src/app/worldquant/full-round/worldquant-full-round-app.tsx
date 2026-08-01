@@ -22,6 +22,7 @@ import {
   addFullRoundSummary,
   EMPTY_WORLDQUANT_TRAINING_STATE,
   readWorldQuantTrainingState,
+  syncWorldQuantTrainingStateToCloud,
   subscribeToWorldQuantTrainingState,
   writeWorldQuantTrainingStateLocked,
   type WorldQuantTrainingState,
@@ -70,6 +71,9 @@ export function WorldQuantFullRoundApp({
   accountId: string | null;
   initialRoleId: WorldQuantRoleProfileId;
 }) {
+  useEffect(() => {
+    void syncWorldQuantTrainingStateToCloud(accountId);
+  }, [accountId]);
   const [roleId, setRoleId] = useState(initialRoleId);
   const [stage, setStage] = useState<SessionStage>("setup");
   const [sessionId, setSessionId] = useState<string | null>(null);

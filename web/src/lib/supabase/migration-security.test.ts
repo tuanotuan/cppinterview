@@ -14,6 +14,28 @@ const migrationRoot = path.resolve(
 const webRoot = path.resolve(migrationRoot, "..", "..");
 
 describe("database hardening migrations", () => {
+  it("keeps WorldQuant training evidence account-scoped and revision-checked", async () => {
+    const sql = await readMigration(
+      "20260801090000_add_worldquant_cloud_state.sql",
+    );
+
+    expect(sql).toContain("create table if not exists public.worldquant_training_states");
+    expect(sql).toContain("create table if not exists public.worldquant_mission_snapshots");
+    expect(sql).toContain("enable row level security");
+    expect(sql).toContain("for select to authenticated");
+    expect(sql).toContain("revoke all on public.worldquant_training_states from anon, authenticated");
+    expect(sql).toContain("revoke all on public.worldquant_mission_snapshots from anon, authenticated");
+    expect(sql).toContain("security definer");
+    expect(sql).toContain("set search_path = public");
+    expect(sql).toContain("auth.uid()");
+    expect(sql).toContain("pg_catalog.pg_advisory_xact_lock");
+    expect(sql).toContain("p_expected_revision");
+    expect(sql).toContain("'conflict', true");
+    expect(sql).toContain("offset 23");
+    expect(sql).toContain("grant execute on function public.save_worldquant_training_state(jsonb, bigint) to authenticated;");
+    expect(sql).toContain("grant execute on function public.save_worldquant_mission_snapshot(date, text, smallint, jsonb, bigint) to authenticated;");
+  });
+
   it("keeps terminal mistake-card failures from reopening paid work", async () => {
     const sql = await readMigration(
       "20260730140000_harden_mistake_generation_retries.sql",

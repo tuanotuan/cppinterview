@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import type { ContentQuestion } from "../content/schema";
 import { newQuestionLearningState } from "./learning-state";
-import { buildCustomStudyQueue } from "./custom-study";
+import {
+  buildCustomStudyLaunchHref,
+  buildCustomStudyQueue,
+  parseCustomStudyLaunch,
+} from "./custom-study";
 
 const taxonomy = {
   deckId: "cpp-interview",
@@ -24,6 +28,50 @@ const taxonomy = {
 } satisfies ContentQuestion["taxonomy"];
 
 describe("custom study", () => {
+  it("round-trips safe launch links from analytics", () => {
+    expect(
+      buildCustomStudyLaunchHref("cpp-interview", {
+        kind: "topic",
+        topic: "move-semantics",
+        limit: 50,
+      }),
+    ).toBe("/?deck=cpp-interview&study=topic&topic=move-semantics&limit=20");
+    expect(
+      parseCustomStudyLaunch({
+        study: "topic",
+        topic: "move-semantics",
+        limit: "20",
+      }),
+    ).toEqual({
+      learningState: "all",
+      standard: "all",
+      skill: "all",
+      topic: "move-semantics",
+      lessonId: "all",
+      limit: 20,
+    });
+    expect(
+      parseCustomStudyLaunch({ study: "due", limit: "not-a-number" }),
+    ).toMatchObject({ learningState: "due", limit: 10 });
+  });
+
+  it("rejects unknown presets and unsafe topic values", () => {
+    expect(parseCustomStudyLaunch({ study: "unknown" })).toBeNull();
+    expect(
+      parseCustomStudyLaunch({
+        study: "topic",
+        topic: "../../another-page",
+      }),
+    ).toBeNull();
+    expect(parseCustomStudyLaunch({ study: "topic" })).toBeNull();
+    expect(
+      parseCustomStudyLaunch({
+        study: "lesson",
+        lesson: "../cpp11-lambda",
+      }),
+    ).toBeNull();
+  });
+
   it("filters by taxonomy and learning state without selecting suspended cards", () => {
     const questions = ["new-one", "new-two", "review-one"].map((id) => ({
       id,
@@ -56,6 +104,7 @@ describe("custom study", () => {
         standard: "cpp11",
         skill: "recall",
         topic: "lambda",
+        lessonId: "all",
         limit: 10,
       }),
     ).toEqual(["new-one"]);
@@ -65,8 +114,43 @@ describe("custom study", () => {
         standard: "all",
         skill: "all",
         topic: "all",
+        lessonId: "all",
         limit: 10,
       }),
     ).toEqual(["review-one"]);
+  });
+
+  it("limits a lesson launch to the exact source lesson", () => {
+    const questions = [
+      { id: "target", taxonomy },
+      {
+        id: "other",
+        taxonomy: {
+          ...taxonomy,
+          sourceLessonId: "cpp11-other",
+        },
+      },
+    ];
+    const states = new Map(
+      questions.map((question) => [
+        question.id,
+        newQuestionLearningState({
+          questionId: question.id,
+          questionVersion: 1,
+          sourceHash: "b".repeat(64),
+        }),
+      ]),
+    );
+
+    expect(
+      buildCustomStudyQueue(questions, states, "2026-07-21", {
+        learningState: "all",
+        standard: "all",
+        skill: "all",
+        topic: "all",
+        lessonId: "cpp11-lambda",
+        limit: 20,
+      }),
+    ).toEqual(["target"]);
   });
 });

@@ -1042,9 +1042,131 @@ export function writeWorldQuantTrainingState(
         detail: { accountId },
       }),
     );
+    if (accountId) {
+      void syncWorldQuantTrainingStateToCloud(accountId);
+    }
     return merged;
   } catch {
     return null;
+  }
+}
+
+const trainingCloudSyncs = new Map<string, Promise<void>>();
+
+/**
+ * Merges account-scoped browser evidence with the authenticated cloud copy.
+ * Anonymous history is deliberately never uploaded after sign-in.
+ */
+export function syncWorldQuantTrainingStateToCloud(
+  accountId: string | null,
+): Promise<void> {
+  if (!accountId || typeof window === "undefined") return Promise.resolve();
+  const active = trainingCloudSyncs.get(accountId);
+  if (active) {
+    return active.then(() => syncWorldQuantTrainingStateToCloud(accountId));
+  }
+  const sync = syncTrainingState(accountId).finally(() => {
+    trainingCloudSyncs.delete(accountId);
+  });
+  trainingCloudSyncs.set(accountId, sync);
+  return sync;
+}
+
+async function syncTrainingState(accountId: string) {
+  const local = readWorldQuantTrainingState(accountId);
+  const initial = await readTrainingCloudState();
+  if (!initial) return;
+  const merged = mergeWorldQuantTrainingStates(
+    local,
+    initial.state ?? EMPTY_WORLDQUANT_TRAINING_STATE,
+  );
+  const cloudSerialized = initial.state
+    ? serializeWorldQuantTrainingState(initial.state)
+    : null;
+  const mergedSerialized = serializeWorldQuantTrainingState(merged);
+  if (cloudSerialized === mergedSerialized) {
+    persistSyncedTrainingState(accountId, merged);
+    return;
+  }
+  if (
+    initial.revision === 0 &&
+    mergedSerialized === serializeWorldQuantTrainingState(EMPTY_WORLDQUANT_TRAINING_STATE)
+  ) {
+    return;
+  }
+  const saved = await writeTrainingCloudState(merged, initial.revision);
+  if (!saved) return;
+  if (!saved.conflict) {
+    persistSyncedTrainingState(accountId, saved.state);
+    return;
+  }
+  const retry = mergeWorldQuantTrainingStates(merged, saved.state);
+  const resolved = await writeTrainingCloudState(retry, saved.revision);
+  if (resolved?.conflict) {
+    persistSyncedTrainingState(accountId, mergeWorldQuantTrainingStates(retry, resolved.state));
+  } else if (resolved) {
+    persistSyncedTrainingState(accountId, resolved.state);
+  }
+}
+
+async function readTrainingCloudState(): Promise<{
+  state: WorldQuantTrainingState | null;
+  revision: number;
+} | null> {
+  try {
+    const response = await fetch("/api/worldquant/training-state", { cache: "no-store" });
+    if (!response.ok) return null;
+    const payload: unknown = await response.json();
+    const parsed = z.object({
+      state: worldQuantTrainingStateSchema.nullable(),
+      revision: z.number().int().nonnegative(),
+    }).safeParse(payload);
+    return parsed.success ? parsed.data : null;
+  } catch {
+    return null;
+  }
+}
+
+async function writeTrainingCloudState(
+  state: WorldQuantTrainingState,
+  expectedRevision: number,
+): Promise<{ state: WorldQuantTrainingState; revision: number; conflict: boolean } | null> {
+  try {
+    const response = await fetch("/api/worldquant/training-state", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ state, expectedRevision }),
+      cache: "no-store",
+    });
+    if (response.status !== 200 && response.status !== 409) return null;
+    const payload: unknown = await response.json();
+    const parsed = z.object({
+      state: worldQuantTrainingStateSchema,
+      revision: z.number().int().nonnegative(),
+      conflict: z.boolean(),
+    }).safeParse(payload);
+    return parsed.success ? parsed.data : null;
+  } catch {
+    return null;
+  }
+}
+
+function persistSyncedTrainingState(
+  accountId: string,
+  state: WorldQuantTrainingState,
+) {
+  try {
+    window.localStorage.setItem(
+      worldQuantTrainingStorageKey(accountId),
+      serializeWorldQuantTrainingState(state),
+    );
+    window.dispatchEvent(
+      new CustomEvent(WORLDQUANT_TRAINING_CHANGED_EVENT, {
+        detail: { accountId },
+      }),
+    );
+  } catch {
+    // The confirmed cloud copy remains available after a local quota failure.
   }
 }
 

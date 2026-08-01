@@ -1,6 +1,7 @@
 import { isQuestionApproved } from "@/lib/practice/approvals";
 import { loadCloudContext } from "@/lib/practice/cloud-server";
 import { parsePracticeDeck } from "@/lib/content/decks";
+import { parseCustomStudyLaunch } from "@/lib/practice/custom-study";
 import { parseFocusSessionId } from "@/lib/practice/focus-session";
 import { parseWorldQuantMissionReturn } from "@/lib/worldquant/guided-mode";
 
@@ -15,9 +16,13 @@ export default async function Home({
     auth?: string | string[];
     deck?: string | string[];
     focus?: string | string[];
+    limit?: string | string[];
+    lesson?: string | string[];
     returnTo?: string | string[];
     returnRole?: string | string[];
     returnMinutes?: string | string[];
+    study?: string | string[];
+    topic?: string | string[];
   }>;
 }) {
   const cloud = await loadCloudContext({
@@ -35,6 +40,22 @@ export default async function Home({
   const requestedFocusId = parseFocusSessionId(focusParam);
   const invalidFocusRequest =
     focusParam !== undefined && requestedFocusId === null;
+  const initialCustomStudyFilters = parseCustomStudyLaunch({
+    study: single(params.study),
+    topic: single(params.topic),
+    lesson: single(params.lesson),
+    limit: single(params.limit),
+  });
+  const customStudyLaunchKey = initialCustomStudyFilters
+    ? [
+        initialCustomStudyFilters.learningState,
+        initialCustomStudyFilters.standard,
+        initialCustomStudyFilters.skill,
+        initialCustomStudyFilters.topic,
+        initialCustomStudyFilters.lessonId,
+        initialCustomStudyFilters.limit,
+      ].join(":")
+    : "daily";
   const focusReturnHref = parseWorldQuantMissionReturn({
     returnTo: single(params.returnTo),
     role: single(params.returnRole),
@@ -86,7 +107,7 @@ export default async function Home({
       key={`${cloud.account?.id ?? "local"}:${
         requestedFocusId ??
         (invalidFocusRequest ? "invalid-focus" : "normal-practice")
-      }`}
+      }:${customStudyLaunchKey}`}
       questions={questions}
       reviewQueue={reviewQueue}
       sourceRevision={manifest.sourceRevision}
@@ -100,6 +121,7 @@ export default async function Home({
       initialDeck={parsePracticeDeck(deckParam)}
       requestedFocusId={requestedFocusId}
       invalidFocusRequest={invalidFocusRequest}
+      initialCustomStudyFilters={initialCustomStudyFilters}
       focusReturnHref={focusReturnHref}
       mistakeQuestionIds={cloud.mistakeQuestionIds}
     />
