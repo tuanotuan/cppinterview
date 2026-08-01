@@ -197,6 +197,11 @@ Trạng thái trình duyệt không thêm migration:
 - `ts-fsrs` dùng default FSRS-6 deterministic, retention 90%, fuzz tắt, chỉ
   replay exact question version/source hash trong Stats. Scheduler hiện hữu vẫn
   là nguồn due date duy nhất.
+- WorldQuant training state ghi local trước, sau đó hợp nhất cloud theo revision
+  CAS khi account đã đăng nhập. Mission snapshot cloud ưu tiên bản đã tồn tại
+  theo exact ngày/vị trí/thời lượng để giữ kế hoạch ổn định giữa thiết bị. Lỗi
+  mạng, 401/403 hoặc migration chưa chạy không được xóa local state. Không tự
+  upload namespace `local` vào account sau login.
 
 ## Supabase
 
@@ -213,6 +218,9 @@ Các nhóm schema hiện có:
 - code execution admission/quota/idempotency.
 - account-scoped Mock v4 history, report lease/cache và owner delete.
 - owner-private Mistake Inbox, observation dedupe và grounded remediation drafts.
+- WorldQuant training state và Mission snapshot account-scoped, chỉ đọc trực tiếp
+  qua RLS; ghi chỉ qua RPC `save_worldquant_*` security-definer có `auth.uid()`,
+  advisory lock và expected revision. Mission cloud giữ tối đa 24 snapshot mỗi user.
 - coach attempt cho phép `candidate_answer` rỗng (nghĩa là chưa biết) và không có
   product-level character limit sau migration `20260730120000`.
 - Coach evaluation có reservation account-scoped theo request fingerprint,
@@ -363,6 +371,9 @@ service-role-only/browser grants như contract hiện tại.
   chưa mang token. Migration `20260730200000` giữ overload cũ tạm thời;
   `20260730220000` backfill generation rồi gỡ nó. Các giao thức AI không fallback
   sang RPC cũ để “khắc phục” lệch phiên bản.
+- Áp dụng cùng thứ tự cho `20260801090000_add_worldquant_cloud_state.sql`: deploy
+  API/client trước, quan sát local fallback, rồi mới chạy migration. Không chạy
+  migration này chỉ vì source đã có mặt trong một nhánh chưa deploy.
 - Same-session repair phải bind exact question version/source hash/history
   generation. Review đầu vẫn qua scheduler/cloud path; repair retry không tạo
   daily review thứ hai.

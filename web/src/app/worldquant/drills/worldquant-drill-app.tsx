@@ -21,6 +21,7 @@ import {
   mutateWorldQuantTrainingStateLocked,
   readWorldQuantTrainingState,
   recordCheckpointExposureLocked,
+  syncWorldQuantTrainingStateToCloud,
   subscribeToWorldQuantTrainingState,
   wasCheckpointExposed,
   type WorldQuantTrainingState,
@@ -68,6 +69,9 @@ export function WorldQuantDrillApp({
   missionReturnHref: string | null;
   warmupCards: DrillWarmupCard[];
 }) {
+  useEffect(() => {
+    void syncWorldQuantTrainingStateToCloud(accountId);
+  }, [accountId]);
   const [roleId, setRoleId] = useState(initialRoleId);
   const [selectedCompetency, setSelectedCompetency] =
     useState(initialCompetency);

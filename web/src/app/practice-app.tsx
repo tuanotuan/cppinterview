@@ -315,6 +315,7 @@ export function PracticeApp({
   initialDeck,
   requestedFocusId,
   invalidFocusRequest,
+  initialCustomStudyFilters,
   focusReturnHref,
   mistakeQuestionIds,
 }: {
@@ -331,6 +332,7 @@ export function PracticeApp({
   initialDeck: PracticeDeckId;
   requestedFocusId: string | null;
   invalidFocusRequest: boolean;
+  initialCustomStudyFilters: CustomStudyFilters | null;
   focusReturnHref: string | null;
   mistakeQuestionIds: string[];
 }) {
@@ -450,6 +452,7 @@ export function PracticeApp({
   const initialSyncRetryTimerRef = useRef<number | null>(null);
   const sessionHydrationStarted = useRef<string | null>(null);
   const focusHydrationStarted = useRef<string | null>(null);
+  const customStudyLaunchStarted = useRef(false);
   const scrollToRatingWhenAvailable = useRef(false);
   const scrollToCoachFeedbackWhenAvailable = useRef(false);
   const pendingSessionSaveRef = useRef<(() => void) | null>(null);
@@ -497,6 +500,34 @@ export function PracticeApp({
     );
     return [...byId.values()];
   }, [availableQuestions, pendingReview]);
+  const clearStudySessionState = useCallback(() => {
+    studySessionGenerationRef.current += 1;
+    coachRequestTokensRef.current = {};
+    scrollToRatingWhenAvailable.current = false;
+    scrollToCoachFeedbackWhenAvailable.current = false;
+    setAnswers({});
+    setCodeAnswers({});
+    setCoachFeedback({});
+    setCoachModels({});
+    setCoachAnswers({});
+    setRescueRetryByQuestion({});
+    setCoachAttemptIds({});
+    setCoachIdempotencyKeys({});
+    setCoachErrors({});
+    setCoachLoading(null);
+    setFollowUpInputs({});
+    setFollowUpChats({});
+    setFollowUpErrors({});
+    setFollowUpLoading(null);
+    setDeepDiveAnswers({});
+    setDeepDiveFeedback({});
+    setDeepDiveErrors({});
+    setDeepDiveLoading(null);
+    setDeepDiveOpen(new Set());
+    setRevealed(new Set());
+    setHints(new Set());
+    setVisibleSources(new Set());
+  }, []);
   useEffect(() => {
     if (initialAiDailyBudget) {
       setAiDailyBudget((current) =>
@@ -1398,6 +1429,48 @@ export function PracticeApp({
     today,
   ]);
 
+  useEffect(() => {
+    if (
+      customStudyLaunchStarted.current ||
+      !initialCustomStudyFilters ||
+      hasFocusRequest ||
+      snapshot === null ||
+      !sessionHydrated
+    ) {
+      return;
+    }
+    customStudyLaunchStarted.current = true;
+    const ids = buildCustomStudyQueue(
+      deckQuestions,
+      learningStates,
+      today,
+      initialCustomStudyFilters,
+    );
+    clearStudySessionState();
+    setSelectedQuestionId(null);
+    if (!ids.length) {
+      setCustomStudyIds(null);
+      setCustomStudyNotice(
+        "Không còn câu phù hợp với lựa chọn từ trang Thống kê.",
+      );
+      return;
+    }
+    setCustomStudyIds(ids);
+    setCustomStudyNotice(
+      `Đã mở phiên luyện từ Thống kê gồm ${ids.length} câu.`,
+    );
+    window.scrollTo({ top: 0 });
+  }, [
+    deckQuestions,
+    clearStudySessionState,
+    hasFocusRequest,
+    initialCustomStudyFilters,
+    learningStates,
+    sessionHydrated,
+    snapshot,
+    today,
+  ]);
+
   const selectedQuestion = selectedQuestionId
     ? questionById.get(selectedQuestionId)
     : undefined;
@@ -1928,35 +2001,6 @@ export function PracticeApp({
     window.requestAnimationFrame(() =>
       node.scrollIntoView({ behavior: "smooth", block: "start" }),
     );
-  }
-
-  function clearStudySessionState() {
-    studySessionGenerationRef.current += 1;
-    coachRequestTokensRef.current = {};
-    scrollToRatingWhenAvailable.current = false;
-    scrollToCoachFeedbackWhenAvailable.current = false;
-    setAnswers({});
-    setCodeAnswers({});
-    setCoachFeedback({});
-    setCoachModels({});
-    setCoachAnswers({});
-    setRescueRetryByQuestion({});
-    setCoachAttemptIds({});
-    setCoachIdempotencyKeys({});
-    setCoachErrors({});
-    setCoachLoading(null);
-    setFollowUpInputs({});
-    setFollowUpChats({});
-    setFollowUpErrors({});
-    setFollowUpLoading(null);
-    setDeepDiveAnswers({});
-    setDeepDiveFeedback({});
-    setDeepDiveErrors({});
-    setDeepDiveLoading(null);
-    setDeepDiveOpen(new Set());
-    setRevealed(new Set());
-    setHints(new Set());
-    setVisibleSources(new Set());
   }
 
   function clearRecordedAttemptEvidence(questionId: string) {
@@ -3721,7 +3765,14 @@ function CustomStudyPanel({
         <button
           type="button"
           onClick={() =>
-            onStart({ learningState, standard, skill, topic, limit })
+            onStart({
+              learningState,
+              standard,
+              skill,
+              topic,
+              lessonId: "all",
+              limit,
+            })
           }
           className="rounded-xl bg-[#173f35] px-4 py-2.5 text-xs font-bold text-white"
         >

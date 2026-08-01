@@ -13,12 +13,12 @@
 
 ## Application inventory
 
-- App pages: 13 (/, /admin, /admin/coverage, /learn/cmake, /learn/tick-data-order-book, /mock-interview, /profile, /stats, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/mission)
-- API routes: 20 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/coach/evaluate, /api/coach/follow-up, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/progress/sync, /api/questions/approve, /auth/callback, /auth/login, /auth/logout)
-- TypeScript source files excluding tests: 141
-- Colocated test files: 95
-- Supabase migrations: 35
-- Latest migration filename: `20260730220000_finalize_practice_history_generations.sql`
+- App pages: 18 (/, /admin, /admin/coverage, /learn, /learn/[lessonId], /learn/cmake, /learn/tick-data-order-book, /mock-interview, /profile, /stats, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/legacy-modern-capstone, /worldquant/mission, /worldquant/tick-replay-lab, /worldquant/toolchain-dojo)
+- API routes: 22 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/coach/evaluate, /api/coach/follow-up, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/progress/sync, /api/questions/approve, /api/worldquant/mission-snapshot, /api/worldquant/training-state, /auth/callback, /auth/login, /auth/logout)
+- TypeScript source files excluding tests: 159
+- Colocated test files: 101
+- Supabase migrations: 36
+- Latest migration filename: `20260801090000_add_worldquant_cloud_state.sql`
 
 ## Toolchain declared in package.json
 
@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `e7d7af28ad937962823b9aa32c45576d3716d983968bb8e0ae38c19d2edff751`
-- Fingerprinted files: 363
+- Project input fingerprint: `6577ce20cc36364e1bbb883cb0f16e9cd0d5b176f13eff275b9a4012334a3f41`
+- Fingerprinted files: 388
 
 The fingerprint covers registered lesson sources, content files, application
 source/tests, scripts, package metadata, environment template, workflows, and

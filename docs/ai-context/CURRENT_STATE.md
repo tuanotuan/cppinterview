@@ -8,19 +8,16 @@ trạng thái từ tên nhánh.
 
 ## Handoff hiện tại
 
-- Đợt rà soát bug tiềm ẩn đã gia cố auth owner, account-scoped browser state,
-  phân trang lịch sử, AI budget/retry, Coach idempotency, Mock report, Mistake
-  generation, rating nhiều tab/thiết bị, content archive, dependency production
-  và quyền CI. Hai lesson `cpp11-toolchain` và
-  `cpp11-const-pointer-lvalue-reference` đã được đăng ký cùng ví dụ C++11 có
-  warning sạch. Prompt `docs/prompts/cpp-daily-lesson.md` dành riêng cho GPT Web:
-  tra nguồn trong Google Drive rồi tạo đúng hai tệp tải xuống có format lesson
-  chuẩn. Việc đưa tệp vào repo, refresh, kiểm tra và push là workflow riêng.
-  Không có task sản phẩm tiếp theo đã được chốt; session mới lấy yêu cầu hiện tại
-  từ người dùng.
-- Bộ tính chi phí AI dùng giá GPT-5.6 hiện hành: Luna $0.20 input/$1.20 output
-  mỗi triệu token, Terra $2/$12. Ngân sách ứng dụng mặc định vẫn là $5/tháng;
-  reservation đã giảm tương ứng để cùng ngân sách cho phép nhiều lượt hơn.
+- Đợt nâng cấp đang gom sáu chức năng học tập: phiên ôn tập trọng tâm từ
+  Stats/thư viện bài học; Tick Replay Lab; thư viện bài học có
+  tự kiểm tra; Toolchain Dojo; Legacy → Modern C++ Capstone; và đồng bộ nền cho
+  bằng chứng WorldQuant cùng Nhiệm vụ. Capstone là sáu checkpoint tuần tự về
+  provenance, golden output, adapter, toolchain, reconciliation và rollout.
+- Training state vẫn lưu tại máy trước để dùng được khi mất mạng. Khi tài khoản đã
+  đăng nhập, state account-scoped được hợp nhất với cloud bằng revision CAS; dữ liệu
+  anonymous không tự chuyển vào tài khoản. Mission cloud giữ bản đầu tiên theo
+  ngày/vị trí/thời lượng để các thiết bị dùng cùng một kế hoạch; nếu cloud lỗi,
+  bản trên thiết bị vẫn là bản làm việc.
 
 ## Giới hạn và trạng thái chưa xác minh
 
@@ -34,10 +31,10 @@ trạng thái từ tên nhánh.
   xóa revision/audit history. Ownership guard giữ lifecycle của row DB-owned;
   current-question view vẫn biểu diễn nó là `archived` khi lesson cha đã
   archive. Repo không chứng minh remote hiện có DB-owned draft nào.
-- WorldQuant training state và Mission snapshot hiện ở localStorage schema/key
-  v2, tách account/local và chưa cloud sync. Training state chỉ sao chép hợp lệ
-  từ v1 sang v2 một chiều khi v2 chưa tồn tại; Mission v1 bị bỏ qua và dựng lại.
-  Không tự gán dữ liệu local sang account sau khi đăng nhập.
+- Migration `20260801090000_add_worldquant_cloud_state.sql` mới có hai bảng/RPC
+  cloud state và chưa được xác minh trên Supabase production. Triển khai app mới
+  trước, sau đó mới chạy migration; khi migration chưa có, API trả lỗi an toàn và
+  browser tiếp tục giữ tiến độ cục bộ.
 - Hồ sơ phỏng vấn WorldQuant hiện hành là v4, local snapshot nằm dưới exact
   account UUID và danh mục bài luyện là v2. Mọi transition dùng Web Lock +
   revision CAS; answer intent chỉ được rebase trong cùng session/status, còn
@@ -76,9 +73,10 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- `npm run validate` đạt toàn bộ: content/context check, lint, TypeScript,
-  Vitest và production build.
-- Vitest: 95 test files, 607 tests đạt.
+- Đã đạt toàn bộ gate: `content:check`, `context:check`, ESLint, TypeScript,
+  Vitest (101 file/631 test) và production build (60 route). Một lượt test đầy đủ
+  trước đó có timeout đơn lẻ ở `billing.test.ts`; chạy lại chính test đó và toàn
+  bộ suite đều đạt, nên không có thay đổi nào ở billing.
 - Next.js production build đạt và sinh đủ 25 trang tĩnh/động trong route graph,
   gồm `/profile`, năm route WorldQuant training và `/admin/coverage`.
 - `npm audit --omit=dev --audit-level=moderate` không tìm thấy lỗ hổng production.

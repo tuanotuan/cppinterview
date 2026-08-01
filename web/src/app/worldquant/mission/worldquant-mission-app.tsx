@@ -41,6 +41,7 @@ import {
   readWorldQuantMissionSnapshot,
   rememberTabMissionSnapshotFallback,
   restoreOrBuildWorldQuantMission,
+  syncWorldQuantMissionSnapshotToCloud,
   subscribeToWorldQuantMissionSnapshot,
 } from "@/lib/worldquant/mission-snapshot";
 import {
@@ -48,6 +49,7 @@ import {
   readWorldQuantTrainingStateSnapshot,
   recordMissionCompletion,
   resolveRepairCard,
+  syncWorldQuantTrainingStateToCloud,
   subscribeToWorldQuantTrainingState,
   writeWorldQuantTrainingStateLocked,
 } from "@/lib/worldquant/training-state";
@@ -91,6 +93,9 @@ export function WorldQuantMissionApp({
   initialMockCompletions: MissionMockCompletion[];
   mockAvailable: boolean;
 }) {
+  useEffect(() => {
+    void syncWorldQuantTrainingStateToCloud(accountId);
+  }, [accountId]);
   const subscribeToScopedProgress = useMemo(
     () => (callback: () => void) =>
       subscribeToPracticeProgress(accountId, callback),
@@ -157,6 +162,9 @@ export function WorldQuantMissionApp({
     }),
     [accountId, minutes, roleId, today],
   );
+  useEffect(() => {
+    void syncWorldQuantMissionSnapshotToCloud(missionScope);
+  }, [missionScope]);
   const subscribeToMissionSnapshot = useMemo(
     () => (callback: () => void) =>
       subscribeToWorldQuantMissionSnapshot(

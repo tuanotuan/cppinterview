@@ -448,9 +448,108 @@ export function writeWorldQuantMissionSnapshot(
         detail: { key },
       }),
     );
+    if (scope.accountId) {
+      void syncWorldQuantMissionSnapshotToCloud(scope);
+    }
     return true;
   } catch {
     return false;
+  }
+}
+
+const missionCloudSyncs = new Map<string, Promise<void>>();
+
+/** Keeps the first saved mission for a signed-in scope stable on every device. */
+export function syncWorldQuantMissionSnapshotToCloud(
+  scope: WorldQuantMissionSnapshotScope,
+): Promise<void> {
+  if (!scope.accountId || typeof window === "undefined") return Promise.resolve();
+  const key = worldQuantMissionSnapshotStorageKey(scope);
+  const active = missionCloudSyncs.get(key);
+  if (active) return active.then(() => syncWorldQuantMissionSnapshotToCloud(scope));
+  const sync = syncMissionSnapshot(scope).finally(() => missionCloudSyncs.delete(key));
+  missionCloudSyncs.set(key, sync);
+  return sync;
+}
+
+async function syncMissionSnapshot(scope: WorldQuantMissionSnapshotScope) {
+  const remote = await readMissionCloudSnapshot(scope);
+  if (!remote) return;
+  if (remote.snapshot) {
+    writeMissionSnapshotLocally(scope, remote.snapshot);
+    return;
+  }
+  const local = parseWorldQuantMissionSnapshot(readWorldQuantMissionSnapshot(scope));
+  if (!local) return;
+  const saved = await writeMissionCloudSnapshot(scope, local, remote.revision);
+  if (!saved) return;
+  writeMissionSnapshotLocally(scope, saved.snapshot);
+}
+
+async function readMissionCloudSnapshot(scope: WorldQuantMissionSnapshotScope): Promise<{
+  snapshot: WorldQuantMissionSnapshot | null;
+  revision: number;
+} | null> {
+  try {
+    const query = new URLSearchParams({
+      date: scope.date,
+      role: scope.roleProfileId,
+      minutes: String(scope.timeBudgetMinutes),
+    });
+    const response = await fetch(`/api/worldquant/mission-snapshot?${query}`, { cache: "no-store" });
+    if (!response.ok) return null;
+    const parsed = z.object({
+      snapshot: worldQuantMissionSnapshotSchema.nullable(),
+      revision: z.number().int().nonnegative(),
+    }).safeParse(await response.json());
+    return parsed.success ? parsed.data : null;
+  } catch {
+    return null;
+  }
+}
+
+async function writeMissionCloudSnapshot(
+  scope: WorldQuantMissionSnapshotScope,
+  snapshot: WorldQuantMissionSnapshot,
+  expectedRevision: number,
+) {
+  try {
+    const response = await fetch("/api/worldquant/mission-snapshot", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        date: scope.date,
+        roleProfileId: scope.roleProfileId,
+        timeBudgetMinutes: scope.timeBudgetMinutes,
+        snapshot,
+        expectedRevision,
+      }),
+      cache: "no-store",
+    });
+    if (response.status !== 200 && response.status !== 409) return null;
+    const parsed = z.object({
+      snapshot: worldQuantMissionSnapshotSchema,
+      revision: z.number().int().nonnegative(),
+      conflict: z.boolean(),
+    }).safeParse(await response.json());
+    return parsed.success ? parsed.data : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeMissionSnapshotLocally(
+  scope: WorldQuantMissionSnapshotScope,
+  snapshot: WorldQuantMissionSnapshot,
+) {
+  try {
+    const key = worldQuantMissionSnapshotStorageKey(scope);
+    window.localStorage.setItem(key, serializeWorldQuantMissionSnapshot(snapshot));
+    window.dispatchEvent(
+      new CustomEvent(WORLDQUANT_MISSION_SNAPSHOT_CHANGED_EVENT, { detail: { key } }),
+    );
+  } catch {
+    // The remote snapshot is still available on the next signed-in visit.
   }
 }
 

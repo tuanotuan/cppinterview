@@ -53,6 +53,12 @@ export default function TickDataOrderBookGuide() {
                 Bắt đầu từ giá mua / giá bán ↓
               </a>
               <Link
+                href="/worldquant/tick-replay-lab"
+                className="w-full rounded-2xl border border-[#d7ff91]/35 bg-[#d7ff91]/10 px-5 py-3 text-center text-sm font-bold text-[#d7ff91] transition hover:bg-[#d7ff91]/18 sm:w-auto"
+              >
+                Mở Tick Replay Lab
+              </Link>
+              <Link
                 href="/worldquant"
                 className="w-full rounded-2xl border border-white/20 bg-white/8 px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-white/14 sm:w-auto"
               >

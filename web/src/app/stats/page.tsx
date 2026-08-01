@@ -12,6 +12,7 @@ import { isQuestionApproved } from "@/lib/practice/approvals";
 import { buildPracticeAnalytics } from "@/lib/practice/analytics";
 import { loadCloudContext } from "@/lib/practice/cloud-server";
 import { buildLearningStates } from "@/lib/practice/learning-state";
+import { buildCustomStudyLaunchHref } from "@/lib/practice/custom-study";
 import type { Rating } from "@/lib/practice/scheduler";
 import { FsrsShadowPanel } from "./fsrs-shadow-panel";
 
@@ -241,6 +242,17 @@ export default async function StatsPage({
                 ? `${analytics.overdueCount} câu quá hạn được gộp vào hôm nay.`
                 : "Không có câu quá hạn."}
             </p>
+            {analytics.forecast[0]?.count ? (
+              <Link
+                href={buildCustomStudyLaunchHref(selectedDeck, {
+                  kind: "due",
+                  limit: 20,
+                })}
+                className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#245748] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+              >
+                Luyện ngay câu đến hạn
+              </Link>
+            ) : null}
             <div className="mt-6 flex h-48 items-end gap-2">
               {analytics.forecast.map((day, index) => (
                 <div key={day.date} className="flex min-w-0 flex-1 flex-col items-center gap-2">
@@ -280,6 +292,16 @@ export default async function StatsPage({
                     <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#173f35]/8">
                       <div className="h-full rounded-full bg-[#ba4b2f]" style={{ width: `${topic.difficultyPercent}%` }} />
                     </div>
+                    <Link
+                      href={buildCustomStudyLaunchHref(selectedDeck, {
+                        kind: "topic",
+                        topic: topic.topic,
+                        limit: 10,
+                      })}
+                      className="mt-3 inline-flex min-h-10 items-center rounded-xl border border-[#173f35]/15 bg-white px-3 py-2 text-xs font-bold text-[#245748] transition hover:border-[#356b58]/40 focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+                    >
+                      Luyện chủ đề này
+                    </Link>
                   </div>
                 ))}
               </div>
@@ -300,6 +322,14 @@ export default async function StatsPage({
                 label="Câu khó nhớ"
                 value={analytics.stateCounts.leech}
                 tone="warning"
+                href={
+                  analytics.stateCounts.leech
+                    ? buildCustomStudyLaunchHref(selectedDeck, {
+                        kind: "leech",
+                        limit: 20,
+                      })
+                    : undefined
+                }
               />
               <StateCard
                 label="Tạm dừng"
@@ -357,12 +387,38 @@ function MetricCard({ label, value, note }: { label: string; value: string; note
   );
 }
 
-function StateCard({ label, value, tone = "default" }: { label: string; value: number; tone?: "default" | "warning" | "muted" }) {
+function StateCard({
+  label,
+  value,
+  tone = "default",
+  href,
+}: {
+  label: string;
+  value: number;
+  tone?: "default" | "warning" | "muted";
+  href?: string;
+}) {
   const toneClass = tone === "warning" ? "bg-[#f1d6c9] text-[#8e3825]" : tone === "muted" ? "bg-[#edf0e8] text-[#64736c]" : "bg-[#eaf8cf] text-[#245748]";
-  return (
-    <div className={`rounded-2xl p-4 ${toneClass}`}>
+  const content = (
+    <>
       <p className="font-mono text-[10px] font-bold uppercase">{label}</p>
       <p className="mt-2 text-2xl font-semibold">{value}</p>
+      {href ? <p className="mt-2 text-[10px] font-bold">Luyện ngay →</p> : null}
+    </>
+  );
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className={`rounded-2xl p-4 transition hover:-translate-y-0.5 focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none ${toneClass}`}
+      >
+        {content}
+      </Link>
+    );
+  }
+  return (
+    <div className={`rounded-2xl p-4 ${toneClass}`}>
+      {content}
     </div>
   );
 }
