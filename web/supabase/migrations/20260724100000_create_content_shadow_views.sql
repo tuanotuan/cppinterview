@@ -1,4 +1,7 @@
-create or replace view public.content_current_lessons
+-- Replace an unversioned predecessor without cascading into unknown objects.
+drop view if exists public.content_current_lessons;
+
+create view public.content_current_lessons
 with (security_invoker = true)
 as
 select

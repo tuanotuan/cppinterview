@@ -44,17 +44,13 @@ trạng thái từ tên nhánh.
   freeze/complete/reset giữ CAS nghiêm ngặt. Phiên đúng owner nhưng stale theo
   question revision được thay nguyên tử khi tạo buổi mới. Hub chỉ đọc local v4
   theo account hoặc server history v4; không nhận shared v3/ownerless state.
-- Repo không chứng minh trạng thái deploy Vercel, `QUESTION_STORE` production,
-  secret, quota hay migration remote. Bản code này cần áp dụng các migration
-  `20260730130000`–`20260730170000` và
-  `20260730190000`–`20260730220000` theo timestamp. Migration budget khóa các
-  RPC hạn mức tổng hợp cũ. Thứ tự rollout bắt buộc là app/worker mới trước,
-  migration sau; không chạy riêng protocol-breaking
-  `20260730140000`/`20260730170000`/`20260730210000` khi phiên bản cũ còn phục
-  vụ. Practice dùng expand `20260730200000` giữ RPC năm tham số tạm thời, rồi
-  finalize `20260730220000` mới backfill generation và gỡ overload sau khi app
-  generation-aware đã phục vụ. Các migration mới chưa được chạy integration
-  trên PostgreSQL thật trong môi trường local.
+- Supabase project `cpp-recall` đã áp đủ migration đến `20260730220000`; lịch
+  sử remote đã được đối chiếu với local. Bootstrap xử lý hai view cũ không có
+  lịch sử (`content_current_questions` và
+  `content_current_repository_questions`) bằng drop tường minh không
+  `CASCADE`, và xoá riêng metadata `current_standard` cache không hợp lệ để
+  content sync điền lại từ manifest. Repo vẫn không chứng minh trạng thái
+  deploy Vercel, `QUESTION_STORE`, secret hay quota production.
 - Main workflow serialize content generation và sync exact generator version.
   Không chạy đồng thời worker service-role từ hai bản deploy. Conflict giữa các
   version phải được đóng rõ trong Admin của bản hiện hành; outcome AI chưa xác

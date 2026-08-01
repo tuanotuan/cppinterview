@@ -745,8 +745,11 @@ describe("database hardening migrations", () => {
   });
 });
 
-function readMigration(name: string) {
-  return readFile(path.join(migrationRoot, name), "utf8");
+async function readMigration(name: string) {
+  return (await readFile(path.join(migrationRoot, name), "utf8")).replaceAll(
+    "\r\n",
+    "\n",
+  );
 }
 
 function extractBracedBlock(source: string, marker: string) {

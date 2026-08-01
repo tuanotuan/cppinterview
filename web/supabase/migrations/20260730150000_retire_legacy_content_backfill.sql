@@ -5,7 +5,7 @@
 
 create or replace function public.backfill_content_question_bank(
   p_manifest jsonb,
-  p_admin_github_login text
+  p_admin_github_login text default null
 )
 returns jsonb
 language plpgsql
