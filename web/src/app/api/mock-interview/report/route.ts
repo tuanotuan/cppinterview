@@ -694,7 +694,7 @@ export async function POST(request: Request) {
     try {
       const openAiResult = await withAiBudget(
         supabase,
-        COACH_RESERVATION_USD_MICROS.mockReport,
+        COACH_RESERVATION_USD_MICROS.terra,
         {
           beforeProviderDispatch: markReportProviderDispatched,
           invokeProvider: () =>

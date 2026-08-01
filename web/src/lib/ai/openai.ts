@@ -88,7 +88,7 @@ export async function answerCoachFollowUpWithOpenAI({
   messages: CoachFollowUpMessage[];
   safetyIdentifier: string;
 }): Promise<OpenAIStructuredResult<CoachFollowUpResponse>> {
-  const model = openAIModel("terra");
+  const model = openAIModel("luna");
   const response = await openAIClient().responses.parse({
     model,
     store: false,
@@ -132,14 +132,14 @@ export async function evaluateMockInterviewWithOpenAI({
   prompt: string;
   safetyIdentifier: string;
 }): Promise<OpenAIStructuredResult<MockInterviewReport>> {
-  const model = openAIModel("luna");
+  const model = openAIModel("terra");
   const response = await openAIClient().responses.parse({
     model,
     store: false,
     safety_identifier: safetyIdentifier,
     instructions,
     input: prompt,
-    reasoning: { effort: "medium" },
+    reasoning: { effort: "high" },
     max_output_tokens: 4200,
     text: {
       format: zodTextFormat(mockInterviewReportSchema, "mock_interview_report"),
