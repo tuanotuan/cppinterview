@@ -131,6 +131,9 @@ Xem danh sách chuẩn trong `web/.env.example`.
 - Khi không cấu hình Supabase, route AI chỉ được chạy không tính quota nếu
   `NODE_ENV=development` và `ALLOW_UNMETERED_LOCAL_AI=true`; production và test
   luôn bỏ qua cờ này rồi từ chối theo hướng an toàn.
+- OpenAI routing cố định: Luna phục vụ AI Coach (chấm, hỏi tiếp/đào sâu),
+  flashcard sửa lỗi và sinh nội dung; Terra chỉ phục vụ tổng kết phỏng vấn thử
+  với reasoning `high`. Reservation quota phải dùng đúng tier gọi provider.
 - Không log secret, không commit `.env.local`, không truyền secret vào sandbox.
 
 App local không có Supabase vẫn chạy local-only. AI/runner/cloud feature cần

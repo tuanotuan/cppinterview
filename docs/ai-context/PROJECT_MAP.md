@@ -81,7 +81,7 @@ API quan trọng:
 | `worldquant` | `readiness.ts`, `focus-plan.ts` | Role/competency model, preparation evidence và planner queue deterministic theo gap/time budget |
 | `worldquant` | `curriculum.ts`, `curriculum-evidence.ts`, `drills.ts` | Concept graph, content/transfer coverage và catalog 30 scenario: một practice + hai checkpoint mỗi competency |
 | `worldquant` | `training-state.ts`, `mission-snapshot.ts`, `tick-replay.ts`, `toolchain-dojo.ts`, `legacy-modern-capstone.ts` | Evidence account-scoped, cloud CAS/local fallback, Mission frozen, mô phỏng tick, bài thực hành CMake và capstone chuyển đổi legacy |
-| `ai` | `openai.ts`, `gemini.ts`, `fallback.ts`, `access.ts` | Provider call không transport retry, fallback và chặn AI không quota ngoài local development |
+| `ai` | `openai.ts`, `gemini.ts`, `fallback.ts`, `access.ts` | Provider call không transport retry, fallback và chặn AI không quota ngoài local development; Luna cho học tập/Coach, Terra chỉ cho report Mock |
 | `ai` | `budget.ts`, `usage.ts`, `billing.ts`, `coach-idempotency-client.ts`, `coach-reservation.server.ts`, `coach-follow-up-reservation.server.ts` | Sổ hạn mức UUID, phân loại kết quả provider và terminal cache Coach theo exact request |
 | `mock-interview` | `profile.ts`, `profile-server.ts`, `catalog.ts`, `target-plan.ts` | JD question/version grounding, canonical competency mapping và deterministic balanced/targeted blueprint |
 | `mock-interview` | `session-v4.ts`, `contracts-v4.ts`, `session.ts`, `contracts.ts` | Account-scoped frozen v4 session/API contract, owner check và revision CAS; legacy parser không cấp dữ liệu cho Hub |
@@ -262,7 +262,8 @@ exact role/full-round/round/drill revision vào training state.
 Request được validate + rate-limit + auth/approval check → reserve durable
 evaluation/follow-up theo fingerprint và idempotency key → reserve daily OpenAI
 budget bằng UUID → ghi riêng marker `dispatched` của reservation ứng dụng và
-ledger hạn mức ngay trước provider → gọi model một lần → finalize exact ledger
+ledger hạn mức ngay trước provider → gọi model một lần (Luna cho Coach, Terra cho
+report Mock) → finalize exact ledger
 row → hoàn tất terminal cache. Lease ứng dụng hết hạn trước marker được thu hồi;
 lease đã marker mới terminalize bảo thủ. Tab/reload gửi cùng exact request nhận
 canonical cache; request khác không được tái dùng key. Daily allowance chỉ tính

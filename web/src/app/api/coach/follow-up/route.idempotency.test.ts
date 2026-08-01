@@ -90,7 +90,7 @@ vi.mock("@/lib/ai/rate-limit", () => ({
 }));
 
 vi.mock("@/lib/ai/usage", () => ({
-  COACH_RESERVATION_USD_MICROS: { terra: 20_000 },
+  COACH_RESERVATION_USD_MICROS: { luna: 20_000 },
 }));
 
 vi.mock("@/lib/content/question-overrides-server", () => ({
@@ -180,7 +180,7 @@ const completedReservation = {
   ...runningReservation,
   status: "completed" as const,
   response: reply,
-  model: "gpt-5.6-terra",
+  model: "gpt-5.6-luna",
   provider: "openai" as const,
   leaseToken: null,
   leaseExpiresAt: null,
@@ -230,7 +230,7 @@ beforeEach(() => {
   mocks.releaseCoachFollowUp.mockResolvedValue("released");
   mocks.answerCoachFollowUpWithOpenAI.mockResolvedValue({
     data: reply,
-    model: "gpt-5.6-terra",
+    model: "gpt-5.6-luna",
   });
   mocks.withAiBudget.mockImplementation(
     async (
@@ -338,6 +338,11 @@ describe("POST /api/coach/follow-up idempotency", () => {
 
     expect(response.status).toBe(200);
     expect(mocks.answerCoachFollowUpWithOpenAI).toHaveBeenCalledTimes(1);
+    expect(mocks.withAiBudget).toHaveBeenCalledWith(
+      supabase,
+      20_000,
+      expect.any(Object),
+    );
     expect(mocks.markCoachFollowUpDispatched).toHaveBeenCalledWith(
       supabase,
       { idempotencyKey, leaseToken },

@@ -273,7 +273,7 @@ export async function POST(request: Request) {
     try {
       const openAiResult = await withAiBudget(
         supabase,
-        COACH_RESERVATION_USD_MICROS.terra,
+        COACH_RESERVATION_USD_MICROS.luna,
         {
           beforeProviderDispatch: markFollowUpProviderDispatched,
           invokeProvider: () =>
