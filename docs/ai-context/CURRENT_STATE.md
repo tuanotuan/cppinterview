@@ -62,6 +62,9 @@ trạng thái từ tên nhánh.
 
 - Nội dung người dùng nhìn thấy dùng “bạn” hoặc câu trung tính theo
   `web/AGENTS.md`; không sửa máy móc câu hỏi đã duyệt mà bỏ qua version/hash.
+- Thao tác xác nhận, xóa, reset hay nhập metadata trong client phải dùng dialog
+  của Recall; không quay lại hộp thoại native `alert`/`confirm`/`prompt` vì chúng
+  thiếu ngữ cảnh và phá vỡ trải nghiệm trên mobile.
 - Câu trả lời trống nghĩa là chưa biết và vẫn gọi được AI. Luồng
   Trợ giúp → Làm lại khóa rating cho tới khi người học tự trả lời lại; retry và
   Recall Repair vẫn đi qua scheduler chuẩn, không tạo review trùng.
@@ -74,9 +77,9 @@ trạng thái từ tên nhánh.
 ## Validation gần nhất
 
 - Đã đạt toàn bộ gate: `content:check`, `context:check`, ESLint, TypeScript,
-  Vitest (101 file/632 test) và production build (60 route). Một lượt test đầy đủ
-  trước đó có timeout đơn lẻ ở `billing.test.ts`; chạy lại chính test đó và toàn
-  bộ suite đều đạt, nên không có thay đổi nào ở billing.
+  Vitest (101 file/632 test) và production build (60 route). Cảnh báo retry tác
+  vụ AI vẫn được kiểm thử như một contract vì người dùng phải thấy rõ khả năng
+  phát sinh chi phí; toàn bộ client không còn gọi `window.alert`/`confirm`/`prompt`.
 - Next.js production build đạt và sinh đủ 25 trang tĩnh/động trong route graph,
   gồm `/profile`, năm route WorldQuant training và `/admin/coverage`.
 - `npm audit --omit=dev --audit-level=moderate` không tìm thấy lỗ hổng production.

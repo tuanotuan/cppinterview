@@ -50,6 +50,7 @@ import {
   requiresCodeAnswer,
 } from "@/lib/practice/candidate-answer";
 import { QuestionEditorDialog } from "./question-editor-dialog";
+import { ConfirmationDialog } from "./confirmation-dialog";
 import {
   buildCustomStudyQueue,
   type CustomStudyFilters,
@@ -456,6 +457,7 @@ export function PracticeApp({
   const [questionAdminError, setQuestionAdminError] = useState<string | null>(
     null,
   );
+  const [archiveConfirmationOpen, setArchiveConfirmationOpen] = useState(false);
   const initialSyncStarted = useRef<string | null>(null);
   const initialSyncRetryCountRef = useRef(0);
   const initialSyncRetryTimerRef = useRef<number | null>(null);
@@ -2989,15 +2991,7 @@ export function PracticeApp({
                       </button>
                       <button
                         type="button"
-                        onClick={() => {
-                          if (
-                            window.confirm(
-                              "Xóa thẻ này khỏi lịch học? Lịch sử ôn và các phản hồi AI vẫn được giữ để có thể kiểm tra lại.",
-                            )
-                          ) {
-                            void mutateCurrentQuestion("archive");
-                          }
-                        }}
+                        onClick={() => setArchiveConfirmationOpen(true)}
                         disabled={questionAdminSaving}
                         className="rounded-xl border border-[#ba4b2f]/30 bg-white px-3 py-2 text-xs font-bold text-[#8e3825] transition hover:-translate-y-0.5 hover:bg-[#fff3eb] disabled:cursor-wait disabled:opacity-50 focus:ring-4 focus:ring-[#f8d1bc] focus:outline-none"
                       >
@@ -3583,6 +3577,19 @@ export function PracticeApp({
               setQuestionAdminEditing(false);
             }}
             onSave={(content) => mutateCurrentQuestion("edit", content)}
+          />
+        ) : null}
+        {canManageQuestionBank && archiveConfirmationOpen && current ? (
+          <ConfirmationDialog
+            title="Xóa thẻ khỏi lịch học?"
+            description="Thẻ sẽ không còn xuất hiện trong lịch luyện. Lịch sử ôn và các phản hồi AI vẫn được giữ để bạn có thể kiểm tra hoặc khôi phục sau này."
+            confirmLabel="Xóa khỏi lịch học"
+            busy={questionAdminSaving}
+            onCancel={() => setArchiveConfirmationOpen(false)}
+            onConfirm={() => {
+              setArchiveConfirmationOpen(false);
+              void mutateCurrentQuestion("archive");
+            }}
           />
         ) : null}
 

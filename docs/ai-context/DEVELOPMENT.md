@@ -295,6 +295,10 @@ service-role-only/browser grants như contract hiện tại.
 - Đọc `web/AGENTS.md` trước khi sửa web và đọc docs Next.js cài local cho API
   framework.
 - Server-only module/secret không được import vào client component.
+- Không dùng `window.alert`, `window.confirm` hoặc `window.prompt` cho luồng sản
+  phẩm. Xác nhận thao tác phá hủy/rủi ro phải dùng confirmation sheet theo style
+  Recall, có mô tả hậu quả, đường hủy rõ ràng và khóa nút khi đang xử lý; dữ liệu
+  người dùng cần nhập phải dùng form dialog trong UI.
 - Zod schema là boundary cho manifest, API body và AI structured output.
 - Giữ stable IDs, immutable audit history và source/version/hash binding.
 - Chỉ khai báo hai phiên bản danh mục bài luyện tương đương khi ID, loại bài,

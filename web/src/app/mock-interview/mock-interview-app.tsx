@@ -80,6 +80,7 @@ import {
   type WorldQuantMockRemediation,
 } from "@/lib/worldquant/mock-remediation";
 import { prepareFocusSprint } from "@/app/worldquant/focus-sprint";
+import { useConfirmation } from "@/app/confirmation-dialog";
 
 type MockInterviewHistoryEntry = {
   attemptId: string;
@@ -294,6 +295,7 @@ export function MockInterviewApp({
   const [codeRunError, setCodeRunError] = useState<string | null>(null);
   const [runningQuestionId, setRunningQuestionId] =
     useState<string | null>(null);
+  const { requestConfirmation, confirmationDialog } = useConfirmation();
   const evaluationInFlight = useRef(false);
   const autoSubmitted = useRef(false);
   const storageKey = useMemo(
@@ -737,7 +739,10 @@ export function MockInterviewApp({
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  async function finishInterview(timerExpired = false) {
+  async function finishInterview(
+    timerExpired = false,
+    confirmedUnanswered = false,
+  ) {
     if (
       !session ||
       (session.status !== "in_progress" &&
@@ -769,13 +774,14 @@ export function MockInterviewApp({
             )
           );
         }).length;
-    if (
-      unanswered > 0 &&
-      !timerExpired &&
-      !window.confirm(
-        `Còn ${unanswered} câu chưa trả lời. Nộp luôn và tính các câu đó là 0 điểm?`,
-      )
-    ) {
+    if (unanswered > 0 && !timerExpired && !confirmedUnanswered) {
+      requestConfirmation({
+        title: "Nộp khi còn câu chưa trả lời?",
+        description: `Còn ${unanswered} câu chưa trả lời. Nếu nộp ngay, các câu này sẽ được tính là 0 điểm trong báo cáo phỏng vấn thử.`,
+        confirmLabel: "Nộp bài ngay",
+        tone: "danger",
+        onConfirm: () => finishInterview(false, true),
+      });
       return;
     }
 
@@ -1036,17 +1042,29 @@ export function MockInterviewApp({
 
   function launchRemediation(
     option: WorldQuantMockRemediation["recommendations"][number],
+    confirmed = false,
   ) {
     setRemediationMessage(null);
     if (
+      !confirmed &&
       readFocusSessionSnapshot(account.id) !==
-        EMPTY_FOCUS_SESSION_STORAGE_SNAPSHOT &&
-      !window.confirm(
-        "Một phiên ôn trọng tâm khác đang mở trong trình duyệt. Bạn có muốn thay phiên đó bằng kế hoạch ôn mới không?",
-      )
+        EMPTY_FOCUS_SESSION_STORAGE_SNAPSHOT
     ) {
+      requestConfirmation({
+        title: "Thay phiên ôn tập trọng tâm đang mở?",
+        description: "Một phiên ôn tập trọng tâm khác đang mở trên trình duyệt này. Nếu tiếp tục, phiên đó sẽ được thay bằng kế hoạch ôn mới.",
+        confirmLabel: "Thay bằng kế hoạch mới",
+        tone: "danger",
+        onConfirm: () => launchRemediation(option, true),
+      });
       return;
     }
+    startRemediation(option);
+  }
+
+  function startRemediation(
+    option: WorldQuantMockRemediation["recommendations"][number],
+  ) {
     const destination = prepareFocusSprint(option.plan, {
       accountId: account.id,
     });
@@ -1061,8 +1079,17 @@ export function MockInterviewApp({
     setRemediationMessage(destination.message);
   }
 
-  async function deleteHistoryEntry(attemptId: string) {
-    if (!window.confirm("Xóa lượt phỏng vấn này khỏi lịch sử trực tuyến?")) return;
+  async function deleteHistoryEntry(attemptId: string, confirmed = false) {
+    if (!confirmed) {
+      requestConfirmation({
+        title: "Xóa lượt phỏng vấn khỏi lịch sử?",
+        description: "Báo cáo và dữ liệu của lượt này sẽ bị xóa khỏi lịch sử trực tuyến. Thao tác này không thể hoàn tác.",
+        confirmLabel: "Xóa lượt phỏng vấn",
+        tone: "danger",
+        onConfirm: () => deleteHistoryEntry(attemptId, true),
+      });
+      return;
+    }
     setHistoryError(null);
     try {
       const response = await fetch("/api/mock-interview/history", {
@@ -1090,12 +1117,22 @@ export function MockInterviewApp({
     }
   }
 
-  async function resetInterview(preferInitialRequest = false) {
+  async function resetInterview(
+    preferInitialRequest = false,
+    confirmed = false,
+  ) {
     if (
       session?.status !== "completed" &&
       session &&
-      !window.confirm("Xóa buổi phỏng vấn thử đang làm và tạo buổi mới?")
+      !confirmed
     ) {
+      requestConfirmation({
+        title: "Dừng buổi phỏng vấn đang làm?",
+        description: "Câu trả lời và thời gian của buổi đang làm sẽ bị xóa khỏi trình duyệt. Bạn sẽ bắt đầu một buổi mới.",
+        confirmLabel: "Dừng và tạo buổi mới",
+        tone: "danger",
+        onConfirm: () => resetInterview(preferInitialRequest, true),
+      });
       return;
     }
     const cleared = await clearMockSession(account.id, session);
@@ -1143,8 +1180,9 @@ export function MockInterviewApp({
 
   if (!session) {
     return (
-      <MockSetup
-        account={account}
+      <>
+        <MockSetup
+          account={account}
         duration={duration}
         roleProfileId={roleProfileId}
         mode={mode}
@@ -1183,15 +1221,18 @@ export function MockInterviewApp({
         historyAvailable={historyCloudAvailable}
         historyError={historyError}
         onDeleteHistory={deleteHistoryEntry}
-        notice={notice}
-      />
+          notice={notice}
+        />
+        {confirmationDialog}
+      </>
     );
   }
 
   if (session.status === "completed" && session.report) {
     return (
-      <MockReport
-        account={account}
+      <>
+        <MockReport
+          account={account}
         session={session}
         questions={sessionQuestions}
         remediation={remediation}
@@ -1208,14 +1249,17 @@ export function MockInterviewApp({
         onStartMissionMock={() => resetInterview(true)}
         onReplay={() => startInterview(session.plan)}
         onRemediate={launchRemediation}
-        onRemediationMinutes={setRemediationMinutes}
-      />
+          onRemediationMinutes={setRemediationMinutes}
+        />
+        {confirmationDialog}
+      </>
     );
   }
 
   if (!currentQuestion) {
     return (
-      <main className="grid min-h-screen place-items-center px-5">
+      <>
+        <main className="grid min-h-screen place-items-center px-5">
         <section className="max-w-lg rounded-3xl border border-[#ba4b2f]/20 bg-white/70 p-8 text-center">
           <h1 className="text-2xl font-semibold">Không khôi phục được câu hỏi</h1>
           <p className="mt-3 text-[#64736c]">
@@ -1230,7 +1274,9 @@ export function MockInterviewApp({
             Tạo buổi mới
           </button>
         </section>
-      </main>
+        </main>
+        {confirmationDialog}
+      </>
     );
   }
 
@@ -1257,6 +1303,7 @@ export function MockInterviewApp({
     ((session.currentIndex + 1) / session.questions.length) * 100;
 
   return (
+    <>
     <main className="min-h-screen px-4 py-4 sm:px-7 lg:px-10">
       <div className="mx-auto max-w-6xl">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-4">
@@ -1513,6 +1560,8 @@ export function MockInterviewApp({
         </section>
       </div>
     </main>
+    {confirmationDialog}
+    </>
   );
 }
 
