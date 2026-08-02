@@ -27,6 +27,11 @@ import type {
 import {
   mutatePracticeProgressSnapshotLocked,
 } from "@/lib/practice/storage";
+import {
+  ConfirmationDialog,
+  useConfirmation,
+} from "@/app/confirmation-dialog";
+import { InputDialog } from "@/app/input-dialog";
 
 const statusLabels: Record<AdminQuestionStatus, string> = {
   active: "Đang dùng",
@@ -103,6 +108,9 @@ const reviewRatingLabels: Record<string, string> = {
   easy: "Dễ",
 };
 type ScheduleAction = "suspend" | "unsuspend" | "reset" | "reschedule";
+type MistakeInputRequest =
+  | { kind: "reinforce_existing"; candidateId: string }
+  | { kind: "ground"; candidateId: string };
 
 export function AdminDashboard({
   account,
@@ -151,6 +159,9 @@ export function AdminDashboard({
   );
   const [mistakeSavingId, setMistakeSavingId] = useState<string | null>(null);
   const [mistakeBackfilling, setMistakeBackfilling] = useState(false);
+  const [mistakeInputRequest, setMistakeInputRequest] =
+    useState<MistakeInputRequest | null>(null);
+  const { requestConfirmation, confirmationDialog } = useConfirmation();
   const topics = useMemo(
     () =>
       [
@@ -339,12 +350,12 @@ function mistakeErrorMessage(code: string) {
   async function resolveMistake(
     candidateId: string,
     action: "dismiss" | "reinforce_existing",
+    matchedQuestionId: string | null = null,
   ) {
-    const matchedQuestionId =
-      action === "reinforce_existing"
-        ? window.prompt("Nhập ID của câu hỏi đã có để tăng cường:")
-        : null;
-    if (action === "reinforce_existing" && !matchedQuestionId) return;
+    if (action === "reinforce_existing" && !matchedQuestionId) {
+      setMistakeInputRequest({ kind: "reinforce_existing", candidateId });
+      return;
+    }
     setMistakeSavingId(candidateId);
     const response = await fetch("/api/mistakes/resolve", {
       method: "POST",
@@ -397,13 +408,16 @@ function mistakeErrorMessage(code: string) {
     window.location.reload();
   }
 
-  async function groundMistake(candidateId: string) {
-    const lessonId = window.prompt("ID bài học dùng làm nguồn:");
-    if (!lessonId) return;
-    const sections = window.prompt(
-      "Các ID mục nội dung, phân cách bằng dấu phẩy:",
-    );
-    if (!sections) return;
+  async function groundMistake(
+    candidateId: string,
+    source?: { lessonId: string; sections: string },
+  ) {
+    if (!source) {
+      setMistakeInputRequest({ kind: "ground", candidateId });
+      return;
+    }
+    const lessonId = source.lessonId;
+    const sections = source.sections;
     setMistakeSavingId(candidateId);
     const response = await fetch("/api/mistakes/ground", {
       method: "POST",
@@ -507,7 +521,10 @@ function mistakeErrorMessage(code: string) {
     }
   }
 
-  async function retryGenerationJob(job: ContentGenerationJobSummary) {
+  async function retryGenerationJob(
+    job: ContentGenerationJobSummary,
+    confirmedAmbiguousOutcome = false,
+  ) {
     setRetryingJobId(job.id);
     setNotice(null);
     try {
@@ -531,10 +548,16 @@ function mistakeErrorMessage(code: string) {
 
       let result = await submitRetry(false);
       if (!result.response.ok && result.payload.requiresConfirmation) {
-        const confirmed = window.confirm(
-          "Nhà cung cấp AI có thể đã xử lý yêu cầu trước đó. Chạy lại có thể tạo thêm một yêu cầu tính phí. Bạn chỉ nên tiếp tục sau khi đã kiểm tra lịch sử sử dụng. Tiếp tục chạy lại?",
-        );
-        if (!confirmed) return;
+        if (!confirmedAmbiguousOutcome) {
+          requestConfirmation({
+            title: "Xác nhận chạy lại tác vụ AI",
+        description: "Nhà cung cấp AI có thể đã xử lý yêu cầu trước đó. Chạy lại có thể tạo thêm một yêu cầu tính phí. Chỉ tiếp tục sau khi đã kiểm tra lịch sử sử dụng.",
+            confirmLabel: "Tôi hiểu, chạy lại",
+            tone: "danger",
+            onConfirm: () => retryGenerationJob(job, true),
+          });
+          return;
+        }
         result = await submitRetry(true);
       }
 
@@ -1244,6 +1267,51 @@ function mistakeErrorMessage(code: string) {
             </div>
           </aside>
         </section>
+        {confirmationDialog}
+        {mistakeInputRequest?.kind === "reinforce_existing" ? (
+          <InputDialog
+            title="Dùng câu hỏi đã có"
+            description="Nhập ID chính xác của thẻ muốn tăng cường. Lỗi này sẽ được gắn vào thẻ đó thay vì tạo thẻ mới."
+            fields={[{ name: "questionId", label: "ID câu hỏi", placeholder: "cpp20-example-001" }]}
+            submitLabel="Gắn vào câu hỏi"
+            busy={mistakeSavingId !== null}
+            onCancel={() => setMistakeInputRequest(null)}
+            onSubmit={(values) => {
+              setMistakeInputRequest(null);
+              void resolveMistake(
+                mistakeInputRequest.candidateId,
+                "reinforce_existing",
+                values.questionId.trim(),
+              );
+            }}
+          />
+        ) : null}
+        {mistakeInputRequest?.kind === "ground" ? (
+          <InputDialog
+            title="Bổ sung nguồn cho lỗi"
+            description="Chỉ dùng các mục thực sự có trong bài học để thẻ mới bám sát kiến thức bạn đã lưu."
+            fields={[
+              { name: "lessonId", label: "ID bài học", placeholder: "cpp20-designated-initializers" },
+              {
+                name: "sections",
+                label: "ID các mục nội dung",
+                description: "Phân cách nhiều ID bằng dấu phẩy.",
+                placeholder: "overview, constraints, example",
+                multiline: true,
+              },
+            ]}
+            submitLabel="Lưu nguồn"
+            busy={mistakeSavingId !== null}
+            onCancel={() => setMistakeInputRequest(null)}
+            onSubmit={(values) => {
+              setMistakeInputRequest(null);
+              void groundMistake(mistakeInputRequest.candidateId, {
+                lessonId: values.lessonId,
+                sections: values.sections,
+              });
+            }}
+          />
+        ) : null}
       </div>
     </main>
   );
@@ -1315,6 +1383,9 @@ function QuestionCard({
     question.learning.dueOn ?? today,
   );
   const [editing, setEditing] = useState(false);
+  const [pendingConfirmation, setPendingConfirmation] = useState<
+    "reset" | "archive" | null
+  >(null);
   return (
     <details className="group rounded-2xl border border-[#173f35]/12 bg-white/75 open:border-[#356b58]/35">
       <summary className="flex list-none cursor-pointer items-start justify-between gap-4 p-4 sm:p-5">
@@ -1351,15 +1422,7 @@ function QuestionCard({
               <button
                 type="button"
                 disabled={saving}
-                onClick={() => {
-                  if (
-                    window.confirm(
-                      "Đặt câu này về trạng thái Mới và xóa toàn bộ lịch sử ôn riêng của câu này?",
-                    )
-                  ) {
-                    onManage("reset");
-                  }
-                }}
+                onClick={() => setPendingConfirmation("reset")}
                 className="rounded-xl border border-[#ba4b2f]/25 bg-white px-3 py-2 text-xs font-bold text-[#8e3825] disabled:opacity-50"
               >
                 Đặt lại thành câu mới
@@ -1397,15 +1460,7 @@ function QuestionCard({
               <button
                 type="button"
                 disabled={saving}
-                onClick={() => {
-                  if (
-                    window.confirm(
-                      "Lưu trữ câu hỏi này? Câu hỏi sẽ biến mất khỏi lịch luyện nhưng lịch sử ôn và các lần dùng AI vẫn được giữ.",
-                    )
-                  ) {
-                    void onMutate("archive");
-                  }
-                }}
+                onClick={() => setPendingConfirmation("archive")}
                 className="rounded-xl border border-[#ba4b2f]/30 bg-white px-3 py-2 text-xs font-bold text-[#8e3825] disabled:opacity-50"
               >
                 Lưu trữ
@@ -1434,6 +1489,32 @@ function QuestionCard({
             onSave={async (content) => {
               await onMutate("edit", content);
               setEditing(false);
+            }}
+          />
+        ) : null}
+        {pendingConfirmation === "reset" ? (
+          <ConfirmationDialog
+            title="Đặt lại thẻ về trạng thái mới?"
+            description="Toàn bộ lịch sử ôn riêng của thẻ này sẽ bị xóa. Thẻ sẽ quay về trạng thái Mới."
+            confirmLabel="Đặt lại thẻ"
+            busy={saving}
+            onCancel={() => setPendingConfirmation(null)}
+            onConfirm={() => {
+              setPendingConfirmation(null);
+              onManage("reset");
+            }}
+          />
+        ) : null}
+        {pendingConfirmation === "archive" ? (
+          <ConfirmationDialog
+            title="Lưu trữ câu hỏi này?"
+            description="Câu hỏi sẽ rời khỏi lịch luyện. Lịch sử ôn và các lần dùng AI vẫn được giữ để bạn có thể kiểm tra hoặc khôi phục sau này."
+            confirmLabel="Lưu trữ câu hỏi"
+            busy={saving}
+            onCancel={() => setPendingConfirmation(null)}
+            onConfirm={() => {
+              setPendingConfirmation(null);
+              void onMutate("archive");
             }}
           />
         ) : null}
