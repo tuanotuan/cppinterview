@@ -1284,28 +1284,31 @@ export function MockInterviewApp({
     response: "",
     explanation: "",
   };
-  const answeredCount = session.questions.filter((identity) => {
-    const question = questionByIdentity.get(
-      `${identity.origin}:${identity.id}`,
-    );
-    return Boolean(
-      question &&
+  const answeredQuestionIds = new Set(
+    session.questions.flatMap((identity) => {
+      const question = questionByIdentity.get(
+        `${identity.origin}:${identity.id}`,
+      );
+      return question &&
         isQuestionAnswered(
           question,
           session.answers[identity.id] ?? {
             response: "",
             explanation: "",
           },
-        ),
-    );
-  }).length;
+        )
+        ? [identity.id]
+        : [];
+    }),
+  );
+  const answeredCount = answeredQuestionIds.size;
   const progress =
     ((session.currentIndex + 1) / session.questions.length) * 100;
 
   return (
     <>
     <main className="min-h-screen px-4 py-4 sm:px-7 lg:px-10">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-7xl">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-4">
           <div className="flex items-center gap-3">
             <span className="grid size-10 place-items-center rounded-xl bg-[#173f35] font-mono text-xs font-bold text-[#d7ff91]">
@@ -1366,7 +1369,50 @@ export function MockInterviewApp({
           </div>
         </div>
 
-        <section className="py-7">
+        <section className="grid gap-5 py-7 lg:grid-cols-[13.5rem_minmax(0,1fr)]">
+          <aside className="hidden lg:block">
+            <div className="sticky top-5 rounded-[1.6rem] border border-[#173f35]/12 bg-white/58 p-4 shadow-sm">
+              <p className="font-mono text-[10px] font-bold tracking-[0.15em] text-[#356b58] uppercase">
+                Điều hướng buổi
+              </p>
+              <p className="mt-2 text-xs leading-5 text-[#64736c]">
+                Chỉ hiển thị thứ tự và trạng thái trả lời; không lộ chủ đề hay gợi ý.
+              </p>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                {session.questions.map((identity, index) => {
+                  const active = index === session.currentIndex;
+                  const answered = answeredQuestionIds.has(identity.id);
+                  return (
+                    <button
+                      key={`${identity.origin}:${identity.id}`}
+                      type="button"
+                      onClick={() => moveToQuestion(index)}
+                      disabled={session.status === "evaluating"}
+                      aria-current={active ? "step" : undefined}
+                      aria-label={`Câu ${index + 1}${answered ? ", đã trả lời" : ", chưa trả lời"}`}
+                      className={`relative rounded-xl px-3 py-2.5 text-left font-mono text-xs font-bold transition disabled:opacity-45 ${
+                        active
+                          ? "bg-[#173f35] text-[#d7ff91]"
+                          : "border border-[#173f35]/12 bg-white text-[#52645c] hover:border-[#356b58]/35"
+                      }`}
+                    >
+                      {String(index + 1).padStart(2, "0")}
+                      <span
+                        aria-hidden="true"
+                        className={`ml-2 inline-block size-1.5 rounded-full ${
+                          answered ? "bg-[#79b82a]" : "bg-[#ba4b2f]/45"
+                        }`}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="mt-5 border-t border-[#173f35]/10 pt-4 text-xs leading-5 text-[#64736c]">
+                <strong className="text-[#173f35]">{answeredCount}</strong>/{session.questions.length} câu đã trả lời
+              </div>
+            </div>
+          </aside>
+          <div className="min-w-0">
           <article className="overflow-hidden rounded-[2rem] border border-[#173f35]/15 bg-white/68 shadow-[0_22px_80px_rgb(23_63_53_/_8%)]">
             <div className="border-b border-[#173f35]/10 bg-[#173f35] px-6 py-4 text-white sm:px-9">
               <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#d7ff91] uppercase">
@@ -1516,7 +1562,7 @@ export function MockInterviewApp({
             </p>
           ) : null}
 
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="sticky bottom-3 z-20 mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#173f35]/12 bg-[#f7f5ed]/94 p-3 shadow-[0_12px_38px_rgba(23,63,53,0.12)] backdrop-blur">
             <button
               type="button"
               onClick={() => moveToQuestion(session.currentIndex - 1)}
@@ -1556,6 +1602,7 @@ export function MockInterviewApp({
                     : "Kết thúc và tạo báo cáo"}
               </button>
             </div>
+          </div>
           </div>
         </section>
       </div>
@@ -1645,7 +1692,7 @@ function MockSetup({
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-7xl">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
           <div className="flex items-center gap-3">
             <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
@@ -2100,7 +2147,7 @@ function MockReport({
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-7xl">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
           <div className="flex items-center gap-3">
             <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
@@ -2114,6 +2161,9 @@ function MockReport({
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-[#eaf4df] px-3 py-1.5 font-mono text-[10px] font-bold tracking-[0.12em] text-[#356b58] uppercase">
+              Đã hoàn thành
+            </span>
             {missionStartRequired ? (
               <button
                 type="button"
@@ -2162,8 +2212,8 @@ function MockReport({
           </div>
         </header>
 
-        <section className="grid gap-5 py-8 lg:grid-cols-[0.38fr_0.62fr]">
-          <article className="rounded-[2rem] bg-[#173f35] p-7 text-white shadow-[0_22px_80px_rgb(23_63_53_/_16%)]">
+        <section className="grid gap-5 py-8 lg:grid-cols-[minmax(17rem,.34fr)_minmax(0,1fr)]">
+          <article className="rounded-[2rem] bg-[#173f35] p-7 text-white shadow-[0_22px_80px_rgb(23_63_53_/_16%)] sm:p-8">
             <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#d7ff91] uppercase">
               {debrief.scope === "targeted_evidence"
                 ? `Trọng tâm · ${
@@ -2202,14 +2252,23 @@ function MockReport({
                 vào cuối buổi
               </p>
             </div>
+            {remediation?.recommendations[0] ? (
+              <a
+                href="#next-training"
+                className="mt-6 flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3 text-xs font-bold text-white transition hover:bg-white/16"
+              >
+                <span>Xem bước ôn tiếp theo</span>
+                <span aria-hidden="true" className="text-[#d7ff91]">↓</span>
+              </a>
+            ) : null}
           </article>
 
-          <article className="rounded-[2rem] border border-[#173f35]/12 bg-white/65 p-7">
+          <article className="rounded-[2rem] border border-[#173f35]/12 bg-white/75 p-7 sm:p-8">
             <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
               Tổng kết phỏng vấn
             </p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight">
-              Báo cáo tổng hợp
+              Một buổi đã hoàn thành.
             </h2>
             <p className="mt-4 leading-7 text-[#52645c]">{report.summary}</p>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -2283,7 +2342,7 @@ function MockReport({
           })}
         </section>
 
-        <section className="mt-5 rounded-[2rem] border border-[#173f35]/12 bg-white/62 p-6 sm:p-7">
+        <section id="next-training" className="mt-5 scroll-mt-5 rounded-[2rem] border border-[#173f35]/12 bg-white/62 p-6 sm:p-7">
           <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
             Bước ôn tập tiếp theo
           </p>
