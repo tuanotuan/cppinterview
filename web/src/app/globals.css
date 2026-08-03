@@ -3,6 +3,10 @@
 :root {
   --background: #f4f1e8;
   --foreground: #17221d;
+  --surface: #fbfaf5;
+  --ink-muted: #64736c;
+  --accent: #d7ff91;
+  --pine: #173f35;
 }
 
 @theme inline {
@@ -19,7 +23,8 @@
 body {
   margin: 0;
   background:
-    radial-gradient(circle at 75% 5%, rgb(215 255 145 / 20%), transparent 28rem),
+    radial-gradient(circle at 78% -8%, rgb(215 255 145 / 36%), transparent 31rem),
+    radial-gradient(circle at -12% 42%, rgb(222 236 211 / 62%), transparent 29rem),
     var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
@@ -32,6 +37,15 @@ summary {
 
 button {
   cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+:focus-visible {
+  outline: 3px solid rgb(121 184 42 / 68%);
+  outline-offset: 3px;
 }
 
 .rating-button[data-tone="red"] {

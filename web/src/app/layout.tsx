@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import "./globals.css";
+import { RecallMobileNav } from "./recall-mobile-nav";
 
 export const metadata: Metadata = {
   title: "Recall — Luyện phỏng vấn mỗi ngày",
@@ -18,7 +19,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
       </head>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full pb-22 lg:pb-0">
+        {children}
+        <RecallMobileNav />
+      </body>
     </html>
   );
 }

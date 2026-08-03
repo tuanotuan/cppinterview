@@ -11,6 +11,7 @@ Tài liệu ổn định để tìm đúng vùng code. Xác minh lại nếu sou
 | `cmake/` | Source root tùy chọn đã được pipeline hỗ trợ nhưng hiện chưa có lesson tracked; mỗi bài dùng `knowledge.md` + tùy chọn `CMakeLists.txt` |
 | `web/` | App Recall: Next.js App Router, React, TypeScript |
 | `web/src/proxy.ts` | Entry point refresh cookie/session Supabase qua `lib/supabase/proxy.ts` |
+| `web/src/app/recall-mobile-nav.tsx` | Điều hướng mobile dùng chung: Học hôm nay, Nhiệm vụ, Trung tâm chuẩn bị, Thư viện, Hồ sơ; tự ẩn ở mock/full-round để giữ không gian phỏng vấn |
 | `web/content/` | Registry lesson và question YAML do Git quản lý |
 | `web/src/generated/content-manifest.json` | Manifest deterministic, không sửa tay |
 | `web/supabase/migrations/` | Schema/RPC/RLS theo thứ tự timestamp |
@@ -32,7 +33,7 @@ nhật file context tương ứng theo root `AGENTS.md`.
 
 | URL/vùng | Entry point | Chức năng |
 |---|---|---|
-| `/` | `web/src/app/page.tsx`, `practice-app.tsx`, `question-editor-dialog.tsx`, `confirmation-dialog.tsx` | Daily/custom study và Focus Sprint exact queue; answer không giới hạn sản phẩm, blank = chưa biết và vẫn gọi được AI, rating, scheduler, cloud sync, saved state, owner-only edit/archive thẻ và return về Guided Mission; thao tác phá hủy dùng confirmation sheet của Recall thay vì hộp thoại trình duyệt |
+| `/` | `web/src/app/page.tsx`, `practice-app.tsx`, `question-editor-dialog.tsx`, `confirmation-dialog.tsx` | Today workspace là entry point: CTA tiếp tục/luyện thêm, tiến độ và chỉ số ngày trước card; Daily/custom study và Focus Sprint exact queue; answer không giới hạn sản phẩm, blank = chưa biết và vẫn gọi được AI, rating, scheduler, cloud sync, saved state, owner-only edit/archive thẻ và return về Guided Mission; thao tác phá hủy dùng confirmation sheet của Recall thay vì hộp thoại trình duyệt |
 | `/worldquant` | `worldquant/page.tsx`, `worldquant-readiness-app.tsx` | Trung tâm chuẩn bị theo vị trí/thời lượng, giới thiệu lần đầu, mục Nâng cao thu gọn; thống kê, Phiên ôn tập trọng tâm, phỏng vấn thử v4 gần nhất và xu hướng có thể so sánh |
 | `/worldquant/curriculum` | `worldquant/curriculum/page.tsx` | Graph 30 concept theo prerequisite; tách card coverage, pending content và transfer drill |
 | `/worldquant/drills` | `worldquant/drills/page.tsx`, `worldquant-drill-app.tsx` | Bài luyện tình huống: thẻ khởi động đã duyệt → luyện tập → câu hỏi tiếp nối → tiêu chí chấm → bài kiểm tra xác nhận mới/cách quãng; giữ đúng đường về Nhiệm vụ |
