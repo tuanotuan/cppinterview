@@ -302,6 +302,9 @@ service-role-only/browser grants như contract hiện tại.
 - Điều hướng mobile dùng `RecallMobileNav` ở layout và phải chừa bottom safe
   space cho nội dung. Không hiện navigation này trong mock/full-round để người
   học có trải nghiệm phỏng vấn tập trung, không lộ đường tắt hay hint.
+- Navigation trong mock chỉ được trình bày vị trí câu và việc đã/chưa trả lời.
+  Không dùng topic, difficulty, rubric, source hay bất kỳ metadata nào có thể
+  trở thành hint trước lúc nộp báo cáo.
 - Zod schema là boundary cho manifest, API body và AI structured output.
 - Giữ stable IDs, immutable audit history và source/version/hash binding.
 - Chỉ khai báo hai phiên bản danh mục bài luyện tương đương khi ID, loại bài,
