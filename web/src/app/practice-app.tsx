@@ -2733,7 +2733,8 @@ export function PracticeApp({
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
       <div className="mx-auto max-w-7xl">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
+        <header className="border-b border-[#173f35]/15 pb-5">
+          <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <span className="grid size-10 place-items-center rounded-xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91] shadow-sm">
               {PRACTICE_DECKS[requestedDeck].badge}
@@ -2766,11 +2767,6 @@ export function PracticeApp({
             {account && aiBudgetCacheHydrated && aiDailyBudget ? (
               <AiBudgetPill budget={aiDailyBudget} />
             ) : null}
-            <HeaderNavLink href="/worldquant">Trung tâm chuẩn bị</HeaderNavLink>
-            <HeaderNavLink href="/learn/tick-data-order-book">
-              Học dữ liệu tick
-            </HeaderNavLink>
-            <HeaderNavLink href="/learn/cmake">Học CMake</HeaderNavLink>
             {!isFocusActive ? (
               <SavedItemsControl
                 items={savedItems}
@@ -2799,6 +2795,28 @@ export function PracticeApp({
               selectedDeck={requestedDeck}
             />
           </div>
+          </div>
+          <nav
+            aria-label="Điều hướng học tập"
+            className="mt-5 hidden items-center gap-1 lg:flex"
+          >
+            <WorkspaceNavLink href="/" active>
+              Học hôm nay
+            </WorkspaceNavLink>
+            <WorkspaceNavLink href="/worldquant/mission">
+              Nhiệm vụ
+            </WorkspaceNavLink>
+            <WorkspaceNavLink href="/worldquant">
+              Trung tâm chuẩn bị
+            </WorkspaceNavLink>
+            <WorkspaceNavLink href="/mock-interview">
+              Phỏng vấn thử
+            </WorkspaceNavLink>
+            <WorkspaceNavLink href="/learn">Thư viện</WorkspaceNavLink>
+            <WorkspaceNavLink href={`/stats?deck=${requestedDeck}`}>
+              Tiến độ
+            </WorkspaceNavLink>
+          </nav>
         </header>
 
         {authNotice ? (
@@ -2829,6 +2847,25 @@ export function PracticeApp({
               Mở Hộp lỗi cần ôn
             </Link>
           </div>
+        ) : null}
+
+        {!isFocusActive ? (
+          <TodayWorkspace
+            completedToday={completedToday}
+            dailyTotal={dailyTotal}
+            remainingCount={remainingIds.length}
+            streak={streak}
+            hasCurrentQuestion={Boolean(current)}
+            onPrimaryAction={() => {
+              if (current) {
+                document
+                  .getElementById("practice-question")
+                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                return;
+              }
+              showRandomQuestion();
+            }}
+          />
         ) : null}
 
         {isFocusActive && focusSession ? (
@@ -2931,7 +2968,7 @@ export function PracticeApp({
 
         {current ? (
           <div className="grid gap-6 py-7 lg:grid-cols-[minmax(0,1fr)_18rem] lg:py-10">
-            <section>
+            <section id="practice-question" className="scroll-mt-5">
               <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <span className="rounded-full bg-[#d7ff91] px-3 py-1 font-mono text-xs font-bold text-[#173f35]">
@@ -4102,6 +4139,104 @@ function AiBudgetPill({ budget }: { budget: AiDailyBudgetSnapshot }) {
         />
       </div>
     </div>
+  );
+}
+
+function TodayWorkspace({
+  completedToday,
+  dailyTotal,
+  remainingCount,
+  streak,
+  hasCurrentQuestion,
+  onPrimaryAction,
+}: {
+  completedToday: number;
+  dailyTotal: number;
+  remainingCount: number;
+  streak: number;
+  hasCurrentQuestion: boolean;
+  onPrimaryAction: () => void;
+}) {
+  const progress = dailyTotal ? Math.round((completedToday / dailyTotal) * 100) : 100;
+
+  return (
+    <section className="mt-6 overflow-hidden rounded-[2rem] border border-[#173f35]/15 bg-[#173f35] text-white shadow-[0_20px_70px_rgba(23,63,53,0.16)]">
+      <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
+        <div>
+          <p className="font-mono text-[11px] font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
+            Không gian học hôm nay
+          </p>
+          <h1 className="mt-3 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
+            {hasCurrentQuestion
+              ? "Sẵn sàng cho câu tiếp theo?"
+              : "Bạn đã hoàn tất lịch học hôm nay."}
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/68 sm:text-base">
+            {hasCurrentQuestion
+              ? `${remainingCount} câu còn lại trong lịch. Tập trung trả lời trước, phản hồi và gợi ý sẽ chỉ xuất hiện sau đó.`
+              : "Bạn có thể dừng tại đây, xem lại ghi chú đã lưu, hoặc luyện thêm một câu ngẫu nhiên ngoài lịch."}
+          </p>
+          <button
+            type="button"
+            onClick={onPrimaryAction}
+            className="mt-6 rounded-xl bg-[#d7ff91] px-5 py-3 text-sm font-bold text-[#173f35] transition hover:-translate-y-0.5 hover:bg-[#e4ffb7] focus:ring-4 focus:ring-white/25 focus:outline-none"
+          >
+            {hasCurrentQuestion ? "Tiếp tục học →" : "Luyện thêm một câu →"}
+          </button>
+        </div>
+        <div className="rounded-2xl border border-white/12 bg-white/8 p-5">
+          <div className="flex items-center justify-between font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-white/72">
+            <span>Tiến độ hôm nay</span>
+            <span className="text-[#d7ff91]">{progress}%</span>
+          </div>
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/15">
+            <div
+              className="h-full rounded-full bg-[#d7ff91] transition-[width]"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className="mt-5 grid grid-cols-3 gap-2 text-center">
+            <TodayMetric label="Đã học" value={completedToday} />
+            <TodayMetric label="Còn lại" value={remainingCount} />
+            <TodayMetric label="Chuỗi" value={`${streak}d`} />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TodayMetric({ label, value }: { label: string; value: number | string }) {
+  return (
+    <div className="rounded-xl bg-black/10 px-2 py-3">
+      <p className="text-lg font-semibold text-[#d7ff91]">{value}</p>
+      <p className="mt-1 text-[10px] font-bold text-white/55 uppercase">{label}</p>
+    </div>
+  );
+}
+
+function WorkspaceNavLink({
+  href,
+  active = false,
+  children,
+}: {
+  href: string;
+  active?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={`relative inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition ${
+        active
+          ? "bg-[#173f35] text-[#d7ff91]"
+          : "text-[#64736c] hover:bg-white/65 hover:text-[#173f35]"
+      }`}
+    >
+      {children}
+      <HeaderNavPending />
+    </Link>
   );
 }
 

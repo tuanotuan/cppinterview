@@ -299,6 +299,9 @@ service-role-only/browser grants như contract hiện tại.
   phẩm. Xác nhận thao tác phá hủy/rủi ro phải dùng confirmation sheet theo style
   Recall, có mô tả hậu quả, đường hủy rõ ràng và khóa nút khi đang xử lý; dữ liệu
   người dùng cần nhập phải dùng form dialog trong UI.
+- Điều hướng mobile dùng `RecallMobileNav` ở layout và phải chừa bottom safe
+  space cho nội dung. Không hiện navigation này trong mock/full-round để người
+  học có trải nghiệm phỏng vấn tập trung, không lộ đường tắt hay hint.
 - Zod schema là boundary cho manifest, API body và AI structured output.
 - Giữ stable IDs, immutable audit history và source/version/hash binding.
 - Chỉ khai báo hai phiên bản danh mục bài luyện tương đương khi ID, loại bài,
