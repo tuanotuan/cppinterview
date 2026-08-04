@@ -75,6 +75,8 @@ trạng thái từ tên nhánh.
   Today nằm ở `/practice`, cho cả local practice lẫn account đã đăng nhập.
 - CTA “Thử luyện không cần tài khoản” mở `/practice?guest=1`: vẫn luyện thẻ
   local nhưng header không hiện lời mời đăng nhập như một điều kiện bắt buộc.
+- Guest mode không gọi AI Coach: UI nói rõ AI cần account/quota trước khi người
+  học bấm; mở đáp án, gợi ý và đánh giá local vẫn dùng được.
 - Câu trả lời trống nghĩa là chưa biết và vẫn gọi được AI. Luồng
   Trợ giúp → Làm lại khóa rating cho tới khi người học tự trả lời lại; retry và
   Recall Repair vẫn đi qua scheduler chuẩn, không tạo review trùng.

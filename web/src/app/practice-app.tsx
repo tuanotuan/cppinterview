@@ -3191,31 +3191,40 @@ export function PracticeApp({
                       {hints.has(current.id) ? "Ẩn gợi ý" : "Cần một gợi ý?"}
                     </button>
                     <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={askCoach}
-                        disabled={
-                          coachLoading === current.id ||
-                          (currentRescueRetry?.phase === "rescue" &&
-                            Boolean(coachFeedback[current.id]))
-                        }
-                        className="rounded-xl border border-[#356b58]/25 bg-[#d7ff91] px-5 py-3 text-sm font-bold text-[#173f35] shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#d7ff91]/60 focus:outline-none"
-                      >
-                        {coachLoading === current.id
-                          ? currentRescueRetry?.phase === "retrying"
-                            ? "AI đang chấm lại…"
-                            : "AI đang giúp…"
-                          : currentRescueRetry?.phase === "rescue" &&
-                              coachFeedback[current.id]
-                            ? "Đọc lời giải bên dưới"
-                            : currentRescueRetry?.phase === "retrying"
-                              ? currentCandidateAnswer
-                                ? "Nhờ AI chấm lần làm lại"
-                                : "Nhờ AI giải lại"
-                              : currentCandidateAnswer
-                                ? "Nhờ AI chấm"
-                                : "Nhờ AI giải"}
-                      </button>
+                      {guestMode && !account ? (
+                        <span
+                          title="AI Coach dùng quota riêng và cần tài khoản để bảo vệ chi phí."
+                          className="inline-flex items-center rounded-xl border border-[#356b58]/18 bg-[#edf3e7] px-4 py-3 text-xs font-semibold text-[#52645c]"
+                        >
+                          AI Coach cần đăng nhập
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={askCoach}
+                          disabled={
+                            coachLoading === current.id ||
+                            (currentRescueRetry?.phase === "rescue" &&
+                              Boolean(coachFeedback[current.id]))
+                          }
+                          className="rounded-xl border border-[#356b58]/25 bg-[#d7ff91] px-5 py-3 text-sm font-bold text-[#173f35] shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#d7ff91]/60 focus:outline-none"
+                        >
+                          {coachLoading === current.id
+                            ? currentRescueRetry?.phase === "retrying"
+                              ? "AI đang chấm lại…"
+                              : "AI đang giúp…"
+                            : currentRescueRetry?.phase === "rescue" &&
+                                coachFeedback[current.id]
+                              ? "Đọc lời giải bên dưới"
+                              : currentRescueRetry?.phase === "retrying"
+                                ? currentCandidateAnswer
+                                  ? "Nhờ AI chấm lần làm lại"
+                                  : "Nhờ AI giải lại"
+                                : currentCandidateAnswer
+                                  ? "Nhờ AI chấm"
+                                  : "Nhờ AI giải"}
+                        </button>
+                      )}
                       <button
                         type="button"
                         onClick={toggleReferenceAnswer}
