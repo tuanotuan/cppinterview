@@ -73,6 +73,8 @@ trạng thái từ tên nhánh.
   screen reader và thanh điều hướng mobile giữ vùng chạm/focus rõ ràng.
 - Trang chủ `/` luôn là landing giới thiệu Recall và GitHub OAuth; workspace
   Today nằm ở `/practice`, cho cả local practice lẫn account đã đăng nhập.
+- CTA “Thử luyện không cần tài khoản” mở `/practice?guest=1`: vẫn luyện thẻ
+  local nhưng header không hiện lời mời đăng nhập như một điều kiện bắt buộc.
 - Câu trả lời trống nghĩa là chưa biết và vẫn gọi được AI. Luồng
   Trợ giúp → Làm lại khóa rating cho tới khi người học tự trả lời lại; retry và
   Recall Repair vẫn đi qua scheduler chuẩn, không tạo review trùng.
@@ -84,8 +86,8 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Route landing/practice gần nhất đạt TypeScript, lint các file TS/TSX đổi và
-  Vitest (101 file/632 test). `next build` của các đợt UI trước đã đi qua
+- Route landing/practice/guest gần nhất đạt TypeScript, lint các file TS/TSX đổi
+  và Vitest (101 file/632 test). `next build` của các đợt UI trước đã đi qua
   compile, TypeScript và static-generation artifacts nhưng runner local từng cắt
   sau 2 phút trước exit code; dùng CI/Vercel để xác nhận production build của đợt
   này. Cảnh báo retry tác vụ AI vẫn được kiểm thử như một contract vì người dùng
