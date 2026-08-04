@@ -69,6 +69,8 @@ trạng thái từ tên nhánh.
   rail/sticky action trong Mock. Thư viện hiển thị tổng quan nguồn học và chip
   lọc lộ trình; Admin/Hồ sơ ưu tiên lối vào học tập chính. Các thay đổi này
   không chạm scheduler, AI admission hay dữ liệu học.
+- UI dùng chung có reduced-motion fallback; skeleton loading có thông báo cho
+  screen reader và thanh điều hướng mobile giữ vùng chạm/focus rõ ràng.
 - Câu trả lời trống nghĩa là chưa biết và vẫn gọi được AI. Luồng
   Trợ giúp → Làm lại khóa rating cho tới khi người học tự trả lời lại; retry và
   Recall Repair vẫn đi qua scheduler chuẩn, không tạo review trùng.
@@ -80,7 +82,7 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Đợt UI Library/Admin/Hồ sơ gần nhất đạt `context:refresh`, `context:check`,
+- Đợt UI accessibility polish gần nhất đạt `context:refresh`, `context:check`,
   ESLint, TypeScript và Vitest (101 file/632 test). `next build` của các đợt UI
   trước đã đi qua compile, TypeScript và static-generation artifacts nhưng runner
   local từng cắt sau 2 phút trước exit code; dùng CI/Vercel để xác nhận production
