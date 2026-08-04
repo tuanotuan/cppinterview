@@ -107,7 +107,7 @@ export function RecallLandingPage({
                 tone="hero"
               />
               <Link
-                href="/practice"
+                href="/practice?guest=1"
                 className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-[#173f35]/15 bg-white/70 px-5 py-3 text-sm font-bold text-[#245748] transition hover:border-[#356b58]/40 hover:bg-white focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
               >
                 Thử luyện không cần tài khoản

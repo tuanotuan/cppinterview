@@ -310,6 +310,7 @@ export function PracticeApp({
   sourceRevision,
   cloudEnabled,
   account,
+  guestMode,
   canManageQuestionBank,
   initialCloudProgress,
   initialQuestionStates,
@@ -328,6 +329,7 @@ export function PracticeApp({
   sourceRevision: string;
   cloudEnabled: boolean;
   account: PracticeAccount | null;
+  guestMode: boolean;
   canManageQuestionBank: boolean;
   initialCloudProgress: PracticeProgress;
   initialQuestionStates: QuestionLearningState[];
@@ -2791,6 +2793,7 @@ export function PracticeApp({
             <AccountControl
               account={account}
               cloudEnabled={cloudEnabled}
+              guestMode={guestMode}
               syncStatus={syncStatus}
               selectedDeck={requestedDeck}
             />
@@ -4271,11 +4274,13 @@ function HeaderNavPending() {
 function AccountControl({
   account,
   cloudEnabled,
+  guestMode,
   syncStatus,
   selectedDeck,
 }: {
   account: PracticeAccount | null;
   cloudEnabled: boolean;
+  guestMode: boolean;
   syncStatus: SyncStatus;
   selectedDeck: PracticeDeckId;
 }) {
@@ -4319,6 +4324,14 @@ function AccountControl({
           </button>
         </form>
       </div>
+    );
+  }
+
+  if (guestMode && !account) {
+    return (
+      <span className="rounded-full border border-[#173f35]/12 bg-[#e7e3d8] px-3 py-2 font-mono text-[10px] font-semibold text-[#64736c]">
+        luyện trên thiết bị
+      </span>
     );
   }
 

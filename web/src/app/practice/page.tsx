@@ -16,6 +16,7 @@ export default async function PracticePage({
     auth?: string | string[];
     deck?: string | string[];
     focus?: string | string[];
+    guest?: string | string[];
     limit?: string | string[];
     lesson?: string | string[];
     returnTo?: string | string[];
@@ -33,6 +34,7 @@ export default async function PracticePage({
   const manifest = cloud.manifest;
   const params = await searchParams;
   const authCode = single(params.auth);
+  const guestMode = single(params.guest) === "1";
   const deckParam = single(params.deck);
   const focusParam = single(params.focus);
   const requestedFocusId = parseFocusSessionId(focusParam);
@@ -115,6 +117,7 @@ export default async function PracticePage({
       sourceRevision={manifest.sourceRevision}
       cloudEnabled={cloud.enabled}
       account={cloud.account}
+      guestMode={guestMode}
       canManageQuestionBank={cloud.canManageQuestionBank}
       initialCloudProgress={cloud.progress}
       initialQuestionStates={cloud.questionStates}
