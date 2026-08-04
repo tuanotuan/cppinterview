@@ -63,7 +63,7 @@ describe("WorldQuant guided mode", () => {
 
   it("adds and validates a structured internal mission return", () => {
     const href = withWorldQuantMissionReturn(
-      "/?deck=cpp-interview&focus=focus-id",
+      "/practice?deck=cpp-interview&focus=focus-id",
       "tick-data-platform",
       30,
     );

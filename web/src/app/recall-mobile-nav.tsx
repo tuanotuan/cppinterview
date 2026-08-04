@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const items = [
-  { href: "/", label: "Học hôm nay", icon: "⌂" },
+  { href: "/practice", label: "Học hôm nay", icon: "⌂" },
   { href: "/worldquant/mission", label: "Nhiệm vụ", icon: "✓" },
   { href: "/worldquant", label: "Chuẩn bị", icon: "◇" },
   { href: "/learn", label: "Thư viện", icon: "▤" },
@@ -12,7 +12,7 @@ const items = [
 ];
 
 function isCurrent(pathname: string, href: string) {
-  if (href === "/") return pathname === "/";
+  if (href === "/practice") return pathname === "/practice";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 

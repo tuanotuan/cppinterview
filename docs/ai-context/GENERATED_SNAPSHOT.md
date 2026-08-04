@@ -13,9 +13,9 @@
 
 ## Application inventory
 
-- App pages: 18 (/, /admin, /admin/coverage, /learn, /learn/[lessonId], /learn/cmake, /learn/tick-data-order-book, /mock-interview, /profile, /stats, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/legacy-modern-capstone, /worldquant/mission, /worldquant/tick-replay-lab, /worldquant/toolchain-dojo)
+- App pages: 19 (/, /admin, /admin/coverage, /learn, /learn/[lessonId], /learn/cmake, /learn/tick-data-order-book, /mock-interview, /practice, /profile, /stats, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/legacy-modern-capstone, /worldquant/mission, /worldquant/tick-replay-lab, /worldquant/toolchain-dojo)
 - API routes: 22 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/coach/evaluate, /api/coach/follow-up, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/progress/sync, /api/questions/approve, /api/worldquant/mission-snapshot, /api/worldquant/training-state, /auth/callback, /auth/login, /auth/logout)
-- TypeScript source files excluding tests: 164
+- TypeScript source files excluding tests: 165
 - Colocated test files: 101
 - Supabase migrations: 36
 - Latest migration filename: `20260801090000_add_worldquant_cloud_state.sql`
@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `36eba01f833c906dd8bb4820979a0141edd7b5fab02f4c8a93dd7e452ba6a9fe`
-- Fingerprinted files: 393
+- Project input fingerprint: `0106f0cafa0bfc6b6907630d714aaa2d23014f785cc0d241264617fcf545a186`
+- Fingerprinted files: 394
 
 The fingerprint covers registered lesson sources, content files, application
 source/tests, scripts, package metadata, environment template, workflows, and

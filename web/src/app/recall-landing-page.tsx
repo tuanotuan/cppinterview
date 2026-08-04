@@ -63,13 +63,13 @@ export function RecallLandingPage({
             <AuthAction
               cloudEnabled={cloudEnabled}
               label="Đăng nhập"
-              next="/"
+              next="/practice"
               tone="quiet"
             />
             <AuthAction
               cloudEnabled={cloudEnabled}
               label="Tạo tài khoản"
-              next="/"
+              next="/practice"
               tone="primary"
             />
           </div>
@@ -103,11 +103,11 @@ export function RecallLandingPage({
               <AuthAction
                 cloudEnabled={cloudEnabled}
                 label="Bắt đầu với GitHub"
-                next="/"
+                next="/practice"
                 tone="hero"
               />
               <Link
-                href="/?start=practice"
+                href="/practice"
                 className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-[#173f35]/15 bg-white/70 px-5 py-3 text-sm font-bold text-[#245748] transition hover:border-[#356b58]/40 hover:bg-white focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
               >
                 Thử luyện không cần tài khoản

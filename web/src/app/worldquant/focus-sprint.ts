@@ -193,5 +193,5 @@ function focusSessionHref(session: FocusSession) {
     deck: firstQuestion.deckId,
     focus: session.sessionId,
   });
-  return `/?${search.toString()}`;
+  return `/practice?${search.toString()}`;
 }

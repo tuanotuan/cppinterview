@@ -1861,7 +1861,7 @@ add_subdirectory(cmake/packages)`}
                   Vào phỏng vấn thử →
                 </Link>
                 <Link
-                  href="/?deck=cmake-build-systems"
+                  href="/practice?deck=cmake-build-systems"
                   className="rounded-2xl border border-[#173f35]/15 bg-white/70 px-5 py-3 text-sm font-bold text-[#356b58] transition hover:bg-white"
                 >
                   Mở bộ thẻ CMake →

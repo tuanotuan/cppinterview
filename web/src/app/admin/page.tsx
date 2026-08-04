@@ -85,7 +85,7 @@ function AdminGate({ mode }: { mode: "login" | "not-configured" }) {
             </form>
           ) : null}
           <Link
-            href="/"
+            href="/practice"
             className="rounded-2xl border border-[#173f35]/15 bg-white px-5 py-3 text-sm font-bold transition hover:border-[#356b58]/40"
           >
             Về trang luyện tập

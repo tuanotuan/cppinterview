@@ -48,7 +48,7 @@ export default async function ProfilePage() {
             </span>
           </Link>
           <nav className="flex flex-wrap items-center gap-2">
-            <NavLink href="/">Luyện hôm nay</NavLink>
+            <NavLink href="/practice">Luyện hôm nay</NavLink>
             <NavLink href="/learn">Thư viện</NavLink>
             <NavLink href="/stats">Thống kê</NavLink>
             <NavLink href="/worldquant">Chuẩn bị phỏng vấn</NavLink>
@@ -356,7 +356,7 @@ function ProfileGate({ mode }: { mode: "login" | "not-configured" }) {
             </form>
           ) : null}
           <Link
-            href="/"
+            href="/practice"
             className="rounded-2xl border border-[#173f35]/15 bg-white px-5 py-3 text-sm font-bold"
           >
             Về trang luyện tập

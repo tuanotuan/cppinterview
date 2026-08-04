@@ -34,7 +34,7 @@ export function buildCustomStudyLaunchHref(
   if (launch.limit !== undefined) {
     params.set("limit", String(normalizeLimit(launch.limit)));
   }
-  return `/?${params.toString()}`;
+  return `/practice?${params.toString()}`;
 }
 
 export function parseCustomStudyLaunch(params: {

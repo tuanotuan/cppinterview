@@ -68,7 +68,7 @@ describe("Focus Sprint Hub launch", () => {
     expect(result.kind).toBe("practice");
     if (result.kind !== "practice") return;
     expect(result.href).toBe(
-      `/?deck=cpp-interview&focus=${sessionId}`,
+      `/practice?deck=cpp-interview&focus=${sessionId}`,
     );
     expect(writeSession).toHaveBeenCalledOnce();
     expect(writeSession.mock.calls[0][0]).toBe(

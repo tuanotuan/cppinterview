@@ -35,7 +35,7 @@ describe("custom study", () => {
         topic: "move-semantics",
         limit: 50,
       }),
-    ).toBe("/?deck=cpp-interview&study=topic&topic=move-semantics&limit=20");
+    ).toBe("/practice?deck=cpp-interview&study=topic&topic=move-semantics&limit=20");
     expect(
       parseCustomStudyLaunch({
         study: "topic",
