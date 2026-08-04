@@ -38,7 +38,7 @@ export function RecallMobileNav() {
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            className={`grid min-w-13 place-items-center gap-0.5 rounded-xl px-2 py-1.5 text-center transition ${
+            className={`grid min-h-11 min-w-13 place-items-center gap-0.5 rounded-xl px-2 py-1.5 text-center transition focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none ${
               active
                 ? "bg-[#d7ff91] text-[#173f35]"
                 : "text-white/65 hover:bg-white/10 hover:text-white"

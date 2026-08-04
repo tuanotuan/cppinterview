@@ -302,6 +302,9 @@ service-role-only/browser grants như contract hiện tại.
 - Điều hướng mobile dùng `RecallMobileNav` ở layout và phải chừa bottom safe
   space cho nội dung. Không hiện navigation này trong mock/full-round để người
   học có trải nghiệm phỏng vấn tập trung, không lộ đường tắt hay hint.
+- Mọi hiệu ứng UI phải tôn trọng `prefers-reduced-motion`; loading cần có
+  trạng thái đọc được bởi screen reader, còn điều hướng mobile giữ vùng chạm và
+  focus-visible rõ ràng.
 - Navigation trong mock chỉ được trình bày vị trí câu và việc đã/chưa trả lời.
   Không dùng topic, difficulty, rubric, source hay bất kỳ metadata nào có thể
   trở thành hint trước lúc nộp báo cáo.

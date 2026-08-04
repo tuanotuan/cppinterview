@@ -5,6 +5,9 @@ export default function RouteLoading() {
       aria-label="Đang chuyển trang"
       aria-busy="true"
     >
+      <p role="status" className="sr-only">
+        Đang tải trang mới.
+      </p>
       <div className="mx-auto max-w-7xl animate-pulse">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
           <div className="flex items-center gap-3">
