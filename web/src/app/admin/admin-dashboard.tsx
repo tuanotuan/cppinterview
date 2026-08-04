@@ -776,26 +776,29 @@ function mistakeErrorMessage(code: string) {
             </div>
           </div>
           <nav className="flex flex-wrap items-center gap-2">
-            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/admin/coverage">
-              Mức bao phủ nội dung
+            <Link
+              className="rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-[#d7ff91] transition hover:bg-[#245748]"
+              href="/"
+            >
+              Luyện hôm nay
             </Link>
-            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/worldquant">
-              Trung tâm chuẩn bị
+            <Link
+              className="rounded-xl px-4 py-2 text-sm font-bold transition hover:bg-white/60"
+              href="/learn"
+            >
+              Thư viện
             </Link>
-            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/learn/tick-data-order-book">
-              Học dữ liệu tick
+            <Link
+              className="rounded-xl px-4 py-2 text-sm font-bold transition hover:bg-white/60"
+              href="/admin/coverage"
+            >
+              Mức bao phủ
             </Link>
-            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/learn/cmake">
-              Học CMake
-            </Link>
-            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/stats">
-              Thống kê
-            </Link>
-            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/mock-interview">
-              Phỏng vấn thử
-            </Link>
-            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/">
-              Luyện thẻ
+            <Link
+              className="rounded-xl px-4 py-2 text-sm font-bold transition hover:bg-white/60"
+              href="/worldquant"
+            >
+              Chuẩn bị phỏng vấn
             </Link>
             <span className="rounded-full border border-[#173f35]/15 bg-white/65 px-4 py-2 text-xs font-semibold">
               @{account.login ?? account.displayName}

@@ -42,13 +42,13 @@ nhật file context tương ứng theo root `AGENTS.md`.
 | `/worldquant/tick-replay-lab` | `worldquant/tick-replay-lab/page.tsx` | Mô phỏng chuỗi tick, recovery và kiểm tra bất biến sổ lệnh bằng kịch bản xác định |
 | `/worldquant/toolchain-dojo` | `worldquant/toolchain-dojo/page.tsx` | Năm bài CMake/C++ target-based tuần tự: scope, public/private, CTest, sanitizer và CI |
 | `/worldquant/legacy-modern-capstone` | `worldquant/legacy-modern-capstone/page.tsx` | Sáu checkpoint quyết định an toàn khi chuyển nền tảng tick data cũ sang modern C++ |
-| `/learn` | `learn/page.tsx`, `learn/[lessonId]/page.tsx` | Thư viện lesson từ manifest, Markdown an toàn, tự kiểm tra và mở phiên ôn tập trọng tâm |
+| `/learn` | `learn/page.tsx`, `learn/[lessonId]/page.tsx` | Thư viện lesson từ manifest với tổng quan bài/thẻ đã duyệt/bài có mã, tìm kiếm và chip lọc lộ trình, Markdown an toàn, tự kiểm tra và mở phiên ôn tập trọng tâm |
 | `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Phỏng vấn thử v4 toàn diện/trọng tâm 30/45/60 phút, kiểm thử ẩn, tổng kết đúng phạm vi, lịch sử và kế hoạch ôn tiếp; desktop session rail chỉ lộ thứ tự/trạng thái trả lời, còn thanh chuyển câu/nộp bài sticky; nộp sớm, reset, thay Focus hoặc xóa history đều xác nhận trong UI |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx`, `lib/learn/tick-data-guide.ts` | Guide tick data/order book |
 | `/learn/cmake` | `learn/cmake/page.tsx`, `lib/learn/cmake-guide.ts` | Guide CMake target-based từ mental model tới CTest, packaging, CI và legacy migration |
 | `/stats` | `stats/page.tsx`, `fsrs-shadow-panel.tsx` | Analytics học tập và FSRS-6 shadow comparison |
-| `/profile` | `profile/page.tsx`, `lib/profile/{contribution-activity,profile-activity.server}.ts` | Trang cá nhân và contribution graph 53 tuần từ lượt ôn, AI coach và phỏng vấn thử đã hoàn tất |
-| `/admin` | `admin/page.tsx`, `admin-dashboard.tsx`, `input-dialog.tsx` | Review/edit/archive question, schedule, AI/job settings; xác nhận/ràng buộc nguồn của mistake card dùng sheet/form trong UI thay vì API dialog của trình duyệt |
+| `/profile` | `profile/page.tsx`, `lib/profile/{contribution-activity,profile-activity.server}.ts` | Trang cá nhân và contribution graph 53 tuần từ lượt ôn, AI coach và phỏng vấn thử đã hoàn tất; điều hướng ưu tiên luyện hôm nay, thư viện, thống kê và chuẩn bị phỏng vấn |
+| `/admin` | `admin/page.tsx`, `admin-dashboard.tsx`, `input-dialog.tsx` | Review/edit/archive question, schedule, AI/job settings; header ưu tiên Luyện hôm nay, Thư viện, Mức bao phủ và chuẩn bị phỏng vấn; xác nhận/ràng buộc nguồn của mistake card dùng sheet/form trong UI thay vì API dialog của trình duyệt |
 | `/admin/coverage` | `admin/coverage/page.tsx` | Mức bao phủ nội dung, ưu tiên phần học liệu còn thiếu theo khái niệm và loại bằng chứng |
 | `/auth/*` | `auth/{login,callback,logout}` | GitHub OAuth qua Supabase |
 
