@@ -40,7 +40,7 @@ export const worldQuantCompetencies: Record<
     shortLabel: "C++ hiện đại",
     description:
       "Vòng đời, quyền sở hữu, hệ thống kiểu, mẫu (template) và các chuẩn C++11–23.",
-    practiceHref: "/?deck=cpp-interview",
+    practiceHref: "/practice?deck=cpp-interview",
     practiceLabel: "Luyện C++",
   },
   algorithms_data_structures: {
@@ -49,7 +49,7 @@ export const worldQuantCompetencies: Record<
     shortLabel: "Thuật toán",
     description:
       "Độ phức tạp, cấu trúc chứa (container), thuật toán và cách lựa chọn cấu trúc dữ liệu.",
-    practiceHref: "/?deck=cpp-interview",
+    practiceHref: "/practice?deck=cpp-interview",
     practiceLabel: "Luyện thuật toán",
   },
   concurrency_memory: {
@@ -58,7 +58,7 @@ export const worldQuantCompetencies: Record<
     shortLabel: "Lập trình đồng thời",
     description:
       "Mô hình bộ nhớ, thao tác nguyên tử, đồng bộ, tranh chấp dữ liệu và quyền sở hữu đa luồng.",
-    practiceHref: "/?deck=cpp-interview",
+    practiceHref: "/practice?deck=cpp-interview",
     practiceLabel: "Luyện lập trình đồng thời",
   },
   performance_latency: {
@@ -67,7 +67,7 @@ export const worldQuantCompetencies: Record<
     shortLabel: "Hiệu năng",
     description:
       "Cấp phát bộ nhớ, bộ nhớ đệm, thông lượng, độ trễ đuôi, phân tích và đo hiệu năng.",
-    practiceHref: "/?deck=cpp-interview",
+    practiceHref: "/practice?deck=cpp-interview",
     practiceLabel: "Luyện hiệu năng",
   },
   linux_networking: {
@@ -76,7 +76,7 @@ export const worldQuantCompetencies: Record<
     shortLabel: "Linux / mạng",
     description:
       "Unix/Linux, I/O, socket, giao thức và khả năng quan sát hệ thống thực tế.",
-    practiceHref: "/?deck=cpp-interview",
+    practiceHref: "/practice?deck=cpp-interview",
     practiceLabel: "Luyện hệ thống",
   },
   distributed_data_platform: {
@@ -85,7 +85,7 @@ export const worldQuantCompetencies: Record<
     shortLabel: "Nền tảng dữ liệu",
     description:
       "RPC, phân vùng, sao chép, lưu trữ, xử lý luồng và kiểm soát quá tải.",
-    practiceHref: "/?deck=cpp-interview",
+    practiceHref: "/practice?deck=cpp-interview",
     practiceLabel: "Luyện nền tảng dữ liệu",
   },
   tick_market_data: {
@@ -112,7 +112,7 @@ export const worldQuantCompetencies: Record<
     shortLabel: "Tự động hóa",
     description:
       "Công cụ Python/Perl, đối soát, chuyển đổi và vận hành dữ liệu.",
-    practiceHref: "/?deck=python-interview",
+    practiceHref: "/practice?deck=python-interview",
     practiceLabel: "Luyện Python",
   },
   ownership_communication: {

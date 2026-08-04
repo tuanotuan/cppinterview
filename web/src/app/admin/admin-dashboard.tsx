@@ -778,7 +778,7 @@ function mistakeErrorMessage(code: string) {
           <nav className="flex flex-wrap items-center gap-2">
             <Link
               className="rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-[#d7ff91] transition hover:bg-[#245748]"
-              href="/"
+              href="/practice"
             >
               Luyện hôm nay
             </Link>

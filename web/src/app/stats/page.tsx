@@ -118,7 +118,7 @@ export default async function StatsPage({
             <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/learn/cmake">
               Học CMake
             </Link>
-            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href={`/?deck=${selectedDeck}`}>
+            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href={`/practice?deck=${selectedDeck}`}>
               Luyện thẻ
             </Link>
             <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/mock-interview">
@@ -456,7 +456,7 @@ function StatsGate({
               <button className="rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white">Đăng nhập GitHub</button>
             </form>
           ) : null}
-          <Link href={`/?deck=${deck}`} className="rounded-2xl border border-[#173f35]/15 bg-white px-5 py-3 text-sm font-bold">Về trang luyện tập</Link>
+          <Link href={`/practice?deck=${deck}`} className="rounded-2xl border border-[#173f35]/15 bg-white px-5 py-3 text-sm font-bold">Về trang luyện tập</Link>
         </div>
       </section>
     </main>

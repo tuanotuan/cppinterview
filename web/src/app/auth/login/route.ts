@@ -5,8 +5,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
   const { origin, searchParams } = new URL(request.url);
-  const requestedNext = searchParams.get("next") ?? "/";
-  const next = requestedNext.startsWith("/") ? requestedNext : "/";
+  const requestedNext = searchParams.get("next") ?? "/practice";
+  const next = requestedNext.startsWith("/") ? requestedNext : "/practice";
   if (!isSupabaseConfigured()) {
     return NextResponse.redirect(`${origin}/?auth=not-configured`, 303);
   }

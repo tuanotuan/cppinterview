@@ -2800,7 +2800,7 @@ export function PracticeApp({
             aria-label="Điều hướng học tập"
             className="mt-5 hidden items-center gap-1 lg:flex"
           >
-            <WorkspaceNavLink href="/" active>
+            <WorkspaceNavLink href="/practice" active>
               Học hôm nay
             </WorkspaceNavLink>
             <WorkspaceNavLink href="/worldquant/mission">
@@ -4325,7 +4325,7 @@ function AccountControl({
   if (cloudEnabled) {
     return (
       <form
-        action={`/auth/login?next=${encodeURIComponent(`/?deck=${selectedDeck}`)}`}
+        action={`/auth/login?next=${encodeURIComponent(`/practice?deck=${selectedDeck}`)}`}
         method="post"
       >
         <button

@@ -7,8 +7,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 export async function GET(request: Request) {
   const { origin, searchParams } = new URL(request.url);
   const code = searchParams.get("code");
-  const requestedNext = searchParams.get("next") ?? "/";
-  const next = requestedNext.startsWith("/") ? requestedNext : "/";
+  const requestedNext = searchParams.get("next") ?? "/practice";
+  const next = requestedNext.startsWith("/") ? requestedNext : "/practice";
 
   if (!code || !isSupabaseConfigured()) {
     return NextResponse.redirect(`${origin}/?auth=callback-error`);

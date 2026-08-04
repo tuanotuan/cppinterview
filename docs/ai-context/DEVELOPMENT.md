@@ -302,9 +302,9 @@ service-role-only/browser grants như contract hiện tại.
 - Điều hướng mobile dùng `RecallMobileNav` ở layout và phải chừa bottom safe
   space cho nội dung. Không hiện navigation này trong mock/full-round để người
   học có trải nghiệm phỏng vấn tập trung, không lộ đường tắt hay hint.
-- Landing ở `/` chỉ hiện với người chưa đăng nhập và không có
-  `?start=practice`; thanh điều hướng mobile cũng phải ẩn ở landing để không
-  biến trang giới thiệu thành không gian luyện tập trước khi người dùng chọn CTA.
+- Landing ở `/` luôn là trang chủ public, còn workspace học tập ở `/practice`.
+  Thanh điều hướng mobile phải ẩn ở landing để không biến trang giới thiệu thành
+  không gian luyện tập trước khi người dùng chọn CTA.
 - Mọi hiệu ứng UI phải tôn trọng `prefers-reduced-motion`; loading cần có
   trạng thái đọc được bởi screen reader, còn điều hướng mobile giữ vùng chạm và
   focus-visible rõ ràng.
