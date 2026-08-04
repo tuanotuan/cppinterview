@@ -25,6 +25,11 @@ export function LessonLibraryApp({
 }) {
   const [query, setQuery] = useState("");
   const [track, setTrack] = useState<"all" | ContentTrack>("all");
+  const verifiedQuestionCount = lessons.reduce(
+    (total, lesson) => total + lesson.verifiedQuestionCount,
+    0,
+  );
+  const codeLessonCount = lessons.filter((lesson) => lesson.hasCode).length;
   const visibleLessons = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase("vi");
     return lessons.filter(
@@ -70,7 +75,7 @@ export function LessonLibraryApp({
 
         <section className="mt-7 rounded-[2.25rem] bg-[#173f35] p-6 text-white shadow-[0_24px_90px_rgb(23_63_53_/_16%)] sm:p-10">
           <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#d7ff91] uppercase">
-            {lessons.length} bài từ nguồn project
+            Thư viện học tập
           </p>
           <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
             Đọc kiến thức, xem mã, rồi luyện đúng thẻ của bài.
@@ -79,9 +84,14 @@ export function LessonLibraryApp({
             Bài học được lấy trực tiếp từ các tệp nguồn đã đăng ký. Câu hỏi
             nháp không xuất hiện như nội dung đã kiểm chứng.
           </p>
+          <div className="mt-7 grid max-w-2xl grid-cols-3 gap-2">
+            <LibraryMetric label="Bài học" value={lessons.length} />
+            <LibraryMetric label="Thẻ đã duyệt" value={verifiedQuestionCount} />
+            <LibraryMetric label="Bài có mã" value={codeLessonCount} />
+          </div>
         </section>
 
-        <section className="mt-6 grid gap-4 rounded-[1.75rem] border border-[#173f35]/12 bg-white/65 p-4 sm:grid-cols-[minmax(0,1fr)_260px] sm:p-5">
+        <section className="mt-6 rounded-[1.75rem] border border-[#173f35]/12 bg-white/65 p-4 sm:p-5">
           <label className="text-xs font-bold text-[#52645c]">
             Tìm bài học
             <input
@@ -92,22 +102,33 @@ export function LessonLibraryApp({
               className="mt-2 min-h-12 w-full rounded-xl border border-[#173f35]/15 bg-white px-4 py-3 text-sm font-normal focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
             />
           </label>
-          <label className="text-xs font-bold text-[#52645c]">
-            Lộ trình
-            <select
-              value={track}
-              onChange={(event) =>
-                setTrack(event.target.value as "all" | ContentTrack)
-              }
-              className="mt-2 min-h-12 w-full rounded-xl border border-[#173f35]/15 bg-white px-4 py-3 text-sm font-normal focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+          <div className="mt-4 border-t border-[#173f35]/10 pt-4">
+            <p className="text-xs font-bold text-[#52645c]">Lọc theo lộ trình</p>
+            <div
+              role="group"
+              aria-label="Lọc theo lộ trình"
+              className="mt-2 flex flex-wrap gap-2"
             >
-              {tracks.map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </label>
+              {tracks.map(([value, label]) => {
+                const active = track === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setTrack(value)}
+                    className={`rounded-full px-3 py-2 text-xs font-bold transition ${
+                      active
+                        ? "bg-[#173f35] text-[#d7ff91]"
+                        : "border border-[#173f35]/15 bg-white text-[#52645c] hover:border-[#356b58]/35 hover:text-[#173f35]"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </section>
 
         <section aria-live="polite" className="py-7">
@@ -167,5 +188,16 @@ export function LessonLibraryApp({
         </section>
       </div>
     </main>
+  );
+}
+
+function LibraryMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/8 px-3 py-3">
+      <p className="text-2xl font-semibold text-[#d7ff91]">{value}</p>
+      <p className="mt-1 text-[10px] font-bold tracking-[0.08em] text-white/55 uppercase">
+        {label}
+      </p>
+    </div>
   );
 }

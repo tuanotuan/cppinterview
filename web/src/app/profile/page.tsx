@@ -48,10 +48,10 @@ export default async function ProfilePage() {
             </span>
           </Link>
           <nav className="flex flex-wrap items-center gap-2">
-            <NavLink href="/">Luyện thẻ</NavLink>
+            <NavLink href="/">Luyện hôm nay</NavLink>
+            <NavLink href="/learn">Thư viện</NavLink>
             <NavLink href="/stats">Thống kê</NavLink>
-            <NavLink href="/worldquant">Trung tâm chuẩn bị</NavLink>
-            <NavLink href="/mock-interview">Phỏng vấn thử</NavLink>
+            <NavLink href="/worldquant">Chuẩn bị phỏng vấn</NavLink>
             <form action="/auth/logout" method="post">
               <button
                 type="submit"

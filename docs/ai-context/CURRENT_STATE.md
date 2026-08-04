@@ -66,9 +66,9 @@ trạng thái từ tên nhánh.
   của Recall; không quay lại hộp thoại native `alert`/`confirm`/`prompt` vì chúng
   thiếu ngữ cảnh và phá vỡ trải nghiệm trên mobile.
 - Đợt UI hiện tại đã có shell mobile và Today workspace trên `/`, cùng session
-  rail/sticky action trong Mock; thư viện, Admin và Hub vẫn giữ logic cũ để nâng
-  cấp dần theo phase, không thay đổi scheduler, AI admission hay dữ liệu học chỉ
-  vì refactor giao diện.
+  rail/sticky action trong Mock. Thư viện hiển thị tổng quan nguồn học và chip
+  lọc lộ trình; Admin/Hồ sơ ưu tiên lối vào học tập chính. Các thay đổi này
+  không chạm scheduler, AI admission hay dữ liệu học.
 - Câu trả lời trống nghĩa là chưa biết và vẫn gọi được AI. Luồng
   Trợ giúp → Làm lại khóa rating cho tới khi người học tự trả lời lại; retry và
   Recall Repair vẫn đi qua scheduler chuẩn, không tạo review trùng.
@@ -80,12 +80,12 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Đợt UI Today workspace/mobile shell/Mock gần nhất đạt `content:check`,
-  `context:check`, ESLint, TypeScript và Vitest (101 file/632 test). `next build`
-  đã đi qua compile, TypeScript và static-generation artifacts nhưng runner local
-  cắt sau 2 phút trước exit code; cần dùng CI/Vercel để xác nhận production build
-  của đợt này. Cảnh báo retry tác vụ AI vẫn được kiểm thử như một contract vì người
-  dùng phải thấy rõ khả năng phát sinh chi phí; toàn bộ client không còn gọi
+- Đợt UI Library/Admin/Hồ sơ gần nhất đạt `context:refresh`, `context:check`,
+  ESLint, TypeScript và Vitest (101 file/632 test). `next build` của các đợt UI
+  trước đã đi qua compile, TypeScript và static-generation artifacts nhưng runner
+  local từng cắt sau 2 phút trước exit code; dùng CI/Vercel để xác nhận production
+  build của đợt này. Cảnh báo retry tác vụ AI vẫn được kiểm thử như một contract vì
+  người dùng phải thấy rõ khả năng phát sinh chi phí; toàn bộ client không còn gọi
   `window.alert`/`confirm`/`prompt`.
 - Next.js production build đạt và sinh đủ 25 trang tĩnh/động trong route graph,
   gồm `/profile`, năm route WorldQuant training và `/admin/coverage`.
