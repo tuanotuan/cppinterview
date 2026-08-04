@@ -71,6 +71,9 @@ trạng thái từ tên nhánh.
   không chạm scheduler, AI admission hay dữ liệu học.
 - UI dùng chung có reduced-motion fallback; skeleton loading có thông báo cho
   screen reader và thanh điều hướng mobile giữ vùng chạm/focus rõ ràng.
+- Trang chủ chưa đăng nhập là landing giới thiệu Recall và GitHub OAuth; local
+  practice vẫn mở được qua CTA `?start=practice`, còn account đã đăng nhập đi
+  thẳng vào Today workspace như cũ.
 - Câu trả lời trống nghĩa là chưa biết và vẫn gọi được AI. Luồng
   Trợ giúp → Làm lại khóa rating cho tới khi người học tự trả lời lại; retry và
   Recall Repair vẫn đi qua scheduler chuẩn, không tạo review trùng.
@@ -82,12 +85,13 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Đợt UI accessibility polish gần nhất đạt `context:refresh`, `context:check`,
-  ESLint, TypeScript và Vitest (101 file/632 test). `next build` của các đợt UI
-  trước đã đi qua compile, TypeScript và static-generation artifacts nhưng runner
-  local từng cắt sau 2 phút trước exit code; dùng CI/Vercel để xác nhận production
-  build của đợt này. Cảnh báo retry tác vụ AI vẫn được kiểm thử như một contract vì
-  người dùng phải thấy rõ khả năng phát sinh chi phí; toàn bộ client không còn gọi
+- Landing homepage gần nhất đạt `context:refresh`, `context:check`, TypeScript
+  và Vitest (101 file/632 test); lint riêng các file TS/TSX đã đổi cũng pass
+  (ESLint không nhận cấu hình cho CSS). `next build` của các đợt UI trước đã đi
+  qua compile, TypeScript và static-generation artifacts nhưng runner local từng
+  cắt sau 2 phút trước exit code; dùng CI/Vercel để xác nhận production build của
+  đợt này. Cảnh báo retry tác vụ AI vẫn được kiểm thử như một contract vì người
+  dùng phải thấy rõ khả năng phát sinh chi phí; toàn bộ client không còn gọi
   `window.alert`/`confirm`/`prompt`.
 - Next.js production build đạt và sinh đủ 25 trang tĩnh/động trong route graph,
   gồm `/profile`, năm route WorldQuant training và `/admin/coverage`.

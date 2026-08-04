@@ -29,7 +29,7 @@ export function RecallMobileNav() {
   return (
     <nav
       aria-label="Điều hướng chính"
-      className="fixed inset-x-3 bottom-3 z-40 mx-auto flex max-w-md items-center justify-between rounded-2xl border border-white/40 bg-[#173f35]/95 px-2 py-2 text-white shadow-[0_18px_50px_rgba(10,36,29,0.32)] backdrop-blur lg:hidden"
+      className="recall-mobile-nav fixed inset-x-3 bottom-3 z-40 mx-auto flex max-w-md items-center justify-between rounded-2xl border border-white/40 bg-[#173f35]/95 px-2 py-2 text-white shadow-[0_18px_50px_rgba(10,36,29,0.32)] backdrop-blur lg:hidden"
     >
       {items.map((item) => {
         const active = isCurrent(pathname, item.href);

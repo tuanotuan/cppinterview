@@ -6,6 +6,7 @@ import { parseFocusSessionId } from "@/lib/practice/focus-session";
 import { parseWorldQuantMissionReturn } from "@/lib/worldquant/guided-mode";
 
 import { PracticeApp, type PracticeQuestion } from "./practice-app";
+import { RecallLandingPage } from "./recall-landing-page";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,7 @@ export default async function Home({
     returnTo?: string | string[];
     returnRole?: string | string[];
     returnMinutes?: string | string[];
+    start?: string | string[];
     study?: string | string[];
     topic?: string | string[];
   }>;
@@ -33,6 +35,16 @@ export default async function Home({
   const manifest = cloud.manifest;
   const params = await searchParams;
   const authCode = Array.isArray(params.auth) ? params.auth[0] : params.auth;
+  const startParam = Array.isArray(params.start) ? params.start[0] : params.start;
+  const authMessage = authNotice(authCode);
+  if (!cloud.account && startParam !== "practice") {
+    return (
+      <RecallLandingPage
+        authNotice={authMessage}
+        cloudEnabled={cloud.enabled}
+      />
+    );
+  }
   const deckParam = Array.isArray(params.deck) ? params.deck[0] : params.deck;
   const focusParam = Array.isArray(params.focus)
     ? params.focus[0]
@@ -118,7 +130,7 @@ export default async function Home({
       initialQuestionStates={cloud.questionStates}
       cloudSetupError={cloud.error}
       initialAiDailyBudget={cloud.aiDailyBudget}
-      authNotice={authNotice(authCode)}
+      authNotice={authMessage}
       initialDeck={parsePracticeDeck(deckParam)}
       requestedFocusId={requestedFocusId}
       invalidFocusRequest={invalidFocusRequest}
