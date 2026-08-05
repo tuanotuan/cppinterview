@@ -106,7 +106,7 @@ vi.mock("@/lib/content/question-store-server", () => ({
 }));
 
 vi.mock("@/lib/supabase/authorization", () => ({
-  isAllowedPracticeUser: () => true,
+  isTuanotuanQuestionAdmin: () => true,
 }));
 
 vi.mock("@/lib/supabase/config", () => ({

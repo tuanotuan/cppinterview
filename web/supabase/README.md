@@ -416,19 +416,26 @@ keys. Each lease is marked immediately before a provider call: expired
 undispatched work is removed for a safe retry, while dispatched ambiguous work
 becomes terminal `outcome_unknown`.
 
-## Public AI quota foundation
+## Public AI Coach access
 
-`20260805100000_create_public_ai_quota_admission.sql` adds a server-only,
-rolling 24-hour admission ledger for the future guest/non-admin Luna coach
-flow. It stores HMAC hashes only: never raw IP addresses, device tokens,
-account UUIDs, prompts, answers, or model output. The admission RPC locks the
-IP, device, and optional account windows in a deterministic order and permits
-at most three live/dispatched turns per window. Undispatched leases expire
-safely; a request marked dispatched remains consumed even if its outcome is
-unknown.
+Apply both `20260805100000_create_public_ai_quota_admission.sql` and
+`20260805110000_create_public_ai_budget_ledger.sql` before setting
+`PUBLIC_AI_ENABLED=true`. Together they open the Coach evaluation and follow-up
+routes to guests and non-admin accounts through Luna only. They store HMAC
+identity hashes only: never raw IP addresses, device tokens, account UUIDs,
+prompts, answers, or model output.
+
+Admission locks IP, device, and (when signed in) account windows in a
+deterministic order and permits at most three live/dispatched turns per rolling
+24 hours. The second migration separately reserves and finalizes site-wide
+daily/monthly Luna cost before/after the provider call. Its aggregate ledger is
+retained even after the short-lived admission reservations are purged. An
+undispatched lease can be released safely; any dispatched ambiguous request is
+conservatively charged and remains consumed.
 
 Create a dedicated Supabase secret API key named `public_ai_quota` and add it
 only to Vercel as `PUBLIC_AI_QUOTA_SUPABASE_SECRET_KEY`. Also create a random
 server-only `PUBLIC_AI_QUOTA_IDENTITY_PEPPER`. Do not reuse the code-runner,
 Mock history, or GitHub content-sync key, and do not enable `PUBLIC_AI_ENABLED`
-until the corresponding server routes and UI have been deployed.
+until both migrations and the server routes have been deployed. Public traffic
+must never use the owner's account-scoped AI budget or Gemini fallback.

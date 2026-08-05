@@ -356,6 +356,13 @@ service-role-only/browser grants như contract hiện tại.
   (Coach/Mock/Mistake) và ledger hạn mức ngay trước provider, rồi chỉ
   finalize/release đúng UUID/lease đó; monthly row là accounting/backstop, không
   được khóa nhầm ngày mới.
+- AI Coach public/non-admin chỉ được mở khi đủ hai migration public AI và các
+  secret riêng. Mỗi evaluation/follow-up phải qua HMAC admission cho IP +
+  thiết bị (+ account nếu đã đăng nhập), tối đa ba lượt rolling 24 giờ, rồi
+  reserve ledger Luna site-wide trước dispatch. Không dùng identity thô làm
+  safety identifier, không dùng owner `ai_usage_*` hay Gemini fallback. Nếu
+  dispatch có outcome mơ hồ, terminalize admission và charge bảo thủ; không
+  gọi lại provider cùng lượt.
 - OpenAI/Gemini transport retry phải để `0` cho request trả phí. Lỗi cấu hình hoặc
   lỗi 4xx xác định trước/sau dispatch theo classifier hiện hành mới được release
   reservation; timeout, mất mạng, 408, 5xx hoặc parse response thất bại là kết

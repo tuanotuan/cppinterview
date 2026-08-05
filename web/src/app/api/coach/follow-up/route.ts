@@ -8,6 +8,30 @@ import {
 } from "@/lib/ai/budget";
 import { isUnmeteredLocalAiEnabled } from "@/lib/ai/access";
 import {
+  attachPublicAiDeviceCookie,
+  completePublicAiAdmission,
+  isPublicAiEnabled,
+  markPublicAiAdmissionOutcomeUnknown,
+  PublicAiIdentityUnavailableError,
+  PublicAiRequestAlreadyCompletedError,
+  PublicAiRequestInProgressError,
+  PublicAiRequestOutcomeUnknownError,
+  releasePublicAiAdmission,
+  reservePublicAiAdmission,
+  type PublicAiAdmission,
+} from "@/lib/ai/public-ai-admission.server";
+import {
+  markPublicAiAdmissionDispatched,
+  PublicAiSiteBudgetConfigurationError,
+  PublicAiSiteBudgetExceededError,
+  withPublicAiSiteBudget,
+} from "@/lib/ai/public-ai-budget.server";
+import {
+  PublicAiQuotaConfigurationError,
+  PublicAiQuotaExceededError,
+  PublicAiQuotaIdempotencyConflictError,
+} from "@/lib/ai/public-ai-quota.server";
+import {
   coachFollowUpRequestSchema,
   type CoachFollowUpResponse,
 } from "@/lib/ai/contracts";
@@ -48,7 +72,7 @@ import {
   type QuestionApproval,
   type QuestionApprovalRow,
 } from "@/lib/practice/approvals";
-import { isAllowedPracticeUser } from "@/lib/supabase/authorization";
+import { isTuanotuanQuestionAdmin } from "@/lib/supabase/authorization";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -112,18 +136,15 @@ export async function POST(request: Request) {
     ? await createSupabaseServerClient()
     : null;
   const authResult = supabase ? await supabase.auth.getUser() : null;
-  if (
-    supabase &&
-    (authResult?.error ||
-      !authResult?.data.user ||
-      !isAllowedPracticeUser(authResult.data.user))
-  ) {
+  const user = authResult?.data.user ?? null;
+  const isAdmin = Boolean(user && isTuanotuanQuestionAdmin(user));
+  if (!isAdmin && !isPublicAiEnabled() && !isUnmeteredLocalAiEnabled()) {
     return Response.json(
       {
-        error: "Đăng nhập GitHub để hỏi tiếp trợ lý AI.",
-        code: "authentication_required",
+        error: "Trợ lý AI công khai đang tạm thời chưa mở.",
+        code: "public_ai_disabled",
       },
-      { status: 401 },
+      { status: 503 },
     );
   }
   if (supabase && !parsed.data.idempotencyKey) {
@@ -139,7 +160,7 @@ export async function POST(request: Request) {
 
   let approvals: QuestionApproval[] = [];
   let manifest = getRepoContentManifest();
-  if (supabase) {
+  if (supabase && isAdmin) {
     const [approvalsResult, overridesResult] = await Promise.all([
       supabase
         .from("question_approvals")
@@ -195,7 +216,8 @@ export async function POST(request: Request) {
   };
   let followUpReservation: CoachFollowUpReservation | null = null;
   let followUpFingerprint: string | null = null;
-  if (supabase && parsed.data.idempotencyKey) {
+  let publicAdmission: PublicAiAdmission | null = null;
+  if (isAdmin && supabase && parsed.data.idempotencyKey) {
     followUpFingerprint = coachFollowUpRequestFingerprint(
       followUpIdentity,
     );
@@ -252,6 +274,63 @@ export async function POST(request: Request) {
     }
   }
 
+  if (!isAdmin && parsed.data.idempotencyKey) {
+    try {
+      publicAdmission = await reservePublicAiAdmission({
+        request,
+        user,
+        idempotencyKey: parsed.data.idempotencyKey,
+        requestFingerprint: coachFollowUpRequestFingerprint(followUpIdentity),
+        requestKind: "coach_follow_up",
+      });
+    } catch (error) {
+      if (error instanceof PublicAiQuotaExceededError) {
+        return Response.json(
+          {
+            error: "Bạn đã dùng hết 3 lượt AI trong 24 giờ qua. Vui lòng quay lại sau.",
+            code: "public_ai_quota_exceeded",
+            remaining: error.remaining,
+            resetsAt: error.resetsAt,
+          },
+          { status: 429 },
+        );
+      }
+      if (
+        error instanceof PublicAiRequestInProgressError ||
+        error instanceof PublicAiRequestAlreadyCompletedError ||
+        error instanceof PublicAiRequestOutcomeUnknownError ||
+        error instanceof PublicAiQuotaIdempotencyConflictError
+      ) {
+        return Response.json(
+          {
+            error: "Lượt AI này đang được xử lý hoặc đã hoàn tất. Vui lòng đổi nội dung trước khi gửi lại.",
+            code: "public_ai_request_unavailable",
+          },
+          { status: 409 },
+        );
+      }
+      if (error instanceof PublicAiIdentityUnavailableError) {
+        return Response.json(
+          {
+            error: "Không xác minh được thiết bị để áp dụng giới hạn AI an toàn.",
+            code: "public_ai_identity_unavailable",
+          },
+          { status: 503 },
+        );
+      }
+      console.error("Public AI follow-up admission failed", {
+        name: error instanceof Error ? error.name : "UnknownError",
+      });
+      return Response.json(
+        {
+          error: "Cơ chế giới hạn AI công khai chưa sẵn sàng. Vui lòng thử lại sau.",
+          code: "public_ai_not_configured",
+        },
+        { status: 503 },
+      );
+    }
+  }
+
   const markFollowUpProviderDispatched = async () => {
     if (!supabase || !followUpReservation?.leaseToken) return;
     try {
@@ -271,27 +350,51 @@ export async function POST(request: Request) {
     let dailyBudget = null;
     let result;
     try {
-      const openAiResult = await withAiBudget(
-        supabase,
-        COACH_RESERVATION_USD_MICROS.luna,
-        {
-          beforeProviderDispatch: markFollowUpProviderDispatched,
-          invokeProvider: () =>
-            answerCoachFollowUpWithOpenAI({
-              question,
-              lesson,
-              candidateAnswer: parsed.data.candidateAnswer,
-              feedback: parsed.data.feedback,
-              messages: parsed.data.messages,
-              safetyIdentifier: safetyIdentifier(
-                authResult?.data.user?.id || clientKey,
+      if (publicAdmission) {
+        result = await withPublicAiSiteBudget(
+          publicAdmission.client,
+          publicAdmission.reservationId,
+          COACH_RESERVATION_USD_MICROS.luna,
+          {
+            beforeProviderDispatch: () =>
+              markPublicAiAdmissionDispatched(
+                publicAdmission.client,
+                publicAdmission.reservationId,
+                publicAdmission.leaseToken,
               ),
-            }),
-        },
-      );
-      result = openAiResult.result;
-      dailyBudget = openAiResult.dailyBudget;
+            invokeProvider: () =>
+              answerCoachFollowUpWithOpenAI({
+                question,
+                lesson,
+                candidateAnswer: parsed.data.candidateAnswer,
+                feedback: parsed.data.feedback,
+                messages: parsed.data.messages,
+                safetyIdentifier: safetyIdentifier(publicAdmission.reservationId),
+              }),
+          },
+        );
+      } else {
+        const openAiResult = await withAiBudget(
+          supabase,
+          COACH_RESERVATION_USD_MICROS.luna,
+          {
+            beforeProviderDispatch: markFollowUpProviderDispatched,
+            invokeProvider: () =>
+              answerCoachFollowUpWithOpenAI({
+                question,
+                lesson,
+                candidateAnswer: parsed.data.candidateAnswer,
+                feedback: parsed.data.feedback,
+                messages: parsed.data.messages,
+                safetyIdentifier: safetyIdentifier(user?.id || clientKey),
+              }),
+          },
+        );
+        result = openAiResult.result;
+        dailyBudget = openAiResult.dailyBudget;
+      }
     } catch (error) {
+      if (publicAdmission) throw error;
       result = await runGeminiBudgetFallback(error, supabase, async () => {
         await markFollowUpProviderDispatched();
         return answerCoachFollowUpWithGemini({
@@ -323,19 +426,27 @@ export async function POST(request: Request) {
           provider,
         },
       );
-      return completedFollowUpResponse(
+      const response = completedFollowUpResponse(
         completion,
         dailyBudget,
         false,
       );
+      if (publicAdmission) {
+        await completePublicAiAdmissionOrTerminalize(publicAdmission);
+      }
+      return attachPublicAiDeviceCookie(response, publicAdmission);
     }
-    return Response.json({
+    if (publicAdmission) {
+      await completePublicAiAdmissionOrTerminalize(publicAdmission);
+    }
+    return attachPublicAiDeviceCookie(Response.json({
       reply: result.data,
       model: modelLabel,
       provider,
       aiDailyBudget: dailyBudget,
-      aiUsageRecorded: provider === "gemini" || dailyBudget !== null,
-    });
+      aiUsageRecorded:
+        publicAdmission !== null || provider === "gemini" || dailyBudget !== null,
+    }), publicAdmission);
   } catch (error) {
     if (error instanceof CoachFollowUpFinalizationError) {
       console.error("AI coach follow-up completion could not be confirmed", {
@@ -355,7 +466,16 @@ export async function POST(request: Request) {
             : "UnknownError",
       });
       let terminalized = false;
-      if (
+      if (publicAdmission) {
+        try {
+          await markPublicAiAdmissionOutcomeUnknown(publicAdmission);
+          terminalized = true;
+        } catch (markError) {
+          console.error("Public AI follow-up unknown marker failed", {
+            name: markError instanceof Error ? markError.name : "UnknownError",
+          });
+        }
+      } else if (
         supabase &&
         followUpFingerprint &&
         followUpReservation?.leaseToken
@@ -385,7 +505,15 @@ export async function POST(request: Request) {
       return followUpOutcomeUnknownResponse(terminalized);
     }
 
-    if (
+    if (publicAdmission) {
+      try {
+        await releasePublicAiAdmission(publicAdmission);
+      } catch (releaseError) {
+        console.error("Public AI follow-up admission release failed", {
+          name: releaseError instanceof Error ? releaseError.name : "UnknownError",
+        });
+      }
+    } else if (
       supabase &&
       followUpReservation?.leaseToken
     ) {
@@ -432,6 +560,32 @@ export async function POST(request: Request) {
         {
           error: "Trợ lý AI chưa được cấu hình khóa truy cập.",
           code: "not_configured",
+        },
+        { status: 503 },
+      );
+    }
+
+    if (error instanceof PublicAiSiteBudgetExceededError) {
+      return Response.json(
+        {
+          error:
+            error.period === "daily"
+              ? "Lượt AI công khai hôm nay đã đạt ngân sách an toàn. Vui lòng quay lại ngày mai."
+              : "Lượt AI công khai đã đạt ngân sách tháng này. Vui lòng quay lại sau.",
+          code: `public_ai_${error.period}_budget_exceeded`,
+        },
+        { status: 429 },
+      );
+    }
+
+    if (
+      error instanceof PublicAiSiteBudgetConfigurationError ||
+      error instanceof PublicAiQuotaConfigurationError
+    ) {
+      return Response.json(
+        {
+          error: "Cơ chế giới hạn AI công khai chưa được cấu hình đầy đủ.",
+          code: "public_ai_budget_not_configured",
         },
         { status: 503 },
       );
@@ -609,6 +763,27 @@ function followUpOutcomeUnknownResponse(terminalized: boolean) {
           headers: { "Retry-After": "10" },
         },
   );
+}
+
+async function completePublicAiAdmissionOrTerminalize(
+  admission: PublicAiAdmission,
+) {
+  try {
+    await completePublicAiAdmission(admission);
+  } catch (completionError) {
+    console.error("Public AI follow-up completion could not be confirmed", {
+      name:
+        completionError instanceof Error ? completionError.name : "UnknownError",
+    });
+    try {
+      await markPublicAiAdmissionOutcomeUnknown(admission);
+    } catch (transitionError) {
+      console.error("Public AI follow-up terminalization failed", {
+        name:
+          transitionError instanceof Error ? transitionError.name : "UnknownError",
+      });
+    }
+  }
 }
 
 class CoachFollowUpFinalizationError extends Error {

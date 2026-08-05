@@ -88,14 +88,19 @@ trạng thái từ tên nhánh.
 
 ## Public AI quota rollout
 
-- Migration `20260805100000_create_public_ai_quota_admission.sql` and the
-  server-only `public-ai-quota.server.ts` helper are the Phase A foundation
-  only. They are not applied to production and do not yet open AI Coach to
-  guests or non-admin accounts. Phase B must wire the two Coach routes through
-  the reservation lifecycle before `PUBLIC_AI_ENABLED` may be turned on.
+- Phase B wires both Coach routes for guests and non-admin accounts through
+  public HMAC admission and a separate site-wide Luna budget ledger. Apply
+  `20260805100000_create_public_ai_quota_admission.sql` and
+  `20260805110000_create_public_ai_budget_ledger.sql`, configure the dedicated
+  secret plus identity pepper, then enable `PUBLIC_AI_ENABLED` only after the
+  deployed app version is live. Phase C still needs the friendly client quota
+  display/handling.
 
 ## Validation gần nhất
 
+- Public AI Coach Phase B đạt `npm run typecheck`, `npm run lint`, targeted
+  route/budget tests và full Vitest: 103 file, 642 test. Chưa chạy migration
+  hoặc bật cờ production; việc đó chỉ thực hiện sau khi deploy version này.
 - Route landing/practice/guest gần nhất đạt TypeScript, lint các file TS/TSX đổi
   và Vitest (101 file/632 test). `next build` của các đợt UI trước đã đi qua
   compile, TypeScript và static-generation artifacts nhưng runner local từng cắt
