@@ -27,6 +27,7 @@ import {
   withPublicAiSiteBudget,
 } from "@/lib/ai/public-ai-budget.server";
 import {
+  PUBLIC_AI_QUOTA_LIMIT,
   PublicAiQuotaConfigurationError,
   PublicAiQuotaExceededError,
   PublicAiQuotaIdempotencyConflictError,
@@ -289,6 +290,7 @@ export async function POST(request: Request) {
           {
             error: "Bạn đã dùng hết 3 lượt AI trong 24 giờ qua. Vui lòng quay lại sau.",
             code: "public_ai_quota_exceeded",
+            limit: PUBLIC_AI_QUOTA_LIMIT,
             remaining: error.remaining,
             resetsAt: error.resetsAt,
           },
@@ -446,6 +448,13 @@ export async function POST(request: Request) {
       aiDailyBudget: dailyBudget,
       aiUsageRecorded:
         publicAdmission !== null || provider === "gemini" || dailyBudget !== null,
+      publicAiQuota: publicAdmission
+        ? {
+            limit: PUBLIC_AI_QUOTA_LIMIT,
+            remaining: publicAdmission.remaining,
+            resetsAt: publicAdmission.resetsAt,
+          }
+        : null,
     }), publicAdmission);
   } catch (error) {
     if (error instanceof CoachFollowUpFinalizationError) {
