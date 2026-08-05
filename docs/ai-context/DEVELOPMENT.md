@@ -211,19 +211,22 @@ Trạng thái trình duyệt không thêm migration:
 
 ## Public AI quota
 
-Migration `20260805100000_create_public_ai_quota_admission.sql` is the
-server-only foundation for guest/non-admin Luna access. It stores HMAC hashes of
-IP, device, and optional account identities in rolling 24-hour windows; raw IPs,
-device tokens, prompts, and answers are never persisted. The admission RPC is
-service-role-only and reserves a lease before a future provider call. An
-undispatched lease can be released or expires safely, while a dispatched request
-continues consuming one of the three turns even if its outcome is unknown.
+Migrations `20260805100000_create_public_ai_quota_admission.sql` and
+`20260805110000_create_public_ai_budget_ledger.sql` enable guest/non-admin Luna
+access. They store HMAC hashes of IP, device, and optional account identities in
+rolling 24-hour windows; raw IPs, device tokens, prompts, and answers are never
+persisted. The admission RPC is service-role-only and reserves a lease before
+the site-wide budget ledger dispatches a provider call. An undispatched lease can
+be released or expires safely, while a dispatched request continues consuming one
+of the three turns even if its outcome is unknown. The client may show only the
+public turn count/reset returned by the route, never identities or cost ledger.
 
 Create a dedicated Supabase secret API key for
 `PUBLIC_AI_QUOTA_SUPABASE_SECRET_KEY` and a random
 `PUBLIC_AI_QUOTA_IDENTITY_PEPPER`. Do not reuse the code-runner, Mock-history,
 or content-sync key; neither variable may use `NEXT_PUBLIC_`. Keep
-`PUBLIC_AI_ENABLED=false` until the API/UI rollout has landed.
+`PUBLIC_AI_ENABLED=false` until the migrations and deployed API/UI version are
+both ready.
 
 ## Supabase
 

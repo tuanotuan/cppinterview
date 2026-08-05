@@ -71,6 +71,7 @@ vi.mock("@/lib/ai/public-ai-budget.server", () => ({
 }));
 
 vi.mock("@/lib/ai/public-ai-quota.server", () => ({
+  PUBLIC_AI_QUOTA_LIMIT: 3,
   PublicAiQuotaConfigurationError: class extends Error {},
   PublicAiQuotaExceededError: class extends Error {},
   PublicAiQuotaIdempotencyConflictError: class extends Error {},
@@ -542,6 +543,7 @@ describe("POST /api/coach/evaluate idempotency", () => {
     await expect(response.json()).resolves.toMatchObject({
       provider: "openai",
       aiUsageRecorded: true,
+      publicAiQuota: { limit: 3, remaining: 2 },
     });
     expect(mocks.reservePublicAiAdmission).toHaveBeenCalledWith(
       expect.objectContaining({ requestKind: "coach_evaluation", user: null }),

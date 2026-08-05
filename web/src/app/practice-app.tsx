@@ -180,6 +180,21 @@ type FollowUpChatMessage = {
   checkQuestion?: string;
   model?: string;
 };
+type PublicAiQuotaSnapshot = {
+  limit: number;
+  remaining: number | null;
+  resetsAt: string | null;
+};
+type CoachApiPayload = {
+  aiDailyBudget?: AiDailyBudgetSnapshot | null;
+  aiUsageRecorded?: boolean;
+  code?: string;
+  error?: string;
+  limit?: number;
+  publicAiQuota?: PublicAiQuotaSnapshot | null;
+  remaining?: number | null;
+  resetsAt?: string | null;
+};
 
 const ratingOptions: Array<{
   value: Rating;
@@ -344,6 +359,7 @@ export function PracticeApp({
   mistakeQuestionIds: string[];
 }) {
   const accountId = account?.id ?? null;
+  const usesPublicAi = !canManageQuestionBank;
   const studySessionKey = useMemo(
     () => studySessionStorageKey(accountId),
     [accountId],
@@ -419,6 +435,8 @@ export function PracticeApp({
   const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
   const [aiDailyBudget, setAiDailyBudget] = useState(initialAiDailyBudget);
   const [aiBudgetCacheHydrated, setAiBudgetCacheHydrated] = useState(false);
+  const [publicAiQuota, setPublicAiQuota] =
+    useState<PublicAiQuotaSnapshot | null>(null);
   const [cloudQuestionStates, setCloudQuestionStates] = useState(
     initialQuestionStates,
   );
@@ -476,6 +494,27 @@ export function PracticeApp({
     useState<string | null>(null);
   const sessionHydrated =
     hydratedStudySessionKey === studySessionKey;
+  const applyPublicAiQuota = useCallback(
+    (payload: CoachApiPayload) => {
+      if (!usesPublicAi) return;
+      if (payload.publicAiQuota) {
+        setPublicAiQuota(payload.publicAiQuota);
+        return;
+      }
+      if (payload.code === "public_ai_quota_exceeded") {
+        setPublicAiQuota({
+          limit:
+            typeof payload.limit === "number" && payload.limit > 0
+              ? payload.limit
+              : 3,
+          remaining:
+            typeof payload.remaining === "number" ? payload.remaining : 0,
+          resetsAt: typeof payload.resetsAt === "string" ? payload.resetsAt : null,
+        });
+      }
+    },
+    [usesPublicAi],
+  );
   const handleMistakeSyncPayload = useCallback(
     (payload: ProgressSyncPayload) => {
       const candidates = payload.mistakeCapture?.candidates ?? [];
@@ -2250,14 +2289,12 @@ export function PracticeApp({
           idempotencyKey,
         }),
       });
-      const payload = (await response.json()) as {
+      const payload = (await response.json()) as CoachApiPayload & {
         feedback?: CoachFeedback;
         model?: string;
-        aiDailyBudget?: AiDailyBudgetSnapshot | null;
-        aiUsageRecorded?: boolean;
         attemptId?: number | null;
-        error?: string;
       };
+      applyPublicAiQuota(payload);
 
       if (
         coachRequestTokensRef.current[questionId] !== requestToken
@@ -2274,7 +2311,11 @@ export function PracticeApp({
       }
 
       if (!response.ok || !payload.feedback) {
-        throw new Error(payload.error || "Trợ lý AI chưa trả lời được.");
+        throw new Error(
+          publicAiCoachErrorMessage(payload) ||
+            payload.error ||
+            "Trợ lý AI chưa trả lời được.",
+        );
       }
 
       const nextRescueRetry = resolveRescueRetryAfterCoach({
@@ -2393,13 +2434,11 @@ export function PracticeApp({
           idempotencyKey,
         }),
       });
-      const payload = (await response.json()) as {
+      const payload = (await response.json()) as CoachApiPayload & {
         reply?: CoachFollowUpResponse;
         model?: string;
-        aiDailyBudget?: AiDailyBudgetSnapshot | null;
-        aiUsageRecorded?: boolean;
-        error?: string;
       };
+      applyPublicAiQuota(payload);
       if (studySessionGenerationRef.current !== sessionGeneration) {
         if (payload.aiDailyBudget) {
           setAiDailyBudget((current) =>
@@ -2412,7 +2451,11 @@ export function PracticeApp({
         return;
       }
       if (!response.ok || !payload.reply) {
-        throw new Error(payload.error || "AI chưa giải thích thêm được.");
+        throw new Error(
+          publicAiCoachErrorMessage(payload) ||
+            payload.error ||
+            "AI chưa giải thích thêm được.",
+        );
       }
 
       setFollowUpChats((chats) => ({
@@ -2497,13 +2540,11 @@ export function PracticeApp({
           idempotencyKey,
         }),
       });
-      const payload = (await response.json()) as {
+      const payload = (await response.json()) as CoachApiPayload & {
         reply?: CoachFollowUpResponse;
         model?: string;
-        aiDailyBudget?: AiDailyBudgetSnapshot | null;
-        aiUsageRecorded?: boolean;
-        error?: string;
       };
+      applyPublicAiQuota(payload);
       if (studySessionGenerationRef.current !== sessionGeneration) {
         if (payload.aiDailyBudget) {
           setAiDailyBudget((current) =>
@@ -2516,7 +2557,11 @@ export function PracticeApp({
         return;
       }
       if (!response.ok || !payload.reply) {
-        throw new Error(payload.error || "AI chưa chấm được câu mở rộng.");
+        throw new Error(
+          publicAiCoachErrorMessage(payload) ||
+            payload.error ||
+            "AI chưa chấm được câu mở rộng.",
+        );
       }
       setDeepDiveFeedback((feedback) => ({
         ...feedback,
@@ -2768,6 +2813,8 @@ export function PracticeApp({
             />
             {account && aiBudgetCacheHydrated && aiDailyBudget ? (
               <AiBudgetPill budget={aiDailyBudget} />
+            ) : usesPublicAi ? (
+              <PublicAiQuotaPill quota={publicAiQuota} />
             ) : null}
             {!isFocusActive ? (
               <SavedItemsControl
@@ -3156,6 +3203,11 @@ export function PracticeApp({
                     Chưa biết thì cứ để trống. Nhờ AI sẽ giải từ đầu; câu trả lời
                     không bị giới hạn ký tự.
                   </p>
+                  {usesPublicAi ? (
+                    <p className="mt-2 text-xs font-semibold text-[#356b58]">
+                      Luna hỗ trợ tối đa 3 lượt AI trong 24 giờ; hạn mức áp dụng theo thiết bị và mạng.
+                    </p>
+                  ) : null}
 
                   {currentRescueRetry?.phase === "retrying" ? (
                     <div
@@ -3191,40 +3243,31 @@ export function PracticeApp({
                       {hints.has(current.id) ? "Ẩn gợi ý" : "Cần một gợi ý?"}
                     </button>
                     <div className="flex flex-wrap gap-2">
-                      {guestMode && !account ? (
-                        <span
-                          title="AI Coach dùng quota riêng và cần tài khoản để bảo vệ chi phí."
-                          className="inline-flex items-center rounded-xl border border-[#356b58]/18 bg-[#edf3e7] px-4 py-3 text-xs font-semibold text-[#52645c]"
-                        >
-                          AI Coach cần đăng nhập
-                        </span>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={askCoach}
-                          disabled={
-                            coachLoading === current.id ||
-                            (currentRescueRetry?.phase === "rescue" &&
-                              Boolean(coachFeedback[current.id]))
-                          }
-                          className="rounded-xl border border-[#356b58]/25 bg-[#d7ff91] px-5 py-3 text-sm font-bold text-[#173f35] shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#d7ff91]/60 focus:outline-none"
-                        >
-                          {coachLoading === current.id
-                            ? currentRescueRetry?.phase === "retrying"
-                              ? "AI đang chấm lại…"
-                              : "AI đang giúp…"
-                            : currentRescueRetry?.phase === "rescue" &&
-                                coachFeedback[current.id]
-                              ? "Đọc lời giải bên dưới"
-                              : currentRescueRetry?.phase === "retrying"
-                                ? currentCandidateAnswer
-                                  ? "Nhờ AI chấm lần làm lại"
-                                  : "Nhờ AI giải lại"
-                                : currentCandidateAnswer
-                                  ? "Nhờ AI chấm"
-                                  : "Nhờ AI giải"}
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={askCoach}
+                        disabled={
+                          coachLoading === current.id ||
+                          (currentRescueRetry?.phase === "rescue" &&
+                            Boolean(coachFeedback[current.id]))
+                        }
+                        className="rounded-xl border border-[#356b58]/25 bg-[#d7ff91] px-5 py-3 text-sm font-bold text-[#173f35] shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#d7ff91]/60 focus:outline-none"
+                      >
+                        {coachLoading === current.id
+                          ? currentRescueRetry?.phase === "retrying"
+                            ? "AI đang chấm lại…"
+                            : "AI đang giúp…"
+                          : currentRescueRetry?.phase === "rescue" &&
+                              coachFeedback[current.id]
+                            ? "Đọc lời giải bên dưới"
+                            : currentRescueRetry?.phase === "retrying"
+                              ? currentCandidateAnswer
+                                ? "Nhờ AI chấm lần làm lại"
+                                : "Nhờ AI giải lại"
+                              : currentCandidateAnswer
+                                ? "Nhờ AI chấm"
+                                : "Nhờ AI giải"}
+                      </button>
                       <button
                         type="button"
                         onClick={toggleReferenceAnswer}
@@ -4216,6 +4259,89 @@ function TodayWorkspace({
       </div>
     </section>
   );
+}
+
+function PublicAiQuotaPill({
+  quota,
+}: {
+  quota: PublicAiQuotaSnapshot | null;
+}) {
+  const limit = quota?.limit ?? 3;
+  const remaining = quota?.remaining;
+  const exhausted = remaining === 0;
+  const label =
+    remaining === null || remaining === undefined
+      ? `${limit} lượt / 24h`
+      : `${remaining}/${limit} lượt còn`;
+  const reset = quota?.resetsAt ? formatPublicAiReset(quota.resetsAt) : null;
+
+  return (
+    <div
+      className="min-w-32 rounded-full border border-[#173f35]/15 bg-white/55 px-3 py-2"
+      title={
+        reset
+          ? `AI Luna dùng tối đa ${limit} lượt mỗi 24 giờ. Hạn mức hiện tại mở lại ${reset}.`
+          : `AI Luna dùng tối đa ${limit} lượt mỗi 24 giờ theo thiết bị và mạng.`
+      }
+    >
+      <div className="flex items-center justify-between gap-2 font-mono text-[10px] font-bold uppercase">
+        <span>AI Luna</span>
+        <span className={exhausted ? "text-[#ba4b2f]" : "text-[#245748]"}>
+          {label}
+        </span>
+      </div>
+      <div className="mt-1 h-1 overflow-hidden rounded-full bg-[#173f35]/15">
+        <div
+          className={`h-full rounded-full transition-[width] ${
+            exhausted ? "bg-[#ba4b2f]" : "bg-[#79b82a]"
+          }`}
+          style={{
+            width: `${
+              remaining === null || remaining === undefined
+                ? 100
+                : Math.max(0, Math.min(100, (remaining / limit) * 100))
+            }%`,
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function publicAiCoachErrorMessage(payload: CoachApiPayload) {
+  switch (payload.code) {
+    case "public_ai_quota_exceeded":
+      return payload.resetsAt
+        ? `Bạn đã dùng hết lượt AI. Hạn mức sẽ mở lại ${formatPublicAiReset(payload.resetsAt)}.`
+        : "Bạn đã dùng hết lượt AI trong 24 giờ qua. Vui lòng quay lại sau.";
+    case "public_ai_request_unavailable":
+      return "Lượt AI này đang được xử lý hoặc đã hoàn tất. Hãy chỉnh nội dung trước khi gửi lại.";
+    case "public_ai_disabled":
+      return "AI Luna đang tạm thời chưa mở. Vui lòng thử lại sau.";
+    case "public_ai_identity_unavailable":
+      return "Không xác minh được thiết bị để áp dụng giới hạn AI an toàn. Vui lòng thử lại.";
+    case "public_ai_daily_budget_exceeded":
+      return "AI Luna hôm nay đã đạt ngân sách an toàn. Vui lòng quay lại ngày mai.";
+    case "public_ai_monthly_budget_exceeded":
+      return "AI Luna đã đạt ngân sách tháng này. Vui lòng quay lại sau.";
+    case "public_ai_not_configured":
+    case "public_ai_budget_not_configured":
+      return "AI Luna chưa sẵn sàng. Vui lòng thử lại sau.";
+    default:
+      return null;
+  }
+}
+
+function formatPublicAiReset(value: string) {
+  const timestamp = Date.parse(value);
+  if (Number.isNaN(timestamp)) return "sau";
+  return new Intl.DateTimeFormat("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    day: "2-digit",
+    month: "2-digit",
+    timeZone: "Asia/Ho_Chi_Minh",
+  }).format(timestamp);
 }
 
 function TodayMetric({ label, value }: { label: string; value: number | string }) {

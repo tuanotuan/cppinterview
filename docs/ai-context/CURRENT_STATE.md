@@ -75,8 +75,9 @@ trạng thái từ tên nhánh.
   Today nằm ở `/practice`, cho cả local practice lẫn account đã đăng nhập.
 - CTA “Thử luyện không cần tài khoản” mở `/practice?guest=1`: vẫn luyện thẻ
   local nhưng header không hiện lời mời đăng nhập như một điều kiện bắt buộc.
-- Guest mode không gọi AI Coach: UI nói rõ AI cần account/quota trước khi người
-  học bấm; mở đáp án, gợi ý và đánh giá local vẫn dùng được.
+- Guest mode mở Luna AI Coach mà không cần tài khoản, qua giới hạn public ba
+  lượt/24 giờ. UI chỉ hiển thị số lượt/reset do route trả về; mở đáp án, gợi ý
+  và đánh giá local vẫn dùng được.
 - Câu trả lời trống nghĩa là chưa biết và vẫn gọi được AI. Luồng
   Trợ giúp → Làm lại khóa rating cho tới khi người học tự trả lời lại; retry và
   Recall Repair vẫn đi qua scheduler chuẩn, không tạo review trùng.
@@ -88,17 +89,17 @@ trạng thái từ tên nhánh.
 
 ## Public AI quota rollout
 
-- Phase B wires both Coach routes for guests and non-admin accounts through
+- Phase B/C wires both Coach routes and Practice UI for guests and non-admin accounts through
   public HMAC admission and a separate site-wide Luna budget ledger. Apply
   `20260805100000_create_public_ai_quota_admission.sql` and
   `20260805110000_create_public_ai_budget_ledger.sql`, configure the dedicated
   secret plus identity pepper, then enable `PUBLIC_AI_ENABLED` only after the
-  deployed app version is live. Phase C still needs the friendly client quota
-  display/handling.
+  deployed app version is live. Phase D remains the production rollout and
+  operational verification step.
 
 ## Validation gần nhất
 
-- Public AI Coach Phase B đạt `npm run typecheck`, `npm run lint`, targeted
+- Public AI Coach Phase C đạt `npm run typecheck`, `npm run lint`, targeted
   route/budget tests và full Vitest: 103 file, 642 test. Chưa chạy migration
   hoặc bật cờ production; việc đó chỉ thực hiện sau khi deploy version này.
 - Route landing/practice/guest gần nhất đạt TypeScript, lint các file TS/TSX đổi
