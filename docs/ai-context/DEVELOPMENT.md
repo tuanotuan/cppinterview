@@ -209,6 +209,22 @@ Trạng thái trình duyệt không thêm migration:
   mạng, 401/403 hoặc migration chưa chạy không được xóa local state. Không tự
   upload namespace `local` vào account sau login.
 
+## Public AI quota
+
+Migration `20260805100000_create_public_ai_quota_admission.sql` is the
+server-only foundation for guest/non-admin Luna access. It stores HMAC hashes of
+IP, device, and optional account identities in rolling 24-hour windows; raw IPs,
+device tokens, prompts, and answers are never persisted. The admission RPC is
+service-role-only and reserves a lease before a future provider call. An
+undispatched lease can be released or expires safely, while a dispatched request
+continues consuming one of the three turns even if its outcome is unknown.
+
+Create a dedicated Supabase secret API key for
+`PUBLIC_AI_QUOTA_SUPABASE_SECRET_KEY` and a random
+`PUBLIC_AI_QUOTA_IDENTITY_PEPPER`. Do not reuse the code-runner, Mock-history,
+or content-sync key; neither variable may use `NEXT_PUBLIC_`. Keep
+`PUBLIC_AI_ENABLED=false` until the API/UI rollout has landed.
+
 ## Supabase
 
 Migration là append-only, chạy theo timestamp trong `web/supabase/migrations/`.
