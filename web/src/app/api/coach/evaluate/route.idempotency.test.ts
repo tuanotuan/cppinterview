@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   evaluateWithOpenAI: vi.fn(),
   markCoachEvaluationDispatched: vi.fn(),
   markCoachEvaluationOutcomeUnknown: vi.fn(),
+  markPublicAiAdmissionDispatched: vi.fn(),
   manifest: {
     sourceRevision: "a".repeat(64),
     questions: [
@@ -19,9 +20,15 @@ const mocks = vi.hoisted(() => ({
     lessons: [{ id: "cpp11-auto" }],
   },
   releaseCoachEvaluation: vi.fn(),
+  releasePublicAiAdmission: vi.fn(),
   reserveCoachEvaluation: vi.fn(),
+  reservePublicAiAdmission: vi.fn(),
   runGeminiBudgetFallback: vi.fn(),
+  completePublicAiAdmission: vi.fn(),
+  isAdmin: vi.fn(),
+  isPublicAiEnabled: vi.fn(),
   withAiBudget: vi.fn(),
+  withPublicAiSiteBudget: vi.fn(),
 }));
 
 vi.mock("server-only", () => ({}));
@@ -41,6 +48,32 @@ vi.mock("@/lib/ai/budget", () => ({
     }
   },
   withAiBudget: mocks.withAiBudget,
+}));
+
+vi.mock("@/lib/ai/public-ai-admission.server", () => ({
+  attachPublicAiDeviceCookie: (response: Response) => response,
+  completePublicAiAdmission: mocks.completePublicAiAdmission,
+  isPublicAiEnabled: mocks.isPublicAiEnabled,
+  markPublicAiAdmissionOutcomeUnknown: vi.fn(),
+  PublicAiIdentityUnavailableError: class extends Error {},
+  PublicAiRequestAlreadyCompletedError: class extends Error {},
+  PublicAiRequestInProgressError: class extends Error {},
+  PublicAiRequestOutcomeUnknownError: class extends Error {},
+  releasePublicAiAdmission: mocks.releasePublicAiAdmission,
+  reservePublicAiAdmission: mocks.reservePublicAiAdmission,
+}));
+
+vi.mock("@/lib/ai/public-ai-budget.server", () => ({
+  markPublicAiAdmissionDispatched: mocks.markPublicAiAdmissionDispatched,
+  PublicAiSiteBudgetConfigurationError: class extends Error {},
+  PublicAiSiteBudgetExceededError: class extends Error {},
+  withPublicAiSiteBudget: mocks.withPublicAiSiteBudget,
+}));
+
+vi.mock("@/lib/ai/public-ai-quota.server", () => ({
+  PublicAiQuotaConfigurationError: class extends Error {},
+  PublicAiQuotaExceededError: class extends Error {},
+  PublicAiQuotaIdempotencyConflictError: class extends Error {},
 }));
 
 vi.mock("@/lib/ai/coach-reservation.server", async (importOriginal) => {
@@ -99,7 +132,7 @@ vi.mock("@/lib/content/question-store-server", () => ({
 }));
 
 vi.mock("@/lib/supabase/authorization", () => ({
-  isAllowedPracticeUser: () => true,
+  isTuanotuanQuestionAdmin: mocks.isAdmin,
 }));
 
 vi.mock("@/lib/supabase/config", () => ({
@@ -198,6 +231,8 @@ beforeEach(() => {
     data: { user: { id: "1bb81120-9434-4e39-89ad-d0580e768c7c" } },
     error: null,
   });
+  mocks.isAdmin.mockReturnValue(true);
+  mocks.isPublicAiEnabled.mockReturnValue(true);
   supabase.from.mockImplementation((table: string) => {
     if (table === "question_approvals") {
       return {
@@ -213,6 +248,15 @@ beforeEach(() => {
   });
   mocks.createSupabaseServerClient.mockResolvedValue(supabase);
   mocks.reserveCoachEvaluation.mockResolvedValue(runningReservation);
+  mocks.reservePublicAiAdmission.mockResolvedValue({
+    client: supabase,
+    reservationId: "123e4567-e89b-42d3-a456-426614174000",
+    leaseToken: "123e4567-e89b-42d3-a456-426614174001",
+    deviceCookie: null,
+    remaining: 2,
+    resetsAt: "2026-08-06T08:00:00.000Z",
+  });
+  mocks.completePublicAiAdmission.mockResolvedValue(undefined);
   mocks.completeCoachEvaluation.mockResolvedValue({
     ...runningReservation,
     status: "completed",
@@ -249,6 +293,20 @@ beforeEach(() => {
         result: await operation.invokeProvider(),
         dailyBudget: { remainingUsdMicros: 100 },
       };
+    },
+  );
+  mocks.withPublicAiSiteBudget.mockImplementation(
+    async (
+      _client: unknown,
+      _reservationId: unknown,
+      _reserved: unknown,
+      operation: {
+        beforeProviderDispatch: () => Promise<void>;
+        invokeProvider: () => Promise<unknown>;
+      },
+    ) => {
+      await operation.beforeProviderDispatch();
+      return operation.invokeProvider();
     },
   );
   mocks.runGeminiBudgetFallback.mockImplementation(
@@ -472,6 +530,27 @@ describe("POST /api/coach/evaluate idempotency", () => {
     });
     expect(mocks.reserveCoachEvaluation).not.toHaveBeenCalled();
     expect(mocks.evaluateWithOpenAI).not.toHaveBeenCalled();
+  });
+
+  it("lets a guest use only the public Luna admission path", async () => {
+    mocks.isAdmin.mockReturnValue(false);
+    supabase.auth.getUser.mockResolvedValue({ data: { user: null }, error: null });
+
+    const response = await sendRequest();
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      provider: "openai",
+      aiUsageRecorded: true,
+    });
+    expect(mocks.reservePublicAiAdmission).toHaveBeenCalledWith(
+      expect.objectContaining({ requestKind: "coach_evaluation", user: null }),
+    );
+    expect(mocks.withPublicAiSiteBudget).toHaveBeenCalledTimes(1);
+    expect(mocks.completePublicAiAdmission).toHaveBeenCalledTimes(1);
+    expect(mocks.reserveCoachEvaluation).not.toHaveBeenCalled();
+    expect(mocks.withAiBudget).not.toHaveBeenCalled();
+    expect(mocks.runGeminiBudgetFallback).not.toHaveBeenCalled();
   });
 });
 
