@@ -415,3 +415,20 @@ follow-up cache exact account/request fingerprints under canonical idempotency
 keys. Each lease is marked immediately before a provider call: expired
 undispatched work is removed for a safe retry, while dispatched ambiguous work
 becomes terminal `outcome_unknown`.
+
+## Public AI quota foundation
+
+`20260805100000_create_public_ai_quota_admission.sql` adds a server-only,
+rolling 24-hour admission ledger for the future guest/non-admin Luna coach
+flow. It stores HMAC hashes only: never raw IP addresses, device tokens,
+account UUIDs, prompts, answers, or model output. The admission RPC locks the
+IP, device, and optional account windows in a deterministic order and permits
+at most three live/dispatched turns per window. Undispatched leases expire
+safely; a request marked dispatched remains consumed even if its outcome is
+unknown.
+
+Create a dedicated Supabase secret API key named `public_ai_quota` and add it
+only to Vercel as `PUBLIC_AI_QUOTA_SUPABASE_SECRET_KEY`. Also create a random
+server-only `PUBLIC_AI_QUOTA_IDENTITY_PEPPER`. Do not reuse the code-runner,
+Mock history, or GitHub content-sync key, and do not enable `PUBLIC_AI_ENABLED`
+until the corresponding server routes and UI have been deployed.
