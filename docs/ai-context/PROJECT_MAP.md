@@ -48,7 +48,7 @@ nhật file context tương ứng theo root `AGENTS.md`.
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx`, `lib/learn/tick-data-guide.ts` | Guide tick data/order book |
 | `/learn/cmake` | `learn/cmake/page.tsx`, `lib/learn/cmake-guide.ts` | Guide CMake target-based từ mental model tới CTest, packaging, CI và legacy migration |
 | `/stats` | `stats/page.tsx`, `fsrs-shadow-panel.tsx` | Analytics học tập và FSRS-6 shadow comparison |
-| `/profile` | `profile/page.tsx`, `lib/profile/{contribution-activity,profile-activity.server}.ts` | Trang cá nhân và contribution graph 53 tuần từ lượt ôn, AI coach và phỏng vấn thử đã hoàn tất; điều hướng ưu tiên luyện hôm nay, thư viện, thống kê và chuẩn bị phỏng vấn |
+| `/profile` | `profile/page.tsx`, `lib/profile/{contribution-activity,mobile-usage,profile-activity.server}.ts` | Trang cá nhân và contribution graph 53 tuần từ lượt ôn, AI coach và phỏng vấn thử đã hoàn tất; riêng admin `tuanotuan` còn có tổng thời gian Recall hoạt động trên điện thoại hôm nay/7/30 ngày |
 | `/admin` | `admin/page.tsx`, `admin-dashboard.tsx`, `input-dialog.tsx` | Review/edit/archive question, schedule, AI/job settings; header ưu tiên Luyện hôm nay, Thư viện, Mức bao phủ và chuẩn bị phỏng vấn; xác nhận/ràng buộc nguồn của mistake card dùng sheet/form trong UI thay vì API dialog của trình duyệt |
 | `/admin/coverage` | `admin/coverage/page.tsx` | Mức bao phủ nội dung, ưu tiên phần học liệu còn thiếu theo khái niệm và loại bằng chứng |
 | `/auth/*` | `auth/{login,callback,logout}` | GitHub OAuth qua Supabase |
@@ -62,6 +62,7 @@ API quan trọng:
 - `api/progress/sync`: đồng bộ review/Anki state.
 - `api/worldquant/{training-state,mission-snapshot}`: đọc/ghi state WorldQuant
   account-scoped bằng revision CAS; browser fallback về local khi API/database chưa sẵn sàng.
+- `api/profile/mobile-usage`: heartbeat riêng cho admin `tuanotuan`, chỉ nhận tab UUID ngắn hạn từ trình duyệt điện thoại đang hiển thị và ghi aggregate thời gian hoạt động.
 - `api/mistakes/{generate,preferences,resolve,ground,backfill}`: Mistake Inbox
   owner-private, grounded card generation và recovery từ Mock v4.
 - `api/questions/approve`: duyệt đúng question version + source hash.
