@@ -8,6 +8,11 @@ trạng thái từ tên nhánh.
 
 ## Handoff hiện tại
 
+- Nhánh hiện hành bổ sung thống kê riêng cho admin `tuanotuan`: thời gian Recall
+  hoạt động trên điện thoại hôm nay, 7 ngày và 30 ngày. Migration
+  `20260806100000_create_admin_mobile_usage.sql` chưa được áp dụng lên Supabase;
+  app phải deploy trước rồi mới chạy migration. Bộ đếm chỉ cộng heartbeat quan
+  sát được của tab phone đang visible, không thu thập IP/user-agent/URL.
 - Đợt nâng cấp đang gom sáu chức năng học tập: phiên ôn tập trọng tâm từ
   Stats/thư viện bài học; Tick Replay Lab; thư viện bài học có
   tự kiểm tra; Toolchain Dojo; Legacy → Modern C++ Capstone; và đồng bộ nền cho
@@ -99,6 +104,10 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
+- Mobile usage cho admin đạt `npm run typecheck`, `npm run lint`, full Vitest
+  (104 file, 644 test), `context:check` và production `next build` (61 route).
+  Migration `20260806100000_create_admin_mobile_usage.sql` chưa được áp dụng
+  lên Supabase production.
 - Public AI Coach Phase C đạt `npm run typecheck`, `npm run lint`, targeted
   route/budget tests và full Vitest: 103 file, 642 test. Chưa chạy migration
   hoặc bật cờ production; việc đó chỉ thực hiện sau khi deploy version này.

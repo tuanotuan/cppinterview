@@ -233,6 +233,13 @@ both ready.
 Migration là append-only, chạy theo timestamp trong `web/supabase/migrations/`.
 Đọc `web/supabase/README.md` và migration liên quan trước khi đổi DB.
 
+Migration `20260806100000_create_admin_mobile_usage.sql` thêm aggregate thời gian
+active trên điện thoại cho riêng content admin. Client chỉ gửi tab UUID ngắn hạn
+khi trang đang visible; RPC tự bỏ khoảng heartbeat quá 45 giây, tách đúng ngày
+Việt Nam và không lưu IP, user-agent, tên thiết bị hay URL. Deploy app trước,
+sau đó mới chạy migration; khi migration chưa có, endpoint fail closed và việc
+học không bị ảnh hưởng.
+
 Các nhóm schema hiện có:
 
 - auth-scoped progress, reviews, Anki state, approvals, overrides;

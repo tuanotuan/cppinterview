@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import type { ContributionDay } from "@/lib/profile/contribution-activity";
+import { formatActiveDuration } from "@/lib/profile/mobile-usage";
 import { loadProfileActivity } from "@/lib/profile/profile-activity.server";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +26,7 @@ export default async function ProfilePage() {
   if (!profile.enabled) return <ProfileGate mode="not-configured" />;
   if (!profile.account) return <ProfileGate mode="login" />;
 
-  const { account, calendar } = profile;
+  const { account, calendar, mobileUsage } = profile;
   const weeks = chunkWeeks(calendar.days);
   const recentDays = calendar.days
     .filter((day) => day.date <= calendar.today && day.total > 0)
@@ -104,7 +105,7 @@ export default async function ProfilePage() {
           </div>
         ) : null}
 
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <MetricCard
             label="Tổng hoạt động"
             value={calendar.totalContributions.toLocaleString("vi-VN")}
@@ -125,7 +126,20 @@ export default async function ProfilePage() {
             value={`${calendar.totals.mock} bài`}
             note={`${calendar.totals.review} lượt ôn · ${calendar.totals.coach} lần AI coach`}
           />
+          {mobileUsage ? (
+            <MetricCard
+              label="Điện thoại hôm nay"
+              value={formatActiveDuration(mobileUsage.todaySeconds)}
+              note={`7 ngày: ${formatActiveDuration(mobileUsage.last7DaysSeconds)} · 30 ngày: ${formatActiveDuration(mobileUsage.last30DaysSeconds)}`}
+            />
+          ) : null}
         </section>
+
+        {mobileUsage ? (
+          <p className="mt-4 rounded-2xl border border-[#173f35]/12 bg-[#eaf8cf]/55 px-5 py-3 text-sm leading-6 text-[#356b58]">
+            Thời gian điện thoại chỉ được tính khi tab Recall đang hiển thị và hoạt động. Dữ liệu không lưu địa chỉ IP, user-agent hay trang bạn đang xem.
+          </p>
+        ) : null}
 
         <section className="mt-5 rounded-[2rem] border border-[#173f35]/12 bg-white/62 p-5 shadow-[0_18px_70px_rgb(23_63_53_/_7%)] sm:p-7">
           <div className="flex flex-wrap items-end justify-between gap-4">
