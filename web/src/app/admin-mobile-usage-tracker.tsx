@@ -28,7 +28,7 @@ export function AdminMobileUsageTracker() {
       if (stopped) return;
       if (
         !includeTrailingActiveTime &&
-        (document.visibilityState !== "visible" || !document.hasFocus())
+        document.visibilityState !== "visible"
       ) {
         return;
       }
@@ -49,7 +49,7 @@ export function AdminMobileUsageTracker() {
     };
 
     const onVisibilityChange = () => {
-      if (document.visibilityState === "visible" && document.hasFocus()) {
+      if (document.visibilityState === "visible") {
         heartbeat();
         return;
       }
