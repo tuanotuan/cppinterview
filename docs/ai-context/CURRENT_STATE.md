@@ -104,10 +104,11 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Mobile usage cho admin đạt `npm run typecheck`, `npm run lint`, full Vitest
-  (104 file, 644 test), `context:check` và production `next build` (61 route).
-  Migration `20260806100000_create_admin_mobile_usage.sql` chưa được áp dụng
-  lên Supabase production.
+- Mobile usage cho admin dùng `document.visibilityState`, không dùng
+  `document.hasFocus()` vì Safari/Chrome mobile có thể trả về false khi tab vẫn
+  đang hiện. Heartbeat fix đạt typecheck, ESLint các file liên quan và targeted
+  profile test; migration `20260806100000_create_admin_mobile_usage.sql` đã là
+  điều kiện để production ghi số liệu.
 - Public AI Coach Phase C đạt `npm run typecheck`, `npm run lint`, targeted
   route/budget tests và full Vitest: 103 file, 642 test. Chưa chạy migration
   hoặc bật cờ production; việc đó chỉ thực hiện sau khi deploy version này.
