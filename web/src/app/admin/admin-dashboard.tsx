@@ -14,8 +14,8 @@ import type {
   ManualQuestionRequest,
 } from "@/lib/content/question-overrides";
 import {
-  questionTypeLabels,
-  taxonomyTopicLabel,
+  questionDifficultyLabels,
+  questionResponseModeLabels,
 } from "@/lib/content/user-facing-labels";
 import type {
   AiUsageSummary,
@@ -142,12 +142,8 @@ export function AdminDashboard({
 }) {
   const [questions, setQuestions] = useState(initialSnapshot.questions);
   const [query, setQuery] = useState("");
-  const [deck, setDeck] = useState("all");
-  const [standard, setStandard] = useState("all");
   const [status, setStatus] = useState("current");
-  const [type, setType] = useState("all");
   const [learningFilter, setLearningFilter] = useState("all");
-  const [topic, setTopic] = useState("all");
   const [savingIds, setSavingIds] = useState<Set<string>>(() => new Set());
   const [notice, setNotice] = useState<string | null>(null);
   const [geminiFallbackEnabled, setGeminiFallbackEnabled] = useState(
@@ -172,21 +168,6 @@ export function AdminDashboard({
     null,
   );
   const { requestConfirmation, confirmationDialog } = useConfirmation();
-  const topics = useMemo(
-    () =>
-      [
-        ...new Set(
-          questions
-            .filter(
-              (question) =>
-                deck === "all" || question.taxonomy.deckId === deck,
-            )
-            .flatMap((question) => question.taxonomy.topics),
-        ),
-      ].sort(),
-    [deck, questions],
-  );
-
   const filteredQuestions = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     return questions.filter((question) => {
@@ -195,8 +176,7 @@ export function AdminDashboard({
         question.id.includes(normalized) ||
         question.prompt.toLowerCase().includes(normalized) ||
         question.lessonTitle.toLowerCase().includes(normalized) ||
-        question.knowledgePath.toLowerCase().includes(normalized) ||
-        question.taxonomy.tags.some((tag) => tag.includes(normalized));
+        question.knowledgePath.toLowerCase().includes(normalized);
       const matchesLearning =
         learningFilter === "all" ||
         (learningFilter === "suspended"
@@ -212,22 +192,17 @@ export function AdminDashboard({
                 !question.learning.suspended);
       return (
         matchesQuery &&
-        (deck === "all" || question.taxonomy.deckId === deck) &&
-        (standard === "all" || question.standard === standard) &&
         (status === "all" ||
           (status === "current"
             ? question.adminStatus !== "archived"
             : question.adminStatus === status)) &&
-        (type === "all" || question.type === type) &&
-        (topic === "all" || question.taxonomy.topics.includes(topic)) &&
         matchesLearning
       );
     });
-  }, [deck, initialSnapshot.today, learningFilter, query, questions, standard, status, topic, type]);
+  }, [initialSnapshot.today, learningFilter, query, questions, status]);
 
   const reviewQueue = questions.filter(
     (question) =>
-      (deck === "all" || question.taxonomy.deckId === deck) &&
       (question.adminStatus === "pending" || question.adminStatus === "stale"),
   );
   const activeCount = questions.filter(
@@ -1252,23 +1227,15 @@ function mistakeErrorMessage(code: string) {
               </button>
             </div>
 
-            <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-6 grid gap-3 md:grid-cols-3">
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Tìm câu hỏi, bài học…"
-                className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2.5 text-sm outline-none focus:ring-3 focus:ring-[#d7ff91] md:col-span-2 xl:col-span-1"
+                className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2.5 text-sm outline-none focus:ring-3 focus:ring-[#d7ff91]"
               />
-              <Filter value={deck} onChange={(value) => {
-                setDeck(value);
-                setStandard("all");
-                setTopic("all");
-              }} label="Bộ thẻ" options={[["all", "Mọi bộ thẻ"], ["cpp-interview", "Phỏng vấn C++"], ["python-interview", "Phỏng vấn Python"]]} />
-              <Filter value={standard} onChange={setStandard} label="Lộ trình" options={[['all', 'Mọi lộ trình'], ['cpp98', 'C++98'], ['cpp11', 'C++11'], ['cpp20', 'C++20'], ['python3', 'Python 3']]} />
               <Filter value={status} onChange={setStatus} label="Trạng thái" options={[['current', 'Chưa lưu trữ'], ['all', 'Mọi trạng thái'], ['active', 'Đang dùng'], ['pending', 'Chờ duyệt'], ['stale', 'Nguồn đã đổi'], ['archived', 'Đã lưu trữ']]} />
-              <Filter value={type} onChange={setType} label="Loại câu" options={[['all', 'Mọi loại'], ['recall', 'Ghi nhớ'], ['code_reasoning', 'Phân tích mã'], ['pitfall', 'Bẫy thường gặp'], ['scenario', 'Tình huống']]} />
               <Filter value={learningFilter} onChange={setLearningFilter} label="Trạng thái học" options={[['all', 'Mọi trạng thái học'], ['new', 'Mới'], ['learning', 'Đang học'], ['review', 'Ôn tập'], ['relearning', 'Học lại'], ['due', 'Đến hạn'], ['suspended', 'Tạm dừng'], ['leech', 'Câu khó nhớ']]} />
-              <Filter value={topic} onChange={setTopic} label="Chủ đề" options={[['all', 'Mọi chủ đề'], ...topics.map((item): [string, string] => [item, taxonomyTopicLabel(item)])]} />
             </div>
 
             <div className="mt-6 space-y-3">
@@ -1388,12 +1355,7 @@ function QueueReviewCard({ question, saving, onApprove }: { question: AdminQuest
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-wrap gap-2">
           <StatusBadge status={question.adminStatus} />
-          <span className="rounded-full bg-[#edf0e8] px-2.5 py-1 font-mono text-[10px] font-bold uppercase">
-            {standardLabels[question.standard]}
-          </span>
-          <span className="rounded-full bg-[#edf0e8] px-2.5 py-1 font-mono text-[10px] font-bold uppercase">
-            {questionTypeLabels[question.type]}
-          </span>
+          <QuestionClassificationBadges question={question} />
         </div>
         <button
           type="button"
@@ -1458,8 +1420,7 @@ function QuestionCard({
           <div className="flex flex-wrap gap-2">
             <StatusBadge status={question.adminStatus} />
             <LearningBadge question={question} />
-            <span className="rounded-full bg-[#edf0e8] px-2.5 py-1 font-mono text-[10px] font-bold uppercase">{standardLabels[question.standard]}</span>
-            <span className="rounded-full bg-[#edf0e8] px-2.5 py-1 font-mono text-[10px] font-bold uppercase">{questionTypeLabels[question.type]}</span>
+            <QuestionClassificationBadges question={question} />
           </div>
           <h3 className="mt-3 font-semibold leading-6">
             {displayQuestionPrompt(question)}
@@ -1599,7 +1560,6 @@ function QuestionEditor({
   onCancel: () => void;
   onSave: (content: EditableQuestionContent) => Promise<void>;
 }) {
-  const [type, setType] = useState(question.type);
   const [responseMode, setResponseMode] = useState(
     question.responseMode ?? "text",
   );
@@ -1635,7 +1595,7 @@ function QuestionEditor({
       onSubmit={(event) => {
         event.preventDefault();
         void onSave({
-          type,
+          type: question.type,
           responseMode,
           difficulty,
           estimatedMinutes,
@@ -1664,29 +1624,18 @@ function QuestionEditor({
           v{question.version} → v{question.version + 1}
         </span>
       </div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <EditorSelect
-          label="Loại câu"
-          value={type}
-          onChange={(value) => setType(value as typeof type)}
-          options={[
-            ["recall", "Ghi nhớ"],
-            ["code_reasoning", "Phân tích mã"],
-            ["pitfall", "Bẫy thường gặp"],
-            ["scenario", "Tình huống"],
-          ]}
-        />
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <EditorSelect
           label="Cách trả lời"
           value={responseMode}
           onChange={(value) => setResponseMode(value as typeof responseMode)}
-          options={[["text", "Văn bản"], ["code", "Mã"]]}
+          options={[["text", "Text"], ["code", "Code"]]}
         />
         <EditorSelect
           label="Độ khó"
           value={difficulty}
           onChange={(value) => setDifficulty(value as typeof difficulty)}
-          options={[["beginner", "Cơ bản"], ["intermediate", "Trung cấp"], ["advanced", "Nâng cao"]]}
+          options={[["beginner", "Dễ"], ["intermediate", "Trung bình"], ["advanced", "Khó"]]}
         />
         <label className="text-xs font-bold text-[#52645c]">
           Thời gian (phút)
@@ -1791,11 +1740,6 @@ function QuestionDetails({ question }: { question: AdminQuestion }) {
           {question.learning.leech ? (
             <span className="font-bold text-[#ba4b2f]">· Câu khó nhớ</span>
           ) : null}
-          {question.taxonomy.topics.map((item) => (
-            <span key={item} className="rounded-full bg-[#edf0e8] px-2 py-0.5 font-mono">
-              {taxonomyTopicLabel(item)}
-            </span>
-          ))}
         </div>
         <details className="mt-4 border-t border-[#173f35]/10 pt-3">
           <summary className="cursor-pointer text-xs font-bold text-[#356b58]">
@@ -1878,11 +1822,23 @@ function InfoBlock({ label, children }: { label: string; children: React.ReactNo
   return <div className="rounded-xl bg-[#f3f4ee] p-4 text-sm leading-6"><p className="mb-2 font-mono text-[10px] font-bold tracking-[0.12em] text-[#356b58] uppercase">{label}</p>{children}</div>;
 }
 
+function QuestionClassificationBadges({
+  question,
+}: {
+  question: AdminQuestion;
+}) {
+  return (
+    <>
+      <span className="rounded-full bg-[#edf0e8] px-2.5 py-1 font-mono text-[10px] font-bold uppercase">
+        {questionDifficultyLabels[question.difficulty]}
+      </span>
+      <span className="rounded-full bg-[#edf0e8] px-2.5 py-1 font-mono text-[10px] font-bold uppercase">
+        {questionResponseModeLabels[question.responseMode ?? "text"]}
+      </span>
+    </>
+  );
+}
+
 function Filter({ value, onChange, label, options }: { value: string; onChange: (value: string) => void; label: string; options: Array<[string, string]> }) {
-  const resolvedOptions = label === "Bộ thẻ"
-    ? [...options, ["cmake-build-systems", "CMake / Hệ thống dựng"] as [string, string]]
-    : label === "Lộ trình"
-      ? [...options, ["cmake", "CMake"] as [string, string]]
-      : options;
-  return <label><span className="sr-only">{label}</span><select value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-xl border border-[#173f35]/15 bg-white px-3 py-2.5 text-sm outline-none focus:ring-3 focus:ring-[#d7ff91]">{resolvedOptions.map(([optionValue, optionLabel]) => <option key={optionValue} value={optionValue}>{optionLabel}</option>)}</select></label>;
+  return <label><span className="sr-only">{label}</span><select value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-xl border border-[#173f35]/15 bg-white px-3 py-2.5 text-sm outline-none focus:ring-3 focus:ring-[#d7ff91]">{options.map(([optionValue, optionLabel]) => <option key={optionValue} value={optionValue}>{optionLabel}</option>)}</select></label>;
 }

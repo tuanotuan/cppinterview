@@ -5,7 +5,11 @@ import { describe, expect, it } from "vitest";
 
 import manifestJson from "../../generated/content-manifest.json";
 import { contentManifestSchema } from "./schema";
-import { hasTaxonomyTopicLabel } from "./user-facing-labels";
+import {
+  hasTaxonomyTopicLabel,
+  questionDifficultyLabels,
+  questionResponseModeLabels,
+} from "./user-facing-labels";
 
 const webRoot = process.cwd();
 const repoRoot = path.resolve(webRoot, "..");
@@ -66,6 +70,18 @@ describe("user-facing language", () => {
     ];
 
     expect(topics.filter((topic) => !hasTaxonomyTopicLabel(topic))).toEqual([]);
+  });
+
+  it("uses the two compact question labels shown in the learner UI", () => {
+    expect(questionDifficultyLabels).toEqual({
+      beginner: "Dễ",
+      intermediate: "Trung bình",
+      advanced: "Khó",
+    });
+    expect(questionResponseModeLabels).toEqual({
+      text: "Text",
+      code: "Code",
+    });
   });
 });
 
