@@ -29,6 +29,7 @@ const MODEL_RATES_USD_PER_MILLION: Record<string, ModelRates> = {
 
 export const COACH_RESERVATION_USD_MICROS = {
   luna: 20_000,
+  clarification: 8_000,
   terra: 120_000,
   mistakeCard: 12_000,
 } as const;

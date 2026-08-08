@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   coachFeedbackSchema,
   coachFollowUpResponseSchema,
+  questionClarificationSchema,
 } from "../ai/contracts";
 import { rescueRetryStateSchema } from "./rescue-retry";
 
@@ -36,6 +37,8 @@ const questionStudySessionSchema = z.object({
   coachIdempotencyKey: z.string().uuid().optional(),
   coachModel: z.string().max(120).optional(),
   coachAnswer: z.string().optional(),
+  questionClarification: questionClarificationSchema.optional(),
+  questionClarificationModel: z.string().max(160).optional(),
   rescueRetry: rescueRetryStateSchema.optional(),
   followUpInput: z.string().max(2000).optional(),
   followUpChat: z.array(followUpChatMessageSchema).max(8).optional(),

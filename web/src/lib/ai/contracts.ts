@@ -130,6 +130,58 @@ export type CoachFollowUpMessage = z.infer<typeof coachFollowUpMessageSchema>;
 export type CoachFollowUpRequest = z.infer<typeof coachFollowUpRequestSchema>;
 export type CoachFollowUpResponse = z.infer<typeof coachFollowUpResponseSchema>;
 
+export const questionClarificationRequestSchema = z.object({
+  questionId: z
+    .string()
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+    .max(100),
+});
+
+export const questionClarificationSchema = z.object({
+  plainLanguage: z.string().trim().min(1).max(1400),
+  whatToAddress: z.array(z.string().trim().min(1).max(280)).min(1).max(5),
+  terms: z
+    .array(
+      z.object({
+        term: z.string().trim().min(1).max(100),
+        meaning: z.string().trim().min(1).max(320),
+      }),
+    )
+    .max(5),
+  scopeNote: z.string().trim().min(1).max(400),
+});
+
+export type QuestionClarification = z.infer<typeof questionClarificationSchema>;
+
+export const questionClarificationJsonSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    plainLanguage: { type: "string" },
+    whatToAddress: {
+      type: "array",
+      minItems: 1,
+      maxItems: 5,
+      items: { type: "string" },
+    },
+    terms: {
+      type: "array",
+      maxItems: 5,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          term: { type: "string" },
+          meaning: { type: "string" },
+        },
+        required: ["term", "meaning"],
+      },
+    },
+    scopeNote: { type: "string" },
+  },
+  required: ["plainLanguage", "whatToAddress", "terms", "scopeNote"],
+} as const;
+
 export const coachFollowUpResponseJsonSchema = {
   type: "object",
   additionalProperties: false,

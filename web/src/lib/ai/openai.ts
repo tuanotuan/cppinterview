@@ -21,11 +21,14 @@ import {
   type CoachFeedback,
   type CoachFollowUpMessage,
   type CoachFollowUpResponse,
+  questionClarificationSchema,
+  type QuestionClarification,
 } from "./contracts";
 import {
   buildCoachFollowUpPrompt,
   buildCoachPrompt,
   buildCoachSystemInstruction,
+  buildQuestionClarificationPrompt,
 } from "./prompt";
 import type { AiTokenUsage } from "./usage";
 import { AiOperationNotStartedError } from "./budget";
@@ -121,6 +124,37 @@ export async function answerCoachFollowUpWithOpenAI({
     throw new Error("OpenAI returned an unknown source section");
   }
   return result;
+}
+
+export async function clarifyQuestionWithOpenAI({
+  question,
+  lesson,
+  safetyIdentifier,
+}: {
+  question: Question;
+  lesson: GeneratedLesson;
+  safetyIdentifier: string;
+}): Promise<OpenAIStructuredResult<QuestionClarification>> {
+  const model = openAIModel("luna");
+  const response = await openAIClient().responses.parse({
+    model,
+    store: false,
+    safety_identifier: safetyIdentifier,
+    instructions: buildCoachSystemInstruction(lesson, "clarify"),
+    input: buildQuestionClarificationPrompt({ question, lesson }),
+    reasoning: { effort: "low" },
+    max_output_tokens: 1400,
+    text: {
+      format: zodTextFormat(questionClarificationSchema, "question_clarification"),
+      verbosity: "low",
+    },
+  });
+
+  return parsedResult(
+    response,
+    model,
+    "OpenAI returned an empty question clarification",
+  );
 }
 
 export async function evaluateMockInterviewWithOpenAI({
