@@ -18,7 +18,6 @@ export function QuestionEditorDialog({
   onClose: () => void;
   onSave: (content: EditableQuestionContent) => Promise<void>;
 }) {
-  const [type, setType] = useState(question.type);
   const [responseMode, setResponseMode] = useState(
     question.responseMode ?? "text",
   );
@@ -51,7 +50,7 @@ export function QuestionEditorDialog({
         onSubmit={(event) => {
           event.preventDefault();
           void onSave({
-            type,
+            type: question.type,
             responseMode,
             difficulty,
             estimatedMinutes,
@@ -84,32 +83,21 @@ export function QuestionEditorDialog({
           </span>
         </div>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <EditorSelect
-            label="Loại câu"
-            value={type}
-            onChange={(value) => setType(value as typeof type)}
-            options={[
-              ["recall", "Ghi nhớ"],
-              ["code_reasoning", "Phân tích mã"],
-              ["pitfall", "Bẫy thường gặp"],
-              ["scenario", "Tình huống"],
-            ]}
-          />
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <EditorSelect
             label="Cách trả lời"
             value={responseMode}
             onChange={(value) => setResponseMode(value as typeof responseMode)}
-            options={[["text", "Văn bản"], ["code", "Mã"]]}
+            options={[["text", "Text"], ["code", "Code"]]}
           />
           <EditorSelect
             label="Độ khó"
             value={difficulty}
             onChange={(value) => setDifficulty(value as typeof difficulty)}
             options={[
-              ["beginner", "Cơ bản"],
-              ["intermediate", "Trung cấp"],
-              ["advanced", "Nâng cao"],
+              ["beginner", "Dễ"],
+              ["intermediate", "Trung bình"],
+              ["advanced", "Khó"],
             ]}
           />
           <label className="text-xs font-bold text-[#52645c]">

@@ -24,7 +24,6 @@ export function ManualQuestionDialog({
 }) {
   const [lessonId, setLessonId] = useState(lessons[0]?.id ?? "");
   const [sourceSectionIds, setSourceSectionIds] = useState<string[]>([]);
-  const [type, setType] = useState<EditableQuestionContent["type"]>("recall");
   const [responseMode, setResponseMode] = useState<
     EditableQuestionContent["responseMode"]
   >("text");
@@ -74,7 +73,7 @@ export function ManualQuestionDialog({
             lessonId,
             sourceSectionIds,
             content: {
-              type,
+              type: responseMode === "code" ? "code_reasoning" : "recall",
               responseMode,
               difficulty,
               estimatedMinutes,
@@ -143,10 +142,9 @@ export function ManualQuestionDialog({
           ) : null}
         </fieldset>
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <FieldSelect label="Loại câu" value={type} onChange={(value) => setType(value as typeof type)} options={[["recall", "Ghi nhớ"], ["code_reasoning", "Phân tích mã"], ["pitfall", "Bẫy thường gặp"], ["scenario", "Tình huống"]]} />
-          <FieldSelect label="Cách trả lời" value={responseMode} onChange={(value) => setResponseMode(value as typeof responseMode)} options={[["text", "Văn bản"], ["code", "Mã"]]} />
-          <FieldSelect label="Độ khó" value={difficulty} onChange={(value) => setDifficulty(value as typeof difficulty)} options={[["beginner", "Cơ bản"], ["intermediate", "Trung cấp"], ["advanced", "Nâng cao"]]} />
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <FieldSelect label="Cách trả lời" value={responseMode} onChange={(value) => setResponseMode(value as typeof responseMode)} options={[["text", "Text"], ["code", "Code"]]} />
+          <FieldSelect label="Độ khó" value={difficulty} onChange={(value) => setDifficulty(value as typeof difficulty)} options={[["beginner", "Dễ"], ["intermediate", "Trung bình"], ["advanced", "Khó"]]} />
           <label className="text-xs font-bold text-[#52645c]">Thời gian (phút)<input type="number" min={1} max={15} value={estimatedMinutes} onChange={(event) => setEstimatedMinutes(Number(event.target.value))} className="mt-1.5 w-full rounded-xl border border-[#173f35]/15 bg-white px-3 py-2.5 text-sm font-normal" /></label>
         </div>
 

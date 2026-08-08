@@ -42,8 +42,7 @@ import type { EditableQuestionContent } from "@/lib/content/question-overrides";
 import { displayQuestionPrompt } from "@/lib/content/question-prompt";
 import {
   questionDifficultyLabels,
-  questionTypeLabels,
-  taxonomyTopicLabel,
+  questionResponseModeLabels,
 } from "@/lib/content/user-facing-labels";
 import type { PracticeAccount } from "@/lib/practice/cloud-server";
 import {
@@ -209,13 +208,7 @@ const ratingOptions: Array<{
   { value: "easy", label: "Dễ", interval: "7 ngày", tone: "lime" },
 ];
 
-const standardLabels = {
-  cpp98: "C++98",
-  cpp11: "C++11",
-  cpp20: "C++20",
-  python3: "Python 3",
-  cmake: "CMake",
-} as const;
+type PracticeStandard = "cpp98" | "cpp11" | "cpp20" | "python3" | "cmake";
 
 const learningStateLabels = {
   new: "Mới",
@@ -227,8 +220,8 @@ const learningStateLabels = {
 export type PracticeQuestion = ContentQuestion & {
   lessonTitle: string;
   language: ContentLanguage;
-  track: keyof typeof standardLabels;
-  standard: keyof typeof standardLabels;
+  track: PracticeStandard;
+  standard: PracticeStandard;
   sourcePath: string;
   sourceSections: Array<{
     id: string;
@@ -1427,9 +1420,7 @@ export function PracticeApp({
   ]);
 
   const {
-    activeDeck,
     completedToday,
-    customStudyTopics,
     deckCounts,
     deckQuestions,
     latest,
@@ -1491,15 +1482,7 @@ export function PracticeApp({
     ).size;
 
     return {
-      activeDeck: PRACTICE_DECKS[selectedDeck],
       completedToday: nextCompletedToday,
-      customStudyTopics: [
-        ...new Set(
-          nextDeckQuestions.flatMap(
-            (question) => question.taxonomy.topics,
-          ),
-        ),
-      ].sort(),
       deckCounts: nextDeckCounts,
       deckQuestions: nextDeckQuestions,
       latest: nextLatest,
@@ -3089,8 +3072,6 @@ export function PracticeApp({
         ) : (
           <CustomStudyPanel
             key={selectedDeck}
-            language={activeDeck.language}
-            topics={customStudyTopics}
             activeCount={customRemainingIds.length}
             notice={customStudyNotice}
             onStart={startCustomStudy}
@@ -3235,10 +3216,8 @@ export function PracticeApp({
                   ) : null}
                   {hasAnswered ? (
                     <div className="flex flex-wrap gap-2">
-                      <Tag>{standardLabels[current.standard]}</Tag>
-                      <Tag>{questionTypeLabels[current.type]}</Tag>
                       <Tag>{questionDifficultyLabels[current.difficulty]}</Tag>
-                      <Tag>~{current.estimatedMinutes} phút</Tag>
+                      <Tag>{questionResponseModeLabels[current.responseMode ?? "text"]}</Tag>
                     </div>
                   ) : null}
 
@@ -4084,15 +4063,11 @@ function CompletionScreen({
 }
 
 function CustomStudyPanel({
-  language,
-  topics,
   activeCount,
   notice,
   onStart,
   onStop,
 }: {
-  language: ContentLanguage;
-  topics: string[];
   activeCount: number;
   notice: string | null;
   onStart: (filters: CustomStudyFilters) => void;
@@ -4101,11 +4076,6 @@ function CustomStudyPanel({
   const [learningState, setLearningState] = useState<
     CustomStudyFilters["learningState"]
   >("all");
-  const [standard, setStandard] = useState<CustomStudyFilters["standard"]>(
-    "all",
-  );
-  const [skill, setSkill] = useState<CustomStudyFilters["skill"]>("all");
-  const [topic, setTopic] = useState("all");
   const [limit, setLimit] = useState(10);
 
   return (
@@ -4116,7 +4086,7 @@ function CustomStudyPanel({
           {activeCount ? `${activeCount} câu còn lại` : "Mở bộ lọc ↓"}
         </span>
       </summary>
-      <div className="mt-4 grid gap-3 border-t border-[#173f35]/10 pt-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mt-4 grid gap-3 border-t border-[#173f35]/10 pt-4 sm:grid-cols-2">
         <StudySelect
           label="Trạng thái"
           value={learningState}
@@ -4131,60 +4101,6 @@ function CustomStudyPanel({
             ["relearning", "Học lại"],
             ["due", "Đến hạn"],
             ["leech", "Câu khó nhớ"],
-          ]}
-        />
-        <StudySelect
-          label={
-            language === "python"
-              ? "Python"
-              : language === "cmake"
-                ? "CMake"
-                : "C++"
-          }
-          value={standard}
-          onChange={(value) =>
-            setStandard(value as CustomStudyFilters["standard"])
-          }
-          options={
-            language === "cmake"
-              ? [
-                  ["all", "Mọi phiên bản"],
-                  ["cmake", "CMake"],
-                ]
-              : language === "python"
-              ? [
-                  ["all", "Mọi phiên bản"],
-                  ["python3", "Python 3"],
-                ]
-              : [
-                  ["all", "Mọi phiên bản"],
-                  ["cpp98", "C++98"],
-                  ["cpp11", "C++11"],
-                  ["cpp20", "C++20"],
-                ]
-          }
-        />
-        <StudySelect
-          label="Kỹ năng"
-          value={skill}
-          onChange={(value) => setSkill(value as CustomStudyFilters["skill"])}
-          options={[
-            ["all", "Mọi loại"],
-            ["recall", "Ghi nhớ"],
-            ["code_reasoning", "Lập luận về mã"],
-            ["pitfall", "Bẫy thường gặp"],
-            ["scenario", "Tình huống"],
-          ]}
-        />
-        <StudySelect
-          label="Chủ đề"
-          value={topic}
-          onChange={setTopic}
-          options={[
-            ["all", "Mọi chủ đề"],
-            ...topics.map(
-              (item): [string, string] => [item, taxonomyTopicLabel(item)],
-            ),
           ]}
         />
         <label className="text-xs font-bold text-[#52645c]">
@@ -4205,9 +4121,9 @@ function CustomStudyPanel({
           onClick={() =>
             onStart({
               learningState,
-              standard,
-              skill,
-              topic,
+              standard: "all",
+              skill: "all",
+              topic: "all",
               lessonId: "all",
               limit,
             })

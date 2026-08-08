@@ -11,9 +11,17 @@ export const questionDifficultyLabels: Record<
   ContentQuestion["difficulty"],
   string
 > = {
-  beginner: "Cơ bản",
-  intermediate: "Trung cấp",
-  advanced: "Nâng cao",
+  beginner: "Dễ",
+  intermediate: "Trung bình",
+  advanced: "Khó",
+};
+
+export const questionResponseModeLabels: Record<
+  NonNullable<ContentQuestion["responseMode"]>,
+  string
+> = {
+  text: "Text",
+  code: "Code",
 };
 
 const taxonomyTopicLabels: Record<string, string> = {
