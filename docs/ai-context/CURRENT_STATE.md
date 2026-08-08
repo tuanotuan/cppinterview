@@ -8,6 +8,8 @@ trạng thái từ tên nhánh.
 
 ## Handoff hiện tại
 
+- Luna “Làm rõ câu hỏi” hiện dành cho admin `tuanotuan` trên Practice. Route dùng budget ledger sẵn có, không cần migration hay biến môi trường mới; prompt chỉ nhận đề và mã trong đề, không nhận đáp án/rubric/tài liệu nguồn. Kết quả lưu local theo exact question version/hash để tồn tại qua F5.
+
 - Nhánh hiện hành bổ sung thống kê riêng cho admin `tuanotuan`: thời gian Recall
   hoạt động trên điện thoại hôm nay, 7 ngày và 30 ngày. Migration
   `20260806100000_create_admin_mobile_usage.sql` chưa được áp dụng lên Supabase;

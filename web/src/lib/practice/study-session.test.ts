@@ -33,6 +33,18 @@ describe("study session persistence", () => {
           ],
           deepDiveOpen: true,
           deepDiveAnswer: "auto drops the top-level const during deduction.",
+          questionClarification: {
+            plainLanguage: "Đề yêu cầu phân tích cách suy luận kiểu dữ liệu.",
+            whatToAddress: ["Nêu phần đề đang hỏi."],
+            terms: [
+              {
+                term: "type deduction",
+                meaning: "Quy tắc suy luận kiểu của trình biên dịch.",
+              },
+            ],
+            scopeNote: "Chỉ cần bám theo dữ kiện đã cho.",
+          },
+          questionClarificationModel: "gpt-5.6-luna",
         },
       },
       identity.id,
@@ -56,6 +68,18 @@ describe("study session persistence", () => {
       },
       deepDiveOpen: true,
       deepDiveAnswer: "auto drops the top-level const during deduction.",
+      questionClarification: {
+        plainLanguage: "Đề yêu cầu phân tích cách suy luận kiểu dữ liệu.",
+        whatToAddress: ["Nêu phần đề đang hỏi."],
+        terms: [
+          {
+            term: "type deduction",
+            meaning: "Quy tắc suy luận kiểu của trình biên dịch.",
+          },
+        ],
+        scopeNote: "Chỉ cần bám theo dữ kiện đã cho.",
+      },
+      questionClarificationModel: "gpt-5.6-luna",
     });
   });
 

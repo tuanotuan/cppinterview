@@ -8,12 +8,14 @@ import {
   coachFollowUpRequestSchema,
   coachRequestSchema,
   normalizeCoachFeedback,
+  questionClarificationSchema,
   type CoachFeedback,
 } from "./contracts";
 import {
   buildCoachFollowUpPrompt,
   buildCoachPrompt,
   buildCoachSystemInstruction,
+  buildQuestionClarificationPrompt,
 } from "./prompt";
 
 const manifest = contentManifestSchema.parse(manifestJson);
@@ -162,6 +164,28 @@ describe("AI coach contract", () => {
     expect(prompt).toContain("Giải thích bằng ví dụ nhỏ nhé");
     expect(prompt).toContain(`<source id="${question.sources[0].sectionId}"`);
     expect(prompt).toContain("<grading_feedback>");
+  });
+
+  it("clarifies the prompt without sending an answer or rubric to Luna", () => {
+    const question = manifest.questions[0];
+    const lesson = manifest.lessons.find((item) => item.id === question.lessonId)!;
+    const prompt = buildQuestionClarificationPrompt({ question, lesson });
+
+    expect(prompt).toContain(question.prompt);
+    expect(prompt).not.toContain(question.answer.detailed);
+    expect(prompt).not.toContain(question.rubric.required[0]);
+    expect(prompt).toContain("Tuyệt đối không nêu đáp án");
+    expect(buildCoachSystemInstruction(lesson, "clarify")).toContain(
+      "tuyệt đối không tiết lộ đáp án",
+    );
+    expect(
+      questionClarificationSchema.safeParse({
+        plainLanguage: "Đề đang yêu cầu bạn mô tả phạm vi trả lời.",
+        whatToAddress: ["Nêu các ý mà đề hỏi."],
+        terms: [{ term: "ownership", meaning: "Quyền sở hữu tài nguyên." }],
+        scopeNote: "Chỉ bám theo dữ kiện trong đề.",
+      }).success,
+    ).toBe(true);
   });
 
   it("uses the lesson language for Python grading and follow-ups", () => {

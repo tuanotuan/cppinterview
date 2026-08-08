@@ -15,6 +15,7 @@ import {
 import type {
   CoachFeedback,
   CoachFollowUpResponse,
+  QuestionClarification,
 } from "@/lib/ai/contracts";
 import {
   mergeAiDailyBudgetSnapshot,
@@ -409,6 +410,15 @@ export function PracticeApp({
   );
   const [coachModels, setCoachModels] = useState<Record<string, string>>({});
   const [coachAnswers, setCoachAnswers] = useState<Record<string, string>>({});
+  const [questionClarifications, setQuestionClarifications] = useState<
+    Record<string, QuestionClarification>
+  >({});
+  const [questionClarificationModels, setQuestionClarificationModels] =
+    useState<Record<string, string>>({});
+  const [questionClarificationLoading, setQuestionClarificationLoading] =
+    useState<string | null>(null);
+  const [questionClarificationErrors, setQuestionClarificationErrors] =
+    useState<Record<string, string>>({});
   const [rescueRetryByQuestion, setRescueRetryByQuestion] = useState<
     Record<string, RescueRetryState>
   >({});
@@ -488,6 +498,7 @@ export function PracticeApp({
   const scrollToCoachFeedbackWhenAvailable = useRef(false);
   const pendingSessionSaveRef = useRef<(() => void) | null>(null);
   const coachRequestTokensRef = useRef<Record<string, string>>({});
+  const clarificationRequestTokensRef = useRef<Record<string, string>>({});
   const reviewCompletionLocksRef = useRef<Set<string>>(new Set());
   const studySessionGenerationRef = useRef(0);
   const [hydratedStudySessionKey, setHydratedStudySessionKey] =
@@ -555,6 +566,7 @@ export function PracticeApp({
   const clearStudySessionState = useCallback(() => {
     studySessionGenerationRef.current += 1;
     coachRequestTokensRef.current = {};
+    clarificationRequestTokensRef.current = {};
     scrollToRatingWhenAvailable.current = false;
     scrollToCoachFeedbackWhenAvailable.current = false;
     setAnswers({});
@@ -562,6 +574,10 @@ export function PracticeApp({
     setCoachFeedback({});
     setCoachModels({});
     setCoachAnswers({});
+    setQuestionClarifications({});
+    setQuestionClarificationModels({});
+    setQuestionClarificationLoading(null);
+    setQuestionClarificationErrors({});
     setRescueRetryByQuestion({});
     setCoachAttemptIds({});
     setCoachIdempotencyKeys({});
@@ -636,6 +652,8 @@ export function PracticeApp({
     const restoredFeedback: Record<string, CoachFeedback> = {};
     const restoredModels: Record<string, string> = {};
     const restoredCoachAnswers: Record<string, string> = {};
+    const restoredQuestionClarifications: Record<string, QuestionClarification> = {};
+    const restoredQuestionClarificationModels: Record<string, string> = {};
     const restoredRescueRetry: Record<string, RescueRetryState> = {};
     const restoredAttemptIds: Record<string, number> = {};
     const restoredIdempotencyKeys: Record<string, string> = {};
@@ -672,6 +690,13 @@ export function PracticeApp({
       if (saved.coachAnswer !== undefined) {
         restoredCoachAnswers[questionId] = saved.coachAnswer;
       }
+      if (saved.questionClarification) {
+        restoredQuestionClarifications[questionId] = saved.questionClarification;
+      }
+      if (saved.questionClarificationModel) {
+        restoredQuestionClarificationModels[questionId] =
+          saved.questionClarificationModel;
+      }
       const restoredRetryState = restoreRescueRetryState({
         persisted: saved.rescueRetry,
         hasFeedback: Boolean(saved.coachFeedback),
@@ -707,6 +732,8 @@ export function PracticeApp({
     setCoachFeedback(restoredFeedback);
     setCoachModels(restoredModels);
     setCoachAnswers(restoredCoachAnswers);
+    setQuestionClarifications(restoredQuestionClarifications);
+    setQuestionClarificationModels(restoredQuestionClarificationModels);
     setRescueRetryByQuestion(restoredRescueRetry);
     setCoachAttemptIds(restoredAttemptIds);
     setCoachIdempotencyKeys(restoredIdempotencyKeys);
@@ -736,6 +763,9 @@ export function PracticeApp({
         const model = coachModels[question.id];
         const coachAnswer = coachAnswers[question.id];
         const hasCoachAnswer = coachAnswer !== undefined;
+        const questionClarification = questionClarifications[question.id];
+        const questionClarificationModel =
+          questionClarificationModels[question.id];
         const rescueRetry = rescueRetryByQuestion[question.id];
         const coachAttemptId = coachAttemptIds[question.id];
         const coachIdempotencyKey = coachIdempotencyKeys[question.id];
@@ -756,6 +786,7 @@ export function PracticeApp({
           answer ||
             codeAnswer ||
             feedback ||
+            questionClarification ||
             rescueRetry ||
             coachIdempotencyKey ||
             followUpInput ||
@@ -786,6 +817,12 @@ export function PracticeApp({
           ...(feedback ? { coachFeedback: feedback } : {}),
           ...(model ? { coachModel: model } : {}),
           ...(hasCoachAnswer ? { coachAnswer: coachAnswer ?? "" } : {}),
+          ...(questionClarification
+            ? { questionClarification }
+            : {}),
+          ...(questionClarificationModel
+            ? { questionClarificationModel }
+            : {}),
           ...(rescueRetry ? { rescueRetry } : {}),
           ...(coachAttemptId ? { coachAttemptId } : {}),
           ...(coachIdempotencyKey ? { coachIdempotencyKey } : {}),
@@ -829,6 +866,8 @@ export function PracticeApp({
     coachFeedbackUsedByQuestion,
     coachIdempotencyKeys,
     coachModels,
+    questionClarifications,
+    questionClarificationModels,
     codeAnswers,
     deepDiveAnswers,
     deepDiveFeedback,
@@ -2395,6 +2434,86 @@ export function PracticeApp({
     }
   }
 
+  async function clarifyCurrentQuestion() {
+    if (!current || !canManageQuestionBank) return;
+    const questionId = current.id;
+    if (clarificationRequestTokensRef.current[questionId]) return;
+
+    const requestToken = crypto.randomUUID();
+    clarificationRequestTokensRef.current[questionId] = requestToken;
+    setQuestionClarificationLoading(questionId);
+    setQuestionClarificationErrors((errors) => ({
+      ...errors,
+      [questionId]: "",
+    }));
+
+    try {
+      const response = await fetch("/api/coach/clarify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questionId }),
+      });
+      const payload = (await response.json()) as CoachApiPayload & {
+        clarification?: QuestionClarification;
+        model?: string;
+      };
+      if (clarificationRequestTokensRef.current[questionId] !== requestToken) {
+        if (payload.aiDailyBudget) {
+          setAiDailyBudget((currentBudget) =>
+            mergeAiDailyBudgetSnapshot(
+              currentBudget,
+              payload.aiDailyBudget!,
+            ),
+          );
+        }
+        return;
+      }
+      if (!response.ok || !payload.clarification) {
+        throw new Error(
+          payload.error || "Luna chưa làm rõ câu hỏi được.",
+        );
+      }
+
+      setQuestionClarifications((clarifications) => ({
+        ...clarifications,
+        [questionId]: payload.clarification!,
+      }));
+      setQuestionClarificationModels((models) => ({
+        ...models,
+        [questionId]: payload.model || "Luna",
+      }));
+      if (payload.aiDailyBudget) {
+        setAiDailyBudget((currentBudget) =>
+          mergeAiDailyBudgetSnapshot(currentBudget, payload.aiDailyBudget!),
+        );
+      }
+      if (payload.aiUsageRecorded === false) {
+        setQuestionClarificationErrors((errors) => ({
+          ...errors,
+          [questionId]:
+            "Luna đã trả lời nhưng số liệu sử dụng chưa được lưu. Hãy tạm dừng gọi thêm AI và kiểm tra nhật ký.",
+        }));
+      }
+    } catch (error) {
+      if (clarificationRequestTokensRef.current[questionId] === requestToken) {
+        setQuestionClarificationErrors((errors) => ({
+          ...errors,
+          [questionId]:
+            error instanceof Error
+              ? error.message
+              : "Luna chưa làm rõ câu hỏi được.",
+        }));
+      }
+    } finally {
+      if (clarificationRequestTokensRef.current[questionId] === requestToken) {
+        delete clarificationRequestTokensRef.current[questionId];
+        setQuestionClarificationLoading((loading) =>
+          loading === questionId ? null : loading,
+        );
+      }
+    }
+  }
+
   async function askCoachFollowUp(contentOverride?: string) {
     if (!current || !coachFeedback[current.id]) return;
     const questionId = current.id;
@@ -3227,21 +3346,37 @@ export function PracticeApp({
                   ) : null}
 
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setHintUsedByQuestion((used) => {
-                          if (used.has(current.id)) return used;
-                          const next = new Set(used);
-                          next.add(current.id);
-                          return next;
-                        });
-                        toggleSet(setHints, current.id);
-                      }}
-                      className="rounded-xl px-1 py-2 text-sm font-semibold text-[#356b58] underline-offset-4 hover:underline"
-                    >
-                      {hints.has(current.id) ? "Ẩn gợi ý" : "Cần một gợi ý?"}
-                    </button>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setHintUsedByQuestion((used) => {
+                            if (used.has(current.id)) return used;
+                            const next = new Set(used);
+                            next.add(current.id);
+                            return next;
+                          });
+                          toggleSet(setHints, current.id);
+                        }}
+                        className="rounded-xl px-1 py-2 text-sm font-semibold text-[#356b58] underline-offset-4 hover:underline"
+                      >
+                        {hints.has(current.id) ? "Ẩn gợi ý" : "Cần một gợi ý?"}
+                      </button>
+                      {canManageQuestionBank ? (
+                        <button
+                          type="button"
+                          onClick={clarifyCurrentQuestion}
+                          disabled={questionClarificationLoading === current.id}
+                          className="rounded-xl border border-[#356b58]/25 bg-white px-3 py-2 text-sm font-semibold text-[#356b58] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#edf3e9] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#d7ff91]/60 focus:outline-none"
+                        >
+                          {questionClarificationLoading === current.id
+                            ? "Luna đang diễn giải…"
+                            : questionClarifications[current.id]
+                              ? "Làm rõ lại câu hỏi"
+                              : "Làm rõ câu hỏi"}
+                        </button>
+                      ) : null}
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
@@ -3283,6 +3418,72 @@ export function PracticeApp({
                       <span className="mr-2 font-mono font-bold">gợi ý:</span>
                       <InlineCode text={current.hint} />
                     </div>
+                  ) : null}
+
+                  {questionClarifications[current.id] ? (
+                    <section
+                      className="mt-4 rounded-2xl border border-[#356b58]/20 bg-[#edf3e9] p-4 text-sm text-[#29493d]"
+                      aria-live="polite"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="font-mono text-[11px] font-bold tracking-[0.14em] text-[#356b58] uppercase">
+                          Luna làm rõ đề bài
+                        </p>
+                        <span className="rounded-full border border-[#356b58]/20 bg-white/65 px-2 py-1 font-mono text-[10px] text-[#356b58]">
+                          {questionClarificationModels[current.id] || "Luna"}
+                        </span>
+                      </div>
+                      <p className="mt-3 leading-6">
+                        {questionClarifications[current.id].plainLanguage}
+                      </p>
+                      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                        <div>
+                          <p className="font-semibold text-[#173f35]">Bạn cần đề cập</p>
+                          <ul className="mt-2 space-y-1.5 leading-6">
+                            {questionClarifications[current.id].whatToAddress.map(
+                              (item) => (
+                                <li key={item} className="flex gap-2">
+                                  <span aria-hidden="true">•</span>
+                                  <span>{item}</span>
+                                </li>
+                              ),
+                            )}
+                          </ul>
+                        </div>
+                        {questionClarifications[current.id].terms.length ? (
+                          <div>
+                            <p className="font-semibold text-[#173f35]">Thuật ngữ trong đề</p>
+                            <dl className="mt-2 space-y-2 leading-6">
+                              {questionClarifications[current.id].terms.map((item) => (
+                                <div key={item.term}>
+                                  <dt className="inline font-mono text-xs font-bold text-[#356b58]">
+                                    {item.term}
+                                  </dt>
+                                  <dd className="inline before:content-[' — ']">
+                                    {item.meaning}
+                                  </dd>
+                                </div>
+                              ))}
+                            </dl>
+                          </div>
+                        ) : null}
+                      </div>
+                      <p className="mt-4 border-t border-[#356b58]/15 pt-3 text-xs leading-5 text-[#52675e]">
+                        Phạm vi: {questionClarifications[current.id].scopeNote}
+                      </p>
+                      <p className="mt-2 text-xs text-[#52675e]">
+                        Phần này chỉ diễn giải đề, không mở đáp án hay hướng giải.
+                      </p>
+                    </section>
+                  ) : null}
+
+                  {questionClarificationErrors[current.id] ? (
+                    <p
+                      className="mt-4 rounded-2xl border border-[#ba4b2f]/25 bg-[#f8e8df] p-4 text-sm text-[#8e3825]"
+                      role="alert"
+                    >
+                      {questionClarificationErrors[current.id]}
+                    </p>
                   ) : null}
 
                   {coachErrors[current.id] ? (
