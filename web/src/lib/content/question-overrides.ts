@@ -43,6 +43,17 @@ export const questionMutationSchema = z.discriminatedUnion("action", [
   }),
 ]);
 
+export const manualQuestionRequestSchema = z.object({
+  lessonId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(100),
+  sourceSectionIds: z
+    .array(z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(120))
+    .min(1)
+    .max(8),
+  content: editableQuestionContentSchema,
+});
+
+export type ManualQuestionRequest = z.infer<typeof manualQuestionRequestSchema>;
+
 export type EditableQuestionContent = z.infer<
   typeof editableQuestionContentSchema
 >;

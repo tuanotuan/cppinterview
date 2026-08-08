@@ -14,6 +14,24 @@ const migrationRoot = path.resolve(
 const webRoot = path.resolve(migrationRoot, "..", "..");
 
 describe("database hardening migrations", () => {
+  it("creates manual admin questions as database-owned drafts with grounded sources", async () => {
+    const sql = await readMigration(
+      "20260808193000_create_admin_manual_content_question.sql",
+    );
+
+    expect(sql).toContain("create or replace function public.create_admin_content_question");
+    expect(sql).toContain("security definer");
+    expect(sql).toContain("set search_path = ''");
+    expect(sql).toContain("public.is_content_admin()");
+    expect(sql).toContain("pg_advisory_xact_lock");
+    expect(sql).toContain("'admin'");
+    expect(sql).toContain("'database'");
+    expect(sql).toContain("Manual question cites an unknown lesson section");
+    expect(sql).toContain("'generated'");
+    expect(sql).toContain("revoke all on function public.create_admin_content_question");
+    expect(sql).toContain("grant execute on function public.create_admin_content_question(text, jsonb) to authenticated;");
+  });
+
   it("keeps WorldQuant training evidence account-scoped and revision-checked", async () => {
     const sql = await readMigration(
       "20260801090000_add_worldquant_cloud_state.sql",

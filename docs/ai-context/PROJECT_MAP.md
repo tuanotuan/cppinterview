@@ -49,7 +49,7 @@ nhật file context tương ứng theo root `AGENTS.md`.
 | `/learn/cmake` | `learn/cmake/page.tsx`, `lib/learn/cmake-guide.ts` | Guide CMake target-based từ mental model tới CTest, packaging, CI và legacy migration |
 | `/stats` | `stats/page.tsx`, `fsrs-shadow-panel.tsx` | Analytics học tập và FSRS-6 shadow comparison |
 | `/profile` | `profile/page.tsx`, `lib/profile/{contribution-activity,mobile-usage,profile-activity.server}.ts` | Trang cá nhân và contribution graph 53 tuần từ lượt ôn, AI coach và phỏng vấn thử đã hoàn tất; riêng admin `tuanotuan` còn có tổng thời gian Recall hoạt động trên điện thoại hôm nay/7/30 ngày |
-| `/admin` | `admin/page.tsx`, `admin-dashboard.tsx`, `input-dialog.tsx` | Review/edit/archive question, schedule, AI/job settings; header ưu tiên Luyện hôm nay, Thư viện, Mức bao phủ và chuẩn bị phỏng vấn; xác nhận/ràng buộc nguồn của mistake card dùng sheet/form trong UI thay vì API dialog của trình duyệt |
+| `/admin` | `admin/page.tsx`, `admin-dashboard.tsx`, `manual-question-dialog.tsx`, `input-dialog.tsx` | Review/edit/archive question, schedule, AI/job settings và thêm câu hỏi thủ công. Câu thủ công là DB-native draft có revision/audit, phải trích ít nhất một mục của lesson và chờ duyệt; header ưu tiên Luyện hôm nay, Thư viện, Mức bao phủ và chuẩn bị phỏng vấn; xác nhận/ràng buộc nguồn của mistake card dùng sheet/form trong UI thay vì API dialog của trình duyệt |
 | `/admin/coverage` | `admin/coverage/page.tsx` | Mức bao phủ nội dung, ưu tiên phần học liệu còn thiếu theo khái niệm và loại bằng chứng |
 | `/auth/*` | `auth/{login,callback,logout}` | GitHub OAuth qua Supabase |
 
@@ -66,7 +66,7 @@ API quan trọng:
   owner-private, grounded card generation và recovery từ Mock v4.
 - `api/questions/approve`: duyệt đúng question version + source hash.
 - `api/admin/{questions,question-state,ai-settings,generation-jobs}`: mutation
-  owner-only.
+  owner-only; `api/admin/questions/manual` tạo DB-native draft thủ công, có nguồn lesson và audit revision.
 - `api/admin/content-parity`: so Git manifest với DB trước cutover.
 
 ## Các domain trong `web/src/lib`

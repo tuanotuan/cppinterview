@@ -8,6 +8,8 @@ trạng thái từ tên nhánh.
 
 ## Handoff hiện tại
 
+- Câu hỏi thủ công trong Admin dùng DB-native revision/audit, không phải override của question Git. Migration `20260808193000_create_admin_manual_content_question.sql` phải chạy sau khi deploy app mới; trước đó API fail an toàn và không tạo row nào.
+
 - Luna “Làm rõ câu hỏi” hiện dành cho admin `tuanotuan` trên Practice. Route dùng budget ledger sẵn có, không cần migration hay biến môi trường mới; prompt chỉ nhận đề và mã trong đề, không nhận đáp án/rubric/tài liệu nguồn. Kết quả lưu local theo exact question version/hash để tồn tại qua F5.
 
 - Nhánh hiện hành bổ sung thống kê riêng cho admin `tuanotuan`: thời gian Recall

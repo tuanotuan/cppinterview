@@ -33,6 +33,7 @@ export type AdminLessonCoverage = {
   title: string;
   standard: GeneratedLesson["standard"];
   knowledgePath: string;
+  sourceSections: Array<{ id: string; heading: string }>;
   currentQuestions: number;
   activeQuestions: number;
 };
@@ -113,6 +114,10 @@ export function buildAdminDashboardSnapshot(
       title: lesson.title,
       standard: lesson.standard,
       knowledgePath: lesson.knowledgePath,
+      sourceSections: lesson.sections.map((section) => ({
+        id: section.id,
+        heading: section.heading,
+      })),
       currentQuestions: current.length,
       activeQuestions: current.filter((question) => question.adminStatus === "active")
         .length,

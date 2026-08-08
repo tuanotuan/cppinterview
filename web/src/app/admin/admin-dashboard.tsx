@@ -9,7 +9,10 @@ import type {
   AdminQuestionStatus,
 } from "@/lib/admin/dashboard";
 import { displayQuestionPrompt } from "@/lib/content/question-prompt";
-import type { EditableQuestionContent } from "@/lib/content/question-overrides";
+import type {
+  EditableQuestionContent,
+  ManualQuestionRequest,
+} from "@/lib/content/question-overrides";
 import {
   questionTypeLabels,
   taxonomyTopicLabel,
@@ -32,6 +35,8 @@ import {
   useConfirmation,
 } from "@/app/confirmation-dialog";
 import { InputDialog } from "@/app/input-dialog";
+
+import { ManualQuestionDialog } from "./manual-question-dialog";
 
 const statusLabels: Record<AdminQuestionStatus, string> = {
   active: "Đang dùng",
@@ -161,6 +166,11 @@ export function AdminDashboard({
   const [mistakeBackfilling, setMistakeBackfilling] = useState(false);
   const [mistakeInputRequest, setMistakeInputRequest] =
     useState<MistakeInputRequest | null>(null);
+  const [manualQuestionOpen, setManualQuestionOpen] = useState(false);
+  const [manualQuestionSaving, setManualQuestionSaving] = useState(false);
+  const [manualQuestionError, setManualQuestionError] = useState<string | null>(
+    null,
+  );
   const { requestConfirmation, confirmationDialog } = useConfirmation();
   const topics = useMemo(
     () =>
@@ -760,6 +770,39 @@ function mistakeErrorMessage(code: string) {
     }
   }
 
+  async function createManualQuestion(input: ManualQuestionRequest) {
+    setManualQuestionSaving(true);
+    setManualQuestionError(null);
+    try {
+      const response = await fetch("/api/admin/questions/manual", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      });
+      const payload = (await response.json()) as {
+        questionId?: string;
+        version?: number;
+        error?: string;
+      };
+      if (!response.ok || !payload.questionId || payload.version !== 1) {
+        throw new Error(payload.error || "Không tạo được câu hỏi thủ công.");
+      }
+      setManualQuestionOpen(false);
+      setNotice(
+        `Đã tạo ${payload.questionId} và đưa vào danh sách chờ duyệt.`,
+      );
+      window.location.reload();
+    } catch (error) {
+      setManualQuestionError(
+        error instanceof Error
+          ? error.message
+          : "Không tạo được câu hỏi thủ công.",
+      );
+    } finally {
+      setManualQuestionSaving(false);
+    }
+  }
+
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
       <div className="mx-auto max-w-[1500px]">
@@ -1197,6 +1240,16 @@ function mistakeErrorMessage(code: string) {
               <span className="font-mono text-xs text-[#64736c]">
                 {filteredQuestions.length}/{questions.length} câu
               </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setManualQuestionError(null);
+                  setManualQuestionOpen(true);
+                }}
+                className="rounded-xl bg-[#173f35] px-4 py-2.5 text-xs font-bold text-[#d7ff91] transition hover:bg-[#245748]"
+              >
+                + Thêm câu hỏi thủ công
+              </button>
             </div>
 
             <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -1271,6 +1324,15 @@ function mistakeErrorMessage(code: string) {
           </aside>
         </section>
         {confirmationDialog}
+        {manualQuestionOpen ? (
+          <ManualQuestionDialog
+            lessons={initialSnapshot.lessons}
+            saving={manualQuestionSaving}
+            error={manualQuestionError}
+            onClose={() => setManualQuestionOpen(false)}
+            onCreate={createManualQuestion}
+          />
+        ) : null}
         {mistakeInputRequest?.kind === "reinforce_existing" ? (
           <InputDialog
             title="Dùng câu hỏi đã có"
