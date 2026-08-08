@@ -4,6 +4,7 @@ import type { ContentManifest } from "./schema";
 import {
   applyQuestionOverrides,
   editableQuestionContent,
+  manualQuestionRequestSchema,
   rowsToQuestionOverrides,
 } from "./question-overrides";
 
@@ -144,5 +145,23 @@ describe("question overrides", () => {
         },
       ]),
     ).toEqual([]);
+  });
+
+  it("accepts a manual question only with a source section", () => {
+    const content = editableQuestionContent(manifest.questions[0]);
+    expect(
+      manualQuestionRequestSchema.safeParse({
+        lessonId: "cpp11-move",
+        sourceSectionIds: ["ownership"],
+        content,
+      }).success,
+    ).toBe(true);
+    expect(
+      manualQuestionRequestSchema.safeParse({
+        lessonId: "cpp11-move",
+        sourceSectionIds: [],
+        content,
+      }).success,
+    ).toBe(false);
   });
 });

@@ -14,11 +14,11 @@
 ## Application inventory
 
 - App pages: 19 (/, /admin, /admin/coverage, /learn, /learn/[lessonId], /learn/cmake, /learn/tick-data-order-book, /mock-interview, /practice, /profile, /stats, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/legacy-modern-capstone, /worldquant/mission, /worldquant/tick-replay-lab, /worldquant/toolchain-dojo)
-- API routes: 24 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/coach/clarify, /api/coach/evaluate, /api/coach/follow-up, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/profile/mobile-usage, /api/progress/sync, /api/questions/approve, /api/worldquant/mission-snapshot, /api/worldquant/training-state, /auth/callback, /auth/login, /auth/logout)
-- TypeScript source files excluding tests: 172
+- API routes: 25 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/admin/questions/manual, /api/coach/clarify, /api/coach/evaluate, /api/coach/follow-up, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/profile/mobile-usage, /api/progress/sync, /api/questions/approve, /api/worldquant/mission-snapshot, /api/worldquant/training-state, /auth/callback, /auth/login, /auth/logout)
+- TypeScript source files excluding tests: 174
 - Colocated test files: 104
-- Supabase migrations: 39
-- Latest migration filename: `20260806100000_create_admin_mobile_usage.sql`
+- Supabase migrations: 40
+- Latest migration filename: `20260808193000_create_admin_manual_content_question.sql`
 
 ## Toolchain declared in package.json
 
@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `b1b9aba0d931406de08e72d1209d919464cdeea1aa2a952ee79f8c490e23d7ab`
-- Fingerprinted files: 407
+- Project input fingerprint: `c8b105b0c145f2910c63fea0c5f42c49eb7e3c71a98f52ffaaa2059ba99c2685`
+- Fingerprinted files: 410
 
 The fingerprint covers registered lesson sources, content files, application
 source/tests, scripts, package metadata, environment template, workflows, and

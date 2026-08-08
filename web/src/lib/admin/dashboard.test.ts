@@ -121,5 +121,8 @@ describe("admin dashboard snapshot", () => {
     });
     expect(snapshot.questions[0].reviewHistory).toHaveLength(1);
     expect(snapshot.ratingCounts.hard).toBe(1);
+    expect(snapshot.lessons[0].sourceSections).toEqual([
+      { id: "overview", heading: "Overview" },
+    ]);
   });
 });

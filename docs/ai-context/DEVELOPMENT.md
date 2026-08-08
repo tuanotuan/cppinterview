@@ -102,6 +102,7 @@ Supabase, rồi enqueue/generate DB-native drafts. Không dùng `content:auto` h
   không còn xuất hiện trong generated manifest; DB sync lưu trữ câu hỏi vắng mặt.
 - Production AI drafts nằm ở Supabase immutable revisions, không append vào
   `generated.yaml`.
+- Admin `tuanotuan` có thể tạo câu hỏi DB-native thủ công tại `/admin` khi `QUESTION_STORE=db`: chọn lesson và ít nhất một section nguồn, điền content/rubric rồi tạo draft chờ duyệt. Mỗi câu có ID `lesson-id-manual-###`, revision/audit riêng và không bị repository sync ghi đè. Cần deploy app mới trước, rồi chạy migration `20260808193000_create_admin_manual_content_question.sql`.
 
 ## Content store modes
 
