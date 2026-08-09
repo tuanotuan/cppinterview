@@ -43,6 +43,7 @@ export type PublicAiQuotaConfigurationReason =
   | "response_identity_missing"
   | "response_freshness_malformed"
   | "response_counters_malformed"
+  | "invalid_reservation_input"
   | "invalid_response";
 
 type RecordValue = Record<string, unknown>;
@@ -419,6 +420,7 @@ function assertReservationInput(input: {
   ) {
     throw new PublicAiQuotaConfigurationError(
       "Public AI quota reservation input is invalid",
+      "invalid_reservation_input",
     );
   }
 }
@@ -465,7 +467,9 @@ function readNullableNonNegativeInteger(value: unknown) {
 }
 
 function isUuid(value: string) {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-    value,
+  return (
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      value,
+    ) && value !== "00000000-0000-0000-0000-000000000000"
   );
 }

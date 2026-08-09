@@ -110,7 +110,10 @@ trạng thái từ tên nhánh.
   Production then confirmed that admission reached the RPC but rejected its
   returned shape; the parser now accepts either a JSON object or a singleton
   object array and reports field-specific safe reasons for any remaining
-  contract mismatch.
+  contract mismatch. A second production trace proved the actual pre-RPC
+  blocker: Coach generates deterministic UUIDv8 idempotency keys while the
+  public quota validator accepted only versions 1–5. The validator now matches
+  the existing Coach contract (UUID versions 1–8, excluding the nil UUID).
   Configure the dedicated
   secret plus identity pepper, then enable `PUBLIC_AI_ENABLED` only after the
   deployed app version is live. Production must still be smoke-tested after the
@@ -131,6 +134,9 @@ trạng thái từ tên nhánh.
 - Public AI quota response hotfix đạt 11 targeted tests, typecheck và targeted
   lint. Không cần migration hoặc env mới; cần deploy rồi smoke-test lại bằng
   guest session.
+- Public AI UUIDv8 fix đạt 25 targeted quota/idempotency tests, typecheck và
+  targeted lint. Không cần migration hoặc env mới; production smoke test phải
+  xác nhận request đi qua admission sau deploy.
 - Route landing/practice/guest gần nhất đạt TypeScript, lint các file TS/TSX đổi
   và Vitest (101 file/632 test). `next build` của các đợt UI trước đã đi qua
   compile, TypeScript và static-generation artifacts nhưng runner local từng cắt

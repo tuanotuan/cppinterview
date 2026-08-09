@@ -228,6 +228,11 @@ the exact eight-argument quota RPC (including the 600-second lease), while this
 migration restores the service-role-only privilege and reloads the PostgREST
 schema cache without changing quota data.
 
+Coach idempotency keys are deterministic UUIDv8 values. Any server-side UUID
+validator on the Coach/public-admission path must accept versions 1–8 and reject
+the nil UUID; narrowing validation to versions 1–5 blocks every guest request
+before Supabase is called.
+
 Create a dedicated Supabase secret API key for
 `PUBLIC_AI_QUOTA_SUPABASE_SECRET_KEY` and a random
 `PUBLIC_AI_QUOTA_IDENTITY_PEPPER`. Do not reuse the code-runner, Mock-history,
