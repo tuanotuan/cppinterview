@@ -10,6 +10,7 @@ import {
 
 export const PUBLIC_AI_QUOTA_LIMIT = 3;
 export const PUBLIC_AI_QUOTA_WINDOW_HOURS = 24;
+export const PUBLIC_AI_QUOTA_LEASE_SECONDS = 600;
 export const PUBLIC_AI_DEVICE_COOKIE = "recall_public_ai_device_v1";
 export const PUBLIC_AI_DEVICE_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 180;
 
@@ -28,6 +29,15 @@ type RpcErrorLike = {
   code?: string | null;
   message?: string | null;
 };
+
+export type PublicAiQuotaConfigurationReason =
+  | "missing_secret"
+  | "missing_identity_pepper"
+  | "rpc_contract_missing"
+  | "rpc_authentication_failed"
+  | "rpc_permission_denied"
+  | "rpc_request_failed"
+  | "invalid_response";
 
 type RecordValue = Record<string, unknown>;
 
@@ -67,7 +77,10 @@ export class PublicAiQuotaIdempotencyConflictError extends Error {
 }
 
 export class PublicAiQuotaConfigurationError extends Error {
-  constructor(message = "Public AI quota admission is not configured") {
+  constructor(
+    message = "Public AI quota admission is not configured",
+    readonly reason: PublicAiQuotaConfigurationReason = "invalid_response",
+  ) {
     super(message);
     this.name = "PublicAiQuotaConfigurationError";
   }
@@ -89,6 +102,7 @@ export function createPublicAiQuotaAdminClient() {
   if (!url || !secretKey) {
     throw new PublicAiQuotaConfigurationError(
       "Public AI quota requires its dedicated Supabase secret key",
+      "missing_secret",
     );
   }
 
@@ -114,6 +128,7 @@ export function publicAiQuotaIdentityHash(
   if (!pepper || !normalized) {
     throw new PublicAiQuotaConfigurationError(
       "Public AI quota identity hashing is not configured",
+      "missing_identity_pepper",
     );
   }
 
@@ -148,10 +163,30 @@ export function mapPublicAiQuotaRpcError(
   if (new Set(["PGRST202", "42P01", "42703", "42883"]).has(code)) {
     return new PublicAiQuotaConfigurationError(
       "Public AI quota migration is missing",
+      "rpc_contract_missing",
+    );
+  }
+  const message = error.message?.toLowerCase() ?? "";
+  if (
+    code === "PGRST301" ||
+    code === "401" ||
+    message.includes("invalid api key") ||
+    message.includes("invalid jwt")
+  ) {
+    return new PublicAiQuotaConfigurationError(
+      "Public AI quota authentication failed",
+      "rpc_authentication_failed",
+    );
+  }
+  if (code === "42501" || message.includes("permission denied")) {
+    return new PublicAiQuotaConfigurationError(
+      "Public AI quota permission was denied",
+      "rpc_permission_denied",
     );
   }
   return new PublicAiQuotaConfigurationError(
     "Public AI quota admission request failed",
+    "rpc_request_failed",
   );
 }
 
@@ -255,6 +290,9 @@ export async function reservePublicAiQuota(
     p_idempotency_key: input.idempotencyKey,
     p_request_fingerprint: input.requestFingerprint,
     p_request_kind: input.requestKind,
+    // Keep the PostgREST contract exact. Omitting this defaulted SQL argument
+    // can leave function resolution dependent on a stale schema cache.
+    p_lease_seconds: PUBLIC_AI_QUOTA_LEASE_SECONDS,
   });
   if (error) throw mapPublicAiQuotaRpcError(error);
   return parsePublicAiQuotaReservation(data);

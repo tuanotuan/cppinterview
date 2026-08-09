@@ -1,16 +1,20 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 vi.mock("server-only", () => ({}));
 
 import {
   PUBLIC_AI_QUOTA_LIMIT,
+  PUBLIC_AI_QUOTA_LEASE_SECONDS,
   PublicAiQuotaConfigurationError,
   PublicAiQuotaExceededError,
   createPublicAiDeviceToken,
   createPublicAiQuotaAdminClient,
+  mapPublicAiQuotaRpcError,
   parsePublicAiQuotaReservation,
   publicAiQuotaIdentityHash,
   readPublicAiClientIp,
+  reservePublicAiQuota,
 } from "./public-ai-quota.server";
 
 afterEach(() => {
@@ -67,6 +71,58 @@ describe("public AI quota identity", () => {
 });
 
 describe("public AI quota RPC parsing", () => {
+  it("calls the exact eight-argument admission contract", async () => {
+    const rpc = vi.fn().mockResolvedValue({
+      data: {
+        status: "reserved",
+        reservation_id: "123e4567-e89b-42d3-a456-426614174000",
+        lease_token: "123e4567-e89b-42d3-a456-426614174001",
+        lease_expires_at: "2026-08-05T08:10:00.000Z",
+        is_new: true,
+        limit: 3,
+        remaining: 2,
+        resets_at: "2026-08-06T08:00:00.000Z",
+      },
+      error: null,
+    });
+
+    await reservePublicAiQuota(
+      { rpc } as unknown as SupabaseClient,
+      {
+        principalHash: "a".repeat(64),
+        ipHash: "b".repeat(64),
+        deviceHash: "a".repeat(64),
+        accountHash: null,
+        idempotencyKey: "123e4567-e89b-42d3-a456-426614174002",
+        requestFingerprint: "c".repeat(64),
+        requestKind: "coach_evaluation",
+      },
+    );
+
+    expect(rpc).toHaveBeenCalledWith("reserve_public_ai_quota", {
+      p_principal_hash: "a".repeat(64),
+      p_ip_hash: "b".repeat(64),
+      p_device_hash: "a".repeat(64),
+      p_account_hash: null,
+      p_idempotency_key: "123e4567-e89b-42d3-a456-426614174002",
+      p_request_fingerprint: "c".repeat(64),
+      p_request_kind: "coach_evaluation",
+      p_lease_seconds: PUBLIC_AI_QUOTA_LEASE_SECONDS,
+    });
+  });
+
+  it("classifies safe operational causes without exposing provider details", () => {
+    expect(mapPublicAiQuotaRpcError({ code: "PGRST202" }).reason).toBe(
+      "rpc_contract_missing",
+    );
+    expect(
+      mapPublicAiQuotaRpcError({ message: "Invalid API key" }).reason,
+    ).toBe("rpc_authentication_failed");
+    expect(mapPublicAiQuotaRpcError({ code: "42501" }).reason).toBe(
+      "rpc_permission_denied",
+    );
+  });
+
   it("parses a newly reserved turn", () => {
     expect(
       parsePublicAiQuotaReservation({

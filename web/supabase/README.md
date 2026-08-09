@@ -433,6 +433,12 @@ retained even after the short-lived admission reservations are purged. An
 undispatched lease can be released safely; any dispatched ambiguous request is
 conservatively charged and remains consumed.
 
+Apply `20260809110000_refresh_public_ai_quota_rpc_contract.sql` after upgrading
+an existing deployment. The application now always supplies all eight admission
+arguments, including the lease duration; this migration reasserts the
+service-role-only grant and reloads PostgREST's schema cache. It does not delete
+or reset existing quota windows or reservations.
+
 Create a dedicated Supabase secret API key named `public_ai_quota` and add it
 only to Vercel as `PUBLIC_AI_QUOTA_SUPABASE_SECRET_KEY`. Also create a random
 server-only `PUBLIC_AI_QUOTA_IDENTITY_PEPPER`. Do not reuse the code-runner,

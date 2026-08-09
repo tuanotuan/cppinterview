@@ -103,10 +103,14 @@ trạng thái từ tên nhánh.
 - Phase B/C wires both Coach routes and Practice UI for guests and non-admin accounts through
   public HMAC admission and a separate site-wide Luna budget ledger. Apply
   `20260805100000_create_public_ai_quota_admission.sql` and
-  `20260805110000_create_public_ai_budget_ledger.sql`, configure the dedicated
+  `20260805110000_create_public_ai_budget_ledger.sql`, then apply
+  `20260809110000_refresh_public_ai_quota_rpc_contract.sql` on existing
+  environments. The app now supplies the exact eight-argument admission
+  signature and logs a safe failure category for configuration diagnosis.
+  Configure the dedicated
   secret plus identity pepper, then enable `PUBLIC_AI_ENABLED` only after the
-  deployed app version is live. Phase D remains the production rollout and
-  operational verification step.
+  deployed app version is live. Production must still be smoke-tested after the
+  refresh migration and new deployment.
 
 ## Validation gần nhất
 
@@ -115,9 +119,11 @@ trạng thái từ tên nhánh.
   đang hiện. Heartbeat fix đạt typecheck, ESLint các file liên quan và targeted
   profile test; migration `20260806100000_create_admin_mobile_usage.sql` đã là
   điều kiện để production ghi số liệu.
-- Public AI Coach Phase C đạt `npm run typecheck`, `npm run lint`, targeted
-  route/budget tests và full Vitest: 103 file, 642 test. Chưa chạy migration
-  hoặc bật cờ production; việc đó chỉ thực hiện sau khi deploy version này.
+- Public AI quota RPC-contract fix đạt typecheck, full lint, targeted quota và
+  migration tests (23 test), và production build 63 route. Full Vitest đạt
+  104/105 file; hai loader test chạm timeout 5 giây khi chạy cùng suite nhưng
+  đạt 6/6 khi rerun riêng. Migration refresh và production smoke test vẫn cần
+  thực hiện sau merge/deploy.
 - Route landing/practice/guest gần nhất đạt TypeScript, lint các file TS/TSX đổi
   và Vitest (101 file/632 test). `next build` của các đợt UI trước đã đi qua
   compile, TypeScript và static-generation artifacts nhưng runner local từng cắt

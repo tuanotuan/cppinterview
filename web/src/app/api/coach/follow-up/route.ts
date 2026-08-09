@@ -322,6 +322,10 @@ export async function POST(request: Request) {
       }
       console.error("Public AI follow-up admission failed", {
         name: error instanceof Error ? error.name : "UnknownError",
+        reason:
+          error instanceof PublicAiQuotaConfigurationError
+            ? error.reason
+            : "unknown",
       });
       return Response.json(
         {

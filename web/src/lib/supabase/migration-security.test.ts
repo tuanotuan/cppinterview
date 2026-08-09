@@ -14,6 +14,20 @@ const migrationRoot = path.resolve(
 const webRoot = path.resolve(migrationRoot, "..", "..");
 
 describe("database hardening migrations", () => {
+  it("refreshes the exact server-only public AI quota RPC contract", async () => {
+    const sql = await readMigration(
+      "20260809110000_refresh_public_ai_quota_rpc_contract.sql",
+    );
+
+    expect(sql).toMatch(
+      /revoke all on function public\.reserve_public_ai_quota\(\s*text, text, text, text, uuid, text, text, integer\s*\) from public, anon, authenticated;/,
+    );
+    expect(sql).toMatch(
+      /grant execute on function public\.reserve_public_ai_quota\(\s*text, text, text, text, uuid, text, text, integer\s*\) to service_role;/,
+    );
+    expect(sql).toContain("notify pgrst, 'reload schema';");
+  });
+
   it("creates manual admin questions as database-owned drafts with grounded sources", async () => {
     const sql = await readMigration(
       "20260808193000_create_admin_manual_content_question.sql",
