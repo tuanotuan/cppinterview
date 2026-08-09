@@ -147,20 +147,17 @@ describe("question overrides", () => {
     ).toEqual([]);
   });
 
-  it("accepts a manual question only with a source section", () => {
-    const content = editableQuestionContent(manifest.questions[0]);
+  it("accepts a standalone manual question with only prompt and reference answer", () => {
     expect(
       manualQuestionRequestSchema.safeParse({
-        lessonId: "cpp11-move",
-        sourceSectionIds: ["ownership"],
-        content,
+        prompt: "Giải thích sự khác nhau giữa copy và move trong C++.",
+        referenceAnswer: "Copy tạo một bản sao độc lập, còn move chuyển quyền sở hữu tài nguyên khi kiểu dữ liệu hỗ trợ move semantics.",
       }).success,
     ).toBe(true);
     expect(
       manualQuestionRequestSchema.safeParse({
-        lessonId: "cpp11-move",
-        sourceSectionIds: [],
-        content,
+        prompt: "Quá ngắn",
+        referenceAnswer: "Quá ngắn",
       }).success,
     ).toBe(false);
   });

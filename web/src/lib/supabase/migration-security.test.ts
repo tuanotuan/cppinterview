@@ -32,6 +32,26 @@ describe("database hardening migrations", () => {
     expect(sql).toContain("grant execute on function public.create_admin_content_question(text, jsonb) to authenticated;");
   });
 
+  it("creates standalone manual questions without a repository lesson or .md section", async () => {
+    const sql = await readMigration(
+      "20260809100000_create_standalone_admin_manual_questions.sql",
+    );
+
+    expect(sql).toContain(
+      "create or replace function public.create_standalone_admin_content_question",
+    );
+    expect(sql).toContain("security definer");
+    expect(sql).toContain("set search_path = ''");
+    expect(sql).toContain("public.is_content_admin()");
+    expect(sql).toContain("pg_advisory_xact_lock");
+    expect(sql).toContain("'admin-manual-questions'");
+    expect(sql).toContain("'database'");
+    expect(sql).toContain("keep_standalone_manual_lesson_active");
+    expect(sql).toContain(
+      "grant execute on function public.create_standalone_admin_content_question(jsonb)",
+    );
+  });
+
   it("keeps WorldQuant training evidence account-scoped and revision-checked", async () => {
     const sql = await readMigration(
       "20260801090000_add_worldquant_cloud_state.sql",

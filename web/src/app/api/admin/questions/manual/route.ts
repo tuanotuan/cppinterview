@@ -1,9 +1,6 @@
-import { questionRevisionChecksum } from "@/lib/content/backfill";
 import { manualQuestionRequestSchema } from "@/lib/content/question-overrides";
 import { getQuestionStoreMode } from "@/lib/content/question-store-config";
-import { loadQuestionStoreManifest } from "@/lib/content/question-store-server";
-import type { ContentQuestion, Question } from "@/lib/content/schema";
-import { buildQuestionTaxonomy } from "@/lib/content/taxonomy";
+import { buildStandaloneManualQuestion } from "@/lib/content/standalone-manual-question";
 import { isTuanotuanQuestionAdmin } from "@/lib/supabase/authorization";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -50,53 +47,10 @@ export async function POST(request: Request) {
     );
   }
 
-  let manifest;
-  try {
-    manifest = await loadQuestionStoreManifest({ supabase });
-  } catch {
-    return Response.json(
-      { error: "Ngân hàng câu hỏi Supabase chưa sẵn sàng." },
-      { status: 503 },
-    );
-  }
-  const lesson = manifest.lessons.find((item) => item.id === parsed.data.lessonId);
-  if (!lesson) {
-    return Response.json({ error: "Không tìm thấy bài học nguồn." }, { status: 404 });
-  }
-  const validSectionIds = new Set(lesson.sections.map((section) => section.id));
-  if (parsed.data.sourceSectionIds.some((id) => !validSectionIds.has(id))) {
-    return Response.json(
-      { error: "Có mục nguồn không thuộc bài học đã chọn." },
-      { status: 400 },
-    );
-  }
+  const draft = buildStandaloneManualQuestion(parsed.data);
 
-  const questionBase: Question = {
-    id: `${lesson.id}-manual-preview`,
-    lessonId: lesson.id,
-    ...parsed.data.content,
-    code: parsed.data.content.code ?? undefined,
-    sources: parsed.data.sourceSectionIds.map((sectionId) => ({ sectionId })),
-    sourceHash: lesson.sourceHash,
-    status: "draft",
-    version: 1,
-  };
-  const question: ContentQuestion = {
-    ...questionBase,
-    taxonomy: buildQuestionTaxonomy(questionBase, lesson),
-  };
-  const draft = {
-    ...parsed.data.content,
-    code: parsed.data.content.code,
-    sources: question.sources,
-    sourceHash: question.sourceHash,
-    taxonomy: question.taxonomy,
-    contentChecksum: questionRevisionChecksum(question),
-  };
-
-  const { data, error } = await supabase.rpc("create_admin_content_question", {
+  const { data, error } = await supabase.rpc("create_standalone_admin_content_question", {
     p_draft: draft,
-    p_lesson_id: lesson.id,
   });
   if (error) {
     console.error("Manual question creation failed", { code: error.code });

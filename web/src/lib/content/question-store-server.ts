@@ -12,6 +12,7 @@ import { createSupabaseServerClient } from "../supabase/server";
 import { questionRevisionChecksum } from "./backfill";
 import { applyQuestionOverrides, type QuestionOverride } from "./question-overrides";
 import { getQuestionStoreMode } from "./question-store-config";
+import { isStandaloneManualQuestionLesson } from "./standalone-manual-question";
 import {
   contentManifestSchema,
   contentLanguageSchema,
@@ -237,7 +238,9 @@ export function rowsToContentManifest(
       tags: row.tags,
       prerequisites: row.prerequisites,
       title: row.title,
-      knowledgePath: `${row.source_path}/knowledge.md`,
+      knowledgePath: isStandaloneManualQuestionLesson(row.id)
+        ? "Câu hỏi độc lập do quản trị viên nhập"
+        : `${row.source_path}/knowledge.md`,
       codePath: row.code
         ? `${row.source_path}/${
             row.language === "python"

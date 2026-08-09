@@ -1293,7 +1293,6 @@ function mistakeErrorMessage(code: string) {
         {confirmationDialog}
         {manualQuestionOpen ? (
           <ManualQuestionDialog
-            lessons={initialSnapshot.lessons}
             saving={manualQuestionSaving}
             error={manualQuestionError}
             onClose={() => setManualQuestionOpen(false)}
@@ -1715,9 +1714,11 @@ function QuestionDetails({ question }: { question: AdminQuestion }) {
         <InfoBlock label="Giải thích"><p className="whitespace-pre-line">{question.answer.detailed}</p></InfoBlock>
         <InfoBlock label="Tiêu chí chấm"><ul className="list-disc space-y-1 pl-4">{question.rubric.required.map((item) => <li key={item}>{item}</li>)}</ul></InfoBlock>
       </div>
-      <p className="mt-4 text-xs text-[#64736c]">
-        Nguồn: {question.sourceHeadings.join(" · ")}
-      </p>
+      {question.sourceHeadings.length ? (
+        <p className="mt-4 text-xs text-[#64736c]">
+          Nguồn: {question.sourceHeadings.join(" · ")}
+        </p>
+      ) : null}
       <div className="mt-4 rounded-xl border border-[#173f35]/10 bg-white/70 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>

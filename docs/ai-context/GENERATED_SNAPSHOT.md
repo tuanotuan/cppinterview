@@ -15,10 +15,10 @@
 
 - App pages: 19 (/, /admin, /admin/coverage, /learn, /learn/[lessonId], /learn/cmake, /learn/tick-data-order-book, /mock-interview, /practice, /profile, /stats, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/legacy-modern-capstone, /worldquant/mission, /worldquant/tick-replay-lab, /worldquant/toolchain-dojo)
 - API routes: 25 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/admin/questions/manual, /api/coach/clarify, /api/coach/evaluate, /api/coach/follow-up, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/profile/mobile-usage, /api/progress/sync, /api/questions/approve, /api/worldquant/mission-snapshot, /api/worldquant/training-state, /auth/callback, /auth/login, /auth/logout)
-- TypeScript source files excluding tests: 174
-- Colocated test files: 104
-- Supabase migrations: 40
-- Latest migration filename: `20260808193000_create_admin_manual_content_question.sql`
+- TypeScript source files excluding tests: 175
+- Colocated test files: 105
+- Supabase migrations: 41
+- Latest migration filename: `20260809100000_create_standalone_admin_manual_questions.sql`
 
 ## Toolchain declared in package.json
 
@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `8b33bc2173dec2fe5b154f7fa9a39eef4243b5245d81836bbf701e88910fa6e7`
-- Fingerprinted files: 410
+- Project input fingerprint: `ef4d10345680809c5e1a1d31382891e9f265303690cd19424e4be416baf19625`
+- Fingerprinted files: 413
 
 The fingerprint covers registered lesson sources, content files, application
 source/tests, scripts, package metadata, environment template, workflows, and
