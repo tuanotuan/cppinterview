@@ -18,6 +18,10 @@ import type {
   QuestionClarification,
 } from "@/lib/ai/contracts";
 import {
+  publicAiQuotaPresentation,
+  type PublicAiQuotaSnapshot,
+} from "@/lib/ai/public-ai-quota-display";
+import {
   mergeAiDailyBudgetSnapshot,
   type AiDailyBudgetSnapshot,
 } from "@/lib/ai/budget";
@@ -180,11 +184,6 @@ type FollowUpChatMessage = {
   checkQuestion?: string;
   model?: string;
 };
-type PublicAiQuotaSnapshot = {
-  limit: number;
-  remaining: number | null;
-  resetsAt: string | null;
-};
 type CoachApiPayload = {
   aiDailyBudget?: AiDailyBudgetSnapshot | null;
   aiUsageRecorded?: boolean;
@@ -325,6 +324,7 @@ export function PracticeApp({
   initialQuestionStates,
   cloudSetupError,
   initialAiDailyBudget,
+  initialPublicAiQuota,
   authNotice,
   initialDeck,
   requestedFocusId,
@@ -344,6 +344,7 @@ export function PracticeApp({
   initialQuestionStates: QuestionLearningState[];
   cloudSetupError: boolean;
   initialAiDailyBudget: AiDailyBudgetSnapshot | null;
+  initialPublicAiQuota: PublicAiQuotaSnapshot | null;
   authNotice: string | null;
   initialDeck: PracticeDeckId;
   requestedFocusId: string | null;
@@ -439,7 +440,7 @@ export function PracticeApp({
   const [aiDailyBudget, setAiDailyBudget] = useState(initialAiDailyBudget);
   const [aiBudgetCacheHydrated, setAiBudgetCacheHydrated] = useState(false);
   const [publicAiQuota, setPublicAiQuota] =
-    useState<PublicAiQuotaSnapshot | null>(null);
+    useState<PublicAiQuotaSnapshot | null>(initialPublicAiQuota);
   const [cloudQuestionStates, setCloudQuestionStates] = useState(
     initialQuestionStates,
   );
@@ -4366,13 +4367,8 @@ function PublicAiQuotaPill({
 }: {
   quota: PublicAiQuotaSnapshot | null;
 }) {
-  const limit = quota?.limit ?? 3;
-  const remaining = quota?.remaining;
-  const exhausted = remaining === 0;
-  const label =
-    remaining === null || remaining === undefined
-      ? `${limit} lượt / 24h`
-      : `${remaining}/${limit} lượt còn`;
+  const { limit, exhausted, label, progressPercent } =
+    publicAiQuotaPresentation(quota);
   const reset = quota?.resetsAt ? formatPublicAiReset(quota.resetsAt) : null;
 
   return (
@@ -4395,13 +4391,7 @@ function PublicAiQuotaPill({
           className={`h-full rounded-full transition-[width] ${
             exhausted ? "bg-[#ba4b2f]" : "bg-[#79b82a]"
           }`}
-          style={{
-            width: `${
-              remaining === null || remaining === undefined
-                ? 100
-                : Math.max(0, Math.min(100, (remaining / limit) * 100))
-            }%`,
-          }}
+          style={{ width: `${progressPercent}%` }}
         />
       </div>
     </div>

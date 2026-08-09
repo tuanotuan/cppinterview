@@ -418,10 +418,11 @@ becomes terminal `outcome_unknown`.
 
 ## Public AI Coach access
 
-Apply both `20260805100000_create_public_ai_quota_admission.sql` and
-`20260805110000_create_public_ai_budget_ledger.sql` before setting
-`PUBLIC_AI_ENABLED=true`. Together they open the Coach evaluation and follow-up
-routes to guests and non-admin accounts through Luna only. They store HMAC
+Apply `20260805100000_create_public_ai_quota_admission.sql` and
+`20260805110000_create_public_ai_budget_ledger.sql`, followed by the two upgrade
+migrations documented below, before setting `PUBLIC_AI_ENABLED=true`. Together
+they open the Coach evaluation and follow-up routes to guests and non-admin
+accounts through Luna only. They store HMAC
 identity hashes only: never raw IP addresses, device tokens, account UUIDs,
 prompts, answers, or model output.
 
@@ -439,9 +440,17 @@ arguments, including the lease duration; this migration reasserts the
 service-role-only grant and reloads PostgREST's schema cache. It does not delete
 or reset existing quota windows or reservations.
 
+Then apply `20260809120000_add_public_ai_quota_status.sql`. It adds a read-only,
+service-role-only status RPC and an admission v2 wrapper whose visible remaining
+count is the minimum allowance across the active IP, device, and optional
+account windows. This lets a new incognito profile recover the network quota
+without browser fingerprinting and prevents a fresh device cookie from making
+the UI look reset. Deploy the compatible app first; it falls back to the original
+enforcing admission RPC only while this migration is absent.
+
 Create a dedicated Supabase secret API key named `public_ai_quota` and add it
 only to Vercel as `PUBLIC_AI_QUOTA_SUPABASE_SECRET_KEY`. Also create a random
 server-only `PUBLIC_AI_QUOTA_IDENTITY_PEPPER`. Do not reuse the code-runner,
 Mock history, or GitHub content-sync key, and do not enable `PUBLIC_AI_ENABLED`
-until both migrations and the server routes have been deployed. Public traffic
+until all listed migrations and the server routes have been deployed. Public traffic
 must never use the owner's account-scoped AI budget or Gemini fallback.

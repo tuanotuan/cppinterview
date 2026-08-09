@@ -223,10 +223,20 @@ of the three turns even if its outcome is unknown. The client may show only the
 public turn count/reset returned by the route, never identities or cost ledger.
 
 Existing environments must also apply
-`20260809110000_refresh_public_ai_quota_rpc_contract.sql`. The web client calls
-the exact eight-argument quota RPC (including the 600-second lease), while this
-migration restores the service-role-only privilege and reloads the PostgREST
-schema cache without changing quota data.
+`20260809110000_refresh_public_ai_quota_rpc_contract.sql`, followed by
+`20260809120000_add_public_ai_quota_status.sql`. The web client calls the exact
+eight-argument v2 quota RPC (including the 600-second lease); before the latest
+migration exists it falls back only to the original enforcing RPC so deploy-first
+rollout does not interrupt Coach. The latest migration adds a service-role-only
+status read and makes returned counters use the most restrictive active IP,
+device, or account window without changing existing quota data.
+
+`/practice` hydrates the public counter on the server. A fresh incognito profile
+has no durable device cookie, so the read uses the HMAC IP identity (and account
+when present); no browser fingerprint is collected. Closing incognito therefore
+does not replenish the network allowance. If status cannot be read, the UI must
+show an unknown/checking state rather than incorrectly claiming all three turns
+remain.
 
 Coach idempotency keys are deterministic UUIDv8 values. Any server-side UUID
 validator on the Coach/public-admission path must accept versions 1–8 and reject
