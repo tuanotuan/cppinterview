@@ -147,6 +147,53 @@ describe("public AI quota RPC parsing", () => {
     });
   });
 
+  it("accepts the singleton record array returned by some PostgREST RPC paths", () => {
+    expect(
+      parsePublicAiQuotaReservation([
+        {
+          status: "reserved",
+          reservation_id: "123e4567-e89b-42d3-a456-426614174000",
+          lease_token: "123e4567-e89b-42d3-a456-426614174001",
+          lease_expires_at: "2026-08-05T08:10:00.000Z",
+          is_new: true,
+          limit: 3,
+          remaining: 2,
+          resets_at: "2026-08-06T08:00:00.000Z",
+        },
+      ]),
+    ).toMatchObject({
+      status: "reserved",
+      remaining: 2,
+      isNew: true,
+    });
+  });
+
+  it("reports the exact rejected response contract", () => {
+    try {
+      parsePublicAiQuotaReservation([]);
+      throw new Error("Expected an invalid RPC response");
+    } catch (error) {
+      expect(error).toBeInstanceOf(PublicAiQuotaConfigurationError);
+      expect((error as PublicAiQuotaConfigurationError).reason).toBe(
+        "response_not_object",
+      );
+    }
+
+    try {
+      parsePublicAiQuotaReservation({
+        status: "reserved",
+        reservation_id: "123e4567-e89b-42d3-a456-426614174000",
+        lease_token: null,
+        lease_expires_at: null,
+      });
+      throw new Error("Expected a malformed lease");
+    } catch (error) {
+      expect((error as PublicAiQuotaConfigurationError).reason).toBe(
+        "response_lease_malformed",
+      );
+    }
+  });
+
   it("turns a quota response into a typed error", () => {
     expect(() =>
       parsePublicAiQuotaReservation({

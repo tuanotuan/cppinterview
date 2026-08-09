@@ -37,6 +37,12 @@ export type PublicAiQuotaConfigurationReason =
   | "rpc_authentication_failed"
   | "rpc_permission_denied"
   | "rpc_request_failed"
+  | "response_not_object"
+  | "response_lease_malformed"
+  | "response_status_unknown"
+  | "response_identity_missing"
+  | "response_freshness_malformed"
+  | "response_counters_malformed"
   | "invalid_response";
 
 type RecordValue = Record<string, unknown>;
@@ -193,19 +199,21 @@ export function mapPublicAiQuotaRpcError(
 export function parsePublicAiQuotaReservation(
   data: unknown,
 ): PublicAiQuotaReservation {
-  if (!isRecord(data)) {
+  const response = normalizeRpcRecord(data);
+  if (!response) {
     throw new PublicAiQuotaConfigurationError(
       "Unexpected public AI quota admission response",
+      "response_not_object",
     );
   }
 
-  const status = readString(data.status);
-  const reservationId = readNullableUuid(data.reservation_id);
-  const leaseToken = readNullableUuid(data.lease_token);
-  const leaseExpiresAt = readNullableTimestamp(data.lease_expires_at);
-  const limit = readNullablePositiveInteger(data.limit);
-  const remaining = readNullableNonNegativeInteger(data.remaining);
-  const resetsAt = readNullableTimestamp(data.resets_at);
+  const status = readString(response.status);
+  const reservationId = readNullableUuid(response.reservation_id);
+  const leaseToken = readNullableUuid(response.lease_token);
+  const leaseExpiresAt = readNullableTimestamp(response.lease_expires_at);
+  const limit = readNullablePositiveInteger(response.limit);
+  const remaining = readNullableNonNegativeInteger(response.remaining);
+  const resetsAt = readNullableTimestamp(response.resets_at);
 
   if (status === "quota_exceeded") {
     throw new PublicAiQuotaExceededError(remaining, resetsAt);
@@ -220,6 +228,7 @@ export function parsePublicAiQuotaReservation(
     if (!reservationId || !leaseToken || !leaseExpiresAt) {
       throw new PublicAiQuotaConfigurationError(
         "Public AI quota lease is malformed",
+        "response_lease_malformed",
       );
     }
   } else if (
@@ -230,6 +239,7 @@ export function parsePublicAiQuotaReservation(
   ) {
     throw new PublicAiQuotaConfigurationError(
       "Unknown public AI quota reservation status",
+      "response_status_unknown",
     );
   }
 
@@ -240,11 +250,16 @@ export function parsePublicAiQuotaReservation(
   ) {
     throw new PublicAiQuotaConfigurationError(
       "Public AI quota reservation identity is missing",
+      "response_identity_missing",
     );
   }
-  if (data.is_new !== undefined && typeof data.is_new !== "boolean") {
+  if (
+    response.is_new !== undefined &&
+    typeof response.is_new !== "boolean"
+  ) {
     throw new PublicAiQuotaConfigurationError(
       "Public AI quota reservation freshness is malformed",
+      "response_freshness_malformed",
     );
   }
   if (
@@ -254,6 +269,7 @@ export function parsePublicAiQuotaReservation(
   ) {
     throw new PublicAiQuotaConfigurationError(
       "Public AI quota counters are malformed",
+      "response_counters_malformed",
     );
   }
 
@@ -262,7 +278,7 @@ export function parsePublicAiQuotaReservation(
     status,
     leaseToken,
     leaseExpiresAt,
-    isNew: data.is_new === true,
+    isNew: response.is_new === true,
     limit,
     remaining,
     resetsAt,
@@ -351,13 +367,15 @@ async function transitionPublicAiQuota(
 ) {
   const { data, error } = await client.rpc(name, args);
   if (error) throw mapPublicAiQuotaRpcError(error);
-  if (!isRecord(data)) {
+  const response = normalizeRpcRecord(data);
+  if (!response) {
     throw new PublicAiQuotaConfigurationError(
       "Unexpected public AI quota transition response",
+      "response_not_object",
     );
   }
 
-  const status = readString(data.status);
+  const status = readString(response.status);
   if (
     status !== "dispatched" &&
     status !== "completed" &&
@@ -369,6 +387,7 @@ async function transitionPublicAiQuota(
     }
     throw new PublicAiQuotaConfigurationError(
       "Public AI quota transition was rejected",
+      "response_status_unknown",
     );
   }
   return status;
@@ -406,6 +425,14 @@ function assertReservationInput(input: {
 
 function isRecord(value: unknown): value is RecordValue {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function normalizeRpcRecord(value: unknown): RecordValue | null {
+  if (isRecord(value)) return value;
+  if (Array.isArray(value) && value.length === 1 && isRecord(value[0])) {
+    return value[0];
+  }
+  return null;
 }
 
 function readString(value: unknown) {
