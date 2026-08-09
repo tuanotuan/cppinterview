@@ -33,7 +33,7 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `f6ff3980ed035762edbd2678efbdbca315883457c52cb907203427cf16d5b803`
+- Project input fingerprint: `3ae3d2ce217a51d66b509fe848566ed9a657e055a5e7ddec5055fe7aa5a77165`
 - Fingerprinted files: 414
 
 The fingerprint covers registered lesson sources, content files, application
