@@ -107,6 +107,10 @@ trạng thái từ tên nhánh.
   `20260809110000_refresh_public_ai_quota_rpc_contract.sql` on existing
   environments. The app now supplies the exact eight-argument admission
   signature and logs a safe failure category for configuration diagnosis.
+  Production then confirmed that admission reached the RPC but rejected its
+  returned shape; the parser now accepts either a JSON object or a singleton
+  object array and reports field-specific safe reasons for any remaining
+  contract mismatch.
   Configure the dedicated
   secret plus identity pepper, then enable `PUBLIC_AI_ENABLED` only after the
   deployed app version is live. Production must still be smoke-tested after the
@@ -124,6 +128,9 @@ trạng thái từ tên nhánh.
   104/105 file; hai loader test chạm timeout 5 giây khi chạy cùng suite nhưng
   đạt 6/6 khi rerun riêng. Migration refresh và production smoke test vẫn cần
   thực hiện sau merge/deploy.
+- Public AI quota response hotfix đạt 11 targeted tests, typecheck và targeted
+  lint. Không cần migration hoặc env mới; cần deploy rồi smoke-test lại bằng
+  guest session.
 - Route landing/practice/guest gần nhất đạt TypeScript, lint các file TS/TSX đổi
   và Vitest (101 file/632 test). `next build` của các đợt UI trước đã đi qua
   compile, TypeScript và static-generation artifacts nhưng runner local từng cắt
