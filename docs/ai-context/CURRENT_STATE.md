@@ -87,8 +87,9 @@ trạng thái từ tên nhánh.
 - CTA “Thử luyện không cần tài khoản” mở `/practice?guest=1`: vẫn luyện thẻ
   local nhưng header không hiện lời mời đăng nhập như một điều kiện bắt buộc.
 - Guest mode mở Luna AI Coach mà không cần tài khoản, qua giới hạn public ba
-  lượt/24 giờ. UI chỉ hiển thị số lượt/reset do route trả về; mở đáp án, gợi ý
-  và đánh giá local vẫn dùng được.
+  lượt/24 giờ. Practice đọc quota hiệu dụng theo IP/device/account khi tải trang
+  và cập nhật lại từ route sau mỗi lượt; trạng thái chưa đọc được không được giả
+  thành `3/3`. Mở đáp án, gợi ý và đánh giá local vẫn dùng được.
 - Câu trả lời trống nghĩa là chưa biết và vẫn gọi được AI. Luồng
   Trợ giúp → Làm lại khóa rating cho tới khi người học tự trả lời lại; retry và
   Recall Repair vẫn đi qua scheduler chuẩn, không tạo review trùng.
@@ -100,24 +101,19 @@ trạng thái từ tên nhánh.
 
 ## Public AI quota rollout
 
-- Phase B/C wires both Coach routes and Practice UI for guests and non-admin accounts through
-  public HMAC admission and a separate site-wide Luna budget ledger. Apply
-  `20260805100000_create_public_ai_quota_admission.sql` and
-  `20260805110000_create_public_ai_budget_ledger.sql`, then apply
-  `20260809110000_refresh_public_ai_quota_rpc_contract.sql` on existing
-  environments. The app now supplies the exact eight-argument admission
-  signature and logs a safe failure category for configuration diagnosis.
-  Production then confirmed that admission reached the RPC but rejected its
-  returned shape; the parser now accepts either a JSON object or a singleton
-  object array and reports field-specific safe reasons for any remaining
-  contract mismatch. A second production trace proved the actual pre-RPC
-  blocker: Coach generates deterministic UUIDv8 idempotency keys while the
-  public quota validator accepted only versions 1–5. The validator now matches
-  the existing Coach contract (UUID versions 1–8, excluding the nil UUID).
-  Configure the dedicated
-  secret plus identity pepper, then enable `PUBLIC_AI_ENABLED` only after the
-  deployed app version is live. Production must still be smoke-tested after the
-  refresh migration and new deployment.
+- Public Luna admission is working in production after the response-shape and
+  UUIDv8 fixes. The original RPC enforces IP, device, and optional account
+  independently, but returned a device-only counter; Practice also rendered an
+  unknown initial snapshot as a false `3/3`.
+- The current change adds
+  `20260809120000_add_public_ai_quota_status.sql`: server-side Practice hydration
+  reads the effective minimum allowance, and admission v2 returns the same
+  effective counter after reserve. A fresh incognito profile has no device
+  cookie but still reads/enforces the HMAC network identity; no fingerprint is
+  collected. Deploy the compatible app first, then apply this migration and
+  smoke-test a second incognito profile on the same network. Before migration,
+  admission falls back to the enforcing v1 RPC and the UI shows “Đang kiểm tra”
+  instead of claiming a fresh limit.
 
 ## Validation gần nhất
 
@@ -126,17 +122,11 @@ trạng thái từ tên nhánh.
   đang hiện. Heartbeat fix đạt typecheck, ESLint các file liên quan và targeted
   profile test; migration `20260806100000_create_admin_mobile_usage.sql` đã là
   điều kiện để production ghi số liệu.
-- Public AI quota RPC-contract fix đạt typecheck, full lint, targeted quota và
-  migration tests (23 test), và production build 63 route. Full Vitest đạt
-  104/105 file; hai loader test chạm timeout 5 giây khi chạy cùng suite nhưng
-  đạt 6/6 khi rerun riêng. Migration refresh và production smoke test vẫn cần
-  thực hiện sau merge/deploy.
-- Public AI quota response hotfix đạt 11 targeted tests, typecheck và targeted
-  lint. Không cần migration hoặc env mới; cần deploy rồi smoke-test lại bằng
-  guest session.
-- Public AI UUIDv8 fix đạt 25 targeted quota/idempotency tests, typecheck và
-  targeted lint. Không cần migration hoặc env mới; production smoke test phải
-  xác nhận request đi qua admission sau deploy.
+- Public AI effective-quota hydration đạt targeted 33/33 test và full validation:
+  content/context check, lint, typecheck, 106 file/663 Vitest test, cùng Next.js
+  production build 63 route. Sau merge/deploy vẫn phải chạy migration
+  `20260809120000_add_public_ai_quota_status.sql`, rồi smoke-test hai profile ẩn
+  danh mới trên cùng mạng để xác nhận lượt thứ hai đọc lại đúng counter IP.
 - Route landing/practice/guest gần nhất đạt TypeScript, lint các file TS/TSX đổi
   và Vitest (101 file/632 test). `next build` của các đợt UI trước đã đi qua
   compile, TypeScript và static-generation artifacts nhưng runner local từng cắt

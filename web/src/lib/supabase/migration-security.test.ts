@@ -28,6 +28,63 @@ describe("database hardening migrations", () => {
     expect(sql).toContain("notify pgrst, 'reload schema';");
   });
 
+  it("keeps effective public AI quota status read-only and server-only", async () => {
+    const sql = await readMigration(
+      "20260809120000_add_public_ai_quota_status.sql",
+    );
+    const statusStart = sql.indexOf(
+      "create or replace function public.get_public_ai_quota_status(",
+    );
+    const reserveV2Start = sql.indexOf(
+      "create or replace function public.reserve_public_ai_quota_v2(",
+    );
+    const statusFunction = sql.slice(statusStart, reserveV2Start);
+
+    expect(statusStart).toBeGreaterThan(-1);
+    expect(reserveV2Start).toBeGreaterThan(statusStart);
+    expect(statusFunction).toMatch(
+      /returns jsonb\s+language plpgsql\s+volatile\s+security definer\s+set search_path = ''/,
+    );
+    expect(statusFunction).toContain("v_effective_used integer := 0");
+    expect(statusFunction).toContain("v_used > v_effective_used");
+    expect(statusFunction).toContain("v_used = v_effective_used");
+    expect(statusFunction).toContain(
+      "greatest(0, v_limit - v_effective_used)",
+    );
+    expect(statusFunction).toContain(
+      "when v_effective_used >= v_limit then 'quota_exceeded'",
+    );
+    expect(statusFunction).not.toMatch(
+      /\b(?:insert into|update|delete from|for update)\b/,
+    );
+
+    expect(sql).toMatch(
+      /create or replace function public\.reserve_public_ai_quota_v2\(\s*p_principal_hash text,\s*p_ip_hash text,\s*p_device_hash text,\s*p_account_hash text,\s*p_idempotency_key uuid,\s*p_request_fingerprint text,\s*p_request_kind text,\s*p_lease_seconds integer default 600\s*\)/,
+    );
+    expect(sql).toMatch(
+      /v_result := public\.reserve_public_ai_quota\(\s*p_principal_hash,\s*p_ip_hash,\s*p_device_hash,\s*p_account_hash,\s*p_idempotency_key,\s*p_request_fingerprint,\s*p_request_kind,\s*p_lease_seconds\s*\);/,
+    );
+    expect(sql).toContain(
+      "v_status := public.get_public_ai_quota_status(",
+    );
+    expect(sql).toContain("return v_result || (v_status - 'status');");
+    expect(sql).not.toContain("alter function public.reserve_public_ai_quota(");
+
+    expect(sql).toMatch(
+      /revoke all on function public\.get_public_ai_quota_status\(text, text, text\)\s+from public, anon, authenticated;/,
+    );
+    expect(sql).toMatch(
+      /grant execute on function public\.get_public_ai_quota_status\(text, text, text\)\s+to service_role;/,
+    );
+    expect(sql).toMatch(
+      /revoke all on function public\.reserve_public_ai_quota_v2\(\s*text, text, text, text, uuid, text, text, integer\s*\) from public, anon, authenticated;/,
+    );
+    expect(sql).toMatch(
+      /grant execute on function public\.reserve_public_ai_quota_v2\(\s*text, text, text, text, uuid, text, text, integer\s*\) to service_role;/,
+    );
+    expect(sql).toContain("notify pgrst, 'reload schema';");
+  });
+
   it("creates manual admin questions as database-owned drafts with grounded sources", async () => {
     const sql = await readMigration(
       "20260808193000_create_admin_manual_content_question.sql",

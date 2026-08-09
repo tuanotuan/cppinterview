@@ -8,6 +8,8 @@ import {
   type SupabaseClient,
 } from "@supabase/supabase-js";
 
+import type { PublicAiQuotaSnapshot } from "./public-ai-quota-display";
+
 export const PUBLIC_AI_QUOTA_LIMIT = 3;
 export const PUBLIC_AI_QUOTA_WINDOW_HOURS = 24;
 export const PUBLIC_AI_QUOTA_LEASE_SECONDS = 600;
@@ -286,6 +288,62 @@ export function parsePublicAiQuotaReservation(
   };
 }
 
+export function parsePublicAiQuotaStatus(data: unknown): PublicAiQuotaSnapshot {
+  const response = normalizeRpcRecord(data);
+  if (!response) {
+    throw new PublicAiQuotaConfigurationError(
+      "Unexpected public AI quota status response",
+      "response_not_object",
+    );
+  }
+
+  const status = readString(response.status);
+  const limit = readNullablePositiveInteger(response.limit);
+  const remaining = readNullableNonNegativeInteger(response.remaining);
+  const resetsAt = readNullableTimestamp(response.resets_at);
+  if (
+    (status !== "available" && status !== "quota_exceeded") ||
+    limit !== PUBLIC_AI_QUOTA_LIMIT ||
+    remaining === null ||
+    remaining > limit ||
+    (status === "quota_exceeded" && remaining !== 0)
+  ) {
+    throw new PublicAiQuotaConfigurationError(
+      "Public AI quota status counters are malformed",
+      "response_counters_malformed",
+    );
+  }
+
+  return { limit, remaining, resetsAt };
+}
+
+export async function readPublicAiQuotaStatus(
+  client: SupabaseClient,
+  input: {
+    ipHash: string;
+    deviceHash: string | null;
+    accountHash: string | null;
+  },
+) {
+  const hashes = [input.ipHash, input.deviceHash, input.accountHash].filter(
+    (value): value is string => value !== null,
+  );
+  if (hashes.some((value) => !/^[a-f0-9]{64}$/.test(value))) {
+    throw new PublicAiQuotaConfigurationError(
+      "Public AI quota status input is invalid",
+      "invalid_reservation_input",
+    );
+  }
+
+  const { data, error } = await client.rpc("get_public_ai_quota_status", {
+    p_ip_hash: input.ipHash,
+    p_device_hash: input.deviceHash,
+    p_account_hash: input.accountHash,
+  });
+  if (error) throw mapPublicAiQuotaRpcError(error);
+  return parsePublicAiQuotaStatus(data);
+}
+
 export async function reservePublicAiQuota(
   client: SupabaseClient,
   input: {
@@ -299,7 +357,7 @@ export async function reservePublicAiQuota(
   },
 ) {
   assertReservationInput(input);
-  const { data, error } = await client.rpc("reserve_public_ai_quota", {
+  const args = {
     p_principal_hash: input.principalHash,
     p_ip_hash: input.ipHash,
     p_device_hash: input.deviceHash,
@@ -310,7 +368,16 @@ export async function reservePublicAiQuota(
     // Keep the PostgREST contract exact. Omitting this defaulted SQL argument
     // can leave function resolution dependent on a stale schema cache.
     p_lease_seconds: PUBLIC_AI_QUOTA_LEASE_SECONDS,
-  });
+  };
+  let { data, error } = await client.rpc("reserve_public_ai_quota_v2", args);
+  if (error) {
+    const mapped = mapPublicAiQuotaRpcError(error);
+    if (mapped.reason !== "rpc_contract_missing") throw mapped;
+
+    // Deploy the app before the migration without interrupting public Coach.
+    // The old RPC still enforces quota, but its counters can be device-biased.
+    ({ data, error } = await client.rpc("reserve_public_ai_quota", args));
+  }
   if (error) throw mapPublicAiQuotaRpcError(error);
   return parsePublicAiQuotaReservation(data);
 }

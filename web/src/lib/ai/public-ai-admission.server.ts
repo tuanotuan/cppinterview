@@ -2,6 +2,8 @@ import "server-only";
 
 import type { User } from "@supabase/supabase-js";
 
+import type { PublicAiQuotaSnapshot } from "./public-ai-quota-display";
+
 import {
   completePublicAiQuota,
   createPublicAiDeviceToken,
@@ -9,6 +11,7 @@ import {
   markPublicAiQuotaOutcomeUnknown,
   publicAiQuotaIdentityHash,
   readPublicAiClientIp,
+  readPublicAiQuotaStatus,
   releasePublicAiQuota,
   reservePublicAiQuota,
   type PublicAiQuotaRequestKind,
@@ -53,6 +56,30 @@ export class PublicAiRequestOutcomeUnknownError extends Error {
 
 export function isPublicAiEnabled() {
   return process.env.PUBLIC_AI_ENABLED?.trim().toLowerCase() === "true";
+}
+
+export async function readPublicAiAdmissionStatus({
+  request,
+  accountId,
+}: {
+  request: Request;
+  accountId: string | null;
+}): Promise<PublicAiQuotaSnapshot | null> {
+  if (!isPublicAiEnabled()) return null;
+
+  const ip = readPublicAiClientIp(request);
+  if (!ip) return null;
+
+  const deviceToken = readDeviceCookie(request.headers.get("cookie"));
+  return readPublicAiQuotaStatus(createPublicAiQuotaAdminClient(), {
+    ipHash: publicAiQuotaIdentityHash("ip", ip),
+    deviceHash: deviceToken
+      ? publicAiQuotaIdentityHash("device", deviceToken)
+      : null,
+    accountHash: accountId
+      ? publicAiQuotaIdentityHash("account", accountId)
+      : null,
+  });
 }
 
 export async function reservePublicAiAdmission({

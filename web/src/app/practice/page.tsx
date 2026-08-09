@@ -1,3 +1,6 @@
+import { headers } from "next/headers";
+
+import { readPublicAiAdmissionStatus } from "@/lib/ai/public-ai-admission.server";
 import { isQuestionApproved } from "@/lib/practice/approvals";
 import { loadCloudContext } from "@/lib/practice/cloud-server";
 import { parsePracticeDeck } from "@/lib/content/decks";
@@ -32,6 +35,9 @@ export default async function PracticePage({
     includeProviderSettings: false,
   });
   const manifest = cloud.manifest;
+  const initialPublicAiQuota = cloud.canManageQuestionBank
+    ? null
+    : await loadInitialPublicAiQuota(cloud.account?.id ?? null);
   const params = await searchParams;
   const authCode = single(params.auth);
   const guestMode = single(params.guest) === "1";
@@ -123,6 +129,7 @@ export default async function PracticePage({
       initialQuestionStates={cloud.questionStates}
       cloudSetupError={cloud.error}
       initialAiDailyBudget={cloud.aiDailyBudget}
+      initialPublicAiQuota={initialPublicAiQuota}
       authNotice={authNotice(authCode)}
       initialDeck={parsePracticeDeck(deckParam)}
       requestedFocusId={requestedFocusId}
@@ -132,6 +139,23 @@ export default async function PracticePage({
       mistakeQuestionIds={cloud.mistakeQuestionIds}
     />
   );
+}
+
+async function loadInitialPublicAiQuota(accountId: string | null) {
+  try {
+    const requestHeaders = await headers();
+    return await readPublicAiAdmissionStatus({
+      request: new Request("https://recall.internal/practice", {
+        headers: requestHeaders,
+      }),
+      accountId,
+    });
+  } catch (error) {
+    console.error("Public AI quota status read failed", {
+      reason: error instanceof Error ? error.name : "unknown",
+    });
+    return null;
+  }
 }
 
 function single(value: string | string[] | undefined) {

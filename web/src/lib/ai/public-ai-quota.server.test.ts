@@ -12,7 +12,9 @@ import {
   createPublicAiQuotaAdminClient,
   mapPublicAiQuotaRpcError,
   parsePublicAiQuotaReservation,
+  parsePublicAiQuotaStatus,
   publicAiQuotaIdentityHash,
+  readPublicAiQuotaStatus,
   readPublicAiClientIp,
   reservePublicAiQuota,
 } from "./public-ai-quota.server";
@@ -71,7 +73,7 @@ describe("public AI quota identity", () => {
 });
 
 describe("public AI quota RPC parsing", () => {
-  it("calls the exact eight-argument admission contract", async () => {
+  it("calls the exact eight-argument v2 admission contract", async () => {
     const rpc = vi.fn().mockResolvedValue({
       data: {
         status: "reserved",
@@ -99,7 +101,7 @@ describe("public AI quota RPC parsing", () => {
       },
     );
 
-    expect(rpc).toHaveBeenCalledWith("reserve_public_ai_quota", {
+    expect(rpc).toHaveBeenCalledWith("reserve_public_ai_quota_v2", {
       p_principal_hash: "a".repeat(64),
       p_ip_hash: "b".repeat(64),
       p_device_hash: "a".repeat(64),
@@ -109,6 +111,88 @@ describe("public AI quota RPC parsing", () => {
       p_request_kind: "coach_evaluation",
       p_lease_seconds: PUBLIC_AI_QUOTA_LEASE_SECONDS,
     });
+  });
+
+  it("falls back to the enforcing v1 RPC while the v2 migration rolls out", async () => {
+    const rpc = vi
+      .fn()
+      .mockResolvedValueOnce({
+        data: null,
+        error: { code: "PGRST202", message: "Function not found" },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          status: "reserved",
+          reservation_id: "123e4567-e89b-42d3-a456-426614174000",
+          lease_token: "123e4567-e89b-42d3-a456-426614174001",
+          lease_expires_at: "2026-08-05T08:10:00.000Z",
+          is_new: true,
+          limit: 3,
+          remaining: 2,
+        },
+        error: null,
+      });
+
+    await reservePublicAiQuota(
+      { rpc } as unknown as SupabaseClient,
+      {
+        principalHash: "a".repeat(64),
+        ipHash: "b".repeat(64),
+        deviceHash: "a".repeat(64),
+        accountHash: null,
+        idempotencyKey: "123e4567-e89b-82d3-a456-426614174002",
+        requestFingerprint: "c".repeat(64),
+        requestKind: "coach_evaluation",
+      },
+    );
+
+    expect(rpc.mock.calls.map(([name]) => name)).toEqual([
+      "reserve_public_ai_quota_v2",
+      "reserve_public_ai_quota",
+    ]);
+  });
+
+  it("reads the effective quota status with all available identities", async () => {
+    const rpc = vi.fn().mockResolvedValue({
+      data: {
+        status: "available",
+        limit: 3,
+        remaining: 1,
+        resets_at: "2026-08-06T08:00:00.000Z",
+      },
+      error: null,
+    });
+
+    await expect(
+      readPublicAiQuotaStatus(
+        { rpc } as unknown as SupabaseClient,
+        {
+          ipHash: "a".repeat(64),
+          deviceHash: "b".repeat(64),
+          accountHash: "c".repeat(64),
+        },
+      ),
+    ).resolves.toEqual({
+      limit: 3,
+      remaining: 1,
+      resetsAt: "2026-08-06T08:00:00.000Z",
+    });
+    expect(rpc).toHaveBeenCalledWith("get_public_ai_quota_status", {
+      p_ip_hash: "a".repeat(64),
+      p_device_hash: "b".repeat(64),
+      p_account_hash: "c".repeat(64),
+    });
+  });
+
+  it("rejects a malformed quota status instead of showing a fake full limit", () => {
+    expect(() =>
+      parsePublicAiQuotaStatus({
+        status: "available",
+        limit: 3,
+        remaining: 4,
+        resets_at: null,
+      }),
+    ).toThrow(PublicAiQuotaConfigurationError);
   });
 
   it("classifies safe operational causes without exposing provider details", () => {

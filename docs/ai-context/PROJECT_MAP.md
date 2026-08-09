@@ -85,7 +85,7 @@ API quan trọng:
 | `worldquant` | `training-state.ts`, `mission-snapshot.ts`, `tick-replay.ts`, `toolchain-dojo.ts`, `legacy-modern-capstone.ts` | Evidence account-scoped, cloud CAS/local fallback, Mission frozen, mô phỏng tick, bài thực hành CMake và capstone chuyển đổi legacy |
 | `ai` | `openai.ts`, `gemini.ts`, `fallback.ts`, `access.ts` | Provider call không transport retry, fallback và chặn AI không quota ngoài local development; Luna cho học tập/Coach, Terra chỉ cho report Mock |
 | `ai` | `budget.ts`, `usage.ts`, `billing.ts`, `coach-idempotency-client.ts`, `coach-reservation.server.ts`, `coach-follow-up-reservation.server.ts` | Sổ hạn mức UUID, phân loại kết quả provider và terminal cache Coach theo exact request |
-| `ai` | `public-ai-quota.server.ts`, `public-ai-admission.server.ts`, `public-ai-budget.server.ts` | AI Coach public/non-admin: HMAC IP/device/account, rolling 24 giờ, lease chống gọi trùng và ledger Luna site-wide riêng; không dùng quota account hay Gemini fallback của owner |
+| `ai` | `public-ai-quota.server.ts`, `public-ai-admission.server.ts`, `public-ai-quota-display.ts`, `public-ai-budget.server.ts` | AI Coach public/non-admin: HMAC IP/device/account, đọc quota hiệu dụng khi tải Practice, rolling 24 giờ, lease chống gọi trùng và ledger Luna site-wide riêng; không dùng quota account hay Gemini fallback của owner |
 | `mock-interview` | `profile.ts`, `profile-server.ts`, `catalog.ts`, `target-plan.ts` | JD question/version grounding, canonical competency mapping và deterministic balanced/targeted blueprint |
 | `mock-interview` | `session-v4.ts`, `contracts-v4.ts`, `session.ts`, `contracts.ts` | Account-scoped frozen v4 session/API contract, owner check và revision CAS; legacy parser không cấp dữ liệu cho Hub |
 | `mock-interview` | `history.server.ts`, `report-submission-client.ts`, `trends.ts` | Lease/cache/idempotency cho report, chống stale cross-tab submission và trend chỉ trên attempt comparable |
@@ -277,6 +277,13 @@ mạng hoặc 5xx terminalize request và quyết toán bảo thủ, không tự
 lần hai. Múi giờ budget là `Asia/Ho_Chi_Minh`.
 Candidate answer là field bắt buộc nhưng được phép rỗng; prompt đánh dấu rõ blank
 là “chưa biết” để trả feedback dạy từ nền tảng.
+
+Guest và tài khoản không phải owner đi qua public admission riêng. `/practice`
+đọc trước số lượt hiệu dụng bằng IP HMAC cùng device/account hiện có; một profile
+ẩn danh mới chưa có cookie vẫn kế thừa giới hạn mạng. Admission v2 giữ khóa của
+RPC v1 rồi trả mức còn lại nhỏ nhất giữa IP, device và account. Trạng thái chưa
+đọc được được hiển thị là chưa xác định, không mặc định thành `3/3`; không dùng
+fingerprint để nhận diện thiết bị sau khi dữ liệu ẩn danh bị xóa.
 
 ### Mistake → flashcard
 
