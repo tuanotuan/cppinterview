@@ -55,7 +55,7 @@ nhật file context tương ứng theo root `AGENTS.md`.
 
 API quan trọng:
 
-- `api/coach/{evaluate,follow-up,clarify}`: chấm, giải thích và diễn giải đề. `clarify` owner-only, dùng Luna và không gửi đáp án/rubric; evaluate/follow-up dùng OpenAI trước, Gemini fallback theo quota.
+- `api/coach/{evaluate,follow-up,clarify}`: chấm, giải thích và diễn giải đề. `clarify` owner-only, dùng Luna, diễn đạt bình dân theo tình huống thay vì từ điển thuật ngữ và không gửi đáp án/rubric; evaluate/follow-up dùng OpenAI trước, Gemini fallback theo quota.
 - `api/mock-interview/{run,report,history}`: chạy sample code, xác minh exact
   blueprint, tạo report có hidden evaluation và đọc/xóa history theo account.
 - `api/progress/sync`: đồng bộ review/Anki state.

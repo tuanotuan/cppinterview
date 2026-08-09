@@ -3415,9 +3415,9 @@ export function PracticeApp({
                       <p className="mt-3 leading-6">
                         {questionClarifications[current.id].plainLanguage}
                       </p>
-                      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                      <div className="mt-4">
                         <div>
-                          <p className="font-semibold text-[#173f35]">Bạn cần đề cập</p>
+                          <p className="font-semibold text-[#173f35]">Đề thực ra muốn bạn làm gì?</p>
                           <ul className="mt-2 space-y-1.5 leading-6">
                             {questionClarifications[current.id].whatToAddress.map(
                               (item) => (
@@ -3429,26 +3429,9 @@ export function PracticeApp({
                             )}
                           </ul>
                         </div>
-                        {questionClarifications[current.id].terms.length ? (
-                          <div>
-                            <p className="font-semibold text-[#173f35]">Thuật ngữ trong đề</p>
-                            <dl className="mt-2 space-y-2 leading-6">
-                              {questionClarifications[current.id].terms.map((item) => (
-                                <div key={item.term}>
-                                  <dt className="inline font-mono text-xs font-bold text-[#356b58]">
-                                    {item.term}
-                                  </dt>
-                                  <dd className="inline before:content-[' — ']">
-                                    {item.meaning}
-                                  </dd>
-                                </div>
-                              ))}
-                            </dl>
-                          </div>
-                        ) : null}
                       </div>
                       <p className="mt-4 border-t border-[#356b58]/15 pt-3 text-xs leading-5 text-[#52675e]">
-                        Phạm vi: {questionClarifications[current.id].scopeNote}
+                        Chỉ cần hiểu như vậy: {questionClarifications[current.id].scopeNote}
                       </p>
                       <p className="mt-2 text-xs text-[#52675e]">
                         Phần này chỉ diễn giải đề, không mở đáp án hay hướng giải.

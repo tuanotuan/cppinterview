@@ -175,15 +175,20 @@ describe("AI coach contract", () => {
     expect(prompt).not.toContain(question.answer.detailed);
     expect(prompt).not.toContain(question.rubric.required[0]);
     expect(prompt).toContain("Tuyệt đối không nêu đáp án");
+    expect(prompt).toContain("người bạn vừa đọc xong");
+    expect(prompt).toContain("Trường terms luôn trả về mảng rỗng");
     expect(buildCoachSystemInstruction(lesson, "clarify")).toContain(
       "tuyệt đối không tiết lộ đáp án",
     );
+    expect(buildCoachSystemInstruction(lesson, "clarify")).toContain(
+      "tránh từ điển thuật ngữ",
+    );
     expect(
       questionClarificationSchema.safeParse({
-        plainLanguage: "Đề đang yêu cầu bạn mô tả phạm vi trả lời.",
-        whatToAddress: ["Nêu các ý mà đề hỏi."],
-        terms: [{ term: "ownership", meaning: "Quyền sở hữu tài nguyên." }],
-        scopeNote: "Chỉ bám theo dữ kiện trong đề.",
+        plainLanguage: "Nói nôm na, đề muốn biết bạn hiểu tình huống này tới đâu.",
+        whatToAddress: ["Nói rõ điều đang xảy ra trong đề."],
+        terms: [],
+        scopeNote: "Chỉ bám theo dữ kiện đã có trong đề.",
       }).success,
     ).toBe(true);
   });
