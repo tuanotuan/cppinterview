@@ -4,6 +4,7 @@ import type {
   GeneratedLesson,
 } from "../content/schema";
 import type { QuestionOverride } from "../content/question-overrides";
+import { isStandaloneManualQuestionLesson } from "../content/standalone-manual-question";
 import {
   isQuestionApproved,
   type QuestionApproval,
@@ -85,7 +86,9 @@ export function buildAdminDashboardSnapshot(
       lessonTitle: lesson.title,
       standard: lesson.standard,
       knowledgePath: lesson.knowledgePath,
-      sourceHeadings: question.sources.map(({ sectionId }) => {
+      sourceHeadings: isStandaloneManualQuestionLesson(question.lessonId)
+        ? []
+        : question.sources.map(({ sectionId }) => {
         const section = lesson.sections.find((item) => item.id === sectionId);
         return section?.heading ?? sectionId;
       }),
@@ -102,7 +105,9 @@ export function buildAdminDashboardSnapshot(
     };
   });
 
-  const lessons = manifest.lessons.map((lesson): AdminLessonCoverage => {
+  const lessons = manifest.lessons
+    .filter((lesson) => !isStandaloneManualQuestionLesson(lesson.id))
+    .map((lesson): AdminLessonCoverage => {
     const current = questions.filter(
       (question) =>
         question.lessonId === lesson.id &&
@@ -122,7 +127,7 @@ export function buildAdminDashboardSnapshot(
       activeQuestions: current.filter((question) => question.adminStatus === "active")
         .length,
     };
-  });
+    });
 
   const activeIds = new Set(
     questions
