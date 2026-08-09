@@ -222,6 +222,12 @@ be released or expires safely, while a dispatched request continues consuming on
 of the three turns even if its outcome is unknown. The client may show only the
 public turn count/reset returned by the route, never identities or cost ledger.
 
+Existing environments must also apply
+`20260809110000_refresh_public_ai_quota_rpc_contract.sql`. The web client calls
+the exact eight-argument quota RPC (including the 600-second lease), while this
+migration restores the service-role-only privilege and reloads the PostgREST
+schema cache without changing quota data.
+
 Create a dedicated Supabase secret API key for
 `PUBLIC_AI_QUOTA_SUPABASE_SECRET_KEY` and a random
 `PUBLIC_AI_QUOTA_IDENTITY_PEPPER`. Do not reuse the code-runner, Mock-history,
