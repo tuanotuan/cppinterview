@@ -128,10 +128,12 @@ Xem danh sách chuẩn trong `web/.env.example`.
 - Code runner và Mock v4 history dùng hai secret Supabase riêng
   (`CODE_RUNNER_SUPABASE_SECRET_KEY`, `MOCK_HISTORY_SUPABASE_SECRET_KEY`);
   không tái dùng content-sync key hay dùng chung với nhau.
-- Production nên cấu hình `ALLOWED_SUPABASE_USER_ID` bằng danh sách UUID
-  Supabase Auth bất biến, phân tách bằng dấu phẩy. `ALLOWED_GITHUB_LOGIN` mặc
-  định trống và chỉ là phương án dự phòng chủ động bật; giá trị này chỉ được so
-  với GitHub OAuth identity, không tin `user_metadata` do người dùng tự sửa.
+- Recall mở cho mọi Supabase Auth account đã xác thực. Email provider phải bật;
+  production nên bật xác minh email và đặt Site URL/Redirect URLs gồm
+  `/auth/callback` cùng `/auth/confirm`. Mật khẩu được kiểm tra ở cả browser và
+  Server Action (ít nhất 8 ký tự, đăng ký phải nhập trùng hai lần), không log hay
+  lưu lại trong ứng dụng. Quyền quản trị vẫn chỉ dựa vào GitHub provider identity
+  bất biến `tuanotuan`, không tin `user_metadata` do người dùng tự sửa.
 - Khi không cấu hình Supabase, route AI chỉ được chạy không tính quota nếu
   `NODE_ENV=development` và `ALLOW_UNMETERED_LOCAL_AI=true`; production và test
   luôn bỏ qua cờ này rồi từ chối theo hướng an toàn.

@@ -14,17 +14,21 @@ admission, the Mistake Inbox, and atomic daily/monthly AI accounting.
    npx supabase db push
    ```
 
-4. In Supabase Authentication > Providers, enable GitHub.
-5. Create a GitHub OAuth App. Set its callback URL to the callback displayed by
-   Supabase, normally `https://<project-ref>.supabase.co/auth/v1/callback`.
-6. In Supabase Authentication > URL Configuration, add
-   `http://localhost:3000/auth/callback` for local development. Add the deployed
-   `/auth/callback` URL later.
+4. In Supabase Authentication > Providers, enable **Email**. Keep email
+   confirmation enabled in production so a new address must be verified before
+   it can sign in.
+5. Optional: enable GitHub and create a GitHub OAuth App. Set its callback URL
+   to the callback displayed by Supabase, normally
+   `https://<project-ref>.supabase.co/auth/v1/callback`.
+6. In Supabase Authentication > URL Configuration, set the production Site URL
+   and add both `/auth/callback` and `/auth/confirm` for production and
+   `http://localhost:3000`. The email/password registration flow sends its
+   confirmation link to `/auth/confirm`.
 
-Set `ALLOWED_SUPABASE_USER_ID` to the immutable Supabase Auth UUIDs that may use
-the private learning and AI routes. `ALLOWED_GITHUB_LOGIN` is an explicit,
-optional fallback and is disabled when left blank; do not rely on a reusable
-GitHub handle for production ownership.
+Recall is open to every authenticated Supabase account. RLS keeps reviews,
+progress, AI history, and mock history private to the account in its JWT.
+Admin-only controls remain restricted in application code to the immutable
+GitHub identity `tuanotuan`; do not treat editable user metadata as ownership.
 
 The migrations enable RLS. Authenticated users can only read and mutate rows
 whose `user_id` matches their JWT identity. Question approvals are bound to an

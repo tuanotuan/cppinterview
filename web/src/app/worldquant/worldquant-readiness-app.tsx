@@ -1546,20 +1546,17 @@ export function WorldQuantReadinessApp({
               </p>
               <p className="mt-1 text-sm text-[#64736c]">
                 {cloudEnabled
-                  ? "Đăng nhập GitHub để hợp nhất tiến độ khi đổi thiết bị."
+                  ? "Đăng nhập để hợp nhất tiến độ khi đổi thiết bị."
                   : "Supabase chưa được cấu hình; hệ thống vẫn hoạt động đầy đủ trên thiết bị."}
               </p>
             </div>
             {cloudEnabled ? (
-              <form
-                action={`/auth/login?next=${encodeURIComponent("/worldquant")}`}
-                method="post"
-                className="mt-4 sm:mt-0"
+              <Link
+                href="/auth?next=%2Fworldquant"
+                className="mt-4 inline-flex rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white sm:mt-0"
               >
-                <button className="rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white">
-                  Đăng nhập GitHub
-                </button>
-              </form>
+                Đăng nhập
+              </Link>
             ) : null}
           </section>
         ) : null}

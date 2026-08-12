@@ -153,7 +153,7 @@ export async function POST(request: Request) {
   if (authError || !authData.user) {
     return errorResponse(
       401,
-      "Đăng nhập GitHub để chạy mã.",
+      "Đăng nhập để chạy mã.",
       "authentication_required",
     );
   }

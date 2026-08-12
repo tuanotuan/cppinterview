@@ -33,7 +33,7 @@ nhật file context tương ứng theo root `AGENTS.md`.
 
 | URL/vùng | Entry point | Chức năng |
 |---|---|---|
-| `/` | `web/src/app/page.tsx`, `recall-landing-page.tsx` | Landing public của Recall: giới thiệu luồng học, thư viện, AI coach, mock interview và GitHub OAuth; luôn là trang chủ, kể cả khi người dùng đang đăng nhập; CTA thử luyện mở guest mode |
+| `/` | `web/src/app/page.tsx`, `recall-landing-page.tsx` | Landing public của Recall: giới thiệu luồng học, thư viện, AI coach, mock interview và đăng nhập/đăng ký; luôn là trang chủ, kể cả khi người dùng đang đăng nhập; CTA thử luyện mở guest mode |
 | `/practice` | `practice/page.tsx`, `practice-app.tsx`, `question-editor-dialog.tsx`, `confirmation-dialog.tsx` | Today workspace: CTA tiếp tục/luyện thêm, tiến độ và chỉ số ngày trước card; guest mode `?guest=1` giữ tiến độ local và mở Luna với giới hạn public 3 lượt/24 giờ; Daily/custom study và Focus Sprint exact queue; mỗi thẻ chỉ hiện hai nhãn phân loại Dễ/Trung bình/Khó và Text/Code, còn taxonomy nội bộ không lộ ra hoặc lọc ở UI; answer không giới hạn sản phẩm, blank = chưa biết và vẫn gọi được AI, rating, scheduler, cloud sync, saved state, owner-only edit/archive thẻ và return về Guided Mission; thao tác phá hủy dùng confirmation sheet của Recall thay vì hộp thoại trình duyệt |
 | `/worldquant` | `worldquant/page.tsx`, `worldquant-readiness-app.tsx` | Trung tâm chuẩn bị theo vị trí/thời lượng, giới thiệu lần đầu, mục Nâng cao thu gọn; thống kê, Phiên ôn tập trọng tâm, phỏng vấn thử v4 gần nhất và xu hướng có thể so sánh |
 | `/worldquant/curriculum` | `worldquant/curriculum/page.tsx` | Graph 30 concept theo prerequisite; tách card coverage, pending content và transfer drill |
@@ -51,7 +51,7 @@ nhật file context tương ứng theo root `AGENTS.md`.
 | `/profile` | `profile/page.tsx`, `lib/profile/{contribution-activity,mobile-usage,profile-activity.server}.ts` | Trang cá nhân và contribution graph 53 tuần từ lượt ôn, AI coach và phỏng vấn thử đã hoàn tất; riêng admin `tuanotuan` còn có tổng thời gian Recall hoạt động trên điện thoại hôm nay/7/30 ngày |
 | `/admin` | `admin/page.tsx`, `admin-dashboard.tsx`, `manual-question-dialog.tsx`, `input-dialog.tsx` | Review/edit/archive question, schedule, AI/job settings và thêm câu hỏi thủ công. Ngân hàng câu hỏi chỉ tìm kiếm và lọc theo trạng thái vận hành/học; mỗi card chỉ hiện Dễ/Trung bình/Khó và Text/Code, còn taxonomy/loại câu vẫn là metadata nội bộ. Câu thủ công là DB-native draft có revision/audit, chỉ cần đề bài và đáp án tham khảo, không gắn lesson hay file `.md`, rồi chờ duyệt; header ưu tiên Luyện hôm nay, Thư viện, Mức bao phủ và chuẩn bị phỏng vấn; xác nhận/ràng buộc nguồn của mistake card dùng sheet/form trong UI thay vì API dialog của trình duyệt |
 | `/admin/coverage` | `admin/coverage/page.tsx` | Mức bao phủ nội dung, ưu tiên phần học liệu còn thiếu theo khái niệm và loại bằng chứng |
-| `/auth/*` | `auth/{login,callback,logout}` | GitHub OAuth qua Supabase |
+| `/auth` và `/auth/*` | `auth/page.tsx`, `auth-form.tsx`, `auth-actions.ts`, `auth/{login,callback,confirm,logout}` | Đăng ký/đăng nhập email-mật khẩu với xác nhận email, cùng GitHub OAuth; mọi Supabase account đã xác thực dùng Recall, chỉ admin giữ GitHub identity `tuanotuan` |
 
 API quan trọng:
 

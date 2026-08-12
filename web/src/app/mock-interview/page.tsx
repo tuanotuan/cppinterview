@@ -216,19 +216,17 @@ function MockInterviewGate({
         </h1>
         <p className="mt-4 leading-7 text-[#64736c]">
           {mode === "login"
-            ? "Đăng nhập GitHub để dùng ngân hàng câu hỏi riêng và nhận báo cáo do AI tạo vào cuối buổi."
+            ? "Đăng nhập để dùng ngân hàng câu hỏi riêng và nhận báo cáo do AI tạo vào cuối buổi."
             : "Supabase chưa được cấu hình nên chưa thể xác thực và chấm buổi phỏng vấn thử."}
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           {mode === "login" ? (
-            <form action="/auth/login?next=/mock-interview" method="post">
-              <button
-                type="submit"
-                className="rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white"
-              >
-                Đăng nhập GitHub
-              </button>
-            </form>
+            <Link
+              href="/auth?next=%2Fmock-interview"
+              className="rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white"
+            >
+              Đăng nhập
+            </Link>
           ) : null}
           <Link
             href="/practice"
