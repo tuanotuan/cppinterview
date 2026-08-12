@@ -783,9 +783,14 @@ function mistakeErrorMessage(code: string) {
       <div className="mx-auto max-w-[1500px]">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
           <div className="flex items-center gap-3">
-            <div className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
+            <Link
+              href="/"
+              aria-label="Về trang chủ Recall"
+              title="Về trang chủ Recall"
+              className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+            >
               R
-            </div>
+            </Link>
             <div>
               <p className="text-lg font-bold">Quản trị Recall</p>
               <p className="text-xs text-[#64736c]">
