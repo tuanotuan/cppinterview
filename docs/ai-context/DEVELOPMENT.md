@@ -131,8 +131,9 @@ Xem danh sách chuẩn trong `web/.env.example`.
 - Recall mở cho mọi Supabase Auth account đã xác thực. Email provider phải bật;
   production nên bật xác minh email và đặt Site URL/Redirect URLs gồm
   `/auth/callback` cùng `/auth/confirm`. Mật khẩu được kiểm tra ở cả browser và
-  Server Action (ít nhất 8 ký tự, đăng ký phải nhập trùng hai lần), không log hay
-  lưu lại trong ứng dụng. Quyền quản trị vẫn chỉ dựa vào GitHub provider identity
+  Server Action (ít nhất 8 ký tự, đăng ký phải nhập trùng hai lần và một nút
+  hiện/ẩn áp dụng đồng thời cho hai ô), không log hay lưu lại trong ứng dụng.
+  Quyền quản trị vẫn chỉ dựa vào GitHub provider identity
   bất biến `tuanotuan`, không tin `user_metadata` do người dùng tự sửa.
 - Khi không cấu hình Supabase, route AI chỉ được chạy không tính quota nếu
   `NODE_ENV=development` và `ALLOW_UNMETERED_LOCAL_AI=true`; production và test

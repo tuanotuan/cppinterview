@@ -85,7 +85,8 @@ trạng thái từ tên nhánh.
 - Trang chủ `/` luôn là landing giới thiệu Recall; `/auth` hỗ trợ email/mật khẩu
   và GitHub OAuth, còn workspace Today nằm ở `/practice` cho cả local practice
   lẫn account đã đăng nhập. Đăng ký email cần xác nhận mật khẩu phía browser và
-  server, có nút hiện/ẩn từng mật khẩu, rồi xác minh email qua `/auth/confirm`.
+  server; nút hiện/ẩn dùng chung cho cả hai ô mật khẩu, rồi xác minh email qua
+  `/auth/confirm`.
 - CTA “Thử luyện không cần tài khoản” mở `/practice?guest=1`: vẫn luyện thẻ
   local nhưng header không hiện lời mời đăng nhập như một điều kiện bắt buộc.
 - Guest mode mở Luna AI Coach mà không cần tài khoản, qua giới hạn public ba
