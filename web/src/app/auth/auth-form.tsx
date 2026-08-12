@@ -36,7 +36,12 @@ export function AuthForm({
   return (
     <main className="min-h-screen bg-[#f5f6ed] px-4 py-7 text-[#17221d] sm:px-6 sm:py-10">
       <div className="mx-auto w-full max-w-md">
-        <Link href="/" className="inline-flex items-center gap-3">
+        <Link
+          href="/"
+          aria-label="Về trang chủ Recall"
+          title="Về trang chủ Recall"
+          className="inline-flex items-center gap-3"
+        >
           <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
             R
           </span>

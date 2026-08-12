@@ -1311,9 +1311,14 @@ export function MockInterviewApp({
       <div className="mx-auto max-w-7xl">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-4">
           <div className="flex items-center gap-3">
-            <span className="grid size-10 place-items-center rounded-xl bg-[#173f35] font-mono text-xs font-bold text-[#d7ff91]">
+            <Link
+              href="/"
+              aria-label="Về trang chủ Recall"
+              title="Về trang chủ Recall"
+              className="grid size-10 place-items-center rounded-xl bg-[#173f35] font-mono text-xs font-bold text-[#d7ff91] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+            >
               WQ
-            </span>
+            </Link>
             <div>
               <p className="font-semibold">Phỏng vấn thử</p>
               <p className="text-xs text-[#64736c]">
@@ -1695,9 +1700,14 @@ function MockSetup({
       <div className="mx-auto max-w-7xl">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
           <div className="flex items-center gap-3">
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
+            <Link
+              href="/"
+              aria-label="Về trang chủ Recall"
+              title="Về trang chủ Recall"
+              className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+            >
               WQ
-            </span>
+            </Link>
             <div>
               <p className="font-bold">Phỏng vấn thử cùng Recall</p>
               <p className="text-xs text-[#64736c]">
@@ -2150,9 +2160,14 @@ function MockReport({
       <div className="mx-auto max-w-7xl">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
           <div className="flex items-center gap-3">
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
+            <Link
+              href="/"
+              aria-label="Về trang chủ Recall"
+              title="Về trang chủ Recall"
+              className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+            >
               WQ
-            </span>
+            </Link>
             <div>
               <p className="font-bold">Báo cáo phỏng vấn thử</p>
               <p className="text-xs text-[#64736c]">

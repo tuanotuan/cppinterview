@@ -41,7 +41,12 @@ export function RecallLandingPage({
     <main data-recall-landing className="min-h-screen overflow-x-hidden">
       <div className="mx-auto max-w-[1440px] px-4 py-5 sm:px-7 lg:px-10">
         <header className="flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-3">
+          <Link
+            href="/"
+            aria-label="Về trang chủ Recall"
+            title="Về trang chủ Recall"
+            className="flex items-center gap-3"
+          >
             <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91] shadow-[0_12px_32px_rgb(23_63_53_/_18%)]">
               R
             </span>

@@ -82,6 +82,9 @@ trạng thái từ tên nhánh.
   không chạm scheduler, AI admission hay dữ liệu học.
 - UI dùng chung có reduced-motion fallback; skeleton loading có thông báo cho
   screen reader và thanh điều hướng mobile giữ vùng chạm/focus rõ ràng.
+- Biểu tượng thương hiệu ở góc trái của các header luôn mở trang chủ `/`, để
+  người học có một đường quay lại nhất quán từ Practice, thư viện, WorldQuant,
+  Mock, Stats và Admin.
 - Trang chủ `/` luôn là landing giới thiệu Recall; `/auth` hỗ trợ email/mật khẩu
   và GitHub OAuth, còn workspace Today nằm ở `/practice` cho cả local practice
   lẫn account đã đăng nhập. Đăng ký email cần xác nhận mật khẩu phía browser và
