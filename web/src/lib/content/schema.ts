@@ -41,6 +41,24 @@ export const questionDifficultySchema = z.enum([
 
 export const questionResponseModeSchema = z.enum(["text", "code"]);
 
+export const interviewQuestionCategorySchema = z.enum([
+  "language_knowledge",
+  "code_reading_ub",
+  "coding",
+  "code_review_debug",
+  "design_performance",
+  "communication_ownership",
+]);
+export type InterviewQuestionCategory = z.infer<
+  typeof interviewQuestionCategorySchema
+>;
+
+export const codeTestSuiteMetadataSchema = z.object({
+  specRevision: z.number().int().positive(),
+  publicTestCount: z.number().int().min(1).max(10),
+  hiddenTestCount: z.number().int().min(1).max(30),
+});
+
 export const taxonomyTagSchema = z.string().regex(
   /^(?:deck|language|track|standard|topic|skill|difficulty|response|source)::[a-z0-9]+(?:-[a-z0-9]+)*$/,
   "Use a controlled namespace::lowercase-kebab-case taxonomy tag",
@@ -58,6 +76,9 @@ export const questionTaxonomySchema = z
     responseMode: questionResponseModeSchema,
     sourceLessonId: idSchema,
     tags: z.array(taxonomyTagSchema).min(6),
+    interviewCategory: interviewQuestionCategorySchema.optional(),
+    assessmentSkills: z.array(idSchema).min(1).max(6).optional(),
+    codeTestSuite: codeTestSuiteMetadataSchema.optional(),
   })
   .superRefine((taxonomy, context) => {
     const expectedLanguage = languageForTrack(
@@ -134,6 +155,9 @@ export const questionSchema = z.object({
   type: questionSkillSchema,
   responseMode: questionResponseModeSchema.optional(),
   difficulty: questionDifficultySchema,
+  interviewCategory: interviewQuestionCategorySchema.optional(),
+  assessmentSkills: z.array(idSchema).min(1).max(6).optional(),
+  codeTestSuite: codeTestSuiteMetadataSchema.optional(),
   estimatedMinutes: z.number().int().min(1).max(15),
   prompt: z.string().trim().min(10),
   code: z.string().trim().min(1).optional(),
@@ -157,6 +181,24 @@ export const questionSchema = z.object({
   sourceHash: z.string().regex(/^[a-f0-9]{64}$/),
   status: z.enum(["draft", "verified", "needs_review", "archived"]),
   version: z.number().int().positive(),
+}).superRefine((question, context) => {
+  if (
+    question.interviewCategory === "coding" &&
+    (question.responseMode ?? "text") !== "code"
+  ) {
+    context.addIssue({
+      code: "custom",
+      path: ["responseMode"],
+      message: "Coding questions must use responseMode: code",
+    });
+  }
+  if (question.codeTestSuite && (question.responseMode ?? "text") !== "code") {
+    context.addIssue({
+      code: "custom",
+      path: ["codeTestSuite"],
+      message: "Only code questions can declare a code test suite",
+    });
+  }
 });
 
 export const questionFileSchema = z.object({

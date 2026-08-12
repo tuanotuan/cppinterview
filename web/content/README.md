@@ -51,6 +51,8 @@ generation, and the production practice/Admin/Stats selectors are enabled for
 The enqueue job and the stored prompt metadata share
 `QUESTION_GENERATOR_PROMPT_VERSION`; changing the multilingual prompt therefore
 creates an auditable generator revision instead of silently reusing an old one.
+The current generator version is `multilanguage-interview-bank-v4`; it asks AI
+to classify a draft but never lets AI mark it verified or claim test coverage.
 
 The C++, Python, and CMake notes in the repository root remain the source
 of truth. The web app adds stable metadata and interview questions without
@@ -80,6 +82,27 @@ Each question contains:
 - required points, optional bonus points, and common misconceptions;
 - one or more source section IDs from the parsed note.
 - the lesson `sourceHash` captured when the question was last approved.
+
+### C++ interview-bank target
+
+The C++ bank target is 300 human-verified questions: 100 language knowledge,
+80 code-reading/output/undefined-behavior, 60 coding, 30 code review/debug,
+20 design/performance, and 10 communication/ownership questions. Category and
+the concrete skills measured are internal metadata; learner cards continue to
+show only difficulty and `Text`/`Code`.
+
+Every new draft carries one `interviewCategory` and one or more
+`assessmentSkills`; legacy questions are classified deterministically until a
+maintainer edits them. The coverage dashboard counts only `verified` C++
+questions with a complete publication contract. Drafts, stale revisions, and
+owner-private approvals never inflate the 300 target.
+
+A code question cannot become `verified` unless it declares both public and
+hidden test counts through `codeTestSuite` and has an exact server-owned test
+suite registration bound to its ID, version, source hash, and suite revision.
+Hidden cases must never be stored in the manifest, a YAML question file, or
+client code. A generated code draft intentionally lacks that registration and
+remains in the review queue until a maintainer adds real sandbox plans.
 
 When a note changes, its content hash changes. Questions referencing that lesson
 are emitted as `needs_review` in the app manifest without rewriting past

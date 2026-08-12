@@ -9,6 +9,8 @@ import remarkParse from "remark-parse";
 import { unified } from "unified";
 import { parse as parseYaml } from "yaml";
 
+import { questionBankCodeTestSpecForQuestion } from "../code-runner/question-bank-execution-specs";
+import { questionVerificationGaps } from "./interview-bank";
 import {
   contentManifestSchema,
   type ContentManifest,
@@ -290,6 +292,24 @@ export async function loadContentManifest(
       ),
     }];
   });
+
+  for (const question of questionsWithReviewStatus) {
+    if (question.status !== "verified") continue;
+    const gaps = questionVerificationGaps(question);
+    if (gaps.length) {
+      throw new Error(
+        `Verified question ${question.id} cannot be published: ${gaps.join(", ")}`,
+      );
+    }
+    if (
+      question.responseMode === "code" &&
+      !questionBankCodeTestSpecForQuestion(question)
+    ) {
+      throw new Error(
+        `Verified code question ${question.id} is missing its server-owned test suite`,
+      );
+    }
+  }
 
   return contentManifestSchema.parse({
     schemaVersion: 1,

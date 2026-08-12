@@ -7,6 +7,7 @@ export type StandaloneManualQuestionDraft = {
   type: Question["type"];
   responseMode: "text";
   difficulty: "intermediate";
+  interviewCategory: "language_knowledge";
   estimatedMinutes: 3;
   prompt: string;
   code: null;
@@ -66,6 +67,7 @@ export function buildStandaloneManualQuestion(
     type: "recall",
     responseMode: "text",
     difficulty: "intermediate",
+    interviewCategory: "language_knowledge",
     estimatedMinutes: 3,
     prompt: input.prompt.trim(),
     hint: "Trình bày suy nghĩ của bạn trước khi xem đáp án tham khảo.",
@@ -89,6 +91,7 @@ export function buildStandaloneManualQuestion(
     type: "recall",
     responseMode: "text",
     difficulty: "intermediate",
+    interviewCategory: "language_knowledge",
     estimatedMinutes: 3,
     prompt: question.prompt,
     code: null,

@@ -33,6 +33,8 @@ const draft = {
   type: "scenario",
   responseMode: "text",
   difficulty: "intermediate",
+  interviewCategory: "design_performance",
+  assessmentSkills: ["ownership", "move-semantics"],
   estimatedMinutes: 4,
   prompt: "Một hot path chuyển ownership thì nên thiết kế thế nào?",
   code: null,
@@ -55,6 +57,11 @@ describe("DB-native generated question materialization", () => {
 
     expect(result.taxonomy.sourceLessonId).toBe(lesson.id);
     expect(result.taxonomy.tags).toContain("skill::scenario");
+    expect(result.taxonomy.interviewCategory).toBe("design_performance");
+    expect(result.taxonomy.assessmentSkills).toEqual([
+      "move-semantics",
+      "ownership",
+    ]);
     expect(result.contentChecksum).toMatch(/^[a-f0-9]{64}$/);
     expect(materializeDatabaseQuestionDrafts(lesson, [draft])[0].contentChecksum)
       .toBe(result.contentChecksum);

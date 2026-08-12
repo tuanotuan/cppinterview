@@ -97,11 +97,20 @@ export function buildContentBackfillPayload({
 }
 
 export function questionRevisionChecksum(question: ContentQuestion): string {
+  const interviewCategory =
+    question.interviewCategory ?? question.taxonomy.interviewCategory;
+  const assessmentSkills =
+    question.assessmentSkills ?? question.taxonomy.assessmentSkills;
+  const codeTestSuite =
+    question.codeTestSuite ?? question.taxonomy.codeTestSuite;
   return sha256(
     stableJson({
       type: question.type,
       responseMode: question.responseMode ?? "text",
       difficulty: question.difficulty,
+      ...(interviewCategory ? { interviewCategory } : {}),
+      ...(assessmentSkills ? { assessmentSkills } : {}),
+      ...(codeTestSuite ? { codeTestSuite } : {}),
       estimatedMinutes: question.estimatedMinutes,
       prompt: question.prompt,
       code: question.code ?? null,

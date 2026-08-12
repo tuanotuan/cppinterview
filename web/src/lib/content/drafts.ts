@@ -11,7 +11,10 @@ import {
   openAIModel,
   safetyIdentifier,
 } from "../ai/openai";
-import type { GeneratedLesson } from "./schema";
+import type {
+  GeneratedLesson,
+  InterviewQuestionCategory,
+} from "./schema";
 
 const MAX_PROVIDER_ATTEMPTS = 3;
 
@@ -19,6 +22,17 @@ export const aiQuestionDraftSchema = z.object({
   type: z.enum(["recall", "code_reasoning", "pitfall", "scenario"]),
   responseMode: z.enum(["text", "code"]),
   difficulty: z.enum(["beginner", "intermediate", "advanced"]),
+  interviewCategory: z.enum([
+    "language_knowledge",
+    "code_reading_ub",
+    "coding",
+    "code_review_debug",
+    "design_performance",
+    "communication_ownership",
+  ]),
+  assessmentSkills: z.array(
+    z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  ).min(1).max(6),
   estimatedMinutes: z.number().int().min(1).max(15),
   prompt: z.string().trim().min(10),
   code: z.string().trim().min(1).nullable(),
@@ -50,31 +64,40 @@ export type BeforeQuestionDraftProviderRequest = (
   model: string,
 ) => Promise<void>;
 
-export const QUESTION_GENERATOR_PROMPT_VERSION = "multilanguage-trading-v3";
+export const QUESTION_GENERATOR_PROMPT_VERSION = "multilanguage-interview-bank-v4";
 
 export async function generateQuestionDraftsWithOpenAI({
   lesson,
   count,
+  desiredCategories,
 }: {
   lesson: GeneratedLesson;
   count: number;
+  desiredCategories?: readonly InterviewQuestionCategory[];
 }): Promise<AiQuestionDraft[]> {
-  return (await generateQuestionDraftBatchWithOpenAI({ lesson, count })).questions;
+  return (await generateQuestionDraftBatchWithOpenAI({
+    lesson,
+    count,
+    desiredCategories,
+  })).questions;
 }
 
 export async function generateQuestionDraftBatchWithFallback({
   lesson,
   count,
+  desiredCategories,
   beforeProviderRequest,
 }: {
   lesson: GeneratedLesson;
   count: number;
+  desiredCategories?: readonly InterviewQuestionCategory[];
   beforeProviderRequest?: BeforeQuestionDraftProviderRequest;
 }): Promise<GeneratedQuestionDraftBatch> {
   try {
     return await generateQuestionDraftBatchWithOpenAI({
       lesson,
       count,
+      desiredCategories,
       beforeProviderRequest,
     });
   } catch (error) {
@@ -84,6 +107,7 @@ export async function generateQuestionDraftBatchWithFallback({
     return generateQuestionDraftBatchWithGemini({
       lesson,
       count,
+      desiredCategories,
       beforeProviderRequest,
     });
   }
@@ -92,10 +116,12 @@ export async function generateQuestionDraftBatchWithFallback({
 export async function generateQuestionDraftBatchWithOpenAI({
   lesson,
   count,
+  desiredCategories,
   beforeProviderRequest,
 }: {
   lesson: GeneratedLesson;
   count: number;
+  desiredCategories?: readonly InterviewQuestionCategory[];
   beforeProviderRequest?: BeforeQuestionDraftProviderRequest;
 }): Promise<GeneratedQuestionDraftBatch> {
   if (!Number.isInteger(count) || count < 1 || count > 5) {
@@ -109,7 +135,7 @@ export async function generateQuestionDraftBatchWithOpenAI({
     store: false,
     safety_identifier: safetyIdentifier("content-automation"),
     instructions: buildGeneratorSystemInstruction(lesson),
-    input: buildDraftPrompt(lesson, count),
+    input: buildDraftPrompt(lesson, count, { desiredCategories }),
     reasoning: { effort: "low" as const },
     max_output_tokens: 6000,
     text: {
@@ -140,10 +166,12 @@ export async function generateQuestionDraftBatchWithOpenAI({
 export async function generateQuestionDraftBatchWithGemini({
   lesson,
   count,
+  desiredCategories,
   beforeProviderRequest,
 }: {
   lesson: GeneratedLesson;
   count: number;
+  desiredCategories?: readonly InterviewQuestionCategory[];
   beforeProviderRequest?: BeforeQuestionDraftProviderRequest;
 }): Promise<GeneratedQuestionDraftBatch> {
   if (!Number.isInteger(count) || count < 1 || count > 5) {
@@ -157,7 +185,7 @@ export async function generateQuestionDraftBatchWithGemini({
     model,
     store: false,
     system_instruction: buildGeneratorSystemInstruction(lesson),
-    input: buildDraftPrompt(lesson, count),
+    input: buildDraftPrompt(lesson, count, { desiredCategories }),
     generation_config: {
       thinking_level: "low" as const,
       temperature: 0.2,
@@ -264,7 +292,13 @@ export function nextQuestionIds(
   );
 }
 
-export function buildDraftPrompt(lesson: GeneratedLesson, count: number) {
+export function buildDraftPrompt(
+  lesson: GeneratedLesson,
+  count: number,
+  {
+    desiredCategories = [],
+  }: { desiredCategories?: readonly InterviewQuestionCategory[] } = {},
+) {
   const language = languageDisplayName(lesson);
   const scenarioScope = lesson.language === "python"
     ? "a production trading, quantitative-research, data, or automation system"
@@ -300,6 +334,12 @@ export function buildDraftPrompt(lesson: GeneratedLesson, count: number) {
         "Never put fenced code or a code snippet inside prompt. When a snippet is needed, store it only in the separate code field and let prompt refer to it as the code below.",
         `Set responseMode to code only when the candidate is explicitly required to write or modify ${language} code. Explanatory, analytical, and scenario questions must use text.`,
         "When responseMode is code, make the prompt explicitly ask the candidate to write or modify code.",
+        "Set interviewCategory to exactly one of language_knowledge, code_reading_ub, coding, code_review_debug, design_performance, or communication_ownership.",
+        "Set assessmentSkills to one to six concrete lowercase kebab-case skills being measured, grounded in the supplied lesson.",
+        "Use interviewCategory coding only with responseMode code. Do not claim that a generated draft has executable tests; test suites are added and reviewed separately by a maintainer.",
+        desiredCategories.length
+          ? `Prioritize these currently under-covered categories when the supplied lesson can genuinely support them: ${desiredCategories.join(", ")}. If a requested category is not grounded by the lesson, choose the closest supported category instead of inventing content.`
+          : "Choose the category that most accurately describes the skill being measured.",
       ],
       lesson: {
         id: lesson.id,
