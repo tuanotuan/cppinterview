@@ -52,7 +52,12 @@ export function LessonLibraryApp({
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
       <div className="mx-auto max-w-[1400px]">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
-          <Link href="/learn" className="flex items-center gap-3">
+          <Link
+            href="/"
+            aria-label="Về trang chủ Recall"
+            title="Về trang chủ Recall"
+            className="flex items-center gap-3"
+          >
             <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
               L
             </span>

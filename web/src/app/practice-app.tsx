@@ -2886,9 +2886,14 @@ export function PracticeApp({
         <header className="border-b border-[#173f35]/15 pb-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="grid size-10 place-items-center rounded-xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91] shadow-sm">
+            <Link
+              href="/"
+              aria-label="Về trang chủ Recall"
+              title="Về trang chủ Recall"
+              className="grid size-10 place-items-center rounded-xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91] shadow-sm focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+            >
               {PRACTICE_DECKS[requestedDeck].badge}
-            </span>
+            </Link>
             <div>
               <p className="font-semibold tracking-[-0.02em]">Recall</p>
               <p className="text-xs text-[#64736c]">Luyện phỏng vấn</p>

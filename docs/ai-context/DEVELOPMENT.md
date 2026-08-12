@@ -369,6 +369,9 @@ service-role-only/browser grants như contract hiện tại.
 - Landing ở `/` luôn là trang chủ public, còn workspace học tập ở `/practice`.
   Thanh điều hướng mobile phải ẩn ở landing để không biến trang giới thiệu thành
   không gian luyện tập trước khi người dùng chọn CTA.
+- Biểu tượng thương hiệu ở góc trái của mọi header là lối tắt nhất quán về
+  trang chủ `/`; phải có nhãn truy cập được và vòng focus rõ ràng. Các liên kết
+  điều hướng đến khu vực con vẫn nằm trong thanh điều hướng của chính trang đó.
 - Mọi hiệu ứng UI phải tôn trọng `prefers-reduced-motion`; loading cần có
   trạng thái đọc được bởi screen reader, còn điều hướng mobile giữ vùng chạm và
   focus-visible rõ ràng.

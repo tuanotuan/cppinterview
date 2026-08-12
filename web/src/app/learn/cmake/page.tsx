@@ -1918,7 +1918,12 @@ add_subdirectory(cmake/packages)`}
 function GuideHeader() {
   return (
     <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
-      <Link href="/" className="flex items-center gap-3">
+      <Link
+        href="/"
+        aria-label="Về trang chủ Recall"
+        title="Về trang chủ Recall"
+        className="flex items-center gap-3"
+      >
         <span className="grid size-10 place-items-center rounded-xl bg-[#173f35] font-mono text-xs font-bold text-[#d7ff91]">
           CMake
         </span>
