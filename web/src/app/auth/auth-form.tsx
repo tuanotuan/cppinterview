@@ -21,6 +21,7 @@ export function AuthForm({
   next: string;
 }) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
+  const [passwordsVisible, setPasswordsVisible] = useState(false);
   const [signInState, signInAction, signInPending] = useActionState(
     signInWithEmailPassword,
     initialAuthFormState,
@@ -96,12 +97,16 @@ export function AuthForm({
               name="password"
               label="Mật khẩu"
               autoComplete={mode === "sign-up" ? "new-password" : "current-password"}
+              visible={passwordsVisible}
+              onToggle={() => setPasswordsVisible((current) => !current)}
             />
             {mode === "sign-up" ? (
               <PasswordField
                 name="passwordConfirmation"
                 label="Nhập lại mật khẩu"
                 autoComplete="new-password"
+                visible={passwordsVisible}
+                onToggle={() => setPasswordsVisible((current) => !current)}
               />
             ) : null}
 
@@ -180,12 +185,15 @@ function PasswordField({
   name,
   label,
   autoComplete,
+  visible,
+  onToggle,
 }: {
   name: string;
   label: string;
   autoComplete: "current-password" | "new-password";
+  visible: boolean;
+  onToggle: () => void;
 }) {
-  const [visible, setVisible] = useState(false);
   return (
     <label className="block text-sm font-bold text-[#245748]">
       {label}
@@ -203,7 +211,7 @@ function PasswordField({
           type="button"
           aria-label={visible ? `Ẩn ${label.toLowerCase()}` : `Hiện ${label.toLowerCase()}`}
           aria-pressed={visible}
-          onClick={() => setVisible((current) => !current)}
+          onClick={onToggle}
           className="absolute inset-y-1 right-1 rounded-lg px-3 text-xs font-bold text-[#356b58] transition hover:bg-[#edf0e8] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
         >
           {visible ? "Ẩn" : "Hiện"}
