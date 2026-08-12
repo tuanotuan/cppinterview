@@ -60,16 +60,16 @@ export function RecallLandingPage({
             >
               Thư viện
             </Link>
-            <AuthAction
+            <AuthLink
               cloudEnabled={cloudEnabled}
               label="Đăng nhập"
-              next="/practice"
+              href="/auth?next=%2Fpractice"
               tone="quiet"
             />
-            <AuthAction
+            <AuthLink
               cloudEnabled={cloudEnabled}
               label="Tạo tài khoản"
-              next="/practice"
+              href="/auth?mode=signup&next=%2Fpractice"
               tone="primary"
             />
           </div>
@@ -100,10 +100,10 @@ export function RecallLandingPage({
               đều phục vụ cho lần phỏng vấn tiếp theo.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <AuthAction
+              <AuthLink
                 cloudEnabled={cloudEnabled}
-                label="Bắt đầu với GitHub"
-                next="/practice"
+                label="Tạo tài khoản miễn phí"
+                href="/auth?mode=signup&next=%2Fpractice"
                 tone="hero"
               />
               <Link
@@ -114,8 +114,7 @@ export function RecallLandingPage({
               </Link>
             </div>
             <p className="mt-4 text-xs leading-5 text-[#64736c]">
-              Đăng nhập GitHub để đồng bộ riêng tư giữa các thiết bị. Không cần
-              tạo mật khẩu mới.
+              Dùng email/mật khẩu hoặc GitHub để đồng bộ riêng tư giữa các thiết bị.
             </p>
           </div>
 
@@ -233,15 +232,15 @@ export function RecallLandingPage({
   );
 }
 
-function AuthAction({
+function AuthLink({
   cloudEnabled,
   label,
-  next,
+  href,
   tone,
 }: {
   cloudEnabled: boolean;
   label: string;
-  next: string;
+  href: string;
   tone: "quiet" | "primary" | "hero";
 }) {
   const className =
@@ -263,13 +262,7 @@ function AuthAction({
     );
   }
 
-  return (
-    <form action={"/auth/login?next=" + encodeURIComponent(next)} method="post">
-      <button type="submit" className={className}>
-        {label}
-      </button>
-    </form>
-  );
+  return <Link href={href} className={className}>{label}</Link>;
 }
 
 function MiniMetric({ label, value }: { label: string; value: string }) {

@@ -48,7 +48,7 @@ export async function POST(request: Request) {
   const { data: authData, error: authError } = await supabase.auth.getUser();
   if (authError || !authData.user || !isAllowedPracticeUser(authData.user)) {
     return Response.json(
-      { error: "Cần đăng nhập GitHub để đồng bộ." },
+      { error: "Cần đăng nhập để đồng bộ." },
       { status: 401 },
     );
   }

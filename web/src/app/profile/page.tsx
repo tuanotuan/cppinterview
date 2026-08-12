@@ -358,16 +358,17 @@ function ProfileGate({ mode }: { mode: "login" | "not-configured" }) {
         </h1>
         <p className="mt-4 leading-7 text-[#64736c]">
           {mode === "login"
-            ? "Đăng nhập GitHub để xem contribution graph và lịch sử hoạt động riêng tư."
+            ? "Đăng nhập để xem contribution graph và lịch sử hoạt động riêng tư."
             : "Supabase chưa được cấu hình nên chưa thể tải nhật ký hoạt động."}
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           {mode === "login" ? (
-            <form action="/auth/login?next=%2Fprofile" method="post">
-              <button className="rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white">
-                Đăng nhập GitHub
-              </button>
-            </form>
+            <Link
+              href="/auth?next=%2Fprofile"
+              className="rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white"
+            >
+              Đăng nhập
+            </Link>
           ) : null}
           <Link
             href="/practice"

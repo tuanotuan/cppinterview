@@ -445,16 +445,16 @@ function StatsGate({
           Thống kê học tập của bạn
         </h1>
         <p className="mt-4 leading-7 text-[#64736c]">
-          {mode === "login" ? "Đăng nhập GitHub để tải lịch sử ôn đã đồng bộ." : "Supabase chưa được cấu hình nên chưa tải được lịch sử."}
+          {mode === "login" ? "Đăng nhập để tải lịch sử ôn đã đồng bộ." : "Supabase chưa được cấu hình nên chưa tải được lịch sử."}
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           {mode === "login" ? (
-            <form
-              action={`/auth/login?next=${encodeURIComponent(`/stats?deck=${deck}`)}`}
-              method="post"
+            <Link
+              href={`/auth?next=${encodeURIComponent(`/stats?deck=${deck}`)}`}
+              className="rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white"
             >
-              <button className="rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white">Đăng nhập GitHub</button>
-            </form>
+              Đăng nhập
+            </Link>
           ) : null}
           <Link href={`/practice?deck=${deck}`} className="rounded-2xl border border-[#173f35]/15 bg-white px-5 py-3 text-sm font-bold">Về trang luyện tập</Link>
         </div>

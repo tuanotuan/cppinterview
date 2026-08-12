@@ -82,8 +82,10 @@ trạng thái từ tên nhánh.
   không chạm scheduler, AI admission hay dữ liệu học.
 - UI dùng chung có reduced-motion fallback; skeleton loading có thông báo cho
   screen reader và thanh điều hướng mobile giữ vùng chạm/focus rõ ràng.
-- Trang chủ `/` luôn là landing giới thiệu Recall và GitHub OAuth; workspace
-  Today nằm ở `/practice`, cho cả local practice lẫn account đã đăng nhập.
+- Trang chủ `/` luôn là landing giới thiệu Recall; `/auth` hỗ trợ email/mật khẩu
+  và GitHub OAuth, còn workspace Today nằm ở `/practice` cho cả local practice
+  lẫn account đã đăng nhập. Đăng ký email cần xác nhận mật khẩu phía browser và
+  server, có nút hiện/ẩn từng mật khẩu, rồi xác minh email qua `/auth/confirm`.
 - CTA “Thử luyện không cần tài khoản” mở `/practice?guest=1`: vẫn luyện thẻ
   local nhưng header không hiện lời mời đăng nhập như một điều kiện bắt buộc.
 - Guest mode mở Luna AI Coach mà không cần tài khoản, qua giới hạn public ba
@@ -127,13 +129,13 @@ trạng thái từ tên nhánh.
   production build 63 route. Sau merge/deploy vẫn phải chạy migration
   `20260809120000_add_public_ai_quota_status.sql`, rồi smoke-test hai profile ẩn
   danh mới trên cùng mạng để xác nhận lượt thứ hai đọc lại đúng counter IP.
-- Route landing/practice/guest gần nhất đạt TypeScript, lint các file TS/TSX đổi
-  và Vitest (101 file/632 test). `next build` của các đợt UI trước đã đi qua
-  compile, TypeScript và static-generation artifacts nhưng runner local từng cắt
-  sau 2 phút trước exit code; dùng CI/Vercel để xác nhận production build của đợt
-  này. Cảnh báo retry tác vụ AI vẫn được kiểm thử như một contract vì người dùng
-  phải thấy rõ khả năng phát sinh chi phí; toàn bộ client không còn gọi
-  `window.alert`/`confirm`/`prompt`.
+- Mở quyền Recall qua email/mật khẩu và GitHub OAuth đạt `content:check`,
+  `context:check`, ESLint, TypeScript, 107 file/661 Vitest test và Next.js
+  production build 64 route. Đăng ký mới cần Email provider/Site URL/Redirect
+  URLs của Supabase đúng như `web/supabase/README.md`; GitHub `tuanotuan` vẫn là
+  điều kiện bất biến duy nhất cho quyền Admin. Cảnh báo retry tác vụ AI vẫn được
+  kiểm thử như một contract vì người dùng phải thấy rõ khả năng phát sinh chi
+  phí; toàn bộ client không còn gọi `window.alert`/`confirm`/`prompt`.
 - Next.js production build đạt và sinh đủ 25 trang tĩnh/động trong route graph,
   gồm `/profile`, năm route WorldQuant training và `/admin/coverage`.
 - `npm audit --omit=dev --audit-level=moderate` không tìm thấy lỗ hổng production.

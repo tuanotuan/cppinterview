@@ -249,7 +249,7 @@ export async function POST(request: Request) {
   if (authResult.error || !authResult.data.user) {
     return Response.json(
       {
-        error: "Đăng nhập GitHub để chấm buổi phỏng vấn thử.",
+        error: "Đăng nhập để chấm buổi phỏng vấn thử.",
         code: "authentication_required",
       },
       { status: 401 },

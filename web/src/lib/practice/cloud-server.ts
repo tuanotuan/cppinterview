@@ -380,7 +380,7 @@ function generationJobStatus(value: unknown): ContentGenerationJobSummary["statu
 function toPracticeAccount(user: User): PracticeAccount {
   const login = stringMetadata(user.user_metadata.user_name);
   const displayName =
-    stringMetadata(user.user_metadata.full_name) || login || user.email || "GitHub user";
+    stringMetadata(user.user_metadata.full_name) || login || user.email || "Người dùng Recall";
   return { id: user.id, displayName, login };
 }
 

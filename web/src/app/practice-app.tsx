@@ -3770,9 +3770,9 @@ export function PracticeApp({
                   {account
                     ? syncStatus === "error"
                       ? "Dữ liệu trên thiết bị vẫn an toàn; hệ thống sẽ tự thử lại và đồng bộ phần còn chờ khi kết nối trở lại."
-                      : "Đồng bộ riêng tư giữa các thiết bị bằng tài khoản GitHub."
+                      : "Đồng bộ riêng tư giữa các thiết bị bằng tài khoản Recall."
                     : cloudEnabled
-                      ? "Đăng nhập GitHub để bật đồng bộ nhiều thiết bị."
+                      ? "Đăng nhập để bật đồng bộ nhiều thiết bị."
                       : "Chưa cấu hình Supabase; hiện tiến độ chỉ lưu trên thiết bị này."}
                 </p>
               </div>
@@ -4562,17 +4562,12 @@ function AccountControl({
 
   if (cloudEnabled) {
     return (
-      <form
-        action={`/auth/login?next=${encodeURIComponent(`/practice?deck=${selectedDeck}`)}`}
-        method="post"
+      <Link
+        href={`/auth?next=${encodeURIComponent(`/practice?deck=${selectedDeck}`)}`}
+        className="rounded-full bg-[#173f35] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#245748] focus:ring-4 focus:ring-[#d7ff91] focus:outline-none"
       >
-        <button
-          type="submit"
-          className="rounded-full bg-[#173f35] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#245748] focus:ring-4 focus:ring-[#d7ff91] focus:outline-none"
-        >
-          Đăng nhập GitHub
-        </button>
-      </form>
+        Đăng nhập
+      </Link>
     );
   }
 

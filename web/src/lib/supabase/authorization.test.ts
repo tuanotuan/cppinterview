@@ -1,114 +1,18 @@
 import type { User } from "@supabase/supabase-js";
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   isAllowedPracticeUser,
   isTuanotuanQuestionAdmin,
 } from "./authorization";
 
-const originalAllowedLogin = process.env.ALLOWED_GITHUB_LOGIN;
-const originalAllowedUserId = process.env.ALLOWED_SUPABASE_USER_ID;
-
-afterEach(() => {
-  restoreEnv("ALLOWED_GITHUB_LOGIN", originalAllowedLogin);
-  restoreEnv("ALLOWED_SUPABASE_USER_ID", originalAllowedUserId);
-});
-
 describe("practice user authorization", () => {
-  it("does not implicitly allow a GitHub login when the allowlist is unset", () => {
-    delete process.env.ALLOWED_GITHUB_LOGIN;
-    delete process.env.ALLOWED_SUPABASE_USER_ID;
-
-    expect(
-      isAllowedPracticeUser(
-        user({
-          identities: [
-            identity("github", { user_name: "tuanotuan" }),
-          ],
-        }),
-      ),
-    ).toBe(false);
-  });
-
-  it("rejects a forged login stored only in user-editable metadata", () => {
-    process.env.ALLOWED_GITHUB_LOGIN = "tuanotuan";
-    delete process.env.ALLOWED_SUPABASE_USER_ID;
-
-    expect(
-      isAllowedPracticeUser(
-        user({
-          user_metadata: { user_name: "tuanotuan" },
-          identities: [],
-        }),
-      ),
-    ).toBe(false);
-  });
-
-  it("accepts an allowed login from the GitHub provider identity", () => {
-    process.env.ALLOWED_GITHUB_LOGIN = "TuanOTuan";
-    delete process.env.ALLOWED_SUPABASE_USER_ID;
-
-    expect(
-      isAllowedPracticeUser(
-        user({
-          user_metadata: { user_name: "forged-value-is-ignored" },
-          identities: [
-            identity("github", { user_name: "tuanotuan" }),
-          ],
-        }),
-      ),
-    ).toBe(true);
-  });
-
-  it("rejects the same login when it comes from another provider", () => {
-    process.env.ALLOWED_GITHUB_LOGIN = "tuanotuan";
-    delete process.env.ALLOWED_SUPABASE_USER_ID;
-
-    expect(
-      isAllowedPracticeUser(
-        user({
-          identities: [
-            identity("gitlab", { user_name: "tuanotuan" }),
-          ],
-        }),
-      ),
-    ).toBe(false);
-  });
-
-  it("allows an explicit empty GitHub allowlist to disable login matching", () => {
-    process.env.ALLOWED_GITHUB_LOGIN = "";
-    delete process.env.ALLOWED_SUPABASE_USER_ID;
-
-    expect(
-      isAllowedPracticeUser(
-        user({
-          identities: [
-            identity("github", { user_name: "tuanotuan" }),
-          ],
-        }),
-      ),
-    ).toBe(false);
-  });
-
-  it("accepts an explicitly allowed immutable Supabase user ID", () => {
-    process.env.ALLOWED_GITHUB_LOGIN = "someone-else";
-    process.env.ALLOWED_SUPABASE_USER_ID =
-      "11111111-1111-4111-8111-111111111111";
-
-    expect(
-      isAllowedPracticeUser(
-        user({
-          id: "11111111-1111-4111-8111-111111111111",
-          identities: [],
-        }),
-      ),
-    ).toBe(true);
+  it("allows every authenticated account, including email/password accounts", () => {
+    expect(isAllowedPracticeUser(user({ identities: [] }))).toBe(true);
+    expect(isAllowedPracticeUser(user({ aud: "anon" }))).toBe(false);
   });
 
   it("allows question-bank mutation only for the trusted tuanotuan GitHub identity", () => {
-    process.env.ALLOWED_GITHUB_LOGIN = "tuanotuan,another-admin";
-    delete process.env.ALLOWED_SUPABASE_USER_ID;
-
     expect(
       isTuanotuanQuestionAdmin(
         user({ identities: [identity("github", { user_name: "TuanOTuan" })] }),
@@ -121,10 +25,7 @@ describe("practice user authorization", () => {
     ).toBe(false);
     expect(
       isTuanotuanQuestionAdmin(
-        user({
-          user_metadata: { user_name: "tuanotuan" },
-          identities: [],
-        }),
+        user({ user_metadata: { user_name: "tuanotuan" }, identities: [] }),
       ),
     ).toBe(false);
   });
@@ -155,12 +56,4 @@ function identity(
     updated_at: "2026-07-29T00:00:00.000Z",
     last_sign_in_at: "2026-07-29T00:00:00.000Z",
   };
-}
-
-function restoreEnv(name: string, value: string | undefined) {
-  if (value === undefined) {
-    delete process.env[name];
-  } else {
-    process.env[name] = value;
-  }
 }

@@ -1,19 +1,9 @@
 import type { User } from "@supabase/supabase-js";
 
 export function isAllowedPracticeUser(user: User): boolean {
-  const allowedUserIds = allowlist(process.env.ALLOWED_SUPABASE_USER_ID);
-  if (allowedUserIds.includes(user.id.trim().toLowerCase())) return true;
-
-  const allowedLogins = allowlist(process.env.ALLOWED_GITHUB_LOGIN);
-  if (!allowedLogins.length) return false;
-
-  return Boolean(
-    user.identities?.some((identity) => {
-      if (identity.provider !== "github") return false;
-      const login = githubLogin(identity.identity_data);
-      return login !== null && allowedLogins.includes(login);
-    }),
-  );
+  // Recall is open to every authenticated Supabase account. RLS keeps cloud
+  // data private to its account; owner-only actions remain checked below.
+  return user.aud === "authenticated" && Boolean(user.id.trim());
 }
 
 /**
@@ -42,11 +32,4 @@ function stringValue(value: unknown) {
   if (typeof value !== "string") return null;
   const normalized = value.trim();
   return normalized || null;
-}
-
-function allowlist(value: string | undefined) {
-  return (value ?? "")
-    .split(",")
-    .map((item) => item.trim().toLowerCase())
-    .filter(Boolean);
 }
