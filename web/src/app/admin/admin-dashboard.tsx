@@ -8,6 +8,13 @@ import type {
   AdminQuestion,
   AdminQuestionStatus,
 } from "@/lib/admin/dashboard";
+import {
+  interviewQuestionCategories,
+  interviewQuestionCategoryLabels,
+  questionAssessmentSkills,
+  questionVerificationGaps,
+  resolveInterviewQuestionCategory,
+} from "@/lib/content/interview-bank";
 import { displayQuestionPrompt } from "@/lib/content/question-prompt";
 import type {
   EditableQuestionContent,
@@ -1563,6 +1570,9 @@ function QuestionEditor({
     question.responseMode ?? "text",
   );
   const [difficulty, setDifficulty] = useState(question.difficulty);
+  const [interviewCategory, setInterviewCategory] = useState(
+    resolveInterviewQuestionCategory(question),
+  );
   const [estimatedMinutes, setEstimatedMinutes] = useState(
     question.estimatedMinutes,
   );
@@ -1597,6 +1607,7 @@ function QuestionEditor({
           type: question.type,
           responseMode,
           difficulty,
+          interviewCategory,
           estimatedMinutes,
           prompt,
           code: code.trim() || null,
@@ -1607,6 +1618,8 @@ function QuestionEditor({
             bonus: lines(bonus),
             misconceptions: lines(misconceptions),
           },
+          codeTestSuite:
+            question.codeTestSuite ?? question.taxonomy.codeTestSuite,
         }).catch(() => undefined);
       }}
     >
@@ -1623,7 +1636,7 @@ function QuestionEditor({
           v{question.version} → v{question.version + 1}
         </span>
       </div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <EditorSelect
           label="Cách trả lời"
           value={responseMode}
@@ -1635,6 +1648,19 @@ function QuestionEditor({
           value={difficulty}
           onChange={(value) => setDifficulty(value as typeof difficulty)}
           options={[["beginner", "Dễ"], ["intermediate", "Trung bình"], ["advanced", "Khó"]]}
+        />
+        <EditorSelect
+          label="Dạng đánh giá"
+          value={interviewCategory}
+          onChange={(value) => {
+            const next = value as typeof interviewCategory;
+            setInterviewCategory(next);
+            if (next === "coding") setResponseMode("code");
+          }}
+          options={interviewQuestionCategories.map((category) => [
+            category,
+            interviewQuestionCategoryLabels[category],
+          ])}
         />
         <label className="text-xs font-bold text-[#52645c]">
           Thời gian (phút)
@@ -1701,6 +1727,10 @@ function clientAdminStatus(
 }
 
 function QuestionDetails({ question }: { question: AdminQuestion }) {
+  const category = resolveInterviewQuestionCategory(question);
+  const verificationGaps = questionVerificationGaps(question);
+  const assessmentSkills = questionAssessmentSkills(question);
+  const codeTestSuite = question.codeTestSuite ?? question.taxonomy.codeTestSuite;
   return (
     <>
       {question.code ? (
@@ -1713,6 +1743,25 @@ function QuestionDetails({ question }: { question: AdminQuestion }) {
         <InfoBlock label="Gợi ý"><p>{question.hint}</p></InfoBlock>
         <InfoBlock label="Giải thích"><p className="whitespace-pre-line">{question.answer.detailed}</p></InfoBlock>
         <InfoBlock label="Tiêu chí chấm"><ul className="list-disc space-y-1 pl-4">{question.rubric.required.map((item) => <li key={item}>{item}</li>)}</ul></InfoBlock>
+        <InfoBlock label="Phạm vi đánh giá">
+          <p className="font-semibold">{interviewQuestionCategoryLabels[category]}</p>
+          <p className="mt-1 text-xs text-[#64736c]">
+            Kỹ năng: {assessmentSkills.join(" · ")} · {standardLabels[question.taxonomy.standard]} · {question.estimatedMinutes} phút
+          </p>
+        </InfoBlock>
+        <InfoBlock label="Điều kiện xác minh">
+          {question.responseMode === "code" ? (
+            <p>
+              {codeTestSuite
+                ? `Test công khai ${codeTestSuite.publicTestCount} · test ẩn ${codeTestSuite.hiddenTestCount}`
+                : "Cần bổ sung test công khai và test ẩn phía máy chủ trước khi xuất bản."}
+            </p>
+          ) : verificationGaps.length ? (
+            <p>{verificationGaps.join(" · ")}</p>
+          ) : (
+            <p>Nguồn/editorial, đáp án và tiêu chí chấm đã đủ để duyệt.</p>
+          )}
+        </InfoBlock>
       </div>
       {question.sourceHeadings.length ? (
         <p className="mt-4 text-xs text-[#64736c]">

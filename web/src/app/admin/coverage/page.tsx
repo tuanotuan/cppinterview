@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { loadCloudContext } from "@/lib/practice/cloud-server";
+import {
+  interviewQuestionCategoryLabels,
+  summarizeInterviewQuestionBank,
+} from "@/lib/content/interview-bank";
 import { buildCurriculumEvidenceFromManifest } from "@/lib/worldquant/curriculum-evidence";
 import {
   worldQuantCompetencies,
@@ -56,6 +60,7 @@ export default async function CoverageStudioPage() {
     approvals: cloud.approvals,
     mistakeQuestionIds: cloud.mistakeQuestionIds,
   });
+  const bank = summarizeInterviewQuestionBank(cloud.manifest.questions);
   const editorialQueue = coverage.concepts
     .filter((item) => item.status !== "transfer_ready")
     .sort(
@@ -109,6 +114,59 @@ export default async function CoverageStudioPage() {
             luyện cũng không thay thế thẻ ghi nhớ đã duyệt; hai loại bằng
             chứng học tập được theo dõi riêng.
           </p>
+        </section>
+
+        <section className="rounded-[2rem] border border-[#173f35]/12 bg-[#173f35] p-5 text-white sm:p-7">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
+                Ngân hàng phỏng vấn C++
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold sm:text-3xl">
+                {bank.verified}/{bank.target} câu đã xác minh
+              </h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-white/70">
+                Chỉ câu có nguồn hoặc editorial, đáp án, tiêu chí chấm và — với câu code — test công khai lẫn test ẩn phía máy chủ mới được tính vào mục tiêu này. Bản nháp AI luôn chờ duyệt.
+              </p>
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <MiniStat value={bank.draft} label="bản nháp" />
+              <MiniStat value={bank.needsReview} label="cần xem lại" />
+              <MiniStat value={bank.codeTestReady} label="code có test" />
+            </div>
+          </div>
+          <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {bank.categories.map((item) => {
+              const percent = Math.min(
+                100,
+                Math.round((item.verified / item.target) * 100),
+              );
+              return (
+                <article
+                  key={item.category}
+                  className="rounded-2xl border border-white/12 bg-white/7 p-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="text-sm font-semibold">
+                      {interviewQuestionCategoryLabels[item.category]}
+                    </h3>
+                    <span className="font-mono text-xs font-bold text-[#d7ff91]">
+                      {item.verified}/{item.target}
+                    </span>
+                  </div>
+                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/15">
+                    <div
+                      className="h-full rounded-full bg-[#d7ff91]"
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+                  <p className="mt-3 text-xs leading-5 text-white/65">
+                    {item.total} trong ngân hàng · {item.draft} chờ duyệt · còn {item.remaining}
+                  </p>
+                </article>
+              );
+            })}
+          </div>
         </section>
 
         <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
@@ -207,6 +265,15 @@ export default async function CoverageStudioPage() {
         </section>
       </div>
     </main>
+  );
+}
+
+function MiniStat({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="min-w-20 rounded-xl bg-white/8 px-3 py-2.5">
+      <p className="text-lg font-semibold text-[#d7ff91]">{value}</p>
+      <p className="mt-0.5 text-[10px] text-white/60">{label}</p>
+    </div>
   );
 }
 

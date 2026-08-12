@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 
+import {
+  interviewQuestionCategories,
+  interviewQuestionCategoryLabels,
+  resolveInterviewQuestionCategory,
+} from "@/lib/content/interview-bank";
 import type { EditableQuestionContent } from "@/lib/content/question-overrides";
 import type { ContentQuestion } from "@/lib/content/schema";
 
@@ -22,6 +27,9 @@ export function QuestionEditorDialog({
     question.responseMode ?? "text",
   );
   const [difficulty, setDifficulty] = useState(question.difficulty);
+  const [interviewCategory, setInterviewCategory] = useState(
+    resolveInterviewQuestionCategory(question),
+  );
   const [estimatedMinutes, setEstimatedMinutes] = useState(
     question.estimatedMinutes,
   );
@@ -53,6 +61,7 @@ export function QuestionEditorDialog({
             type: question.type,
             responseMode,
             difficulty,
+            interviewCategory,
             estimatedMinutes,
             prompt,
             code: code.trim() || null,
@@ -63,6 +72,8 @@ export function QuestionEditorDialog({
               bonus: lines(bonus),
               misconceptions: lines(misconceptions),
             },
+            codeTestSuite:
+              question.codeTestSuite ?? question.taxonomy.codeTestSuite,
           });
         }}
       >
@@ -83,7 +94,7 @@ export function QuestionEditorDialog({
           </span>
         </div>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <EditorSelect
             label="Cách trả lời"
             value={responseMode}
@@ -99,6 +110,19 @@ export function QuestionEditorDialog({
               ["intermediate", "Trung bình"],
               ["advanced", "Khó"],
             ]}
+          />
+          <EditorSelect
+            label="Dạng đánh giá"
+            value={interviewCategory}
+            onChange={(value) => {
+              const next = value as typeof interviewCategory;
+              setInterviewCategory(next);
+              if (next === "coding") setResponseMode("code");
+            }}
+            options={interviewQuestionCategories.map((category) => [
+              category,
+              interviewQuestionCategoryLabels[category],
+            ])}
           />
           <label className="text-xs font-bold text-[#52645c]">
             Thời gian (phút)

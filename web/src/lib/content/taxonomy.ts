@@ -47,6 +47,15 @@ export function buildQuestionTaxonomy(
     responseMode,
     sourceLessonId: lesson.id,
     tags: [...new Set(tags)],
+    ...(question.interviewCategory
+      ? { interviewCategory: question.interviewCategory }
+      : {}),
+    ...(question.assessmentSkills?.length
+      ? { assessmentSkills: [...new Set(question.assessmentSkills)].sort() }
+      : {}),
+    ...(question.codeTestSuite
+      ? { codeTestSuite: question.codeTestSuite }
+      : {}),
   };
   if (lesson.language === "cpp") return shared;
 

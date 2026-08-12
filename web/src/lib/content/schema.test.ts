@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { lessonRegistrySchema, questionTaxonomySchema } from "./schema";
+import {
+  lessonRegistrySchema,
+  questionSchema,
+  questionTaxonomySchema,
+} from "./schema";
 
 const shared = {
   order: 1,
@@ -128,5 +132,27 @@ describe("multi-language lesson registry", () => {
         ],
       }),
     ).toThrow("inconsistent language/track");
+  });
+
+  it("requires code answers for an explicitly coding question", () => {
+    const result = questionSchema.safeParse({
+      id: "cpp20-coding-example",
+      lessonId: "cpp20-example",
+      type: "scenario",
+      responseMode: "text",
+      difficulty: "intermediate",
+      interviewCategory: "coding",
+      estimatedMinutes: 5,
+      prompt: "Viết một hàm C++ an toàn cho ví dụ này.",
+      hint: "Kiểm tra các điều kiện biên.",
+      answer: { short: "Một đáp án ngắn hợp lệ.", detailed: "Một đáp án chi tiết hợp lệ để giải thích." },
+      rubric: { required: ["Đúng yêu cầu"], bonus: [], misconceptions: [] },
+      sources: [{ sectionId: "example" }],
+      sourceHash: "a".repeat(64),
+      status: "draft",
+      version: 1,
+    });
+
+    expect(result.success).toBe(false);
   });
 });

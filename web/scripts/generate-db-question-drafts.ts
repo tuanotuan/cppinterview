@@ -10,6 +10,7 @@ import {
   isProviderRateLimitError,
   QUESTION_GENERATOR_PROMPT_VERSION,
 } from "../src/lib/content/drafts";
+import { planDraftCategories } from "../src/lib/content/interview-bank";
 import { materializeDatabaseQuestionDrafts } from "../src/lib/content/db-generation";
 import { contentManifestSchema } from "../src/lib/content/schema";
 
@@ -122,6 +123,10 @@ async function main() {
       const batch = await generateQuestionDraftBatchWithFallback({
         lesson,
         count: job.requestedCount,
+        desiredCategories: planDraftCategories({
+          questions: manifest.questions,
+          count: job.requestedCount,
+        }),
         beforeProviderRequest: (provider, model) =>
           markContentGenerationDispatched(supabase, job, provider, model),
       });

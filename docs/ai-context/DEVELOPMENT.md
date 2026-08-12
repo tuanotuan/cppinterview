@@ -90,6 +90,16 @@ Supabase, rồi enqueue/generate DB-native drafts. Không dùng `content:auto` h
 - Contract đầy đủ: `web/content/README.md`.
 - YAML Git-owned: `web/content/questions/*.yaml`.
 - Question mới bắt đầu ở `draft`; `verified` cần review người.
+- Target ngân hàng C++ là 300 câu: 100 knowledge, 80 code-reading/UB, 60
+  coding, 30 review/debug, 20 design/performance, 10 communication/ownership.
+  `interviewCategory` và `assessmentSkills` là metadata nội bộ; không thêm chip
+  hay filter mới vào card người học.
+- Một câu `responseMode: code` chỉ được Git content checker cho xuất bản
+  `verified` khi `codeTestSuite` khai báo tối thiểu một public và một hidden
+  case, đồng thời khớp exact server-owned registry ID/version/source hash/suite
+  revision. Hidden test không được đi vào manifest/client. AI chỉ tạo draft;
+  thiếu test suite là trạng thái bình thường của draft và không được tính vào
+  mức bao phủ xác minh.
 - Có thể thêm tranche Git-owned đã viết/review nguồn thủ công, nhưng vẫn phải để
   `draft`; không dùng cách này để giả lập production AI generation.
 - Approval phải bind đúng `version` và `sourceHash`.
@@ -102,6 +112,9 @@ Supabase, rồi enqueue/generate DB-native drafts. Không dùng `content:auto` h
   không còn xuất hiện trong generated manifest; DB sync lưu trữ câu hỏi vắng mặt.
 - Production AI drafts nằm ở Supabase immutable revisions, không append vào
   `generated.yaml`.
+- Khi sửa prompt/shape AI draft phải tăng `QUESTION_GENERATOR_PROMPT_VERSION`;
+  workflow sync trước rồi worker mới claim job để lịch sử generation không lẫn
+  category contract cũ/mới.
 - Admin `tuanotuan` có thể tạo câu hỏi DB-native thủ công tại `/admin` khi `QUESTION_STORE=db`: chỉ nhập đề bài và đáp án tham khảo rồi tạo draft chờ duyệt. Câu được gắn vào lesson nội bộ `admin-manual-questions` (không có file `.md` hay nguồn hiển thị), có revision/audit riêng và được trigger bảo vệ khỏi repository sync archive. Cần deploy app mới trước, rồi chạy migration `20260809100000_create_standalone_admin_manual_questions.sql`.
 
 ## Content store modes

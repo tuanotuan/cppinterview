@@ -169,6 +169,8 @@ describe("question draft conventions", () => {
             type: "recall",
             responseMode: "text",
             difficulty: "beginner",
+            interviewCategory: "language_knowledge",
+            assessmentSkills: ["ownership"],
             estimatedMinutes: 2,
             prompt: "Move semantics thay đổi ownership như thế nào?",
             code: null,
@@ -188,5 +190,18 @@ describe("question draft conventions", () => {
         "test-provider",
       ),
     ).toThrow("unknown section not-in-the-note");
+  });
+
+  it("tells the generator to classify drafts without claiming code tests exist", () => {
+    const prompt = JSON.parse(
+      buildDraftPrompt(lesson, 1, {
+        desiredCategories: ["code_review_debug"],
+      }),
+    ) as { rules: string[] };
+    const rules = prompt.rules.join("\n");
+
+    expect(rules).toContain("Set interviewCategory");
+    expect(rules).toContain("code_review_debug");
+    expect(rules).toContain("test suites are added and reviewed separately");
   });
 });

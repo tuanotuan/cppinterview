@@ -2,6 +2,8 @@ import { z } from "zod";
 
 import {
   contentManifestSchema,
+  codeTestSuiteMetadataSchema,
+  interviewQuestionCategorySchema,
   questionDifficultySchema,
   questionResponseModeSchema,
   questionSkillSchema,
@@ -16,6 +18,7 @@ export const editableQuestionContentSchema = z.object({
   type: questionSkillSchema,
   responseMode: questionResponseModeSchema,
   difficulty: questionDifficultySchema,
+  interviewCategory: interviewQuestionCategorySchema.optional(),
   estimatedMinutes: z.number().int().min(1).max(15),
   prompt: z.string().trim().min(10).max(3000),
   code: z.string().trim().max(10_000).nullable(),
@@ -29,6 +32,7 @@ export const editableQuestionContentSchema = z.object({
     bonus: z.array(rubricItemSchema).max(12),
     misconceptions: z.array(rubricItemSchema).max(12),
   }),
+  codeTestSuite: codeTestSuiteMetadataSchema.optional(),
 });
 
 export const questionMutationSchema = z.discriminatedUnion("action", [
@@ -81,12 +85,16 @@ export function editableQuestionContent(
     type: question.type,
     responseMode: question.responseMode ?? "text",
     difficulty: question.difficulty,
+    interviewCategory:
+      question.interviewCategory ?? question.taxonomy.interviewCategory,
     estimatedMinutes: question.estimatedMinutes,
     prompt: question.prompt,
     code: question.code ?? null,
     hint: question.hint,
     answer: question.answer,
     rubric: question.rubric,
+    codeTestSuite:
+      question.codeTestSuite ?? question.taxonomy.codeTestSuite,
   };
 }
 

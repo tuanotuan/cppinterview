@@ -49,6 +49,21 @@ describe("question taxonomy", () => {
     ).toThrow(/belongs to cpp11-auto/);
   });
 
+  it("retains explicit interview-bank metadata without exposing it as a learner tag", () => {
+    const taxonomy = buildQuestionTaxonomy(
+      {
+        ...question,
+        interviewCategory: "code_review_debug",
+        assessmentSkills: ["debugging", "code-review", "debugging"],
+      },
+      lesson,
+    );
+
+    expect(taxonomy.interviewCategory).toBe("code_review_debug");
+    expect(taxonomy.assessmentSkills).toEqual(["code-review", "debugging"]);
+    expect(taxonomy.tags).not.toContain("category::code-review-debug");
+  });
+
   it("adds explicit language and track tags for a Python deck", () => {
     const taxonomy = buildQuestionTaxonomy(
       { ...question, id: "py3-generator-001", lessonId: "py3-generator" },
