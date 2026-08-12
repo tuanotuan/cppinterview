@@ -273,6 +273,7 @@ export function rowsToContentManifest(
       responseMode: row.response_mode,
       difficulty: row.difficulty,
       interviewCategory: row.taxonomy.interviewCategory,
+      interviewFormat: row.taxonomy.interviewFormat,
       assessmentSkills: row.taxonomy.assessmentSkills,
       codeTestSuite: row.taxonomy.codeTestSuite,
       estimatedMinutes: row.estimated_minutes,

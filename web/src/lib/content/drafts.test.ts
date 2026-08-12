@@ -170,6 +170,7 @@ describe("question draft conventions", () => {
             responseMode: "text",
             difficulty: "beginner",
             interviewCategory: "language_knowledge",
+            interviewFormat: "concept_explanation",
             assessmentSkills: ["ownership"],
             estimatedMinutes: 2,
             prompt: "Move semantics thay đổi ownership như thế nào?",

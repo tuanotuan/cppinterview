@@ -8,7 +8,7 @@ trạng thái từ tên nhánh.
 
 ## Handoff hiện tại
 
-- Giao diện Practice/Admin chỉ biểu diễn hai nhãn phân loại của thẻ: `Dễ`/`Trung bình`/`Khó` và `Text`/`Code`. Filter theo bộ thẻ, lộ trình, loại câu và chủ đề đã được gỡ khỏi UI; taxonomy, `type`, `interviewCategory` và `assessmentSkills` vẫn nằm trong data model để scheduler, tạo nội dung, coverage và WorldQuant/mock dùng nội bộ. Trang `/admin/coverage` theo dõi mục tiêu C++ 300 câu verified theo sáu dạng; draft/approval riêng không được làm tăng số verified.
+- Giao diện Practice/Admin chỉ biểu diễn hai nhãn phân loại của thẻ: `Dễ`/`Trung bình`/`Khó` và `Text`/`Code`. Filter theo bộ thẻ, lộ trình, loại câu và chủ đề đã được gỡ khỏi UI; taxonomy, `type`, `interviewCategory`, `interviewFormat` và `assessmentSkills` vẫn nằm trong data model để scheduler, tạo nội dung, coverage và WorldQuant/mock dùng nội bộ. `code_review` hiển thị workspace chọn dòng và lưu comment có số dòng vào candidate answer, không lộ comment/rubric mẫu. Trang `/admin/coverage` theo dõi mục tiêu C++ 300 câu verified theo sáu dạng; draft/approval riêng không được làm tăng số verified.
 
 - Câu hỏi thủ công trong Admin dùng DB-native revision/audit, không phải override của question Git. Form chỉ cần đề bài và đáp án tham khảo; lesson nội bộ không có file `.md` giữ revision/approval và không bị repository sync archive. Migration `20260809100000_create_standalone_admin_manual_questions.sql` phải chạy sau khi deploy app mới; trước đó API fail an toàn và không tạo row nào.
 
@@ -140,8 +140,10 @@ trạng thái từ tên nhánh.
   điều kiện bất biến duy nhất cho quyền Admin. Cảnh báo retry tác vụ AI vẫn được
   kiểm thử như một contract vì người dùng phải thấy rõ khả năng phát sinh chi
   phí; toàn bộ client không còn gọi `window.alert`/`confirm`/`prompt`.
-- Next.js production build đạt và sinh đủ 25 trang tĩnh/động trong route graph,
-  gồm `/profile`, năm route WorldQuant training và `/admin/coverage`.
+- Format bài phỏng vấn và code-review workspace đạt `content:check`,
+  `context:check`, ESLint, TypeScript, 111 file/676 Vitest test và Next.js
+  production build 64 route. Mười câu C++ mẫu mới vẫn là `draft`, nên phải duyệt
+  trong Admin trước khi xuất hiện trong lịch học hay coverage verified.
 - `npm audit --omit=dev --audit-level=moderate` không tìm thấy lỗ hổng production.
   Audit gồm dev dependency còn 9 cảnh báo mức cao trong chuỗi công cụ ESLint
   (`minimatch`/`brace-expansion`); cách sửa tự động hiện yêu cầu nâng cưỡng bức lên

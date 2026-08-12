@@ -5007,6 +5007,801 @@
       }
     },
     {
+      "id": "cpp98-address-pointer-interview-bug-001",
+      "lessonId": "cpp98-address-pointer",
+      "type": "code_reasoning",
+      "responseMode": "text",
+      "difficulty": "intermediate",
+      "interviewCategory": "code_review_debug",
+      "interviewFormat": "bug_hunt",
+      "assessmentSkills": [
+        "null-safety",
+        "api-contracts",
+        "failure-analysis"
+      ],
+      "estimatedMinutes": 5,
+      "prompt": "Trong hot path phát bản tin giá, hãy tìm lỗi có thể làm process crash trong đoạn mã bên dưới. Nêu điều kiện xảy ra lỗi, tác động khi production và cách sửa tối thiểu mà vẫn giữ rõ contract của API.",
+      "code": "struct Quote {\n    double price;\n};\n\nvoid publish_quote(const Quote* quote) {\n    if (quote->price < 0.0) return;\n    send_to_subscribers(quote->price);\n}",
+      "hint": "Theo dõi thứ tự kiểm tra trước khi truy cập qua con trỏ.",
+      "answer": {
+        "short": "Cần kiểm tra `quote` khác null trước khi dereference. Code hiện tại dereference ngay ở điều kiện nên null pointer có thể làm crash.",
+        "detailed": "`quote->price` đã dereference con trỏ trước khi chương trình có cơ hội xác nhận con trỏ hợp lệ. Nếu upstream báo không có quote bằng `nullptr`, process có thể crash hoặc có undefined behavior. Bản sửa tối thiểu là kiểm tra `if (!quote) return;` trước mọi truy cập, sau đó mới kiểm tra price. Nếu null là lỗi contract thay vì trạng thái hợp lệ, API nên biểu diễn điều đó rõ hơn bằng reference khi bắt buộc phải có quote, hoặc trả lỗi/metric thay vì im lặng bỏ bản tin."
+      },
+      "rubric": {
+        "required": [
+          "Chỉ ra dereference null pointer ở điều kiện đầu tiên.",
+          "Nêu rõ null phải được kiểm tra trước khi đọc `price`.",
+          "Đề xuất sửa giữ contract API rõ ràng."
+        ],
+        "bonus": [
+          "Phân biệt null hợp lệ với vi phạm contract từ upstream.",
+          "Nêu metric hoặc logging phù hợp nếu drop bản tin."
+        ],
+        "misconceptions": [
+          "Cho rằng so sánh `quote->price` tự kiểm tra null.",
+          "Chỉ thêm kiểm tra null sau lệnh `if` hiện tại."
+        ]
+      },
+      "sources": [
+        {
+          "sectionId": "common-mistakes"
+        },
+        {
+          "sectionId": "notes-for-trading-code"
+        }
+      ],
+      "sourceHash": "aa153e754d77a72d89eff13c9d2c517e950c1d947061bca1289f9ea3a40c045c",
+      "status": "draft",
+      "version": 1,
+      "taxonomy": {
+        "deckId": "cpp-interview",
+        "standard": "cpp98",
+        "topics": [
+          "address",
+          "lifetime",
+          "pointer"
+        ],
+        "skill": "code_reasoning",
+        "difficulty": "intermediate",
+        "responseMode": "text",
+        "sourceLessonId": "cpp98-address-pointer",
+        "tags": [
+          "deck::cpp-interview",
+          "standard::cpp98",
+          "topic::address",
+          "topic::lifetime",
+          "topic::pointer",
+          "skill::code-reasoning",
+          "difficulty::intermediate",
+          "response::text",
+          "source::cpp98-address-pointer"
+        ],
+        "interviewCategory": "code_review_debug",
+        "interviewFormat": "bug_hunt",
+        "assessmentSkills": [
+          "api-contracts",
+          "failure-analysis",
+          "null-safety"
+        ]
+      }
+    },
+    {
+      "id": "cpp11-copy-constructor-interview-crash-001",
+      "lessonId": "cpp11-copy-constructor",
+      "type": "code_reasoning",
+      "responseMode": "code",
+      "difficulty": "advanced",
+      "interviewCategory": "code_review_debug",
+      "interviewFormat": "crash_memory_leak",
+      "assessmentSkills": [
+        "copy-constructor",
+        "resource-ownership",
+        "exception-safety"
+      ],
+      "estimatedMinutes": 10,
+      "prompt": "Đoạn mã giữ buffer cho một snapshot và thỉnh thoảng crash khi bản sao bị hủy. Hãy viết lại class để copy an toàn, không double free và không làm lộ ownership. Giải thích ngắn lựa chọn của bạn.",
+      "code": "class Snapshot {\npublic:\n    explicit Snapshot(std::size_t size)\n        : size_(size), samples_(new double[size]) {}\n\n    ~Snapshot() { delete[] samples_; }\n\nprivate:\n    std::size_t size_;\n    double* samples_;\n};",
+      "hint": "Xem điều gì xảy ra khi compiler tạo copy constructor mặc định cho raw pointer sở hữu resource.",
+      "answer": {
+        "short": "Copy mặc định chỉ copy địa chỉ nên hai object cùng `delete[]` một buffer. Dùng RAII như `std::vector<double>` hoặc tự viết deep copy theo Rule of Three/Five.",
+        "detailed": "Compiler-generated copy constructor sao chép `samples_` theo giá trị địa chỉ, khiến hai `Snapshot` cùng nghĩ mình sở hữu buffer; destructor thứ hai sẽ double free. Thiết kế nên ưu tiên `std::vector<double>` để ownership, copy và cleanup nằm trong RAII. Nếu bắt buộc dùng raw array, cần copy constructor deep copy, copy assignment an toàn với self-assignment/exception và destructor nhất quán; chỉ sửa destructor không giải quyết ownership chung."
+      },
+      "rubric": {
+        "required": [
+          "Chỉ ra shallow copy dẫn đến double free.",
+          "Viết hoặc mô tả cơ chế deep copy hoặc RAII hợp lệ.",
+          "Giữ size và lifetime của buffer nhất quán."
+        ],
+        "bonus": [
+          "Nêu lý do `std::vector` giảm bề mặt lỗi hơn raw owning pointer.",
+          "Nêu copy assignment hoặc exception safety nếu tự quản lý resource."
+        ],
+        "misconceptions": [
+          "Xóa destructor để tránh double free nhưng làm memory leak.",
+          "Copy raw pointer rồi đặt một object thành null không theo ownership rõ ràng."
+        ]
+      },
+      "sources": [
+        {
+          "sectionId": "shallow-copy-risk"
+        },
+        {
+          "sectionId": "common-failure-modes"
+        },
+        {
+          "sectionId": "best-practices"
+        }
+      ],
+      "sourceHash": "7fe64c917b782093a3d207718e09322199aa35688b29b499b81ae10378b7b656",
+      "status": "draft",
+      "version": 1,
+      "taxonomy": {
+        "deckId": "cpp-interview",
+        "standard": "cpp11",
+        "topics": [
+          "constructor",
+          "copy"
+        ],
+        "skill": "code_reasoning",
+        "difficulty": "advanced",
+        "responseMode": "code",
+        "sourceLessonId": "cpp11-copy-constructor",
+        "tags": [
+          "deck::cpp-interview",
+          "standard::cpp11",
+          "topic::constructor",
+          "topic::copy",
+          "skill::code-reasoning",
+          "difficulty::advanced",
+          "response::code",
+          "source::cpp11-copy-constructor"
+        ],
+        "interviewCategory": "code_review_debug",
+        "interviewFormat": "crash_memory_leak",
+        "assessmentSkills": [
+          "copy-constructor",
+          "exception-safety",
+          "resource-ownership"
+        ]
+      }
+    },
+    {
+      "id": "cpp98-array-one-past-end-interview-ub-001",
+      "lessonId": "cpp98-array-one-past-end",
+      "type": "pitfall",
+      "responseMode": "text",
+      "difficulty": "intermediate",
+      "interviewCategory": "code_reading_ub",
+      "interviewFormat": "undefined_behavior",
+      "assessmentSkills": [
+        "bounds-checking",
+        "pointer-arithmetic",
+        "undefined-behavior"
+      ],
+      "estimatedMinutes": 5,
+      "prompt": "Đoạn mã dưới đây muốn cộng toàn bộ quantity của mảng. Hãy xác định hành vi nào là undefined behavior, vì sao con trỏ one-past-end được phép tồn tại nhưng không được dùng như ở đây, và sửa vòng lặp.",
+      "code": "int quantities[] = {4, 7, 9};\nint total = 0;\n\nfor (int* current = quantities; current <= quantities + 3; ++current) {\n    total += *current;\n}",
+      "hint": "Phân biệt so sánh con trỏ với dereference con trỏ.",
+      "answer": {
+        "short": "`quantities + 3` là one-past-end hợp lệ để so sánh nhưng dereference nó là undefined behavior. Dùng `current < quantities + 3`.",
+        "detailed": "Với mảng ba phần tử, `quantities + 3` chỉ là vị trí một-past-end. Nó có thể được tạo và so sánh để biểu diễn end, nhưng không trỏ tới phần tử nào để đọc. Điều kiện `<=` làm vòng lặp chạy thêm một lần và `*current` dereference vị trí đó. Sửa thành `current < quantities + 3`; trong code mới nên ưu tiên iterator/range để tránh tự quản lý cận."
+      },
+      "rubric": {
+        "required": [
+          "Chỉ ra lần lặp dereference one-past-end.",
+          "Phân biệt được phép tạo/so sánh với được phép dereference.",
+          "Đưa điều kiện dừng đúng."
+        ],
+        "bonus": [
+          "Nêu lợi ích của iterator hoặc range trong code mới."
+        ],
+        "misconceptions": [
+          "Cho rằng one-past-end là phần tử cuối cùng.",
+          "Chỉ thay `<=` bằng `<` nhưng không giải thích UB."
+        ]
+      },
+      "sources": [
+        {
+          "sectionId": "one-past-end"
+        },
+        {
+          "sectionId": "common-mistakes"
+        },
+        {
+          "sectionId": "stl-connection"
+        }
+      ],
+      "sourceHash": "a2cecfa2c0f84182c8927b8f56c3b3af6f1f35e093a57eae06a0f35003520866",
+      "status": "draft",
+      "version": 1,
+      "taxonomy": {
+        "deckId": "cpp-interview",
+        "standard": "cpp98",
+        "topics": [
+          "array",
+          "bounds",
+          "pointer-arithmetic"
+        ],
+        "skill": "pitfall",
+        "difficulty": "intermediate",
+        "responseMode": "text",
+        "sourceLessonId": "cpp98-array-one-past-end",
+        "tags": [
+          "deck::cpp-interview",
+          "standard::cpp98",
+          "topic::array",
+          "topic::bounds",
+          "topic::pointer-arithmetic",
+          "skill::pitfall",
+          "difficulty::intermediate",
+          "response::text",
+          "source::cpp98-array-one-past-end"
+        ],
+        "interviewCategory": "code_reading_ub",
+        "interviewFormat": "undefined_behavior",
+        "assessmentSkills": [
+          "bounds-checking",
+          "pointer-arithmetic",
+          "undefined-behavior"
+        ]
+      }
+    },
+    {
+      "id": "cpp11-override-interview-api-review-001",
+      "lessonId": "cpp11-override",
+      "type": "code_reasoning",
+      "responseMode": "text",
+      "difficulty": "advanced",
+      "interviewCategory": "code_review_debug",
+      "interviewFormat": "api_class_review",
+      "assessmentSkills": [
+        "polymorphism",
+        "const-correctness",
+        "api-design"
+      ],
+      "estimatedMinutes": 7,
+      "prompt": "Review API handler dưới đây trước khi đưa vào pipeline event. Nêu lỗi contract giữa base và derived, hậu quả khi gọi qua base pointer, và thay đổi tối thiểu để compiler bắt được lỗi này ở lần sửa sau.",
+      "code": "struct Event { int sequence; };\n\nclass Handler {\npublic:\n    virtual void on_event(const Event& event) const;\n};\n\nclass BookHandler : public Handler {\npublic:\n    void on_event(Event& event);\n};",
+      "hint": "So sánh toàn bộ signature, không chỉ tên hàm.",
+      "answer": {
+        "short": "`BookHandler::on_event(Event&)` không override hàm base vì khác const của tham số và thiếu const method. Gọi qua `Handler*` sẽ dùng base implementation. Thêm signature khớp và `override`.",
+        "detailed": "Overriding cần tên, parameter type, cv/ref qualifier và các phần liên quan của signature khớp. Derived nhận `Event&` và method không `const`, nên đây là overload/hàm khác chứ không phải override. Khi dispatch qua `Handler*`, dynamic dispatch không tới logic của `BookHandler`. Cần viết `void on_event(const Event& event) const override;` nếu đúng ý định chỉ đọc event; `override` khiến compiler báo lỗi ngay khi signature lại lệch."
+      },
+      "rubric": {
+        "required": [
+          "Chỉ ra hai chỗ signature không khớp.",
+          "Nêu hậu quả với virtual dispatch qua base pointer.",
+          "Đề xuất dùng `override` cùng signature đúng."
+        ],
+        "bonus": [
+          "Giải thích vì sao event input nên là `const Event&` khi không mutation."
+        ],
+        "misconceptions": [
+          "Cho rằng cùng tên hàm tự động override.",
+          "Chỉ thêm `override` mà không sửa signature."
+        ]
+      },
+      "sources": [
+        {
+          "sectionId": "common-mistake-missing-const"
+        },
+        {
+          "sectionId": "important-rules"
+        },
+        {
+          "sectionId": "why-is-override-useful"
+        }
+      ],
+      "sourceHash": "1b45ef38d22b76f3bc79ef7f055599e7342f40260916abd9ddec4c92ce217921",
+      "status": "draft",
+      "version": 1,
+      "taxonomy": {
+        "deckId": "cpp-interview",
+        "standard": "cpp11",
+        "topics": [
+          "override"
+        ],
+        "skill": "code_reasoning",
+        "difficulty": "advanced",
+        "responseMode": "text",
+        "sourceLessonId": "cpp11-override",
+        "tags": [
+          "deck::cpp-interview",
+          "standard::cpp11",
+          "topic::override",
+          "skill::code-reasoning",
+          "difficulty::advanced",
+          "response::text",
+          "source::cpp11-override"
+        ],
+        "interviewCategory": "code_review_debug",
+        "interviewFormat": "api_class_review",
+        "assessmentSkills": [
+          "api-design",
+          "const-correctness",
+          "polymorphism"
+        ]
+      }
+    },
+    {
+      "id": "cpp98-struct-padding-interview-compare-001",
+      "lessonId": "cpp98-struct-padding",
+      "type": "scenario",
+      "responseMode": "text",
+      "difficulty": "advanced",
+      "interviewCategory": "design_performance",
+      "interviewFormat": "implementation_comparison",
+      "assessmentSkills": [
+        "data-layout",
+        "alignment",
+        "performance-measurement"
+      ],
+      "estimatedMinutes": 8,
+      "prompt": "Hai layout dưới đây cùng biểu diễn một record được quét số lượng lớn. So sánh hai lựa chọn về padding, locality và rủi ro correctness. Không được đoán một `sizeof` cố định; hãy nêu cách xác minh trên toolchain đích trước khi đổi layout production.",
+      "code": "struct A {\n    char venue;\n    double price;\n    int quantity;\n};\n\nstruct B {\n    double price;\n    int quantity;\n    char venue;\n};",
+      "hint": "Alignment là yêu cầu của implementation và platform, không phải một công thức kích thước cố định cho mọi máy.",
+      "answer": {
+        "short": "`B` thường giảm padding nội bộ vì field alignment lớn đặt trước, nhưng không được giả định kích thước cố định. Cần đo trên ABI/toolchain đích và kiểm tra serialization không dựa vào raw layout.",
+        "detailed": "`double` thường có alignment lớn hơn `int` và `char`; đặt field lớn trước có thể giảm các byte padding xen giữa. Tuy nhiên `sizeof`, alignment và tail padding phụ thuộc ABI, compiler option và platform nên phải xác minh bằng build/test trên target thật. Đổi thứ tự field có thể ảnh hưởng binary layout, protocol, raw-memory comparison hoặc code giả định offset; nếu record đi qua wire thì dùng serialization rõ ràng thay vì dump raw struct. Tối ưu chỉ hợp lý sau khi profiling chứng minh data layout nằm trên hot path."
+      },
+      "rubric": {
+        "required": [
+          "Giải thích padding/alignment có thể khác giữa A và B.",
+          "Không khẳng định một giá trị `sizeof` tuyệt đối.",
+          "Nêu cách xác minh và rủi ro binary layout/serialization."
+        ],
+        "bonus": [
+          "Nêu profiling/cache locality trước khi tối ưu."
+        ],
+        "misconceptions": [
+          "Khẳng định field reorder luôn nhanh hơn.",
+          "Serialize bằng raw bytes vì struct có vẻ nhỏ hơn."
+        ]
+      },
+      "sources": [
+        {
+          "sectionId": "padding"
+        },
+        {
+          "sectionId": "common-mistakes"
+        },
+        {
+          "sectionId": "notes-for-trading-code"
+        }
+      ],
+      "sourceHash": "d87a0674a56e2699438c3775f1bead1dfb83a0d32716b8434d0a1e92e4f7398a",
+      "status": "draft",
+      "version": 1,
+      "taxonomy": {
+        "deckId": "cpp-interview",
+        "standard": "cpp98",
+        "topics": [
+          "alignment",
+          "performance",
+          "struct"
+        ],
+        "skill": "scenario",
+        "difficulty": "advanced",
+        "responseMode": "text",
+        "sourceLessonId": "cpp98-struct-padding",
+        "tags": [
+          "deck::cpp-interview",
+          "standard::cpp98",
+          "topic::alignment",
+          "topic::performance",
+          "topic::struct",
+          "skill::scenario",
+          "difficulty::advanced",
+          "response::text",
+          "source::cpp98-struct-padding"
+        ],
+        "interviewCategory": "design_performance",
+        "interviewFormat": "implementation_comparison",
+        "assessmentSkills": [
+          "alignment",
+          "data-layout",
+          "performance-measurement"
+        ]
+      }
+    },
+    {
+      "id": "cpp11-range-based-for-interview-optimize-001",
+      "lessonId": "cpp11-range-based-for",
+      "type": "scenario",
+      "responseMode": "text",
+      "difficulty": "intermediate",
+      "interviewCategory": "design_performance",
+      "interviewFormat": "correctness_preserving_optimization",
+      "assessmentSkills": [
+        "iteration",
+        "copy-avoidance",
+        "correctness-invariants"
+      ],
+      "estimatedMinutes": 6,
+      "prompt": "Một vòng quét levels trong hot path đang copy từng record lớn. Đề xuất tối ưu nhưng phải giữ nguyên kết quả và không vô tình mutate dữ liệu nguồn. Nêu test hoặc invariant bạn sẽ giữ để xác nhận bản sửa.",
+      "code": "double total_notional(const std::vector<Level>& levels) {\n    double total = 0.0;\n    for (auto level : levels) {\n        total += level.price * level.quantity;\n    }\n    return total;\n}",
+      "hint": "Xem type được suy ra cho biến vòng lặp và liệu body có cần sửa phần tử không.",
+      "answer": {
+        "short": "Dùng `const auto& level` để tránh copy mà vẫn chỉ đọc. Giữ invariant tổng không thay đổi và test cả container rỗng/lớn.",
+        "detailed": "`auto level` tạo copy của từng `Level`; nếu record lớn và vòng lặp nóng, copy đó tạo chi phí không cần thiết. Vì body chỉ đọc, dùng `for (const auto& level : levels)` tránh copy và chặn mutation qua alias. Cần xác nhận kết quả total giống implementation cũ cho empty input, nhiều level và giá trị biên; benchmark nên đo trên workload đại diện thay vì khẳng định tối ưu chỉ từ cú pháp."
+      },
+      "rubric": {
+        "required": [
+          "Nhận ra `auto level` là copy.",
+          "Đề xuất `const auto&` phù hợp với body chỉ đọc.",
+          "Nêu invariant kết quả và test chống regression."
+        ],
+        "bonus": [
+          "Nêu benchmark theo workload trước khi kết luận hiệu năng."
+        ],
+        "misconceptions": [
+          "Dùng `auto&` dù không cần mutation.",
+          "Cho rằng mọi reference đều an toàn bất kể lifetime/container."
+        ]
+      },
+      "sources": [
+        {
+          "sectionId": "minimum-syntax"
+        },
+        {
+          "sectionId": "common-mistakes"
+        },
+        {
+          "sectionId": "notes-for-trading-performance-sensitive-code"
+        }
+      ],
+      "sourceHash": "c4f64c954dbcb3f643cce352b7d46c0ccec30159b70e772f38ffee06c0af2aa7",
+      "status": "draft",
+      "version": 1,
+      "taxonomy": {
+        "deckId": "cpp-interview",
+        "standard": "cpp11",
+        "topics": [
+          "container",
+          "iteration",
+          "performance"
+        ],
+        "skill": "scenario",
+        "difficulty": "intermediate",
+        "responseMode": "text",
+        "sourceLessonId": "cpp11-range-based-for",
+        "tags": [
+          "deck::cpp-interview",
+          "standard::cpp11",
+          "topic::container",
+          "topic::iteration",
+          "topic::performance",
+          "skill::scenario",
+          "difficulty::intermediate",
+          "response::text",
+          "source::cpp11-range-based-for"
+        ],
+        "interviewCategory": "design_performance",
+        "interviewFormat": "correctness_preserving_optimization",
+        "assessmentSkills": [
+          "copy-avoidance",
+          "correctness-invariants",
+          "iteration"
+        ]
+      }
+    },
+    {
+      "id": "cpp11-override-interview-compiler-001",
+      "lessonId": "cpp11-override",
+      "type": "code_reasoning",
+      "responseMode": "text",
+      "difficulty": "intermediate",
+      "interviewCategory": "code_review_debug",
+      "interviewFormat": "compiler_diagnostic",
+      "assessmentSkills": [
+        "compiler-diagnostics",
+        "polymorphism",
+        "const-correctness"
+      ],
+      "estimatedMinutes": 5,
+      "prompt": "Compiler báo rằng hàm được đánh dấu `override` không override bất kỳ base method nào. Giải thích lỗi gốc từ đoạn mã và đưa bản sửa nhỏ nhất nếu `RiskCheck` chỉ cần đọc `Order`.",
+      "code": "struct Order { int quantity; };\n\nstruct Check {\n    virtual bool accept(const Order& order) const;\n};\n\nstruct RiskCheck : Check {\n    bool accept(Order& order) override;\n};",
+      "hint": "Compiler đang đối chiếu cả parameter và qualifier của member function.",
+      "answer": {
+        "short": "Derived dùng `Order&` và thiếu `const` member nên không khớp base. Sửa thành `bool accept(const Order& order) const override;`.",
+        "detailed": "`override` yêu cầu signature tương thích với base virtual method. `Order&` khác `const Order&`, đồng thời `accept` của base là const member function nhưng derived không const. Diagnostic giúp chặn bug dispatch trước runtime. Nếu RiskCheck chỉ đọc order, sửa parameter và method qualifier thành `const`; nếu nó thật sự phải mutate, cần xem lại contract base thay vì lặng lẽ bỏ `override`."
+      },
+      "rubric": {
+        "required": [
+          "Chỉ ra parameter const khác nhau.",
+          "Chỉ ra thiếu const member qualifier.",
+          "Viết signature sửa đúng."
+        ],
+        "bonus": [
+          "Giải thích không nên bỏ `override` để ép compile."
+        ],
+        "misconceptions": [
+          "Cho rằng `Order&` tự chuyển thành `const Order&` khi override.",
+          "Bỏ `override` mà không sửa contract."
+        ]
+      },
+      "sources": [
+        {
+          "sectionId": "common-mistake-missing-const"
+        },
+        {
+          "sectionId": "important-rules"
+        }
+      ],
+      "sourceHash": "1b45ef38d22b76f3bc79ef7f055599e7342f40260916abd9ddec4c92ce217921",
+      "status": "draft",
+      "version": 1,
+      "taxonomy": {
+        "deckId": "cpp-interview",
+        "standard": "cpp11",
+        "topics": [
+          "override"
+        ],
+        "skill": "code_reasoning",
+        "difficulty": "intermediate",
+        "responseMode": "text",
+        "sourceLessonId": "cpp11-override",
+        "tags": [
+          "deck::cpp-interview",
+          "standard::cpp11",
+          "topic::override",
+          "skill::code-reasoning",
+          "difficulty::intermediate",
+          "response::text",
+          "source::cpp11-override"
+        ],
+        "interviewCategory": "code_review_debug",
+        "interviewFormat": "compiler_diagnostic",
+        "assessmentSkills": [
+          "compiler-diagnostics",
+          "const-correctness",
+          "polymorphism"
+        ]
+      }
+    },
+    {
+      "id": "cpp11-const-pointer-lvalue-reference-interview-ownership-001",
+      "lessonId": "cpp11-const-pointer-lvalue-reference",
+      "type": "scenario",
+      "responseMode": "text",
+      "difficulty": "advanced",
+      "interviewCategory": "design_performance",
+      "interviewFormat": "ownership_lifetime_design",
+      "assessmentSkills": [
+        "ownership",
+        "lifetime",
+        "const-correctness"
+      ],
+      "estimatedMinutes": 9,
+      "prompt": "Thiết kế API cho một consumer chỉ mượn `Book` trong lúc xử lý event, không sở hữu và không được giữ lại sau callback. Hãy chọn reference hay pointer cho tham số, nêu cách biểu đạt nullability, constness và lifetime contract. Không cần viết implementation hoàn chỉnh.",
+      "code": "struct Book {\n    int best_bid;\n};\n\nclass Consumer {\npublic:\n    void on_book(/* chọn kiểu tham số */);\n};",
+      "hint": "Tách bốn câu hỏi: có thể null không, có mutate không, ai sở hữu và reference/pointer có được giữ lại không.",
+      "answer": {
+        "short": "Nếu callback yêu cầu Book luôn tồn tại và chỉ đọc, dùng `const Book&` và ghi rõ không được lưu reference sau callback. Dùng pointer chỉ khi null là một trạng thái có nghĩa hoặc contract cần biểu đạt optional.",
+        "detailed": "Reference không biểu đạt ownership; nó chỉ là alias và thường hợp với đối số bắt buộc không-null. `const Book&` thể hiện Consumer không mutate Book và tránh copy. Caller vẫn sở hữu Book và phải giữ nó sống trong toàn bộ callback; Consumer không được cache reference/pointer sau callback trừ khi có contract lifetime khác. Nếu không có Book là trạng thái hợp lệ, `const Book*` giúp biểu đạt optional và buộc caller/consumer xử lý null trước dereference. Không dùng raw pointer để ngầm chuyển ownership."
+      },
+      "rubric": {
+        "required": [
+          "Phân biệt borrowing với ownership.",
+          "Chọn `const Book&` cho non-null read-only callback hoặc giải thích pointer optional.",
+          "Nêu giới hạn lifetime và cấm giữ alias sau callback."
+        ],
+        "bonus": [
+          "Nêu cách document/assert contract ở ranh giới API."
+        ],
+        "misconceptions": [
+          "Cho rằng reference sở hữu object.",
+          "Dùng pointer để biểu đạt ownership mơ hồ."
+        ]
+      },
+      "sources": [
+        {
+          "sectionId": "how-references-and-pointers-work"
+        },
+        {
+          "sectionId": "lifetime-and-validity"
+        },
+        {
+          "sectionId": "trading-use-case"
+        }
+      ],
+      "sourceHash": "15ab8c14dabca12bcef1a2d1c78999481d755ccd70fdd56ff98c4d3278dd6f54",
+      "status": "draft",
+      "version": 1,
+      "taxonomy": {
+        "deckId": "cpp-interview",
+        "standard": "cpp11",
+        "topics": [
+          "const",
+          "lvalue",
+          "pointer",
+          "reference"
+        ],
+        "skill": "scenario",
+        "difficulty": "advanced",
+        "responseMode": "text",
+        "sourceLessonId": "cpp11-const-pointer-lvalue-reference",
+        "tags": [
+          "deck::cpp-interview",
+          "standard::cpp11",
+          "topic::const",
+          "topic::lvalue",
+          "topic::pointer",
+          "topic::reference",
+          "skill::scenario",
+          "difficulty::advanced",
+          "response::text",
+          "source::cpp11-const-pointer-lvalue-reference"
+        ],
+        "interviewCategory": "design_performance",
+        "interviewFormat": "ownership_lifetime_design",
+        "assessmentSkills": [
+          "const-correctness",
+          "lifetime",
+          "ownership"
+        ]
+      }
+    },
+    {
+      "id": "cpp11-copy-assignment-interview-test-first-001",
+      "lessonId": "cpp11-copy-assignment",
+      "type": "code_reasoning",
+      "responseMode": "code",
+      "difficulty": "advanced",
+      "interviewCategory": "code_review_debug",
+      "interviewFormat": "test_first_debugging",
+      "assessmentSkills": [
+        "copy-assignment",
+        "self-assignment",
+        "regression-testing"
+      ],
+      "estimatedMinutes": 12,
+      "prompt": "Một object resource-owning đôi khi hỏng khi chạy `state = state`. Trước khi sửa, hãy nêu test tái hiện lỗi và các assertion chính. Sau đó viết lại copy assignment để self-assignment không phá resource; giải thích ngắn exception-safety của hướng tiếp cận.",
+      "code": "class Buffer {\npublic:\n    Buffer& operator=(const Buffer& other) {\n        delete[] data_;\n        size_ = other.size_;\n        data_ = new int[size_];\n        std::copy(other.data_, other.data_ + size_, data_);\n        return *this;\n    }\n\nprivate:\n    std::size_t size_;\n    int* data_;\n};",
+      "hint": "Khi `this` và `other` là cùng object, hãy theo dõi `other.data_` sau lệnh delete.",
+      "answer": {
+        "short": "Test `buffer = buffer` với dữ liệu nhận diện được. Sửa bằng copy-and-swap hoặc guard self-assignment trước khi delete, ưu tiên cấp phát/copy thành công trước khi thay state cũ.",
+        "detailed": "Test cần tạo Buffer có data xác định, thực hiện self-assignment rồi xác nhận data, size và khả năng destructor vẫn hợp lệ; sanitizer giúp phát hiện use-after-free. Code hiện tại delete `data_`, mà khi `other` chính là `*this` thì source của std::copy đã bị giải phóng. Copy-and-swap tạo bản copy độc lập rồi swap state, nên nếu copy/cấp phát ném exception object cũ vẫn nguyên và self-assignment cũng an toàn. Guard `if (this == &other) return *this;` là tối thiểu, nhưng vẫn phải cân nhắc exception safety của các bước tiếp theo."
+      },
+      "rubric": {
+        "required": [
+          "Đặt test tái hiện `buffer = buffer` trước khi sửa.",
+          "Chỉ ra use-after-free sau delete khi self-assignment.",
+          "Đưa bản sửa self-assignment-safe."
+        ],
+        "bonus": [
+          "Giải thích strong guarantee của copy-and-swap.",
+          "Nêu sanitizer hoặc test destructor sau assignment."
+        ],
+        "misconceptions": [
+          "Chỉ test assignment giữa hai object khác nhau.",
+          "Copy từ `other.data_` sau khi đã delete khi `other` alias this."
+        ]
+      },
+      "sources": [
+        {
+          "sectionId": "self-assignment-and-exception-safety"
+        },
+        {
+          "sectionId": "raw-pointer-and-resource-risks"
+        },
+        {
+          "sectionId": "best-practices"
+        }
+      ],
+      "sourceHash": "a6fdb5c645300d5333fe50ef28cd8f0ff30cf7ca1ba205b05362f198bb8289a7",
+      "status": "draft",
+      "version": 1,
+      "taxonomy": {
+        "deckId": "cpp-interview",
+        "standard": "cpp11",
+        "topics": [
+          "assignment",
+          "copy"
+        ],
+        "skill": "code_reasoning",
+        "difficulty": "advanced",
+        "responseMode": "code",
+        "sourceLessonId": "cpp11-copy-assignment",
+        "tags": [
+          "deck::cpp-interview",
+          "standard::cpp11",
+          "topic::assignment",
+          "topic::copy",
+          "skill::code-reasoning",
+          "difficulty::advanced",
+          "response::code",
+          "source::cpp11-copy-assignment"
+        ],
+        "interviewCategory": "code_review_debug",
+        "interviewFormat": "test_first_debugging",
+        "assessmentSkills": [
+          "copy-assignment",
+          "regression-testing",
+          "self-assignment"
+        ]
+      }
+    },
+    {
+      "id": "cpp98-address-pointer-interview-code-review-001",
+      "lessonId": "cpp98-address-pointer",
+      "type": "code_reasoning",
+      "responseMode": "text",
+      "difficulty": "advanced",
+      "interviewCategory": "code_review_debug",
+      "interviewFormat": "code_review",
+      "assessmentSkills": [
+        "code-review",
+        "pointer-safety",
+        "ownership"
+      ],
+      "estimatedMinutes": 10,
+      "prompt": "Review đoạn mã xử lý bản tin bên dưới như trong một pull request. Để lại nhận xét theo các dòng quan trọng: vấn đề, tác động và đề xuất sửa. Ưu tiên correctness và ownership trước các góp ý về style.",
+      "code": "struct Message {\n    int* payload;\n};\n\nMessage* clone_message(const Message* source) {\n    Message* copy = new Message;\n    copy->payload = source->payload;\n    return copy;\n}\n\nvoid destroy_message(Message* message) {\n    delete message;\n}",
+      "hint": "Xem ownership của `payload`, nullability của input và vòng đời của resource sau clone/destroy.",
+      "answer": {
+        "short": "Review cần chỉ ra dereference source null, shallow copy payload gây alias/double free hoặc dangling tùy owner, và destroy không giải phóng payload nếu clone sở hữu nó. Contract ownership phải được thiết kế lại rõ ràng.",
+        "detailed": "`clone_message` dereference `source` mà không nêu contract non-null. Quan trọng hơn, `copy->payload = source->payload` chỉ sao chép địa chỉ: hai Message alias cùng payload nhưng code không nói ai sở hữu. Nếu cả hai nơi delete payload thì double free; nếu một nơi delete trước thì nơi còn lại dangling; nếu không ai delete thì leak. `destroy_message` chỉ delete outer object nên cũng leak nếu clone được kỳ vọng sở hữu deep copy. Review tốt cần yêu cầu model ownership rõ ràng, ưu tiên RAII/value type như vector hoặc smart pointer phù hợp, và test clone/destroy độc lập."
+      },
+      "rubric": {
+        "required": [
+          "Nhận xét dereference `source` thiếu null contract.",
+          "Chỉ ra shallow copy payload tạo ownership/aliasing lỗi.",
+          "Nêu destructor/destroy phải khớp ownership thực tế."
+        ],
+        "bonus": [
+          "Đề xuất RAII thay raw owning pointer.",
+          "Đề xuất test clone rồi destroy hai object độc lập."
+        ],
+        "misconceptions": [
+          "Chỉ góp ý đặt tên hoặc formatting mà bỏ qua ownership.",
+          "Cho rằng `delete message` tự delete vùng nhớ mà payload trỏ tới."
+        ]
+      },
+      "sources": [
+        {
+          "sectionId": "common-mistakes"
+        },
+        {
+          "sectionId": "notes-for-trading-code"
+        }
+      ],
+      "sourceHash": "aa153e754d77a72d89eff13c9d2c517e950c1d947061bca1289f9ea3a40c045c",
+      "status": "draft",
+      "version": 1,
+      "taxonomy": {
+        "deckId": "cpp-interview",
+        "standard": "cpp98",
+        "topics": [
+          "address",
+          "lifetime",
+          "pointer"
+        ],
+        "skill": "code_reasoning",
+        "difficulty": "advanced",
+        "responseMode": "text",
+        "sourceLessonId": "cpp98-address-pointer",
+        "tags": [
+          "deck::cpp-interview",
+          "standard::cpp98",
+          "topic::address",
+          "topic::lifetime",
+          "topic::pointer",
+          "skill::code-reasoning",
+          "difficulty::advanced",
+          "response::text",
+          "source::cpp98-address-pointer"
+        ],
+        "interviewCategory": "code_review_debug",
+        "interviewFormat": "code_review",
+        "assessmentSkills": [
+          "code-review",
+          "ownership",
+          "pointer-safety"
+        ]
+      }
+    },
+    {
       "id": "cpp11-auto-001",
       "lessonId": "cpp11-auto",
       "type": "recall",

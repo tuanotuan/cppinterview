@@ -9,6 +9,11 @@ import type {
   AdminQuestionStatus,
 } from "@/lib/admin/dashboard";
 import {
+  categoryForInterviewFormat,
+  interviewQuestionFormatLabels,
+  interviewQuestionFormats,
+} from "@/lib/content/interview-formats";
+import {
   interviewQuestionCategories,
   interviewQuestionCategoryLabels,
   questionAssessmentSkills,
@@ -30,6 +35,7 @@ import type {
   GeminiUsageSummary,
   PracticeAccount,
 } from "@/lib/practice/cloud-server";
+import type { InterviewQuestionFormat } from "@/lib/content/schema";
 import type {
   MistakeFlashcardCandidate,
   MistakeGenerationMode,
@@ -1578,6 +1584,11 @@ function QuestionEditor({
   const [interviewCategory, setInterviewCategory] = useState(
     resolveInterviewQuestionCategory(question),
   );
+  const [interviewFormat, setInterviewFormat] = useState<
+    InterviewQuestionFormat | ""
+  >(
+    question.interviewFormat ?? question.taxonomy.interviewFormat ?? "",
+  );
   const [estimatedMinutes, setEstimatedMinutes] = useState(
     question.estimatedMinutes,
   );
@@ -1613,6 +1624,7 @@ function QuestionEditor({
           responseMode,
           difficulty,
           interviewCategory,
+          ...(interviewFormat ? { interviewFormat } : {}),
           estimatedMinutes,
           prompt,
           code: code.trim() || null,
@@ -1666,6 +1678,24 @@ function QuestionEditor({
             category,
             interviewQuestionCategoryLabels[category],
           ])}
+        />
+        <EditorSelect
+          label="Kiểu bài phỏng vấn"
+          value={interviewFormat}
+          onChange={(value) => {
+            setInterviewFormat(value as InterviewQuestionFormat | "");
+            if (!value) return;
+            const format = value as keyof typeof interviewQuestionFormatLabels;
+            setInterviewCategory(categoryForInterviewFormat(format));
+            if (format === "code_review") setResponseMode("text");
+          }}
+          options={[
+            ["", "Chưa phân dạng"] as [string, string],
+            ...interviewQuestionFormats.map((format): [string, string] => [
+              format,
+              interviewQuestionFormatLabels[format],
+            ]),
+          ]}
         />
         <label className="text-xs font-bold text-[#52645c]">
           Thời gian (phút)
@@ -1736,6 +1766,8 @@ function QuestionDetails({ question }: { question: AdminQuestion }) {
   const verificationGaps = questionVerificationGaps(question);
   const assessmentSkills = questionAssessmentSkills(question);
   const codeTestSuite = question.codeTestSuite ?? question.taxonomy.codeTestSuite;
+  const interviewFormat =
+    question.interviewFormat ?? question.taxonomy.interviewFormat;
   return (
     <>
       {question.code ? (
@@ -1753,6 +1785,11 @@ function QuestionDetails({ question }: { question: AdminQuestion }) {
           <p className="mt-1 text-xs text-[#64736c]">
             Kỹ năng: {assessmentSkills.join(" · ")} · {standardLabels[question.taxonomy.standard]} · {question.estimatedMinutes} phút
           </p>
+          {interviewFormat ? (
+            <p className="mt-1 text-xs text-[#64736c]">
+              Kiểu bài: {interviewQuestionFormatLabels[interviewFormat]}
+            </p>
+          ) : null}
         </InfoBlock>
         <InfoBlock label="Điều kiện xác minh">
           {question.responseMode === "code" ? (

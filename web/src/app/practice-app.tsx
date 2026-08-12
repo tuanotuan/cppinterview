@@ -53,6 +53,7 @@ import {
   buildCandidateAnswer,
   requiresCodeAnswer,
 } from "@/lib/practice/candidate-answer";
+import { CodeReviewWorkspace } from "./code-review-workspace";
 import { QuestionEditorDialog } from "./question-editor-dialog";
 import { ConfirmationDialog } from "./confirmation-dialog";
 import {
@@ -3233,13 +3234,19 @@ export function PracticeApp({
                     <InlineCode text={currentPrompt} />
                   </h1>
 
-                  {current.code ? (
+                  {current.code && !isCodeReviewQuestion(current) ? (
                     <pre className="mt-7 overflow-x-auto rounded-2xl border border-[#d7ff91]/20 bg-[#102d26] p-5 font-mono text-[13px] leading-6 text-[#e8f4ec] shadow-inner sm:text-sm">
                       <code>{current.code}</code>
                     </pre>
                   ) : null}
 
-                  {requiresCodeAnswer(current) ? (
+                  {isCodeReviewQuestion(current) && current.code ? (
+                    <CodeReviewWorkspace
+                      code={current.code}
+                      value={answers[current.id] ?? ""}
+                      onChange={(value) => updateAnswer(current.id, value)}
+                    />
+                  ) : requiresCodeAnswer(current) ? (
                     <div id="practice-answer-area" className="mt-8 space-y-5">
                       <ScenarioCodeEditor
                         language={current.language}
@@ -4607,6 +4614,12 @@ function Tag({ children }: { children: React.ReactNode }) {
       {children}
     </span>
   );
+}
+
+function isCodeReviewQuestion(question: ContentQuestion) {
+  return (
+    question.interviewFormat ?? question.taxonomy.interviewFormat
+  ) === "code_review";
 }
 
 function ScenarioCodeEditor({

@@ -3,12 +3,20 @@
 import { useState } from "react";
 
 import {
+  categoryForInterviewFormat,
+  interviewQuestionFormatLabels,
+  interviewQuestionFormats,
+} from "@/lib/content/interview-formats";
+import {
   interviewQuestionCategories,
   interviewQuestionCategoryLabels,
   resolveInterviewQuestionCategory,
 } from "@/lib/content/interview-bank";
 import type { EditableQuestionContent } from "@/lib/content/question-overrides";
-import type { ContentQuestion } from "@/lib/content/schema";
+import type {
+  ContentQuestion,
+  InterviewQuestionFormat,
+} from "@/lib/content/schema";
 
 export function QuestionEditorDialog({
   question,
@@ -29,6 +37,11 @@ export function QuestionEditorDialog({
   const [difficulty, setDifficulty] = useState(question.difficulty);
   const [interviewCategory, setInterviewCategory] = useState(
     resolveInterviewQuestionCategory(question),
+  );
+  const [interviewFormat, setInterviewFormat] = useState<
+    InterviewQuestionFormat | ""
+  >(
+    question.interviewFormat ?? question.taxonomy.interviewFormat ?? "",
   );
   const [estimatedMinutes, setEstimatedMinutes] = useState(
     question.estimatedMinutes,
@@ -62,6 +75,7 @@ export function QuestionEditorDialog({
             responseMode,
             difficulty,
             interviewCategory,
+            ...(interviewFormat ? { interviewFormat } : {}),
             estimatedMinutes,
             prompt,
             code: code.trim() || null,
@@ -123,6 +137,24 @@ export function QuestionEditorDialog({
               category,
               interviewQuestionCategoryLabels[category],
             ])}
+          />
+          <EditorSelect
+            label="Kiểu bài phỏng vấn"
+            value={interviewFormat}
+            onChange={(value) => {
+              setInterviewFormat(value as InterviewQuestionFormat | "");
+              if (!value) return;
+              const format = value as keyof typeof interviewQuestionFormatLabels;
+              setInterviewCategory(categoryForInterviewFormat(format));
+              if (format === "code_review") setResponseMode("text");
+            }}
+            options={[
+              ["", "Chưa phân dạng"] as [string, string],
+              ...interviewQuestionFormats.map((format): [string, string] => [
+                format,
+                interviewQuestionFormatLabels[format],
+              ]),
+            ]}
           />
           <label className="text-xs font-bold text-[#52645c]">
             Thời gian (phút)

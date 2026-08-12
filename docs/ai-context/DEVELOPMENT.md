@@ -92,8 +92,15 @@ Supabase, rồi enqueue/generate DB-native drafts. Không dùng `content:auto` h
 - Question mới bắt đầu ở `draft`; `verified` cần review người.
 - Target ngân hàng C++ là 300 câu: 100 knowledge, 80 code-reading/UB, 60
   coding, 30 review/debug, 20 design/performance, 10 communication/ownership.
-  `interviewCategory` và `assessmentSkills` là metadata nội bộ; không thêm chip
-  hay filter mới vào card người học.
+  `interviewCategory`, `interviewFormat` và `assessmentSkills` là metadata nội
+  bộ; không thêm chip hay filter mới vào card người học. Format dùng cho
+  generation/Admin gồm bug hunt, crash/leak, UB, API/class review, comparison,
+  correctness-preserving optimization, compiler diagnostic, ownership/lifetime,
+  test-first debugging và code review theo dòng.
+- `interviewFormat: code_review` bắt buộc có field `code` riêng và
+  `responseMode: text`. Practice lưu annotation `[Dòng n]` vào candidate answer;
+  AI Coach đọc đúng answer này, còn rubric/expected comments không được lộ ra
+  trước khi người học trả lời.
 - Một câu `responseMode: code` chỉ được Git content checker cho xuất bản
   `verified` khi `codeTestSuite` khai báo tối thiểu một public và một hidden
   case, đồng thời khớp exact server-owned registry ID/version/source hash/suite
