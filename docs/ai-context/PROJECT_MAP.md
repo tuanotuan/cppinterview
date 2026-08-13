@@ -44,7 +44,7 @@ nhật file context tương ứng theo root `AGENTS.md`.
 | `/worldquant/toolchain-dojo` | `worldquant/toolchain-dojo/page.tsx` | Năm bài CMake/C++ target-based tuần tự: scope, public/private, CTest, sanitizer và CI |
 | `/worldquant/legacy-modern-capstone` | `worldquant/legacy-modern-capstone/page.tsx` | Sáu checkpoint quyết định an toàn khi chuyển nền tảng tick data cũ sang modern C++ |
 | `/learn` | `learn/page.tsx`, `learn/[lessonId]/page.tsx` | Thư viện lesson từ manifest với tổng quan bài/thẻ đã duyệt/bài có mã, tìm kiếm và chip lọc lộ trình, Markdown an toàn, tự kiểm tra và mở phiên ôn tập trọng tâm |
-| `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Phỏng vấn thử v4 toàn diện/trọng tâm 30/45/60 phút, kiểm thử ẩn, tổng kết đúng phạm vi, lịch sử và kế hoạch ôn tiếp; desktop session rail chỉ lộ thứ tự/trạng thái trả lời, còn thanh chuyển câu/nộp bài sticky; nộp sớm, reset, thay Focus hoặc xóa history đều xác nhận trong UI |
+| `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Phỏng vấn thử v4 toàn diện/trọng tâm 30/45/60 phút, kiểm thử ẩn, báo cáo tám tiêu chí có evidence server-canonical, lịch sử và kế hoạch ôn tiếp; report mới tạo đúng ba việc luyện tiếp để capture vào Mistake Inbox sau khi history hoàn tất bền vững; desktop session rail chỉ lộ thứ tự/trạng thái trả lời, còn thanh chuyển câu/nộp bài sticky; nộp sớm, reset, thay Focus hoặc xóa history đều xác nhận trong UI |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx`, `lib/learn/tick-data-guide.ts` | Guide tick data/order book |
 | `/learn/cmake` | `learn/cmake/page.tsx`, `lib/learn/cmake-guide.ts` | Guide CMake target-based từ mental model tới CTest, packaging, CI và legacy migration |
 | `/stats` | `stats/page.tsx`, `fsrs-shadow-panel.tsx` | Analytics học tập và FSRS-6 shadow comparison |
@@ -57,7 +57,7 @@ API quan trọng:
 
 - `api/coach/{evaluate,follow-up,clarify}`: chấm, giải thích và diễn giải đề. `clarify` owner-only, dùng Luna, diễn đạt bình dân theo tình huống thay vì từ điển thuật ngữ và không gửi đáp án/rubric; evaluate/follow-up dùng OpenAI trước, Gemini fallback theo quota.
 - `api/mock-interview/{run,report,history}`: chạy sample code, xác minh exact
-  blueprint, tạo report có hidden evaluation và đọc/xóa history theo account.
+  blueprint, tạo report có hidden evaluation và danh mục evidence canonical (câu trả lời/code/test), rồi đọc/xóa history theo account.
 - `api/progress/sync`: đồng bộ review/Anki state.
 - `api/worldquant/{training-state,mission-snapshot}`: đọc/ghi state WorldQuant
   account-scoped bằng revision CAS; browser fallback về local khi API/database chưa sẵn sàng.
@@ -88,7 +88,7 @@ API quan trọng:
 | `ai` | `public-ai-quota.server.ts`, `public-ai-admission.server.ts`, `public-ai-quota-display.ts`, `public-ai-budget.server.ts` | AI Coach public/non-admin: HMAC IP/device/account, đọc quota hiệu dụng khi tải Practice, rolling 24 giờ, lease chống gọi trùng và ledger Luna site-wide riêng; không dùng quota account hay Gemini fallback của owner |
 | `mock-interview` | `profile.ts`, `profile-server.ts`, `catalog.ts`, `target-plan.ts` | JD question/version grounding, canonical competency mapping và deterministic balanced/targeted blueprint |
 | `mock-interview` | `session-v4.ts`, `contracts-v4.ts`, `session.ts`, `contracts.ts` | Account-scoped frozen v4 session/API contract, owner check và revision CAS; legacy parser không cấp dữ liệu cho Hub |
-| `mock-interview` | `history.server.ts`, `report-submission-client.ts`, `trends.ts` | Lease/cache/idempotency cho report, chống stale cross-tab submission và trend chỉ trên attempt comparable |
+| `mock-interview` | `contracts.ts`, `report-prompt.ts`, `history.server.ts`, `report-submission-client.ts`, `trends.ts` | Report raw/normalized, danh mục evidence server-owned cho tám tiêu chí và đúng ba next-practice actions; lease/cache/idempotency chống stale cross-tab submission và trend chỉ trên attempt comparable |
 | `worldquant` | `mock-debrief.ts`, `mock-remediation.ts` | Role-scoped evidence, assessed/not-assessed matrix, deterministic ranked gaps và Focus remediation |
 | `worldquant` | `hub-preferences.ts` | Preference của Readiness Hub tách theo account/local và đồng bộ giữa tab cùng scope |
 | `code-runner` | `admission.server.ts`, `execution-specs.server.ts`, `vercel-sandbox.server.ts` | Quota/idempotency, harness server-owned, VM cô lập |
@@ -288,10 +288,13 @@ fingerprint để nhận diện thiết bị sau khi dữ liệu ẩn danh bị 
 ### Mistake → flashcard
 
 AI Coach chỉ capture sau khi attempt đã lưu và rating `again`/`hard` đã sync;
-Mock v4 chỉ capture sau khi completed artifact được xác nhận bền vững. Evidence
-không chứa candidate answer hay hidden runner data. Candidate được dedupe theo
-concept/source, có chế độ `ask`/`auto`/`off`; AI chỉ sinh draft có lesson section
-được xác minh, rồi owner phải duyệt exact revision trước khi học. Remediation card
+Mock v4 chỉ capture sau khi completed artifact được xác nhận bền vững. Báo cáo
+mới phải cite evidence server-canonical, nhưng Mistake Inbox chỉ giữ metadata
+an toàn của evidence, không chứa candidate answer hay hidden runner data. Ba
+next-practice actions được ưu tiên capture đúng thứ tự 1–3; artifact lịch sử
+không có contract mới mới dùng fallback missed criteria. Candidate được dedupe
+theo concept/source, có chế độ `ask`/`auto`/`off`; AI chỉ sinh draft có lesson
+section được xác minh, rồi owner phải duyệt exact revision trước khi học. Remediation card
 được ưu tiên trong quota New, có thể đóng góp learning evidence nhưng không làm
 tăng WorldQuant content coverage. Completion RPC có thể thử lại cùng draft một
 lần sau response mơ hồ; nếu vẫn không xác nhận, hoặc provider outcome không xác

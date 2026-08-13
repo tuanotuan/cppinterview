@@ -21,6 +21,10 @@ import {
   type MockInterviewScopedReportV4,
 } from "@/lib/mock-interview/contracts-v4";
 import {
+  type MockInterviewDimensionKey,
+  type MockReportEvidence,
+} from "@/lib/mock-interview/contracts";
+import {
   targetedMockCandidates,
   WORLDQUANT_CURATED_CATALOG,
   type WorldQuantMockQuestion,
@@ -253,6 +257,17 @@ const verdictLabels: Record<
   partial: "Đúng một phần",
   solid: "Khá chắc",
   strong: "Mạnh",
+};
+
+const interviewDimensionLabels: Record<MockInterviewDimensionKey, string> = {
+  correctness: "Tính đúng đắn",
+  complexity: "Độ phức tạp",
+  idiomatic_cpp: "C++ idiomatic",
+  lifetime_ownership: "Lifetime và ownership",
+  testing_debugging: "Kiểm thử và gỡ lỗi",
+  communication: "Giao tiếp",
+  requirement_clarification: "Làm rõ yêu cầu",
+  tradeoff_reasoning: "Lập luận trade-off",
 };
 
 export function MockInterviewApp({
@@ -979,7 +994,7 @@ export function MockInterviewApp({
       }
       const detected = payload.mistakeCapture?.candidates ?? [];
       const mistakeMessage = detected.length
-        ? `Đã đưa ${detected.length} lỗi từ buổi phỏng vấn thử vào hộp lỗi cần ôn.`
+        ? `Đã đưa ${detected.length} việc cần luyện từ báo cáo vào hàng chờ lỗi cần ôn.`
         : payload.mistakeQueueAvailable === false
           ? "Hàng chờ lỗi cần ôn chưa được cài đặt dữ liệu trên Supabase."
           : null;
@@ -2154,6 +2169,9 @@ function MockReport({
       assessment,
     ]),
   );
+  const questionNumberById = new Map(
+    questions.map((question, index) => [question.id, index + 1]),
+  );
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
@@ -2286,18 +2304,20 @@ function MockReport({
               Một buổi đã hoàn thành.
             </h2>
             <p className="mt-4 leading-7 text-[#52645c]">{report.summary}</p>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <ReportList
-                title="Tín hiệu tốt"
-                items={report.strengths}
-                tone="positive"
-              />
-              <ReportList
-                title="Nội dung AI cho rằng cần làm rõ"
-                items={report.priorityGaps}
-                tone="warning"
-              />
-            </div>
+            {!report.interviewDimensions?.length ? (
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                <ReportList
+                  title="Tín hiệu tốt"
+                  items={report.strengths}
+                  tone="positive"
+                />
+                <ReportList
+                  title="Nội dung AI cho rằng cần làm rõ"
+                  items={report.priorityGaps}
+                  tone="warning"
+                />
+              </div>
+            ) : null}
           </article>
         </section>
 
@@ -2308,6 +2328,77 @@ function MockReport({
           >
             {historyWarning}
           </p>
+        ) : null}
+
+        {report.interviewDimensions?.length ? (
+          <section className="mb-5 rounded-[2rem] border border-[#173f35]/12 bg-white/62 p-6 sm:p-7">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#356b58] uppercase">
+                  Báo cáo có bằng chứng
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold">
+                  Tám tiêu chí phỏng vấn
+                </h2>
+              </div>
+              <p className="max-w-md text-xs leading-5 text-[#64736c]">
+                Mỗi nhận xét bên dưới đều dẫn về mã, kết quả kiểm thử hoặc câu trả lời cụ thể của bạn.
+              </p>
+            </div>
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              {report.interviewDimensions.map((dimension) => (
+                <article
+                  key={dimension.key}
+                  className="rounded-2xl border border-[#173f35]/10 bg-[#f8faf5] p-5"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="font-semibold">
+                      {interviewDimensionLabels[dimension.key]}
+                    </h3>
+                    <span
+                      className={`rounded-full px-3 py-1 font-mono text-xs font-bold ${
+                        dimension.status === "assessed"
+                          ? "bg-[#eaf8cf] text-[#245748]"
+                          : "bg-[#edf0e8] text-[#64736c]"
+                      }`}
+                    >
+                      {dimension.status === "assessed"
+                        ? `${dimension.score}/100`
+                        : "Chưa đánh giá"}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-[#52645c]">
+                    {dimension.summary}
+                  </p>
+                  {dimension.status === "assessed" ? (
+                    <>
+                      <ReportEvidence
+                        evidence={dimension.evidence}
+                        questionNumberById={questionNumberById}
+                      />
+                      <div className="mt-4 space-y-3">
+                        {dimension.observations.map((observation, index) => (
+                          <div
+                            key={`${dimension.key}-${index}`}
+                            className="rounded-xl border border-[#173f35]/10 bg-white/75 p-3"
+                          >
+                            <p className="text-sm leading-6 text-[#52645c]">
+                              {observation.feedback}
+                            </p>
+                            <ReportEvidence
+                              evidence={observation.evidence}
+                              questionNumberById={questionNumberById}
+                              compact
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          </section>
         ) : null}
 
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -2361,7 +2452,41 @@ function MockReport({
           <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
             Bước ôn tập tiếp theo
           </p>
-          <h2 className="mt-2 text-2xl font-semibold">Kế hoạch ôn tiếp</h2>
+          <h2 className="mt-2 text-2xl font-semibold">
+            {report.nextPracticeActions?.length
+              ? "Ba việc cần luyện tiếp"
+              : "Kế hoạch ôn tiếp"}
+          </h2>
+          {report.nextPracticeActions?.length ? (
+            <>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#52645c]">
+                Ba việc này được ghi vào hàng chờ lỗi cần ôn sau khi lịch sử trực tuyến được xác nhận. Hệ thống chỉ tạo bản nháp, không tự xuất bản thẻ.
+              </p>
+              <div className="mt-5 grid gap-3 lg:grid-cols-3">
+                {report.nextPracticeActions.map((action) => (
+                  <article
+                    key={action.priority}
+                    className="rounded-2xl border border-[#173f35]/10 bg-[#f8faf5] p-4"
+                  >
+                    <span className="font-mono text-[10px] font-bold text-[#ba4b2f]">
+                      Việc #{action.priority}
+                    </span>
+                    <h3 className="mt-1 font-semibold">{action.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-[#52645c]">
+                      {action.action}
+                    </p>
+                    <ReportEvidence
+                      evidence={action.evidence}
+                      questionNumberById={questionNumberById}
+                      compact
+                    />
+                  </article>
+                ))}
+              </div>
+            </>
+          ) : null}
+          {!report.nextPracticeActions?.length ? (
+            <>
           <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
             <span className="font-bold text-[#64736c]">Thời lượng:</span>
             {[15, 30, 45, 60].map((minutes) => (
@@ -2436,10 +2561,10 @@ function MockReport({
               {remediationMessage}
             </p>
           ) : null}
-          <h3 className="mt-7 text-sm font-bold text-[#356b58]">
-            Gợi ý tham khảo từ AI
-          </h3>
-          {report.studyPlan.length ? (
+              <h3 className="mt-7 text-sm font-bold text-[#356b58]">
+                Gợi ý tham khảo từ AI
+              </h3>
+              {report.studyPlan.length ? (
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {report.studyPlan.map((item) => (
                 <div
@@ -2456,11 +2581,13 @@ function MockReport({
                 </div>
               ))}
             </div>
-          ) : (
-            <p className="mt-4 text-sm text-[#64736c]">
-              Báo cáo chưa đề xuất thêm hành động.
-            </p>
-          )}
+              ) : (
+                <p className="mt-4 text-sm text-[#64736c]">
+                  Báo cáo chưa đề xuất thêm hành động.
+                </p>
+              )}
+            </>
+          ) : null}
         </section>
 
         <section className="mt-5 pb-10">
@@ -2517,21 +2644,29 @@ function MockReport({
                           : "(Bỏ trống)"}
                       </pre>
                     </div>
-                    <div>
-                      <p className="text-xs font-bold text-[#356b58]">
-                        Nhận xét
+                    {report.interviewDimensions?.length ? (
+                      <p className="rounded-xl bg-[#edf0e8] px-4 py-3 text-sm leading-6 text-[#52645c]">
+                        Các nhận xét chi tiết có bằng chứng được tổng hợp ở tám tiêu chí phía trên.
                       </p>
-                      <p className="mt-2 text-sm leading-6 text-[#52645c]">
-                        {assessment.summary}
-                      </p>
-                    </div>
-                    {assessment.missedCriteria.length ? (
-                      <ReportList
-                        title="Ý còn thiếu"
-                        items={assessment.missedCriteria}
-                        tone="warning"
-                      />
-                    ) : null}
+                    ) : (
+                      <>
+                        <div>
+                          <p className="text-xs font-bold text-[#356b58]">
+                            Nhận xét
+                          </p>
+                          <p className="mt-2 text-sm leading-6 text-[#52645c]">
+                            {assessment.summary}
+                          </p>
+                        </div>
+                        {assessment.missedCriteria.length ? (
+                          <ReportList
+                            title="Ý còn thiếu"
+                            items={assessment.missedCriteria}
+                            tone="warning"
+                          />
+                        ) : null}
+                      </>
+                    )}
                   </div>
                 </details>
               );
@@ -2577,6 +2712,44 @@ function ReportList({
       ) : (
         <p className="mt-2 text-sm text-[#64736c]">Chưa có bằng chứng.</p>
       )}
+    </div>
+  );
+}
+
+function ReportEvidence({
+  evidence,
+  questionNumberById,
+  compact = false,
+}: {
+  evidence: readonly MockReportEvidence[];
+  questionNumberById: ReadonlyMap<string, number>;
+  compact?: boolean;
+}) {
+  if (!evidence.length) return null;
+  return (
+    <div className={`${compact ? "mt-3" : "mt-4"} space-y-2`}>
+      {evidence.map((item) => {
+        const questionNumber = questionNumberById.get(item.questionId);
+        const code = ["candidate_code", "question_code"].includes(item.kind);
+        return (
+          <div
+            key={item.id}
+            className="rounded-lg border border-[#173f35]/10 bg-[#edf0e8]/65 px-3 py-2"
+          >
+            <p className="font-mono text-[10px] font-bold tracking-[0.08em] text-[#356b58] uppercase">
+              {questionNumber ? `Câu ${questionNumber} · ` : ""}
+              {item.label}
+            </p>
+            <pre
+              className={`mt-1 max-h-28 overflow-auto whitespace-pre-wrap text-[11px] leading-5 text-[#52645c] ${
+                code ? "font-mono" : "font-sans"
+              }`}
+            >
+              {item.excerpt}
+            </pre>
+          </div>
+        );
+      })}
     </div>
   );
 }

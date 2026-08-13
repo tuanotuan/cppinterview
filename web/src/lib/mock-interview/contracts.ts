@@ -73,6 +73,208 @@ const mockVerdictSchema = z.enum([
   "strong",
 ]);
 
+export const mockInterviewDimensionKeys = [
+  "correctness",
+  "complexity",
+  "idiomatic_cpp",
+  "lifetime_ownership",
+  "testing_debugging",
+  "communication",
+  "requirement_clarification",
+  "tradeoff_reasoning",
+] as const;
+export type MockInterviewDimensionKey =
+  (typeof mockInterviewDimensionKeys)[number];
+
+export const mockReportEvidenceKinds = [
+  "candidate_answer",
+  "candidate_code",
+  "question_code",
+  "test_result",
+] as const;
+export type MockReportEvidenceKind = (typeof mockReportEvidenceKinds)[number];
+
+const evidenceIdSchema = z
+  .string()
+  .regex(/^[a-z][a-z0-9_-]*(?::[a-z0-9][a-z0-9_-]*)+$/)
+  .max(240);
+
+export const mockReportEvidenceSchema = z
+  .object({
+    id: evidenceIdSchema,
+    questionId: kebabIdSchema,
+    kind: z.enum(mockReportEvidenceKinds),
+    label: z.string().trim().min(1).max(120),
+    excerpt: z.string().trim().min(1).max(420),
+  })
+  .strict();
+export type MockReportEvidence = z.infer<typeof mockReportEvidenceSchema>;
+
+const evidenceIdsSchema = z.array(evidenceIdSchema).min(1).max(3);
+const normalizedEvidenceSchema = z
+  .array(mockReportEvidenceSchema)
+  .min(1)
+  .max(3);
+
+const rawReportObservationSchema = z
+  .object({
+    feedback: z.string().trim().min(1).max(500),
+    evidenceIds: evidenceIdsSchema,
+  })
+  .strict();
+
+const normalizedReportObservationSchema = z
+  .object({
+    feedback: z.string().trim().min(1).max(500),
+    evidence: normalizedEvidenceSchema,
+  })
+  .strict();
+
+const rawInterviewDimensionSchema = z
+  .object({
+    key: z.enum(mockInterviewDimensionKeys),
+    status: z.enum(["assessed", "not_assessed"]),
+    score: z.number().int().min(0).max(100).nullable(),
+    summary: z.string().trim().min(1).max(650),
+    evidenceIds: z.array(evidenceIdSchema).max(3),
+    observations: z.array(rawReportObservationSchema).max(4),
+  })
+  .strict()
+  .superRefine((dimension, context) => {
+    const assessed = dimension.status === "assessed";
+    if (
+      assessed &&
+      (dimension.score === null ||
+        !dimension.evidenceIds.length ||
+        !dimension.observations.length)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "An assessed dimension needs a score and cited feedback",
+      });
+    }
+    if (
+      !assessed &&
+      (dimension.score !== null ||
+        dimension.evidenceIds.length !== 0 ||
+        dimension.observations.length !== 0)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "An unassessed dimension cannot contain a score or evidence",
+      });
+    }
+  });
+
+const normalizedInterviewDimensionSchema = z
+  .object({
+    key: z.enum(mockInterviewDimensionKeys),
+    status: z.enum(["assessed", "not_assessed"]),
+    score: z.number().int().min(0).max(100).nullable(),
+    summary: z.string().trim().min(1).max(650),
+    evidence: z.array(mockReportEvidenceSchema).max(3),
+    observations: z.array(normalizedReportObservationSchema).max(4),
+  })
+  .strict()
+  .superRefine((dimension, context) => {
+    const assessed = dimension.status === "assessed";
+    if (
+      assessed &&
+      (dimension.score === null ||
+        !dimension.evidence.length ||
+        !dimension.observations.length)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "An assessed dimension needs a score and cited feedback",
+      });
+    }
+    if (
+      !assessed &&
+      (dimension.score !== null ||
+        dimension.evidence.length !== 0 ||
+        dimension.observations.length !== 0)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "An unassessed dimension cannot contain a score or evidence",
+      });
+    }
+  });
+
+const rawInterviewDimensionsSchema = z
+  .array(rawInterviewDimensionSchema)
+  .length(mockInterviewDimensionKeys.length)
+  .superRefine((dimensions, context) => {
+    dimensions.forEach((dimension, index) => {
+      if (dimension.key !== mockInterviewDimensionKeys[index]) {
+        context.addIssue({
+          code: "custom",
+          path: [index, "key"],
+          message: "Interview dimensions must use the canonical stable order",
+        });
+      }
+    });
+  });
+
+export const normalizedInterviewDimensionsSchema = z
+  .array(normalizedInterviewDimensionSchema)
+  .length(mockInterviewDimensionKeys.length)
+  .superRefine((dimensions, context) => {
+    dimensions.forEach((dimension, index) => {
+      if (dimension.key !== mockInterviewDimensionKeys[index]) {
+        context.addIssue({
+          code: "custom",
+          path: [index, "key"],
+          message: "Interview dimensions must use the canonical stable order",
+        });
+      }
+    });
+  });
+
+const rawNextPracticeActionSchema = z
+  .object({
+    priority: z.number().int().min(1).max(3),
+    title: z.string().trim().min(1).max(180),
+    action: z.string().trim().min(1).max(500),
+    evidenceIds: evidenceIdsSchema,
+  })
+  .strict();
+
+const normalizedNextPracticeActionSchema = z
+  .object({
+    priority: z.number().int().min(1).max(3),
+    title: z.string().trim().min(1).max(180),
+    action: z.string().trim().min(1).max(500),
+    evidence: normalizedEvidenceSchema,
+  })
+  .strict();
+
+function exactThreeActions<T extends { priority: number }>(
+  actions: readonly T[],
+  context: z.RefinementCtx,
+) {
+  actions.forEach((action, index) => {
+    if (action.priority !== index + 1) {
+      context.addIssue({
+        code: "custom",
+        path: [index, "priority"],
+        message: "Next practice actions must be priorities 1, 2, and 3",
+      });
+    }
+  });
+}
+
+const rawNextPracticeActionsSchema = z
+  .array(rawNextPracticeActionSchema)
+  .length(3)
+  .superRefine(exactThreeActions);
+
+export const normalizedNextPracticeActionsSchema = z
+  .array(normalizedNextPracticeActionSchema)
+  .length(3)
+  .superRefine(exactThreeActions);
+
 const competencyAssessmentSchema = z.object({
   status: z.enum(["assessed", "not_assessed"]),
   score: z.number().int().min(0).max(100).nullable(),
@@ -113,6 +315,7 @@ export const mockInterviewReportSchema = z.object({
     )
     .min(3)
     .max(8),
+  interviewDimensions: rawInterviewDimensionsSchema,
   strengths: z.array(z.string().trim().min(1).max(350)).max(5),
   priorityGaps: z.array(z.string().trim().min(1).max(400)).max(5),
   studyPlan: z
@@ -125,12 +328,27 @@ export const mockInterviewReportSchema = z.object({
       }),
     )
     .max(5),
+  nextPracticeActions: rawNextPracticeActionsSchema,
 });
 
 export type MockInterviewReportRequest = z.infer<
   typeof mockInterviewReportRequestSchema
 >;
 export type MockInterviewReport = z.infer<typeof mockInterviewReportSchema>;
+
+export type NormalizedMockInterviewDimension = z.infer<
+  typeof normalizedInterviewDimensionSchema
+>;
+export type NormalizedMockInterviewNextPracticeAction = z.infer<
+  typeof normalizedNextPracticeActionSchema
+>;
+export type NormalizedMockInterviewReport = Omit<
+  MockInterviewReport,
+  "interviewDimensions" | "nextPracticeActions"
+> & {
+  interviewDimensions: NormalizedMockInterviewDimension[];
+  nextPracticeActions: NormalizedMockInterviewNextPracticeAction[];
+};
 
 export const mockInterviewReportJsonSchema = {
   type: "object",
@@ -224,6 +442,58 @@ export const mockInterviewReportJsonSchema = {
         ],
       },
     },
+    interviewDimensions: {
+      type: "array",
+      minItems: 8,
+      maxItems: 8,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          key: {
+            type: "string",
+            enum: [...mockInterviewDimensionKeys],
+          },
+          status: {
+            type: "string",
+            enum: ["assessed", "not_assessed"],
+          },
+          score: { type: ["integer", "null"], minimum: 0, maximum: 100 },
+          summary: { type: "string" },
+          evidenceIds: {
+            type: "array",
+            maxItems: 3,
+            items: { type: "string" },
+          },
+          observations: {
+            type: "array",
+            maxItems: 4,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                feedback: { type: "string" },
+                evidenceIds: {
+                  type: "array",
+                  minItems: 1,
+                  maxItems: 3,
+                  items: { type: "string" },
+                },
+              },
+              required: ["feedback", "evidenceIds"],
+            },
+          },
+        },
+        required: [
+          "key",
+          "status",
+          "score",
+          "summary",
+          "evidenceIds",
+          "observations",
+        ],
+      },
+    },
     strengths: {
       type: "array",
       items: { type: "string" },
@@ -236,7 +506,7 @@ export const mockInterviewReportJsonSchema = {
     },
     studyPlan: {
       type: "array",
-      maxItems: 5,
+      maxItems: 0,
       items: {
         type: "object",
         additionalProperties: false,
@@ -253,6 +523,27 @@ export const mockInterviewReportJsonSchema = {
         required: ["priority", "topic", "action", "questionIds"],
       },
     },
+    nextPracticeActions: {
+      type: "array",
+      minItems: 3,
+      maxItems: 3,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          priority: { type: "integer", minimum: 1, maximum: 3 },
+          title: { type: "string" },
+          action: { type: "string" },
+          evidenceIds: {
+            type: "array",
+            minItems: 1,
+            maxItems: 3,
+            items: { type: "string" },
+          },
+        },
+        required: ["priority", "title", "action", "evidenceIds"],
+      },
+    },
   },
   required: [
     "overallScore",
@@ -261,9 +552,11 @@ export const mockInterviewReportJsonSchema = {
     "hiringSignal",
     "competencies",
     "questionAssessments",
+    "interviewDimensions",
     "strengths",
     "priorityGaps",
     "studyPlan",
+    "nextPracticeActions",
   ],
 } as const;
 
@@ -271,6 +564,7 @@ export function normalizeMockInterviewReport({
   rawReport,
   questionCompetencies,
   executionByQuestionId = {},
+  evidenceCatalog,
 }: {
   rawReport: MockInterviewReport;
   questionCompetencies: Record<string, MockCompetencyKey>;
@@ -285,7 +579,8 @@ export function normalizeMockInterviewReport({
     | "output_limit"
     | "sandbox_error"
   >;
-}): MockInterviewReport {
+  evidenceCatalog: readonly MockReportEvidence[];
+}): NormalizedMockInterviewReport {
   const report = mockInterviewReportSchema.parse(rawReport);
   const expectedIds = Object.keys(questionCompetencies);
   const assessmentById = new Map(
@@ -375,6 +670,47 @@ export function normalizeMockInterviewReport({
   const overallScore =
     assessedWeight > 0 ? Math.round(weightedScore / assessedWeight) : 0;
 
+  const evidenceById = new Map(
+    evidenceCatalog.map((evidence) => [evidence.id, evidence]),
+  );
+  if (evidenceById.size !== evidenceCatalog.length) {
+    throw new Error("Mock report evidence catalog contains duplicate IDs");
+  }
+  if (
+    evidenceCatalog.some(
+      (evidence) => !expectedIds.includes(evidence.questionId),
+    )
+  ) {
+    throw new Error("Mock report evidence catalog escaped this interview");
+  }
+  const resolveEvidence = (ids: readonly string[]) =>
+    ids.map((id) => {
+      const evidence = evidenceById.get(id);
+      if (!evidence) {
+        throw new Error("AI mock report cited evidence outside this interview");
+      }
+      return evidence;
+    });
+  const interviewDimensions = report.interviewDimensions.map((dimension) => ({
+    key: dimension.key,
+    status: dimension.status,
+    score: dimension.score,
+    summary: dimension.summary,
+    evidence: resolveEvidence(dimension.evidenceIds),
+    observations: dimension.observations.map((observation) => ({
+      feedback: observation.feedback,
+      evidence: resolveEvidence(observation.evidenceIds),
+    })),
+  }));
+  const nextPracticeActions = report.nextPracticeActions.map((action) => ({
+    priority: action.priority,
+    title: action.title,
+    action: action.action,
+    evidence: resolveEvidence(action.evidenceIds),
+  }));
+  normalizedInterviewDimensionsSchema.parse(interviewDimensions);
+  normalizedNextPracticeActionsSchema.parse(nextPracticeActions);
+
   return {
     ...report,
     overallScore,
@@ -388,14 +724,11 @@ export function normalizeMockInterviewReport({
             : "not_ready",
     competencies,
     questionAssessments,
-    studyPlan: report.studyPlan
-      .map((item) => ({
-        ...item,
-        questionIds: item.questionIds.filter((questionId) =>
-          expectedIds.includes(questionId),
-        ),
-      }))
-      .sort((left, right) => left.priority - right.priority),
+    interviewDimensions,
+    nextPracticeActions,
+    // Next-practice actions are the only actionable plan for new reports.
+    // Keep the historical field empty even if a provider ignored the prompt.
+    studyPlan: [],
   };
 }
 
@@ -416,6 +749,79 @@ function executionScoreCap(
   }
   if (status === "tests_failed") return 64;
   return 39;
+}
+
+export function buildMockReportEvidenceCatalog({
+  items,
+}: {
+  items: readonly {
+    questionId: string;
+    responseMode: "text" | "code";
+    response: string;
+    explanation: string;
+    questionCode?: string;
+    execution?: {
+      status: string;
+      passedTests: number;
+      totalTests: number;
+      durationMs: number;
+    };
+  }[];
+}): MockReportEvidence[] {
+  return items.flatMap((item) => {
+    const evidence: MockReportEvidence[] = [
+      {
+        id: `answer:${item.questionId}:response`,
+        questionId: item.questionId,
+        kind: "candidate_answer",
+        label: "Câu trả lời của ứng viên",
+        excerpt: excerptOrEmpty(item.response, "Ứng viên để trống câu trả lời."),
+      },
+    ];
+    if (item.explanation.trim()) {
+      evidence.push({
+        id: `answer:${item.questionId}:explanation`,
+        questionId: item.questionId,
+        kind: "candidate_answer",
+        label: "Giải thích của ứng viên",
+        excerpt: excerptOrEmpty(item.explanation, ""),
+      });
+    }
+    if (item.responseMode === "code" && item.response.trim()) {
+      evidence.push({
+        id: `code:${item.questionId}:submission`,
+        questionId: item.questionId,
+        kind: "candidate_code",
+        label: "Mã ứng viên nộp",
+        excerpt: excerptOrEmpty(item.response, ""),
+      });
+    }
+    if (item.questionCode?.trim()) {
+      evidence.push({
+        id: `code:${item.questionId}:question`,
+        questionId: item.questionId,
+        kind: "question_code",
+        label: "Đoạn mã trong đề",
+        excerpt: excerptOrEmpty(item.questionCode, ""),
+      });
+    }
+    if (item.execution) {
+      evidence.push({
+        id: `test:${item.questionId}:hidden`,
+        questionId: item.questionId,
+        kind: "test_result",
+        label: "Kết quả kiểm thử ẩn",
+        excerpt: `status=${item.execution.status}; passed=${item.execution.passedTests}/${item.execution.totalTests}; duration=${item.execution.durationMs}ms`,
+      });
+    }
+    return evidence;
+  });
+}
+
+function excerptOrEmpty(value: string, fallback: string) {
+  const normalized = value.trim().replace(/\s+/g, " ");
+  const source = normalized || fallback;
+  return source.length <= 420 ? source : `${source.slice(0, 417)}…`;
 }
 
 function mockCompetencyWeight(key: MockCompetencyKey) {
