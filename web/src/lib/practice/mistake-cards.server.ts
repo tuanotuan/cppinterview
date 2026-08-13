@@ -253,22 +253,48 @@ export async function captureMockMistakes({
       candidate,
     ]),
   );
-  const ranked = artifact.report.questionAssessments
-    .filter(
-      (assessment) =>
-        assessment.score < 65 &&
-        ["needs_work", "partial"].includes(assessment.verdict) &&
-        assessment.missedCriteria.length > 0,
-    )
-    .sort((left, right) => left.score - right.score)
-    .flatMap((assessment) =>
-      assessment.missedCriteria.map((criterion, index) => ({
-        assessment,
-        criterion,
-        index,
-      })),
-    )
-    .slice(0, 3);
+  const assessmentById = new Map(
+    artifact.report.questionAssessments.map((assessment) => [
+      assessment.questionId,
+      assessment,
+    ]),
+  );
+  const reportActions = artifact.report.nextPracticeActions?.flatMap(
+    (action) => {
+      const primaryEvidence = action.evidence[0];
+      if (!primaryEvidence) return [];
+      const assessment = assessmentById.get(primaryEvidence.questionId);
+      if (!assessment) return [];
+      return [
+        {
+          assessment,
+          criterion: `${action.title}: ${action.action}`,
+          index: action.priority,
+          action,
+        },
+      ];
+    },
+  );
+  const ranked =
+    reportActions?.length === 3
+      ? reportActions
+      : artifact.report.questionAssessments
+          .filter(
+            (assessment) =>
+              assessment.score < 65 &&
+              ["needs_work", "partial"].includes(assessment.verdict) &&
+              assessment.missedCriteria.length > 0,
+          )
+          .sort((left, right) => left.score - right.score)
+          .flatMap((assessment) =>
+            assessment.missedCriteria.map((criterion, index) => ({
+              assessment,
+              criterion,
+              index,
+              action: null,
+            })),
+          )
+          .slice(0, 3);
   const candidates: RecordedCandidate[] = [];
   for (const item of ranked) {
     const planned = plannedById.get(item.assessment.questionId);
@@ -287,9 +313,11 @@ export async function captureMockMistakes({
       : null;
     const sourceSectionIds =
       sourceQuestion?.sources.map((source) => source.sectionId) ?? [];
-    const criterionKey = `missed-${sha256(
-      normalizeMistakeConcept(item.criterion),
-    ).slice(0, 16)}`;
+    const criterionKey = item.action
+      ? `mock-action-${item.action.priority}`
+      : `missed-${sha256(
+          normalizeMistakeConcept(item.criterion),
+        ).slice(0, 16)}`;
     const conceptFingerprint = sha256([
       userId,
       lesson?.id ?? `role-profile:${artifact.profileId}`,
@@ -361,7 +389,17 @@ export async function captureMockMistakes({
         score: item.assessment.score,
         verdict: item.assessment.verdict,
         summary: item.assessment.summary,
-        missedCriterion: item.criterion,
+        ...(item.action
+          ? {
+              actionTitle: item.action.title,
+              action: item.action.action,
+              evidence: item.action.evidence.map((evidence) => ({
+                id: evidence.id,
+                questionId: evidence.questionId,
+                kind: evidence.kind,
+              })),
+            }
+          : { missedCriterion: item.criterion }),
       },
       competency: planned.readinessCompetency,
       lesson: lesson ?? null,
