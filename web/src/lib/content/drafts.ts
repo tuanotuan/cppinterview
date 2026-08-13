@@ -14,7 +14,13 @@ import {
 import type {
   GeneratedLesson,
   InterviewQuestionCategory,
+  InterviewQuestionFormat,
 } from "./schema";
+import {
+  categoryForInterviewFormat,
+  draftFormatsForCategories,
+  interviewFormatDefinitions,
+} from "./interview-formats";
 
 const MAX_PROVIDER_ATTEMPTS = 3;
 
@@ -29,6 +35,20 @@ export const aiQuestionDraftSchema = z.object({
     "code_review_debug",
     "design_performance",
     "communication_ownership",
+  ]),
+  interviewFormat: z.enum([
+    "concept_explanation",
+    "bug_hunt",
+    "crash_memory_leak",
+    "undefined_behavior",
+    "api_class_review",
+    "implementation_comparison",
+    "correctness_preserving_optimization",
+    "compiler_diagnostic",
+    "ownership_lifetime_design",
+    "test_first_debugging",
+    "code_review",
+    "ownership_communication",
   ]),
   assessmentSkills: z.array(
     z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
@@ -47,6 +67,30 @@ export const aiQuestionDraftSchema = z.object({
     misconceptions: z.array(z.string().trim().min(3)),
   }),
   sources: z.array(z.object({ sectionId: z.string().min(1) })).min(1),
+}).superRefine((draft, context) => {
+  if (draft.interviewCategory !== categoryForInterviewFormat(draft.interviewFormat)) {
+    context.addIssue({
+      code: "custom",
+      path: ["interviewCategory"],
+      message: "Interview category must match the chosen interview format",
+    });
+  }
+  if (draft.interviewFormat === "code_review") {
+    if (draft.responseMode !== "text") {
+      context.addIssue({
+        code: "custom",
+        path: ["responseMode"],
+        message: "Code review drafts use text review comments",
+      });
+    }
+    if (!draft.code) {
+      context.addIssue({
+        code: "custom",
+        path: ["code"],
+        message: "Code review drafts must supply the reviewed code",
+      });
+    }
+  }
 });
 
 export const aiDraftResponseSchema = z.object({
@@ -64,21 +108,24 @@ export type BeforeQuestionDraftProviderRequest = (
   model: string,
 ) => Promise<void>;
 
-export const QUESTION_GENERATOR_PROMPT_VERSION = "multilanguage-interview-bank-v4";
+export const QUESTION_GENERATOR_PROMPT_VERSION = "multilanguage-interview-bank-v5";
 
 export async function generateQuestionDraftsWithOpenAI({
   lesson,
   count,
   desiredCategories,
+  desiredFormats,
 }: {
   lesson: GeneratedLesson;
   count: number;
   desiredCategories?: readonly InterviewQuestionCategory[];
+  desiredFormats?: readonly InterviewQuestionFormat[];
 }): Promise<AiQuestionDraft[]> {
   return (await generateQuestionDraftBatchWithOpenAI({
     lesson,
     count,
     desiredCategories,
+    desiredFormats,
   })).questions;
 }
 
@@ -86,11 +133,13 @@ export async function generateQuestionDraftBatchWithFallback({
   lesson,
   count,
   desiredCategories,
+  desiredFormats,
   beforeProviderRequest,
 }: {
   lesson: GeneratedLesson;
   count: number;
   desiredCategories?: readonly InterviewQuestionCategory[];
+  desiredFormats?: readonly InterviewQuestionFormat[];
   beforeProviderRequest?: BeforeQuestionDraftProviderRequest;
 }): Promise<GeneratedQuestionDraftBatch> {
   try {
@@ -98,6 +147,7 @@ export async function generateQuestionDraftBatchWithFallback({
       lesson,
       count,
       desiredCategories,
+      desiredFormats,
       beforeProviderRequest,
     });
   } catch (error) {
@@ -108,6 +158,7 @@ export async function generateQuestionDraftBatchWithFallback({
       lesson,
       count,
       desiredCategories,
+      desiredFormats,
       beforeProviderRequest,
     });
   }
@@ -117,11 +168,13 @@ export async function generateQuestionDraftBatchWithOpenAI({
   lesson,
   count,
   desiredCategories,
+  desiredFormats,
   beforeProviderRequest,
 }: {
   lesson: GeneratedLesson;
   count: number;
   desiredCategories?: readonly InterviewQuestionCategory[];
+  desiredFormats?: readonly InterviewQuestionFormat[];
   beforeProviderRequest?: BeforeQuestionDraftProviderRequest;
 }): Promise<GeneratedQuestionDraftBatch> {
   if (!Number.isInteger(count) || count < 1 || count > 5) {
@@ -135,7 +188,7 @@ export async function generateQuestionDraftBatchWithOpenAI({
     store: false,
     safety_identifier: safetyIdentifier("content-automation"),
     instructions: buildGeneratorSystemInstruction(lesson),
-    input: buildDraftPrompt(lesson, count, { desiredCategories }),
+    input: buildDraftPrompt(lesson, count, { desiredCategories, desiredFormats }),
     reasoning: { effort: "low" as const },
     max_output_tokens: 6000,
     text: {
@@ -167,11 +220,13 @@ export async function generateQuestionDraftBatchWithGemini({
   lesson,
   count,
   desiredCategories,
+  desiredFormats,
   beforeProviderRequest,
 }: {
   lesson: GeneratedLesson;
   count: number;
   desiredCategories?: readonly InterviewQuestionCategory[];
+  desiredFormats?: readonly InterviewQuestionFormat[];
   beforeProviderRequest?: BeforeQuestionDraftProviderRequest;
 }): Promise<GeneratedQuestionDraftBatch> {
   if (!Number.isInteger(count) || count < 1 || count > 5) {
@@ -185,7 +240,7 @@ export async function generateQuestionDraftBatchWithGemini({
     model,
     store: false,
     system_instruction: buildGeneratorSystemInstruction(lesson),
-    input: buildDraftPrompt(lesson, count, { desiredCategories }),
+    input: buildDraftPrompt(lesson, count, { desiredCategories, desiredFormats }),
     generation_config: {
       thinking_level: "low" as const,
       temperature: 0.2,
@@ -297,7 +352,11 @@ export function buildDraftPrompt(
   count: number,
   {
     desiredCategories = [],
-  }: { desiredCategories?: readonly InterviewQuestionCategory[] } = {},
+    desiredFormats = [],
+  }: {
+    desiredCategories?: readonly InterviewQuestionCategory[];
+    desiredFormats?: readonly InterviewQuestionFormat[];
+  } = {},
 ) {
   const language = languageDisplayName(lesson);
   const scenarioScope = lesson.language === "python"
@@ -310,6 +369,9 @@ export function buildDraftPrompt(
     heading: section.heading,
     content: section.bodyMarkdown.slice(0, 3000),
   }));
+  const formats = desiredFormats.length
+    ? desiredFormats
+    : draftFormatsForCategories(desiredCategories, count);
 
   return JSON.stringify(
     {
@@ -335,6 +397,8 @@ export function buildDraftPrompt(
         `Set responseMode to code only when the candidate is explicitly required to write or modify ${language} code. Explanatory, analytical, and scenario questions must use text.`,
         "When responseMode is code, make the prompt explicitly ask the candidate to write or modify code.",
         "Set interviewCategory to exactly one of language_knowledge, code_reading_ub, coding, code_review_debug, design_performance, or communication_ownership.",
+        `Set interviewFormat to one of: ${formats.join(", ")}. Its interviewCategory must match the format's required category below.`,
+        "For code_review, return a non-empty separate code field and responseMode text. The candidate will leave line-level comments; do not put review hints in the prompt.",
         "Set assessmentSkills to one to six concrete lowercase kebab-case skills being measured, grounded in the supplied lesson.",
         "Use interviewCategory coding only with responseMode code. Do not claim that a generated draft has executable tests; test suites are added and reviewed separately by a maintainer.",
         desiredCategories.length
@@ -350,6 +414,11 @@ export function buildDraftPrompt(
         sections,
         code: lesson.code?.slice(0, 6000) ?? null,
       },
+      requestedInterviewFormats: formats.map((format) => ({
+        format,
+        category: categoryForInterviewFormat(format),
+        instruction: interviewFormatDefinitions[format].generatorInstruction,
+      })),
     },
     null,
     2,

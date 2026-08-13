@@ -99,6 +99,8 @@ export function buildContentBackfillPayload({
 export function questionRevisionChecksum(question: ContentQuestion): string {
   const interviewCategory =
     question.interviewCategory ?? question.taxonomy.interviewCategory;
+  const interviewFormat =
+    question.interviewFormat ?? question.taxonomy.interviewFormat;
   const assessmentSkills =
     question.assessmentSkills ?? question.taxonomy.assessmentSkills;
   const codeTestSuite =
@@ -109,6 +111,7 @@ export function questionRevisionChecksum(question: ContentQuestion): string {
       responseMode: question.responseMode ?? "text",
       difficulty: question.difficulty,
       ...(interviewCategory ? { interviewCategory } : {}),
+      ...(interviewFormat ? { interviewFormat } : {}),
       ...(assessmentSkills ? { assessmentSkills } : {}),
       ...(codeTestSuite ? { codeTestSuite } : {}),
       estimatedMinutes: question.estimatedMinutes,

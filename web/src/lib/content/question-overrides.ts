@@ -4,12 +4,14 @@ import {
   contentManifestSchema,
   codeTestSuiteMetadataSchema,
   interviewQuestionCategorySchema,
+  interviewQuestionFormatSchema,
   questionDifficultySchema,
   questionResponseModeSchema,
   questionSkillSchema,
   type ContentManifest,
   type ContentQuestion,
 } from "./schema";
+import { categoryForInterviewFormat } from "./interview-formats";
 import { buildQuestionTaxonomy } from "./taxonomy";
 
 const rubricItemSchema = z.string().trim().min(3).max(1000);
@@ -19,6 +21,7 @@ export const editableQuestionContentSchema = z.object({
   responseMode: questionResponseModeSchema,
   difficulty: questionDifficultySchema,
   interviewCategory: interviewQuestionCategorySchema.optional(),
+  interviewFormat: interviewQuestionFormatSchema.optional(),
   estimatedMinutes: z.number().int().min(1).max(15),
   prompt: z.string().trim().min(10).max(3000),
   code: z.string().trim().max(10_000).nullable(),
@@ -33,6 +36,35 @@ export const editableQuestionContentSchema = z.object({
     misconceptions: z.array(rubricItemSchema).max(12),
   }),
   codeTestSuite: codeTestSuiteMetadataSchema.optional(),
+}).superRefine((content, context) => {
+  if (content.interviewFormat === "code_review") {
+    if (!content.code) {
+      context.addIssue({
+        code: "custom",
+        path: ["code"],
+        message: "Code review questions must include the code being reviewed",
+      });
+    }
+    if (content.responseMode !== "text") {
+      context.addIssue({
+        code: "custom",
+        path: ["responseMode"],
+        message: "Code review questions collect review comments as text",
+      });
+    }
+  }
+  if (
+    content.interviewFormat &&
+    content.interviewCategory &&
+    content.interviewCategory !==
+      categoryForInterviewFormat(content.interviewFormat)
+  ) {
+    context.addIssue({
+      code: "custom",
+      path: ["interviewCategory"],
+      message: "Interview format and category must match",
+    });
+  }
 });
 
 export const questionMutationSchema = z.discriminatedUnion("action", [
@@ -87,6 +119,8 @@ export function editableQuestionContent(
     difficulty: question.difficulty,
     interviewCategory:
       question.interviewCategory ?? question.taxonomy.interviewCategory,
+    interviewFormat:
+      question.interviewFormat ?? question.taxonomy.interviewFormat,
     estimatedMinutes: question.estimatedMinutes,
     prompt: question.prompt,
     code: question.code ?? null,

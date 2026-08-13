@@ -34,6 +34,7 @@ const draft = {
   responseMode: "text",
   difficulty: "intermediate",
   interviewCategory: "design_performance",
+  interviewFormat: "ownership_lifetime_design",
   assessmentSkills: ["ownership", "move-semantics"],
   estimatedMinutes: 4,
   prompt: "Một hot path chuyển ownership thì nên thiết kế thế nào?",

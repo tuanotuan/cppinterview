@@ -1,4 +1,5 @@
 import type { ContentQuestion } from "./schema";
+import { categoryForInterviewFormat } from "./interview-formats";
 
 export const interviewQuestionCategories = [
   "language_knowledge",
@@ -77,6 +78,7 @@ type QuestionForClassification = Pick<
   "type" | "responseMode" | "taxonomy"
 > & {
   interviewCategory?: InterviewQuestionCategory;
+  interviewFormat?: ContentQuestion["interviewFormat"];
   assessmentSkills?: string[];
   codeTestSuite?: CodeTestSuiteMetadata;
   status?: ContentQuestion["status"];
@@ -91,6 +93,8 @@ export function resolveInterviewQuestionCategory(
   const explicit =
     question.interviewCategory ?? question.taxonomy?.interviewCategory;
   if (explicit) return explicit;
+  const format = question.interviewFormat ?? question.taxonomy?.interviewFormat;
+  if (format) return categoryForInterviewFormat(format);
 
   if (question.responseMode === "code") return "coding";
   if (question.type === "recall") return "language_knowledge";

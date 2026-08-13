@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { categoryForInterviewFormat } from "./interview-formats";
+
 const idSchema = z
   .string()
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use a lowercase kebab-case ID");
@@ -53,6 +55,27 @@ export type InterviewQuestionCategory = z.infer<
   typeof interviewQuestionCategorySchema
 >;
 
+// This stays separate from `type`: the existing four types drive spaced
+// repetition, while the interview format describes the concrete interview
+// exercise the candidate sees.
+export const interviewQuestionFormatSchema = z.enum([
+  "concept_explanation",
+  "bug_hunt",
+  "crash_memory_leak",
+  "undefined_behavior",
+  "api_class_review",
+  "implementation_comparison",
+  "correctness_preserving_optimization",
+  "compiler_diagnostic",
+  "ownership_lifetime_design",
+  "test_first_debugging",
+  "code_review",
+  "ownership_communication",
+]);
+export type InterviewQuestionFormat = z.infer<
+  typeof interviewQuestionFormatSchema
+>;
+
 export const codeTestSuiteMetadataSchema = z.object({
   specRevision: z.number().int().positive(),
   publicTestCount: z.number().int().min(1).max(10),
@@ -77,6 +100,7 @@ export const questionTaxonomySchema = z
     sourceLessonId: idSchema,
     tags: z.array(taxonomyTagSchema).min(6),
     interviewCategory: interviewQuestionCategorySchema.optional(),
+    interviewFormat: interviewQuestionFormatSchema.optional(),
     assessmentSkills: z.array(idSchema).min(1).max(6).optional(),
     codeTestSuite: codeTestSuiteMetadataSchema.optional(),
   })
@@ -95,6 +119,18 @@ export const questionTaxonomySchema = z
       context.addIssue({
         code: "custom",
         message: `Taxonomy ${taxonomy.deckId} has inconsistent language/track`,
+      });
+    }
+    if (
+      taxonomy.interviewFormat &&
+      taxonomy.interviewCategory &&
+      taxonomy.interviewCategory !==
+        categoryForInterviewFormat(taxonomy.interviewFormat)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["interviewCategory"],
+        message: "Interview format and category must match",
       });
     }
   });
@@ -156,6 +192,7 @@ export const questionSchema = z.object({
   responseMode: questionResponseModeSchema.optional(),
   difficulty: questionDifficultySchema,
   interviewCategory: interviewQuestionCategorySchema.optional(),
+  interviewFormat: interviewQuestionFormatSchema.optional(),
   assessmentSkills: z.array(idSchema).min(1).max(6).optional(),
   codeTestSuite: codeTestSuiteMetadataSchema.optional(),
   estimatedMinutes: z.number().int().min(1).max(15),
@@ -197,6 +234,34 @@ export const questionSchema = z.object({
       code: "custom",
       path: ["codeTestSuite"],
       message: "Only code questions can declare a code test suite",
+    });
+  }
+  if (question.interviewFormat === "code_review") {
+    if (!question.code) {
+      context.addIssue({
+        code: "custom",
+        path: ["code"],
+        message: "Code review questions must include the code being reviewed",
+      });
+    }
+    if ((question.responseMode ?? "text") !== "text") {
+      context.addIssue({
+        code: "custom",
+        path: ["responseMode"],
+        message: "Code review questions collect review comments as text",
+      });
+    }
+  }
+  if (
+    question.interviewFormat &&
+    question.interviewCategory &&
+    question.interviewCategory !==
+      categoryForInterviewFormat(question.interviewFormat)
+  ) {
+    context.addIssue({
+      code: "custom",
+      path: ["interviewCategory"],
+      message: "Interview format and category must match",
     });
   }
 });

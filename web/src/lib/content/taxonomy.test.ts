@@ -54,12 +54,14 @@ describe("question taxonomy", () => {
       {
         ...question,
         interviewCategory: "code_review_debug",
+        interviewFormat: "code_review",
         assessmentSkills: ["debugging", "code-review", "debugging"],
       },
       lesson,
     );
 
     expect(taxonomy.interviewCategory).toBe("code_review_debug");
+    expect(taxonomy.interviewFormat).toBe("code_review");
     expect(taxonomy.assessmentSkills).toEqual(["code-review", "debugging"]);
     expect(taxonomy.tags).not.toContain("category::code-review-debug");
   });

@@ -91,11 +91,20 @@ The C++ bank target is 300 human-verified questions: 100 language knowledge,
 the concrete skills measured are internal metadata; learner cards continue to
 show only difficulty and `Text`/`Code`.
 
-Every new draft carries one `interviewCategory` and one or more
-`assessmentSkills`; legacy questions are classified deterministically until a
-maintainer edits them. The coverage dashboard counts only `verified` C++
-questions with a complete publication contract. Drafts, stale revisions, and
-owner-private approvals never inflate the 300 target.
+Every new draft carries one `interviewCategory`, one `interviewFormat`, and one
+or more `assessmentSkills`; legacy questions are classified deterministically
+until a maintainer edits them. Formats cover bug hunting, crash/leak repair,
+undefined behavior, API/class review, implementation comparison,
+correctness-preserving optimization, compiler diagnostics, ownership/lifetime,
+test-first debugging, and line-level code review. The coverage dashboard counts
+only `verified` C++ questions with a complete publication contract. Drafts,
+stale revisions, and owner-private approvals never inflate the 300 target.
+
+`code_review` keeps the code in the question's separate `code` field and uses a
+text response. The Practice UI serializes each candidate annotation as a
+line-numbered comment, so it survives reload and is part of the exact answer
+sent to Coach. This format must never put expected reviewer comments or rubric
+hints in the learner prompt.
 
 A code question cannot become `verified` unless it declares both public and
 hidden test counts through `codeTestSuite` and has an exact server-owned test

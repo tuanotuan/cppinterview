@@ -155,4 +155,54 @@ describe("multi-language lesson registry", () => {
 
     expect(result.success).toBe(false);
   });
+
+  it("requires a separate code sample for a line-by-line code review", () => {
+    const result = questionSchema.safeParse({
+      id: "cpp11-review-example",
+      lessonId: "cpp11-example",
+      type: "code_reasoning",
+      responseMode: "text",
+      difficulty: "intermediate",
+      interviewCategory: "code_review_debug",
+      interviewFormat: "code_review",
+      estimatedMinutes: 5,
+      prompt: "Review đoạn mã bên dưới theo từng dòng quan trọng.",
+      hint: "Nêu vấn đề, tác động và cách sửa.",
+      answer: { short: "Một đáp án ngắn hợp lệ.", detailed: "Một đáp án chi tiết hợp lệ để giải thích." },
+      rubric: { required: ["Nêu lỗi chính"], bonus: [], misconceptions: [] },
+      sources: [{ sectionId: "example" }],
+      sourceHash: "a".repeat(64),
+      status: "draft",
+      version: 1,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects an interview format stored in the wrong category", () => {
+    const result = questionSchema.safeParse({
+      id: "cpp11-review-category-example",
+      lessonId: "cpp11-example",
+      type: "code_reasoning",
+      responseMode: "text",
+      difficulty: "intermediate",
+      interviewCategory: "language_knowledge",
+      interviewFormat: "code_review",
+      estimatedMinutes: 5,
+      prompt: "Review đoạn mã bên dưới theo từng dòng quan trọng.",
+      code: "int main() { return 0; }",
+      hint: "Nêu vấn đề, tác động và cách sửa.",
+      answer: {
+        short: "Một đáp án ngắn hợp lệ.",
+        detailed: "Một đáp án chi tiết hợp lệ để giải thích.",
+      },
+      rubric: { required: ["Nêu lỗi chính"], bonus: [], misconceptions: [] },
+      sources: [{ sectionId: "example" }],
+      sourceHash: "a".repeat(64),
+      status: "draft",
+      version: 1,
+    });
+
+    expect(result.success).toBe(false);
+  });
 });

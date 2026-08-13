@@ -50,6 +50,9 @@ export function buildQuestionTaxonomy(
     ...(question.interviewCategory
       ? { interviewCategory: question.interviewCategory }
       : {}),
+    ...(question.interviewFormat
+      ? { interviewFormat: question.interviewFormat }
+      : {}),
     ...(question.assessmentSkills?.length
       ? { assessmentSkills: [...new Set(question.assessmentSkills)].sort() }
       : {}),
