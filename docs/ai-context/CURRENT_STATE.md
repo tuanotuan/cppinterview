@@ -88,7 +88,7 @@ trạng thái từ tên nhánh.
   người học có một đường quay lại nhất quán từ Practice, thư viện, WorldQuant,
   Mock, Stats và Admin.
 - Trang chủ `/` luôn là landing giới thiệu Recall; `/auth` hỗ trợ email/mật khẩu
-  và GitHub OAuth, còn workspace Today nằm ở `/practice` cho cả local practice
+  cùng Google và GitHub OAuth, còn workspace Today nằm ở `/practice` cho cả local practice
   lẫn account đã đăng nhập. Đăng ký email cần xác nhận mật khẩu phía browser và
   server; nút hiện/ẩn dùng chung cho cả hai ô mật khẩu, rồi xác minh email qua
   `/auth/confirm`.
@@ -129,6 +129,10 @@ trạng thái từ tên nhánh.
   ESLint trên mọi file thay đổi, 110 file/675 Vitest test (chia hai lượt do giới
   hạn terminal) và Next.js production build 64 route. Không cần migration hay
   biến môi trường mới; report/artifact cũ vẫn đọc bằng fallback cũ.
+- Google OAuth ở `/auth` dùng cùng callback PKCE của Supabase như GitHub; trước
+  khi nút hoạt động cần bật provider, điền Google Client ID/Secret và đăng ký
+  callback/origin theo `web/supabase/README.md`. Thay đổi UI/route đã đạt
+  `content:check`, TypeScript, ESLint các file đổi và `context:check`.
 - Mobile usage cho admin dùng `document.visibilityState`, không dùng
   `document.hasFocus()` vì Safari/Chrome mobile có thể trả về false khi tab vẫn
   đang hiện. Heartbeat fix đạt typecheck, ESLint các file liên quan và targeted
