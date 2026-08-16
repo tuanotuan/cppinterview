@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useActionState, useState, type ReactNode } from "react";
 
 import {
   initialAuthFormState,
@@ -147,17 +147,62 @@ export function AuthForm({
             hoặc
             <span className="h-px flex-1 bg-[#173f35]/12" />
           </div>
-          <form action={`/auth/login?next=${encodeURIComponent(next)}`} method="post">
-            <button
-              type="submit"
-              className="inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-[#173f35]/18 bg-white px-4 py-3 text-sm font-bold text-[#245748] transition hover:bg-[#edf0e8] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
-            >
+          <div className="grid gap-3">
+            <OAuthButton provider="google" next={next}>
+              <GoogleMark />
+              Tiếp tục với Google
+            </OAuthButton>
+            <OAuthButton provider="github" next={next}>
+              <GitHubMark />
               Tiếp tục với GitHub
-            </button>
-          </form>
+            </OAuthButton>
+          </div>
         </section>
       </div>
     </main>
+  );
+}
+
+function OAuthButton({
+  provider,
+  next,
+  children,
+}: {
+  provider: "github" | "google";
+  next: string;
+  children: ReactNode;
+}) {
+  return (
+    <form
+      action={`/auth/login?provider=${provider}&next=${encodeURIComponent(next)}`}
+      method="post"
+    >
+      <button
+        type="submit"
+        className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#173f35]/18 bg-white px-4 py-3 text-sm font-bold text-[#245748] transition hover:bg-[#edf0e8] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+      >
+        {children}
+      </button>
+    </form>
+  );
+}
+
+function GoogleMark() {
+  return (
+    <svg aria-hidden="true" className="size-5" viewBox="0 0 24 24">
+      <path fill="#4285F4" d="M21.35 12.2c0-.71-.06-1.4-.18-2.05H12v3.88h5.24a4.48 4.48 0 0 1-1.94 2.94v2.51h3.14c1.84-1.7 2.91-4.2 2.91-7.28Z" />
+      <path fill="#34A853" d="M12 21.7c2.63 0 4.84-.87 6.45-2.22l-3.14-2.51c-.87.58-1.99.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.3v2.59A9.74 9.74 0 0 0 12 21.7Z" />
+      <path fill="#FBBC05" d="M6.54 13.86A5.86 5.86 0 0 1 6.23 12c0-.65.11-1.28.31-1.86V7.55H3.3A9.68 9.68 0 0 0 2.3 12c0 1.61.39 3.14 1 4.45l3.24-2.59Z" />
+      <path fill="#EA4335" d="M12 6.11c1.43 0 2.72.49 3.73 1.45l2.8-2.8C16.83 3.17 14.63 2.3 12 2.3a9.74 9.74 0 0 0-8.7 5.25l3.24 2.59C7.31 7.83 9.46 6.11 12 6.11Z" />
+    </svg>
+  );
+}
+
+function GitHubMark() {
+  return (
+    <svg aria-hidden="true" className="size-5 fill-current" viewBox="0 0 24 24">
+      <path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.54 1.04 1.54 1.04.9 1.54 2.36 1.1 2.94.84.09-.65.35-1.1.64-1.35-2.22-.25-4.56-1.11-4.56-4.95 0-1.1.39-2 1.04-2.71-.1-.25-.45-1.28.1-2.67 0 0 .85-.27 2.75 1.04a9.58 9.58 0 0 1 5 0c1.9-1.31 2.75-1.04 2.75-1.04.55 1.39.2 2.42.1 2.67.65.71 1.04 1.61 1.04 2.71 0 3.85-2.35 4.7-4.58 4.95.36.31.68.9.68 1.82v2.7c0 .27.18.58.69.48A10 10 0 0 0 12 2Z" />
+    </svg>
   );
 }
 
