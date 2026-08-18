@@ -8,15 +8,15 @@
 - Manifest schema: 1
 - Source revision: `1ae36468eb6accc5a13fafabd23e09822270581bd0f9f3b99bfdb2dd48956943`
 - Lessons: 33 (cpp11: 26, cpp20: 1, cpp98: 5, python3: 1)
-- Questions: 48 (draft: 38, verified: 10)
-- Question decks: cpp-interview: 48
+- Questions: 58 (draft: 48, verified: 10)
+- Question decks: cpp-interview: 58
 
 ## Application inventory
 
 - App pages: 20 (/, /admin, /admin/coverage, /auth, /learn, /learn/[lessonId], /learn/cmake, /learn/tick-data-order-book, /mock-interview, /practice, /profile, /stats, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/legacy-modern-capstone, /worldquant/mission, /worldquant/tick-replay-lab, /worldquant/toolchain-dojo)
 - API routes: 26 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/admin/questions/manual, /api/coach/clarify, /api/coach/evaluate, /api/coach/follow-up, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/profile/mobile-usage, /api/progress/sync, /api/questions/approve, /api/worldquant/mission-snapshot, /api/worldquant/training-state, /auth/callback, /auth/confirm, /auth/login, /auth/logout)
-- TypeScript source files excluding tests: 183
-- Colocated test files: 109
+- TypeScript source files excluding tests: 186
+- Colocated test files: 111
 - Supabase migrations: 43
 - Latest migration filename: `20260809120000_add_public_ai_quota_status.sql`
 
@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `0e50212497f4363ddf0df5c71f2e7df081e6b008ec779bf189d31f148a427b91`
-- Fingerprinted files: 427
+- Project input fingerprint: `38cc98d48946cb3bb0071d513a95eec2c34b374967ff41c07370fa385577e846`
+- Fingerprinted files: 433
 
 The fingerprint covers registered lesson sources, content files, application
 source/tests, scripts, package metadata, environment template, workflows, and
