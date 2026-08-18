@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   parseEmailPasswordCredentials,
   parsePasswordUpdate,
+  parseRecoveryCode,
   parseRecoveryEmail,
   parseSignUpCredentials,
   safeAuthNext,
@@ -45,6 +46,9 @@ describe("email/password credentials", () => {
       ok: true,
       email: "user@example.com",
     });
+    expect(parseRecoveryCode("123456")).toEqual({ ok: true, code: "123456" });
+    expect(parseRecoveryCode("12345678")).toEqual({ ok: true, code: "12345678" });
+    expect(parseRecoveryCode("abc123")).toMatchObject({ ok: false });
     expect(
       parsePasswordUpdate({ password: "short", passwordConfirmation: "short" }),
     ).toMatchObject({ ok: false, message: "Mật khẩu mới cần có ít nhất 8 ký tự." });

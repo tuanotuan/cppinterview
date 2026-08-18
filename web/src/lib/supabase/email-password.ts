@@ -80,6 +80,14 @@ export function parseRecoveryEmail(email: FormDataEntryValue | null) {
   return { ok: true as const, email: normalizedEmail };
 }
 
+export function parseRecoveryCode(code: FormDataEntryValue | null) {
+  const normalizedCode = stringValue(code);
+  if (!/^\d{6,8}$/.test(normalizedCode)) {
+    return { ok: false as const, message: "Hãy nhập mã xác minh gồm 6 đến 8 chữ số trong email." };
+  }
+  return { ok: true as const, code: normalizedCode };
+}
+
 export function safeAuthNext(value: FormDataEntryValue | string | null) {
   const candidate = typeof value === "string" ? value.trim() : "";
   return candidate.startsWith("/") && !candidate.startsWith("//") && !candidate.startsWith("/\\")
@@ -104,6 +112,18 @@ export function signInErrorMessage(code: string | undefined) {
       return "Email hoặc mật khẩu không đúng.";
     default:
       return "Không thể đăng nhập lúc này. Hãy thử lại sau.";
+  }
+}
+
+/** Preserve account-enumeration protection while surfacing genuine send failures. */
+export function passwordRecoveryRequestErrorMessage(code: string | undefined) {
+  switch (code) {
+    case "over_email_send_rate_limit":
+      return "Bạn đã yêu cầu email khôi phục quá nhiều lần. Hãy chờ một lúc rồi thử lại.";
+    case "email_address_invalid":
+      return "Địa chỉ email này không hợp lệ.";
+    default:
+      return "Chưa thể gửi email khôi phục lúc này. Hãy thử lại sau.";
   }
 }
 

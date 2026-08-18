@@ -1,12 +1,14 @@
 "use server";
 
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import {
   parseEmailPasswordCredentials,
   parsePasswordUpdate,
+  parseRecoveryCode,
   parseRecoveryEmail,
+  passwordRecoveryRequestErrorMessage,
   parseSignUpCredentials,
   safeAuthNext,
   signInErrorMessage,
@@ -14,6 +16,9 @@ import {
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import type { AuthFormState } from "./auth-form-state";
+
+const passwordRecoveryEmailCookie = "cppinterview_recovery_email";
+const passwordRecoveryCookiePath = "/auth/reset-password";
 
 export async function signInWithEmailPassword(
   _previous: AuthFormState,
@@ -87,15 +92,63 @@ export async function requestPasswordReset(
   }
 
   const supabase = await createSupabaseServerClient();
-  await supabase.auth.resetPasswordForEmail(parsed.email, {
+  const { error } = await supabase.auth.resetPasswordForEmail(parsed.email, {
     redirectTo: `${origin}/auth/confirm?next=${encodeURIComponent("/auth/reset-password?stage=update")}`,
   });
+  if (error) {
+    return { status: "error", message: passwordRecoveryRequestErrorMessage(error.code) };
+  }
 
-  // Do not reveal whether this email owns an account.
-  return {
-    status: "success",
-    message: "Nếu email này có tài khoản cppinterview, hướng dẫn khôi phục đã được gửi. Hãy kiểm tra cả thư mục Spam.",
-  };
+  const cookieStore = await cookies();
+  cookieStore.set(passwordRecoveryEmailCookie, parsed.email, {
+    httpOnly: true,
+    maxAge: 15 * 60,
+    path: passwordRecoveryCookiePath,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+
+  redirect("/auth/reset-password?stage=verify");
+}
+
+export async function verifyPasswordRecoveryCode(
+  _previous: AuthFormState,
+  formData: FormData,
+): Promise<AuthFormState> {
+  const parsed = parseRecoveryCode(formData.get("code"));
+  if (!parsed.ok) return { status: "error", message: parsed.message };
+
+  const cookieStore = await cookies();
+  const email = cookieStore.get(passwordRecoveryEmailCookie)?.value;
+  if (!email) {
+    return {
+      status: "error",
+      message: "Phiên khôi phục đã hết hạn. Hãy yêu cầu gửi mã mới.",
+    };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.auth.verifyOtp({
+    email,
+    token: parsed.code,
+    type: "recovery",
+  });
+  if (error) {
+    return {
+      status: "error",
+      message: "Mã không đúng hoặc đã hết hạn. Hãy kiểm tra lại email hoặc yêu cầu mã mới.",
+    };
+  }
+
+  cookieStore.set(passwordRecoveryEmailCookie, "", {
+    httpOnly: true,
+    maxAge: 0,
+    path: passwordRecoveryCookiePath,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+
+  redirect("/auth/reset-password?stage=update");
 }
 
 export async function updatePasswordFromRecovery(

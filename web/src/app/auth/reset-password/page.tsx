@@ -14,7 +14,8 @@ export default async function ResetPasswordPage({
   searchParams: Promise<{ stage?: string | string[]; auth?: string | string[] }>;
 }) {
   const params = await searchParams;
-  const stage = single(params.stage) === "update" ? "update" : "request";
+  const requestedStage = single(params.stage);
+  const stage = requestedStage === "update" || requestedStage === "verify" ? requestedStage : "request";
 
   if (!isSupabaseConfigured()) {
     return <RecoveryShell><p>Khôi phục mật khẩu chưa sẵn sàng.</p></RecoveryShell>;
