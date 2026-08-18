@@ -6,7 +6,11 @@ import {
 } from "@/lib/code-runner/contracts";
 import { worldQuantMockDebriefSchema } from "@/lib/worldquant/mock-debrief";
 
-import { mockInterviewReportSchema } from "./contracts";
+import {
+  mockInterviewReportSchema,
+  normalizedInterviewDimensionsSchema,
+  normalizedNextPracticeActionsSchema,
+} from "./contracts";
 import { targetedMockPlanSchema } from "./target-plan";
 
 export const publicHiddenExecutionResultSchema =
@@ -91,6 +95,11 @@ export const mockInterviewScopedReportV4Schema =
     })
     .extend({
       evidenceScope: worldQuantMockDebriefSchema.shape.scope,
+      // Historical v4 artifacts predate the evidence-backed detail/report queue.
+      // New reports always carry both fields; keeping them optional here lets
+      // history remain readable after the contract upgrade.
+      interviewDimensions: normalizedInterviewDimensionsSchema.optional(),
+      nextPracticeActions: normalizedNextPracticeActionsSchema.optional(),
     })
     .strict();
 

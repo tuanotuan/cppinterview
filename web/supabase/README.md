@@ -17,9 +17,13 @@ admission, the Mistake Inbox, and atomic daily/monthly AI accounting.
 4. In Supabase Authentication > Providers, enable **Email**. Keep email
    confirmation enabled in production so a new address must be verified before
    it can sign in.
-5. Optional: enable GitHub and create a GitHub OAuth App. Set its callback URL
-   to the callback displayed by Supabase, normally
-   `https://<project-ref>.supabase.co/auth/v1/callback`.
+5. Optional: enable GitHub and/or Google OAuth. For either provider, create the
+   OAuth client in its provider console, then set its callback URL to the URL
+   displayed by Supabase, normally
+   `https://<project-ref>.supabase.co/auth/v1/callback`. For Google, add the
+   site origin (production URL and `http://localhost:3000`) under Authorized
+   JavaScript origins, then copy the Google Client ID and Client Secret into
+   Supabase Authentication > Providers > Google.
 6. In Supabase Authentication > URL Configuration, set the production Site URL
    and add both `/auth/callback` and `/auth/confirm` for production and
    `http://localhost:3000`. The email/password registration flow sends its

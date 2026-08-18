@@ -62,6 +62,7 @@ import { isAllowedPracticeUser } from "@/lib/supabase/authorization";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
+  buildMockReportEvidenceCatalog,
   mockInterviewReportRequestSchema,
   normalizeMockInterviewReport,
 } from "@/lib/mock-interview/contracts";
@@ -676,6 +677,32 @@ export async function POST(request: Request) {
   const questionCompetencies = Object.fromEntries(
     evaluationItems.map((item) => [item.questionId, item.competency]),
   );
+  const evidenceCatalog = buildMockReportEvidenceCatalog({
+    items: reportRequest.items.map((item) => {
+      const evaluation = evaluationItems.find(
+        (candidate) => candidate.questionId === item.questionId,
+      );
+      const execution = executionByQuestionId.get(item.questionId);
+      return {
+        questionId: item.questionId,
+        responseMode:
+          reportRequest.plan.questions.find(
+            (candidate) => candidate.question.id === item.questionId,
+          )?.question.responseMode ?? "text",
+        response: item.response,
+        explanation: item.explanation,
+        questionCode: evaluation?.code,
+        execution: execution
+          ? {
+              status: execution.status,
+              passedTests: execution.passedTests,
+              totalTests: execution.totalTests,
+              durationMs: execution.durationMs,
+            }
+          : undefined,
+      };
+    }),
+  });
   const role = worldQuantRoleProfileById(reportRequest.profileId);
   const instructions = buildMockInterviewSystemInstruction(role?.label);
   const prompt = buildMockInterviewReportPrompt({
@@ -684,6 +711,7 @@ export async function POST(request: Request) {
     items: evaluationItems,
     roleLabel: role?.label,
     evidenceScope: reportRequest.plan.mode,
+    evidenceCatalog,
   });
 
   let providerCompleted = false;
@@ -727,6 +755,7 @@ export async function POST(request: Request) {
           execution.status,
         ]),
       ),
+      evidenceCatalog,
     });
     const modelLabel =
       provider === "gemini"

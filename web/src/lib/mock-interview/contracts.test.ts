@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildMockReportEvidenceCatalog,
+  mockInterviewDimensionKeys,
+  mockInterviewReportSchema,
   mockInterviewReportRequestSchema,
   normalizeMockInterviewReport,
   type MockInterviewReport,
@@ -62,6 +65,42 @@ function reportRequestForSet(mockSet: MockInterviewSet) {
   };
 }
 
+function evidenceCatalogFor(questionIds: readonly string[]) {
+  return questionIds.map((questionId) => ({
+    id: `answer:${questionId}:response`,
+    questionId,
+    kind: "candidate_answer" as const,
+    label: "Câu trả lời của ứng viên",
+    excerpt: "A candidate answer.",
+  }));
+}
+
+function detailedReportFor(questionIds: readonly string[]) {
+  const evidenceId = (index = 0) =>
+    `answer:${questionIds[index % questionIds.length]}:response`;
+  return {
+    interviewDimensions: mockInterviewDimensionKeys.map((key) => ({
+      key,
+      status: "assessed" as const,
+      score: 50,
+      summary: `Đánh giá ${key} dựa trên câu trả lời đã nộp.`,
+      evidenceIds: [evidenceId()],
+      observations: [
+        {
+          feedback: `Nhận xét ${key} có bằng chứng cụ thể.`,
+          evidenceIds: [evidenceId()],
+        },
+      ],
+    })),
+    nextPracticeActions: [1, 2, 3].map((priority) => ({
+      priority,
+      title: `Luyện trọng tâm ${priority}`,
+      action: "Tự làm lại câu hỏi và giải thích cách kiểm chứng kết quả.",
+      evidenceIds: [evidenceId(priority - 1)],
+    })),
+  };
+}
+
 describe("mock interview report requests", () => {
   it("accepts the exact versioned composition of all six stored sets", () => {
     for (const mockSet of WORLDQUANT_MOCK_SETS) {
@@ -116,6 +155,44 @@ describe("mock interview report requests", () => {
 });
 
 describe("mock interview report normalization", () => {
+  it("builds canonical evidence only from submitted answers, code, question code, and server tests", () => {
+    const catalog = buildMockReportEvidenceCatalog({
+      items: [
+        {
+          questionId: "cpp11-reference-001",
+          responseMode: "text",
+          response: "A concrete answer.",
+          explanation: "",
+        },
+        {
+          questionId: "worldquant-tick-feed-correctness",
+          responseMode: "code",
+          response: "int main() { return 0; }",
+          explanation: "Compiles and handles the simplest path.",
+          questionCode: "struct FeedEvent {};",
+          execution: {
+            status: "passed",
+            passedTests: 2,
+            totalTests: 2,
+            durationMs: 4,
+          },
+        },
+      ],
+    });
+
+    expect(catalog.map((item) => item.id)).toEqual([
+      "answer:cpp11-reference-001:response",
+      "answer:worldquant-tick-feed-correctness:response",
+      "answer:worldquant-tick-feed-correctness:explanation",
+      "code:worldquant-tick-feed-correctness:submission",
+      "code:worldquant-tick-feed-correctness:question",
+      "test:worldquant-tick-feed-correctness:hidden",
+    ]);
+    expect(catalog.find((item) => item.id.startsWith("test:"))?.excerpt).toContain(
+      "passed=2/2",
+    );
+  });
+
   it("derives assessed competency and overall scores only from asked questions", () => {
     const competencies = allCompetencies();
     const rawReport: MockInterviewReport = {
@@ -150,6 +227,11 @@ describe("mock interview report normalization", () => {
           missedCriteria: ["Missing rollback."],
         },
       ],
+      ...detailedReportFor([
+        "cpp11-reference-001",
+        "worldquant-tick-feed-correctness",
+        "worldquant-legacy-migration",
+      ]),
       strengths: [],
       priorityGaps: [],
       studyPlan: [],
@@ -163,6 +245,11 @@ describe("mock interview report normalization", () => {
     const normalized = normalizeMockInterviewReport({
       rawReport,
       questionCompetencies,
+      evidenceCatalog: evidenceCatalogFor([
+        "cpp11-reference-001",
+        "worldquant-tick-feed-correctness",
+        "worldquant-legacy-migration",
+      ]),
     });
 
     expect(normalized.competencies.modern_cpp.score).toBe(80);
@@ -172,6 +259,68 @@ describe("mock interview report normalization", () => {
     expect(normalized.competencies.scripting.score).toBeNull();
     expect(normalized.overallScore).toBe(66);
     expect(normalized.readiness).toBe("developing");
+    expect(normalized.interviewDimensions).toHaveLength(8);
+    expect(normalized.interviewDimensions[0]?.evidence[0]).toMatchObject({
+      questionId: "cpp11-reference-001",
+      kind: "candidate_answer",
+    });
+    expect(normalized.nextPracticeActions).toHaveLength(3);
+    expect(normalized.studyPlan).toEqual([]);
+
+    const normalizedWithIgnoredLegacyPlan = normalizeMockInterviewReport({
+      rawReport: {
+        ...rawReport,
+        studyPlan: [
+          {
+            priority: 1,
+            topic: "Không được hiển thị như một việc thứ tư",
+            action: "Bỏ qua để report mới luôn chỉ có ba việc luyện.",
+            questionIds: ["cpp11-reference-001"],
+          },
+        ],
+      },
+      questionCompetencies,
+      evidenceCatalog: evidenceCatalogFor([
+        "cpp11-reference-001",
+        "worldquant-tick-feed-correctness",
+        "worldquant-legacy-migration",
+      ]),
+    });
+    expect(normalizedWithIgnoredLegacyPlan.studyPlan).toEqual([]);
+
+    expect(
+      mockInterviewReportSchema.safeParse({
+        ...rawReport,
+        nextPracticeActions: rawReport.nextPracticeActions.slice(0, 2),
+      }).success,
+    ).toBe(false);
+    expect(
+      mockInterviewReportSchema.safeParse({
+        ...rawReport,
+        nextPracticeActions: rawReport.nextPracticeActions.map(
+          (action) => ({ ...action, priority: 3 }),
+        ),
+      }).success,
+    ).toBe(false);
+    expect(() =>
+      normalizeMockInterviewReport({
+        rawReport: {
+          ...rawReport,
+          interviewDimensions: rawReport.interviewDimensions.map(
+            (dimension, index) =>
+              index === 0
+                ? { ...dimension, evidenceIds: ["answer:invented:response"] }
+                : dimension,
+          ),
+        },
+        questionCompetencies,
+        evidenceCatalog: evidenceCatalogFor([
+          "cpp11-reference-001",
+          "worldquant-tick-feed-correctness",
+          "worldquant-legacy-migration",
+        ]),
+      }),
+    ).toThrow(/cited evidence outside/);
 
     const executionCapped = normalizeMockInterviewReport({
       rawReport,
@@ -180,6 +329,11 @@ describe("mock interview report normalization", () => {
         "cpp11-reference-001": "compile_error",
         "worldquant-legacy-migration": "sandbox_error",
       },
+      evidenceCatalog: evidenceCatalogFor([
+        "cpp11-reference-001",
+        "worldquant-tick-feed-correctness",
+        "worldquant-legacy-migration",
+      ]),
     });
     expect(executionCapped.questionAssessments[0]?.score).toBe(39);
     expect(executionCapped.questionAssessments[0]?.verdict).toBe(
@@ -224,6 +378,11 @@ describe("mock interview report normalization", () => {
           missedCriteria: [],
         },
       ],
+      ...detailedReportFor([
+        "cpp11-reference-001",
+        "worldquant-tick-feed-correctness",
+        "worldquant-legacy-migration",
+      ]),
       strengths: [],
       priorityGaps: [],
       studyPlan: [],
@@ -237,6 +396,11 @@ describe("mock interview report normalization", () => {
           "worldquant-tick-feed-correctness": "tick_data_order_book",
           "worldquant-legacy-migration": "communication_ownership",
         },
+        evidenceCatalog: evidenceCatalogFor([
+          "cpp11-reference-001",
+          "worldquant-tick-feed-correctness",
+          "worldquant-legacy-migration",
+        ]),
       }),
     ).toThrow(/mismatched question set/);
   });

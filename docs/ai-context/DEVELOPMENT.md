@@ -451,9 +451,19 @@ service-role-only/browser grants như contract hiện tại.
   không retry. Nếu provider đã trả nhưng normalize, debrief hoặc dựng artifact
   lỗi, route cũng terminalize reservation bằng `report_processing_failed`, không
   release để chấm lại.
+- Report Mock mới luôn có đúng tám dimension theo thứ tự canonical
+  (`correctness`, `complexity`, `idiomatic_cpp`, `lifetime_ownership`,
+  `testing_debugging`, `communication`, `requirement_clarification`,
+  `tradeoff_reasoning`). Server dựng evidence catalog từ exact submission,
+  code trong đề và kết quả hidden-test; model chỉ được trả ID có trong catalog,
+  rồi server resolve/validate trước khi lưu. Mọi action trong `nextPracticeActions`
+  phải có đúng ba mục priority 1–3 và cite evidence; report/artifact cũ không
+  có hai field này vẫn phải đọc được.
 - Mistake capture chỉ chạy sau durable coach/review hoặc completed Mock v4.
-  Generated remediation luôn là DB-native draft chờ duyệt; không lưu candidate
-  answer/hidden execution evidence và không tính card cá nhân vào content coverage.
+  Với report mới, capture ưu tiên đúng ba `nextPracticeActions`; report cũ mới
+  fallback theo missed criteria. Generated remediation luôn là DB-native draft
+  chờ duyệt; không lưu candidate answer/hidden execution evidence và không tính
+  card cá nhân vào content coverage.
   Client giữ `coachAttemptId` trên exact local review cho tới khi route trả
   resolution `acknowledged`/`discarded`; response sync cũ hoặc lỗi mạng không
   được xóa marker đang chờ. Route chỉ capture khi exact attempt/question/ngày/

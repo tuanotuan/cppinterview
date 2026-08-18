@@ -12,6 +12,7 @@ import {
   serializeMockInterviewSession,
   type MockInterviewSession,
 } from "./session";
+import { mockInterviewDimensionKeys } from "./contracts";
 
 const baseSession = createMockInterviewSession({
   sessionId: "9f58ceae-6ce7-4d56-bf6e-2be2256cc063",
@@ -66,9 +67,34 @@ const completedSession: MockInterviewSession = {
       strengths: [],
       missedCriteria: [],
     })),
+    interviewDimensions: mockInterviewDimensionKeys.map((key) => ({
+      key,
+      status: "assessed" as const,
+      score: 72,
+      summary: "Có bằng chứng từ câu trả lời trong buổi phỏng vấn.",
+      evidenceIds: [
+        `answer:${baseSession.questions[0]!.id}:response`,
+      ],
+      observations: [
+        {
+          feedback: "Nhận xét có bằng chứng cụ thể.",
+          evidenceIds: [
+            `answer:${baseSession.questions[0]!.id}:response`,
+          ],
+        },
+      ],
+    })),
     strengths: [],
     priorityGaps: [],
     studyPlan: [],
+    nextPracticeActions: [1, 2, 3].map((priority) => ({
+      priority,
+      title: `Việc luyện ${priority}`,
+      action: "Làm lại câu và kiểm chứng kết quả.",
+      evidenceIds: [
+        `answer:${baseSession.questions[priority - 1]!.id}:response`,
+      ],
+    })),
   },
 };
 

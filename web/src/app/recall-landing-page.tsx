@@ -119,7 +119,7 @@ export function RecallLandingPage({
               </Link>
             </div>
             <p className="mt-4 text-xs leading-5 text-[#64736c]">
-              Dùng email/mật khẩu hoặc GitHub để đồng bộ riêng tư giữa các thiết bị.
+              Dùng email/mật khẩu, Google hoặc GitHub để đồng bộ riêng tư giữa các thiết bị.
             </p>
           </div>
 
