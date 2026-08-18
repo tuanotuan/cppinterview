@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   parseEmailPasswordCredentials,
+  parsePasswordUpdate,
+  parseRecoveryEmail,
   parseSignUpCredentials,
   safeAuthNext,
   signInErrorMessage,
@@ -35,6 +37,23 @@ describe("email/password credentials", () => {
       ok: true,
       credentials: { email: "user@example.com", password: "password123" },
     });
+  });
+
+  it("validates a recovery email and the replacement password without requiring an email again", () => {
+    expect(parseRecoveryEmail("not-an-email")).toMatchObject({ ok: false });
+    expect(parseRecoveryEmail("User@Example.com")).toEqual({
+      ok: true,
+      email: "user@example.com",
+    });
+    expect(
+      parsePasswordUpdate({ password: "short", passwordConfirmation: "short" }),
+    ).toMatchObject({ ok: false, message: "Mật khẩu mới cần có ít nhất 8 ký tự." });
+    expect(
+      parsePasswordUpdate({ password: "password123", passwordConfirmation: "different123" }),
+    ).toMatchObject({ ok: false, message: "Hai mật khẩu mới chưa trùng khớp." });
+    expect(
+      parsePasswordUpdate({ password: "password123", passwordConfirmation: "password123" }),
+    ).toEqual({ ok: true, password: "password123" });
   });
 
   it("only accepts an internal destination after authentication", () => {

@@ -41,5 +41,8 @@ function authNotice(code?: string) {
     return "Liên kết xác minh không hợp lệ hoặc đã hết hạn. Hãy tạo tài khoản lại để nhận email mới.";
   }
   if (code === "not-configured") return "Supabase chưa được cấu hình cho trang này.";
+  if (code === "password-updated") {
+    return "Mật khẩu mới đã được lưu. Hãy đăng nhập bằng mật khẩu đó.";
+  }
   return null;
 }

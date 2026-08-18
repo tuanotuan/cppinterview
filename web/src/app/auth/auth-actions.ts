@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 
 import {
   parseEmailPasswordCredentials,
+  parsePasswordUpdate,
+  parseRecoveryEmail,
   parseSignUpCredentials,
   safeAuthNext,
   signInErrorMessage,
@@ -67,6 +69,64 @@ export async function signUpWithEmailPassword(
     status: "success",
     message: "Hãy mở email để xác minh tài khoản, rồi quay lại đăng nhập.",
   };
+}
+
+export async function requestPasswordReset(
+  _previous: AuthFormState,
+  formData: FormData,
+): Promise<AuthFormState> {
+  const parsed = parseRecoveryEmail(formData.get("email"));
+  if (!parsed.ok) return { status: "error", message: parsed.message };
+
+  const origin = await requestOrigin();
+  if (!origin) {
+    return {
+      status: "error",
+      message: "Chưa thể chuẩn bị liên kết khôi phục. Hãy thử lại sau.",
+    };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  await supabase.auth.resetPasswordForEmail(parsed.email, {
+    redirectTo: `${origin}/auth/confirm?next=${encodeURIComponent("/auth/reset-password?stage=update")}`,
+  });
+
+  // Do not reveal whether this email owns an account.
+  return {
+    status: "success",
+    message: "Nếu email này có tài khoản cppinterview, hướng dẫn khôi phục đã được gửi. Hãy kiểm tra cả thư mục Spam.",
+  };
+}
+
+export async function updatePasswordFromRecovery(
+  _previous: AuthFormState,
+  formData: FormData,
+): Promise<AuthFormState> {
+  const parsed = parsePasswordUpdate({
+    password: formData.get("password"),
+    passwordConfirmation: formData.get("passwordConfirmation"),
+  });
+  if (!parsed.ok) return { status: "error", message: parsed.message };
+
+  const supabase = await createSupabaseServerClient();
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  if (authError || !authData.user) {
+    return {
+      status: "error",
+      message: "Liên kết khôi phục không còn hợp lệ. Hãy yêu cầu một email khôi phục mới.",
+    };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password: parsed.password });
+  if (error) {
+    return {
+      status: "error",
+      message: "Chưa thể đổi mật khẩu. Liên kết có thể đã hết hạn; hãy yêu cầu email khôi phục mới.",
+    };
+  }
+
+  await supabase.auth.signOut();
+  redirect("/auth?auth=password-updated");
 }
 
 async function requestOrigin() {
