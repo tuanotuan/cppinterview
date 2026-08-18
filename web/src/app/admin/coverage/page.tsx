@@ -35,7 +35,7 @@ export default async function CoverageStudioPage() {
     includeGeminiUsage: false,
     includeProviderSettings: false,
   });
-  if (!cloud.enabled || !cloud.account) {
+  if (!cloud.enabled || !cloud.account || !cloud.canManageQuestionBank) {
     return (
       <main className="grid min-h-screen place-items-center px-5">
         <section className="max-w-lg rounded-[2rem] border border-[#173f35]/15 bg-white/70 p-8">

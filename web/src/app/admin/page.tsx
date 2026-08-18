@@ -25,6 +25,9 @@ export default async function AdminPage() {
   if (!cloud.account) {
     return <AdminGate mode="login" />;
   }
+  if (!cloud.canManageQuestionBank) {
+    return <AdminGate mode="restricted" />;
+  }
 
   const manifest = cloud.manifest;
   const snapshot = buildAdminDashboardSnapshot(
@@ -55,7 +58,7 @@ export default async function AdminPage() {
   );
 }
 
-function AdminGate({ mode }: { mode: "login" | "not-configured" }) {
+function AdminGate({ mode }: { mode: "login" | "not-configured" | "restricted" }) {
   return (
     <main className="grid min-h-screen place-items-center px-5 py-12">
       <section className="w-full max-w-lg rounded-[2rem] border border-[#173f35]/15 bg-white/70 p-8 shadow-[0_24px_80px_rgb(23_63_53_/_10%)] backdrop-blur sm:p-10">
@@ -71,7 +74,9 @@ function AdminGate({ mode }: { mode: "login" | "not-configured" }) {
         <p className="mt-4 leading-7 text-[#64736c]">
           {mode === "login"
             ? "Đăng nhập bằng tài khoản GitHub của quản trị viên để xem bản nháp, đáp án và quản lý ngân hàng câu hỏi."
-            : "Supabase chưa được cấu hình nên trang quản trị chưa thể xác thực người dùng."}
+            : mode === "restricted"
+              ? "Tài khoản này chỉ dùng để luyện thẻ và phỏng vấn thử. Khu vực quản trị chỉ dành cho tài khoản GitHub của quản trị viên."
+              : "Supabase chưa được cấu hình nên trang quản trị chưa thể xác thực người dùng."}
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           {mode === "login" ? (
@@ -90,6 +95,14 @@ function AdminGate({ mode }: { mode: "login" | "not-configured" }) {
           >
             Về trang luyện tập
           </Link>
+          {mode === "restricted" ? (
+            <Link
+              href="/mock-interview"
+              className="rounded-2xl border border-[#173f35]/15 bg-white px-5 py-3 text-sm font-bold transition hover:border-[#356b58]/40"
+            >
+              Phỏng vấn thử
+            </Link>
+          ) : null}
         </div>
       </section>
     </main>
