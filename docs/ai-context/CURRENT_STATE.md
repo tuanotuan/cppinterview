@@ -117,6 +117,9 @@ trạng thái từ tên nhánh.
 - `/admin` and `/admin/coverage` require `cloud.canManageQuestionBank`, not
   merely a signed-in account; ordinary learners receive the focused Practice /
   Mock routes and the Practice header does not render the Admin link.
+- The public landing route `/` redirects an authenticated account to
+  `/practice` (unless it carries an auth-result notice), so the shared brand
+  link cannot look like it logged the learner out.
 
 ## Public AI quota rollout
 
