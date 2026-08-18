@@ -114,6 +114,9 @@ trạng thái từ tên nhánh.
   a non-admin OAuth account into the DB-native workspace: it grants only
   authenticated read access to immutable content snapshot metadata, while all
   content mutations and per-user learning data remain protected.
+- `/admin` and `/admin/coverage` require `cloud.canManageQuestionBank`, not
+  merely a signed-in account; ordinary learners receive the focused Practice /
+  Mock routes and the Practice header does not render the Admin link.
 
 ## Public AI quota rollout
 

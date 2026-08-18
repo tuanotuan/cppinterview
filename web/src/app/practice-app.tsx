@@ -2948,6 +2948,7 @@ export function PracticeApp({
             ) : null}
             <AccountControl
               account={account}
+              canManageQuestionBank={canManageQuestionBank}
               cloudEnabled={cloudEnabled}
               guestMode={guestMode}
               syncStatus={syncStatus}
@@ -4510,12 +4511,14 @@ function HeaderNavPending() {
 
 function AccountControl({
   account,
+  canManageQuestionBank,
   cloudEnabled,
   guestMode,
   syncStatus,
   selectedDeck,
 }: {
   account: PracticeAccount | null;
+  canManageQuestionBank: boolean;
   cloudEnabled: boolean;
   guestMode: boolean;
   syncStatus: SyncStatus;
@@ -4532,11 +4535,9 @@ function AccountControl({
         >
           Thống kê
         </HeaderNavLink>
-        <HeaderNavLink
-          href="/admin"
-        >
-          Quản trị
-        </HeaderNavLink>
+        {canManageQuestionBank ? (
+          <HeaderNavLink href="/admin">Quản trị</HeaderNavLink>
+        ) : null}
         <Link
           href="/profile"
           title="Mở trang cá nhân"
