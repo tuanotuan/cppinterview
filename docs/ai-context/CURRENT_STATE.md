@@ -107,6 +107,14 @@ trạng thái từ tên nhánh.
   nhau. Draft, personal remediation hoặc content gap không được biến thành điểm
   yếu hay bằng chứng đã xác nhận.
 
+## Google OAuth workspace access
+
+- Google OAuth uses the same Supabase PKCE callback as GitHub. Run
+  `20260818090000_allow_authenticated_content_store_state.sql` before allowing
+  a non-admin OAuth account into the DB-native workspace: it grants only
+  authenticated read access to immutable content snapshot metadata, while all
+  content mutations and per-user learning data remain protected.
+
 ## Public AI quota rollout
 
 - Public Luna admission is working in production after the response-shape and
