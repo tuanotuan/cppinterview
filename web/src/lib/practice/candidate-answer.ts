@@ -8,7 +8,7 @@ type AnswerableQuestion = {
   id?: string;
   type: string;
   responseMode?: "text" | "code";
-  language?: "cpp" | "python" | "cmake";
+  language?: "cpp";
 };
 
 export function requiresCodeAnswer(question: AnswerableQuestion) {
@@ -28,16 +28,8 @@ export function buildCandidateAnswer(
   const trimmedCode = code.trim();
   if (!trimmedCode) return "";
   const trimmedExplanation = explanation.trim();
-  const language = question.language === "python"
-    ? "Python"
-    : question.language === "cmake"
-      ? "CMake"
-      : "C++";
-  const fence = question.language === "python"
-    ? "python"
-    : question.language === "cmake"
-      ? "cmake"
-      : "cpp";
+  const language = "C++";
+  const fence = "cpp";
   return [
     `Thiết kế ${language} của ứng viên:`,
     `\`\`\`${fence}`,

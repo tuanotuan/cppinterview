@@ -7,8 +7,7 @@ Tài liệu ổn định để tìm đúng vùng code. Xác minh lại nếu sou
 | Path | Vai trò |
 |---|---|
 | `cpp98_foundation/`, `cpp11/`, `cpp20/` | Lesson C++; mỗi thư mục bài có `knowledge.md`, thường có `main.cpp` |
-| `python/` | Lesson Python; `knowledge.md` + tùy chọn `main.py` |
-| `cmake/` | Source root tùy chọn đã được pipeline hỗ trợ nhưng hiện chưa có lesson tracked; mỗi bài dùng `knowledge.md` + tùy chọn `CMakeLists.txt` |
+| `python/` | Ghi chú cá nhân giữ nguyên trong repo; web không quét, đồng bộ hoặc hiển thị |
 | `web/` | App cppinterview: Next.js App Router, React, TypeScript |
 | `web/src/proxy.ts` | Entry point refresh cookie/session Supabase qua `lib/supabase/proxy.ts` |
 | `web/src/app/recall-mobile-nav.tsx` | Điều hướng mobile dùng chung: Học hôm nay, Nhiệm vụ, Trung tâm chuẩn bị, Thư viện, Hồ sơ; tự ẩn ở mock/full-round để giữ không gian phỏng vấn |
@@ -29,6 +28,13 @@ content, app source/test, scripts, package/env, workflow và Supabase. Chạy
 `validate`. Snapshot chỉ giữ facts máy tính được. Thay đổi semantic phải cập
 nhật file context tương ứng theo root `AGENTS.md`.
 
+## C++-only product boundary
+
+cppinterview only serves C++ lessons, questions, code exercises, and mock
+interviews. Discovery is limited to `cpp98_foundation/`, `cpp11/`, and
+`cpp20/`. Migration `20260818110000_archive_non_cpp_content.sql` archives
+retired Python/CMake database content while preserving revision history.
+
 ## Runtime và entry points
 
 | URL/vùng | Entry point | Chức năng |
@@ -41,12 +47,10 @@ nhật file context tương ứng theo root `AGENTS.md`.
 | `/worldquant/mission` | `worldquant/mission/page.tsx`, `worldquant-mission-app.tsx` | Nhiệm vụ hằng ngày xác định, nêu một bước tiếp theo và giữ đúng đường về qua thẻ/bài luyện/phỏng vấn thử |
 | `/worldquant/full-round` | `worldquant/full-round/page.tsx`, `worldquant-full-round-app.tsx` | Năm non-certification round có hard deadline, rubric và English Web Speech tùy chọn; không lưu answer/audio |
 | `/worldquant/tick-replay-lab` | `worldquant/tick-replay-lab/page.tsx` | Mô phỏng chuỗi tick, recovery và kiểm tra bất biến sổ lệnh bằng kịch bản xác định |
-| `/worldquant/toolchain-dojo` | `worldquant/toolchain-dojo/page.tsx` | Năm bài CMake/C++ target-based tuần tự: scope, public/private, CTest, sanitizer và CI |
 | `/worldquant/legacy-modern-capstone` | `worldquant/legacy-modern-capstone/page.tsx` | Sáu checkpoint quyết định an toàn khi chuyển nền tảng tick data cũ sang modern C++ |
 | `/learn` | `learn/page.tsx`, `learn/[lessonId]/page.tsx` | Thư viện lesson từ manifest với tổng quan bài/thẻ đã duyệt/bài có mã, tìm kiếm và chip lọc lộ trình, Markdown an toàn, tự kiểm tra và mở phiên ôn tập trọng tâm |
 | `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Phỏng vấn thử v4 toàn diện/trọng tâm 30/45/60 phút, kiểm thử ẩn, báo cáo tám tiêu chí có evidence server-canonical, lịch sử và kế hoạch ôn tiếp; report mới tạo đúng ba việc luyện tiếp để capture vào Mistake Inbox sau khi history hoàn tất bền vững; desktop session rail chỉ lộ thứ tự/trạng thái trả lời, còn thanh chuyển câu/nộp bài sticky; nộp sớm, reset, thay Focus hoặc xóa history đều xác nhận trong UI |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx`, `lib/learn/tick-data-guide.ts` | Guide tick data/order book |
-| `/learn/cmake` | `learn/cmake/page.tsx`, `lib/learn/cmake-guide.ts` | Guide CMake target-based từ mental model tới CTest, packaging, CI và legacy migration |
 | `/stats` | `stats/page.tsx`, `fsrs-shadow-panel.tsx` | Analytics học tập và FSRS-6 shadow comparison |
 | `/profile` | `profile/page.tsx`, `lib/profile/{contribution-activity,mobile-usage,profile-activity.server}.ts` | Trang cá nhân và contribution graph 53 tuần từ lượt ôn, AI coach và phỏng vấn thử đã hoàn tất; riêng admin `tuanotuan` còn có tổng thời gian cppinterview hoạt động trên điện thoại hôm nay/7/30 ngày |
 | `/admin` | `admin/page.tsx`, `admin-dashboard.tsx`, `manual-question-dialog.tsx`, `input-dialog.tsx` | Review/edit/archive question, schedule, AI/job settings và thêm câu hỏi thủ công. Ngân hàng câu hỏi chỉ tìm kiếm và lọc theo trạng thái vận hành/học; mỗi card chỉ hiện Dễ/Trung bình/Khó và Text/Code, còn taxonomy/loại câu vẫn là metadata nội bộ. Editor Admin quản lý thêm dạng đánh giá; chi tiết chỉ ở Admin mới nêu kỹ năng đo, standard, thời lượng và điều kiện test. Câu thủ công là DB-native draft có revision/audit, chỉ cần đề bài và đáp án tham khảo, không gắn lesson hay file `.md`, rồi chờ duyệt; header ưu tiên Luyện hôm nay, Thư viện, Mức bao phủ và chuẩn bị phỏng vấn; xác nhận/ràng buộc nguồn của mistake card dùng sheet/form trong UI thay vì API dialog của trình duyệt |
@@ -82,7 +86,7 @@ API quan trọng:
 | `practice` | `mistake-cards.ts`, `mistake-cards.server.ts` | Capture lỗi durable, dedupe, grounded generation và materialize draft |
 | `worldquant` | `readiness.ts`, `focus-plan.ts` | Role/competency model, preparation evidence và planner queue deterministic theo gap/time budget |
 | `worldquant` | `curriculum.ts`, `curriculum-evidence.ts`, `drills.ts` | Concept graph, content/transfer coverage và catalog 30 scenario: một practice + hai checkpoint mỗi competency |
-| `worldquant` | `training-state.ts`, `mission-snapshot.ts`, `tick-replay.ts`, `toolchain-dojo.ts`, `legacy-modern-capstone.ts` | Evidence account-scoped, cloud CAS/local fallback, Mission frozen, mô phỏng tick, bài thực hành CMake và capstone chuyển đổi legacy |
+| `worldquant` | `training-state.ts`, `mission-snapshot.ts`, `tick-replay.ts`, `legacy-modern-capstone.ts` | Evidence account-scoped, cloud CAS/local fallback, Mission frozen, mô phỏng tick và capstone chuyển đổi legacy |
 | `ai` | `openai.ts`, `gemini.ts`, `fallback.ts`, `access.ts` | Provider call không transport retry, fallback và chặn AI không quota ngoài local development; Luna cho học tập/Coach, Terra chỉ cho report Mock |
 | `ai` | `budget.ts`, `usage.ts`, `billing.ts`, `coach-idempotency-client.ts`, `coach-reservation.server.ts`, `coach-follow-up-reservation.server.ts` | Sổ hạn mức UUID, phân loại kết quả provider và terminal cache Coach theo exact request |
 | `ai` | `public-ai-quota.server.ts`, `public-ai-admission.server.ts`, `public-ai-quota-display.ts`, `public-ai-budget.server.ts` | AI Coach public/non-admin: HMAC IP/device/account, đọc quota hiệu dụng khi tải Practice, rolling 24 giờ, lease chống gọi trùng và ledger Luna site-wide riêng; không dùng quota account hay Gemini fallback của owner |

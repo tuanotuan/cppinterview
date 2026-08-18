@@ -24,16 +24,12 @@ const trackOrder: ContentTrack[] = [
   "cpp98",
   "cpp11",
   "cpp20",
-  "cmake",
-  "python3",
 ];
 
 const trackLabels: Record<ContentTrack, string> = {
   cpp98: "C++98",
   cpp11: "C++11/14/17",
   cpp20: "C++20/23",
-  cmake: "CMake",
-  python3: "Python 3",
 };
 
 export function lessonTrackLabel(track: ContentTrack) {
@@ -41,10 +37,9 @@ export function lessonTrackLabel(track: ContentTrack) {
 }
 
 export function practiceDeckForLesson(
-  lesson: Pick<GeneratedLesson, "language">,
+  _lesson: Pick<GeneratedLesson, "language">,
 ): PracticeDeckId {
-  if (lesson.language === "python") return "python-interview";
-  if (lesson.language === "cmake") return "cmake-build-systems";
+  void _lesson;
   return "cpp-interview";
 }
 

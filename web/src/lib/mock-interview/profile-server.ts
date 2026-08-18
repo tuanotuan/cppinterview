@@ -78,29 +78,29 @@ export const WORLDQUANT_CURATED_EVALUATIONS: Record<
     evaluationGuide:
       "Ưu tiên kế hoạch có thể kiểm chứng, có thể khôi phục và thể hiện tinh thần làm chủ sản phẩm. Không suy đoán quy trình nội bộ của WorldQuant.",
   },
-  "worldquant-cmake-delivery": {
+  "worldquant-cpp-delivery-safety": {
     required: [
-      "Tạo target thư viện `feed_decoder` từ `src/feed_decoder.cpp` và target kiểm thử `feed_decoder_tests` từ `tests/feed_decoder_test.cpp`.",
-      "Khai báo thư mục `include` là yêu cầu sử dụng `PUBLIC` của thư viện để target sử dụng nhận đường dẫn tới tệp tiêu đề qua phần phụ thuộc, thay vì dùng thư mục tệp tiêu đề toàn cục.",
-      "Yêu cầu C++20 bằng tính năng hoặc thuộc tính biên dịch ở cấp target, không sửa `CMAKE_CXX_FLAGS` toàn cục.",
-      "Liên kết `feed_decoder_tests` với `feed_decoder` trong phạm vi `PRIVATE` thay vì biên dịch lặp mã nguồn thư viện vào chương trình kiểm thử.",
-      "Bật CTest và đăng ký `feed_decoder_tests` bằng `add_test` để cả bước cấu hình, biên dịch và kiểm thử đều chạy được.",
-      "Phần giải thích nêu cách thêm sanitizer và CI theo từng target hoặc cấu hình tự chọn mà không làm rò cờ sang mọi thư viện phụ thuộc.",
+      "Tách bộ giải mã feed thành API C++ có thể kiểm thử, đồng thời giữ ranh giới rõ giữa mã production, fixture dữ liệu golden và chương trình kiểm thử.",
+      "Nêu kiểm thử đơn vị cho đầu vào hợp lệ, gói tin bị cắt, trường không hợp lệ và các ranh giới số; fixture phải có nguồn gốc và phiên bản rõ ràng.",
+      "Dùng C++20 nhất quán, bật cảnh báo phù hợp và không chữa lỗi bằng cách tắt warning hoặc nới lỏng kiểm tra toàn cục.",
+      "Thiết kế test để gọi qua public API thay vì sao chép lại implementation vào test, nhờ đó test phản ánh contract thật của thư viện.",
+      "Có kiểm thử tự động chạy được trong CI cho unit test, golden replay và regression trước khi phát hành.",
+      "Giải thích cách dùng Address/Undefined sanitizer, benchmark có baseline và cổng CI để chặn lỗi lifetime, parser và suy giảm hiệu năng.",
     ],
     bonus: [
-      "Dùng `BUILD_INTERFACE`/`INSTALL_INTERFACE`, `GNUInstallDirs` hoặc quy tắc cài đặt và xuất nếu dự án cần được đóng gói.",
-      "Tách cảnh báo và sanitizer thành target `INTERFACE` hoặc tùy chọn, cấu hình đặt sẵn có kiểm soát; nêu ma trận dựng sạch trên CI.",
+      "Nêu ma trận compiler/platform và cách cô lập fixture lớn để suite CI vẫn nhanh, tái lập được.",
+      "Có giới hạn benchmark rõ ràng, báo cáo regression có thể truy vết tới commit, dữ liệu và cấu hình chạy.",
     ],
     misconceptions: [
-      "Dùng `include_directories`, `link_directories` hoặc cờ trình biên dịch toàn cục để khiến bản biên dịch tình cờ chạy.",
-      "Biên dịch `src/feed_decoder.cpp` trực tiếp vào chương trình kiểm thử thay vì để nó dùng target thư viện.",
-      "Tạo chương trình kiểm thử nhưng quên `enable_testing`/`include(CTest)` hoặc `add_test`, khiến CTest không thấy bài kiểm thử.",
-      "Dùng `FetchContent` hay tải thư viện phụ thuộc qua mạng dù đề bài cấm.",
+      "Chỉ có happy-path test và bỏ qua malformed/truncated packet hoặc ranh giới buffer.",
+      "Test trực tiếp chi tiết nội bộ rồi coi đó là bằng chứng cho contract public.",
+      "Dùng dữ liệu golden không có phiên bản hoặc không ghi lại cách tái tạo lỗi production.",
+      "Bật phát hành khi benchmark hay sanitizer đỏ chỉ vì unit test vẫn xanh.",
     ],
     evaluationGuide:
-      "Dùng kết quả cấu hình, dựng và CTest từ môi trường kiểm thử ẩn làm bằng chứng chính rằng đồ thị target có thể chạy. Sau đó chấm phạm vi sử dụng, C++20 ở cấp target và phần giải thích sanitizer/CI; đạt kiểm thử ẩn không tự động có nghĩa là đạt mọi tiêu chí.",
+      "Chấm dựa trên kế hoạch kiểm thử C++ có thể chạy, bằng chứng từ golden replay, sanitizer và benchmark. Một lượt unit test xanh không tự động chứng minh parser, lifetime hay hiệu năng đã an toàn.",
   },
-  "worldquant-python-reconciliation": {
+  "worldquant-cpp-reconciliation": {
     required: [
       "So sánh theo khóa nghiệp vụ hoặc số thứ tự ổn định và đọc dữ liệu theo luồng hoặc từng phần thay vì nạp toàn bộ.",
       "Chuẩn hóa cấu trúc, kiểu dữ liệu và ý nghĩa thời gian trước khi so sánh.",
@@ -113,12 +113,12 @@ export const WORLDQUANT_CURATED_EVALUATIONS: Record<
       "Tách quy tắc so sánh thành cấu hình có quản lý phiên bản và lưu bản kê cho mỗi lượt chạy.",
     ],
     misconceptions: [
-      "Dùng pandas nạp toàn bộ tập dữ liệu rất lớn mà không có kế hoạch bộ nhớ.",
+      "Nạp toàn bộ tập dữ liệu rất lớn vào bộ nhớ mà không có kế hoạch streaming hoặc giới hạn bộ nhớ.",
       "Dùng một ngưỡng sai số chung cho mọi trường.",
       "Chỉ in khác biệt ra bảng điều khiển mà không tạo tệp kết quả hoặc dấu vết kiểm toán.",
     ],
     evaluationGuide:
-      "Không bắt buộc viết mã hoàn chỉnh. Cần thể hiện Python là công cụ đáng tin cậy chứ không phải đoạn mã dùng một lần.",
+      "Không bắt buộc viết mã hoàn chỉnh. Cần thể hiện thiết kế C++ là công cụ dữ liệu đáng tin cậy chứ không phải đoạn mã dùng một lần.",
   },
   "worldquant-researcher-collaboration": {
     required: [
@@ -212,7 +212,7 @@ export const WORLDQUANT_CURATED_EVALUATIONS: Record<
     evaluationGuide:
       "Chấm khả năng biến quy ước dữ liệu thành kiểm thử có thể tái hiện và tín hiệu CI đáng tin cậy, không chấm theo số lượng công cụ được kể tên.",
   },
-  "worldquant-python-gap-audit": {
+  "worldquant-cpp-sequence-audit": {
     required: [
       "Theo dõi số thứ tự riêng theo `(feed, instrument)` và duyệt bộ lặp trong một lượt.",
       "Phân loại `sequence == last_sequence` là bản ghi trùng, `sequence < last_sequence` là sai thứ tự và `sequence > last_sequence + 1` là khoảng thiếu với số thứ tự mong đợi chính xác.",

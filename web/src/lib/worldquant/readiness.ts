@@ -102,18 +102,18 @@ export const worldQuantCompetencies: Record<
     label: "Dựng, kiểm thử và phát hành",
     shortLabel: "Dựng / phát hành",
     description:
-      "CMake, kiểm thử, công cụ phát hiện lỗi (sanitizer), CI/CD, Git và quy trình phát hành.",
-    practiceHref: "/learn/cmake",
-    practiceLabel: "Học CMake",
+      "Kiểm thử C++, công cụ phát hiện lỗi (sanitizer), CI/CD, Git và quy trình phát hành.",
+    practiceHref: "/practice?deck=cpp-interview",
+    practiceLabel: "Luyện C++",
   },
   scripting_automation: {
     key: "scripting_automation",
     label: "Viết tập lệnh và tự động hóa",
     shortLabel: "Tự động hóa",
     description:
-      "Công cụ Python/Perl, đối soát, chuyển đổi và vận hành dữ liệu.",
-    practiceHref: "/practice?deck=python-interview",
-    practiceLabel: "Luyện Python",
+      "Công cụ C++ đối soát, chuyển đổi và vận hành dữ liệu theo luồng.",
+    practiceHref: "/practice?deck=cpp-interview",
+    practiceLabel: "Luyện C++",
   },
   ownership_communication: {
     key: "ownership_communication",
@@ -518,9 +518,6 @@ const competencyKeywords: Record<
 export function classifyWorldQuantCompetency(
   signal: ReadinessQuestionSignal,
 ): WorldQuantCompetencyKey {
-  if (signal.deckId === "cmake-build-systems") return "build_delivery";
-  if (signal.deckId === "python-interview") return "scripting_automation";
-
   const tokens = new Set([
     signal.lessonId,
     ...signal.topics,

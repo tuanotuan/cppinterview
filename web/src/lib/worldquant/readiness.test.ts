@@ -36,8 +36,6 @@ describe("WorldQuant competency model", () => {
   });
 
   it.each([
-    ["cmake-build-systems", ["target"], "build_delivery"],
-    ["python-interview", ["containers"], "scripting_automation"],
     ["cpp-interview", ["tick-data", "sequencing"], "tick_market_data"],
     ["cpp-interview", ["rpc", "replication"], "distributed_data_platform"],
     ["cpp-interview", ["atomic", "memory-model"], "concurrency_memory"],

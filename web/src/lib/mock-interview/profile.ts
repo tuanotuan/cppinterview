@@ -77,8 +77,8 @@ export const mockCompetencyLabels: Record<MockCompetencyKey, string> = {
   modern_cpp: "C++ hiện đại",
   tick_data_order_book: "Dữ liệu tick và sổ lệnh",
   data_pipeline_performance: "Luồng dữ liệu và hiệu năng",
-  engineering_quality: "CMake, kiểm thử và triển khai",
-  scripting: "Công cụ Python",
+  engineering_quality: "Kiểm thử và phát hành C++",
+  scripting: "Công cụ dữ liệu C++",
   communication_ownership: "Tinh thần làm chủ và giao tiếp",
 };
 
@@ -94,15 +94,15 @@ export const WORLDQUANT_PROFILE = {
     "C++11–23, vòng đời, quyền sở hữu, tính đúng đắn và hiệu năng",
     "Luồng dữ liệu tick, dữ liệu sổ lệnh, đặc trưng và thống kê theo khoảng thời gian",
     "Chuyển đổi hệ thống cũ, đối chiếu dữ liệu, chuyển đổi chính thức và khôi phục",
-    "CMake, kiểm thử, CI/CD, Git và chất lượng phần mềm",
-    "Công cụ Python, tinh thần làm chủ sản phẩm và phối hợp với nhóm nghiên cứu",
+    "Kiểm thử, CI/CD, Git và chất lượng phần mềm C++",
+    "Tinh thần làm chủ sản phẩm và phối hợp với nhóm nghiên cứu",
   ],
   competencies: [
     { key: "modern_cpp", weight: 30 },
     { key: "tick_data_order_book", weight: 25 },
     { key: "data_pipeline_performance", weight: 15 },
-    { key: "engineering_quality", weight: 10 },
-    { key: "scripting", weight: 10 },
+    { key: "engineering_quality", weight: 15 },
+    { key: "scripting", weight: 5 },
     { key: "communication_ownership", weight: 10 },
   ] satisfies Array<{ key: MockCompetencyKey; weight: number }>,
 } as const;
@@ -190,48 +190,41 @@ struct IntervalStats {
       "Bạn cần chuyển nhiều năm dữ liệu tick từ nền tảng C++ cũ sang nền tảng mới, trong khi nhóm nghiên cứu vẫn dùng kết quả cũ để tạo tín hiệu. Hãy trình bày kế hoạch chuyển đổi, cách chứng minh hai hệ thống cho kết quả tương đương, cách bổ sung dữ liệu lịch sử, chuyển đổi chính thức hoặc khôi phục, và cách phối hợp với bộ phận Nghiên cứu cùng Quản lý danh mục.",
   },
   {
-    id: "worldquant-cmake-delivery",
+    id: "worldquant-cpp-delivery-safety",
     origin: "role_profile",
     version: 3,
-    contentRevision: "worldquant-jd-2025-cmake-runner-v2",
-    language: "cmake",
-    track: "cmake",
-    responseMode: "code",
-    execution: { specRevision: 1 },
+    contentRevision: ROLE_CONTENT_REVISION,
+    language: "cpp",
+    track: "cpp20",
+    responseMode: "text",
     estimatedMinutes: 7,
     competency: "engineering_quality",
     selectionTopics: [
-      "cmake",
       "testing",
       "ci-cd",
       "reproducible-build",
     ],
     prompt:
-      "Dự án mẫu có `include/feed/decoder.hpp`, `src/feed_decoder.cpp` và `tests/feed_decoder_test.cpp`. Hãy hoàn thiện `CMakeLists.txt` để tạo target thư viện `feed_decoder` và target kiểm thử `feed_decoder_tests`, khai báo yêu cầu sử dụng đúng phạm vi, dùng C++20 và đăng ký kiểm thử với CTest. Sau phần mã, hãy giải thích cách mở rộng sang sanitizer và CI mà không dùng cờ toàn cục.",
-    code: `cmake_minimum_required(VERSION 3.20)
-project(tick_feed LANGUAGES CXX)
-
-# Hoàn thiện đồ thị target ở đây.
-# Không dùng FetchContent hoặc tải thư viện phụ thuộc qua mạng.`,
+      "Một thay đổi ở bộ giải mã C++ cho feed mới sắp được phát hành. Hãy mô tả cách bạn thiết kế kiểm thử đơn vị, kiểm thử dữ liệu golden, sanitizer, benchmark và cổng CI để phát hiện lỗi định dạng, lỗi vòng đời hoặc suy giảm hiệu năng trước khi phát hành. Nêu rõ bằng chứng nào cần lưu để có thể phát lại một lỗi production.",
   },
   {
-    id: "worldquant-python-reconciliation",
+    id: "worldquant-cpp-reconciliation",
     origin: "role_profile",
     version: 2,
     contentRevision: ROLE_CONTENT_REVISION,
-    language: "python",
-    track: "python3",
+    language: "cpp",
+    track: "cpp20",
     responseMode: "text",
     estimatedMinutes: 7,
-    competency: "scripting",
+    competency: "data_pipeline_performance",
     selectionTopics: [
-      "python",
+      "cpp",
       "reconciliation",
       "streaming-data",
       "automation",
     ],
     prompt:
-      "Thiết kế một công cụ đối chiếu bằng Python để so sánh kết quả tick và khoảng thời gian giữa hệ thống cũ với nền tảng mới trên tập dữ liệu rất lớn. Hãy nêu mô hình dữ liệu, cách đọc theo luồng, ngưỡng sai số, cách báo cáo khác biệt, khả năng tiếp tục sau gián đoạn và cách đưa công cụ vào CI hoặc quy trình chuyển đổi.",
+      "Thiết kế một công cụ C++ đối chiếu kết quả tick và khoảng thời gian giữa hệ thống cũ với nền tảng mới trên tập dữ liệu rất lớn. Hãy nêu mô hình dữ liệu, cách đọc theo luồng, ngưỡng sai số, cách báo cáo khác biệt, khả năng tiếp tục sau gián đoạn và cách đưa công cụ vào CI hoặc quy trình chuyển đổi.",
   },
   {
     id: "worldquant-researcher-collaboration",
@@ -356,8 +349,8 @@ DecodedEvent decode(std::vector<std::byte> packet) {
     origin: "role_profile",
     version: 2,
     contentRevision: ROLE_CONTENT_REVISION,
-    language: "cmake",
-    track: "cmake",
+    language: "cpp",
+    track: "cpp20",
     responseMode: "text",
     estimatedMinutes: 7,
     competency: "engineering_quality",
@@ -371,41 +364,23 @@ DecodedEvent decode(std::vector<std::byte> packet) {
       "Bạn sắp hợp nhất bộ giải mã cho một luồng dữ liệu tick mới. Hãy thiết kế kim tự tháp kiểm thử và các điều kiện kiểm soát CI để phát hiện gói tin sai định dạng, thiếu số thứ tự, ranh giới múi giờ hoặc phiên giao dịch, sai lệch số học và suy giảm hiệu năng. Những dữ liệu và tệp kết quả nào cần được quản lý phiên bản để có thể phát lại chính xác lỗi ở môi trường thực tế?",
   },
   {
-    id: "worldquant-python-gap-audit",
+    id: "worldquant-cpp-sequence-audit",
     origin: "role_profile",
     version: 2,
     contentRevision: ROLE_CONTENT_REVISION,
-    language: "python",
-    track: "python3",
-    responseMode: "code",
-    execution: { specRevision: 1 },
+    language: "cpp",
+    track: "cpp20",
+    responseMode: "text",
     estimatedMinutes: 8,
-    competency: "scripting",
+    competency: "tick_data_order_book",
     selectionTopics: [
-      "python",
+      "cpp",
       "streaming-data",
       "sequencing",
       "audit",
     ],
     prompt:
-      "Cài đặt `audit_sequences` theo kiểu xử lý luồng: phát hiện bản ghi trùng lặp, thiếu số thứ tự và sai thứ tự riêng cho từng `(feed, instrument)` mà không nạp toàn bộ tệp. Sau phần mã, hãy nêu giới hạn bộ nhớ, giả định về thứ tự dữ liệu đầu vào và cách tiếp tục một tác vụ dài sau khi bị gián đoạn.",
-    code: `from dataclasses import dataclass
-from typing import Iterable, Iterator, Literal
-
-@dataclass(frozen=True)
-class Event:
-    feed: str
-    instrument: str
-    sequence: int
-
-@dataclass(frozen=True)
-class Issue:
-    kind: Literal["duplicate", "gap", "out_of_order"]
-    event: Event
-    expected_sequence: int
-
-def audit_sequences(events: Iterable[Event]) -> Iterator[Issue]:
-    ...`,
+      "Thiết kế API C++ xử lý theo luồng để phát hiện bản ghi trùng lặp, thiếu số thứ tự và sai thứ tự riêng cho từng cặp feed/instrument mà không nạp toàn bộ tệp. Hãy nêu cấu trúc dữ liệu, giới hạn bộ nhớ, giả định về thứ tự đầu vào và cách tiếp tục một tác vụ dài sau khi bị gián đoạn.",
   },
   {
     id: "worldquant-cpp-feed-api-evolution",
@@ -475,8 +450,8 @@ const familyAQuestionIds = [
   "worldquant-cpp-feed-api-evolution",
   "worldquant-interval-stats-cpp",
   "worldquant-legacy-migration",
-  "worldquant-cmake-delivery",
-  "worldquant-python-reconciliation",
+  "worldquant-cpp-delivery-safety",
+  "worldquant-cpp-reconciliation",
   "worldquant-researcher-collaboration",
 ] as const;
 
@@ -486,7 +461,7 @@ const familyBQuestionIds = [
   "worldquant-parallel-replay-determinism",
   "worldquant-production-data-incident",
   "worldquant-feed-regression-testing",
-  "worldquant-python-gap-audit",
+  "worldquant-cpp-sequence-audit",
   "worldquant-partitioned-pipeline-backpressure",
 ] as const;
 
@@ -604,27 +579,25 @@ const tickTopics = new Set([
 ]);
 
 const qualityTopics = new Set([
-  "build",
   "ci-cd",
-  "cmake",
   "debugging",
   "testing",
 ]);
 
 export function inferMockCompetency({
-  language,
+  language: _language,
   topics,
 }: {
   language: ContentLanguage;
   topics: string[];
 }): MockCompetencyKey {
+  void _language;
   if (topics.some((topic) => tickTopics.has(topic))) {
     return "tick_data_order_book";
   }
-  if (language === "cmake" || topics.some((topic) => qualityTopics.has(topic))) {
+  if (topics.some((topic) => qualityTopics.has(topic))) {
     return "engineering_quality";
   }
-  if (language === "python") return "scripting";
   if (topics.some((topic) => performanceTopics.has(topic))) {
     return "data_pipeline_performance";
   }

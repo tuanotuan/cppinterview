@@ -6,7 +6,7 @@ import { RecallMobileNav } from "./recall-mobile-nav";
 
 export const metadata: Metadata = {
   title: "cppinterview — Luyện phỏng vấn mỗi ngày",
-  description: "Ôn phỏng vấn C++, Python và CMake từ chính kho ghi chú của bạn.",
+  description: "Ôn phỏng vấn C++ từ chính kho ghi chú của bạn.",
 };
 
 export default function RootLayout({

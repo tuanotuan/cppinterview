@@ -18,8 +18,6 @@ loader.config({
 
 const languageIds: Record<ContentLanguage, string> = {
   cpp: "cpp",
-  python: "python",
-  cmake: "cmake",
 };
 
 const handleBeforeMount: BeforeMount = (monaco) => {
@@ -53,54 +51,6 @@ const handleBeforeMount: BeforeMount = (monaco) => {
     },
   });
 
-  if (
-    !monaco.languages
-      .getLanguages()
-      .some((language: { id: string }) => language.id === "cmake")
-  ) {
-    monaco.languages.register({
-      id: "cmake",
-      extensions: [".cmake"],
-      filenames: ["CMakeLists.txt"],
-    });
-    monaco.languages.setMonarchTokensProvider("cmake", {
-      defaultToken: "",
-      tokenPostfix: ".cmake",
-      keywords: [
-        "add_executable",
-        "add_library",
-        "cmake_minimum_required",
-        "find_package",
-        "include",
-        "install",
-        "project",
-        "set",
-        "target_compile_definitions",
-        "target_compile_features",
-        "target_include_directories",
-        "target_link_libraries",
-        "target_sources",
-      ],
-      tokenizer: {
-        root: [
-          [/#.*$/, "comment"],
-          [/\$\{[^}]+\}/, "variable"],
-          [/"(?:[^"\\]|\\.)*"/, "string"],
-          [/\b\d+(?:\.\d+)*\b/, "number"],
-          [
-            /[a-zA-Z_]\w*/,
-            {
-              cases: {
-                "@keywords": "keyword",
-                "@default": "identifier",
-              },
-            },
-          ],
-          [/[()]/, "@brackets"],
-        ],
-      },
-    });
-  }
 };
 
 const handleMount: OnMount = (editor, monaco) => {

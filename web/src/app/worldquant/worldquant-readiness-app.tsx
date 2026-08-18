@@ -689,9 +689,6 @@ export function WorldQuantReadinessApp({
                 <AdvancedLink href="/worldquant/legacy-modern-capstone">
                   Legacy → Modern C++ Capstone
                 </AdvancedLink>
-                <AdvancedLink href="/learn/cmake">
-                  Học CMake
-                </AdvancedLink>
                 <AdvancedLink href="/stats">Thống kê</AdvancedLink>
                 {account ? (
                   <AdvancedLink href="/admin">

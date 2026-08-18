@@ -8,6 +8,14 @@ trạng thái từ tên nhánh.
 
 ## Handoff hiện tại
 
+- cppinterview đã chuyển sang C++-only: web không còn discovery root, deck,
+  route học, code-runner hay mock-question language cho Python/CMake. Thư mục
+  `python/` ở repo root vẫn giữ nguyên như ghi chú cá nhân.
+- Sau deploy, chạy migration
+  `20260818110000_archive_non_cpp_content.sql` để archive lesson/question
+  Python/CMake và dead-letter job sinh câu hỏi còn chờ; revision history vẫn
+  được giữ lại.
+
 - Giao diện Practice/Admin chỉ biểu diễn hai nhãn phân loại của thẻ: `Dễ`/`Trung bình`/`Khó` và `Text`/`Code`. Filter theo bộ thẻ, lộ trình, loại câu và chủ đề đã được gỡ khỏi UI; taxonomy, `type`, `interviewCategory`, `interviewFormat` và `assessmentSkills` vẫn nằm trong data model để scheduler, tạo nội dung, coverage và WorldQuant/mock dùng nội bộ. `code_review` hiển thị workspace chọn dòng và lưu comment có số dòng vào candidate answer, không lộ comment/rubric mẫu. Trang `/admin/coverage` theo dõi mục tiêu C++ 300 câu verified theo sáu dạng; draft/approval riêng không được làm tăng số verified.
 
 - Báo cáo Mock v4 mới tách tám tiêu chí: correctness, complexity, idiomatic C++, lifetime/ownership, testing/debugging, communication, requirement clarification và trade-off reasoning. Server tạo evidence catalog từ exact câu trả lời, mã, mã trong đề và tổng hợp hidden-test; AI chỉ cite ID trong catalog rồi server resolve trước khi lưu. Cuối report có đúng ba việc luyện tiếp priority 1–3, được capture vào Mistake Inbox sau durable history theo chế độ `ask`/`auto`/`off`; các artifact Mock cũ vẫn đọc được nhưng hiển thị fallback cũ.
@@ -34,7 +42,7 @@ trạng thái từ tên nhánh.
 
 ## Giới hạn và trạng thái chưa xác minh
 
-- Kho câu hỏi đã duyệt chưa bao phủ đều tick data, CMake, Python, Linux/mạng, hệ
+- Kho câu hỏi đã duyệt chưa bao phủ đều tick data, Linux/mạng, hệ
   thống phân tán và kỹ năng chịu trách nhiệm đầu cuối. Giao diện phải gọi đây là
   “phần học liệu còn thiếu”, không diễn giải thành điểm yếu của người học khi
   chưa có bằng chứng.
@@ -175,7 +183,7 @@ trạng thái từ tên nhánh.
   ESLint 10, không tương thích bộ Next.js hiện dùng. Các gói này không nằm trong
   dependency production, nên giữ cảnh báo này được ghi nhận thay vì phá vỡ lint.
 - Lần smoke production gần nhất dùng Chrome 1440×1200 và mobile CDP 390×844:
-  Practice, WorldQuant, guide CMake/tick và Full Round không tràn ngang ở cấp
+  Practice, WorldQuant, guide tick và Full Round không tràn ngang ở cấp
   trang. Đây không phải bằng chứng deployment hiện tại đang hoạt động.
 
 ## Quy tắc cập nhật

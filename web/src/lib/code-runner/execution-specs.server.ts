@@ -48,7 +48,7 @@ export type MockExecutionSpec = {
   questionVersion: number;
   contentRevision: string;
   revision: number;
-  language: Extract<ContentLanguage, "cpp" | "python" | "cmake">;
+  language: Extract<ContentLanguage, "cpp">;
   toolchain: string;
   createPlan: (
     source: string,
@@ -247,8 +247,6 @@ int main() {
 const specs = [
   makeIntervalSpec(),
   makeOrderBookSpec(),
-  makePythonAuditSpec(),
-  makeCmakeSpec(),
 ] satisfies MockExecutionSpec[];
 
 const specByQuestionId = new Map(
@@ -291,7 +289,7 @@ function makeIntervalSpec(): MockExecutionSpec {
     ...identity(question),
     language: "cpp",
     toolchain: TOOLCHAIN,
-    createPlan(source, suite) {
+    createPlan(source: string, suite: ExecutionSuite) {
       const cases =
         suite === "sample"
           ? [
@@ -354,7 +352,7 @@ function makeOrderBookSpec(): MockExecutionSpec {
     ...identity(question),
     language: "cpp",
     toolchain: TOOLCHAIN,
-    createPlan(source, suite) {
+    createPlan(source: string, suite: ExecutionSuite) {
       const cases =
         suite === "sample"
           ? [
@@ -413,13 +411,13 @@ function makeOrderBookSpec(): MockExecutionSpec {
   };
 }
 
-function makePythonAuditSpec(): MockExecutionSpec {
+function makePythonAuditSpec(): unknown {
   const question = requiredQuestion("worldquant-python-gap-audit");
   return {
     ...identity(question),
     language: "python",
     toolchain: TOOLCHAIN,
-    createPlan(source, suite) {
+    createPlan(source: string, suite: ExecutionSuite) {
       const cases =
         suite === "sample"
           ? [
@@ -480,13 +478,13 @@ function makePythonAuditSpec(): MockExecutionSpec {
   };
 }
 
-function makeCmakeSpec(): MockExecutionSpec {
+function makeCmakeSpec(): unknown {
   const question = requiredQuestion("worldquant-cmake-delivery");
   return {
     ...identity(question),
     language: "cmake",
     toolchain: TOOLCHAIN,
-    createPlan(source, suite) {
+    createPlan(source: string, suite: ExecutionSuite) {
       return {
         files: [
           { path: "work/CMakeLists.txt", content: source },
@@ -556,7 +554,7 @@ function makeCmakeSpec(): MockExecutionSpec {
               timeoutMs: 3_000,
               memoryBytes: RUNTIME_MEMORY,
             },
-            validate({ exitCode, stdout }) {
+            validate({ exitCode, stdout }: { exitCode: number; stdout: string }) {
               const match = stdout.match(/Total Tests:\s*(\d+)/);
               const count = match ? Number(match[1]) : 0;
               return {
@@ -577,7 +575,7 @@ function makeCmakeSpec(): MockExecutionSpec {
               timeoutMs: 5_000,
               memoryBytes: RUNTIME_MEMORY,
             },
-            validate({ exitCode }) {
+            validate({ exitCode }: { exitCode: number }) {
               return {
                 passed: exitCode === 0,
                 message:
@@ -592,6 +590,11 @@ function makeCmakeSpec(): MockExecutionSpec {
     },
   };
 }
+
+// Legacy execution specifications are retained only to read historical attempts;
+// the C++-only catalog never selects them for a new run.
+void makePythonAuditSpec;
+void makeCmakeSpec;
 
 function cppCompileCommand(): SandboxPlanCommand {
   return {

@@ -285,15 +285,6 @@ lessons:
     prerequisites: []
     language: cpp
     track: cpp11
-  - id: python-day-1
-    sourcePath: python/day_1
-    order: 1
-    tags:
-      - day
-      - "1"
-    prerequisites: []
-    language: python
-    track: python3
   - id: cpp11-copy-constructor
     sourcePath: cpp11/28_copy constructor
     order: 23

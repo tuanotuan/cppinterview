@@ -26,15 +26,15 @@ const curatedReadinessCompetencies = {
   "worldquant-tick-feed-correctness": "tick_market_data",
   "worldquant-interval-stats-cpp": "performance_latency",
   "worldquant-legacy-migration": "ownership_communication",
-  "worldquant-cmake-delivery": "build_delivery",
-  "worldquant-python-reconciliation": "scripting_automation",
+  "worldquant-cpp-delivery-safety": "build_delivery",
+  "worldquant-cpp-reconciliation": "performance_latency",
   "worldquant-researcher-collaboration": "ownership_communication",
   "worldquant-order-book-update-cpp": "tick_market_data",
   "worldquant-cpp-event-lifetime": "modern_cpp",
   "worldquant-partitioned-pipeline-backpressure":
     "distributed_data_platform",
   "worldquant-feed-regression-testing": "build_delivery",
-  "worldquant-python-gap-audit": "scripting_automation",
+  "worldquant-cpp-sequence-audit": "tick_market_data",
   "worldquant-cpp-feed-api-evolution": "modern_cpp",
   "worldquant-production-data-incident": "ownership_communication",
   "worldquant-parallel-replay-determinism": "performance_latency",
@@ -123,7 +123,7 @@ export function legacyMockCompetencyForReadiness(
     case "build_delivery":
       return "engineering_quality";
     case "scripting_automation":
-      return "scripting";
+      return "data_pipeline_performance";
     case "ownership_communication":
       return "communication_ownership";
     case "modern_cpp":

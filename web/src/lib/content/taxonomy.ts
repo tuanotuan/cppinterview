@@ -5,8 +5,6 @@ import type {
 } from "./schema";
 
 export const HOME_DECK_ID = "cpp-interview" as const;
-export const PYTHON_DECK_ID = "python-interview" as const;
-export const CMAKE_DECK_ID = "cmake-build-systems" as const;
 
 export function buildQuestionTaxonomy(
   question: Question,
@@ -23,11 +21,7 @@ export function buildQuestionTaxonomy(
 
   const topics = [...new Set(lesson.tags)].sort();
   const responseMode = question.responseMode ?? "text";
-  const deckId = lesson.language === "python"
-    ? PYTHON_DECK_ID
-    : lesson.language === "cmake"
-      ? CMAKE_DECK_ID
-      : HOME_DECK_ID;
+  const deckId = HOME_DECK_ID;
   const tags = [
     `deck::${deckId}`,
     `standard::${lesson.standard}`,
@@ -60,20 +54,7 @@ export function buildQuestionTaxonomy(
       ? { codeTestSuite: question.codeTestSuite }
       : {}),
   };
-  if (lesson.language === "cpp") return shared;
-
-  return {
-    ...shared,
-    language: lesson.language,
-    track: lesson.track,
-    tags: [
-      ...new Set([
-        ...shared.tags,
-        `language::${lesson.language}`,
-        `track::${lesson.track}`,
-      ]),
-    ],
-  };
+  return shared;
 }
 
 function canonicalTagValue(value: string) {

@@ -33,7 +33,7 @@ export const codeExecutionResultSchema = z.object({
   suite: z.enum(["sample", "hidden"]),
   codeHash: z.string().regex(/^[a-f0-9]{64}$/),
   specRevision: z.number().int().positive(),
-  language: z.enum(["cpp", "python", "cmake"]),
+  language: z.literal("cpp"),
   status: codeExecutionStatusSchema,
   passedTests: z.number().int().nonnegative(),
   totalTests: z.number().int().nonnegative(),

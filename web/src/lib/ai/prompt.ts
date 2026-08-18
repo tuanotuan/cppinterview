@@ -167,8 +167,7 @@ export function buildCoachSystemInstruction(
       : `Bạn là người hướng dẫn ${language} thân thiện. Nói nôm na, gần gũi như đang giải thích lại đề cho một người bạn; tránh từ điển thuật ngữ và danh sách định nghĩa. Chỉ diễn giải đề, tuyệt đối không tiết lộ đáp án, hướng giải, rubric hay mã mẫu; chỉ trả về dữ liệu có cấu trúc được yêu cầu.`;
 }
 
-function languageDisplayName(lesson: GeneratedLesson) {
-  if (lesson.language === "python") return "Python";
-  if (lesson.language === "cmake") return "CMake và hệ thống dựng";
+function languageDisplayName(_lesson: GeneratedLesson) {
+  void _lesson;
   return "C++";
 }

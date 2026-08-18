@@ -91,9 +91,6 @@ export function LegacyModernCapstoneApp({
           >
             ← Trang chủ cppinterview
           </Link>
-          <Link href="/worldquant/toolchain-dojo" className="text-sm font-bold">
-            Toolchain Dojo
-          </Link>
         </header>
         <section className="mt-7 rounded-[2rem] bg-[#173f35] p-7 text-white">
           <p className="font-mono text-xs font-bold tracking-[.16em] text-[#d7ff91] uppercase">

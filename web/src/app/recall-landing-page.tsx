@@ -21,7 +21,7 @@ const capabilities = [
   {
     title: "Luyện đúng kiểu phỏng vấn kỹ sư",
     description:
-      "Từ C++, Python, CMake tới tick data, system design và mock interview cho WorldQuant.",
+      "Từ C++ hiện đại tới tick data, system design và mock interview cho WorldQuant.",
     number: "03",
   },
 ];
@@ -93,7 +93,7 @@ export function RecallLandingPage({
           <div>
             <p className="inline-flex items-center gap-2 rounded-full border border-[#356b58]/16 bg-white/62 px-3 py-2 font-mono text-[10px] font-bold tracking-[0.15em] text-[#356b58] uppercase">
               <span className="size-2 rounded-full bg-[#79b82a]" />
-              C++ · Python · CMake · Systems
+              C++ · Systems · Trading
             </p>
             <h1 className="mt-6 max-w-4xl text-5xl font-semibold tracking-[-0.06em] text-[#17221d] sm:text-6xl lg:text-7xl">
               Học từ ghi chú.

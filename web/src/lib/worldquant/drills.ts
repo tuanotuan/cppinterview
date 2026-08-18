@@ -219,7 +219,7 @@ export function worldQuantDrillAssessmentDescriptor(
   );
 }
 
-export const worldQuantDrillPacks: readonly WorldQuantDrillPack[] = [
+const allWorldQuantDrillPacks: readonly WorldQuantDrillPack[] = [
   pack({
     id: "modern-cpp-lifetime",
     competency: "modern_cpp",
@@ -956,6 +956,64 @@ project(feed LANGUAGES CXX)
     },
   }),
 ] as const;
+
+function asCppOnlyDrill(drill: WorldQuantDrill): WorldQuantDrill {
+  if (drill.language !== "python" && drill.language !== "cmake") return drill;
+
+  const phaseLabel =
+    drill.variant === "practice"
+      ? "Bài thực hành"
+      : drill.id.endsWith("-retry")
+        ? "Kiểm tra lại"
+        : "Kiểm tra";
+  const context = drill.id.startsWith("build-delivery")
+    ? "bộ giải mã C++ cho feed market-data"
+    : "pipeline đối soát dữ liệu bằng C++";
+  const rubric = [
+    "Nêu được contract, ownership/lifetime và các giả định quan trọng.",
+    "Lời giải C++ có độ phức tạp và cấu trúc dữ liệu phù hợp.",
+    "Có kế hoạch test, chẩn đoán lỗi và bằng chứng để tái lập sự cố.",
+    "Nêu trade-off vận hành và điều kiện phát hành hoặc rollback rõ ràng.",
+  ];
+
+  return {
+    ...drill,
+    language: "cpp",
+    title: `${phaseLabel} C++: ${context}`,
+    prompt:
+      `${phaseLabel} cho ${context}. Dùng C++20 để mô tả hoặc hiện thực lời giải; nêu rõ dữ liệu vào/ra, bất biến, độ phức tạp, chiến lược kiểm thử và cách phát hiện lỗi production.`,
+    starterCode:
+      drill.variant === "practice"
+        ? "#include <iostream>\n#include <string_view>\n\nint main() {\n  // Viết lời giải C++20 của bạn ở đây.\n}\n"
+        : null,
+    followUps: [
+      { id: "correctness", prompt: `Bất biến nào bảo vệ tính đúng đắn ở phần ${phaseLabel.toLowerCase()} này?` },
+      { id: "testing", prompt: `Bạn sẽ thêm test nào để bắt edge case và regression cho ${context}?` },
+    ],
+    rubric: drill.rubric.map(
+      (_, index) =>
+        `${rubric[index % rubric.length]} Trọng tâm: ${phaseLabel.toLowerCase()}.`,
+    ),
+    sourceLabel: "Luyện phỏng vấn C++",
+    sourceHref: "/practice?deck=cpp-interview",
+  };
+}
+
+export const worldQuantDrillPacks: readonly WorldQuantDrillPack[] =
+  allWorldQuantDrillPacks.map((drillPack) => ({
+    ...drillPack,
+    title:
+      drillPack.practice.language === "python" || drillPack.practice.language === "cmake"
+        ? "Thực hành hệ thống C++"
+        : drillPack.title,
+    summary:
+      drillPack.practice.language === "python" || drillPack.practice.language === "cmake"
+        ? "Luyện thiết kế, kiểm thử và vận hành thành phần C++ cho môi trường production."
+        : drillPack.summary,
+    practice: asCppOnlyDrill(drillPack.practice),
+    checkpoint: asCppOnlyDrill(drillPack.checkpoint),
+    checkpointRetry: asCppOnlyDrill(drillPack.checkpointRetry),
+  }));
 
 export const worldQuantDrills: readonly WorldQuantDrill[] =
   worldQuantDrillPacks.flatMap((drillPack) => [

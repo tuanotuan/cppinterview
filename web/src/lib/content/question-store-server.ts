@@ -27,6 +27,17 @@ import {
 
 const PAGE_SIZE = 500;
 const repoManifest = contentManifestSchema.parse(manifestJson);
+// The database can retain archived records from retired tracks. Keep this
+// storage boundary permissive enough to read those rows, then expose only the
+// C++ contract used by the application below.
+const storedContentLanguageSchema = z.enum(["cpp", "python", "cmake"]);
+const storedContentTrackSchema = z.enum([
+  "cpp98",
+  "cpp11",
+  "cpp20",
+  "python3",
+  "cmake",
+]);
 
 const lessonRowSchema = z.object({
   id: z.string(),
@@ -35,8 +46,8 @@ const lessonRowSchema = z.object({
   source_commit_sha: z.string().nullable(),
   source_path: z.string(),
   standard: cppStandardSchema,
-  language: contentLanguageSchema,
-  track: contentTrackSchema,
+  language: storedContentLanguageSchema,
+  track: storedContentTrackSchema,
   lesson_order: z.coerce.number().int().positive(),
   title: z.string(),
   tags: z.array(z.string()),
@@ -72,7 +83,7 @@ const questionRowSchema = z.object({
     misconceptions: z.array(z.string()),
   }),
   sources: z.array(z.object({ sectionId: z.string() })),
-  taxonomy: questionTaxonomySchema,
+  taxonomy: z.record(z.string(), z.unknown()),
   source_hash: z.string(),
   status: z.enum(["draft", "verified", "needs_review", "archived"]),
   manifest_order: z.coerce.number().int().positive().nullable(),
@@ -221,7 +232,9 @@ export function rowsToContentManifest(
   const activeLessons = lessonRows
     .filter(
       (row): row is LessonRow & { manifest_order: number } =>
-        row.lifecycle_status === "active" && row.manifest_order !== null,
+        row.lifecycle_status === "active" &&
+        row.language === "cpp" &&
+        row.manifest_order !== null,
     )
     .sort(
       (left, right) =>
@@ -230,8 +243,8 @@ export function rowsToContentManifest(
     )
     .map((row) => ({
       id: row.id,
-      language: row.language,
-      track: row.track,
+      language: contentLanguageSchema.parse(row.language),
+      track: contentTrackSchema.parse(row.track),
       sourcePath: row.source_path,
       standard: row.standard,
       order: row.lesson_order,
@@ -241,15 +254,7 @@ export function rowsToContentManifest(
       knowledgePath: isStandaloneManualQuestionLesson(row.id)
         ? "Câu hỏi độc lập do quản trị viên nhập"
         : `${row.source_path}/knowledge.md`,
-      codePath: row.code
-        ? `${row.source_path}/${
-            row.language === "python"
-              ? "main.py"
-              : row.language === "cmake"
-                ? "CMakeLists.txt"
-                : "main.cpp"
-          }`
-        : null,
+      codePath: row.code ? `${row.source_path}/main.cpp` : null,
       sourceHash: row.source_hash,
       sections: row.sections,
       checklistItems: row.checklist_items,
@@ -266,28 +271,31 @@ export function rowsToContentManifest(
         left.manifest_order - right.manifest_order ||
         left.id.localeCompare(right.id),
     )
-    .map((row) => ({
-      id: row.id,
-      lessonId: row.lesson_id,
-      type: row.type,
-      responseMode: row.response_mode,
-      difficulty: row.difficulty,
-      interviewCategory: row.taxonomy.interviewCategory,
-      interviewFormat: row.taxonomy.interviewFormat,
-      assessmentSkills: row.taxonomy.assessmentSkills,
-      codeTestSuite: row.taxonomy.codeTestSuite,
-      estimatedMinutes: row.estimated_minutes,
-      prompt: row.prompt,
-      code: row.code ?? undefined,
-      hint: row.hint,
-      answer: row.answer,
-      rubric: row.rubric,
-      sources: row.sources,
-      sourceHash: row.source_hash,
-      status: row.status,
-      version: row.version,
-      taxonomy: row.taxonomy,
-    }));
+    .map((row) => {
+      const taxonomy = questionTaxonomySchema.parse(row.taxonomy);
+      return {
+        id: row.id,
+        lessonId: row.lesson_id,
+        type: row.type,
+        responseMode: row.response_mode,
+        difficulty: row.difficulty,
+        interviewCategory: taxonomy.interviewCategory,
+        interviewFormat: taxonomy.interviewFormat,
+        assessmentSkills: taxonomy.assessmentSkills,
+        codeTestSuite: taxonomy.codeTestSuite,
+        estimatedMinutes: row.estimated_minutes,
+        prompt: row.prompt,
+        code: row.code ?? undefined,
+        hint: row.hint,
+        answer: row.answer,
+        rubric: row.rubric,
+        sources: row.sources,
+        sourceHash: row.source_hash,
+        status: row.status,
+        version: row.version,
+        taxonomy,
+      };
+    });
 
   return contentManifestSchema.parse({
     schemaVersion: 1,

@@ -208,11 +208,7 @@ export default async function LessonReaderPage({
                     </p>
                   </div>
                   <span className="rounded-full bg-white/10 px-3 py-1 font-mono text-[10px]">
-                    {lesson.language === "cpp"
-                      ? "C++"
-                      : lesson.language === "python"
-                        ? "Python"
-                        : "CMake"}
+                    C++
                   </span>
                 </div>
                 <pre className="max-h-[42rem] overflow-auto p-5 font-mono text-[12px] leading-6 text-[#e8f4ec] sm:p-7">
