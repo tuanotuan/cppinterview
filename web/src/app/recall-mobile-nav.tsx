@@ -5,8 +5,7 @@ import { usePathname } from "next/navigation";
 
 const items = [
   { href: "/practice", label: "Học hôm nay", icon: "⌂" },
-  { href: "/worldquant/mission", label: "Nhiệm vụ", icon: "✓" },
-  { href: "/worldquant", label: "Chuẩn bị", icon: "◇" },
+  { href: "/mock-interview", label: "Phỏng vấn", icon: "◇" },
   { href: "/learn", label: "Thư viện", icon: "▤" },
   { href: "/profile", label: "Hồ sơ", icon: "◉" },
 ];

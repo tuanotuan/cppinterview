@@ -2000,7 +2000,7 @@ export function PracticeApp({
   }
 
   function pauseFocusSprint() {
-    window.location.assign(focusReturnHref ?? "/worldquant");
+    window.location.assign(focusReturnHref ?? "/practice");
   }
 
   async function cancelFocusSprint() {
@@ -2037,7 +2037,7 @@ export function PracticeApp({
         );
         return;
       }
-      window.location.assign(focusReturnHref ?? "/worldquant");
+      window.location.assign(focusReturnHref ?? "/practice");
     } catch {
       setFocusNotice(
         "Chưa xóa được phiên ôn tập khỏi bộ nhớ trên thiết bị. Hãy kiểm tra quyền lưu trữ của trình duyệt rồi thử lại.",
@@ -2961,12 +2961,6 @@ export function PracticeApp({
             <WorkspaceNavLink href="/practice" active>
               Học hôm nay
             </WorkspaceNavLink>
-            <WorkspaceNavLink href="/worldquant/mission">
-              Nhiệm vụ
-            </WorkspaceNavLink>
-            <WorkspaceNavLink href="/worldquant">
-              Trung tâm chuẩn bị
-            </WorkspaceNavLink>
             <WorkspaceNavLink href="/mock-interview">
               Phỏng vấn thử
             </WorkspaceNavLink>
@@ -3031,7 +3025,7 @@ export function PracticeApp({
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className="font-mono text-xs font-bold tracking-[0.14em] text-[#356b58] uppercase">
-                  Phiên ôn tập trọng tâm WorldQuant
+                  Phiên ôn tập trọng tâm
                 </p>
                 <h1 className="mt-2 text-xl font-semibold tracking-tight text-[#173f35]">
                   Câu {focusPosition}/{focusQueueTotal} · giữ nguyên danh sách đã
@@ -3040,7 +3034,7 @@ export function PracticeApp({
                 <p className="mt-1 text-sm text-[#596a62]">
                   {focusStep
                     ? `${focusCompetencyLabel(focusStep.competency)} · ${focusReasonLabel(focusStep.queueReason)}`
-                    : "Ôn theo điểm cần cải thiện đã chọn ở Trung tâm chuẩn bị."}
+                    : "Ôn theo điểm cần cải thiện đã chọn trong kế hoạch học."}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -3924,15 +3918,15 @@ function FocusUnavailableScreen({
         </h1>
         <p className="mt-3 text-sm leading-6 text-[#64736c]">
           Danh sách không được tự đoán lại hoặc thay bằng phiên khác. Hãy quay
-          về Trung tâm chuẩn bị để tiếp tục phiên ôn tập còn lưu hoặc tạo kế
-          hoạch mới.
+          về trang luyện tập để tiếp tục phiên ôn tập còn lưu hoặc tạo kế hoạch
+          mới.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link
-            href="/worldquant"
+            href="/practice"
             className="rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#245748]"
           >
-            Về Trung tâm chuẩn bị
+            Về luyện tập
           </Link>
           <Link
             href="/"
@@ -3986,19 +3980,19 @@ function FocusCompletionScreen({
         ) : null}
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <Link
-            href={returnHref ?? "/worldquant"}
+            href={returnHref ?? "/practice"}
             className="rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#245748]"
           >
             {returnHref
               ? "Tiếp tục bước kế tiếp trong nhiệm vụ"
-              : "Xem mức sẵn sàng mới"}
+              : "Về luyện tập"}
           </Link>
           {returnHref ? (
             <Link
-              href="/worldquant"
+              href="/practice"
               className="rounded-xl border border-[#173f35]/18 bg-white px-5 py-3 text-sm font-bold text-[#356b58]"
             >
-              Về Trung tâm chuẩn bị
+              Về luyện tập
             </Link>
           ) : null}
           <Link

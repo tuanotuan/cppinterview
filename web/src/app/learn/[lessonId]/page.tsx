@@ -79,8 +79,8 @@ export default async function LessonReaderPage({
             <Link className="rounded-xl px-4 py-2 hover:bg-white/60" href="/learn">
               Tất cả bài học
             </Link>
-            <Link className="rounded-xl px-4 py-2 hover:bg-white/60" href="/worldquant">
-              Trung tâm chuẩn bị
+            <Link className="rounded-xl px-4 py-2 hover:bg-white/60" href="/mock-interview">
+              Phỏng vấn thử
             </Link>
           </nav>
         </header>

@@ -41,20 +41,14 @@ retired Python/CMake database content while preserving revision history.
 |---|---|---|
 | `/` | `web/src/app/page.tsx`, `recall-landing-page.tsx` | Landing public của cppinterview: giới thiệu luồng học, thư viện, AI coach, mock interview và đăng nhập/đăng ký; account đã đăng nhập được chuyển sang `/practice` (trừ khi route mang thông báo auth); CTA thử luyện mở guest mode |
 | `/practice` | `practice/page.tsx`, `practice-app.tsx`, `code-review-workspace.tsx`, `question-editor-dialog.tsx`, `confirmation-dialog.tsx` | Today workspace: CTA tiếp tục/luyện thêm, tiến độ và chỉ số ngày trước card; guest mode `?guest=1` giữ tiến độ local và mở Luna với giới hạn public 3 lượt/24 giờ; Daily/custom study và Focus Sprint exact queue; mỗi thẻ chỉ hiện hai nhãn phân loại Dễ/Trung bình/Khó và Text/Code, còn taxonomy nội bộ không lộ ra hoặc lọc ở UI; `code_review` thay textarea bằng workspace chọn dòng, lưu annotation vào candidate answer để tồn tại qua F5 và gửi nguyên vẹn cho Coach, không lộ rubric/comment mẫu; answer không giới hạn sản phẩm, blank = chưa biết và vẫn gọi được AI, rating, scheduler, cloud sync, saved state, owner-only edit/archive thẻ và return về Guided Mission; thao tác phá hủy dùng confirmation sheet của cppinterview thay vì hộp thoại trình duyệt |
-| `/worldquant` | `worldquant/page.tsx`, `worldquant-readiness-app.tsx` | Trung tâm chuẩn bị theo vị trí/thời lượng, giới thiệu lần đầu, mục Nâng cao thu gọn; thống kê, Phiên ôn tập trọng tâm, phỏng vấn thử v4 gần nhất và xu hướng có thể so sánh |
-| `/worldquant/curriculum` | `worldquant/curriculum/page.tsx` | Graph 30 concept theo prerequisite; tách card coverage, pending content và transfer drill |
-| `/worldquant/drills` | `worldquant/drills/page.tsx`, `worldquant-drill-app.tsx` | Bài luyện tình huống: thẻ khởi động đã duyệt → luyện tập → câu hỏi tiếp nối → tiêu chí chấm → bài kiểm tra xác nhận mới/cách quãng; giữ đúng đường về Nhiệm vụ |
-| `/worldquant/mission` | `worldquant/mission/page.tsx`, `worldquant-mission-app.tsx` | Nhiệm vụ hằng ngày xác định, nêu một bước tiếp theo và giữ đúng đường về qua thẻ/bài luyện/phỏng vấn thử |
-| `/worldquant/full-round` | `worldquant/full-round/page.tsx`, `worldquant-full-round-app.tsx` | Năm non-certification round có hard deadline, rubric và English Web Speech tùy chọn; không lưu answer/audio |
-| `/worldquant/tick-replay-lab` | `worldquant/tick-replay-lab/page.tsx` | Mô phỏng chuỗi tick, recovery và kiểm tra bất biến sổ lệnh bằng kịch bản xác định |
-| `/worldquant/legacy-modern-capstone` | `worldquant/legacy-modern-capstone/page.tsx` | Sáu checkpoint quyết định an toàn khi chuyển nền tảng tick data cũ sang modern C++ |
+| `/worldquant/*` | `worldquant/layout.tsx` và các module lịch sử | Workspace chuẩn bị theo một công ty cũ chỉ còn truy cập được bởi admin GitHub `tuanotuan`; người học thường bị chuyển về `/practice`. Không có entry point công khai tới vùng này. |
 | `/learn` | `learn/page.tsx`, `learn/[lessonId]/page.tsx` | Thư viện lesson từ manifest với tổng quan bài/thẻ đã duyệt/bài có mã, tìm kiếm và chip lọc lộ trình, Markdown an toàn, tự kiểm tra và mở phiên ôn tập trọng tâm |
 | `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Phỏng vấn thử v4 toàn diện/trọng tâm 30/45/60 phút, kiểm thử ẩn, báo cáo tám tiêu chí có evidence server-canonical, lịch sử và kế hoạch ôn tiếp; report mới tạo đúng ba việc luyện tiếp để capture vào Mistake Inbox sau khi history hoàn tất bền vững; desktop session rail chỉ lộ thứ tự/trạng thái trả lời, còn thanh chuyển câu/nộp bài sticky; nộp sớm, reset, thay Focus hoặc xóa history đều xác nhận trong UI |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx`, `lib/learn/tick-data-guide.ts` | Guide tick data/order book |
 | `/stats` | `stats/page.tsx`, `fsrs-shadow-panel.tsx` | Analytics học tập và FSRS-6 shadow comparison |
 | `/profile` | `profile/page.tsx`, `lib/profile/{contribution-activity,mobile-usage,profile-activity.server}.ts` | Trang cá nhân và contribution graph 53 tuần từ lượt ôn, AI coach và phỏng vấn thử đã hoàn tất; riêng admin `tuanotuan` còn có tổng thời gian cppinterview hoạt động trên điện thoại hôm nay/7/30 ngày |
 | `/admin` | `admin/page.tsx`, `admin-dashboard.tsx`, `manual-question-dialog.tsx`, `input-dialog.tsx` | Review/edit/archive question, schedule, AI/job settings và thêm câu hỏi thủ công. Ngân hàng câu hỏi chỉ tìm kiếm và lọc theo trạng thái vận hành/học; mỗi card chỉ hiện Dễ/Trung bình/Khó và Text/Code, còn taxonomy/loại câu vẫn là metadata nội bộ. Editor Admin quản lý thêm dạng đánh giá; chi tiết chỉ ở Admin mới nêu kỹ năng đo, standard, thời lượng và điều kiện test. Câu thủ công là DB-native draft có revision/audit, chỉ cần đề bài và đáp án tham khảo, không gắn lesson hay file `.md`, rồi chờ duyệt; header ưu tiên Luyện hôm nay, Thư viện, Mức bao phủ và chuẩn bị phỏng vấn; xác nhận/ràng buộc nguồn của mistake card dùng sheet/form trong UI thay vì API dialog của trình duyệt |
-| `/admin/coverage` | `admin/coverage/page.tsx`, `lib/content/interview-bank.ts` | Mức bao phủ content/WorldQuant và bảng mục tiêu 300 câu C++ đã xác minh theo sáu dạng đánh giá; draft hay owner approval không được tính là verified |
+| `/admin/coverage` | `admin/coverage/page.tsx`, `lib/content/interview-bank.ts` | Mức bao phủ ngân hàng câu hỏi và bảng mục tiêu 300 câu C++ đã xác minh theo sáu dạng đánh giá; draft hay owner approval không được tính là verified |
 | `/auth` và `/auth/*` | `auth/page.tsx`, `auth-form.tsx`, `auth-actions.ts`, `auth/{login,callback,confirm,logout}` | Đăng ký/đăng nhập email-mật khẩu với xác nhận email, cùng Google và GitHub OAuth; mọi Supabase account đã xác thực dùng cppinterview, chỉ admin giữ GitHub identity `tuanotuan` |
 
 API quan trọng:
@@ -63,8 +57,8 @@ API quan trọng:
 - `api/mock-interview/{run,report,history}`: chạy sample code, xác minh exact
   blueprint, tạo report có hidden evaluation và danh mục evidence canonical (câu trả lời/code/test), rồi đọc/xóa history theo account.
 - `api/progress/sync`: đồng bộ review/Anki state.
-- `api/worldquant/{training-state,mission-snapshot}`: đọc/ghi state WorldQuant
-  account-scoped bằng revision CAS; browser fallback về local khi API/database chưa sẵn sàng.
+- `api/worldquant/{training-state,mission-snapshot}`: state của workspace lịch sử,
+  chỉ còn reachable qua khu vực admin; browser fallback về local khi API/database chưa sẵn sàng.
 - `api/profile/mobile-usage`: heartbeat riêng cho admin `tuanotuan`, chỉ nhận tab UUID ngắn hạn từ trình duyệt điện thoại đang hiển thị và ghi aggregate thời gian hoạt động.
 - `api/mistakes/{generate,preferences,resolve,ground,backfill}`: Mistake Inbox
   owner-private, grounded card generation và recovery từ Mock v4.

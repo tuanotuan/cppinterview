@@ -67,8 +67,8 @@ export function LessonLibraryApp({
             </span>
           </Link>
           <nav className="flex flex-wrap gap-2 text-sm font-bold">
-            <Link className="rounded-xl px-4 py-2 hover:bg-white/60" href="/worldquant">
-              Trung tâm chuẩn bị
+            <Link className="rounded-xl px-4 py-2 hover:bg-white/60" href="/mock-interview">
+              Phỏng vấn thử
             </Link>
             <Link className="rounded-xl px-4 py-2 hover:bg-white/60" href="/">
               Luyện thẻ

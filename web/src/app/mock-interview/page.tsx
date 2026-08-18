@@ -30,9 +30,9 @@ import { MockInterviewApp } from "./mock-interview-app";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Phỏng vấn thử WorldQuant — cppinterview",
+  title: "Phỏng vấn thử C++ — cppinterview",
   description:
-    "Phỏng vấn thử cho vị trí Kỹ sư nền tảng dữ liệu tick bằng C++ hiện đại.",
+    "Phỏng vấn thử cho các vị trí kỹ sư C++: từ ngôn ngữ, hệ thống đến hiệu năng và thiết kế.",
 };
 
 export default async function MockInterviewPage({
@@ -206,7 +206,7 @@ function MockInterviewGate({
     <main className="grid min-h-screen place-items-center px-5 py-12">
       <section className="w-full max-w-lg rounded-[2rem] border border-[#173f35]/15 bg-white/70 p-8 shadow-[0_24px_80px_rgb(23_63_53_/_10%)] sm:p-10">
         <div className="grid size-12 place-items-center rounded-2xl bg-[#173f35] font-mono font-bold text-[#d7ff91]">
-          WQ
+          CI
         </div>
         <p className="mt-8 font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
           Phỏng vấn thử

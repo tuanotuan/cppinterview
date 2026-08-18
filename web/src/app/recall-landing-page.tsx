@@ -21,7 +21,7 @@ const capabilities = [
   {
     title: "Luyện đúng kiểu phỏng vấn kỹ sư",
     description:
-      "Từ C++ hiện đại tới tick data, system design và mock interview cho WorldQuant.",
+      "Từ C++ hiện đại tới đọc code, debugging, system design và mock interview cho các vị trí kỹ sư C++.",
     number: "03",
   },
 ];
@@ -167,10 +167,10 @@ export function RecallLandingPage({
               </h2>
             </div>
             <Link
-              href="/worldquant"
+              href="/mock-interview"
               className="rounded-xl px-4 py-2 text-sm font-bold text-[#356b58] transition hover:bg-white/65"
             >
-              Xem lộ trình chuẩn bị →
+              Xem phòng phỏng vấn thử →
             </Link>
           </div>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
