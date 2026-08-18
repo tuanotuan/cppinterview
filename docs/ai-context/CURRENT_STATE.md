@@ -15,6 +15,9 @@ trạng thái từ tên nhánh.
   `20260818110000_archive_non_cpp_content.sql` để archive lesson/question
   Python/CMake và dead-letter job sinh câu hỏi còn chờ; revision history vẫn
   được giữ lại.
+- Loader DB bỏ qua an toàn row Python/CMake legacy trước khi validate C++
+  metadata, do đó OAuth user mới không thể làm SSR `/practice` crash trong khi
+  migration archive chưa kịp chạy.
 
 - Giao diện Practice/Admin chỉ biểu diễn hai nhãn phân loại của thẻ: `Dễ`/`Trung bình`/`Khó` và `Text`/`Code`. Filter theo bộ thẻ, lộ trình, loại câu và chủ đề đã được gỡ khỏi UI; taxonomy, `type`, `interviewCategory`, `interviewFormat` và `assessmentSkills` vẫn nằm trong data model để scheduler, tạo nội dung, coverage và WorldQuant/mock dùng nội bộ. `code_review` hiển thị workspace chọn dòng và lưu comment có số dòng vào candidate answer, không lộ comment/rubric mẫu. Trang `/admin/coverage` theo dõi mục tiêu C++ 300 câu verified theo sáu dạng; draft/approval riêng không được làm tăng số verified.
 

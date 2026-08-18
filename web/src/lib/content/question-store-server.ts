@@ -45,7 +45,10 @@ const lessonRowSchema = z.object({
   source_hash: z.string(),
   source_commit_sha: z.string().nullable(),
   source_path: z.string(),
-  standard: cppStandardSchema,
+  // Historical Python/CMake rows can use values such as `python3` or `cmake`.
+  // Parse those storage rows permissively, then validate only active C++ rows
+  // after the retired languages have been excluded below.
+  standard: z.string(),
   language: storedContentLanguageSchema,
   track: storedContentTrackSchema,
   lesson_order: z.coerce.number().int().positive(),
@@ -234,7 +237,9 @@ export function rowsToContentManifest(
       (row): row is LessonRow & { manifest_order: number } =>
         row.lifecycle_status === "active" &&
         row.language === "cpp" &&
-        row.manifest_order !== null,
+        row.manifest_order !== null &&
+        contentTrackSchema.safeParse(row.track).success &&
+        cppStandardSchema.safeParse(row.standard).success,
     )
     .sort(
       (left, right) =>
@@ -246,7 +251,7 @@ export function rowsToContentManifest(
       language: contentLanguageSchema.parse(row.language),
       track: contentTrackSchema.parse(row.track),
       sourcePath: row.source_path,
-      standard: row.standard,
+      standard: cppStandardSchema.parse(row.standard),
       order: row.lesson_order,
       tags: row.tags,
       prerequisites: row.prerequisites,
