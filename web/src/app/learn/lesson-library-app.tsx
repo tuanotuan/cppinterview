@@ -14,8 +14,6 @@ const tracks: Array<["all" | ContentTrack, string]> = [
   ["cpp98", "C++98"],
   ["cpp11", "C++11/14/17"],
   ["cpp20", "C++20/23"],
-  ["cmake", "CMake"],
-  ["python3", "Python 3"],
 ];
 
 export function LessonLibraryApp({
@@ -103,7 +101,7 @@ export function LessonLibraryApp({
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Ví dụ: lambda, pointer, CMake…"
+              placeholder="Ví dụ: lambda, pointer, ownership…"
               className="mt-2 min-h-12 w-full rounded-xl border border-[#173f35]/15 bg-white px-4 py-3 text-sm font-normal focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
             />
           </label>

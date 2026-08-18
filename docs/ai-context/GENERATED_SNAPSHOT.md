@@ -6,19 +6,19 @@
 ## Content
 
 - Manifest schema: 1
-- Source revision: `1ae36468eb6accc5a13fafabd23e09822270581bd0f9f3b99bfdb2dd48956943`
-- Lessons: 33 (cpp11: 26, cpp20: 1, cpp98: 5, python3: 1)
+- Source revision: `7309e64c059d9042edbf375bd0435ef142cf283dba05e858b2627b2a2fdeb04a`
+- Lessons: 32 (cpp11: 26, cpp20: 1, cpp98: 5)
 - Questions: 58 (draft: 48, verified: 10)
 - Question decks: cpp-interview: 58
 
 ## Application inventory
 
-- App pages: 20 (/, /admin, /admin/coverage, /auth, /learn, /learn/[lessonId], /learn/cmake, /learn/tick-data-order-book, /mock-interview, /practice, /profile, /stats, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/legacy-modern-capstone, /worldquant/mission, /worldquant/tick-replay-lab, /worldquant/toolchain-dojo)
+- App pages: 18 (/, /admin, /admin/coverage, /auth, /learn, /learn/[lessonId], /learn/tick-data-order-book, /mock-interview, /practice, /profile, /stats, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/legacy-modern-capstone, /worldquant/mission, /worldquant/tick-replay-lab)
 - API routes: 26 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/admin/questions/manual, /api/coach/clarify, /api/coach/evaluate, /api/coach/follow-up, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/profile/mobile-usage, /api/progress/sync, /api/questions/approve, /api/worldquant/mission-snapshot, /api/worldquant/training-state, /auth/callback, /auth/confirm, /auth/login, /auth/logout)
-- TypeScript source files excluding tests: 186
-- Colocated test files: 113
-- Supabase migrations: 44
-- Latest migration filename: `20260818090000_allow_authenticated_content_store_state.sql`
+- TypeScript source files excluding tests: 181
+- Colocated test files: 94
+- Supabase migrations: 45
+- Latest migration filename: `20260818110000_archive_non_cpp_content.sql`
 
 ## Toolchain declared in package.json
 
@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `f90c8c30e46d0b0b4dbf41231a3107f377373b8ecf12136a3430cfea97c483ed`
-- Fingerprinted files: 436
+- Project input fingerprint: `269904cc3a04da205fa24d07d7b2fd30957412c2990375354efbfa48c262987f`
+- Fingerprinted files: 411
 
 The fingerprint covers registered lesson sources, content files, application
 source/tests, scripts, package metadata, environment template, workflows, and

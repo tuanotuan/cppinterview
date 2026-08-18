@@ -829,8 +829,8 @@ function mockCompetencyWeight(key: MockCompetencyKey) {
     modern_cpp: 30,
     tick_data_order_book: 25,
     data_pipeline_performance: 15,
-    engineering_quality: 10,
-    scripting: 10,
+    engineering_quality: 15,
+    scripting: 5,
     communication_ownership: 10,
   };
   return weights[key];

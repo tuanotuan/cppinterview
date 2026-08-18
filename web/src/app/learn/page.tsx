@@ -8,7 +8,7 @@ import { LessonLibraryApp } from "./lesson-library-app";
 export const metadata: Metadata = {
   title: "Thư viện bài học — cppinterview",
   description:
-    "Đọc bài C++, CMake và Python theo thứ tự, xem mã mẫu và mở đúng thẻ ghi nhớ của từng bài.",
+    "Đọc bài C++ theo thứ tự, xem mã mẫu và mở đúng thẻ ghi nhớ của từng bài.",
 };
 
 export default function LessonLibraryPage() {

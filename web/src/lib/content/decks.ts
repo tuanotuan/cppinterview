@@ -8,20 +8,6 @@ export const PRACTICE_DECKS = {
     label: "Phỏng vấn C++",
     enabled: true,
   },
-  "python-interview": {
-    id: "python-interview",
-    language: "python",
-    badge: "Py",
-    label: "Phỏng vấn Python",
-    enabled: true,
-  },
-  "cmake-build-systems": {
-    id: "cmake-build-systems",
-    language: "cmake",
-    badge: "CM",
-    label: "CMake / Hệ thống dựng",
-    enabled: true,
-  },
 } as const satisfies Record<
   PracticeDeckId,
   {
@@ -37,15 +23,12 @@ export const ENABLED_PRACTICE_DECK_IDS = (
   Object.keys(PRACTICE_DECKS) as PracticeDeckId[]
 ).filter((deckId) => PRACTICE_DECKS[deckId].enabled);
 
-export function parsePracticeDeck(value: string | undefined): PracticeDeckId {
-  if (value === "python-interview" || value === "cmake-build-systems") {
-    return value;
-  }
+export function parsePracticeDeck(_value: string | undefined): PracticeDeckId {
+  void _value;
   return "cpp-interview";
 }
 
-export function deckForLanguage(language: ContentLanguage): PracticeDeckId {
-  if (language === "python") return "python-interview";
-  if (language === "cmake") return "cmake-build-systems";
+export function deckForLanguage(_language: ContentLanguage): PracticeDeckId {
+  void _language;
   return "cpp-interview";
 }

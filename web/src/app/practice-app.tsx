@@ -208,7 +208,7 @@ const ratingOptions: Array<{
   { value: "easy", label: "Dễ", interval: "7 ngày", tone: "lime" },
 ];
 
-type PracticeStandard = "cpp98" | "cpp11" | "cpp20" | "python3" | "cmake";
+type PracticeStandard = "cpp98" | "cpp11" | "cpp20";
 
 const learningStateLabels = {
   new: "Mới",
@@ -1435,8 +1435,6 @@ export function PracticeApp({
   } = useMemo(() => {
     const nextDeckCounts = {
       "cpp-interview": 0,
-      "python-interview": 0,
-      "cmake-build-systems": 0,
     } satisfies Record<PracticeDeckId, number>;
     availableQuestions.forEach((question) => {
       nextDeckCounts[question.taxonomy.deckId] += 1;
@@ -3552,7 +3550,7 @@ export function PracticeApp({
                           }
                           onExpandNextStep={() =>
                             void askCoachFollowUp(
-                              `Hãy biến bước tiếp theo này thành một bài học ngắn, dễ hiểu, có ví dụ ${current.language === "python" ? "Python" : "C++"} và một bài tập nhỏ: ${coachFeedback[current.id].nextStep}`,
+                              `Hãy biến bước tiếp theo này thành một bài học C++ ngắn, dễ hiểu, có ví dụ C++ và một bài tập nhỏ: ${coachFeedback[current.id].nextStep}`,
                             )
                           }
                           onExploreInterviewerQuestion={() =>
@@ -4208,11 +4206,7 @@ function DeckEmptyState({
         <p className="mt-4 leading-7 text-[#64736c]">
           {pendingCount
             ? `${pendingCount} câu đang nằm trong danh sách chờ duyệt. Hãy duyệt để bắt đầu luyện.`
-            : deck === "cmake-build-systems"
-              ? "Thêm bài vào cmake/<tên-bài>/knowledge.md; quy trình sẽ tạo bản nháp và đưa vào danh sách chờ duyệt."
-              : deck === "python-interview"
-              ? "Thêm bài vào python/<tên-bài>/knowledge.md; quy trình sẽ tạo bản nháp và đưa vào danh sách chờ duyệt."
-              : "Thêm hoặc duyệt câu hỏi trong trang Quản trị để bắt đầu luyện."}
+            : "Thêm hoặc duyệt câu hỏi C++ trong trang Quản trị để bắt đầu luyện."}
         </p>
         <Link
           href="/admin"

@@ -1476,7 +1476,7 @@ function candidateAnswerForReport({
   explanation,
 }: {
   responseMode: "text" | "code";
-  language: "cpp" | "python" | "cmake";
+  language: "cpp";
   response: string;
   explanation: string;
 }) {

@@ -106,7 +106,7 @@ export type WorldQuantCurriculumCoverage = {
   unclassifiedQuestionIds: string[];
 };
 
-export const worldQuantConcepts: readonly WorldQuantConcept[] = [
+const allWorldQuantConcepts: readonly WorldQuantConcept[] = [
   concept(
     "cpp-lifetime-ownership",
     "modern_cpp",
@@ -609,6 +609,49 @@ export const worldQuantConcepts: readonly WorldQuantConcept[] = [
     null,
   ),
 ] as const;
+
+const cppOnlyConceptPresentation: Partial<
+  Record<WorldQuantConceptId, Pick<WorldQuantConcept, "label" | "summary">>
+> = {
+  "build-target-cmake": {
+    label: "Biên dịch C++ có thể tái lập",
+    summary:
+      "Chuẩn hóa compiler, warning và dependency để bản dựng C++ tái lập được trên máy phát triển và CI.",
+  },
+  "build-test-sanitizer": {
+    label: "Kiểm thử và sanitizer C++",
+    summary:
+      "Dùng unit test, golden replay, AddressSanitizer và UndefinedBehaviorSanitizer để bắt lỗi trước production.",
+  },
+  "build-ci-release": {
+    label: "Phát hành C++ an toàn",
+    summary:
+      "Thiết kế cổng CI, benchmark baseline và rollback evidence cho thay đổi ở hệ thống C++.",
+  },
+  "scripting-python-data": {
+    label: "Công cụ dữ liệu bằng C++",
+    summary:
+      "Xử lý dữ liệu lớn theo luồng bằng C++ với giới hạn bộ nhớ, đầu ra xác định và khả năng tái chạy.",
+  },
+  "scripting-perl-legacy": {
+    label: "Kiểm toán pipeline C++ legacy",
+    summary:
+      "Hiểu hành vi legacy, viết characterization test và thay thế an toàn bằng thành phần C++ có kiểm soát.",
+  },
+  "scripting-reconciliation": {
+    label: "Đối soát dữ liệu bằng C++",
+    summary:
+      "Thiết kế đối soát dữ liệu theo luồng, có checkpoint, audit trail và ngưỡng sai số rõ ràng.",
+  },
+};
+
+export const worldQuantConcepts: readonly WorldQuantConcept[] =
+  allWorldQuantConcepts.map((concept) => {
+    const presentation = cppOnlyConceptPresentation[concept.id];
+    return presentation
+      ? { ...concept, ...presentation, guideHref: null }
+      : concept;
+  });
 
 const conceptsByCompetency = new Map<
   WorldQuantCompetencyKey,

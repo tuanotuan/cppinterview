@@ -17,8 +17,6 @@ const SOURCE_ROOTS = {
   cpp98_foundation: { language: "cpp", track: "cpp98", idPrefix: "cpp98" },
   cpp11: { language: "cpp", track: "cpp11", idPrefix: "cpp11" },
   cpp20: { language: "cpp", track: "cpp20", idPrefix: "cpp20" },
-  python: { language: "python", track: "python3", idPrefix: "python" },
-  cmake: { language: "cmake", track: "cmake", idPrefix: "cmake" },
 } as const;
 
 export async function discoverKnowledgeDirectories(repoRoot: string) {

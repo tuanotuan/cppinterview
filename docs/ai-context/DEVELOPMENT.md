@@ -5,6 +5,12 @@ Chạy command từ `web/` trừ khi ghi khác. Trên PowerShell có thể dùng
 
 ## Thiết lập và command
 
+## Ranh giới content C++
+
+Chỉ `cpp98_foundation/`, `cpp11/` và `cpp20/` là source root của web.
+Không thêm `python/` hay CMake vào discovery/content sync; thư mục Python ở
+repo root được giữ độc lập với sản phẩm.
+
 ```powershell
 cd web
 npm ci
@@ -77,8 +83,8 @@ và vẫn phải làm theo recipe dưới đây.
    `web/src/generated/content-manifest.json`.
 5. Chạy `npm run validate`.
 
-Source roots được discovery: `cpp98_foundation`, `cpp11`, `cpp20`, `python`,
-`cmake`. ID mới được suy ra từ path; nếu collision, đăng ký thủ công. Rename có
+Source roots được discovery: `cpp98_foundation`, `cpp11`, `cpp20`. ID mới được
+suy ra từ path; nếu collision, đăng ký thủ công. Rename có
 thể được nhận ra và giữ ID, nhưng luôn kiểm tra diff.
 
 Trên `main`, CI refresh deterministic files, commit nếu cần, sync snapshot sang
@@ -291,7 +297,7 @@ Các nhóm schema hiện có:
 - AI daily/monthly accounting, provider reconciliation, Gemini usage/settings
   và reservation ledger UUID cho từng lượt OpenAI;
 - immutable lesson/question revisions, sync runs, generation jobs;
-- multi-language/CMake metadata;
+- C++ content metadata;
 - code execution admission/quota/idempotency.
 - account-scoped Mock v4 history, report lease/cache và owner delete.
 - owner-private Mistake Inbox, observation dedupe và grounded remediation drafts.

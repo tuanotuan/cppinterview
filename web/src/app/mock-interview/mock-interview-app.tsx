@@ -1744,12 +1744,6 @@ function MockSetup({
               Học dữ liệu tick
             </Link>
             <Link
-              href="/learn/cmake"
-              className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
-            >
-              Học CMake
-            </Link>
-            <Link
               href="/"
               className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
             >
@@ -1992,8 +1986,8 @@ function MockSetup({
               Không giả định ngân hàng câu hỏi đã đầy đủ
             </h2>
             <p className="mt-3 text-sm leading-6 text-[#6b5648]">
-              Các tình huống về dữ liệu tick, chuyển đổi hệ thống, CMake,
-              Python và tiếng Anh được biên soạn từ mô tả công việc. Báo cáo
+              Các tình huống về C++ hiện đại, dữ liệu tick, chuyển đổi hệ thống
+              và tiếng Anh được biên soạn từ mô tả công việc. Báo cáo
               chỉ chấm theo các tiêu chí đã nêu; đây không phải câu hỏi tuyển
               dụng thật của WorldQuant.
             </p>
@@ -2908,12 +2902,7 @@ function candidateAnswer(
   if (question.responseMode === "text") {
     return normalized.response.trim();
   }
-  const language =
-    question.language === "cpp"
-      ? "cpp"
-      : question.language === "python"
-        ? "python"
-        : "cmake";
+  const language = "cpp";
   const response = normalized.response.trim();
   const explanation = normalized.explanation.trim();
   if (!response && !explanation) return "";

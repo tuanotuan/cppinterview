@@ -270,7 +270,6 @@ async function runLimitedCommand(
         LANG: "C.UTF-8",
         LC_ALL: "C.UTF-8",
         PATH: "/usr/local/bin:/usr/bin:/bin",
-        PYTHONHASHSEED: "0",
         TMPDIR: `${candidate.homeDir}/tmp`,
       },
       timeoutMs: command.timeoutMs,
