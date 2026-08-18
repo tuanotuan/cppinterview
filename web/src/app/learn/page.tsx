@@ -6,7 +6,7 @@ import { buildLessonLibrary } from "@/lib/learn/lesson-library";
 import { LessonLibraryApp } from "./lesson-library-app";
 
 export const metadata: Metadata = {
-  title: "Thư viện bài học — Recall",
+  title: "Thư viện bài học — cppinterview",
   description:
     "Đọc bài C++, CMake và Python theo thứ tự, xem mã mẫu và mở đúng thẻ ghi nhớ của từng bài.",
 };

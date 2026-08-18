@@ -7,7 +7,7 @@ import {
 } from "@/lib/learn/tick-data-guide";
 
 export const metadata: Metadata = {
-  title: "Dữ liệu tick và sổ lệnh từ số 0 — Recall",
+  title: "Dữ liệu tick và sổ lệnh từ số 0 — cppinterview",
   description:
     "Bài nhập môn có hệ thống về sự kiện dữ liệu thị trường, MBO/MBP, thứ tự sự kiện, khôi phục dữ liệu và thống kê giao dịch cho phỏng vấn C++.",
 };
@@ -755,15 +755,15 @@ function GuideHeader() {
     <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
       <Link
         href="/"
-        aria-label="Về trang chủ Recall"
-        title="Về trang chủ Recall"
+        aria-label="Về trang chủ cppinterview"
+        title="Về trang chủ cppinterview"
         className="flex items-center gap-3"
       >
         <span className="grid size-10 place-items-center rounded-xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
           C++
         </span>
         <span>
-          <span className="block font-semibold tracking-[-0.02em]">Recall</span>
+          <span className="block font-semibold tracking-[-0.02em]">cppinterview</span>
           <span className="block text-xs text-[#64736c]">Hướng dẫn học</span>
         </span>
       </Link>

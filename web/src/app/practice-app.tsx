@@ -2889,14 +2889,14 @@ export function PracticeApp({
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              aria-label="Về trang chủ Recall"
-              title="Về trang chủ Recall"
+              aria-label="Về trang chủ cppinterview"
+              title="Về trang chủ cppinterview"
               className="grid size-10 place-items-center rounded-xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91] shadow-sm focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
             >
               {PRACTICE_DECKS[requestedDeck].badge}
             </Link>
             <div>
-              <p className="font-semibold tracking-[-0.02em]">Recall</p>
+              <p className="font-semibold tracking-[-0.02em]">cppinterview</p>
               <p className="text-xs text-[#64736c]">Luyện phỏng vấn</p>
             </div>
             {isFocusActive ? (
@@ -3783,7 +3783,7 @@ export function PracticeApp({
                   {account
                     ? syncStatus === "error"
                       ? "Dữ liệu trên thiết bị vẫn an toàn; hệ thống sẽ tự thử lại và đồng bộ phần còn chờ khi kết nối trở lại."
-                      : "Đồng bộ riêng tư giữa các thiết bị bằng tài khoản Recall."
+                      : "Đồng bộ riêng tư giữa các thiết bị bằng tài khoản cppinterview."
                     : cloudEnabled
                       ? "Đăng nhập để bật đồng bộ nhiều thiết bị."
                       : "Chưa cấu hình Supabase; hiện tiến độ chỉ lưu trên thiết bị này."}

@@ -38,21 +38,21 @@ export function AuthForm({
       <div className="mx-auto w-full max-w-md">
         <Link
           href="/"
-          aria-label="Về trang chủ Recall"
-          title="Về trang chủ Recall"
+          aria-label="Về trang chủ cppinterview"
+          title="Về trang chủ cppinterview"
           className="inline-flex items-center gap-3"
         >
           <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
-            R
+            CI
           </span>
           <span>
-            <span className="block text-lg font-bold tracking-tight">Recall</span>
+            <span className="block text-lg font-bold tracking-tight">cppinterview</span>
             <span className="block text-xs text-[#64736c]">Học và chuẩn bị phỏng vấn</span>
           </span>
         </Link>
 
         <section className="mt-9 rounded-[2rem] border border-[#173f35]/12 bg-white/80 p-5 shadow-[0_20px_60px_rgb(23_63_53_/_10%)] sm:p-7">
-          <div className="grid grid-cols-2 rounded-xl bg-[#edf0e8] p-1" role="tablist" aria-label="Tài khoản Recall">
+          <div className="grid grid-cols-2 rounded-xl bg-[#edf0e8] p-1" role="tablist" aria-label="Tài khoản cppinterview">
             <ModeButton active={mode === "sign-in"} onClick={() => setMode("sign-in")}>
               Đăng nhập
             </ModeButton>
@@ -66,7 +66,7 @@ export function AuthForm({
               {mode === "sign-up" ? "Tài khoản mới" : "Chào mừng trở lại"}
             </p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-              {mode === "sign-up" ? "Tạo tài khoản Recall" : "Đăng nhập Recall"}
+              {mode === "sign-up" ? "Tạo tài khoản cppinterview" : "Đăng nhập cppinterview"}
             </h1>
             <p className="mt-3 text-sm leading-6 text-[#64736c]">
               {mode === "sign-up"

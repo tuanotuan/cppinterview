@@ -1328,8 +1328,8 @@ export function MockInterviewApp({
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              aria-label="Về trang chủ Recall"
-              title="Về trang chủ Recall"
+              aria-label="Về trang chủ cppinterview"
+              title="Về trang chủ cppinterview"
               className="grid size-10 place-items-center rounded-xl bg-[#173f35] font-mono text-xs font-bold text-[#d7ff91] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
             >
               WQ
@@ -1717,14 +1717,14 @@ function MockSetup({
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              aria-label="Về trang chủ Recall"
-              title="Về trang chủ Recall"
+              aria-label="Về trang chủ cppinterview"
+              title="Về trang chủ cppinterview"
               className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
             >
               WQ
             </Link>
             <div>
-              <p className="font-bold">Phỏng vấn thử cùng Recall</p>
+              <p className="font-bold">Phỏng vấn thử cùng cppinterview</p>
               <p className="text-xs text-[#64736c]">
                 Vị trí WorldQuant mục tiêu
               </p>
@@ -2180,8 +2180,8 @@ function MockReport({
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              aria-label="Về trang chủ Recall"
-              title="Về trang chủ Recall"
+              aria-label="Về trang chủ cppinterview"
+              title="Về trang chủ cppinterview"
               className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
             >
               WQ

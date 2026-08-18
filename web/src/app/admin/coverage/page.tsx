@@ -15,7 +15,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Mức bao phủ nội dung — Recall",
+  title: "Mức bao phủ nội dung — cppinterview",
   description:
     "Ưu tiên duyệt nội dung theo năng lực WorldQuant và mức bao phủ bài tập vận dụng.",
 };
@@ -77,8 +77,8 @@ export default async function CoverageStudioPage() {
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
           <Link
             href="/"
-            aria-label="Về trang chủ Recall"
-            title="Về trang chủ Recall"
+            aria-label="Về trang chủ cppinterview"
+            title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
             <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono font-bold text-[#d7ff91]">

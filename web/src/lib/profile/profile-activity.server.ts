@@ -250,7 +250,7 @@ function toProfileAccount(user: User): ProfileAccount {
       stringMetadata(user.user_metadata.full_name) ||
       login ||
       user.email ||
-      "Người học Recall",
+      "Người học cppinterview",
     login,
     joinedAt: user.created_at,
   };

@@ -7,7 +7,7 @@ import { ToolchainDojoApp } from "./toolchain-dojo-app";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "C++ & CMake Toolchain Dojo — Recall",
+  title: "C++ & CMake Toolchain Dojo — cppinterview",
   description:
     "Luyện CMake target-based, CTest, sanitizer và CI matrix bằng các quyết định có thể kiểm tra.",
 };

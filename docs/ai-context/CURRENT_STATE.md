@@ -16,7 +16,7 @@ trạng thái từ tên nhánh.
 
 - Luna “Làm rõ câu hỏi” hiện dành cho admin `tuanotuan` trên Practice. Route dùng budget ledger sẵn có, không cần migration hay biến môi trường mới; prompt chỉ nhận đề và mã trong đề, không nhận đáp án/rubric/tài liệu nguồn. Kết quả nói nôm na bằng tình huống gần gũi, không dựng từ điển thuật ngữ; dữ liệu local cũ vẫn đọc được và kết quả lưu theo exact question version/hash để tồn tại qua F5.
 
-- Nhánh hiện hành bổ sung thống kê riêng cho admin `tuanotuan`: thời gian Recall
+- Nhánh hiện hành bổ sung thống kê riêng cho admin `tuanotuan`: thời gian cppinterview
   hoạt động trên điện thoại hôm nay, 7 ngày và 30 ngày. Migration
   `20260806100000_create_admin_mobile_usage.sql` chưa được áp dụng lên Supabase;
   app phải deploy trước rồi mới chạy migration. Bộ đếm chỉ cộng heartbeat quan
@@ -76,7 +76,7 @@ trạng thái từ tên nhánh.
 - Nội dung người dùng nhìn thấy dùng “bạn” hoặc câu trung tính theo
   `web/AGENTS.md`; không sửa máy móc câu hỏi đã duyệt mà bỏ qua version/hash.
 - Thao tác xác nhận, xóa, reset hay nhập metadata trong client phải dùng dialog
-  của Recall; không quay lại hộp thoại native `alert`/`confirm`/`prompt` vì chúng
+  của cppinterview; không quay lại hộp thoại native `alert`/`confirm`/`prompt` vì chúng
   thiếu ngữ cảnh và phá vỡ trải nghiệm trên mobile.
 - Đợt UI hiện tại đã có shell mobile và Today workspace trên `/`, cùng session
   rail/sticky action trong Mock. Thư viện hiển thị tổng quan nguồn học và chip
@@ -87,7 +87,8 @@ trạng thái từ tên nhánh.
 - Biểu tượng thương hiệu ở góc trái của các header luôn mở trang chủ `/`, để
   người học có một đường quay lại nhất quán từ Practice, thư viện, WorldQuant,
   Mock, Stats và Admin.
-- Trang chủ `/` luôn là landing giới thiệu Recall; `/auth` hỗ trợ email/mật khẩu
+- Trang chủ `/` là landing giới thiệu cppinterview cho khách; account đã đăng nhập được
+  chuyển sang `/practice` trừ khi URL mang thông báo auth. `/auth` hỗ trợ email/mật khẩu
   cùng Google và GitHub OAuth, còn workspace Today nằm ở `/practice` cho cả local practice
   lẫn account đã đăng nhập. Đăng ký email cần xác nhận mật khẩu phía browser và
   server; nút hiện/ẩn dùng chung cho cả hai ô mật khẩu, rồi xác minh email qua
@@ -100,7 +101,7 @@ trạng thái từ tên nhánh.
   thành `3/3`. Mở đáp án, gợi ý và đánh giá local vẫn dùng được.
 - Câu trả lời trống nghĩa là chưa biết và vẫn gọi được AI. Luồng
   Trợ giúp → Làm lại khóa rating cho tới khi người học tự trả lời lại; retry và
-  Recall Repair vẫn đi qua scheduler chuẩn, không tạo review trùng.
+  cppinterview Repair vẫn đi qua scheduler chuẩn, không tạo review trùng.
 - Contribution graph `/profile` đọc review, coach attempt và mock attempt đã
   hoàn tất qua RLS; không gọi AI, không tạo bảng activity và không trừ quota.
 - WorldQuant coverage, learning evidence và mock evidence là ba tín hiệu khác
@@ -157,7 +158,7 @@ trạng thái từ tên nhánh.
   production build 63 route. Sau merge/deploy vẫn phải chạy migration
   `20260809120000_add_public_ai_quota_status.sql`, rồi smoke-test hai profile ẩn
   danh mới trên cùng mạng để xác nhận lượt thứ hai đọc lại đúng counter IP.
-- Mở quyền Recall qua email/mật khẩu và GitHub OAuth đạt `content:check`,
+- Mở quyền cppinterview qua email/mật khẩu và GitHub OAuth đạt `content:check`,
   `context:check`, ESLint, TypeScript, 107 file/661 Vitest test và Next.js
   production build 64 route. Đăng ký mới cần Email provider/Site URL/Redirect
   URLs của Supabase đúng như `web/supabase/README.md`; GitHub `tuanotuan` vẫn là

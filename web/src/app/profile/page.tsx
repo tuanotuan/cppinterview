@@ -8,9 +8,9 @@ import { loadProfileActivity } from "@/lib/profile/profile-activity.server";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Trang cá nhân — Recall",
+  title: "Trang cá nhân — cppinterview",
   description:
-    "Nhật ký học tập, chuỗi ngày hoạt động và contribution graph của bạn trên Recall.",
+    "Nhật ký học tập, chuỗi ngày hoạt động và contribution graph của bạn trên cppinterview.",
 };
 
 const contributionColors = {
@@ -39,15 +39,15 @@ export default async function ProfilePage() {
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
           <Link
             href="/"
-            aria-label="Về trang chủ Recall"
-            title="Về trang chủ Recall"
+            aria-label="Về trang chủ cppinterview"
+            title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
             <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
               R
             </span>
             <span>
-              <span className="block text-lg font-bold">Recall</span>
+              <span className="block text-lg font-bold">cppinterview</span>
               <span className="block text-xs text-[#64736c]">
                 Nhật ký học tập cá nhân
               </span>
@@ -92,7 +92,7 @@ export default async function ProfilePage() {
                     @{account.login}
                   </a>
                 ) : null}
-                <span>Tham gia Recall {formatMonthYear(account.joinedAt)}</span>
+                <span>Tham gia cppinterview {formatMonthYear(account.joinedAt)}</span>
               </div>
             </div>
           </div>
@@ -142,7 +142,7 @@ export default async function ProfilePage() {
 
         {mobileUsage ? (
           <p className="mt-4 rounded-2xl border border-[#173f35]/12 bg-[#eaf8cf]/55 px-5 py-3 text-sm leading-6 text-[#356b58]">
-            Thời gian điện thoại chỉ được tính khi tab Recall đang hiển thị và hoạt động. Dữ liệu không lưu địa chỉ IP, user-agent hay trang bạn đang xem.
+            Thời gian điện thoại chỉ được tính khi tab cppinterview đang hiển thị và hoạt động. Dữ liệu không lưu địa chỉ IP, user-agent hay trang bạn đang xem.
           </p>
         ) : null}
 

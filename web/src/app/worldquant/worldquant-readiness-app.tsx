@@ -600,8 +600,8 @@ export function WorldQuantReadinessApp({
         <header className="flex w-full min-w-0 flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
           <Link
             href="/"
-            aria-label="Về trang chủ Recall"
-            title="Về trang chủ Recall"
+            aria-label="Về trang chủ cppinterview"
+            title="Về trang chủ cppinterview"
             className="flex min-w-0 items-center gap-3"
           >
             <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
@@ -846,7 +846,7 @@ export function WorldQuantReadinessApp({
                   tabIndex={-1}
                   className="mt-2 text-2xl font-semibold tracking-tight"
                 >
-                  Cách dùng Recall mỗi ngày
+                  Cách dùng cppinterview mỗi ngày
                 </h2>
               </div>
               <button

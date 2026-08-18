@@ -1,6 +1,6 @@
-# Recall
+# cppinterview
 
-Recall là ứng dụng Next.js để học bằng thẻ ghi nhớ và luyện phỏng vấn kỹ thuật.
+cppinterview là ứng dụng Next.js để học bằng thẻ ghi nhớ và luyện phỏng vấn kỹ thuật.
 Nguồn bài học đang được theo dõi nằm trong `cpp98_foundation/`, `cpp11/`,
 `cpp20/` và `python/`; pipeline cũng hỗ trợ source root `cmake/` tùy chọn.
 Ứng dụng phải tiếp tục nằm trong `web/` để công cụ nội dung tìm đúng các nguồn

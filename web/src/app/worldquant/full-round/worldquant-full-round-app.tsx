@@ -528,8 +528,8 @@ export function WorldQuantFullRoundApp({
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
           <Link
             href="/"
-            aria-label="Về trang chủ Recall"
-            title="Về trang chủ Recall"
+            aria-label="Về trang chủ cppinterview"
+            title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
             <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
@@ -722,7 +722,7 @@ export function WorldQuantFullRoundApp({
                       </p>
                     ) : null}
                     <p className="mt-3 text-xs leading-5 text-[#64736c]">
-                      Recall không lưu hoặc tải âm thanh lên máy chủ. Bản ghi
+                      cppinterview không lưu hoặc tải âm thanh lên máy chủ. Bản ghi
                       chỉ ở trong bộ nhớ trang và bị xóa khi hoàn tất. Tính năng
                       nhận dạng giọng nói trên web do trình duyệt hoặc hệ điều
                       hành cung cấp, nên âm thanh có thể chịu chính sách xử lý
@@ -758,7 +758,7 @@ export function WorldQuantFullRoundApp({
                 </label>
                 <p className="mt-2 font-mono text-[10px] text-[#64736c]">
                    {currentAnswer.length}/8000 · chỉ lưu trong bộ nhớ · không
-                   gửi đến máy chủ Recall
+                   gửi đến máy chủ cppinterview
                 </p>
 
                 {currentAnswer.trim().length >= 20 ? (

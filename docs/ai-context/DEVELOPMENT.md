@@ -148,7 +148,7 @@ Xem danh sách chuẩn trong `web/.env.example`.
 - Code runner và Mock v4 history dùng hai secret Supabase riêng
   (`CODE_RUNNER_SUPABASE_SECRET_KEY`, `MOCK_HISTORY_SUPABASE_SECRET_KEY`);
   không tái dùng content-sync key hay dùng chung với nhau.
-- Recall mở cho mọi Supabase Auth account đã xác thực. Email provider phải bật;
+- cppinterview mở cho mọi Supabase Auth account đã xác thực. Email provider phải bật;
   production nên bật xác minh email và đặt Site URL/Redirect URLs gồm
   `/auth/callback` cùng `/auth/confirm`. Mật khẩu được kiểm tra ở cả browser và
   Server Action (ít nhất 8 ký tự, đăng ký phải nhập trùng hai lần và một nút
@@ -368,7 +368,7 @@ service-role-only/browser grants như contract hiện tại.
 - Server-only module/secret không được import vào client component.
 - Không dùng `window.alert`, `window.confirm` hoặc `window.prompt` cho luồng sản
   phẩm. Xác nhận thao tác phá hủy/rủi ro phải dùng confirmation sheet theo style
-  Recall, có mô tả hậu quả, đường hủy rõ ràng và khóa nút khi đang xử lý; dữ liệu
+  cppinterview, có mô tả hậu quả, đường hủy rõ ràng và khóa nút khi đang xử lý; dữ liệu
   người dùng cần nhập phải dùng form dialog trong UI.
 - Điều hướng mobile dùng `RecallMobileNav` ở layout và phải chừa bottom safe
   space cho nội dung. Không hiện navigation này trong mock/full-round để người
@@ -497,7 +497,7 @@ service-role-only/browser grants như contract hiện tại.
   khảo đã mở. Chỉ current nonblank feedback hoặc reveal ngoài Rescue/Retry mới
   mở rating. CTA Retry phải xóa attempt/idempotency/follow-up cũ; kết quả retry
   chỉ hoàn tất qua `rateCurrent` để scheduler, Mistake capture và khoảng cách
-  Recall Repair 3/5 thẻ không bị tách đôi hoặc duplicate.
+  cppinterview Repair 3/5 thẻ không bị tách đôi hoặc duplicate.
 - Async AI response phải bind request/session hiện hành; response của card cũ
   không được tái tạo feedback cho attempt mới.
 - Gap chỉ được `verified` bởi checkpoint clean đạt ≥80%, đủ hai follow-up và

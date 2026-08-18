@@ -798,14 +798,14 @@ function mistakeErrorMessage(code: string) {
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              aria-label="Về trang chủ Recall"
-              title="Về trang chủ Recall"
+              aria-label="Về trang chủ cppinterview"
+              title="Về trang chủ cppinterview"
               className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
             >
               R
             </Link>
             <div>
-              <p className="text-lg font-bold">Quản trị Recall</p>
+              <p className="text-lg font-bold">Quản trị cppinterview</p>
               <p className="text-xs text-[#64736c]">
                 Quản lý nội dung và hoạt động học tập
               </p>
@@ -854,7 +854,7 @@ function mistakeErrorMessage(code: string) {
           <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
             <div>
               <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-                Quản lý Recall
+                Quản lý cppinterview
               </h1>
               <p className="mt-3 text-[#64736c]">
                 Phiên bản nguồn{" "}

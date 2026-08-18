@@ -8,7 +8,7 @@ import { WorldQuantFullRoundApp } from "./worldquant-full-round-app";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Buổi mô phỏng phỏng vấn đầy đủ WorldQuant — Recall",
+  title: "Buổi mô phỏng phỏng vấn đầy đủ WorldQuant — cppinterview",
   description:
     "Buổi mô phỏng phỏng vấn C++ WorldQuant gồm 5 chặng, đồng hồ, tiêu chí chấm và phần luyện nói tiếng Anh.",
 };
