@@ -7,7 +7,7 @@ import { TickReplayLab } from "./tick-replay-lab";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Tick Replay Lab — Recall",
+  title: "Tick Replay Lab — cppinterview",
   description:
     "Luyện xử lý sequence, bản trùng, khoảng thiếu, snapshot và bất biến sổ lệnh bằng mô phỏng xác định.",
 };

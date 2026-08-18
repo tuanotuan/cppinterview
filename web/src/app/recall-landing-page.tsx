@@ -43,15 +43,15 @@ export function RecallLandingPage({
         <header className="flex items-center justify-between gap-4">
           <Link
             href="/"
-            aria-label="Về trang chủ Recall"
-            title="Về trang chủ Recall"
+            aria-label="Về trang chủ cppinterview"
+            title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
             <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91] shadow-[0_12px_32px_rgb(23_63_53_/_18%)]">
-              R
+              CI
             </span>
             <span>
-              <span className="block text-lg font-bold tracking-tight">Recall</span>
+              <span className="block text-lg font-bold tracking-tight">cppinterview</span>
               <span className="block text-xs text-[#64736c]">
                 Learn deliberately
               </span>
@@ -100,7 +100,7 @@ export function RecallLandingPage({
               <span className="block text-[#356b58]">Sẵn sàng để trả lời.</span>
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-[#52645c]">
-              Recall biến kho kiến thức kỹ thuật của bạn thành một không gian ôn
+              cppinterview biến kho kiến thức kỹ thuật của bạn thành một không gian ôn
               tập có lịch, có phản hồi AI và có mock interview — để mỗi lần học
               đều phục vụ cho lần phỏng vấn tiếp theo.
             </p>
@@ -133,7 +133,7 @@ export function RecallLandingPage({
                   <span className="size-2 rounded-full bg-[#79b82a]" />
                 </div>
                 <span className="font-mono text-[10px] font-bold tracking-[0.14em] text-white/45 uppercase">
-                  Today&apos;s Recall
+                  Today&apos;s cppinterview
                 </span>
               </div>
               <p className="mt-7 font-mono text-[10px] font-bold tracking-[0.16em] text-[#d7ff91] uppercase">

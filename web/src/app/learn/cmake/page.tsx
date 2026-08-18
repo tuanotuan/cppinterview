@@ -8,7 +8,7 @@ import {
 } from "@/lib/learn/cmake-guide";
 
 export const metadata: Metadata = {
-  title: "CMake cho C++ hiện đại — Recall",
+  title: "CMake cho C++ hiện đại — cppinterview",
   description:
     "Hướng dẫn CMake chi tiết từ đồ thị target, yêu cầu sử dụng và sinh mã tới CTest, đóng gói, CI và chuyển đổi hệ thống cũ cho vai trò WorldQuant.",
 };
@@ -1845,7 +1845,7 @@ add_subdirectory(cmake/packages)`}
                 />
               </div>
 
-              <Callout tone="green" title="Bài thực hành đã có trong Recall">
+              <Callout tone="green" title="Bài thực hành đã có trong cppinterview">
                 Bộ phỏng vấn thử WorldQuant có tình huống tạo{" "}
                 <InlineCode>feed_decoder</InlineCode>, chương trình kiểm thử, C++20,
                 yêu cầu sử dụng và CTest. Học xong hướng dẫn này, hãy làm lại
@@ -1920,15 +1920,15 @@ function GuideHeader() {
     <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
       <Link
         href="/"
-        aria-label="Về trang chủ Recall"
-        title="Về trang chủ Recall"
+        aria-label="Về trang chủ cppinterview"
+        title="Về trang chủ cppinterview"
         className="flex items-center gap-3"
       >
         <span className="grid size-10 place-items-center rounded-xl bg-[#173f35] font-mono text-xs font-bold text-[#d7ff91]">
           CMake
         </span>
         <span>
-          <span className="block font-semibold tracking-[-0.02em]">Recall</span>
+          <span className="block font-semibold tracking-[-0.02em]">cppinterview</span>
           <span className="block text-xs text-[#64736c]">
             Hướng dẫn hệ thống dựng
           </span>

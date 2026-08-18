@@ -5,7 +5,7 @@ import { AdminMobileUsageTracker } from "./admin-mobile-usage-tracker";
 import { RecallMobileNav } from "./recall-mobile-nav";
 
 export const metadata: Metadata = {
-  title: "Recall — Luyện phỏng vấn mỗi ngày",
+  title: "cppinterview — Luyện phỏng vấn mỗi ngày",
   description: "Ôn phỏng vấn C++, Python và CMake từ chính kho ghi chú của bạn.",
 };
 

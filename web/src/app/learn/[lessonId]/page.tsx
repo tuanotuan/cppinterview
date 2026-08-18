@@ -30,7 +30,7 @@ export async function generateMetadata({
   const lesson = findLesson(getRepoContentManifest(), lessonId);
   return lesson
     ? {
-        title: `${lesson.title} — Recall`,
+        title: `${lesson.title} — cppinterview`,
         description: `Bài học ${lessonTrackLabel(lesson.track)} với mã mẫu và thẻ ghi nhớ liên quan.`,
       }
     : {};
@@ -61,15 +61,15 @@ export default async function LessonReaderPage({
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
           <Link
             href="/"
-            aria-label="Về trang chủ Recall"
-            title="Về trang chủ Recall"
+            aria-label="Về trang chủ cppinterview"
+            title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
             <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
               L
             </span>
             <span>
-              <span className="block font-bold">Thư viện Recall</span>
+              <span className="block font-bold">Thư viện cppinterview</span>
               <span className="block text-xs text-[#64736c]">
                 {lessonTrackLabel(lesson.track)}
               </span>

@@ -32,7 +32,7 @@ export function getCodeRunnerConfig(): CodeRunnerConfig {
     snapshotId,
     toolchainLabel:
       process.env.CODE_RUNNER_TOOLCHAIN_LABEL?.trim().slice(0, 120) ||
-      "Recall sandbox v1",
+      "cppinterview sandbox v1",
   };
 }
 

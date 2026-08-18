@@ -9,7 +9,7 @@ Tài liệu ổn định để tìm đúng vùng code. Xác minh lại nếu sou
 | `cpp98_foundation/`, `cpp11/`, `cpp20/` | Lesson C++; mỗi thư mục bài có `knowledge.md`, thường có `main.cpp` |
 | `python/` | Lesson Python; `knowledge.md` + tùy chọn `main.py` |
 | `cmake/` | Source root tùy chọn đã được pipeline hỗ trợ nhưng hiện chưa có lesson tracked; mỗi bài dùng `knowledge.md` + tùy chọn `CMakeLists.txt` |
-| `web/` | App Recall: Next.js App Router, React, TypeScript |
+| `web/` | App cppinterview: Next.js App Router, React, TypeScript |
 | `web/src/proxy.ts` | Entry point refresh cookie/session Supabase qua `lib/supabase/proxy.ts` |
 | `web/src/app/recall-mobile-nav.tsx` | Điều hướng mobile dùng chung: Học hôm nay, Nhiệm vụ, Trung tâm chuẩn bị, Thư viện, Hồ sơ; tự ẩn ở mock/full-round để giữ không gian phỏng vấn |
 | `web/content/` | Registry lesson và question YAML do Git quản lý |
@@ -33,8 +33,8 @@ nhật file context tương ứng theo root `AGENTS.md`.
 
 | URL/vùng | Entry point | Chức năng |
 |---|---|---|
-| `/` | `web/src/app/page.tsx`, `recall-landing-page.tsx` | Landing public của Recall: giới thiệu luồng học, thư viện, AI coach, mock interview và đăng nhập/đăng ký; luôn là trang chủ, kể cả khi người dùng đang đăng nhập; CTA thử luyện mở guest mode |
-| `/practice` | `practice/page.tsx`, `practice-app.tsx`, `code-review-workspace.tsx`, `question-editor-dialog.tsx`, `confirmation-dialog.tsx` | Today workspace: CTA tiếp tục/luyện thêm, tiến độ và chỉ số ngày trước card; guest mode `?guest=1` giữ tiến độ local và mở Luna với giới hạn public 3 lượt/24 giờ; Daily/custom study và Focus Sprint exact queue; mỗi thẻ chỉ hiện hai nhãn phân loại Dễ/Trung bình/Khó và Text/Code, còn taxonomy nội bộ không lộ ra hoặc lọc ở UI; `code_review` thay textarea bằng workspace chọn dòng, lưu annotation vào candidate answer để tồn tại qua F5 và gửi nguyên vẹn cho Coach, không lộ rubric/comment mẫu; answer không giới hạn sản phẩm, blank = chưa biết và vẫn gọi được AI, rating, scheduler, cloud sync, saved state, owner-only edit/archive thẻ và return về Guided Mission; thao tác phá hủy dùng confirmation sheet của Recall thay vì hộp thoại trình duyệt |
+| `/` | `web/src/app/page.tsx`, `recall-landing-page.tsx` | Landing public của cppinterview: giới thiệu luồng học, thư viện, AI coach, mock interview và đăng nhập/đăng ký; account đã đăng nhập được chuyển sang `/practice` (trừ khi route mang thông báo auth); CTA thử luyện mở guest mode |
+| `/practice` | `practice/page.tsx`, `practice-app.tsx`, `code-review-workspace.tsx`, `question-editor-dialog.tsx`, `confirmation-dialog.tsx` | Today workspace: CTA tiếp tục/luyện thêm, tiến độ và chỉ số ngày trước card; guest mode `?guest=1` giữ tiến độ local và mở Luna với giới hạn public 3 lượt/24 giờ; Daily/custom study và Focus Sprint exact queue; mỗi thẻ chỉ hiện hai nhãn phân loại Dễ/Trung bình/Khó và Text/Code, còn taxonomy nội bộ không lộ ra hoặc lọc ở UI; `code_review` thay textarea bằng workspace chọn dòng, lưu annotation vào candidate answer để tồn tại qua F5 và gửi nguyên vẹn cho Coach, không lộ rubric/comment mẫu; answer không giới hạn sản phẩm, blank = chưa biết và vẫn gọi được AI, rating, scheduler, cloud sync, saved state, owner-only edit/archive thẻ và return về Guided Mission; thao tác phá hủy dùng confirmation sheet của cppinterview thay vì hộp thoại trình duyệt |
 | `/worldquant` | `worldquant/page.tsx`, `worldquant-readiness-app.tsx` | Trung tâm chuẩn bị theo vị trí/thời lượng, giới thiệu lần đầu, mục Nâng cao thu gọn; thống kê, Phiên ôn tập trọng tâm, phỏng vấn thử v4 gần nhất và xu hướng có thể so sánh |
 | `/worldquant/curriculum` | `worldquant/curriculum/page.tsx` | Graph 30 concept theo prerequisite; tách card coverage, pending content và transfer drill |
 | `/worldquant/drills` | `worldquant/drills/page.tsx`, `worldquant-drill-app.tsx` | Bài luyện tình huống: thẻ khởi động đã duyệt → luyện tập → câu hỏi tiếp nối → tiêu chí chấm → bài kiểm tra xác nhận mới/cách quãng; giữ đúng đường về Nhiệm vụ |
@@ -48,10 +48,10 @@ nhật file context tương ứng theo root `AGENTS.md`.
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx`, `lib/learn/tick-data-guide.ts` | Guide tick data/order book |
 | `/learn/cmake` | `learn/cmake/page.tsx`, `lib/learn/cmake-guide.ts` | Guide CMake target-based từ mental model tới CTest, packaging, CI và legacy migration |
 | `/stats` | `stats/page.tsx`, `fsrs-shadow-panel.tsx` | Analytics học tập và FSRS-6 shadow comparison |
-| `/profile` | `profile/page.tsx`, `lib/profile/{contribution-activity,mobile-usage,profile-activity.server}.ts` | Trang cá nhân và contribution graph 53 tuần từ lượt ôn, AI coach và phỏng vấn thử đã hoàn tất; riêng admin `tuanotuan` còn có tổng thời gian Recall hoạt động trên điện thoại hôm nay/7/30 ngày |
+| `/profile` | `profile/page.tsx`, `lib/profile/{contribution-activity,mobile-usage,profile-activity.server}.ts` | Trang cá nhân và contribution graph 53 tuần từ lượt ôn, AI coach và phỏng vấn thử đã hoàn tất; riêng admin `tuanotuan` còn có tổng thời gian cppinterview hoạt động trên điện thoại hôm nay/7/30 ngày |
 | `/admin` | `admin/page.tsx`, `admin-dashboard.tsx`, `manual-question-dialog.tsx`, `input-dialog.tsx` | Review/edit/archive question, schedule, AI/job settings và thêm câu hỏi thủ công. Ngân hàng câu hỏi chỉ tìm kiếm và lọc theo trạng thái vận hành/học; mỗi card chỉ hiện Dễ/Trung bình/Khó và Text/Code, còn taxonomy/loại câu vẫn là metadata nội bộ. Editor Admin quản lý thêm dạng đánh giá; chi tiết chỉ ở Admin mới nêu kỹ năng đo, standard, thời lượng và điều kiện test. Câu thủ công là DB-native draft có revision/audit, chỉ cần đề bài và đáp án tham khảo, không gắn lesson hay file `.md`, rồi chờ duyệt; header ưu tiên Luyện hôm nay, Thư viện, Mức bao phủ và chuẩn bị phỏng vấn; xác nhận/ràng buộc nguồn của mistake card dùng sheet/form trong UI thay vì API dialog của trình duyệt |
 | `/admin/coverage` | `admin/coverage/page.tsx`, `lib/content/interview-bank.ts` | Mức bao phủ content/WorldQuant và bảng mục tiêu 300 câu C++ đã xác minh theo sáu dạng đánh giá; draft hay owner approval không được tính là verified |
-| `/auth` và `/auth/*` | `auth/page.tsx`, `auth-form.tsx`, `auth-actions.ts`, `auth/{login,callback,confirm,logout}` | Đăng ký/đăng nhập email-mật khẩu với xác nhận email, cùng Google và GitHub OAuth; mọi Supabase account đã xác thực dùng Recall, chỉ admin giữ GitHub identity `tuanotuan` |
+| `/auth` và `/auth/*` | `auth/page.tsx`, `auth-form.tsx`, `auth-actions.ts`, `auth/{login,callback,confirm,logout}` | Đăng ký/đăng nhập email-mật khẩu với xác nhận email, cùng Google và GitHub OAuth; mọi Supabase account đã xác thực dùng cppinterview, chỉ admin giữ GitHub identity `tuanotuan` |
 
 API quan trọng:
 
@@ -238,7 +238,7 @@ Rescue → Retry phase cùng các cờ hint/reveal/coach qua navigation/reload c
 khi exact card được rate; practice không hỏi hoặc ghi mức tự tin. Answer rỗng
 được hiểu là chưa biết: AI Rescue dạy từ đầu nhưng khóa rating, sau đó người học
 phải tự làm lại và nhờ AI chấm. Retry đạt tự hoàn tất bằng `Good`/`Easy`; retry
-chưa đạt tự hoàn tất bằng `Again`/`Hard` qua chính review path chuẩn để vào Recall
+chưa đạt tự hoàn tất bằng `Again`/`Hard` qua chính review path chuẩn để vào cppinterview
 Repair, không enqueue riêng trong AI response. Answer/code không có giới hạn ký
 tự ở tầng sản phẩm.
 Mutation repair queue và practice progress dùng Web Locks theo key khi browser
@@ -252,7 +252,7 @@ date hay Preparation Index.
 Role weights chọn năm non-certification scenario theo C++ depth,
 coding/concurrency, tick/system design, delivery/automation và English ownership;
 không dùng lại checkpoint có quyền verify gap. Answer/transcript
-chỉ sống trong React memory; Recall không upload/lưu audio. Web Speech là engine
+chỉ sống trong React memory; cppinterview không upload/lưu audio. Web Speech là engine
 của browser/OS và có privacy policy riêng. Timer tính từ deadline tuyệt đối;
 WPM chỉ dùng transcript microphone và thời gian mic thật, không tính text gõ
 tay. Deadline khóa answer/rubric/mic nhưng vẫn cho chuyển round với zero evidence;

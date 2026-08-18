@@ -12,8 +12,8 @@ import { AdminDashboard } from "./admin-dashboard";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Quản trị — Recall",
-  description: "Quản lý ngân hàng câu hỏi và độ phủ nội dung Recall.",
+  title: "Quản trị — cppinterview",
+  description: "Quản lý ngân hàng câu hỏi và độ phủ nội dung cppinterview.",
 };
 
 export default async function AdminPage() {

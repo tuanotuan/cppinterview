@@ -21,7 +21,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Phòng luyện tình huống WorldQuant — Recall",
+  title: "Phòng luyện tình huống WorldQuant — cppinterview",
   description:
     "Luyện thẻ ghi nhớ → tình huống → câu hỏi tiếp nối của người phỏng vấn → bài kiểm tra xác nhận bằng đề mới cho C++ WorldQuant.",
 };

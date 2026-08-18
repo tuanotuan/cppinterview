@@ -30,7 +30,7 @@ import { MockInterviewApp } from "./mock-interview-app";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Phỏng vấn thử WorldQuant — Recall",
+  title: "Phỏng vấn thử WorldQuant — cppinterview",
   description:
     "Phỏng vấn thử cho vị trí Kỹ sư nền tảng dữ liệu tick bằng C++ hiện đại.",
 };
