@@ -3,22 +3,27 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 
-import { requestPasswordReset, updatePasswordFromRecovery } from "../auth-actions";
+import { requestPasswordReset, updatePasswordFromRecovery, verifyPasswordRecoveryCode } from "../auth-actions";
 import { initialAuthFormState } from "../auth-form-state";
 
 export function PasswordRecoveryForm({
   stage,
   initialNotice,
 }: {
-  stage: "request" | "update";
+  stage: "request" | "verify" | "update";
   initialNotice: string | null;
 }) {
   const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
   const [passwordsVisible, setPasswordsVisible] = useState(false);
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [state, action, pending] = useActionState(
-    stage === "request" ? requestPasswordReset : updatePasswordFromRecovery,
+    stage === "request"
+      ? requestPasswordReset
+      : stage === "verify"
+        ? verifyPasswordRecoveryCode
+        : updatePasswordFromRecovery,
     initialAuthFormState,
   );
   const notice = state.status === "idle" ? initialNotice : state.message;
@@ -26,15 +31,17 @@ export function PasswordRecoveryForm({
   return (
     <>
       <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
-        {stage === "request" ? "Khôi phục tài khoản" : "Đặt mật khẩu mới"}
+        {stage === "request" ? "Khôi phục tài khoản" : stage === "verify" ? "Xác minh email" : "Đặt mật khẩu mới"}
       </p>
       <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-        {stage === "request" ? "Quên mật khẩu?" : "Tạo mật khẩu mới"}
+        {stage === "request" ? "Quên mật khẩu?" : stage === "verify" ? "Nhập mã trong email" : "Tạo mật khẩu mới"}
       </h1>
       <p className="mt-3 text-sm leading-6 text-[#64736c]">
         {stage === "request"
-          ? "Nhập email đã đăng ký. Nếu tài khoản tồn tại, bạn sẽ nhận được email khôi phục."
-          : "Chọn mật khẩu mới cho tài khoản của bạn."}
+          ? "Nhập email đã đăng ký. Nếu tài khoản tồn tại, chúng tôi sẽ gửi mã khôi phục."
+          : stage === "verify"
+            ? "Nhập mã 6 đến 8 chữ số vừa được gửi tới email của bạn. Kiểm tra cả thư mục Spam."
+            : "Chọn mật khẩu mới cho tài khoản của bạn."}
       </p>
 
       <form action={action} className="mt-6 space-y-4">
@@ -42,6 +49,11 @@ export function PasswordRecoveryForm({
           <label className="block text-sm font-bold text-[#245748]">
             Email
             <input required name="email" type="email" autoComplete="email" inputMode="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="ban@example.com" className="mt-2 min-h-12 w-full rounded-xl border border-[#173f35]/18 bg-white px-3 text-base font-normal outline-none transition placeholder:text-[#839087] focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/55" />
+          </label>
+        ) : stage === "verify" ? (
+          <label className="block text-sm font-bold text-[#245748]">
+            Mã xác minh
+            <input required name="code" type="text" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 8))} placeholder="Nhập mã trong email" className="mt-2 min-h-12 w-full rounded-xl border border-[#173f35]/18 bg-white px-3 font-mono text-base font-normal tracking-[0.18em] outline-none transition placeholder:font-sans placeholder:tracking-normal placeholder:text-[#839087] focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/55" />
           </label>
         ) : (
           <>
@@ -53,9 +65,10 @@ export function PasswordRecoveryForm({
         {notice ? <p aria-live="polite" className={(state.status === "success" ? "bg-[#e5f6c5] text-[#245748]" : "bg-[#fff1e8] text-[#8e3825]") + " rounded-xl px-3 py-3 text-sm leading-6"}>{notice}</p> : null}
 
         <button type="submit" disabled={pending} className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#173f35] px-4 py-3 text-sm font-bold text-[#d7ff91] transition hover:bg-[#245748] disabled:cursor-wait disabled:opacity-65 focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none">
-          {pending ? "Đang xử lý…" : stage === "request" ? "Gửi email khôi phục" : "Lưu mật khẩu mới"}
+          {pending ? "Đang xử lý…" : stage === "request" ? "Gửi mã khôi phục" : stage === "verify" ? "Xác minh mã" : "Lưu mật khẩu mới"}
         </button>
       </form>
+      {stage === "verify" ? <p className="mt-4 text-center text-sm text-[#64736c]"><Link href="/auth/reset-password" className="font-bold text-[#245748] underline underline-offset-4">Dùng email khác hoặc gửi lại mã</Link></p> : null}
       <p className="mt-6 text-center text-sm text-[#64736c]"><Link href="/auth" className="font-bold text-[#245748] underline underline-offset-4">Quay lại đăng nhập</Link></p>
     </>
   );

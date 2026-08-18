@@ -24,9 +24,12 @@ trạng thái từ tên nhánh.
   để người dùng sửa rồi thử lại; Supabase code cho email chưa xác minh, rate
   limit và account bị khóa được hiển thị đúng, còn `invalid_credentials` vẫn
   gộp email không tồn tại/mật khẩu sai để chống dò tài khoản.
-  Luồng Quên mật khẩu gửi recovery link qua Supabase, xác minh qua
-  `/auth/confirm` (`recovery` OTP/PKCE) rồi mới cho đặt hai lần mật khẩu mới;
-  không tiết lộ email nào đang sở hữu tài khoản.
+  Luồng Quên mật khẩu gửi mã OTP recovery qua Supabase, giữ email ngắn hạn
+  trong HttpOnly cookie chỉ ở `/auth/reset-password`, rồi xác minh `recovery`
+  OTP trước khi cho đặt hai lần mật khẩu mới; không tiết lộ email nào đang sở
+  hữu tài khoản. Template **Reset Password** của Supabase phải in `{{ .Token }}`
+  theo `web/supabase/README.md`; app không được báo gửi thành công nếu Supabase
+  trả lỗi gửi.
 
 - Giao diện Practice/Admin chỉ biểu diễn hai nhãn phân loại của thẻ: `Dễ`/`Trung bình`/`Khó` và `Text`/`Code`. Filter theo bộ thẻ, lộ trình, loại câu và chủ đề đã được gỡ khỏi UI; taxonomy, `type`, `interviewCategory`, `interviewFormat` và `assessmentSkills` vẫn nằm trong data model để scheduler, tạo nội dung, coverage và WorldQuant/mock dùng nội bộ. `code_review` hiển thị workspace chọn dòng và lưu comment có số dòng vào candidate answer, không lộ comment/rubric mẫu. Trang `/admin/coverage` theo dõi mục tiêu C++ 300 câu verified theo sáu dạng; draft/approval riêng không được làm tăng số verified.
 

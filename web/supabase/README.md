@@ -28,6 +28,22 @@ admission, the Mistake Inbox, and atomic daily/monthly AI accounting.
    and add both `/auth/callback` and `/auth/confirm` for production and
    `http://localhost:3000`. The email/password registration flow sends its
    confirmation link to `/auth/confirm`.
+7. In Supabase Authentication > Emails > **Reset Password**, replace the
+   default recovery-link body with an OTP body containing `{{ .Token }}` so
+   cppinterview can verify the code on `/auth/reset-password`:
+
+   ```html
+   <h2>Khôi phục mật khẩu cppinterview</h2>
+   <p>Nhập mã này trên trang khôi phục mật khẩu. Không chia sẻ mã cho ai.</p>
+   <p style="font-size: 28px; font-weight: 700; letter-spacing: 6px;">{{ .Token }}</p>
+   <p>Nếu bạn không yêu cầu đổi mật khẩu, có thể bỏ qua email này.</p>
+   ```
+
+   Đặt subject, ví dụ: `{{ .Token }} là mã khôi phục cppinterview`. Không để
+   `{{ .ConfirmationURL }}` là cách duy nhất để khôi phục: trang web xác minh
+   OTP `recovery` trước khi cho đặt mật khẩu mới. Khi thử trên gói Supabase mặc
+   định, kiểm tra cả Spam và giới hạn gửi email; dùng SMTP riêng khi cần gửi
+   đáng tin cậy hơn.
 
 Recall is open to every authenticated Supabase account. RLS keeps reviews,
 progress, AI history, and mock history private to the account in its JWT.
