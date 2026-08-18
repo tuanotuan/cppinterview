@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+
 import { loadCloudContext } from "@/lib/practice/cloud-server";
 
 import { RecallLandingPage } from "./recall-landing-page";
@@ -16,6 +18,12 @@ export default async function Home({
   });
   const params = await searchParams;
   const authCode = Array.isArray(params.auth) ? params.auth[0] : params.auth;
+
+  // The public landing page is for visitors. Sending an authenticated learner
+  // back to Practice keeps the shared header brand from looking like a logout.
+  if (cloud.account && !authCode) {
+    redirect("/practice");
+  }
 
   return (
     <RecallLandingPage
