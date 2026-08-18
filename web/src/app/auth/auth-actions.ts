@@ -10,15 +10,7 @@ import {
 } from "@/lib/supabase/email-password";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export type AuthFormState = {
-  status: "idle" | "error" | "success";
-  message: string;
-};
-
-export const initialAuthFormState: AuthFormState = {
-  status: "idle",
-  message: "",
-};
+import type { AuthFormState } from "./auth-form-state";
 
 export async function signInWithEmailPassword(
   _previous: AuthFormState,

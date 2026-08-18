@@ -3,11 +3,8 @@
 import Link from "next/link";
 import { useActionState, useState, type ReactNode } from "react";
 
-import {
-  initialAuthFormState,
-  signInWithEmailPassword,
-  signUpWithEmailPassword,
-} from "./auth-actions";
+import { signInWithEmailPassword, signUpWithEmailPassword } from "./auth-actions";
+import { initialAuthFormState } from "./auth-form-state";
 
 type AuthMode = "sign-in" | "sign-up";
 
