@@ -20,6 +20,8 @@ trạng thái từ tên nhánh.
   migration archive chưa kịp chạy.
 - Email/password dùng Server Actions chỉ export async action; shared form state
   nằm trong module client-safe để Next.js không reject POST `/auth` ở runtime.
+  Khi xác thực thất bại, form giữ nguyên email và mật khẩu trong tab hiện tại
+  để người dùng sửa rồi thử lại; lỗi vẫn không phân biệt email hay mật khẩu sai.
 
 - Giao diện Practice/Admin chỉ biểu diễn hai nhãn phân loại của thẻ: `Dễ`/`Trung bình`/`Khó` và `Text`/`Code`. Filter theo bộ thẻ, lộ trình, loại câu và chủ đề đã được gỡ khỏi UI; taxonomy, `type`, `interviewCategory`, `interviewFormat` và `assessmentSkills` vẫn nằm trong data model để scheduler, tạo nội dung, coverage và WorldQuant/mock dùng nội bộ. `code_review` hiển thị workspace chọn dòng và lưu comment có số dòng vào candidate answer, không lộ comment/rubric mẫu. Trang `/admin/coverage` theo dõi mục tiêu C++ 300 câu verified theo sáu dạng; draft/approval riêng không được làm tăng số verified.
 
