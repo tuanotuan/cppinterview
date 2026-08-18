@@ -7,15 +7,15 @@ type LandingPageProps = {
 
 const capabilities = [
   {
-    title: "Ôn bằng thẻ, không học lan man",
+    title: "Ngân hàng câu hỏi đã được duyệt",
     description:
-      "Mỗi thẻ đi theo lịch ôn lặp lại, lưu tiến độ và ưu tiên đúng phần bạn dễ quên.",
+      "Học trực tiếp từ các thẻ C++ đã được kiểm tra nội dung, đáp án và tiêu chí chấm trước khi đưa vào lịch ôn.",
     number: "01",
   },
   {
-    title: "Biến ghi chú thành câu hỏi có kiểm soát",
+    title: "Ôn đều, thấy rõ tiến bộ",
     description:
-      "Nguồn học nằm trong repo của bạn. AI chỉ tạo nháp, còn thẻ vào lịch học sau khi được duyệt.",
+      "Lịch ôn lặp lại ưu tiên đúng phần cần nhớ lại. Tài khoản giúp lưu tiến độ riêng tư giữa các thiết bị.",
     number: "02",
   },
   {
@@ -27,10 +27,10 @@ const capabilities = [
 ];
 
 const workflow = [
-  ["01", "Ghi chú", "Đẩy kiến thức mới vào repo của bạn."],
-  ["02", "Duyệt thẻ", "Kiểm tra câu AI gợi ý trước khi học."],
-  ["03", "Trả lời", "Tự làm trước, dùng AI coach khi cần."],
-  ["04", "Ghi nhớ", "Lịch ôn nhắc lại đúng lúc cần nhớ."],
+  ["01", "Chọn phiên học", "Bắt đầu từ các thẻ đã có sẵn trong ngân hàng câu hỏi."],
+  ["02", "Tự trả lời", "Làm trước như trong phỏng vấn, rồi mới xem gợi ý hoặc đáp án."],
+  ["03", "Nhận phản hồi", "AI coach giúp chỉ ra phần đúng, phần còn thiếu và câu hỏi tiếp nối."],
+  ["04", "Ôn đúng lúc", "Lịch ôn nhắc lại các chủ đề cần củng cố để kiến thức bền hơn."],
 ];
 
 export function RecallLandingPage({
@@ -100,8 +100,8 @@ export function RecallLandingPage({
               <span className="block text-[#356b58]">Sẵn sàng để trả lời.</span>
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-[#52645c]">
-              cppinterview biến kho kiến thức kỹ thuật của bạn thành một không gian ôn
-              tập có lịch, có phản hồi AI và có mock interview — để mỗi lần học
+              cppinterview là nơi luyện phỏng vấn C++ với ngân hàng câu hỏi đã được
+              duyệt, lịch ôn có chủ đích, AI coach và mock interview — để mỗi lần học
               đều phục vụ cho lần phỏng vấn tiếp theo.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -119,7 +119,7 @@ export function RecallLandingPage({
               </Link>
             </div>
             <p className="mt-4 text-xs leading-5 text-[#64736c]">
-              Dùng email/mật khẩu, Google hoặc GitHub để đồng bộ riêng tư giữa các thiết bị.
+              Dùng email/mật khẩu, Google hoặc GitHub để lưu tiến độ riêng tư giữa các thiết bị.
             </p>
           </div>
 
@@ -163,7 +163,7 @@ export function RecallLandingPage({
                 Một vòng học có chủ đích
               </p>
               <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
-                Không chỉ lưu note. Biến note thành năng lực trả lời.
+                Không chỉ đọc đáp án. Luyện cách trả lời.
               </h2>
             </div>
             <Link
@@ -196,14 +196,15 @@ export function RecallLandingPage({
         <section className="grid gap-5 pb-16 lg:grid-cols-[.8fr_1.2fr] lg:pb-22">
           <div className="rounded-[2rem] bg-[#e5f6c5] p-6 sm:p-8">
             <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#356b58] uppercase">
-              Học theo repo của bạn
+              Ngân hàng được quản lý kỹ
             </p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight">
-              Kiến thức vẫn thuộc về bạn.
+              Người học tập trung vào việc học.
             </h2>
             <p className="mt-4 leading-7 text-[#52645c]">
-              Ghi chú và phiên bản câu hỏi nằm trong Git. Dữ liệu học riêng tư
-              được đồng bộ an toàn khi bạn đăng nhập.
+              Các câu hỏi xuất hiện trong lịch học đã được quản trị viên kiểm tra.
+              Việc bổ sung nguồn kiến thức, tạo bản nháp và duyệt nội dung là khu vực
+              quản trị riêng, không nằm trong tài khoản học viên.
             </p>
             <Link
               href="/learn"
@@ -232,9 +233,55 @@ export function RecallLandingPage({
             ))}
           </ol>
         </section>
+
+        <footer className="border-t border-[#173f35]/12 py-10 sm:py-12">
+          <div className="grid gap-9 sm:grid-cols-2 lg:grid-cols-[1.35fr_.8fr_.8fr_1fr]">
+            <div>
+              <Link href="/" className="inline-flex items-center gap-3" aria-label="Về trang chủ cppinterview">
+                <span className="grid size-10 place-items-center rounded-xl bg-[#173f35] font-mono text-xs font-bold text-[#d7ff91]">CI</span>
+                <span className="text-lg font-bold tracking-tight">cppinterview</span>
+              </Link>
+              <p className="mt-4 max-w-sm text-sm leading-6 text-[#64736c]">
+                Nền tảng luyện phỏng vấn C++ với thẻ ôn tập, phản hồi AI và mock interview có cấu trúc.
+              </p>
+            </div>
+            <FooterColumn title="Khám phá">
+              <FooterLink href="/practice?guest=1">Thử luyện</FooterLink>
+              <FooterLink href="/learn">Thư viện</FooterLink>
+              <FooterLink href="/mock-interview">Phỏng vấn thử</FooterLink>
+            </FooterColumn>
+            <FooterColumn title="Tài khoản">
+              <FooterLink href="/auth">Đăng nhập</FooterLink>
+              <FooterLink href="/auth?mode=signup">Tạo tài khoản</FooterLink>
+              <FooterLink href="/auth/reset-password">Quên mật khẩu</FooterLink>
+            </FooterColumn>
+            <FooterColumn title="Cách vận hành">
+              <p>Câu hỏi được duyệt trước khi đưa vào lịch học.</p>
+              <p>Tiến độ học chỉ thuộc về tài khoản của bạn.</p>
+              <p>Khu quản trị dành riêng cho chủ sở hữu repo.</p>
+            </FooterColumn>
+          </div>
+          <div className="mt-9 flex flex-wrap items-center justify-between gap-3 border-t border-[#173f35]/10 pt-5 font-mono text-[10px] font-bold tracking-[0.08em] text-[#78857f] uppercase">
+            <span>© {new Date().getFullYear()} cppinterview</span>
+            <span>C++ interview practice · Learn deliberately</span>
+          </div>
+        </footer>
       </div>
     </main>
   );
+}
+
+function FooterColumn({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h2 className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">{title}</h2>
+      <div className="mt-4 grid gap-3 text-sm leading-6 text-[#64736c]">{children}</div>
+    </div>
+  );
+}
+
+function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return <Link href={href} className="w-fit font-semibold text-[#245748] transition hover:text-[#ba4b2f] hover:underline hover:underline-offset-4">{children}</Link>;
 }
 
 function AuthLink({

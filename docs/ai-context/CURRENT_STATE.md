@@ -113,6 +113,10 @@ trạng thái từ tên nhánh.
   lẫn account đã đăng nhập. Đăng ký email cần xác nhận mật khẩu phía browser và
   server; nút hiện/ẩn dùng chung cho cả hai ô mật khẩu, rồi xác minh email qua
   `/auth/confirm`.
+- Landing công khai chỉ giới thiệu ngân hàng câu hỏi đã duyệt và trải nghiệm học/luyện
+  của người dùng. Thao tác nguồn kiến thức, bản nháp AI, queue duyệt và quản lý ngân hàng
+  là workspace riêng của admin GitHub `tuanotuan`; footer công khai liên kết các đường học
+  và tài khoản, không công khai thông tin cá nhân của chủ repo.
 - CTA “Thử luyện không cần tài khoản” mở `/practice?guest=1`: vẫn luyện thẻ
   local nhưng header không hiện lời mời đăng nhập như một điều kiện bắt buộc.
 - Guest mode mở Luna AI Coach mà không cần tài khoản, qua giới hạn public ba
