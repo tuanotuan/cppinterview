@@ -7,6 +7,10 @@ export type CredentialsParseResult =
   | { ok: true; credentials: EmailPasswordCredentials }
   | { ok: false; message: string };
 
+export type PasswordUpdateParseResult =
+  | { ok: true; password: string }
+  | { ok: false; message: string };
+
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function parseEmailPasswordCredentials({
@@ -49,6 +53,31 @@ export function parseSignUpCredentials({
   }
 
   return parsed;
+}
+
+export function parsePasswordUpdate({
+  password,
+  passwordConfirmation,
+}: {
+  password: FormDataEntryValue | null;
+  passwordConfirmation: FormDataEntryValue | null;
+}): PasswordUpdateParseResult {
+  const normalizedPassword = stringValue(password, false);
+  if (normalizedPassword.length < 8) {
+    return { ok: false, message: "Mật khẩu mới cần có ít nhất 8 ký tự." };
+  }
+  if (normalizedPassword !== stringValue(passwordConfirmation, false)) {
+    return { ok: false, message: "Hai mật khẩu mới chưa trùng khớp." };
+  }
+  return { ok: true, password: normalizedPassword };
+}
+
+export function parseRecoveryEmail(email: FormDataEntryValue | null) {
+  const normalizedEmail = stringValue(email).toLowerCase();
+  if (!emailPattern.test(normalizedEmail)) {
+    return { ok: false as const, message: "Hãy nhập một địa chỉ email hợp lệ." };
+  }
+  return { ok: true as const, email: normalizedEmail };
 }
 
 export function safeAuthNext(value: FormDataEntryValue | string | null) {

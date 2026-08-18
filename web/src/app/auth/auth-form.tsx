@@ -109,6 +109,16 @@ export function AuthForm({
               value={password}
               onChange={setPassword}
             />
+            {mode === "sign-in" ? (
+              <div className="-mt-1 text-right">
+                <Link
+                  href="/auth/reset-password"
+                  className="text-sm font-bold text-[#356b58] underline underline-offset-4 hover:text-[#173f35]"
+                >
+                  Quên mật khẩu?
+                </Link>
+              </div>
+            ) : null}
             {mode === "sign-up" ? (
               <PasswordField
                 name="passwordConfirmation"

@@ -24,14 +24,14 @@ export async function GET(request: Request) {
 
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type");
-  if (!tokenHash || (type !== "email" && type !== "signup")) {
+  if (!tokenHash || (type !== "email" && type !== "signup" && type !== "recovery")) {
     return NextResponse.redirect(`${origin}/auth?auth=confirm-error`, 303);
   }
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.verifyOtp({
     token_hash: tokenHash,
-    type: type as Extract<EmailOtpType, "email" | "signup">,
+    type: type as Extract<EmailOtpType, "email" | "signup" | "recovery">,
   });
   if (error) {
     return NextResponse.redirect(`${origin}/auth?auth=confirm-error`, 303);
