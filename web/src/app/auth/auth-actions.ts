@@ -27,7 +27,8 @@ export async function signInWithEmailPassword(
   if (error) {
     return {
       status: "error",
-      message: "Không thể đăng nhập. Hãy kiểm tra email, mật khẩu và xác minh email nếu được yêu cầu.",
+      message:
+        "Email hoặc mật khẩu chưa đúng. Chưa có tài khoản? Chọn “Tạo tài khoản”. Vừa đăng ký? Hãy xác minh email trước.",
     };
   }
 
