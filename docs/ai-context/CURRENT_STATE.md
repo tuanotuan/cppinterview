@@ -18,6 +18,8 @@ trạng thái từ tên nhánh.
 - Loader DB bỏ qua an toàn row Python/CMake legacy trước khi validate C++
   metadata, do đó OAuth user mới không thể làm SSR `/practice` crash trong khi
   migration archive chưa kịp chạy.
+- Email/password dùng Server Actions chỉ export async action; shared form state
+  nằm trong module client-safe để Next.js không reject POST `/auth` ở runtime.
 
 - Giao diện Practice/Admin chỉ biểu diễn hai nhãn phân loại của thẻ: `Dễ`/`Trung bình`/`Khó` và `Text`/`Code`. Filter theo bộ thẻ, lộ trình, loại câu và chủ đề đã được gỡ khỏi UI; taxonomy, `type`, `interviewCategory`, `interviewFormat` và `assessmentSkills` vẫn nằm trong data model để scheduler, tạo nội dung, coverage và WorldQuant/mock dùng nội bộ. `code_review` hiển thị workspace chọn dòng và lưu comment có số dòng vào candidate answer, không lộ comment/rubric mẫu. Trang `/admin/coverage` theo dõi mục tiêu C++ 300 câu verified theo sáu dạng; draft/approval riêng không được làm tăng số verified.
 
