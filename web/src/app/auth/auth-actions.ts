@@ -7,6 +7,7 @@ import {
   parseEmailPasswordCredentials,
   parseSignUpCredentials,
   safeAuthNext,
+  signInErrorMessage,
 } from "@/lib/supabase/email-password";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -27,8 +28,7 @@ export async function signInWithEmailPassword(
   if (error) {
     return {
       status: "error",
-      message:
-        "Email hoặc mật khẩu chưa đúng. Chưa có tài khoản? Chọn “Tạo tài khoản”. Vừa đăng ký? Hãy xác minh email trước.",
+      message: signInErrorMessage(error?.code),
     };
   }
 

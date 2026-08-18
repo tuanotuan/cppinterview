@@ -4,6 +4,7 @@ import {
   parseEmailPasswordCredentials,
   parseSignUpCredentials,
   safeAuthNext,
+  signInErrorMessage,
 } from "./email-password";
 
 describe("email/password credentials", () => {
@@ -41,5 +42,17 @@ describe("email/password credentials", () => {
     expect(safeAuthNext("https://example.com")).toBe("/practice");
     expect(safeAuthNext("//example.com")).toBe("/practice");
     expect(safeAuthNext("/\\\\example.com")).toBe("/practice");
+  });
+
+  it("uses precise safe guidance from Supabase auth codes", () => {
+    expect(signInErrorMessage("email_not_confirmed")).toContain(
+      "chưa được xác minh",
+    );
+    expect(signInErrorMessage("over_request_rate_limit")).toContain(
+      "quá nhiều lần",
+    );
+    expect(signInErrorMessage("invalid_credentials")).toBe(
+      "Email hoặc mật khẩu không đúng.",
+    );
   });
 });
