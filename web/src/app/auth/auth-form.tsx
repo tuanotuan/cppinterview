@@ -19,6 +19,9 @@ export function AuthForm({
 }) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [passwordsVisible, setPasswordsVisible] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [signInState, signInAction, signInPending] = useActionState(
     signInWithEmailPassword,
     initialAuthFormState,
@@ -91,6 +94,8 @@ export function AuthForm({
                 type="email"
                 autoComplete="email"
                 inputMode="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
                 className="mt-2 min-h-12 w-full rounded-xl border border-[#173f35]/18 bg-white px-3 text-base font-normal outline-none transition placeholder:text-[#839087] focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/55"
                 placeholder="ban@example.com"
               />
@@ -101,6 +106,8 @@ export function AuthForm({
               autoComplete={mode === "sign-up" ? "new-password" : "current-password"}
               visible={passwordsVisible}
               onToggle={() => setPasswordsVisible((current) => !current)}
+              value={password}
+              onChange={setPassword}
             />
             {mode === "sign-up" ? (
               <PasswordField
@@ -109,6 +116,8 @@ export function AuthForm({
                 autoComplete="new-password"
                 visible={passwordsVisible}
                 onToggle={() => setPasswordsVisible((current) => !current)}
+                value={passwordConfirmation}
+                onChange={setPasswordConfirmation}
               />
             ) : null}
 
@@ -234,12 +243,16 @@ function PasswordField({
   autoComplete,
   visible,
   onToggle,
+  value,
+  onChange,
 }: {
   name: string;
   label: string;
   autoComplete: "current-password" | "new-password";
   visible: boolean;
   onToggle: () => void;
+  value: string;
+  onChange: (value: string) => void;
 }) {
   return (
     <label className="block text-sm font-bold text-[#245748]">
@@ -251,6 +264,8 @@ function PasswordField({
           type={visible ? "text" : "password"}
           autoComplete={autoComplete}
           minLength={8}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
           className="min-h-12 w-full rounded-xl border border-[#173f35]/18 bg-white py-2 pl-3 pr-16 text-base font-normal outline-none transition placeholder:text-[#839087] focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/55"
           placeholder="Ít nhất 8 ký tự"
         />
