@@ -58,6 +58,26 @@ export function safeAuthNext(value: FormDataEntryValue | string | null) {
     : "/practice";
 }
 
+/**
+ * Supabase deliberately returns `invalid_credentials` for both an unknown
+ * email and an incorrect password. Keep that privacy boundary, while showing
+ * precise recovery guidance for the other error codes it does expose.
+ */
+export function signInErrorMessage(code: string | undefined) {
+  switch (code) {
+    case "email_not_confirmed":
+      return "Email này chưa được xác minh. Hãy mở email xác minh rồi đăng nhập lại.";
+    case "over_request_rate_limit":
+      return "Bạn đã thử đăng nhập quá nhiều lần. Hãy chờ một lát rồi thử lại.";
+    case "user_banned":
+      return "Tài khoản này hiện không thể đăng nhập. Hãy liên hệ quản trị viên nếu bạn cần hỗ trợ.";
+    case "invalid_credentials":
+      return "Email hoặc mật khẩu không đúng.";
+    default:
+      return "Không thể đăng nhập lúc này. Hãy thử lại sau.";
+  }
+}
+
 function stringValue(value: FormDataEntryValue | null, trim = true) {
   if (typeof value !== "string") return "";
   return trim ? value.trim() : value;
