@@ -117,6 +117,10 @@ trạng thái từ tên nhánh.
   của người dùng. Thao tác nguồn kiến thức, bản nháp AI, queue duyệt và quản lý ngân hàng
   là workspace riêng của admin GitHub `tuanotuan`; footer công khai liên kết các đường học
   và tài khoản, không công khai thông tin cá nhân của chủ repo.
+- cppinterview phục vụ việc luyện C++ cho nhiều công ty: tên và entry point WorldQuant
+  đã được gỡ khỏi landing, Practice, Thư viện và Mock. Workspace `/worldquant/*` cũ
+  vẫn được giữ trong source nhưng layout chỉ cho admin `tuanotuan` vào; người học thường
+  được chuyển về `/practice`.
 - CTA “Thử luyện không cần tài khoản” mở `/practice?guest=1`: vẫn luyện thẻ
   local nhưng header không hiện lời mời đăng nhập như một điều kiện bắt buộc.
 - Guest mode mở Luna AI Coach mà không cần tài khoản, qua giới hạn public ba

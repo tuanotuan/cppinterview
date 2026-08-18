@@ -85,11 +85,11 @@ export const mockCompetencyLabels: Record<MockCompetencyKey, string> = {
 export const WORLDQUANT_PROFILE = {
   id: WORLDQUANT_PROFILE_ID,
   version: WORLDQUANT_PROFILE_VERSION,
-  company: "WorldQuant",
-  role: "Kỹ sư nền tảng dữ liệu tick bằng C++ hiện đại",
-  badge: "WQ",
+  company: "cppinterview",
+  role: "Kỹ sư C++ hệ thống và nền tảng dữ liệu",
+  badge: "CI",
   disclaimer:
-    "Bộ phỏng vấn thử được tạo từ mô tả công việc và ngân hàng câu hỏi riêng; đây không phải câu hỏi nội bộ hay tài liệu tuyển dụng chính thức của WorldQuant.",
+    "Bộ phỏng vấn thử được xây từ ngân hàng câu hỏi C++ và các tình huống kỹ sư phổ biến; đây không phải tài liệu tuyển dụng chính thức của bất kỳ công ty nào.",
   focus: [
     "C++11–23, vòng đời, quyền sở hữu, tính đúng đắn và hiệu năng",
     "Luồng dữ liệu tick, dữ liệu sổ lệnh, đặc trưng và thống kê theo khoảng thời gian",

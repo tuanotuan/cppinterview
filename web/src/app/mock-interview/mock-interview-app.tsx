@@ -1332,7 +1332,7 @@ export function MockInterviewApp({
               title="Về trang chủ cppinterview"
               className="grid size-10 place-items-center rounded-xl bg-[#173f35] font-mono text-xs font-bold text-[#d7ff91] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
             >
-              WQ
+              CI
             </Link>
             <div>
               <p className="font-semibold">Phỏng vấn thử</p>
@@ -1726,17 +1726,11 @@ function MockSetup({
             <div>
               <p className="font-bold">Phỏng vấn thử cùng cppinterview</p>
               <p className="text-xs text-[#64736c]">
-                Vị trí WorldQuant mục tiêu
+                Vị trí C++ mục tiêu
               </p>
             </div>
           </div>
           <nav className="flex flex-wrap items-center gap-2">
-            <Link
-              href="/worldquant"
-              className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
-            >
-              Trung tâm chuẩn bị
-            </Link>
             <Link
               href="/learn/tick-data-order-book"
               className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
@@ -1987,9 +1981,9 @@ function MockSetup({
             </h2>
             <p className="mt-3 text-sm leading-6 text-[#6b5648]">
               Các tình huống về C++ hiện đại, dữ liệu tick, chuyển đổi hệ thống
-              và tiếng Anh được biên soạn từ mô tả công việc. Báo cáo
-              chỉ chấm theo các tiêu chí đã nêu; đây không phải câu hỏi tuyển
-              dụng thật của WorldQuant.
+              và tiếng Anh được biên soạn từ các tình huống kỹ sư C++ phổ biến.
+              Báo cáo chỉ chấm theo các tiêu chí đã nêu; đây không phải câu hỏi
+              tuyển dụng thật hoặc đại diện cho bất kỳ công ty nào.
             </p>
             {plan?.contentGaps.length ? (
               <p className="mt-4 text-xs leading-5 text-[#8e3825]">
@@ -2201,7 +2195,7 @@ function MockReport({
               </button>
             ) : (
               <Link
-                href={missionReturnHref ?? "/worldquant"}
+                href={missionReturnHref ?? "/practice"}
                 className={`inline-flex min-h-11 items-center rounded-xl px-4 py-2 text-sm font-bold ${
                   missionReturnHref
                     ? "bg-[#173f35] text-white"
@@ -2210,7 +2204,7 @@ function MockReport({
               >
                 {missionReturnHref
                   ? "Tiếp tục bước tiếp theo trong nhiệm vụ"
-                  : "Trung tâm chuẩn bị"}
+                  : "Về luyện tập"}
               </Link>
             )}
             <Link

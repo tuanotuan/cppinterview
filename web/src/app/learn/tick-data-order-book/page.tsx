@@ -53,16 +53,16 @@ export default function TickDataOrderBookGuide() {
                 Bắt đầu từ giá mua / giá bán ↓
               </a>
               <Link
-                href="/worldquant/tick-replay-lab"
+                href="/mock-interview"
                 className="w-full rounded-2xl border border-[#d7ff91]/35 bg-[#d7ff91]/10 px-5 py-3 text-center text-sm font-bold text-[#d7ff91] transition hover:bg-[#d7ff91]/18 sm:w-auto"
               >
-                Mở Tick Replay Lab
+                Thử câu hỏi tình huống
               </Link>
               <Link
-                href="/worldquant"
+                href="/practice"
                 className="w-full rounded-2xl border border-white/20 bg-white/8 px-5 py-3 text-center text-sm font-bold text-white transition hover:bg-white/14 sm:w-auto"
               >
-                Về Trung tâm chuẩn bị
+                Về luyện tập
               </Link>
             </div>
           </div>
@@ -769,10 +769,10 @@ function GuideHeader() {
       </Link>
       <nav className="flex flex-wrap items-center gap-2 text-sm" aria-label="Điều hướng">
         <Link
-          href="/worldquant"
+          href="/mock-interview"
           className="rounded-xl px-4 py-2 font-bold transition hover:bg-white/60"
         >
-          Trung tâm chuẩn bị
+          Phỏng vấn thử
         </Link>
         <Link
           href="/"
