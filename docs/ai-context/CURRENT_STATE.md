@@ -115,8 +115,8 @@ trạng thái từ tên nhánh.
   `/auth/confirm`.
 - Landing công khai chỉ giới thiệu ngân hàng câu hỏi đã duyệt và trải nghiệm học/luyện
   của người dùng. Thao tác nguồn kiến thức, bản nháp AI, queue duyệt và quản lý ngân hàng
-  là workspace riêng của admin GitHub `tuanotuan`; footer công khai liên kết các đường học
-  và tài khoản, không công khai thông tin cá nhân của chủ repo.
+  là workspace riêng của admin GitHub `tuanotuan`; footer công khai liên kết các đường học,
+  tài khoản, GitHub repository và Facebook công khai của chủ repo.
 - cppinterview phục vụ việc luyện C++ cho nhiều công ty: tên và entry point WorldQuant
   đã được gỡ khỏi landing, Practice, Thư viện và Mock. Workspace `/worldquant/*` cũ
   vẫn được giữ trong source nhưng layout chỉ cho admin `tuanotuan` vào; người học thường
