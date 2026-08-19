@@ -69,6 +69,23 @@ export default async function ProfilePage() {
           </nav>
         </header>
 
+        <section className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#173f35]/12 bg-white/62 px-5 py-4">
+          <div>
+            <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
+              Bảo mật
+            </p>
+            <p className="mt-1 text-sm text-[#64736c]">
+              Đặt hoặc đổi mật khẩu đăng nhập cho tài khoản hiện tại.
+            </p>
+          </div>
+          <Link
+            href="/auth/set-password"
+            className="rounded-xl border border-[#173f35]/18 bg-white px-4 py-2 text-sm font-bold text-[#245748] transition hover:border-[#356b58]/45 hover:bg-[#edf0e8]"
+          >
+            Đặt mật khẩu
+          </Link>
+        </section>
+
         <section className="grid gap-6 py-9 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="flex items-center gap-5">
             <div className="grid size-20 shrink-0 place-items-center rounded-[1.7rem] bg-[#173f35] text-3xl font-semibold text-[#d7ff91] shadow-[0_18px_60px_rgb(23_63_53_/_20%)]">

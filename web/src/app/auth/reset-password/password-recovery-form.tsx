@@ -38,7 +38,7 @@ export function PasswordRecoveryForm({
       </h1>
       <p className="mt-3 text-sm leading-6 text-[#64736c]">
         {stage === "request"
-          ? "Nhập email đã đăng ký. Nếu tài khoản tồn tại, chúng tôi sẽ gửi mã khôi phục."
+          ? "Nhập email đã đăng ký. Nếu tài khoản dùng email và mật khẩu, chúng tôi sẽ gửi mã khôi phục. Nếu bạn đăng nhập bằng Google hoặc GitHub, hãy đăng nhập nhà cung cấp đó rồi đặt mật khẩu trong Hồ sơ."
           : stage === "verify"
             ? "Nhập mã 6 đến 8 chữ số vừa được gửi tới email của bạn. Kiểm tra cả thư mục Spam."
             : "Chọn mật khẩu mới cho tài khoản của bạn."}

@@ -45,6 +45,12 @@ admission, the Mistake Inbox, and atomic daily/monthly AI accounting.
    định, kiểm tra cả Spam và giới hạn gửi email; dùng SMTP riêng khi cần gửi
    đáng tin cậy hơn.
 
+   OAuth-only accounts (for example, users whose only provider is Google or
+   GitHub) do not receive a password-recovery token because they have no email
+   identity. After signing in with the provider, they can add a password at
+   `/auth/set-password`; that page calls `auth.updateUser({ password })` and
+   keeps the provider session authenticated.
+
 Recall is open to every authenticated Supabase account. RLS keeps reviews,
 progress, AI history, and mock history private to the account in its JWT.
 Admin-only controls remain restricted in application code to the immutable
