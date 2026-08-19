@@ -13,9 +13,9 @@
 
 ## Application inventory
 
-- App pages: 19 (/, /admin, /admin/coverage, /auth, /auth/reset-password, /learn, /learn/[lessonId], /learn/tick-data-order-book, /mock-interview, /practice, /profile, /stats, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/legacy-modern-capstone, /worldquant/mission, /worldquant/tick-replay-lab)
+- App pages: 20 (/, /admin, /admin/coverage, /auth, /auth/reset-password, /auth/set-password, /learn, /learn/[lessonId], /learn/tick-data-order-book, /mock-interview, /practice, /profile, /stats, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/legacy-modern-capstone, /worldquant/mission, /worldquant/tick-replay-lab)
 - API routes: 26 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/admin/questions/manual, /api/coach/clarify, /api/coach/evaluate, /api/coach/follow-up, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/profile/mobile-usage, /api/progress/sync, /api/questions/approve, /api/worldquant/mission-snapshot, /api/worldquant/training-state, /auth/callback, /auth/confirm, /auth/login, /auth/logout)
-- TypeScript source files excluding tests: 185
+- TypeScript source files excluding tests: 187
 - Colocated test files: 95
 - Supabase migrations: 45
 - Latest migration filename: `20260818110000_archive_non_cpp_content.sql`
@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `4374a637f4392b6d11ccc8466a42e3c77bd9bf44f2044a93e077aa1d3397b2ec`
-- Fingerprinted files: 416
+- Project input fingerprint: `e8c5a2500b30b55e1b0368b0e1f848b082ab9ca5ef9bbfa6badb64600f025a62`
+- Fingerprinted files: 418
 
 The fingerprint covers registered lesson sources, content files, application
 source/tests, scripts, package metadata, environment template, workflows, and

@@ -30,6 +30,10 @@ trạng thái từ tên nhánh.
   hữu tài khoản. Template **Reset Password** của Supabase phải in `{{ .Token }}`
   theo `web/supabase/README.md`; app không được báo gửi thành công nếu Supabase
   trả lỗi gửi.
+  OAuth-only account (như `providers = ["google"]`) có `recovery_sent_at = NULL`
+  và không nhận recovery email; người dùng phải đăng nhập Google/GitHub rồi dùng
+  `/auth/set-password` để thêm mật khẩu. Đây là hành vi của Supabase, không phải
+  lỗi SMTP.
 
 - Giao diện Practice/Admin chỉ biểu diễn hai nhãn phân loại của thẻ: `Dễ`/`Trung bình`/`Khó` và `Text`/`Code`. Filter theo bộ thẻ, lộ trình, loại câu và chủ đề đã được gỡ khỏi UI; taxonomy, `type`, `interviewCategory`, `interviewFormat` và `assessmentSkills` vẫn nằm trong data model để scheduler, tạo nội dung, coverage và WorldQuant/mock dùng nội bộ. `code_review` hiển thị workspace chọn dòng và lưu comment có số dòng vào candidate answer, không lộ comment/rubric mẫu. Trang `/admin/coverage` theo dõi mục tiêu C++ 300 câu verified theo sáu dạng; draft/approval riêng không được làm tăng số verified.
 

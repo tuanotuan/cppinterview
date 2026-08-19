@@ -159,6 +159,9 @@ Xem danh sách chuẩn trong `web/.env.example`.
   `/auth/callback` cùng `/auth/confirm`. Mật khẩu được kiểm tra ở cả browser và
   Server Action (ít nhất 8 ký tự, đăng ký phải nhập trùng hai lần và một nút
   hiện/ẩn áp dụng đồng thời cho hai ô), không log hay lưu lại trong ứng dụng.
+  Email/password account dùng recovery OTP; OAuth-only account không tạo recovery
+  token và phải đăng nhập Google/GitHub trước, sau đó đặt mật khẩu tại
+  `/auth/set-password` qua `auth.updateUser({ password })`.
   Quyền quản trị vẫn chỉ dựa vào GitHub provider identity
   bất biến `tuanotuan`, không tin `user_metadata` do người dùng tự sửa.
 - Khi không cấu hình Supabase, route AI chỉ được chạy không tính quota nếu

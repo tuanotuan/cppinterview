@@ -182,6 +182,41 @@ export async function updatePasswordFromRecovery(
   redirect("/auth?auth=password-updated");
 }
 
+/**
+ * OAuth-only accounts do not have an email identity for Supabase's recovery
+ * endpoint. Let a user who has already authenticated with Google/GitHub add a
+ * password without pretending that a recovery email was sent.
+ */
+export async function setPasswordForSignedInUser(
+  _previous: AuthFormState,
+  formData: FormData,
+): Promise<AuthFormState> {
+  const parsed = parsePasswordUpdate({
+    password: formData.get("password"),
+    passwordConfirmation: formData.get("passwordConfirmation"),
+  });
+  if (!parsed.ok) return { status: "error", message: parsed.message };
+
+  const supabase = await createSupabaseServerClient();
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  if (authError || !authData.user) {
+    return {
+      status: "error",
+      message: "Hãy đăng nhập bằng Google hoặc GitHub trước khi đặt mật khẩu.",
+    };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password: parsed.password });
+  if (error) {
+    return {
+      status: "error",
+      message: "Chưa thể lưu mật khẩu. Hãy đăng nhập lại rồi thử lại sau.",
+    };
+  }
+
+  redirect("/auth?auth=password-updated");
+}
+
 async function requestOrigin() {
   const requestHeaders = await headers();
   const fromOrigin = parseHttpOrigin(requestHeaders.get("origin"));
