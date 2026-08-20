@@ -10,6 +10,7 @@ Tài liệu ổn định để tìm đúng vùng code. Xác minh lại nếu sou
 | `python/` | Ghi chú cá nhân giữ nguyên trong repo; web không quét, đồng bộ hoặc hiển thị |
 | `web/` | App cppinterview: Next.js App Router, React, TypeScript |
 | `web/src/proxy.ts` | Entry point refresh cookie/session Supabase qua `lib/supabase/proxy.ts` |
+| `web/src/app/layout.tsx`, `web/src/app/site-footer.tsx` | Root shell và footer dùng chung cho mọi route; mobile navigation/tracker cũng được gắn ở root layout |
 | `web/src/app/recall-mobile-nav.tsx` | Điều hướng mobile dùng chung: Học hôm nay, Nhiệm vụ, Trung tâm chuẩn bị, Thư viện, Hồ sơ; tự ẩn ở mock/full-round để giữ không gian phỏng vấn |
 | `web/content/` | Registry lesson và question YAML do Git quản lý |
 | `web/src/generated/content-manifest.json` | Manifest deterministic, không sửa tay |
