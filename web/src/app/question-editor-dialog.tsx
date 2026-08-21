@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+
+import { useDialogAccessibility } from "./accessible-dialog";
 
 import {
   categoryForInterviewFormat,
@@ -31,6 +33,8 @@ export function QuestionEditorDialog({
   onClose: () => void;
   onSave: (content: EditableQuestionContent) => Promise<void>;
 }) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [responseMode, setResponseMode] = useState(
     question.responseMode ?? "text",
   );
@@ -58,9 +62,20 @@ export function QuestionEditorDialog({
   const [misconceptions, setMisconceptions] = useState(
     question.rubric.misconceptions.join("\n"),
   );
+  const dismiss = () => {
+    if (!saving) onClose();
+  };
+  useDialogAccessibility({
+    open: true,
+    dialogRef,
+    initialFocusRef: closeButtonRef,
+    onDismiss: dismiss,
+  });
 
   return (
     <div
+      ref={dialogRef}
+      tabIndex={-1}
       role="dialog"
       aria-modal="true"
       aria-labelledby="question-editor-title"
@@ -103,9 +118,22 @@ export function QuestionEditorDialog({
               Lưu thay đổi sẽ tạo phiên bản mới và đưa thẻ về chờ duyệt trước khi xuất hiện trong lịch học tiếp theo.
             </p>
           </div>
-          <span className="rounded-full border border-[#173f35]/15 bg-white px-3 py-1.5 font-mono text-xs text-[#64736c]">
-            v{question.version} → v{question.version + 1}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="rounded-full border border-[#173f35]/15 bg-white px-3 py-1.5 font-mono text-xs text-[#64736c]">
+              v{question.version} → v{question.version + 1}
+            </span>
+            <button
+              ref={closeButtonRef}
+              type="button"
+              onClick={dismiss}
+              disabled={saving}
+              className="grid size-11 place-items-center rounded-xl border border-[#173f35]/15 bg-white text-xl leading-none text-[#356b58] transition hover:bg-[#edf0e8] disabled:opacity-50"
+              aria-label="Đóng trình chỉnh sửa câu hỏi"
+              title="Đóng"
+            >
+              ×
+            </button>
+          </div>
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -188,7 +216,7 @@ export function QuestionEditorDialog({
         <div className="mt-5 flex flex-wrap justify-end gap-2">
           <button
             type="button"
-            onClick={onClose}
+            onClick={dismiss}
             disabled={saving}
             className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2.5 text-sm font-bold text-[#356b58] disabled:opacity-50"
           >

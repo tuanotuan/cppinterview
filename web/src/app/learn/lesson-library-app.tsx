@@ -48,7 +48,7 @@ export function LessonLibraryApp({
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
-      <div className="mx-auto max-w-[1400px]">
+      <div className="ui-page-width">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
           <Link
             href="/"
@@ -66,7 +66,7 @@ export function LessonLibraryApp({
               </span>
             </span>
           </Link>
-          <nav className="flex flex-wrap gap-2 text-sm font-bold">
+          <nav aria-label="Điều hướng thư viện" className="flex flex-wrap gap-2 text-sm font-bold">
             <Link className="rounded-xl px-4 py-2 hover:bg-white/60" href="/mock-interview">
               Phỏng vấn thử
             </Link>
@@ -77,13 +77,13 @@ export function LessonLibraryApp({
         </header>
 
         <section className="mt-7 rounded-[2.25rem] bg-[#173f35] p-6 text-white shadow-[0_24px_90px_rgb(23_63_53_/_16%)] sm:p-10">
-          <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#d7ff91] uppercase">
+          <p className="ui-eyebrow text-[#d7ff91]">
             Thư viện học tập
           </p>
-          <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
+          <h1 className="mt-4 max-w-4xl text-balance text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
             Đọc kiến thức, xem mã, rồi luyện đúng thẻ của bài.
           </h1>
-          <p className="mt-5 max-w-3xl leading-7 text-white/68">
+          <p className="mt-5 max-w-3xl leading-7 text-on-dark-muted">
             Bài học được lấy trực tiếp từ các tệp nguồn đã đăng ký. Câu hỏi
             nháp không xuất hiện như nội dung đã kiểm chứng.
           </p>
@@ -198,7 +198,7 @@ function LibraryMetric({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/8 px-3 py-3">
       <p className="text-2xl font-semibold text-[#d7ff91]">{value}</p>
-      <p className="mt-1 text-[10px] font-bold tracking-[0.08em] text-white/55 uppercase">
+      <p className="mt-1 text-[11px] font-bold tracking-[0.08em] text-white/70 uppercase">
         {label}
       </p>
     </div>

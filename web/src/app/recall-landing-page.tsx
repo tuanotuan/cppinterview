@@ -39,8 +39,8 @@ export function RecallLandingPage({
 }: LandingPageProps) {
   return (
     <main data-recall-landing className="min-h-screen overflow-x-hidden">
-      <div className="mx-auto max-w-[1440px] px-4 py-5 sm:px-7 lg:px-10">
-        <header className="flex items-center justify-between gap-4">
+      <div className="ui-page-width px-4 py-5 sm:px-7 lg:px-10">
+        <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
           <Link
             href="/"
             aria-label="Về trang chủ cppinterview"
@@ -91,11 +91,11 @@ export function RecallLandingPage({
 
         <section className="grid gap-10 pb-14 pt-14 lg:grid-cols-[minmax(0,1.08fr)_minmax(24rem,.92fr)] lg:items-center lg:pb-22 lg:pt-20">
           <div>
-            <p className="inline-flex items-center gap-2 rounded-full border border-[#356b58]/16 bg-white/62 px-3 py-2 font-mono text-[10px] font-bold tracking-[0.15em] text-[#356b58] uppercase">
+            <p className="ui-eyebrow inline-flex items-center gap-2 rounded-full border border-[#356b58]/16 bg-white/62 px-3 py-2 text-[#356b58]">
               <span className="size-2 rounded-full bg-[#79b82a]" />
               C++ · Systems · Trading
             </p>
-            <h1 className="mt-6 max-w-4xl text-5xl font-semibold tracking-[-0.06em] text-[#17221d] sm:text-6xl lg:text-7xl">
+            <h1 className="mt-6 max-w-4xl text-balance text-5xl font-semibold tracking-[-0.045em] text-[#17221d] sm:text-6xl lg:text-7xl">
               Học từ ghi chú.
               <span className="block text-[#356b58]">Sẵn sàng để trả lời.</span>
             </h1>
@@ -132,18 +132,18 @@ export function RecallLandingPage({
                   <span className="size-2 rounded-full bg-[#f4ce5b]" />
                   <span className="size-2 rounded-full bg-[#79b82a]" />
                 </div>
-                <span className="font-mono text-[10px] font-bold tracking-[0.14em] text-white/45 uppercase">
+                <span className="ui-eyebrow text-white/70">
                   Today&apos;s cppinterview
                 </span>
               </div>
-              <p className="mt-7 font-mono text-[10px] font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
+              <p className="ui-eyebrow mt-7 text-[#d7ff91]">
                 Phiên ôn tập trọng tâm
               </p>
               <h2 className="mt-3 text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
                 Tại sao không nên dùng một hàm chung để cập nhật cả book và
                 bars?
               </h2>
-              <div className="mt-6 rounded-2xl bg-white/8 p-4 text-sm leading-6 text-white/68">
+              <div className="text-on-dark-muted mt-6 rounded-2xl bg-white/8 p-4 text-sm leading-6">
                 Bạn tự trả lời trước. Khi cần, AI chỉ ra phần đúng, phần thiếu và
                 câu hỏi tiếp nối để bạn đào sâu.
               </div>
@@ -159,7 +159,7 @@ export function RecallLandingPage({
         <section id="features" className="border-t border-[#173f35]/12 py-12 lg:py-16">
           <div className="flex flex-wrap items-end justify-between gap-5">
             <div>
-              <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+              <p className="ui-eyebrow text-[#ba4b2f]">
                 Một vòng học có chủ đích
               </p>
               <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -177,7 +177,7 @@ export function RecallLandingPage({
             {capabilities.map((item) => (
               <article
                 key={item.number}
-                className="rounded-[1.75rem] border border-[#173f35]/12 bg-white/62 p-6 shadow-[0_16px_50px_rgb(23_63_53_/_6%)]"
+                className="ui-surface-card rounded-[1.75rem] p-6"
               >
                 <span className="font-mono text-xs font-bold text-[#ba4b2f]">
                   {item.number}
@@ -195,7 +195,7 @@ export function RecallLandingPage({
 
         <section className="grid gap-5 pb-16 lg:grid-cols-[.8fr_1.2fr] lg:pb-22">
           <div className="rounded-[2rem] bg-[#e5f6c5] p-6 sm:p-8">
-            <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#356b58] uppercase">
+            <p className="ui-eyebrow text-[#356b58]">
               Ngân hàng được quản lý kỹ
             </p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight">
@@ -218,7 +218,7 @@ export function RecallLandingPage({
             {workflow.map(([number, title, description]) => (
               <li
                 key={number}
-                className="flex gap-4 rounded-[1.5rem] border border-[#173f35]/12 bg-white/62 p-5"
+                className="flex gap-4 rounded-[1.5rem] border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)]/70 p-5"
               >
                 <span className="font-mono text-xs font-bold text-[#ba4b2f]">
                   {number}
@@ -276,7 +276,7 @@ function MiniMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-white/10 bg-white/6 p-3">
       <p className="text-xs font-bold text-[#d7ff91]">{value}</p>
-      <p className="mt-1 font-mono text-[9px] tracking-[0.08em] text-white/45 uppercase">
+      <p className="mt-1 font-mono text-[11px] tracking-[0.08em] text-white/70 uppercase">
         {label}
       </p>
     </div>

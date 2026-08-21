@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function SiteFooter() {
   return (
-    <footer className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-7 sm:py-12 lg:px-10">
+    <footer className="ui-page-width px-4 py-10 sm:px-7 sm:py-12 lg:px-10">
       <div className="border-t border-[#173f35]/12 pt-10 sm:pt-12">
         <div className="grid gap-9 sm:grid-cols-2 lg:grid-cols-[1.35fr_.8fr_.8fr_1fr_.8fr]">
           <div>
@@ -34,7 +34,7 @@ export function SiteFooter() {
             <FooterExternalLink href="https://www.facebook.com/HCMUS.k23">Facebook ↗</FooterExternalLink>
           </FooterColumn>
         </div>
-        <div className="mt-9 flex flex-wrap items-center justify-between gap-3 border-t border-[#173f35]/10 pt-5 font-mono text-[10px] font-bold tracking-[0.08em] text-[#78857f] uppercase">
+        <div className="mt-9 flex flex-wrap items-center justify-between gap-3 border-t border-[#173f35]/10 pt-5 font-mono text-[11px] font-bold tracking-[0.08em] text-[#78857f] uppercase">
           <span>© {new Date().getFullYear()} cppinterview</span>
           <span>C++ interview practice · Learn deliberately</span>
         </div>
@@ -46,7 +46,7 @@ export function SiteFooter() {
 function FooterColumn({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h2 className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">{title}</h2>
+      <h2 className="ui-eyebrow text-[#356b58]">{title}</h2>
       <div className="mt-4 grid gap-3 text-sm leading-6 text-[#64736c]">{children}</div>
     </div>
   );

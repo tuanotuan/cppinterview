@@ -1323,7 +1323,7 @@ export function MockInterviewApp({
   return (
     <>
     <main className="min-h-screen px-4 py-4 sm:px-7 lg:px-10">
-      <div className="mx-auto max-w-7xl">
+      <div className="ui-page-width">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-4">
           <div className="flex items-center gap-3">
             <Link
@@ -1336,7 +1336,7 @@ export function MockInterviewApp({
             </Link>
             <div>
               <p className="font-semibold">Phỏng vấn thử</p>
-              <p className="text-xs text-[#64736c]">
+              <p className="ui-metadata mt-0.5 text-[color:var(--ink-subtle)]">
                 {worldQuantRoleProfileById(session.profileId).label} ·{" "}
                 {session.plan.mode === "targeted" ? "Trọng tâm" : "Toàn diện"} ·{" "}
                 {session.plan.durationMinutes} phút
@@ -1392,10 +1392,10 @@ export function MockInterviewApp({
         <section className="grid gap-5 py-7 lg:grid-cols-[13.5rem_minmax(0,1fr)]">
           <aside className="hidden lg:block">
             <div className="sticky top-5 rounded-[1.6rem] border border-[#173f35]/12 bg-white/58 p-4 shadow-sm">
-              <p className="font-mono text-[10px] font-bold tracking-[0.15em] text-[#356b58] uppercase">
+              <p className="ui-eyebrow text-[#356b58]">
                 Điều hướng buổi
               </p>
-              <p className="mt-2 text-xs leading-5 text-[#64736c]">
+              <p className="mt-2 text-xs leading-5 text-[color:var(--ink-subtle)]">
                 Chỉ hiển thị thứ tự và trạng thái trả lời; không lộ chủ đề hay gợi ý.
               </p>
               <div className="mt-4 grid grid-cols-2 gap-2">
@@ -1435,15 +1435,15 @@ export function MockInterviewApp({
           <div className="min-w-0">
           <article className="overflow-hidden rounded-[2rem] border border-[#173f35]/15 bg-white/68 shadow-[0_22px_80px_rgb(23_63_53_/_8%)]">
             <div className="border-b border-[#173f35]/10 bg-[#173f35] px-6 py-4 text-white sm:px-9">
-              <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#d7ff91] uppercase">
+              <p className="ui-eyebrow text-[#d7ff91]">
                 Người phỏng vấn
               </p>
-              <p className="mt-1 text-sm text-white/65">
+              <p className="mt-1 text-sm text-on-dark-muted">
                 Không gợi ý · không nhãn chủ đề · không phản hồi giữa buổi
               </p>
             </div>
             <div className="p-6 sm:p-9">
-              <h1 className="max-w-4xl text-2xl leading-[1.35] font-semibold tracking-[-0.025em] sm:text-3xl">
+              <h1 className="max-w-4xl text-balance text-2xl leading-[1.35] font-semibold tracking-[-0.025em] sm:text-3xl">
                 <InlineCode text={currentQuestion.prompt} />
               </h1>
 
@@ -1582,7 +1582,7 @@ export function MockInterviewApp({
             </p>
           ) : null}
 
-          <div className="sticky bottom-3 z-20 mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#173f35]/12 bg-[#f7f5ed]/94 p-3 shadow-[0_12px_38px_rgba(23,63,53,0.12)] backdrop-blur">
+          <div className="sticky bottom-24 z-20 mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#173f35]/12 bg-[#f7f5ed]/94 p-3 shadow-[0_12px_38px_rgba(23,63,53,0.12)] backdrop-blur lg:bottom-3">
             <button
               type="button"
               onClick={() => moveToQuestion(session.currentIndex - 1)}
@@ -1712,7 +1712,7 @@ function MockSetup({
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
-      <div className="mx-auto max-w-7xl">
+      <div className="ui-page-width">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
           <div className="flex items-center gap-3">
             <Link
@@ -1730,7 +1730,7 @@ function MockSetup({
               </p>
             </div>
           </div>
-          <nav className="flex flex-wrap items-center gap-2">
+          <nav aria-label="Điều hướng phỏng vấn thử" className="flex flex-wrap items-center gap-2">
             <Link
               href="/learn/tick-data-order-book"
               className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
@@ -1763,10 +1763,10 @@ function MockSetup({
 
         <section className="grid gap-7 py-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
           <div>
-            <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+            <p className="ui-eyebrow text-[#ba4b2f]">
                Vị trí mục tiêu
             </p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl lg:text-6xl">
+            <h1 className="mt-3 text-balance text-4xl font-semibold tracking-[-0.045em] sm:text-5xl lg:text-6xl">
               {role.label}
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-[#52645c]">
@@ -2163,7 +2163,7 @@ function MockReport({
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
-      <div className="mx-auto max-w-7xl">
+      <div className="ui-page-width">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
           <div className="flex items-center gap-3">
             <Link

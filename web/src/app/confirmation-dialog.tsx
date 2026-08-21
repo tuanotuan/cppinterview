@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+
+import { useDialogAccessibility } from "./accessible-dialog";
 
 type ConfirmationRequest = {
   title: string;
@@ -60,6 +62,18 @@ export function ConfirmationDialog({
   onCancel: () => void;
   onConfirm: () => void;
 }) {
+  const dialogRef = useRef<HTMLElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
+  const dismiss = () => {
+    if (!busy) onCancel();
+  };
+  useDialogAccessibility({
+    open: true,
+    dialogRef,
+    initialFocusRef: cancelButtonRef,
+    onDismiss: dismiss,
+  });
+
   const confirmClass =
     tone === "danger"
       ? "bg-[#ba4b2f] text-white hover:bg-[#963a25] focus:ring-[#f8d1bc]"
@@ -71,6 +85,8 @@ export function ConfirmationDialog({
       className="fixed inset-0 z-[60] grid place-items-center bg-[#102d26]/55 p-4 backdrop-blur-sm"
     >
       <section
+        ref={dialogRef}
+        tabIndex={-1}
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="confirmation-dialog-title"
@@ -91,8 +107,9 @@ export function ConfirmationDialog({
         </p>
         <div className="mt-7 flex flex-wrap justify-end gap-2">
           <button
+            ref={cancelButtonRef}
             type="button"
-            onClick={onCancel}
+            onClick={dismiss}
             disabled={busy}
             className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2.5 text-sm font-bold text-[#356b58] transition hover:border-[#356b58]/35 disabled:opacity-50"
           >
