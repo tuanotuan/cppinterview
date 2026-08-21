@@ -2882,20 +2882,20 @@ export function PracticeApp({
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
       <div className="ui-page-width">
-        <header className="border-b border-[#173f35]/15 pb-5">
+        <header className="ui-app-header px-4 py-4 sm:px-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link
               href="/"
               aria-label="Về trang chủ cppinterview"
               title="Về trang chủ cppinterview"
-              className="grid size-10 place-items-center rounded-xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91] shadow-sm focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+              className="grid size-10 place-items-center rounded-xl bg-[color:var(--pine)] font-mono text-sm font-bold text-[color:var(--accent)] focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none"
             >
               {PRACTICE_DECKS[requestedDeck].badge}
             </Link>
             <div>
-              <p className="font-semibold tracking-[-0.02em]">cppinterview</p>
-              <p className="text-xs text-[#64736c]">Luyện phỏng vấn</p>
+              <p className="font-semibold tracking-[-0.025em]">cppinterview</p>
+              <p className="text-xs text-[color:var(--ink-muted)]">Luyện phỏng vấn C++</p>
             </div>
             {isFocusActive ? (
               <span className="rounded-full border border-[#356b58]/20 bg-[#d7ff91]/55 px-3 py-1.5 font-mono text-[11px] font-bold text-[#173f35]">
@@ -2955,7 +2955,7 @@ export function PracticeApp({
           </div>
           <nav
             aria-label="Điều hướng học tập"
-            className="mt-5 hidden items-center gap-1 lg:flex"
+            className="mt-4 hidden items-center gap-1 border-t border-[color:var(--border-subtle)] pt-3 lg:flex"
           >
             <WorkspaceNavLink href="/practice" active>
               Học hôm nay
@@ -3199,8 +3199,8 @@ export function PracticeApp({
                 </div>
               </div>
 
-              <article className="overflow-hidden rounded-[2rem] border border-[#173f35]/15 bg-white/65 shadow-[0_20px_70px_rgba(23,63,53,0.08)] backdrop-blur-sm">
-                <div className="p-6 sm:p-9 lg:p-11">
+              <article className="overflow-hidden rounded-[1.5rem] border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] shadow-[var(--shadow-card)]">
+                <div className="p-6 sm:p-9 lg:p-10">
                   {isRepairActive ? (
                     <div className="mb-6 rounded-2xl border border-[#ba4b2f]/25 bg-[#f8e8df] p-4 text-sm leading-6 text-[#713929]">
                       <p className="font-mono text-[11px] font-bold uppercase tracking-[0.16em]">
@@ -4225,7 +4225,7 @@ function DeckSwitcher({
 }) {
   return (
     <div
-      className="ml-1 flex rounded-xl border border-[#173f35]/15 bg-white/55 p-1"
+      className="ml-1 flex rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-muted)] p-1"
       aria-label="Chọn bộ câu hỏi"
     >
       {ENABLED_PRACTICE_DECK_IDS.map((deckId) => {
@@ -4238,10 +4238,10 @@ function DeckSwitcher({
             onClick={() => onSelect(deckId)}
             aria-pressed={active}
             aria-busy={active && pending}
-            className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+            className={`rounded-lg px-3 py-2 text-xs font-bold transition ${
               active
-                ? "bg-[#173f35] text-white shadow-sm"
-                : "text-[#52645c] hover:bg-white/75"
+              ? "bg-[color:var(--pine)] text-white shadow-sm"
+                : "text-[color:var(--ink-subtle)] hover:bg-[color:var(--surface-raised)]"
             }`}
           >
             {deck.badge}
@@ -4272,13 +4272,13 @@ function ProgressSummaryControl({
 }) {
   return (
     <details className="group relative">
-      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-full border border-[#173f35]/15 bg-white/55 px-3 py-2 text-xs font-bold text-[#245748] transition hover:border-[#356b58]/35 hover:bg-white focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] px-3 py-2 text-xs font-bold text-[color:var(--pine)] transition hover:border-[#356b58]/35 hover:bg-white focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none">
         <span aria-hidden="true" className="text-[#ba4b2f]">{icon}</span>
         <span className="hidden sm:inline">Tiến độ</span>
         <span className="font-mono text-xs">{value}</span>
         <ChevronIcon />
       </summary>
-      <div className="absolute right-0 z-30 mt-2 grid min-w-56 gap-2 rounded-2xl border border-[#173f35]/15 bg-[color:var(--surface-raised)] p-3 shadow-[var(--shadow-card)]">
+      <div className="absolute right-0 z-30 mt-2 grid min-w-56 gap-2 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] p-3 shadow-[var(--shadow-lift)]">
         <p className="ui-eyebrow text-[#356b58]">Tiến độ hôm nay</p>
         <div className="grid grid-cols-2 gap-2">
           <ProgressSummaryMetric label="Đã học" value={value} />
@@ -4294,7 +4294,7 @@ function ProgressSummaryControl({
 
 function ProgressSummaryMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-[#edf3e9] px-3 py-2">
+    <div className="rounded-lg bg-[color:var(--surface-muted)] px-3 py-2">
       <p className="text-sm font-bold text-[#173f35]">{value}</p>
       <p className="mt-0.5 text-[11px] text-[#52645c]">{label}</p>
     </div>
@@ -4317,7 +4317,7 @@ function AiBudgetPill({ budget }: { budget: AiDailyBudgetSnapshot }) {
     : "Hạn mức trang web được tính từ số token của các lượt gọi tương tác";
   return (
     <div
-      className="min-w-32 rounded-full border border-[#173f35]/15 bg-white/55 px-3 py-2"
+      className="min-w-32 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] px-3 py-2"
       title={`${billingLabel} · trang web đã dùng $${usedUsd.toFixed(5)} · ${budget.requestCount} lượt gọi · ${budget.inputTokens + budget.outputTokens} token · mô hình cuối: ${budget.lastModel ?? "chưa có"} · hạn mức trang web/ngày $${(budget.limitUsdMicros / 1_000_000).toFixed(3)} · đặt lại lúc 00:00 giờ Việt Nam`}
     >
       <div className="flex items-center justify-between gap-2 font-mono text-[11px] font-bold uppercase">
@@ -4354,18 +4354,18 @@ function TodayWorkspace({
   const progress = dailyTotal ? Math.round((completedToday / dailyTotal) * 100) : 100;
 
   return (
-    <section className="mt-6 overflow-hidden rounded-[2rem] border border-[#173f35]/15 bg-[#173f35] text-white shadow-[0_20px_70px_rgba(23,63,53,0.16)]">
-      <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
+    <section className="mt-6 overflow-hidden rounded-[1.5rem] border border-[#12362d]/16 bg-[color:var(--pine)] text-white shadow-[var(--shadow-lift)]">
+      <div className="grid gap-7 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-end lg:p-10">
         <div>
-          <p className="font-mono text-[11px] font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
+          <p className="ui-panel-label text-[color:var(--accent)]">
             Không gian học hôm nay
           </p>
-          <h1 className="mt-3 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
+          <h1 className="mt-3 max-w-xl text-balance text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
             {hasCurrentQuestion
               ? "Sẵn sàng cho câu tiếp theo?"
               : "Bạn đã hoàn tất lịch học hôm nay."}
           </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/68 sm:text-base">
+          <p className="text-on-dark-muted mt-3 max-w-2xl text-sm leading-6 sm:text-base">
             {hasCurrentQuestion
               ? `${remainingCount} câu còn lại trong lịch. Tập trung trả lời trước, phản hồi và gợi ý sẽ chỉ xuất hiện sau đó.`
               : "Bạn có thể dừng tại đây, xem lại ghi chú đã lưu, hoặc luyện thêm một câu ngẫu nhiên ngoài lịch."}
@@ -4373,12 +4373,12 @@ function TodayWorkspace({
           <button
             type="button"
             onClick={onPrimaryAction}
-            className="mt-6 rounded-xl bg-[#d7ff91] px-5 py-3 text-sm font-bold text-[#173f35] transition hover:-translate-y-0.5 hover:bg-[#e4ffb7] focus:ring-4 focus:ring-white/25 focus:outline-none"
+            className="mt-7 inline-flex min-h-12 items-center rounded-xl bg-[color:var(--accent)] px-5 py-3 text-sm font-bold text-[color:var(--pine-strong)] transition hover:-translate-y-0.5 hover:bg-[#e1ffac] focus:ring-4 focus:ring-white/25 focus:outline-none"
           >
             {hasCurrentQuestion ? "Tiếp tục học →" : "Luyện thêm một câu →"}
           </button>
         </div>
-        <div className="rounded-2xl border border-white/12 bg-white/8 p-5">
+        <div className="border-l border-white/15 pl-5 sm:pl-6">
           <div className="flex items-center justify-between font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-white/72">
             <span>Tiến độ hôm nay</span>
             <span className="text-[#d7ff91]">{progress}%</span>
@@ -4411,7 +4411,7 @@ function PublicAiQuotaPill({
 
   return (
     <div
-      className="min-w-32 rounded-full border border-[#173f35]/15 bg-white/55 px-3 py-2"
+      className="min-w-32 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] px-3 py-2"
       title={
         reset
           ? `AI Luna dùng tối đa ${limit} lượt mỗi 24 giờ. Hạn mức hiện tại mở lại ${reset}.`
@@ -4474,7 +4474,7 @@ function formatPublicAiReset(value: string) {
 
 function TodayMetric({ label, value }: { label: string; value: number | string }) {
   return (
-    <div className="rounded-xl bg-black/10 px-2 py-3">
+    <div className="rounded-lg bg-black/12 px-2 py-3">
       <p className="text-lg font-semibold text-[#d7ff91]">{value}</p>
       <p className="mt-1 text-[11px] font-bold text-white/70 uppercase">{label}</p>
     </div>
@@ -4494,10 +4494,10 @@ function WorkspaceNavLink({
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`relative inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition ${
+      className={`relative inline-flex min-h-10 items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition ${
         active
-          ? "bg-[#173f35] text-[#d7ff91]"
-          : "text-[#64736c] hover:bg-white/65 hover:text-[#173f35]"
+          ? "bg-[color:var(--pine)] text-[color:var(--accent)]"
+          : "text-[color:var(--ink-muted)] hover:bg-[color:var(--surface-muted)] hover:text-[color:var(--pine)]"
       }`}
     >
       {children}
