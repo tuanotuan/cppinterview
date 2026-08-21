@@ -90,7 +90,7 @@ API quan trọng:
 | `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts`, `progress-sync.ts`, `study-session.ts` | Queue Anki, rating nguyên tử, due date, streak, browser/cloud progress và draft/phase Trợ giúp → Làm lại |
 | `practice` | `repair-queue.ts`, `rescue-retry.ts`, `fsrs-shadow.ts`, `browser-storage-lock.ts` | Blank-answer Rescue → Retry, same-session repair exact identity, cross-tab mutation lock và FSRS-6 chỉ quan sát |
 | `practice` | `focus-session.ts`, `focus-eligibility.ts` | Session Focus Sprint identity-only, resume/reconcile/completion và lọc exact approved refs |
-| `practice` | `cloud-server.ts`, `cloud.ts`, `practice-review-reader.server.ts`, `question-learning-state-reader.server.ts` | Ghép auth, đọc review trước/state generation sau với fallback migration hẹp, approval, overrides, usage và manifest |
+| `practice` | `cloud-server.ts`, `cloud.ts`, `practice-review-reader.server.ts`, `question-learning-state-reader.server.ts` | `loadCloudAccount` chỉ xác minh account/owner cho guard; `loadCloudContext` dùng lại identity đã xác minh trong request rồi đọc review trước/state generation sau với fallback migration hẹp, approval, overrides, usage và manifest |
 | `practice` | `mistake-cards.ts`, `mistake-cards.server.ts` | Capture lỗi durable, dedupe, grounded generation và materialize draft |
 | `worldquant` | `readiness.ts`, `focus-plan.ts` | Role/competency model, preparation evidence và planner queue deterministic theo gap/time budget |
 | `worldquant` | `curriculum.ts`, `curriculum-evidence.ts`, `drills.ts` | Concept graph, content/transfer coverage và catalog 30 scenario: một practice + hai checkpoint mỗi competency |

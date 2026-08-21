@@ -1,4 +1,5 @@
 import type { User } from "@supabase/supabase-js";
+import { cache } from "react";
 
 import {
   aiDailyBudgetSnapshotFromUsageRead,
@@ -51,6 +52,12 @@ export type PracticeAccount = {
   login: string | null;
 };
 
+export type CloudAccountContext = {
+  enabled: boolean;
+  account: PracticeAccount | null;
+  canManageQuestionBank: boolean;
+};
+
 export type CloudContext = {
   enabled: boolean;
   account: PracticeAccount | null;
@@ -101,6 +108,46 @@ export type GeminiUsageSummary = {
   lastModel: string | null;
 };
 
+const loadCloudIdentity = cache(async () => {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.auth.getUser();
+  const user =
+    error || !data.user || !isAllowedPracticeUser(data.user)
+      ? null
+      : data.user;
+  return { supabase, user };
+});
+
+/**
+ * Resolves only the session-derived account details needed by route guards.
+ * React request memoization means a page that also calls loadCloudContext()
+ * reuses the verified user and Supabase client instead of repeating auth I/O.
+ */
+export async function loadCloudAccount(): Promise<CloudAccountContext> {
+  if (!isSupabaseConfigured()) {
+    return {
+      enabled: false,
+      account: null,
+      canManageQuestionBank: false,
+    };
+  }
+
+  const { user } = await loadCloudIdentity();
+  if (!user) {
+    return {
+      enabled: true,
+      account: null,
+      canManageQuestionBank: false,
+    };
+  }
+
+  return {
+    enabled: true,
+    account: toPracticeAccount(user),
+    canManageQuestionBank: isTuanotuanQuestionAdmin(user),
+  };
+}
+
 export async function loadCloudContext(
   {
     includeGenerationJobs = false,
@@ -136,9 +183,8 @@ export async function loadCloudContext(
     };
   }
 
-  const supabase = await createSupabaseServerClient();
-  const { data, error: authError } = await supabase.auth.getUser();
-  if (authError || !data.user || !isAllowedPracticeUser(data.user)) {
+  const { supabase, user } = await loadCloudIdentity();
+  if (!user) {
     return {
       enabled: true,
       account: null,
@@ -278,8 +324,8 @@ export async function loadCloudContext(
 
   return {
     enabled: true,
-    account: toPracticeAccount(data.user),
-    canManageQuestionBank: isTuanotuanQuestionAdmin(data.user),
+    account: toPracticeAccount(user),
+    canManageQuestionBank: isTuanotuanQuestionAdmin(user),
     progress,
     questionStates,
     approvals: approvalError
