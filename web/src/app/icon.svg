@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">cppinterview</title>
+  <rect width="64" height="64" rx="16" fill="#0f3a69" />
+  <path d="M31 19.5c-8.2 0-14 5.3-14 12.5s5.8 12.5 14 12.5c3.5 0 6.5-1.1 8.8-3.3" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="6.5" />
+  <path d="M44 24.5v9M39.5 29h9M50.5 31v7M47 34.5h7" fill="none" stroke="#65e6d2" stroke-linecap="round" stroke-width="3.5" />
+</svg>

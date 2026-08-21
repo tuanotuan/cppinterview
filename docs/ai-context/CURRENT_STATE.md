@@ -15,6 +15,9 @@ trạng thái từ tên nhánh.
   hierarchy heading/metadata; validation cần chạy typecheck, ESLint, test,
   build và context gate sau mỗi thay đổi UI.
 
+- Favicon dùng badge C++ dạng SVG cục bộ, tối ưu cho kích thước tab trình duyệt;
+  không phụ thuộc ảnh raster hay CDN bên ngoài.
+
 - Proxy SSR xác minh/làm mới phiên Supabase bằng `getClaims()` thay vì tải user
   record ở mỗi request. Điều này giữ kiểm tra chữ ký JWT và cookie refresh, đồng
   thời giảm độ trễ khi chuyển trang trên dự án dùng khóa JWT bất đối xứng.
