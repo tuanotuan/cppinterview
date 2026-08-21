@@ -451,6 +451,7 @@ export function PracticeApp({
   const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(
     null,
   );
+  const [distractionFreeMode, setDistractionFreeMode] = useState(false);
   const [customStudyIds, setCustomStudyIds] = useState<string[] | null>(null);
   const [customStudyNotice, setCustomStudyNotice] = useState<string | null>(null);
   const [mistakeNotice, setMistakeNotice] = useState<string | null>(null);
@@ -490,6 +491,7 @@ export function PracticeApp({
   const focusHydrationStarted = useRef<string | null>(null);
   const customStudyLaunchStarted = useRef(false);
   const scrollToRatingWhenAvailable = useRef(false);
+  const scrollToReferenceAnswerWhenAvailable = useRef(false);
   const scrollToCoachFeedbackWhenAvailable = useRef(false);
   const pendingSessionSaveRef = useRef<(() => void) | null>(null);
   const coachRequestTokensRef = useRef<Record<string, string>>({});
@@ -563,6 +565,7 @@ export function PracticeApp({
     coachRequestTokensRef.current = {};
     clarificationRequestTokensRef.current = {};
     scrollToRatingWhenAvailable.current = false;
+    scrollToReferenceAnswerWhenAvailable.current = false;
     scrollToCoachFeedbackWhenAvailable.current = false;
     setAnswers({});
     setCodeAnswers({});
@@ -1581,10 +1584,6 @@ export function PracticeApp({
     ? focusQuestion
     : repairQuestion ?? normalCurrent;
 
-  if (snapshot === null) {
-    return <LoadingScreen />;
-  }
-
   const isRepairActive = Boolean(
     repairItem && current?.id === repairItem.questionId,
   );
@@ -1655,6 +1654,65 @@ export function PracticeApp({
         (step) => step.question.id === current.id,
       )
     : undefined;
+
+  useEffect(() => {
+    if (!distractionFreeMode) return;
+
+    document.body.dataset.practiceFocusMode = "true";
+    const handleShortcut = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setDistractionFreeMode(false);
+        return;
+      }
+
+      const target = event.target;
+      const isTyping =
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        (target instanceof HTMLElement && target.isContentEditable);
+      if (
+        !isTyping &&
+        event.altKey &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        event.key.toLowerCase() === "a"
+      ) {
+        event.preventDefault();
+        if (!current) return;
+        const willReveal = !revealed.has(current.id);
+        if (willReveal) {
+          scrollToReferenceAnswerWhenAvailable.current = true;
+          setAnswerRevealUsedByQuestion((used) => {
+            if (used.has(current.id)) return used;
+            const next = new Set(used);
+            next.add(current.id);
+            return next;
+          });
+        }
+        setRevealed((values) => {
+          const next = new Set(values);
+          if (next.has(current.id)) {
+            next.delete(current.id);
+          } else {
+            next.add(current.id);
+          }
+          return next;
+        });
+      }
+    };
+
+    window.addEventListener("keydown", handleShortcut);
+    return () => {
+      delete document.body.dataset.practiceFocusMode;
+      window.removeEventListener("keydown", handleShortcut);
+    };
+  }, [current, distractionFreeMode, revealed]);
+
+  if (snapshot === null) {
+    return <LoadingScreen />;
+  }
 
   async function approveAllPending() {
     if (!selectedPendingReview.length || approvalStatus === "saving") return;
@@ -1966,6 +2024,7 @@ export function PracticeApp({
       setCustomStudyNotice("Không có câu nào khớp bộ lọc của phiên học tự chọn.");
       return;
     }
+    setDistractionFreeMode(false);
     clearStudySessionState();
     setSelectedQuestionId(null);
     setCustomStudyIds(ids);
@@ -1976,15 +2035,27 @@ export function PracticeApp({
   function showRandomQuestion() {
     if (!randomCandidates.length) return;
     const next = randomCandidates[Math.floor(Math.random() * randomCandidates.length)];
+    setDistractionFreeMode(false);
     clearStudySessionState();
     setCustomStudyIds(null);
     setSelectedQuestionId(next.id);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  function enterDistractionFreeMode() {
+    if (!current) return;
+    setDistractionFreeMode(true);
+    window.requestAnimationFrame(() => {
+      document
+        .getElementById("practice-question")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
   function selectDeck(deck: PracticeDeckId) {
     if (isFocusActive) return;
     if (deck === requestedDeck) return;
+    setDistractionFreeMode(false);
     setRequestedDeck(deck);
     const url = new URL(window.location.href);
     url.searchParams.set("deck", deck);
@@ -2048,8 +2119,8 @@ export function PracticeApp({
   function toggleReferenceAnswer() {
     if (!current) return;
     const willReveal = !revealed.has(current.id);
-    scrollToRatingWhenAvailable.current =
-      willReveal && !rescueRetryBlocksRating(currentRescueRetry);
+    scrollToReferenceAnswerWhenAvailable.current = willReveal;
+    scrollToRatingWhenAvailable.current = false;
     if (willReveal) {
       setAnswerRevealUsedByQuestion((used) => {
         if (used.has(current.id)) return used;
@@ -2066,6 +2137,14 @@ export function PracticeApp({
     scrollToRatingWhenAvailable.current = false;
     window.requestAnimationFrame(() =>
       node.scrollIntoView({ behavior: "smooth", block: "center" }),
+    );
+  }
+
+  function handleReferenceAnswerRef(node: HTMLDivElement | null) {
+    if (!node || !scrollToReferenceAnswerWhenAvailable.current) return;
+    scrollToReferenceAnswerWhenAvailable.current = false;
+    window.requestAnimationFrame(() =>
+      node.scrollIntoView({ behavior: "smooth", block: "start" }),
     );
   }
 
@@ -2880,9 +2959,28 @@ export function PracticeApp({
   }
 
   return (
-    <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
+    <main
+      data-practice-focus-mode={distractionFreeMode ? "true" : undefined}
+      className="min-h-screen px-4 py-5 sm:px-7 lg:px-10"
+    >
       <div className="ui-page-width">
-        <header className="ui-app-header px-4 py-4 sm:px-5">
+        {distractionFreeMode && current ? (
+          <PracticeFocusBar
+            questionPosition={
+              isFocusActive
+                ? `${focusPosition}/${focusQueueTotal}`
+                : isCustomStudyQuestion && customStudyIds
+                  ? `${customStudyIds.length - customRemainingIds.length + 1}/${customStudyIds.length}`
+                  : isRandomQuestion
+                    ? "ngoài lịch"
+                    : `${completedToday + 1}/${dailyTotal || 1}`
+            }
+            answerRevealed={revealed.has(current.id)}
+            onExit={() => setDistractionFreeMode(false)}
+            onToggleAnswer={toggleReferenceAnswer}
+          />
+        ) : (
+        <header className="ui-app-header px-3 py-3 sm:px-5 sm:py-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link
@@ -2895,54 +2993,58 @@ export function PracticeApp({
             </Link>
             <div>
               <p className="font-semibold tracking-[-0.025em]">cppinterview</p>
-              <p className="text-xs text-[color:var(--ink-muted)]">Luyện phỏng vấn C++</p>
+              <p className="hidden text-xs text-[color:var(--ink-muted)] sm:block">Luyện phỏng vấn C++</p>
             </div>
             {isFocusActive ? (
-              <span className="rounded-full border border-[#356b58]/20 bg-[#d7ff91]/55 px-3 py-1.5 font-mono text-[11px] font-bold text-[#173f35]">
+              <span className="hidden rounded-full border border-[#356b58]/20 bg-[#d7ff91]/55 px-3 py-1.5 font-mono text-[11px] font-bold text-[#173f35] sm:inline-flex">
                 PHIÊN ÔN TẬP TRỌNG TÂM WQ
               </span>
             ) : (
-              <DeckSwitcher
-                selected={requestedDeck}
-                counts={deckCounts}
-                pending={deckTransitionPending}
-                onSelect={selectDeck}
-              />
+              <div className="hidden sm:block">
+                <DeckSwitcher
+                  selected={requestedDeck}
+                  counts={deckCounts}
+                  pending={deckTransitionPending}
+                  onSelect={selectDeck}
+                />
+              </div>
             )}
           </div>
 
-          <div className="flex flex-wrap items-center justify-end gap-2 text-sm">
+          <div className="flex items-center justify-end gap-2 text-sm">
             <ProgressSummaryControl
               icon="✓"
               streak={streak}
               value={`${completedToday}/${dailyTotal || 1}`}
             />
-            {account && aiBudgetCacheHydrated && aiDailyBudget ? (
-              <AiBudgetPill budget={aiDailyBudget} />
-            ) : usesPublicAi ? (
-              <PublicAiQuotaPill quota={publicAiQuota} />
-            ) : null}
-            {!isFocusActive ? (
-              <SavedItemsControl
-                items={savedItems}
-                onRemove={deleteSavedItem}
-                onOpenQuestion={(questionId) => {
-                  const question = sessionQuestions.find(
-                    (item) => item.id === questionId,
-                  );
-                  if (!question) return;
-                  const nextDeck = question.taxonomy.deckId;
-                  clearStudySessionState();
-                  setRequestedDeck(nextDeck);
-                  setSelectedDeck(nextDeck);
-                  setSelectedQuestionId(questionId);
-                  const url = new URL(window.location.href);
-                  url.searchParams.set("deck", nextDeck);
-                  window.history.replaceState(null, "", url);
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-              />
-            ) : null}
+            <div className="hidden items-center gap-2 sm:flex">
+              {account && aiBudgetCacheHydrated && aiDailyBudget ? (
+                <AiBudgetPill budget={aiDailyBudget} />
+              ) : usesPublicAi ? (
+                <PublicAiQuotaPill quota={publicAiQuota} />
+              ) : null}
+              {!isFocusActive ? (
+                <SavedItemsControl
+                  items={savedItems}
+                  onRemove={deleteSavedItem}
+                  onOpenQuestion={(questionId) => {
+                    const question = sessionQuestions.find(
+                      (item) => item.id === questionId,
+                    );
+                    if (!question) return;
+                    const nextDeck = question.taxonomy.deckId;
+                    clearStudySessionState();
+                    setRequestedDeck(nextDeck);
+                    setSelectedDeck(nextDeck);
+                    setSelectedQuestionId(questionId);
+                    const url = new URL(window.location.href);
+                    url.searchParams.set("deck", nextDeck);
+                    window.history.replaceState(null, "", url);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                />
+              ) : null}
+            </div>
             <AccountControl
               account={account}
               canManageQuestionBank={canManageQuestionBank}
@@ -2969,6 +3071,7 @@ export function PracticeApp({
             </WorkspaceNavLink>
           </nav>
         </header>
+        )}
 
         {authNotice ? (
           <p
@@ -3000,7 +3103,7 @@ export function PracticeApp({
           </div>
         ) : null}
 
-        {!isFocusActive ? (
+        {!isFocusActive && !distractionFreeMode ? (
           <TodayWorkspace
             completedToday={completedToday}
             dailyTotal={dailyTotal}
@@ -3019,7 +3122,7 @@ export function PracticeApp({
           />
         ) : null}
 
-        {isFocusActive && focusSession ? (
+        {!distractionFreeMode && isFocusActive && focusSession ? (
           <section className="mt-6 rounded-3xl border border-[#356b58]/20 bg-[#eaf4df] p-5 shadow-sm sm:p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
@@ -3068,7 +3171,7 @@ export function PracticeApp({
               </p>
             ) : null}
           </section>
-        ) : (
+        ) : !distractionFreeMode ? (
           <CustomStudyPanel
             key={selectedDeck}
             activeCount={customRemainingIds.length}
@@ -3081,9 +3184,9 @@ export function PracticeApp({
               );
             }}
           />
-        )}
+        ) : null}
 
-        {!isFocusActive && !current && selectedPendingReview.length ? (
+        {!isFocusActive && !distractionFreeMode && !current && selectedPendingReview.length ? (
           <section className="mt-7 rounded-3xl border border-[#ba4b2f]/25 bg-[#fff4df] p-6 sm:p-8">
             <p className="font-mono text-xs tracking-[0.15em] text-[#ba4b2f] uppercase">
               Danh sách chờ duyệt
@@ -3116,7 +3219,13 @@ export function PracticeApp({
         ) : null}
 
         {current ? (
-          <div className="grid gap-6 py-7 lg:grid-cols-[minmax(0,1fr)_18rem] lg:py-10">
+          <div
+            className={
+              distractionFreeMode
+                ? "mx-auto max-w-4xl py-4 sm:py-6"
+                : "grid gap-6 py-7 lg:grid-cols-[minmax(0,1fr)_18rem] lg:py-10"
+            }
+          >
             <section id="practice-question" className="scroll-mt-5">
               <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
@@ -3146,7 +3255,18 @@ export function PracticeApp({
                     </span>
                   ) : null}
                 </div>
-                <div className="flex flex-wrap items-center gap-3">
+                <div
+                  className={`flex flex-wrap items-center gap-3 ${
+                    distractionFreeMode ? "hidden" : ""
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={enterDistractionFreeMode}
+                    className="rounded-xl border border-[#356b58]/25 bg-[#edf3e9] px-3 py-2 text-xs font-bold text-[#245748] transition hover:-translate-y-0.5 hover:bg-[#e4f0df] focus:ring-4 focus:ring-[#d7ff91]/55 focus:outline-none"
+                  >
+                    Chế độ tập trung
+                  </button>
                   <button
                     type="button"
                     onClick={() =>
@@ -3633,6 +3753,7 @@ export function PracticeApp({
 
                 {revealed.has(current.id) ? (
                   <div
+                    ref={handleReferenceAnswerRef}
                     className="scroll-mt-6 border-t border-[#173f35]/12 bg-[#edf3e9] p-6 sm:p-9 lg:p-11"
                   >
                     <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#356b58] uppercase">
@@ -3677,6 +3798,7 @@ export function PracticeApp({
               </article>
             </section>
 
+            {!distractionFreeMode ? (
             <aside className="space-y-4 lg:pt-12">
               {!isFocusActive && selectedPendingReview.length ? (
                 <div className="rounded-3xl border border-[#ba4b2f]/25 bg-[#fff4df] p-6">
@@ -3809,6 +3931,7 @@ export function PracticeApp({
                 </span>
               </div>
             </aside>
+            ) : null}
           </div>
         ) : deckQuestions.length ? (
           <CompletionScreen
@@ -3853,16 +3976,57 @@ export function PracticeApp({
           />
         ) : null}
 
-        <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[#173f35]/12 py-5 font-mono text-[11px] text-[#78857f]">
-          <span>
-            {account
-              ? `Đồng bộ riêng tư · ${account.displayName}`
-              : "Tiến độ lưu trên trình duyệt này"}
-          </span>
-          <span>Nguồn {sourceRevision.slice(0, 7)}</span>
-        </footer>
+        {!distractionFreeMode ? (
+          <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[#173f35]/12 py-5 font-mono text-[11px] text-[#78857f]">
+            <span>
+              {account
+                ? `Đồng bộ riêng tư · ${account.displayName}`
+                : "Tiến độ lưu trên trình duyệt này"}
+            </span>
+            <span>Nguồn {sourceRevision.slice(0, 7)}</span>
+          </footer>
+        ) : null}
       </div>
     </main>
+  );
+}
+
+function PracticeFocusBar({
+  questionPosition,
+  answerRevealed,
+  onExit,
+  onToggleAnswer,
+}: {
+  questionPosition: string;
+  answerRevealed: boolean;
+  onExit: () => void;
+  onToggleAnswer: () => void;
+}) {
+  return (
+    <header className="sticky top-3 z-30 mb-5 flex min-h-14 flex-wrap items-center justify-between gap-3 rounded-xl border border-[#12362d]/20 bg-[color:var(--pine)] px-3 py-2 text-white shadow-[var(--shadow-lift)] sm:px-4">
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onExit}
+          className="min-h-10 rounded-lg px-3 text-sm font-bold text-white/80 transition hover:bg-white/10 hover:text-white focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none"
+        >
+          ← Thoát
+        </button>
+        <span className="h-5 w-px bg-white/15" aria-hidden="true" />
+        <div>
+          <p className="ui-panel-label text-[color:var(--accent)]">Chế độ tập trung</p>
+          <p className="mt-0.5 font-mono text-xs text-white/65">Câu {questionPosition}</p>
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={onToggleAnswer}
+        className="min-h-10 rounded-lg border border-white/15 bg-white/10 px-3 text-sm font-bold text-white transition hover:bg-white/18 focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none"
+      >
+        {answerRevealed ? "Ẩn đáp án" : "Mở đáp án"}
+        <span className="ml-2 hidden font-mono text-[10px] text-white/55 sm:inline">Alt + A</span>
+      </button>
+    </header>
   );
 }
 
@@ -4997,169 +5161,174 @@ function CoachFeedbackPanel({
   const suggestedRating = ratingOptions.find(
     (option) => option.value === feedback.suggestedRating,
   );
+  const metCoverage = feedback.coverage.filter((item) => item.status === "met");
+  const incompleteCoverage = feedback.coverage.filter(
+    (item) => item.status !== "met",
+  );
+  const strengths = feedback.strengths.length
+    ? feedback.strengths
+    : metCoverage.map((item) => item.criterion);
+  const improvements = [
+    ...feedback.corrections,
+    ...incompleteCoverage.map(
+      (item) => `${item.criterion}: ${item.feedback}`,
+    ),
+  ].slice(0, 3);
 
   return (
-    <section className="mt-6 overflow-hidden rounded-3xl border border-[#356b58]/20 bg-[#f6faef] shadow-[0_16px_45px_rgba(23,63,53,0.07)]">
-      <div className="grid gap-5 bg-[#173f35] p-6 text-white sm:grid-cols-[6rem_1fr] sm:items-center">
-        <div className="grid size-24 place-items-center rounded-full border-4 border-[#d7ff91]/70 bg-white/8">
-          <div className="text-center">
-            {rescueMode ? (
-              <>
-                <span className="block font-mono text-2xl font-bold text-[#d7ff91]">
-                  AI
-                </span>
-                <span className="text-[9px] tracking-wider text-white/55 uppercase">
-                  Trợ giúp
-                </span>
-              </>
-            ) : (
-              <>
-                <span className="block font-mono text-3xl font-bold text-[#d7ff91]">
-                  {feedback.score}
-                </span>
-                <span className="text-[10px] tracking-wider text-white/55 uppercase">
-                  / 100
-                </span>
-              </>
-            )}
-          </div>
-        </div>
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="font-mono text-xs font-bold tracking-[0.15em] text-[#d7ff91] uppercase">
-              {rescueMode
-                ? "Trợ giúp AI · học từ đầu"
-                : "Phản hồi phỏng vấn từ AI"}
-            </p>
-            <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-white/60">
-              {model || "OpenAI"}
+    <section className="mt-6 overflow-hidden rounded-[1.5rem] border border-[#356b58]/20 bg-[#f6faef] shadow-[var(--shadow-card)]">
+      <header className="flex flex-wrap items-start justify-between gap-4 bg-[color:var(--pine)] p-5 text-white sm:p-6">
+        <div className="flex min-w-0 items-start gap-4">
+          <div className="grid size-14 shrink-0 place-items-center rounded-xl border border-white/15 bg-white/8 text-center">
+            <span className="font-mono text-xl font-bold text-[color:var(--accent)]">
+              {rescueMode ? "AI" : feedback.score}
             </span>
-            <button
-              type="button"
-              onClick={onToggleSaveFeedback}
-              className="rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[10px] font-bold text-white/80 transition hover:bg-white/20"
-            >
-              {feedbackSaved ? "★ Đã lưu" : "☆ Lưu phản hồi"}
-            </button>
+            <span className="font-mono text-[9px] tracking-[0.1em] text-white/55 uppercase">
+              {rescueMode ? "trợ giúp" : "/ 100"}
+            </span>
           </div>
-          <h2 className="mt-2 text-2xl font-semibold tracking-tight">
-            {rescueMode
-              ? "Hiểu lời giải trước, rồi tự nói lại"
-              : verdictLabels[feedback.verdict]}
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-white/72">{feedback.summary}</p>
-        </div>
-      </div>
-
-      <div className="space-y-7 p-6 sm:p-7">
-        {feedback.strengths.length ? (
-          <div>
-            <p className="text-sm font-bold text-[#245748]">Bạn làm tốt</p>
-            <ul className="mt-3 space-y-2 text-sm leading-6 text-[#52645c]">
-              {feedback.strengths.map((strength) => (
-                <li key={strength} className="flex gap-2">
-                  <span className="text-[#65a30d]">✓</span>
-                  <span><InlineCode text={strength} /></span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-
-        <div>
-          <p className="text-sm font-bold text-[#245748]">
-            Mức độ đáp ứng từng tiêu chí
-          </p>
-          <div className="mt-3 divide-y divide-[#173f35]/10 rounded-2xl border border-[#173f35]/12 bg-white/65 px-4">
-            {feedback.coverage.map((item) => (
-              <div key={item.criterion} className="grid gap-2 py-4 sm:grid-cols-[5rem_1fr]">
-                <span
-                  data-status={item.status}
-                  className="coverage-status h-fit w-fit rounded-full px-2.5 py-1 text-[11px] font-bold"
-                >
-                  {coverageLabels[item.status]}
-                </span>
-                <div>
-                  <p className="text-sm font-semibold leading-6">
-                    <InlineCode text={item.criterion} />
-                  </p>
-                  <p className="mt-1 text-sm leading-6 text-[#64736c]">
-                    <InlineCode text={item.feedback} />
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {feedback.corrections.length ? (
-          <div className="rounded-2xl border border-[#ba4b2f]/20 bg-[#f8e8df] p-5">
-            <p className="text-sm font-bold text-[#8e3825]">Cần sửa</p>
-            <ul className="mt-3 space-y-2 text-sm leading-6 text-[#713929]">
-              {feedback.corrections.map((correction) => (
-                <li key={correction} className="flex gap-2">
-                  <span>→</span>
-                  <span><InlineCode text={correction} /></span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-
-        <div>
-          <p className="text-sm font-bold text-[#245748]">Giải thích cho chắc</p>
-          <div className="mt-2 leading-7 text-[#52645c]">
-            <RichText text={feedback.explanation} />
-          </div>
-        </div>
-
-        <div className={rescueMode ? "hidden" : "grid gap-3 sm:grid-cols-2"}>
-          <div className="flex flex-col rounded-2xl bg-[#e8efe2] p-5">
-            <p className="font-mono text-[11px] font-bold tracking-wider text-[#356b58] uppercase">
-              Bước tiếp theo
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="ui-panel-label text-[color:var(--accent)]">
+                {rescueMode ? "Trợ giúp AI" : "Phản hồi AI"}
+              </p>
+              <span className="rounded-md bg-white/10 px-2 py-1 font-mono text-[10px] text-white/60">
+                {model || "OpenAI"}
+              </span>
+            </div>
+            <h2 className="mt-2 text-balance text-xl font-semibold tracking-[-0.025em] sm:text-2xl">
+              {rescueMode
+                ? "Hiểu lời giải trước, rồi tự nói lại"
+                : verdictLabels[feedback.verdict]}
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-white/72">
+              {feedback.summary}
             </p>
-            <p className="mt-2 text-sm leading-6 text-[#465c52]">
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={onToggleSaveFeedback}
+          className="min-h-10 rounded-lg border border-white/15 bg-white/10 px-3 text-xs font-bold text-white/80 transition hover:bg-white/20 focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none"
+        >
+          {feedbackSaved ? "★ Đã lưu" : "☆ Lưu phản hồi"}
+        </button>
+      </header>
+
+      <div className="space-y-5 p-5 sm:p-6">
+        <div className="grid gap-px overflow-hidden rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--border-subtle)] lg:grid-cols-3">
+          <section className="bg-[color:var(--surface-raised)] p-5">
+            <p className="ui-panel-label text-[#356b58]">01 · Bạn đã làm được</p>
+            {strengths.length ? (
+              <ul className="mt-3 space-y-2 text-sm leading-6 text-[#465c52]">
+                {strengths.slice(0, 3).map((strength) => (
+                  <li key={strength} className="flex gap-2">
+                    <span aria-hidden="true" className="font-bold text-[#65a30d]">✓</span>
+                    <span><InlineCode text={strength} /></span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-3 text-sm leading-6 text-[#64736c]">
+                AI chưa thấy phần nào đủ rõ để ghi nhận. Hãy dùng phần cần cải thiện
+                bên cạnh làm trọng tâm cho lần trả lời sau.
+              </p>
+            )}
+          </section>
+
+          <section className="bg-[#fff8f2] p-5">
+            <p className="ui-panel-label text-[#a34d30]">02 · Cần cải thiện</p>
+            {improvements.length ? (
+              <ul className="mt-3 space-y-2 text-sm leading-6 text-[#713929]">
+                {improvements.map((item) => (
+                  <li key={item} className="flex gap-2">
+                    <span aria-hidden="true">→</span>
+                    <span><InlineCode text={item} /></span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-3 text-sm leading-6 text-[#713929]">
+                Chưa có lỗi cụ thể cần sửa ngay. Hãy kiểm tra phần giải thích để củng cố.
+              </p>
+            )}
+          </section>
+
+          <section className="flex flex-col bg-[#edffd0] p-5">
+            <p className="ui-panel-label text-[#356b58]">03 · Làm tiếp ngay</p>
+            <p className="mt-3 text-sm leading-6 font-semibold text-[#29493d]">
               <InlineCode text={feedback.nextStep} />
             </p>
-            <button
-              type="button"
-              onClick={onExpandNextStep}
-              disabled={learningActionLoading || learningActionDisabled}
-              className="mt-4 w-fit rounded-xl border border-[#356b58]/20 bg-white/65 px-3.5 py-2 text-xs font-bold text-[#245748] transition hover:-translate-y-0.5 hover:bg-white disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#d7ff91]/60 focus:outline-none"
-            >
-              {learningActionLoading ? "AI đang mở rộng…" : "Học tiếp phần này →"}
-            </button>
-          </div>
-          <div className="flex flex-col rounded-2xl bg-[#d7ff91]/55 p-5">
-            <p className="font-mono text-[11px] font-bold tracking-wider text-[#356b58] uppercase">
-              Người phỏng vấn hỏi tiếp
-            </p>
-            <p className="mt-2 text-sm leading-6 font-semibold text-[#29493d]">
-              <InlineCode text={feedback.followUpQuestion} />
-            </p>
-            <button
-              type="button"
-              onClick={onExploreInterviewerQuestion}
-              className="mt-4 w-fit rounded-xl bg-[#173f35] px-3.5 py-2 text-xs font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#245748] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-white/70 focus:outline-none"
-            >
-              {deepDiveOpen ? "Ẩn câu mở rộng ↑" : "Tự trả lời câu này →"}
-            </button>
-          </div>
+            {rescueMode ? (
+              <p className="mt-4 text-xs leading-5 text-[#52645c]">
+                Đọc để hiểu rồi chọn <strong>Tự làm lại không nhìn lời giải</strong>
+                ở phần bên dưới.
+              </p>
+            ) : (
+              <div className="mt-auto flex flex-wrap gap-2 pt-4">
+                <button
+                  type="button"
+                  onClick={onExpandNextStep}
+                  disabled={learningActionLoading || learningActionDisabled}
+                  className="min-h-10 rounded-lg border border-[#356b58]/20 bg-white/75 px-3 text-xs font-bold text-[#245748] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-45 focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none"
+                >
+                  {learningActionLoading ? "AI đang mở rộng…" : "Học tiếp →"}
+                </button>
+                <button
+                  type="button"
+                  onClick={onExploreInterviewerQuestion}
+                  className="min-h-10 rounded-lg bg-[color:var(--pine)] px-3 text-xs font-bold text-white transition hover:bg-[color:var(--pine-strong)] focus-visible:ring-4 focus-visible:ring-white/70 focus-visible:outline-none"
+                >
+                  {deepDiveOpen ? "Ẩn câu mở rộng" : "Tự trả lời tiếp →"}
+                </button>
+              </div>
+            )}
+          </section>
         </div>
 
-        <p className="text-center text-xs text-[#6c7b73]">
-          {rescueMode ? (
-            <>
-              Mức đánh giá đang khóa · đọc để hiểu rồi bấm{" "}
-              <strong>Tự làm lại không nhìn lời giải</strong>.
-            </>
-          ) : (
-            <>
-              AI gợi ý mức đánh giá: <strong>{suggestedRating?.label}</strong> ·
-              hãy tự quyết định sau khi đối chiếu đáp án nguồn.
-            </>
-          )}
-        </p>
+        {!rescueMode ? (
+          <p className="rounded-lg border border-[#356b58]/16 bg-white/65 px-4 py-3 text-sm text-[#52645c]">
+            AI gợi ý mức đánh giá: <strong className="text-[#245748]">{suggestedRating?.label}</strong>.
+            Hãy tự quyết định sau khi đối chiếu đáp án nguồn.
+          </p>
+        ) : null}
+
+        <details className="rounded-xl border border-[color:var(--border-subtle)] bg-white/65 p-4 open:bg-white">
+          <summary className="cursor-pointer text-sm font-bold text-[#245748] marker:text-[#356b58]">
+            Xem lý do AI đánh giá như vậy và rubric đầy đủ
+          </summary>
+          <div className="mt-5 space-y-6 border-t border-[color:var(--border-subtle)] pt-5">
+            <div>
+              <p className="text-sm font-bold text-[#245748]">Giải thích</p>
+              <div className="mt-2 leading-7 text-[#52645c]">
+                <RichText text={feedback.explanation} />
+              </div>
+            </div>
+            <div>
+              <p className="text-sm font-bold text-[#245748]">Rubric đầy đủ</p>
+              <div className="mt-3 divide-y divide-[#173f35]/10 rounded-xl border border-[#173f35]/12 bg-white px-4">
+                {feedback.coverage.map((item) => (
+                  <div key={item.criterion} className="grid gap-2 py-4 sm:grid-cols-[5rem_1fr]">
+                    <span
+                      data-status={item.status}
+                      className="coverage-status h-fit w-fit rounded-full px-2.5 py-1 text-[11px] font-bold"
+                    >
+                      {coverageLabels[item.status]}
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold leading-6">
+                        <InlineCode text={item.criterion} />
+                      </p>
+                      <p className="mt-1 text-sm leading-6 text-[#64736c]">
+                        <InlineCode text={item.feedback} />
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </details>
       </div>
     </section>
   );
