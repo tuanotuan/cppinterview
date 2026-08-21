@@ -35,7 +35,7 @@ export default async function ProfilePage() {
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
-      <div className="mx-auto max-w-[1400px]">
+      <div className="ui-page-width">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
           <Link
             href="/"
@@ -53,7 +53,7 @@ export default async function ProfilePage() {
               </span>
             </span>
           </Link>
-          <nav className="flex flex-wrap items-center gap-2">
+          <nav aria-label="Điều hướng hồ sơ" className="flex flex-wrap items-center gap-2">
             <NavLink href="/practice">Luyện hôm nay</NavLink>
             <NavLink href="/learn">Thư viện</NavLink>
             <NavLink href="/stats">Thống kê</NavLink>
@@ -71,7 +71,7 @@ export default async function ProfilePage() {
 
         <section className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#173f35]/12 bg-white/62 px-5 py-4">
           <div>
-            <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
+            <p className="ui-eyebrow text-[#356b58]">
               Bảo mật
             </p>
             <p className="mt-1 text-sm text-[#64736c]">
@@ -92,10 +92,10 @@ export default async function ProfilePage() {
               {account.displayName.slice(0, 1).toUpperCase()}
             </div>
             <div>
-              <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+              <p className="ui-eyebrow text-[#ba4b2f]">
                 Trang cá nhân
               </p>
-              <h1 className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">
+              <h1 className="mt-2 text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
                 {account.displayName}
               </h1>
               <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-[#64736c]">
@@ -166,7 +166,7 @@ export default async function ProfilePage() {
         <section className="mt-5 rounded-[2rem] border border-[#173f35]/12 bg-white/62 p-5 shadow-[0_18px_70px_rgb(23_63_53_/_7%)] sm:p-7">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+              <p className="ui-eyebrow text-[#ba4b2f]">
                 Contribution graph
               </p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight">
@@ -238,7 +238,7 @@ export default async function ProfilePage() {
 
         <section className="mt-5 grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
           <section className="rounded-[2rem] border border-[#173f35]/12 bg-[#173f35] p-6 text-white sm:p-7">
-            <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#d7ff91] uppercase">
+            <p className="ui-eyebrow text-[#d7ff91]">
               Nhịp học hiện tại
             </p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight">
@@ -246,7 +246,7 @@ export default async function ProfilePage() {
                 ? `${calendar.currentStreak} ngày liên tiếp`
                 : "Bắt đầu một chuỗi mới"}
             </h2>
-            <p className="mt-3 leading-7 text-white/65">
+            <p className="mt-3 leading-7 text-on-dark-muted">
               Chỉ cần hoàn thành một hoạt động học tập hôm nay để giữ nhịp. Graph
               không thưởng cho việc gọi AI nhiều; mục tiêu chính vẫn là luyện tập
               đều đặn.
@@ -260,7 +260,7 @@ export default async function ProfilePage() {
           </section>
 
           <section className="rounded-[2rem] border border-[#173f35]/12 bg-white/62 p-6 sm:p-7">
-            <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+            <p className="ui-eyebrow text-[#ba4b2f]">
               Nhật ký gần đây
             </p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight">

@@ -8,6 +8,13 @@ trạng thái từ tên nhánh.
 
 ## Handoff hiện tại
 
+- Nền tảng UI đã được chuẩn hóa: có skip link, ring focus dùng chung, modal
+  keyboard-safe (focus trap/Escape/trả focus), token semantic cho surface và
+  color, cùng mobile navigation grid bám đáy không đè control sticky. Các không
+  gian Practice, thư viện, mock, stats và profile dùng cùng content width và
+  hierarchy heading/metadata; validation cần chạy typecheck, ESLint, test,
+  build và context gate sau mỗi thay đổi UI.
+
 - cppinterview đã chuyển sang C++-only: web không còn discovery root, deck,
   route học, code-runner hay mock-question language cho Python/CMake. Thư mục
   `python/` ở repo root vẫn giữ nguyên như ghi chú cá nhân.

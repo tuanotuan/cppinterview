@@ -94,7 +94,7 @@ export default async function StatsPage({
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
-      <div className="mx-auto max-w-[1400px]">
+      <div className="ui-page-width">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
           <div className="flex items-center gap-3">
             <Link
@@ -112,7 +112,7 @@ export default async function StatsPage({
               </p>
             </div>
           </div>
-          <nav className="flex flex-wrap items-center gap-2">
+          <nav aria-label="Điều hướng thống kê" className="flex flex-wrap items-center gap-2">
             <StatsDeckSwitcher selected={selectedDeck} />
             <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/worldquant">
               Trung tâm chuẩn bị
@@ -139,12 +139,12 @@ export default async function StatsPage({
         </header>
 
         <section className="py-9">
-          <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+          <p className="ui-eyebrow text-[#ba4b2f]">
             Phân tích học tập
           </p>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+              <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
                 Sức khỏe bộ câu hỏi
               </h1>
               <p className="mt-3 max-w-2xl leading-7 text-[#64736c]">

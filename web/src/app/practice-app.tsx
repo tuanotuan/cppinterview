@@ -2881,7 +2881,7 @@ export function PracticeApp({
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
-      <div className="mx-auto max-w-7xl">
+      <div className="ui-page-width">
         <header className="border-b border-[#173f35]/15 pb-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -2912,11 +2912,10 @@ export function PracticeApp({
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-2 text-sm">
-            <StatPill icon="◆" value={`${streak} ngày`} label="chuỗi ngày" />
-            <StatPill
+            <ProgressSummaryControl
               icon="✓"
+              streak={streak}
               value={`${completedToday}/${dailyTotal || 1}`}
-              label="hôm nay"
             />
             {account && aiBudgetCacheHydrated && aiDailyBudget ? (
               <AiBudgetPill budget={aiDailyBudget} />
@@ -3466,7 +3465,7 @@ export function PracticeApp({
                   {canRateCurrent && !rescueOutcomeRating ? (
                     <div
                       ref={handleRatingSectionRef}
-                      className="sticky bottom-3 z-20 mt-5 scroll-m-4 rounded-3xl border-2 border-[#356b58]/35 bg-[#fffef9]/95 p-4 shadow-[0_16px_45px_rgba(23,63,53,0.18)] backdrop-blur-md sm:p-5"
+                      className="sticky bottom-24 z-20 mt-5 scroll-m-4 rounded-3xl border-2 border-[#356b58]/35 bg-[#fffef9]/95 p-4 shadow-[0_16px_45px_rgba(23,63,53,0.18)] backdrop-blur-md sm:p-5 lg:bottom-3"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div>
@@ -4262,13 +4261,51 @@ function DeckSwitcher({
   );
 }
 
-function StatPill({ icon, value, label }: { icon: string; value: string; label: string }) {
+function ProgressSummaryControl({
+  icon,
+  streak,
+  value,
+}: {
+  icon: string;
+  streak: number;
+  value: string;
+}) {
   return (
-    <div className="flex items-center gap-2 rounded-full border border-[#173f35]/15 bg-white/55 px-3 py-2">
-      <span className="text-[#ba4b2f]">{icon}</span>
-      <span className="font-mono text-xs font-bold">{value}</span>
-      <span className="hidden text-xs text-[#6c7b73] sm:inline">{label}</span>
+    <details className="group relative">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-full border border-[#173f35]/15 bg-white/55 px-3 py-2 text-xs font-bold text-[#245748] transition hover:border-[#356b58]/35 hover:bg-white focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none">
+        <span aria-hidden="true" className="text-[#ba4b2f]">{icon}</span>
+        <span className="hidden sm:inline">Tiến độ</span>
+        <span className="font-mono text-xs">{value}</span>
+        <ChevronIcon />
+      </summary>
+      <div className="absolute right-0 z-30 mt-2 grid min-w-56 gap-2 rounded-2xl border border-[#173f35]/15 bg-[color:var(--surface-raised)] p-3 shadow-[var(--shadow-card)]">
+        <p className="ui-eyebrow text-[#356b58]">Tiến độ hôm nay</p>
+        <div className="grid grid-cols-2 gap-2">
+          <ProgressSummaryMetric label="Đã học" value={value} />
+          <ProgressSummaryMetric label="Chuỗi ngày" value={`${streak} ngày`} />
+        </div>
+        <Link href="/stats" className="mt-1 text-xs font-bold text-[#356b58] underline decoration-[#356b58]/35 underline-offset-4 hover:text-[#173f35]">
+          Xem tiến độ chi tiết
+        </Link>
+      </div>
+    </details>
+  );
+}
+
+function ProgressSummaryMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl bg-[#edf3e9] px-3 py-2">
+      <p className="text-sm font-bold text-[#173f35]">{value}</p>
+      <p className="mt-0.5 text-[11px] text-[#52645c]">{label}</p>
     </div>
+  );
+}
+
+function ChevronIcon() {
+  return (
+    <svg aria-hidden="true" className="size-3.5 transition group-open:rotate-180" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m4 6 4 4 4-4" />
+    </svg>
   );
 }
 
@@ -4283,7 +4320,7 @@ function AiBudgetPill({ budget }: { budget: AiDailyBudgetSnapshot }) {
       className="min-w-32 rounded-full border border-[#173f35]/15 bg-white/55 px-3 py-2"
       title={`${billingLabel} · trang web đã dùng $${usedUsd.toFixed(5)} · ${budget.requestCount} lượt gọi · ${budget.inputTokens + budget.outputTokens} token · mô hình cuối: ${budget.lastModel ?? "chưa có"} · hạn mức trang web/ngày $${(budget.limitUsdMicros / 1_000_000).toFixed(3)} · đặt lại lúc 00:00 giờ Việt Nam`}
     >
-      <div className="flex items-center justify-between gap-2 font-mono text-[10px] font-bold uppercase">
+      <div className="flex items-center justify-between gap-2 font-mono text-[11px] font-bold uppercase">
         <span>OpenAI hôm nay</span>
         <span className={low ? "text-[#ba4b2f]" : "text-[#245748]"}>
           {budget.remainingPercent}% còn lại
@@ -4439,7 +4476,7 @@ function TodayMetric({ label, value }: { label: string; value: number | string }
   return (
     <div className="rounded-xl bg-black/10 px-2 py-3">
       <p className="text-lg font-semibold text-[#d7ff91]">{value}</p>
-      <p className="mt-1 text-[10px] font-bold text-white/55 uppercase">{label}</p>
+      <p className="mt-1 text-[11px] font-bold text-white/70 uppercase">{label}</p>
     </div>
   );
 }
@@ -4515,14 +4552,6 @@ function AccountControl({
   if (account) {
     return (
       <div className="flex items-center gap-2">
-        <HeaderNavLink href="/mock-interview">
-          Phỏng vấn thử
-        </HeaderNavLink>
-        <HeaderNavLink
-          href={`/stats?deck=${selectedDeck}`}
-        >
-          Thống kê
-        </HeaderNavLink>
         {canManageQuestionBank ? (
           <HeaderNavLink href="/admin">Quản trị</HeaderNavLink>
         ) : null}

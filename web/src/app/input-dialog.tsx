@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
+
+import { useDialogAccessibility } from "./accessible-dialog";
 
 export type InputDialogField = {
   name: string;
@@ -28,13 +30,31 @@ export function InputDialog({
   onCancel: () => void;
   onSubmit: (values: Record<string, string>) => void;
 }) {
+  const dialogRef = useRef<HTMLElement>(null);
+  const firstInputRef = useRef<HTMLElement>(null);
+  const setFirstInputRef = useCallback(
+    (element: HTMLInputElement | HTMLTextAreaElement | null) => {
+      firstInputRef.current = element;
+    },
+    [],
+  );
   const [values, setValues] = useState<Record<string, string>>(() =>
     Object.fromEntries(fields.map((field) => [field.name, field.initialValue ?? ""])),
   );
+  useDialogAccessibility({
+    open: true,
+    dialogRef,
+    initialFocusRef: firstInputRef,
+    onDismiss: () => {
+      if (!busy) onCancel();
+    },
+  });
 
   return (
     <div className="fixed inset-0 z-[60] grid place-items-center bg-[#102d26]/55 p-4 backdrop-blur-sm">
       <section
+        ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-labelledby="input-dialog-title"
@@ -64,6 +84,7 @@ export function InputDialog({
               ) : null}
               {field.multiline ? (
                 <textarea
+                  ref={field === fields[0] ? setFirstInputRef : undefined}
                   required
                   value={values[field.name] ?? ""}
                   placeholder={field.placeholder}
@@ -74,6 +95,7 @@ export function InputDialog({
                 />
               ) : (
                 <input
+                  ref={field === fields[0] ? setFirstInputRef : undefined}
                   required
                   value={values[field.name] ?? ""}
                   placeholder={field.placeholder}

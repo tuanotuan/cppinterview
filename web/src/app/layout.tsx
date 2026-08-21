@@ -22,7 +22,12 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
       </head>
       <body className="min-h-full pb-22 lg:pb-0">
-        {children}
+        <a className="skip-link" href="#main-content">
+          Đi đến nội dung chính
+        </a>
+        <div id="main-content" tabIndex={-1}>
+          {children}
+        </div>
         <SiteFooter />
         <AdminMobileUsageTracker />
         <RecallMobileNav />
