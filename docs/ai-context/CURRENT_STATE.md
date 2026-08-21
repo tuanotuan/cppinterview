@@ -19,6 +19,10 @@ trạng thái từ tên nhánh.
   record ở mỗi request. Điều này giữ kiểm tra chữ ký JWT và cookie refresh, đồng
   thời giảm độ trễ khi chuyển trang trên dự án dùng khóa JWT bất đối xứng.
 
+- Điều hướng động giữ route segment trong client cache 30 giây. Landing và
+  WorldQuant guard chỉ tải account/session tối thiểu; nếu WorldQuant page cần
+  full context thì session đã xác minh được dùng lại trong cùng request.
+
 - cppinterview đã chuyển sang C++-only: web không còn discovery root, deck,
   route học, code-runner hay mock-question language cho Python/CMake. Thư mục
   `python/` ở repo root vẫn giữ nguyên như ghi chú cá nhân.

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { loadCloudContext } from "@/lib/practice/cloud-server";
+import { loadCloudAccount } from "@/lib/practice/cloud-server";
 
 import { RecallLandingPage } from "./recall-landing-page";
 
@@ -11,11 +11,7 @@ export default async function Home({
 }: {
   searchParams: Promise<{ auth?: string | string[] }>;
 }) {
-  const cloud = await loadCloudContext({
-    includeAiUsage: false,
-    includeGeminiUsage: false,
-    includeProviderSettings: false,
-  });
+  const cloud = await loadCloudAccount();
   const params = await searchParams;
   const authCode = Array.isArray(params.auth) ? params.auth[0] : params.auth;
 

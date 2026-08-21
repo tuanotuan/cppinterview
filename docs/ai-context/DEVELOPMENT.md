@@ -167,6 +167,9 @@ Xem danh sách chuẩn trong `web/.env.example`.
 - Proxy SSR làm mới cookie phiên bằng `supabase.auth.getClaims()`; không dùng
   `getSession()` để xác thực, và không gọi `getUser()` chỉ để làm mới phiên trên
   mỗi lần điều hướng. Các route vẫn đọc user record khi cần dữ liệu mới nhất.
+- Next.js giữ page segment động trong router cache 30 giây để hỗ trợ chuyển qua
+  lại giữa các trang. Server Action đổi cookie, `router.refresh` và revalidation
+  vẫn xóa cache này ngay; không dùng cache đó làm nguồn xác thực.
 - Khi không cấu hình Supabase, route AI chỉ được chạy không tính quota nếu
   `NODE_ENV=development` và `ALLOW_UNMETERED_LOCAL_AI=true`; production và test
   luôn bỏ qua cờ này rồi từ chối theo hướng an toàn.
