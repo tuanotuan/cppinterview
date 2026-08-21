@@ -49,7 +49,7 @@ export function LessonLibraryApp({
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
       <div className="ui-page-width">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
+        <header className="ui-app-header flex flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-5">
           <Link
             href="/"
             aria-label="Về trang chủ cppinterview"

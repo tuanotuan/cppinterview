@@ -112,10 +112,11 @@ trạng thái từ tên nhánh.
 - Thao tác xác nhận, xóa, reset hay nhập metadata trong client phải dùng dialog
   của cppinterview; không quay lại hộp thoại native `alert`/`confirm`/`prompt` vì chúng
   thiếu ngữ cảnh và phá vỡ trải nghiệm trên mobile.
-- Đợt UI hiện tại đã có shell mobile và Today workspace trên `/`, cùng session
-  rail/sticky action trong Mock. Thư viện hiển thị tổng quan nguồn học và chip
-  lọc lộ trình; Admin/Hồ sơ ưu tiên lối vào học tập chính. Các thay đổi này
-  không chạm scheduler, AI admission hay dữ liệu học.
+- Giao diện learner-facing theo hướng technical editorial: deep-pine là cấu trúc,
+  acid-lime chỉ dùng cho CTA/trạng thái, bề mặt sáng và khoảng thở thay vì nhiều
+  card/pill. Landing, Today workspace, thư viện, Mock, Stats và Profile dùng
+  header/card/CTA nhất quán; shell mobile, session rail và sticky action vẫn giữ
+  nguyên. Thay đổi UI không chạm scheduler, AI admission hay dữ liệu học.
 - UI dùng chung có reduced-motion fallback; skeleton loading có thông báo cho
   screen reader và thanh điều hướng mobile giữ vùng chạm/focus rõ ràng.
 - Biểu tượng thương hiệu ở góc trái của các header luôn mở trang chủ `/`, để

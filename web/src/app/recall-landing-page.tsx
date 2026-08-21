@@ -40,20 +40,20 @@ export function RecallLandingPage({
   return (
     <main data-recall-landing className="min-h-screen overflow-x-hidden">
       <div className="ui-page-width px-4 py-5 sm:px-7 lg:px-10">
-        <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+        <header className="ui-app-header flex flex-wrap items-center justify-between gap-x-4 gap-y-3 px-4 py-3 sm:px-5">
           <Link
             href="/"
             aria-label="Về trang chủ cppinterview"
             title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91] shadow-[0_12px_32px_rgb(23_63_53_/_18%)]">
+            <span className="grid size-10 place-items-center rounded-xl bg-[color:var(--pine)] font-mono text-sm font-bold text-[color:var(--accent)]">
               CI
             </span>
             <span>
-              <span className="block text-lg font-bold tracking-tight">cppinterview</span>
-              <span className="block text-xs text-[#64736c]">
-                Learn deliberately
+              <span className="block text-base font-bold tracking-[-0.025em] sm:text-lg">cppinterview</span>
+              <span className="block text-xs text-[color:var(--ink-muted)]">
+                Luyện phỏng vấn C++
               </span>
             </span>
           </Link>
@@ -89,17 +89,17 @@ export function RecallLandingPage({
           </p>
         ) : null}
 
-        <section className="grid gap-10 pb-14 pt-14 lg:grid-cols-[minmax(0,1.08fr)_minmax(24rem,.92fr)] lg:items-center lg:pb-22 lg:pt-20">
+        <section className="grid gap-10 pb-16 pt-16 lg:grid-cols-[minmax(0,1.04fr)_minmax(25rem,.96fr)] lg:items-center lg:gap-14 lg:pb-24 lg:pt-24">
           <div>
-            <p className="ui-eyebrow inline-flex items-center gap-2 rounded-full border border-[#356b58]/16 bg-white/62 px-3 py-2 text-[#356b58]">
-              <span className="size-2 rounded-full bg-[#79b82a]" />
-              C++ · Systems · Trading
+            <p className="ui-panel-label flex items-center gap-2 text-[color:var(--success)]">
+              <span aria-hidden="true" className="size-1.5 rounded-full bg-[#79b82a]" />
+              Luyện phỏng vấn C++
             </p>
-            <h1 className="mt-6 max-w-4xl text-balance text-5xl font-semibold tracking-[-0.045em] text-[#17221d] sm:text-6xl lg:text-7xl">
-              Học từ ghi chú.
-              <span className="block text-[#356b58]">Sẵn sàng để trả lời.</span>
+            <h1 className="mt-5 max-w-4xl text-balance text-5xl font-semibold tracking-[-0.055em] text-[color:var(--foreground)] sm:text-6xl lg:text-7xl">
+              Học C++ có hệ thống.
+              <span className="block text-[color:var(--success)]">Trả lời có cơ sở.</span>
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-[#52645c]">
+            <p className="mt-6 max-w-xl text-lg leading-8 text-[color:var(--ink-subtle)]">
               cppinterview là nơi luyện phỏng vấn C++ với ngân hàng câu hỏi đã được
               duyệt, lịch ôn có chủ đích, AI coach và mock interview — để mỗi lần học
               đều phục vụ cho lần phỏng vấn tiếp theo.
@@ -113,44 +113,40 @@ export function RecallLandingPage({
               />
               <Link
                 href="/practice?guest=1"
-                className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-[#173f35]/15 bg-white/70 px-5 py-3 text-sm font-bold text-[#245748] transition hover:border-[#356b58]/40 hover:bg-white focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+                className="ui-action-secondary focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none"
               >
                 Thử luyện không cần tài khoản
               </Link>
             </div>
-            <p className="mt-4 text-xs leading-5 text-[#64736c]">
-              Dùng email/mật khẩu, Google hoặc GitHub để lưu tiến độ riêng tư giữa các thiết bị.
-            </p>
+            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 border-t border-[color:var(--border-subtle)] pt-5 text-sm text-[color:var(--ink-subtle)]">
+              <span><strong className="text-[color:var(--foreground)]">Tự trả lời</strong> trước khi xem đáp án</span>
+              <span><strong className="text-[color:var(--foreground)]">Lưu riêng tư</strong> giữa các thiết bị</span>
+            </div>
           </div>
 
-          <div className="relative">
-            <div className="absolute -right-12 -top-8 size-44 rounded-full bg-[#d7ff91]/45 blur-3xl" />
-            <div className="relative rounded-[2.2rem] border border-[#173f35]/12 bg-[#173f35] p-5 text-white shadow-[0_32px_100px_rgb(23_63_53_/_25%)] sm:p-7">
-              <div className="flex items-center justify-between border-b border-white/10 pb-5">
-                <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-[#f08a5d]" />
-                  <span className="size-2 rounded-full bg-[#f4ce5b]" />
-                  <span className="size-2 rounded-full bg-[#79b82a]" />
+          <div className="relative isolate">
+            <div aria-hidden="true" className="absolute -inset-5 -z-10 rounded-[2rem] bg-[#c9fa79]/30 blur-3xl" />
+            <div className="overflow-hidden rounded-[1.7rem] border border-white/10 bg-[color:var(--pine)] text-white shadow-[var(--shadow-lift)]">
+              <div className="flex items-center justify-between border-b border-white/10 px-5 py-4 sm:px-7">
+                <span className="ui-panel-label text-[color:var(--accent)]">Phiên học hôm nay</span>
+                <span className="font-mono text-xs text-white/60">01 / 07</span>
+              </div>
+              <div className="p-5 sm:p-7">
+                <p className="ui-panel-label text-white/55">Câu hỏi trọng tâm</p>
+                <h2 className="mt-3 text-balance text-2xl font-semibold leading-tight tracking-[-0.03em] sm:text-3xl">
+                  Khi nào dùng reference, khi nào dùng pointer trong API C++?
+                </h2>
+                <div className="mt-7 rounded-xl border border-white/10 bg-black/12 p-4 font-mono text-sm leading-7 text-[#dff0e8]">
+                  <p className="text-white/45">Câu trả lời của bạn</p>
+                  <p className="mt-3">Reference biểu đạt đối tượng luôn tồn tại; pointer phù hợp khi…</p>
+                  <span className="mt-3 block h-px w-4/5 bg-white/15" />
+                  <span className="mt-3 block h-px w-3/5 bg-white/15" />
                 </div>
-                <span className="ui-eyebrow text-white/70">
-                  Today&apos;s cppinterview
-                </span>
-              </div>
-              <p className="ui-eyebrow mt-7 text-[#d7ff91]">
-                Phiên ôn tập trọng tâm
-              </p>
-              <h2 className="mt-3 text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
-                Tại sao không nên dùng một hàm chung để cập nhật cả book và
-                bars?
-              </h2>
-              <div className="text-on-dark-muted mt-6 rounded-2xl bg-white/8 p-4 text-sm leading-6">
-                Bạn tự trả lời trước. Khi cần, AI chỉ ra phần đúng, phần thiếu và
-                câu hỏi tiếp nối để bạn đào sâu.
-              </div>
-              <div className="mt-5 grid grid-cols-3 gap-2">
-                <MiniMetric value="Lịch ôn" label="nhắc đúng lúc" />
-                <MiniMetric value="AI coach" label="giải thích rõ" />
-                <MiniMetric value="Mock" label="luyện như thật" />
+                <div className="mt-5 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-white/10 bg-white/10">
+                  <MiniMetric value="Lịch ôn" label="đúng lúc" />
+                  <MiniMetric value="AI coach" label="sau khi trả lời" />
+                  <MiniMetric value="Mock" label="luyện như thật" />
+                </div>
               </div>
             </div>
           </div>
@@ -173,16 +169,16 @@ export function RecallLandingPage({
               Xem phòng phỏng vấn thử →
             </Link>
           </div>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
+          <div className="mt-10 grid gap-0 border-t border-[color:var(--border-subtle)] pt-8 md:grid-cols-3 md:gap-8">
             {capabilities.map((item) => (
               <article
                 key={item.number}
-                className="ui-surface-card rounded-[1.75rem] p-6"
+                className="group border-t border-[color:var(--border-subtle)] py-6 first:border-t-0 first:pt-0 md:border-t-0 md:border-l md:px-0 md:py-0 md:pl-5 md:first:border-l-0 md:first:pl-0"
               >
-                <span className="font-mono text-xs font-bold text-[#ba4b2f]">
+                <span className="ui-panel-label text-[#ba4b2f]">
                   {item.number}
                 </span>
-                <h3 className="mt-7 text-xl font-semibold tracking-tight">
+                <h3 className="mt-5 text-xl font-semibold tracking-[-0.025em] group-hover:text-[#356b58]">
                   {item.title}
                 </h3>
                 <p className="mt-3 leading-7 text-[#64736c]">
@@ -193,34 +189,34 @@ export function RecallLandingPage({
           </div>
         </section>
 
-        <section className="grid gap-5 pb-16 lg:grid-cols-[.8fr_1.2fr] lg:pb-22">
-          <div className="rounded-[2rem] bg-[#e5f6c5] p-6 sm:p-8">
-            <p className="ui-eyebrow text-[#356b58]">
+        <section className="grid overflow-hidden rounded-[1.7rem] border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] pb-0 lg:grid-cols-[.82fr_1.18fr] lg:pb-0">
+          <div className="bg-[color:var(--pine)] p-7 text-white sm:p-9">
+            <p className="ui-panel-label text-[color:var(--accent)]">
               Ngân hàng được quản lý kỹ
             </p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight">
+            <h2 className="mt-3 text-balance text-3xl font-semibold tracking-[-0.03em]">
               Người học tập trung vào việc học.
             </h2>
-            <p className="mt-4 leading-7 text-[#52645c]">
+            <p className="text-on-dark-muted mt-4 leading-7">
               Các câu hỏi xuất hiện trong lịch học đã được quản trị viên kiểm tra.
               Việc bổ sung nguồn kiến thức, tạo bản nháp và duyệt nội dung là khu vực
               quản trị riêng, không nằm trong tài khoản học viên.
             </p>
             <Link
               href="/learn"
-              className="mt-7 inline-flex min-h-11 items-center rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#245748] focus-visible:ring-4 focus-visible:ring-white focus-visible:outline-none"
+              className="mt-7 inline-flex min-h-11 items-center rounded-xl bg-[color:var(--accent)] px-4 py-2 text-sm font-bold text-[color:var(--pine-strong)] transition hover:bg-[#e1ffac] focus-visible:ring-4 focus-visible:ring-white/30 focus-visible:outline-none"
             >
               Khám phá thư viện
             </Link>
           </div>
 
-          <ol className="grid gap-3 sm:grid-cols-2">
+          <ol className="grid gap-px bg-[color:var(--border-subtle)] sm:grid-cols-2">
             {workflow.map(([number, title, description]) => (
               <li
                 key={number}
-                className="flex gap-4 rounded-[1.5rem] border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)]/70 p-5"
+                className="flex gap-4 bg-[color:var(--surface-raised)] p-6 sm:p-7"
               >
-                <span className="font-mono text-xs font-bold text-[#ba4b2f]">
+                <span className="ui-panel-label text-[#ba4b2f]">
                   {number}
                 </span>
                 <div>
@@ -254,8 +250,8 @@ function AuthLink({
     tone === "quiet"
       ? "inline-flex min-h-11 items-center justify-center rounded-xl px-3 py-2 text-sm font-bold text-[#356b58] transition hover:bg-white/65 focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none sm:px-4"
       : tone === "hero"
-        ? "inline-flex min-h-12 items-center justify-center rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-[#d7ff91] shadow-[0_14px_35px_rgb(23_63_53_/_20%)] transition hover:-translate-y-0.5 hover:bg-[#245748] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
-        : "inline-flex min-h-11 items-center justify-center rounded-xl bg-[#173f35] px-3 py-2 text-sm font-bold text-[#d7ff91] transition hover:bg-[#245748] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none sm:px-4";
+        ? "ui-action-primary min-h-12 px-5 focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none"
+        : "ui-action-primary min-h-11 px-3 focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none sm:px-4";
 
   if (!cloudEnabled) {
     return (
@@ -274,9 +270,9 @@ function AuthLink({
 
 function MiniMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/6 p-3">
-      <p className="text-xs font-bold text-[#d7ff91]">{value}</p>
-      <p className="mt-1 font-mono text-[11px] tracking-[0.08em] text-white/70 uppercase">
+    <div className="bg-black/12 p-3 sm:p-4">
+      <p className="text-xs font-bold text-[color:var(--accent)]">{value}</p>
+      <p className="mt-1 font-mono text-[10px] tracking-[0.08em] text-white/65 uppercase">
         {label}
       </p>
     </div>

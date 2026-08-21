@@ -24,12 +24,13 @@ App phải ở `web/`; content tooling dựa vào vị trí này để tìm repo
 ## Visual foundation
 
 Root layout cung cấp skip link, footer và mobile navigation dùng chung. `globals.css`
-chứa semantic color/surface/spacing tokens, focus-visible rule và responsive
-inset cho các control sticky. Modal do app tự tạo dùng
+chứa token semantic, bề mặt/sắc độ deep-pine + acid-lime, action và app-header
+dùng chung theo hướng technical editorial; ưu tiên hierarchy, khoảng thở và
+trạng thái rõ hơn "card" trang trí. Landing, Practice, thư viện, Mock, Stats và
+Profile dùng header/card/CTA này cùng `ui-page-width` trên desktop và mobile.
+Focus-visible và responsive inset vẫn áp dụng cho control sticky. Modal do app tự tạo dùng
 `web/src/app/accessible-dialog.ts` để khóa scroll, trả focus, đóng bằng Escape
 và giữ focus trong dialog; không dùng browser dialog cho luồng xác nhận.
-`practice-app`, thư viện, mock, stats và profile dùng `ui-page-width` để một
-chiều rộng nội dung nhất quán trên desktop và mobile.
 
 ## AI context maintenance
 

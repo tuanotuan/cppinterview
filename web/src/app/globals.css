@@ -1,25 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f1e8;
-  --foreground: #17221d;
-  --surface: #fbfaf5;
-  --surface-raised: #fffdf8;
-  --surface-muted: #edf3e9;
+  --background: #f3f5f0;
+  --foreground: #13221d;
+  --surface: #fafbf7;
+  --surface-raised: #fffefa;
+  --surface-muted: #eaf0e9;
   --surface-warning: #fff4df;
   --ink-muted: #64736c;
   --ink-subtle: #52645c;
   --ink-on-dark: rgb(255 255 255 / 72%);
   --border-subtle: rgb(23 63 53 / 15%);
-  --accent: #d7ff91;
-  --pine: #173f35;
-  --pine-strong: #102d26;
+  --accent: #c9fa79;
+  --pine: #12362d;
+  --pine-strong: #0b2921;
   --success: #356b58;
   --warning: #86511f;
   --danger: #8e3825;
-  --radius-card: 2rem;
-  --radius-control: 0.75rem;
-  --shadow-card: 0 20px 70px rgb(23 63 53 / 8%);
+  --radius-card: 1.5rem;
+  --radius-control: 0.875rem;
+  --shadow-card: 0 14px 42px rgb(20 51 43 / 7%);
+  --shadow-lift: 0 24px 70px rgb(20 51 43 / 13%);
+  --ease-standard: 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
   --content-max: 90rem;
 }
 
@@ -37,9 +39,8 @@
 body {
   margin: 0;
   background:
-    radial-gradient(circle at 78% -8%, rgb(215 255 145 / 36%), transparent 31rem),
-    radial-gradient(circle at -12% 42%, rgb(222 236 211 / 62%), transparent 29rem),
-    var(--background);
+    radial-gradient(circle at 84% -12%, rgb(201 250 121 / 28%), transparent 32rem),
+    linear-gradient(180deg, #fbfcf9 0%, var(--background) 52rem);
   color: var(--foreground);
   font-family: var(--font-sans);
   line-height: 1.5;
@@ -108,12 +109,68 @@ button:disabled {
 .ui-surface-card {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-card);
-  background: color-mix(in srgb, var(--surface-raised) 78%, transparent);
+  background: color-mix(in srgb, var(--surface-raised) 92%, transparent);
   box-shadow: var(--shadow-card);
 }
 
 .text-on-dark-muted {
   color: var(--ink-on-dark);
+}
+
+.ui-app-header {
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.25rem;
+  background: color-mix(in srgb, var(--surface-raised) 82%, transparent);
+  box-shadow: 0 8px 26px rgb(20 51 43 / 4%);
+  backdrop-filter: blur(14px);
+}
+
+.ui-action-primary,
+.ui-action-secondary {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-control);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition:
+    background-color var(--ease-standard),
+    border-color var(--ease-standard),
+    box-shadow var(--ease-standard),
+    transform var(--ease-standard);
+}
+
+.ui-action-primary {
+  background: var(--pine);
+  color: var(--accent);
+  box-shadow: 0 10px 24px rgb(18 54 45 / 16%);
+}
+
+.ui-action-primary:hover {
+  background: var(--pine-strong);
+  transform: translateY(-1px);
+}
+
+.ui-action-secondary {
+  border: 1px solid var(--border-subtle);
+  background: color-mix(in srgb, var(--surface-raised) 88%, transparent);
+  color: var(--pine);
+}
+
+.ui-action-secondary:hover {
+  border-color: rgb(53 107 88 / 42%);
+  background: #fff;
+}
+
+.ui-panel-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.35;
+  text-transform: uppercase;
 }
 
 .rating-button[data-tone="red"] {
@@ -187,7 +244,7 @@ button:disabled {
 
 @media (max-width: 1023px) {
   :root {
-    --radius-card: 1.5rem;
+    --radius-card: 1.25rem;
   }
 
   body:has([data-recall-landing]) {
@@ -196,6 +253,14 @@ button:disabled {
 
   body:has([data-recall-landing]) .recall-mobile-nav {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a,
+  button,
+  summary {
+    transition-timing-function: var(--ease-standard);
   }
 }
 
