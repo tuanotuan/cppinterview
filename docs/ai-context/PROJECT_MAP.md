@@ -16,6 +16,8 @@ Tài liệu ổn định để tìm đúng vùng code. Xác minh lại nếu sou
 | `web/src/generated/content-manifest.json` | Manifest deterministic, không sửa tay |
 | `web/supabase/migrations/` | Schema/RPC/RLS theo thứ tự timestamp |
 | `.github/workflows/web-validate.yml` | CI validate, refresh/sync/generate content |
+| `.agents/skills/`, `update-skills.ps1` | Project-local skills for coding agents; script refreshes the bundled skills from their upstream sources |
+| `note.txt` | Prompt/reference checklist for coding agents |
 | `AGENTS.md`, `AI_START_HERE.md` | Rule duy trì handoff và file định tuyến cho session mới |
 | `docs/ai-context/GENERATED_SNAPSHOT.md` | Inventory/fingerprint deterministic do script sinh |
 

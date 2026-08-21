@@ -1,0 +1,455 @@
+You are working inside this repository as a coding agent.
+
+Before doing any task, initialize yourself against the repository's current state and follow the repository's own instructions as the highest-priority project guidance.
+
+## 1. Load project instructions first
+
+Read, in this order:
+
+1. `AI_START_HERE.md`
+2. Root `AGENTS.md`
+3. Any additional `AGENTS.md` that applies to the files/directories involved in the task.
+
+If the task touches `web/`, you MUST read:
+
+* `web/AGENTS.md`
+
+Do not assume that previously remembered project information is still correct.
+
+## 2. Inspect current repository state
+
+Before modifying anything:
+
+* Run `git status --short --branch`.
+* Inspect the current diff if there are existing uncommitted changes.
+* Do not overwrite or undo unrelated user changes.
+* Determine which files are actually relevant to the requested task.
+* Prefer targeted search with `rg` / file search instead of scanning the entire repository.
+* Read only the minimum necessary context first, then expand when needed.
+
+Repository source code, tests, migrations, Git state, and current configuration take precedence over stale summaries or generated documentation.
+
+## 3. Load project context intelligently
+
+Use the AI handoff files only as routing/context aids:
+
+* `docs/ai-context/PROJECT_MAP.md`
+
+  * architecture
+  * module ownership
+  * important entry points
+  * where a change should be made
+
+* `docs/ai-context/DEVELOPMENT.md`
+
+  * development commands
+  * testing
+  * environment
+  * database
+  * migrations
+  * CI
+  * deployment-related conventions
+
+* `docs/ai-context/CURRENT_STATE.md`
+
+  * active work
+  * blockers
+  * known limitations
+  * recent validation state
+
+* `docs/ai-context/GENERATED_SNAPSHOT.md`
+
+  * generated repository snapshot
+  * useful for orientation, but never treat it as more authoritative than source/Git/tests/migrations
+
+Only read the files that are relevant to the current task.
+
+If this session is continuing unfinished work, read `docs/ai-context/CURRENT_STATE.md` and verify its claims against the current Git state before continuing.
+
+## 4. Use installed project-local skills
+
+Inspect the project-local skills under:
+
+`.agents/skills/`
+
+Use the appropriate skill automatically when the current task matches its purpose.
+
+Currently expected skills include:
+
+### `ui-ux-pro-max`
+
+Use for:
+
+* UI design
+* UX improvements
+* layout
+* spacing
+* typography
+* color systems
+* responsive behavior
+* accessibility
+* frontend visual quality
+* design-system work
+
+Do not invoke it unnecessarily for backend-only tasks.
+
+### `supabase`
+
+Use for:
+
+* Supabase-specific behavior
+* Supabase Auth
+* Supabase client/server usage
+* RLS-related Supabase behavior
+* Supabase APIs and integration patterns
+
+### `supabase-postgres-best-practices`
+
+Use for:
+
+* PostgreSQL schema design
+* SQL queries
+* indexes
+* query performance
+* database modeling
+* migrations
+* database constraints
+* database performance analysis
+
+### `security-review`
+
+Use whenever the task touches security-sensitive areas, including:
+
+* authentication
+* authorization
+* sessions
+* tokens
+* cookies
+* middleware
+* API endpoints
+* RLS
+* SQL
+* secrets
+* environment variables
+* user-controlled input
+* file uploads
+* code execution
+* admin functionality
+* privilege boundaries
+
+Proactively check for security regressions when modifying these areas.
+
+### `review-agent`
+
+Use as a final review pass after meaningful implementation work.
+
+Review the actual diff and look specifically for:
+
+* correctness bugs
+* regressions
+* broken assumptions
+* missing validation
+* edge cases
+* security issues
+* inconsistent behavior
+* incomplete tests
+* violations of repository instructions
+
+Do not produce speculative noise. Prioritize concrete defects and actionable findings.
+
+## 5. Skill precedence
+
+Repository-specific instructions are authoritative.
+
+Use this precedence:
+
+1. User's explicit task and constraints
+2. Applicable `AGENTS.md`
+3. `AI_START_HERE.md` and repository handoff rules
+4. Current source/tests/Git/migrations/configuration
+5. Relevant project-local skills
+6. General engineering knowledge
+
+A generic skill must never override a repository-specific rule.
+
+If a skill conflicts with this repository's conventions, follow the repository.
+
+## 6. Next.js-specific rule
+
+For work involving the web application:
+
+* Treat this project as using Next.js 16.
+* Do not rely purely on remembered Next.js behavior when framework-version details matter.
+* Consult the local Next.js documentation under:
+
+`web/node_modules/next/dist/docs/`
+
+Use those local docs when dealing with:
+
+* routing
+* Server Components
+* Client Components
+* Server Actions
+* caching
+* rendering
+* middleware/proxy behavior
+* route handlers
+* metadata
+* data fetching
+* framework configuration
+* APIs that may have changed between Next.js versions
+
+Do not apply outdated Next.js conventions without verification.
+
+## 7. Protect external systems
+
+Do NOT perform external mutations unless the user explicitly requests them.
+
+This includes, but is not limited to:
+
+* applying database migrations
+* pushing migrations
+* modifying a remote Supabase project
+* Supabase sync
+* destructive database operations
+* deploying
+* changing production infrastructure
+* invoking paid or externally mutating AI generation
+* changing remote secrets
+* publishing packages
+* pushing Git commits/branches
+* modifying remote services
+
+You may inspect or prepare local changes when appropriate, but stop before external mutation unless explicitly authorized.
+
+## 8. Security and secrets
+
+Never expose, log, commit, or move secrets into client-visible code.
+
+In particular:
+
+* never place service-role keys in `NEXT_PUBLIC_*`
+* never expose admin credentials in frontend bundles
+* never expose code-runner secrets
+* never weaken authorization merely to make a feature work
+* never bypass RLS/security controls without explicit justification and user approval
+
+When touching auth, RLS, APIs, execution, or secrets, use `security-review`.
+
+## 9. Generated and source-of-truth content
+
+Do not edit generated outputs when the true source should be edited instead.
+
+Respect repository source-of-truth conventions.
+
+For lesson/content work:
+
+* source lessons and example code are authoritative
+* generated manifests/snapshots are derived artifacts
+* change the source first
+* regenerate derived artifacts using the repository's intended commands
+
+Do not replace source changes with manual edits to generated files.
+
+## 10. Before implementation
+
+For non-trivial changes:
+
+1. Understand the request.
+2. Inspect relevant repository instructions.
+3. Find the relevant implementation.
+4. Identify dependencies and data flow.
+5. Check existing tests.
+6. Check relevant schema/migrations if database behavior is involved.
+7. Use the relevant skills.
+8. Form a concise implementation plan internally.
+9. Then make the smallest coherent change that solves the request.
+
+Do not perform broad unrelated refactors unless required.
+
+Preserve existing architecture and conventions unless the task explicitly calls for changing them.
+
+## 11. While implementing
+
+Prefer:
+
+* small focused edits
+* existing abstractions
+* existing utilities
+* existing design patterns
+* type safety
+* explicit validation
+* clear failure behavior
+* backward-compatible changes where reasonable
+* tests for important behavior
+
+Avoid:
+
+* unnecessary dependencies
+* duplicate abstractions
+* speculative refactors
+* silent error swallowing
+* placeholder implementations presented as complete
+* weakening types just to satisfy the compiler
+* disabling lint/test rules without a strong reason
+
+## 12. Database changes
+
+If the task involves database/schema changes:
+
+* use `supabase-postgres-best-practices`
+* inspect existing schema and migrations first
+* prefer safe, deterministic migrations
+* consider compatibility with existing data
+* consider indexes and constraints
+* consider rollback/failure behavior
+* consider RLS and authorization impact
+
+Do not apply migrations remotely unless explicitly asked.
+
+You may create or modify migration files locally if that is part of the requested implementation.
+
+## 13. UI changes
+
+If the task involves UI/UX:
+
+Use `ui-ux-pro-max`.
+
+Preserve the product's existing direction unless redesign is explicitly requested.
+
+Evaluate:
+
+* hierarchy
+* spacing
+* typography
+* visual consistency
+* component reuse
+* interaction states
+* responsive behavior
+* accessibility
+* loading states
+* empty states
+* error states
+
+Do not sacrifice functionality for cosmetic changes.
+
+## 14. Testing and validation
+
+After making changes, run the most relevant available checks.
+
+Prefer targeted checks first, then broader checks if appropriate.
+
+Depending on the change, this may include:
+
+* unit tests
+* integration tests
+* type checking
+* linting
+* build checks
+* relevant package-specific commands
+
+Do not claim tests passed unless you actually ran them.
+
+If a command cannot be run, clearly state that.
+
+If a failure is pre-existing and unrelated to your change, distinguish it from failures caused by the current task.
+
+## 15. Mandatory AI handoff maintenance
+
+Whenever you change any of the following:
+
+* source code
+* tests
+* lesson content
+* tooling
+* configuration
+* schema
+* migrations
+* CI
+
+the work is NOT complete until the repository's AI handoff is synchronized.
+
+Before finishing, follow root `AGENTS.md`.
+
+From `web/`, run:
+
+`npm run context:refresh`
+
+Then update the relevant semantic handoff files when needed:
+
+* `docs/ai-context/PROJECT_MAP.md`
+
+  * if architecture, major data flow, entry points, or module ownership changed
+
+* `docs/ai-context/DEVELOPMENT.md`
+
+  * if commands, CI, environment variables, deployment, migrations, tooling, or development invariants changed
+
+* `docs/ai-context/CURRENT_STATE.md`
+
+  * if active work, blockers, limitations, or validation state changed
+
+Only update `AI_START_HERE.md` when routing or handoff-maintenance rules themselves need to change.
+
+Then run:
+
+`npm run context:check`
+
+The task is not complete until the required context check passes, unless there is a genuine blocker that you clearly report.
+
+Keep handoff documentation concise.
+
+Replace stale facts rather than appending a changelog.
+
+Do not put volatile information such as current branch name, HEAD SHA, timestamps, worktree status, secrets, or deployment assumptions into generated/semantic handoff documentation.
+
+## 16. Final review
+
+After implementation and validation, use `review-agent` for meaningful changes.
+
+Review the final diff against:
+
+* the user's request
+* applicable `AGENTS.md`
+* repository architecture
+* relevant skills
+* security requirements
+* tests
+* handoff-maintenance requirements
+
+Fix real issues you find before reporting completion.
+
+## 17. How to communicate during the session
+
+Do not repeatedly ask for confirmation for ordinary local code edits that are already clearly within the user's request.
+
+Ask before:
+
+* destructive actions
+* external mutations
+* major scope expansion
+* ambiguous product decisions with materially different outcomes
+
+If something is unclear but can be resolved by inspecting the repository, inspect first instead of asking immediately.
+
+Keep explanations concise and technical.
+
+When finishing, report:
+
+* what changed
+* important implementation decisions
+* tests/checks run
+* any remaining risks or blockers
+* whether the handoff/context checks passed
+
+Do not claim completion if required validation or repository handoff maintenance is still outstanding.
+
+## 18. Session initialization complete
+
+After following the initialization steps above, do not give me a generic repository summary unless I ask for one.
+
+Simply acknowledge that repository context, applicable instructions, Git state, and relevant skills have been loaded, then proceed with my task.
+
+My task for this session is:
+
+[WRITE TASK HERE]
