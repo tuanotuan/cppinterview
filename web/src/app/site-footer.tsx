@@ -31,7 +31,7 @@ export function SiteFooter() {
           </FooterColumn>
           <FooterColumn title="Kết nối">
             <FooterExternalLink href="https://github.com/tuanotuan/cppinterview">GitHub repository ↗</FooterExternalLink>
-            <FooterExternalLink href="https://www.facebook.com/HCMUS.k23">Facebook ↗</FooterExternalLink>
+            <FooterExternalLink href="https://www.facebook.com/CNTT.HCMUS.K23">Facebook ↗</FooterExternalLink>
           </FooterColumn>
         </div>
         <div className="mt-9 flex flex-wrap items-center justify-between gap-3 border-t border-[#173f35]/10 pt-5 font-mono text-[11px] font-bold tracking-[0.08em] text-[#78857f] uppercase">
