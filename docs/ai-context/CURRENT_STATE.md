@@ -15,6 +15,10 @@ trạng thái từ tên nhánh.
   hierarchy heading/metadata; validation cần chạy typecheck, ESLint, test,
   build và context gate sau mỗi thay đổi UI.
 
+- Proxy SSR xác minh/làm mới phiên Supabase bằng `getClaims()` thay vì tải user
+  record ở mỗi request. Điều này giữ kiểm tra chữ ký JWT và cookie refresh, đồng
+  thời giảm độ trễ khi chuyển trang trên dự án dùng khóa JWT bất đối xứng.
+
 - cppinterview đã chuyển sang C++-only: web không còn discovery root, deck,
   route học, code-runner hay mock-question language cho Python/CMake. Thư mục
   `python/` ở repo root vẫn giữ nguyên như ghi chú cá nhân.

@@ -164,6 +164,9 @@ Xem danh sách chuẩn trong `web/.env.example`.
   `/auth/set-password` qua `auth.updateUser({ password })`.
   Quyền quản trị vẫn chỉ dựa vào GitHub provider identity
   bất biến `tuanotuan`, không tin `user_metadata` do người dùng tự sửa.
+- Proxy SSR làm mới cookie phiên bằng `supabase.auth.getClaims()`; không dùng
+  `getSession()` để xác thực, và không gọi `getUser()` chỉ để làm mới phiên trên
+  mỗi lần điều hướng. Các route vẫn đọc user record khi cần dữ liệu mới nhất.
 - Khi không cấu hình Supabase, route AI chỉ được chạy không tính quota nếu
   `NODE_ENV=development` và `ALLOW_UNMETERED_LOCAL_AI=true`; production và test
   luôn bỏ qua cờ này rồi từ chối theo hướng an toàn.

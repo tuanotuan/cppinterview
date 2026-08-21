@@ -23,6 +23,8 @@ export async function updateSupabaseSession(request: NextRequest) {
     },
   });
 
-  await supabase.auth.getUser();
+  // `getClaims` validates the JWT and refreshes the session cookie without
+  // fetching the user record on every navigation when asymmetric keys are in use.
+  await supabase.auth.getClaims();
   return response;
 }
