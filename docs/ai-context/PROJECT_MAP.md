@@ -28,7 +28,9 @@ chứa token semantic, bề mặt/sắc độ deep-pine + acid-lime, action và 
 dùng chung theo hướng technical editorial; ưu tiên hierarchy, khoảng thở và
 trạng thái rõ hơn "card" trang trí. Landing, Practice, thư viện, Mock, Stats và
 Profile dùng header/card/CTA này cùng `ui-page-width` trên desktop và mobile.
-Focus-visible và responsive inset vẫn áp dụng cho control sticky. Modal do app tự tạo dùng
+Practice có Chế độ tập trung tạm thời (thoát `Esc`, mở đáp án `Alt + A`) để ẩn
+shell/sidebar; feedback AI ưu tiên đúng/sửa/làm tiếp, còn rubric đầy đủ nằm trong
+`details`. Focus-visible và responsive inset vẫn áp dụng cho control sticky. Modal do app tự tạo dùng
 `web/src/app/accessible-dialog.ts` để khóa scroll, trả focus, đóng bằng Escape
 và giữ focus trong dialog; không dùng browser dialog cho luồng xác nhận.
 

@@ -116,7 +116,11 @@ trạng thái từ tên nhánh.
   acid-lime chỉ dùng cho CTA/trạng thái, bề mặt sáng và khoảng thở thay vì nhiều
   card/pill. Landing, Today workspace, thư viện, Mock, Stats và Profile dùng
   header/card/CTA nhất quán; shell mobile, session rail và sticky action vẫn giữ
-  nguyên. Thay đổi UI không chạm scheduler, AI admission hay dữ liệu học.
+  nguyên. Mobile chỉ hiện tiến độ/account ở header và bottom nav cho workspace;
+  landing/auth/admin không mang bottom nav. Practice có Chế độ tập trung cục bộ
+  (Esc thoát, Alt+A mở/ẩn đáp án) để ẩn shell/sidebar; feedback AI trình bày
+  ba bước đúng/cần cải thiện/làm tiếp, rubric chi tiết được thu gọn. Thay đổi UI
+  không chạm scheduler, AI admission hay dữ liệu học.
 - UI dùng chung có reduced-motion fallback; skeleton loading có thông báo cho
   screen reader và thanh điều hướng mobile giữ vùng chạm/focus rõ ràng.
 - Biểu tượng thương hiệu ở góc trái của các header luôn mở trang chủ `/`, để

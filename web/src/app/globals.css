@@ -247,6 +247,14 @@ button:disabled {
     --radius-card: 1.25rem;
   }
 
+  body[data-practice-focus-mode="true"] {
+    padding-bottom: 0;
+  }
+
+  body[data-practice-focus-mode="true"] .recall-mobile-nav {
+    display: none;
+  }
+
   body:has([data-recall-landing]) {
     padding-bottom: 0;
   }

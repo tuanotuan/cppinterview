@@ -19,6 +19,9 @@ export function RecallMobileNav() {
   const pathname = usePathname();
 
   if (
+    pathname === "/" ||
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/admin") ||
     pathname.startsWith("/mock-interview") ||
     pathname.startsWith("/worldquant/full-round")
   ) {
@@ -28,7 +31,7 @@ export function RecallMobileNav() {
   return (
     <nav
       aria-label="Điều hướng chính"
-      className="recall-mobile-nav fixed inset-x-3 bottom-3 z-40 mx-auto grid max-w-md grid-cols-4 items-center rounded-2xl border border-white/40 bg-[#173f35]/95 px-2 py-2 text-white shadow-[0_18px_50px_rgba(10,36,29,0.32)] backdrop-blur lg:hidden"
+      className="recall-mobile-nav fixed inset-x-3 bottom-3 z-40 mx-auto grid max-w-md grid-cols-4 items-center rounded-xl border border-white/30 bg-[color:var(--pine)]/96 px-2 py-2 text-white shadow-[var(--shadow-lift)] backdrop-blur lg:hidden"
     >
       {items.map((item) => {
         const active = isCurrent(pathname, item.href);
@@ -40,7 +43,7 @@ export function RecallMobileNav() {
             aria-current={active ? "page" : undefined}
             className={`grid min-h-11 min-w-0 place-items-center gap-0.5 rounded-xl px-1 py-1.5 text-center transition focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none ${
               active
-                ? "bg-[#d7ff91] text-[#173f35]"
+                ? "bg-[color:var(--accent)] text-[color:var(--pine-strong)]"
                 : "text-white/65 hover:bg-white/10 hover:text-white"
             }`}
           >
