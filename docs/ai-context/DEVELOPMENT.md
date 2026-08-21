@@ -31,6 +31,12 @@ npm run build
 npm run validate        # toàn bộ gate theo thứ tự trên
 ```
 
+## Project-local agent skills
+
+`.agents/skills/` chứa skill dùng trong repo. `update-skills.ps1` tải và thay thế
+skill từ upstream, nên chỉ chạy khi thật sự muốn cập nhật dependency tooling; sau
+đó kiểm tra diff, refresh context và commit toàn bộ thay đổi liên quan.
+
 `content:refresh` có ghi registry/manifest. `content:check`, test, lint,
 typecheck và `context:check` là read-only. `content:refresh` cũng refresh
 `docs/ai-context/GENERATED_SNAPSHOT.md`. `content:sync`,
