@@ -24,7 +24,12 @@ trạng thái từ tên nhánh.
 
 - Điều hướng động giữ route segment trong client cache 30 giây. Landing và
   WorldQuant guard chỉ tải account/session tối thiểu; nếu WorldQuant page cần
-  full context thì session đã xác minh được dùng lại trong cùng request.
+  full context thì session đã xác minh được dùng lại trong cùng request. Practice,
+  Mock và Tiến độ khởi tạo các truy vấn độc lập song song; quota AI và lịch sử
+  mock không còn chờ full context. Cloud context vẫn đọc review trước state để
+  giữ reset history nhất quán, còn Tiến độ bỏ truy vấn mistake queue không dùng.
+  Lịch sử Mock gửi xuống client chỉ gồm dữ liệu đang hiển thị, không kèm toàn bộ
+  báo cáo, câu trả lời và execution records cũ.
 
 - cppinterview đã chuyển sang C++-only: web không còn discovery root, deck,
   route học, code-runner hay mock-question language cho Python/CMake. Thư mục

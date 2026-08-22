@@ -155,12 +155,14 @@ export async function loadCloudContext(
     includeDailyAiBudget = true,
     includeGeminiUsage = true,
     includeProviderSettings = true,
+    includeMistakeQuestionIds = true,
   }: {
     includeGenerationJobs?: boolean;
     includeAiUsage?: boolean;
     includeDailyAiBudget?: boolean;
     includeGeminiUsage?: boolean;
     includeProviderSettings?: boolean;
+    includeMistakeQuestionIds?: boolean;
   } = {},
 ): Promise<CloudContext> {
   if (!isSupabaseConfigured()) {
@@ -245,10 +247,16 @@ export async function loadCloudContext(
         .order("updated_at", { ascending: false })
         .limit(50)
     : Promise.resolve({ data: [], error: null });
-  const mistakeQuestionsPromise = supabase
-    .from("mistake_flashcard_candidates")
-    .select("materialized_question_id")
-    .not("materialized_question_id", "is", null);
+  const mistakeQuestionsPromise = includeMistakeQuestionIds
+    ? supabase
+        .from("mistake_flashcard_candidates")
+        .select("materialized_question_id")
+        .not("materialized_question_id", "is", null)
+    : Promise.resolve({ data: [], error: null });
+  // The content store is independent from per-user review state. Starting its
+  // read here prevents it from adding another round trip after the deliberate
+  // review -> state ordering below.
+  const baseManifestPromise = loadQuestionStoreManifest({ supabase });
   // Keep the generation-bearing state read after the review pages so a reset
   // between the two snapshots can only remove older-generation rows.
   const reviewsResult = await readAllPracticeReviewRows(supabase);
@@ -277,7 +285,7 @@ export async function loadCloudContext(
       providerSettingsPromise,
       generationJobsPromise,
       mistakeQuestionsPromise,
-      loadQuestionStoreManifest({ supabase }),
+      baseManifestPromise,
     ]);
   const { rows, error } = reviewsResult;
   const { rows: stateRows, error: statesError } = statesResult;

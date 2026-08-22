@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 
 import { readPublicAiAdmissionStatus } from "@/lib/ai/public-ai-admission.server";
 import { isQuestionApproved } from "@/lib/practice/approvals";
-import { loadCloudContext } from "@/lib/practice/cloud-server";
+import { loadCloudAccount, loadCloudContext } from "@/lib/practice/cloud-server";
 import { parsePracticeDeck } from "@/lib/content/decks";
 import { parseCustomStudyLaunch } from "@/lib/practice/custom-study";
 import { parseFocusSessionId } from "@/lib/practice/focus-session";
@@ -29,16 +29,21 @@ export default async function PracticePage({
     topic?: string | string[];
   }>;
 }) {
-  const cloud = await loadCloudContext({
+  const accountPromise = loadCloudAccount();
+  const cloudPromise = loadCloudContext({
     includeAiUsage: false,
     includeGeminiUsage: false,
     includeProviderSettings: false,
   });
+  const initialPublicAiQuotaPromise = accountPromise.then(({ account, canManageQuestionBank }) =>
+    canManageQuestionBank ? null : loadInitialPublicAiQuota(account?.id ?? null),
+  );
+  const [cloud, initialPublicAiQuota, params] = await Promise.all([
+    cloudPromise,
+    initialPublicAiQuotaPromise,
+    searchParams,
+  ]);
   const manifest = cloud.manifest;
-  const initialPublicAiQuota = cloud.canManageQuestionBank
-    ? null
-    : await loadInitialPublicAiQuota(cloud.account?.id ?? null);
-  const params = await searchParams;
   const authCode = single(params.auth);
   const guestMode = single(params.guest) === "1";
   const deckParam = single(params.deck);

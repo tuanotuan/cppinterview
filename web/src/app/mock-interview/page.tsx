@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { isCodeRunnerConfigured } from "@/lib/code-runner/config.server";
 import { isQuestionApproved } from "@/lib/practice/approvals";
-import { loadCloudContext } from "@/lib/practice/cloud-server";
+import { loadCloudAccount, loadCloudContext } from "@/lib/practice/cloud-server";
 import {
   buildWorldQuantBankCatalog,
 } from "@/lib/mock-interview/catalog";
@@ -48,12 +48,21 @@ export default async function MockInterviewPage({
     returnMinutes?: string | string[];
   }>;
 }) {
-  const cloud = await loadCloudContext({
+  const accountPromise = loadCloudAccount();
+  const cloudPromise = loadCloudContext({
     includeAiUsage: false,
     includeDailyAiBudget: false,
     includeGeminiUsage: false,
     includeProviderSettings: false,
   });
+  const initialHistoryPromise = accountPromise.then(({ account }) =>
+    loadInitialMockHistory(account?.id ?? null),
+  );
+  const [cloud, query, { historyAvailable, initialHistory }] = await Promise.all([
+    cloudPromise,
+    searchParams,
+    initialHistoryPromise,
+  ]);
   if (!cloud.enabled) return <MockInterviewGate mode="not-configured" />;
   if (!cloud.account) return <MockInterviewGate mode="login" />;
 
@@ -90,7 +99,6 @@ export default async function MockInterviewPage({
           ? "repository_verified"
           : "owner_approved",
       }));
-  const query = await searchParams;
   const initialRoleProfileId = parseRoleProfileId(single(query.role));
   const requestedFocus = parseCompetency(single(query.focus));
   const requestedMode = single(query.mode);
@@ -111,36 +119,6 @@ export default async function MockInterviewPage({
       : "balanced";
   const initialTargetCompetency =
     initialMode === "targeted" ? requestedFocus : null;
-  let historyAvailable = false;
-  let initialHistory: Array<{
-    attemptId: string;
-    artifact: ReturnType<
-      typeof mockInterviewCompletedArtifactV4Schema.parse
-    >;
-  }> = [];
-  try {
-    const historyClient = createMockHistoryAdminClient();
-    const history = await listMockInterviewAttempts(historyClient, {
-      userId: cloud.account.id,
-      limit: 20,
-    });
-    historyAvailable = true;
-    initialHistory = history.items.flatMap((attempt) => {
-      if (attempt.status !== "completed") return [];
-      const artifact =
-        mockInterviewCompletedArtifactV4Schema.safeParse(attempt.report);
-      return artifact.success
-        ? [{ attemptId: attempt.attemptId, artifact: artifact.data }]
-        : [];
-    });
-  } catch (error) {
-    if (!(error instanceof MockHistoryConfigurationError)) {
-      console.error("Mock history load failed", {
-        name: error instanceof Error ? error.name : "UnknownError",
-      });
-    }
-  }
-
   return (
     <MockInterviewApp
       account={{
@@ -164,6 +142,68 @@ export default async function MockInterviewPage({
       codeRunnerAvailable={isCodeRunnerConfigured()}
     />
   );
+}
+
+async function loadInitialMockHistory(accountId: string | null) {
+  if (!accountId) {
+    return {
+      historyAvailable: false,
+      initialHistory: [] as Array<{
+        attemptId: string;
+        artifact: ReturnType<typeof mockInterviewCompletedArtifactV4Schema.parse>;
+      }>,
+    };
+  }
+
+  try {
+    const historyClient = createMockHistoryAdminClient();
+    const history = await listMockInterviewAttempts(historyClient, {
+      userId: accountId,
+      limit: 20,
+    });
+    return {
+      historyAvailable: true,
+      initialHistory: history.items.flatMap((attempt) => {
+        if (attempt.status !== "completed") return [];
+        const artifact =
+          mockInterviewCompletedArtifactV4Schema.safeParse(attempt.report);
+        if (!artifact.success) return [];
+
+        // The landing screen only renders these fields. Sending full reports,
+        // answers and execution records for every past attempt makes the RSC
+        // response substantially larger without adding usable UI data.
+        return [
+          {
+            attemptId: attempt.attemptId,
+            artifact: {
+              sessionId: artifact.data.sessionId,
+              profileId: artifact.data.profileId,
+              profileVersion: artifact.data.profileVersion,
+              completedAt: artifact.data.completedAt,
+              plan: {
+                durationMinutes: artifact.data.plan.durationMinutes,
+                mode: artifact.data.plan.mode,
+                targetCompetency: artifact.data.plan.targetCompetency,
+              },
+              debrief: {
+                assessedWeightPercent:
+                  artifact.data.debrief.assessedWeightPercent,
+                roleInterviewScore: artifact.data.debrief.roleInterviewScore,
+                competencies: artifact.data.debrief.competencies,
+              },
+            },
+          },
+        ];
+      }),
+    };
+  } catch (error) {
+    if (!(error instanceof MockHistoryConfigurationError)) {
+      console.error("Mock history load failed", {
+        name: error instanceof Error ? error.name : "UnknownError",
+      });
+    }
+    return { historyAvailable: false, initialHistory: [] };
+  }
 }
 
 function single(value: string | string[] | undefined) {

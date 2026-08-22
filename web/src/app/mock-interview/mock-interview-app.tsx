@@ -86,9 +86,23 @@ import {
 import { prepareFocusSprint } from "@/app/worldquant/focus-sprint";
 import { useConfirmation } from "@/app/confirmation-dialog";
 
+type MockInterviewHistoryArtifact = Pick<
+  MockInterviewCompletedArtifactV4,
+  "sessionId" | "profileId" | "profileVersion" | "completedAt"
+> & {
+  plan: Pick<
+    MockInterviewCompletedArtifactV4["plan"],
+    "durationMinutes" | "mode" | "targetCompetency"
+  >;
+  debrief: Pick<
+    MockInterviewCompletedArtifactV4["debrief"],
+    "assessedWeightPercent" | "roleInterviewScore" | "competencies"
+  >;
+};
+
 type MockInterviewHistoryEntry = {
   attemptId: string;
-  artifact: MockInterviewCompletedArtifactV4;
+  artifact: MockInterviewHistoryArtifact;
 };
 
 type MockInterviewAppProps = {
