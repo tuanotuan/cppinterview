@@ -27,11 +27,11 @@ describe("WorldQuant mock debrief", () => {
     expect(debrief).toMatchObject({
       version: 1,
       profileId: "tick-data-platform",
-      profileVersion: 1,
+      profileVersion: 2,
       planMode: "balanced",
       scope: "balanced_role_evidence",
-      assessedWeightPercent: 38,
-      roleInterviewScore: 66,
+      assessedWeightPercent: 44,
+      roleInterviewScore: 65,
       evidenceQuestionCount: 2,
     });
     expect(debrief.competencies).toHaveLength(10);
@@ -42,10 +42,10 @@ describe("WorldQuant mock debrief", () => {
     ).toEqual({
       competency: "tick_market_data",
       status: "assessed",
-      roleWeight: 18,
+      roleWeight: 22,
       score: 50,
       scoreDeficit: 50,
-      weightedDeficit: 9,
+      weightedDeficit: 11,
       evidenceCount: 1,
       evidenceQuestionIds: ["tick-question"],
     });
@@ -54,7 +54,7 @@ describe("WorldQuant mock debrief", () => {
       "modern_cpp",
     ]);
     expect(debrief.rankedGaps.map((gap) => gap.weightedDeficit)).toEqual([
-      9, 4,
+      11, 4.4,
     ]);
   });
 
@@ -71,7 +71,7 @@ describe("WorldQuant mock debrief", () => {
     });
 
     expect(debrief.scope).toBe("targeted_evidence");
-    expect(debrief.assessedWeightPercent).toBe(12);
+    expect(debrief.assessedWeightPercent).toBe(8);
     expect(debrief.roleInterviewScore).toBe(72);
     expect(debrief).not.toHaveProperty("readiness");
     expect(debrief).not.toHaveProperty("overallScore");
@@ -128,9 +128,63 @@ describe("WorldQuant mock debrief", () => {
     });
 
     expect(debrief.rankedGaps.map((gap) => gap.competency)).toEqual([
-      "algorithms_data_structures",
       "build_delivery",
+      "algorithms_data_structures",
     ]);
+  });
+
+  it("keeps a v1 debrief readable with its frozen historical weights", () => {
+    const current = buildWorldQuantMockDebrief({
+      profileId: "tick-data-platform",
+      plan: {
+        mode: "balanced",
+        questionMappings: [
+          mapping("cpp", "modern_cpp"),
+          mapping("tick", "tick_market_data"),
+        ],
+      },
+      scores: [score("cpp", 80), score("tick", 50)],
+    });
+    const historicalWeights = {
+      modern_cpp: 20,
+      algorithms_data_structures: 8,
+      concurrency_memory: 12,
+      performance_latency: 12,
+      linux_networking: 5,
+      distributed_data_platform: 5,
+      tick_market_data: 18,
+      build_delivery: 8,
+      scripting_automation: 5,
+      ownership_communication: 7,
+    } as const;
+    const historic = {
+      ...current,
+      profileVersion: 1 as const,
+      assessedWeightPercent: 38,
+      roleInterviewScore: 66,
+      competencies: current.competencies.map((item) => ({
+        ...item,
+        roleWeight: historicalWeights[item.competency],
+        weightedDeficit:
+          item.status === "assessed"
+            ? (historicalWeights[item.competency] * item.scoreDeficit!) / 100
+            : null,
+      })),
+      rankedGaps: [
+        {
+          ...current.rankedGaps[0]!,
+          roleWeight: 18,
+          weightedDeficit: 9,
+        },
+        {
+          ...current.rankedGaps[1]!,
+          roleWeight: 20,
+          weightedDeficit: 4,
+        },
+      ],
+    };
+
+    expect(worldQuantMockDebriefSchema.parse(historic)).toEqual(historic);
   });
 
   it("requires scores to match the exact planned question set", () => {

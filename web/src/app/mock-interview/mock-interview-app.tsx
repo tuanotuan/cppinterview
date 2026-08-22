@@ -20,6 +20,7 @@ import {
   type MockInterviewReportRequestV4,
   type MockInterviewScopedReportV4,
 } from "@/lib/mock-interview/contracts-v4";
+import type { WorldQuantMockGateSet } from "@/lib/worldquant/mock-gates";
 import {
   type MockInterviewDimensionKey,
   type MockReportEvidence,
@@ -47,6 +48,7 @@ import {
 } from "@/lib/mock-interview/session-v4";
 import {
   buildWorldQuantTargetedMockPlan,
+  type TargetedMockBlueprintId,
   type TargetedMockMode,
   type TargetedMockPlan,
   type TargetedMockVariant,
@@ -92,7 +94,7 @@ type MockInterviewHistoryArtifact = Pick<
 > & {
   plan: Pick<
     MockInterviewCompletedArtifactV4["plan"],
-    "durationMinutes" | "mode" | "targetCompetency"
+    "durationMinutes" | "mode" | "targetCompetency" | "variant" | "blueprintId"
   >;
   debrief: Pick<
     MockInterviewCompletedArtifactV4["debrief"],
@@ -311,6 +313,8 @@ export function MockInterviewApp({
       initialMode === "targeted" ? initialTargetCompetency : null,
     );
   const [variant, setVariant] = useState<TargetedMockVariant>(1);
+  const [blueprintId, setBlueprintId] =
+    useState<TargetedMockBlueprintId>("new-feed");
   const [history, setHistory] =
     useState<MockInterviewHistoryEntry[]>(initialHistory);
   const [historyCloudAvailable, setHistoryCloudAvailable] =
@@ -462,6 +466,7 @@ export function MockInterviewApp({
         targetCompetency:
           mode === "targeted" ? targetCompetency : null,
         variant,
+        blueprintId,
         durationMinutes: duration,
         candidates: targetedMockCandidates(allQuestions),
       });
@@ -475,6 +480,7 @@ export function MockInterviewApp({
     roleProfileId,
     targetCompetency,
     variant,
+    blueprintId,
   ]);
   const currentLearningStates = useMemo(() => {
     const local = parseProgress(
@@ -896,6 +902,7 @@ export function MockInterviewApp({
       const payload = (await response.json()) as {
         report?: MockInterviewScopedReportV4;
         debrief?: MockInterviewSessionV4["debrief"];
+        gates?: WorldQuantMockGateSet;
         completedAt?: string;
         model?: string;
         provider?: "openai" | "gemini";
@@ -959,6 +966,7 @@ export function MockInterviewApp({
         hiddenCodeRuns,
         report: payload.report,
         debrief: payload.debrief,
+        gates: payload.gates,
         reportModel: payload.model,
         reportProvider: payload.provider,
       };
@@ -985,6 +993,7 @@ export function MockInterviewApp({
           completedAt: completed.completedAt!,
           report: completed.report!,
           debrief: completed.debrief!,
+          gates: completed.gates,
           model: completed.reportModel ?? "Mô hình AI",
           provider: completed.reportProvider ?? "openai",
           executionResults: Object.entries(hiddenCodeRuns).map(
@@ -1177,6 +1186,10 @@ export function MockInterviewApp({
       setMode(session.plan.mode);
       setTargetCompetency(session.plan.targetCompetency);
       setVariant(session.plan.variant);
+      setBlueprintId(
+        session.plan.blueprintId ??
+          (session.plan.variant === 1 ? "new-feed" : "migration-incident"),
+      );
     } else if (preferInitialRequest) {
       setDuration(initialDuration);
       setRoleProfileId(initialRoleProfileId);
@@ -1187,6 +1200,7 @@ export function MockInterviewApp({
           : null,
       );
       setVariant(1);
+      setBlueprintId("new-feed");
     }
     autoSubmitted.current = false;
     evaluationInFlight.current = false;
@@ -1216,7 +1230,7 @@ export function MockInterviewApp({
         roleProfileId={roleProfileId}
         mode={mode}
         targetCompetency={targetCompetency}
-        variant={variant}
+        blueprintId={blueprintId}
         plan={plan}
         onDuration={setDuration}
         onRole={(nextRole) => {
@@ -1242,7 +1256,10 @@ export function MockInterviewApp({
           }
         }}
         onTargetCompetency={setTargetCompetency}
-        onVariant={setVariant}
+        onBlueprint={(nextBlueprint) => {
+          setBlueprintId(nextBlueprint);
+          setVariant(nextBlueprint === "new-feed" ? 1 : 2);
+        }}
         onStart={() => plan && startInterview(plan)}
         bankQuestionCount={bankQuestions.length}
         catalog={allQuestions}
@@ -1652,13 +1669,13 @@ function MockSetup({
   roleProfileId,
   mode,
   targetCompetency,
-  variant,
+  blueprintId,
   plan,
   onDuration,
   onRole,
   onMode,
   onTargetCompetency,
-  onVariant,
+  onBlueprint,
   onStart,
   bankQuestionCount,
   catalog,
@@ -1673,13 +1690,13 @@ function MockSetup({
   roleProfileId: WorldQuantRoleProfileId;
   mode: TargetedMockMode;
   targetCompetency: WorldQuantCompetencyKey | null;
-  variant: TargetedMockVariant;
+  blueprintId: TargetedMockBlueprintId;
   plan: TargetedMockPlan | null;
   onDuration: (duration: MockInterviewDuration) => void;
   onRole: (profileId: WorldQuantRoleProfileId) => void;
   onMode: (mode: TargetedMockMode) => void;
   onTargetCompetency: (competency: WorldQuantCompetencyKey) => void;
-  onVariant: (variant: TargetedMockVariant) => void;
+  onBlueprint: (blueprint: TargetedMockBlueprintId) => void;
   onStart: () => void;
   bankQuestionCount: number;
   catalog: WorldQuantMockQuestion[];
@@ -1704,9 +1721,12 @@ function MockSetup({
   const visibleHistory = history.filter(
     (entry) =>
       entry.artifact.profileId === roleProfileId &&
-      entry.artifact.profileVersion === 1 &&
       entry.artifact.plan.durationMinutes === duration &&
       entry.artifact.plan.mode === mode &&
+      (entry.artifact.plan.blueprintId ??
+        (entry.artifact.plan.variant === 1
+          ? "new-feed"
+          : "migration-incident")) === blueprintId &&
       (mode === "balanced" ||
         entry.artifact.plan.targetCompetency === targetCompetency),
   );
@@ -1903,20 +1923,37 @@ function MockSetup({
                 ))}
               </select>
             ) : null}
-            <div className="mt-3 grid grid-cols-2 gap-3">
-              {([1, 2] as const).map((nextVariant) => (
+            <p className="mt-6 font-mono text-[11px] font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
+              Tình huống
+            </p>
+            <div className="mt-3 grid gap-3">
+              {([
+                {
+                  id: "new-feed" as const,
+                  title: "Tích hợp feed mới",
+                  detail: "Parser, order book, interval feature và kiểm thử phát hành.",
+                },
+                {
+                  id: "migration-incident" as const,
+                  title: "Chuyển đổi & sự cố",
+                  detail: "Đối soát, replay, cutover/rollback và giao tiếp khi có rủi ro.",
+                },
+              ]).map((scenario) => (
                 <button
-                  key={nextVariant}
+                  key={scenario.id}
                   type="button"
-                  onClick={() => onVariant(nextVariant)}
-                  aria-pressed={variant === nextVariant}
-                  className={`rounded-xl border px-4 py-3 text-sm font-bold ${
-                    variant === nextVariant
-                      ? "border-[#d7ff91] text-[#d7ff91]"
-                      : "border-white/12 text-white/65"
+                  onClick={() => onBlueprint(scenario.id)}
+                  aria-pressed={blueprintId === scenario.id}
+                  className={`rounded-2xl border p-4 text-left transition ${
+                    blueprintId === scenario.id
+                      ? "border-[#d7ff91] bg-[#d7ff91]/12"
+                      : "border-white/12 bg-white/5 hover:bg-white/9"
                   }`}
                 >
-                  Bộ đề {nextVariant}
+                  <strong>{scenario.title}</strong>
+                  <span className="mt-1 block text-[10px] font-normal text-white/50">
+                    {scenario.detail}
+                  </span>
                 </button>
               ))}
             </div>
@@ -1950,6 +1987,12 @@ function MockSetup({
                   } →`
                 : "Chưa đủ 3 câu đã duyệt"}
             </button>
+            <Link
+              href={`/worldquant/full-round?role=${roleProfileId}`}
+              className="mt-3 flex min-h-11 w-full items-center justify-center rounded-2xl border border-white/18 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/9"
+            >
+              Luyện có hướng dẫn theo vòng đầy đủ
+            </Link>
             <p className="mt-4 text-center text-[11px] leading-5 text-white/45">
               Đồng hồ và câu trả lời được lưu trên trình duyệt, vì vậy F5
               không làm mất buổi đang thực hiện.
@@ -2072,6 +2115,9 @@ function MockSetup({
                             .assessedWeightPercent
                         }
                         % nội dung quan trọng của vị trí đã được hỏi
+                        {entry.artifact.profileVersion !== role.version
+                          ? " · blueprint lịch sử, không so trực tiếp với v2"
+                          : ""}
                       </p>
                     </div>
                     <span className="rounded-full bg-[#d7ff91]/65 px-3 py-1 font-mono text-xs font-bold">
@@ -2275,8 +2321,10 @@ function MockReport({
             </p>
             <div className="mt-6 border-t border-white/12 pt-4 font-mono text-[10px] leading-5 text-white/42">
               <p>
-                {session.plan.mode === "targeted" ? "trọng tâm" : "toàn diện"} ·
-                bộ đề {session.plan.variant} · phiên bản {session.plan.version}
+                {session.plan.mode === "targeted" ? "trọng tâm" : "toàn diện"} · {" "}
+                {session.plan.blueprintId === "migration-incident"
+                  ? "chuyển đổi & sự cố"
+                  : "tích hợp feed mới"} · phiên bản {session.plan.version}
               </p>
               <p>
                 {session.plan.durationMinutes} phút · {questions.length} câu
@@ -2330,6 +2378,59 @@ function MockReport({
           >
             {historyWarning}
           </p>
+        ) : null}
+
+        {session.gates ? (
+          <section className="mb-5 rounded-[2rem] border border-[#173f35]/12 bg-white/62 p-6 sm:p-7">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#356b58] uppercase">
+                  Cổng bằng chứng
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold">
+                  Điều kiện không thể suy diễn
+                </h2>
+              </div>
+              <p className="max-w-md text-xs leading-5 text-[#64736c]">
+                Phiên trọng tâm và phiên ngắn chỉ đo phần đã hỏi. Hệ thống không
+                đưa ra kết luận sẵn sàng cho vị trí từ các kết quả này.
+              </p>
+            </div>
+            <div className="mt-5 grid gap-3 md:grid-cols-3">
+              {session.gates.gates.map((gate) => (
+                <article
+                  key={gate.key}
+                  className="rounded-2xl border border-[#173f35]/10 bg-[#f8faf5] p-5"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="font-semibold">{gate.label}</h3>
+                    <span
+                      className={`rounded-full px-3 py-1 font-mono text-[10px] font-bold ${
+                        gate.status === "passed"
+                          ? "bg-[#eaf8cf] text-[#245748]"
+                          : gate.status === "needs_work"
+                            ? "bg-[#f8e8df] text-[#8e3825]"
+                            : "bg-[#edf0e8] text-[#64736c]"
+                      }`}
+                    >
+                      {gate.status === "passed"
+                        ? "Đủ bằng chứng"
+                        : gate.status === "needs_work"
+                          ? "Cần cải thiện"
+                          : "Chưa đánh giá"}
+                    </span>
+                  </div>
+                  <p className="mt-3 font-mono text-2xl font-bold text-[#173f35]">
+                    {gate.score ?? "—"}
+                    {gate.score !== null ? <span className="text-xs"> / 100</span> : null}
+                  </p>
+                  <p className="mt-2 text-xs leading-5 text-[#52645c]">
+                    {gate.reason}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </section>
         ) : null}
 
         {report.interviewDimensions?.length ? (

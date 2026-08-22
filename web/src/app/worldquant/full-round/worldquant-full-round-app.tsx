@@ -87,6 +87,9 @@ export function WorldQuantFullRoundApp({
   const [rubricByRound, setRubricByRound] = useState<
     Record<string, number[]>
   >({});
+  const [followUpsRevealedByRound, setFollowUpsRevealedByRound] = useState<
+    Record<string, boolean>
+  >({});
   const [trainingState, setTrainingState] =
     useState<WorldQuantTrainingState>(
       EMPTY_WORLDQUANT_TRAINING_STATE,
@@ -122,6 +125,9 @@ export function WorldQuantFullRoundApp({
   const currentRubric = useMemo(
     () => new Set(rubricByRound[currentRound?.id ?? ""] ?? []),
     [currentRound?.id, rubricByRound],
+  );
+  const currentFollowUpsRevealed = Boolean(
+    followUpsRevealedByRound[currentRound?.id ?? ""],
   );
   const totalMinutes = rounds.reduce(
     (sum, round) => sum + round.durationMinutes,
@@ -224,6 +230,7 @@ export function WorldQuantFullRoundApp({
     startRoundClock(firstRound.durationMinutes);
     setAnswers({});
     setRubricByRound({});
+    setFollowUpsRevealedByRound({});
     setVoiceInterim("");
     setNotice(null);
     setResult(null);
@@ -665,20 +672,6 @@ export function WorldQuantFullRoundApp({
                     <code>{currentRound.drill.starterCode}</code>
                   </pre>
                 ) : null}
-                <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                  {currentRound.drill.followUps.map((followUp) => (
-                    <div
-                      key={followUp.id}
-                      className="rounded-xl border border-[#173f35]/10 bg-white/55 p-3 text-sm text-[#52645c]"
-                    >
-                      <span className="font-mono text-[10px] font-bold text-[#ba4b2f]">
-                        Câu hỏi tiếp nối
-                      </span>
-                      <p className="mt-1">{followUp.prompt}</p>
-                    </div>
-                  ))}
-                </div>
-
                 {currentRound.englishVoice ? (
                   <div className="mt-6 rounded-2xl border border-[#356b58]/20 bg-[#edf3e7] p-4">
                     <div className="flex flex-wrap items-center gap-2">
@@ -761,7 +754,45 @@ export function WorldQuantFullRoundApp({
                    gửi đến máy chủ cppinterview
                 </p>
 
-                {currentAnswer.trim().length >= 20 ? (
+                {currentAnswer.trim().length >= 20 && !currentFollowUpsRevealed ? (
+                  <div className="mt-6 rounded-2xl border border-[#173f35]/12 bg-[#f8faf5] p-5">
+                    <p className="text-sm leading-6 text-[#52645c]">
+                      Khi đã trả lời phần gốc, mở hai câu hỏi tiếp nối để tự kiểm tra
+                      quyết định và trade-off. Tiêu chí tự chấm chỉ xuất hiện sau bước này.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFollowUpsRevealedByRound((current) => ({
+                          ...current,
+                          [currentRound.id]: true,
+                        }))
+                      }
+                      disabled={roundExpired}
+                      className="mt-4 min-h-11 rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white disabled:opacity-45"
+                    >
+                      Mở câu hỏi tiếp nối
+                    </button>
+                  </div>
+                ) : null}
+
+                {currentFollowUpsRevealed ? (
+                  <div className="mt-6 grid gap-2 sm:grid-cols-2">
+                    {currentRound.drill.followUps.map((followUp) => (
+                      <div
+                        key={followUp.id}
+                        className="rounded-xl border border-[#173f35]/10 bg-white/55 p-3 text-sm text-[#52645c]"
+                      >
+                        <span className="font-mono text-[10px] font-bold text-[#ba4b2f]">
+                          Câu hỏi tiếp nối
+                        </span>
+                        <p className="mt-1">{followUp.prompt}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+
+                {currentAnswer.trim().length >= 20 && currentFollowUpsRevealed ? (
                   <fieldset className="mt-6 rounded-2xl border border-[#173f35]/12 bg-white/55 p-5">
                     <legend className="px-2 text-sm font-bold text-[#173f35]">
                        Tiêu chí tự chấm
@@ -786,12 +817,12 @@ export function WorldQuantFullRoundApp({
                       )}
                     </div>
                   </fieldset>
-                ) : (
+                ) : currentAnswer.trim().length < 20 ? (
                   <p className="mt-6 rounded-2xl border border-dashed border-[#173f35]/20 p-5 text-sm text-[#64736c]">
                      Tiêu chí chấm sẽ mở sau khi bạn ghi câu trả lời, để tránh
                      đọc gợi ý trước khi tự lập luận.
                   </p>
-                )}
+                ) : null}
 
                 {notice ? (
                   <p

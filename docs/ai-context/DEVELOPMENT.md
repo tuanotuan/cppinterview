@@ -254,6 +254,21 @@ Trạng thái trình duyệt không thêm migration:
   mạng, 401/403 hoặc migration chưa chạy không được xóa local state. Không tự
   upload namespace `local` vào account sau login.
 
+### Targeted Mock v2 invariants
+
+- Chỉ server được dựng lại targeted plan từ profile version, catalog revision,
+  mode, duration, scenario family và variant. Client không được tự gán câu,
+  competency, gate hay thay đổi `new-feed`/`migration-incident` sau khi freeze.
+- Profile v1 và plan v1 là boundary lịch sử chỉ đọc. Debrief/historical trend phải
+  dùng exact profile version đã đóng băng, không lấy weight v2 để diễn giải lượt
+  cũ hoặc so chúng như cùng chuẩn.
+- Mock gate là deterministic: score theo mapping câu hỏi server-owned và hidden
+  execution; lỗi execution không được nâng gate lên pass. `not_assessed` không
+  phải 0 và artifact/report không được khẳng định người học đã role-ready.
+- Strict Mock không lộ rubric/hint/follow-up trong lúc trả lời. Guided Full Round
+  chỉ mở follow-up sau base answer có nội dung và thao tác chủ động; rubric vẫn
+  chỉ lộ sau khi mở follow-up.
+
 ## Public AI quota
 
 Migrations `20260805100000_create_public_ai_quota_admission.sql` and

@@ -136,9 +136,15 @@ export const worldQuantRoleProfileIds = [
 export type WorldQuantRoleProfileId =
   (typeof worldQuantRoleProfileIds)[number];
 
+/**
+ * Version is part of the evidence contract, not a display label. A completed
+ * mock must continue to be interpreted with the weights it was created with.
+ */
+export type WorldQuantRoleProfileVersion = 1 | 2;
+
 export type WorldQuantRoleProfile = {
   id: WorldQuantRoleProfileId;
-  version: 1;
+  version: WorldQuantRoleProfileVersion;
   label: string;
   eyebrow: string;
   summary: string;
@@ -150,7 +156,7 @@ export type WorldQuantRoleProfile = {
 export const worldQuantRoleProfiles: readonly WorldQuantRoleProfile[] = [
   {
     id: "tick-data-platform",
-    version: 1,
+    version: 2,
     label: "Kỹ sư nền tảng dữ liệu tick",
     eyebrow: "Mô tả công việc mục tiêu hiện tại",
     summary:
@@ -162,14 +168,14 @@ export const worldQuantRoleProfiles: readonly WorldQuantRoleProfile[] = [
       "tick_market_data",
     ],
     weights: {
-      modern_cpp: 20,
-      algorithms_data_structures: 8,
-      concurrency_memory: 12,
-      performance_latency: 12,
-      linux_networking: 5,
-      distributed_data_platform: 5,
-      tick_market_data: 18,
-      build_delivery: 8,
+      modern_cpp: 22,
+      algorithms_data_structures: 6,
+      concurrency_memory: 8,
+      performance_latency: 8,
+      linux_networking: 2,
+      distributed_data_platform: 10,
+      tick_market_data: 22,
+      build_delivery: 10,
       scripting_automation: 5,
       ownership_communication: 7,
     },
@@ -551,6 +557,70 @@ export function worldQuantRoleProfileById(
   id: WorldQuantRoleProfileId,
 ): WorldQuantRoleProfile {
   return worldQuantRoleProfiles.find((profile) => profile.id === id)!;
+}
+
+/**
+ * Frozen v1 profile used only while parsing historical mock evidence. Keep it
+ * next to the active v2 profile so a report's score never changes after a JD
+ * calibration update.
+ */
+const historicalWorldQuantRoleProfiles: readonly WorldQuantRoleProfile[] = [
+  {
+    id: "tick-data-platform",
+    version: 1,
+    label: "Kỹ sư nền tảng dữ liệu tick",
+    eyebrow: "Mô tả công việc mục tiêu trước đây",
+    summary:
+      "C++ hiện đại, nguồn dữ liệu và sổ lệnh, thống kê theo khoảng thời gian, chuyển đổi hệ thống và phối hợp nghiên cứu.",
+    coreCompetencies: [
+      "modern_cpp",
+      "concurrency_memory",
+      "performance_latency",
+      "tick_market_data",
+    ],
+    weights: {
+      modern_cpp: 20,
+      algorithms_data_structures: 8,
+      concurrency_memory: 12,
+      performance_latency: 12,
+      linux_networking: 5,
+      distributed_data_platform: 5,
+      tick_market_data: 18,
+      build_delivery: 8,
+      scripting_automation: 5,
+      ownership_communication: 7,
+    },
+    targets: {
+      modern_cpp: 6,
+      algorithms_data_structures: 3,
+      concurrency_memory: 4,
+      performance_latency: 5,
+      linux_networking: 3,
+      distributed_data_platform: 4,
+      tick_market_data: 6,
+      build_delivery: 4,
+      scripting_automation: 3,
+      ownership_communication: 3,
+    },
+  },
+] as const;
+
+export function worldQuantRoleProfileByVersion({
+  id,
+  version,
+}: {
+  id: WorldQuantRoleProfileId;
+  version: WorldQuantRoleProfileVersion;
+}): WorldQuantRoleProfile {
+  const active = worldQuantRoleProfiles.find(
+    (profile) => profile.id === id && profile.version === version,
+  );
+  if (active) return active;
+  const historical = historicalWorldQuantRoleProfiles.find(
+    (profile) => profile.id === id && profile.version === version,
+  );
+  if (historical) return historical;
+  throw new RangeError(`Unknown WorldQuant role profile version: ${id}@${version}`);
 }
 
 export function learningEvidence(

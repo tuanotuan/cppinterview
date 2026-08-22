@@ -18,6 +18,7 @@ import {
 import { worldQuantFullRoundBlueprintV1 } from "./full-round";
 import {
   worldQuantCompetencyKeys,
+  worldQuantRoleProfileById,
   worldQuantRoleProfileIds,
   type WorldQuantCompetencyKey,
   type WorldQuantRoleProfileId,
@@ -114,7 +115,7 @@ export type WorldQuantGapStatus = z.infer<typeof gapStatusSchema>;
 
 export const competencyGapSchema = z.object({
   roleProfileId: roleProfileSchema,
-  roleProfileVersion: z.literal(1),
+  roleProfileVersion: z.union([z.literal(1), z.literal(2)]),
   competency: competencySchema,
   status: gapStatusSchema,
   openedAt: isoTimestampSchema,
@@ -235,7 +236,7 @@ export const fullRoundSummarySchema = z
   .object({
     sessionId: z.string().uuid(),
     roleProfileId: roleProfileSchema,
-    roleProfileVersion: z.literal(1),
+    roleProfileVersion: z.union([z.literal(1), z.literal(2)]),
     fullRoundVersion: z.literal(1),
     startedAt: isoTimestampSchema,
     completedAt: isoTimestampSchema,
@@ -265,6 +266,7 @@ export const fullRoundSummarySchema = z
       ? historicalFullRoundBlueprint(
           summary.roleProfileId,
           historicalDrillVersion,
+          summary.roleProfileVersion,
         )
       : null;
     if (drillRevisions.size !== 1) {
@@ -371,6 +373,7 @@ export type WorldQuantFullRoundSummary = z.infer<
 function historicalFullRoundBlueprint(
   roleProfileId: WorldQuantRoleProfileId,
   drillVersion: WorldQuantDrillCatalogVersion,
+  roleProfileVersion: 1 | 2,
 ) {
   const drillIds =
     historicalFullRoundDrillIds[drillVersion][roleProfileId];
@@ -395,7 +398,7 @@ function historicalFullRoundBlueprint(
   if (rounds.length !== fullRoundIdsV1.length) return null;
   return {
     fullRoundVersion: 1 as const,
-    roleProfileVersion: 1 as const,
+    roleProfileVersion,
     rounds,
   };
 }
@@ -784,6 +787,7 @@ export function upsertCompetencyGap(
       ...state.gaps.filter(
         (item) =>
           item.roleProfileId !== validated.roleProfileId ||
+          item.roleProfileVersion !== validated.roleProfileVersion ||
           item.competency !== validated.competency,
       ),
       validated,
@@ -964,11 +968,13 @@ export function gapForCompetency(
   state: WorldQuantTrainingState,
   roleProfileId: WorldQuantRoleProfileId,
   competency: WorldQuantCompetencyKey,
+  roleProfileVersion = worldQuantRoleProfileById(roleProfileId).version,
 ) {
   return (
     state.gaps.find(
       (gap) =>
         gap.roleProfileId === roleProfileId &&
+        gap.roleProfileVersion === roleProfileVersion &&
         gap.competency === competency,
     ) ?? null
   );

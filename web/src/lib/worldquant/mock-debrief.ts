@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   worldQuantCompetencyKeys,
   worldQuantRoleProfileById,
+  worldQuantRoleProfileByVersion,
   worldQuantRoleProfileIds,
   type WorldQuantRoleProfileId,
 } from "./readiness";
@@ -107,7 +108,7 @@ export const worldQuantMockDebriefSchema = z
   .object({
     version: z.literal(WORLDQUANT_MOCK_DEBRIEF_VERSION),
     profileId: roleProfileSchema,
-    profileVersion: z.literal(1),
+    profileVersion: z.union([z.literal(1), z.literal(2)]),
     planMode: z.enum(worldQuantMockPlanModes),
     scope: z.enum(worldQuantMockDebriefScopes),
     assessedWeightPercent: z.number().int().min(0).max(100),
@@ -120,7 +121,10 @@ export const worldQuantMockDebriefSchema = z
   })
   .strict()
   .superRefine((debrief, context) => {
-    const profile = worldQuantRoleProfileById(debrief.profileId);
+    const profile = worldQuantRoleProfileByVersion({
+      id: debrief.profileId,
+      version: debrief.profileVersion,
+    });
     const expectedScope =
       debrief.planMode === "targeted"
         ? "targeted_evidence"

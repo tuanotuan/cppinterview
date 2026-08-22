@@ -14,7 +14,7 @@ import {
   type WorldQuantRoleProfileId,
 } from "../worldquant/readiness";
 
-export const WORLDQUANT_TARGETED_MOCK_PLAN_VERSION = 1 as const;
+export const WORLDQUANT_TARGETED_MOCK_PLAN_VERSION = 2 as const;
 export const MAX_TARGETED_MOCK_QUESTIONS = 8;
 
 export const targetedMockModes = ["balanced", "targeted"] as const;
@@ -26,6 +26,14 @@ export type TargetedMockDuration =
 
 export const targetedMockVariants = [1, 2] as const;
 export type TargetedMockVariant = (typeof targetedMockVariants)[number];
+
+/** Meaningful scenario families replace the old opaque "set 1 / set 2" UI. */
+export const targetedMockBlueprintIds = [
+  "new-feed",
+  "migration-incident",
+] as const;
+export type TargetedMockBlueprintId =
+  (typeof targetedMockBlueprintIds)[number];
 
 const kebabIdSchema = z
   .string()
@@ -39,6 +47,9 @@ const durationSchema = z.union([
   z.literal(60),
 ]);
 const variantSchema = z.union([z.literal(1), z.literal(2)]);
+const profileVersionSchema = z.union([z.literal(1), z.literal(2)]);
+const planVersionSchema = z.union([z.literal(1), z.literal(2)]);
+const blueprintIdSchema = z.enum(targetedMockBlueprintIds);
 
 export const targetedMockQuestionRefSchema = z
   .object({
@@ -56,6 +67,7 @@ export const targetedMockQuestionRefSchema = z
       })
       .strict()
       .optional(),
+    scenarioFamilies: z.array(blueprintIdSchema).min(1).max(2).optional(),
   })
   .strict()
   .superRefine((question, context) => {
@@ -91,12 +103,14 @@ export const targetedMockContentGapSchema = z
 
 export const targetedMockPlanSchema = z
   .object({
-    version: z.literal(WORLDQUANT_TARGETED_MOCK_PLAN_VERSION),
+    version: planVersionSchema,
     profileId: roleProfileSchema,
-    profileVersion: z.literal(1),
+    profileVersion: profileVersionSchema,
     mode: z.enum(targetedMockModes),
     targetCompetency: competencySchema.nullable(),
     variant: variantSchema,
+    blueprintId: blueprintIdSchema.optional(),
+    blueprintVersion: z.number().int().positive().optional(),
     durationMinutes: durationSchema,
     scheduledMinutes: z.number().int().nonnegative().max(60),
     questions: z
@@ -108,6 +122,16 @@ export const targetedMockPlanSchema = z
   })
   .strict()
   .superRefine((plan, context) => {
+    if (
+      plan.version === 2 &&
+      (!plan.blueprintId || plan.blueprintVersion !== 1)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["blueprintId"],
+        message: "Version 2 plans require a versioned scenario blueprint",
+      });
+    }
     if (
       (plan.mode === "targeted" && plan.targetCompetency === null) ||
       (plan.mode === "balanced" && plan.targetCompetency !== null)
@@ -180,6 +204,17 @@ export const targetedMockPlanSchema = z
           message: "Targeted plans may assess only their target competency",
         });
       }
+      if (
+        plan.version === 2 &&
+        plan.blueprintId &&
+        !candidate.question.scenarioFamilies?.includes(plan.blueprintId)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["questions", index, "question", "scenarioFamilies"],
+          message: "Version 2 mock questions must belong to the selected scenario",
+        });
+      }
     });
 
     const gapCompetencies = plan.contentGaps.map(
@@ -210,6 +245,7 @@ export function buildWorldQuantTargetedMockPlan({
   mode,
   targetCompetency = null,
   variant = 1,
+  blueprintId = variant === 1 ? "new-feed" : "migration-incident",
   durationMinutes,
   candidates,
 }: {
@@ -217,6 +253,7 @@ export function buildWorldQuantTargetedMockPlan({
   mode: TargetedMockMode;
   targetCompetency?: WorldQuantCompetencyKey | null;
   variant?: TargetedMockVariant;
+  blueprintId?: TargetedMockBlueprintId;
   durationMinutes: TargetedMockDuration;
   candidates: readonly TargetedMockCandidate[];
 }): TargetedMockPlan {
@@ -226,6 +263,7 @@ export function buildWorldQuantTargetedMockPlan({
     targetCompetency,
     variant,
     durationMinutes,
+    blueprintId,
   });
 
   const profile = worldQuantRoleProfileById(profileId);
@@ -239,7 +277,8 @@ export function buildWorldQuantTargetedMockPlan({
   const eligible = canonicalCandidates(candidates).filter(
     (candidate) =>
       allowedSet.has(candidate.readinessCompetency) &&
-      profile.weights[candidate.readinessCompetency] > 0,
+      profile.weights[candidate.readinessCompetency] > 0 &&
+      (candidate.question.scenarioFamilies?.includes(blueprintId) ?? true),
   );
   const pools = new Map<
     WorldQuantCompetencyKey,
@@ -315,6 +354,8 @@ export function buildWorldQuantTargetedMockPlan({
     mode,
     targetCompetency,
     variant,
+    blueprintId,
+    blueprintVersion: 1,
     durationMinutes,
     scheduledMinutes,
     questions: selected,
@@ -327,12 +368,14 @@ function assertPlannerInput({
   mode,
   targetCompetency,
   variant,
+  blueprintId,
   durationMinutes,
 }: {
   profileId: WorldQuantRoleProfileId;
   mode: TargetedMockMode;
   targetCompetency: WorldQuantCompetencyKey | null;
   variant: TargetedMockVariant;
+  blueprintId: TargetedMockBlueprintId;
   durationMinutes: TargetedMockDuration;
 }): void {
   if (
@@ -341,6 +384,9 @@ function assertPlannerInput({
     )
   ) {
     throw new RangeError(`Unknown WorldQuant role profile: ${profileId}`);
+  }
+  if (!targetedMockBlueprintIds.includes(blueprintId)) {
+    throw new RangeError(`Unknown mock scenario blueprint: ${blueprintId}`);
   }
   if (!targetedMockModes.includes(mode as TargetedMockMode)) {
     throw new RangeError(`Unknown mock mode: ${mode}`);
@@ -509,6 +555,7 @@ function candidateSignature(candidate: TargetedMockCandidate): string {
     candidate.question.language,
     candidate.question.track,
     candidate.question.execution?.specRevision ?? null,
+    candidate.question.scenarioFamilies ?? null,
     candidate.readinessCompetency,
   ]);
 }

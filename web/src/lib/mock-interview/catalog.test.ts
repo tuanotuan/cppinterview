@@ -15,7 +15,7 @@ import { buildWorldQuantTargetedMockPlan } from "./target-plan";
 
 describe("WorldQuant mock catalog", () => {
   it("maps every curated role question to one canonical competency", () => {
-    expect(WORLDQUANT_CURATED_CATALOG).toHaveLength(14);
+    expect(WORLDQUANT_CURATED_CATALOG).toHaveLength(18);
     expect(
       WORLDQUANT_CURATED_CATALOG.every(
         (question) =>

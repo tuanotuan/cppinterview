@@ -106,6 +106,7 @@ describe("WorldQuant gap closure protocol", () => {
         attemptId: "older-mock",
         completedAt: "2026-07-28T00:00:00.000Z",
         roleProfileId: "tick-data-platform",
+        roleProfileVersion: 1,
         competency: "modern_cpp",
         status: "assessed",
         score: 20,

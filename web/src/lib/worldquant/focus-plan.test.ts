@@ -39,7 +39,7 @@ describe("WorldQuant Focus Sprint planner", () => {
     expect(plan).toMatchObject({
       version: 1,
       profileId: "tick-data-platform",
-      profileVersion: 1,
+      profileVersion: 2,
       createdOn: TODAY,
       focusCompetency: "modern_cpp",
       requestedMinutes: 15,

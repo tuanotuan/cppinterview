@@ -285,6 +285,50 @@ export const WORLDQUANT_CURATED_EVALUATIONS: Record<
     evaluationGuide:
       "Câu trả lời tốt phải xác định trước mức tương đương cần giống từng bit hay cho phép ngưỡng sai số, rồi thiết kế phân vùng và cách gộp phù hợp cùng phương pháp đo lường.",
   },
+  "worldquant-cmake-sanitizer-pipeline": {
+    required: [
+      "Tách rõ target/library, compiler standard và ranh giới C++11/C++20 thay vì nâng toàn repo một lần.",
+      "Có CTest cho unit, replay fixture có phiên bản, Address/Undefined sanitizer và điều kiện CI rõ ràng.",
+      "Giữ artifact đủ để truy vết commit, compiler, cấu hình, fixture và benchmark khi có regression.",
+    ],
+    bonus: ["Nêu compiler matrix và cách tránh dùng benchmark nhiễu làm cổng chặn tuyệt đối."],
+    misconceptions: ["Chỉ thêm flag CMake mà không tạo test hoặc bằng chứng phát hành có thể tái tạo."],
+    evaluationGuide:
+      "Chấm bằng chứng delivery có thể chạy và truy vết được, không chấm trí nhớ cú pháp CMake.",
+  },
+  "worldquant-stream-reconciliation-script": {
+    required: [
+      "Đọc theo luồng hoặc partition với khoá join, checkpoint và resume idempotent.",
+      "Báo cáo sai khác phải có mẫu dữ liệu, rule/version và mã thoát rõ ràng để tái tạo.",
+      "Nêu giới hạn bộ nhớ cùng ranh giới khi script gọi thư viện C++ đã được kiểm chứng.",
+    ],
+    bonus: ["Tách input contract và rule so sánh thành cấu hình có phiên bản."],
+    misconceptions: ["Nạp toàn bộ dữ liệu vào RAM hoặc viết lại logic chuẩn hoá C++ trong script mà không kiểm soát parity."],
+    evaluationGuide:
+      "Chấm khả năng tự động hoá đối soát an toàn và có thể vận hành; không chấm Perl/Python trivia.",
+  },
+  "worldquant-cross-asset-event-time": {
+    required: [
+      "Phân biệt event-time với receive-time, đồng thời version hoá lịch giao dịch, symbology và reference data.",
+      "Nêu quy tắc late data/correction, recompute hoặc quarantine cùng khả năng truy vết đầu ra.",
+      "Không dùng một quy tắc clock, session hay mã định danh cho mọi venue/asset class.",
+    ],
+    bonus: ["Có chỉ số staleness, gap, resync, lag và p99 để phát hiện feed suy giảm."],
+    misconceptions: ["Ghi đè aggregate khi có correction nhưng không giữ lineage hoặc rule tái tính."],
+    evaluationGuide:
+      "Ưu tiên ngữ nghĩa thị trường và khả năng tái tạo hơn tên chuẩn hoặc vendor cụ thể.",
+  },
+  "worldquant-concurrency-code-review": {
+    required: [
+      "Xác định ownership, bounded queue và bất biến publish/consume trước khi chọn primitive đồng bộ.",
+      "Mô tả backpressure, shutdown/drain và test cho race, mất dữ liệu hoặc duplicate.",
+      "Giải thích memory ordering hoặc chọn mutex rõ ràng khi lock-free chưa được chứng minh cần thiết.",
+    ],
+    bonus: ["Đề cập metrics queue depth, lag, throughput, tail latency và cách tái hiện lịch chạy."],
+    misconceptions: ["Dùng atomic như một cách chữa mọi race hoặc để queue tăng không giới hạn khi quá tải."],
+    evaluationGuide:
+      "Chấm lập luận về tính đúng đắn và vận hành trước tối ưu hoá lock-free.",
+  },
 };
 
 export function worldQuantRoleQuestionForEvaluation(questionId: string) {

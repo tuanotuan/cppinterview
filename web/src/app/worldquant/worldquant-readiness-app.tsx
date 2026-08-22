@@ -482,6 +482,7 @@ export function WorldQuantReadinessApp({
             attemptId: entry.attemptId,
             completedAt: entry.completedAt,
             roleProfileId: entry.roleProfileId,
+            roleProfileVersion: report.data.profileVersion,
             competency: competency.competency,
             status: competency.status,
             score: competency.score,

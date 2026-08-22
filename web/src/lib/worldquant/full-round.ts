@@ -123,11 +123,6 @@ export function worldQuantFullRoundBlueprintV1(
   roleProfileId: WorldQuantRoleProfileId,
 ) {
   const role = worldQuantRoleProfileById(roleProfileId);
-  if (role.version !== 1) {
-    throw new Error(
-      `Unsupported role profile revision: ${roleProfileId}@${role.version}`,
-    );
-  }
   return {
     fullRoundVersion: WORLDQUANT_FULL_ROUND_VERSION,
     roleProfileVersion: role.version,

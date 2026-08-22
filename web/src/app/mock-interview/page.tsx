@@ -184,6 +184,8 @@ async function loadInitialMockHistory(accountId: string | null) {
                 durationMinutes: artifact.data.plan.durationMinutes,
                 mode: artifact.data.plan.mode,
                 targetCompetency: artifact.data.plan.targetCompetency,
+                variant: artifact.data.plan.variant,
+                blueprintId: artifact.data.plan.blueprintId,
               },
               debrief: {
                 assessedWeightPercent:
