@@ -77,7 +77,7 @@ export const focusPlanSchema = z
   .object({
     version: z.literal(WORLDQUANT_FOCUS_PLAN_VERSION),
     profileId: roleProfileSchema,
-    profileVersion: z.literal(1),
+    profileVersion: z.union([z.literal(1), z.literal(2)]),
     createdOn: z.string().refine(isValidReadinessDateKey),
     focusCompetency: competencySchema.nullable(),
     requestedMinutes: z.number().int().positive().max(480),

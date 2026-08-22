@@ -15,11 +15,13 @@ import {
 } from "./profile";
 import type {
   TargetedMockCandidate,
+  TargetedMockBlueprintId,
   TargetedMockPlan,
 } from "./target-plan";
 
 export type WorldQuantMockQuestion = MockInterviewQuestion & {
   readinessCompetency: WorldQuantCompetencyKey;
+  scenarioFamilies: readonly TargetedMockBlueprintId[];
 };
 
 const curatedReadinessCompetencies = {
@@ -38,7 +40,35 @@ const curatedReadinessCompetencies = {
   "worldquant-cpp-feed-api-evolution": "modern_cpp",
   "worldquant-production-data-incident": "ownership_communication",
   "worldquant-parallel-replay-determinism": "performance_latency",
+  "worldquant-cmake-sanitizer-pipeline": "build_delivery",
+  "worldquant-stream-reconciliation-script": "scripting_automation",
+  "worldquant-cross-asset-event-time": "tick_market_data",
+  "worldquant-concurrency-code-review": "concurrency_memory",
 } as const satisfies Record<string, WorldQuantCompetencyKey>;
+
+const curatedScenarioFamilies = {
+  "worldquant-tick-feed-correctness": ["new-feed"],
+  "worldquant-interval-stats-cpp": ["new-feed"],
+  "worldquant-legacy-migration": ["migration-incident"],
+  "worldquant-cpp-delivery-safety": ["new-feed", "migration-incident"],
+  "worldquant-cpp-reconciliation": ["migration-incident"],
+  "worldquant-researcher-collaboration": ["migration-incident"],
+  "worldquant-order-book-update-cpp": ["new-feed"],
+  "worldquant-cpp-event-lifetime": ["new-feed", "migration-incident"],
+  "worldquant-partitioned-pipeline-backpressure": ["new-feed"],
+  "worldquant-feed-regression-testing": ["new-feed", "migration-incident"],
+  "worldquant-cpp-sequence-audit": ["migration-incident"],
+  "worldquant-cpp-feed-api-evolution": ["new-feed", "migration-incident"],
+  "worldquant-production-data-incident": ["migration-incident"],
+  "worldquant-parallel-replay-determinism": ["migration-incident"],
+  "worldquant-cmake-sanitizer-pipeline": ["new-feed", "migration-incident"],
+  "worldquant-stream-reconciliation-script": ["migration-incident"],
+  "worldquant-cross-asset-event-time": ["new-feed"],
+  "worldquant-concurrency-code-review": ["new-feed"],
+} as const satisfies Record<
+  string,
+  readonly TargetedMockBlueprintId[]
+>;
 
 export function curatedReadinessCompetency(
   questionId: string,
@@ -58,7 +88,15 @@ export const WORLDQUANT_CURATED_CATALOG: readonly WorldQuantMockQuestion[] =
         `Curated mock question is missing readiness competency: ${question.id}`,
       );
     }
-    return { ...question, readinessCompetency };
+    const scenarioFamilies = curatedScenarioFamilies[
+      question.id as keyof typeof curatedScenarioFamilies
+    ];
+    if (!scenarioFamilies) {
+      throw new Error(
+        `Curated mock question is missing a scenario family: ${question.id}`,
+      );
+    }
+    return { ...question, readinessCompetency, scenarioFamilies };
   });
 
 export function buildWorldQuantBankCatalog({
@@ -109,6 +147,7 @@ export function buildWorldQuantBankCatalog({
           ...question.taxonomy.topics,
           `lesson::${question.lessonId}`,
         ],
+        scenarioFamilies: ["new-feed", "migration-incident"],
       },
     ];
   });
@@ -152,6 +191,7 @@ export function targetedMockCandidate(
       language: question.language,
       track: question.track,
       execution: question.execution,
+      scenarioFamilies: [...question.scenarioFamilies],
     },
   };
 }
@@ -190,6 +230,8 @@ export function resolveTargetedMockPlan({
       question.track === candidate.question.track &&
       question.readinessCompetency ===
         candidate.readinessCompetency &&
+      JSON.stringify(question.scenarioFamilies) ===
+        JSON.stringify(candidate.question.scenarioFamilies ?? []) &&
       (question.execution?.specRevision ?? null) ===
         (candidate.question.execution?.specRevision ?? null)
       ? [question]

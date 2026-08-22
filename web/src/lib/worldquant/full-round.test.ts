@@ -76,7 +76,7 @@ describe("WorldQuant full round", () => {
 
     expect(blueprint).toEqual({
       fullRoundVersion: 1,
-      roleProfileVersion: 1,
+      roleProfileVersion: 2,
       rounds: rounds.map((round) => ({
         roundId: round.id,
         roundVersion: round.version,

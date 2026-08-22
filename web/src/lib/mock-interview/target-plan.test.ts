@@ -30,12 +30,14 @@ describe("WorldQuant targeted mock planner", () => {
 
     expect(targetedMockPlanSchema.parse(roundTrip)).toEqual(plan);
     expect(plan).toEqual({
-      version: 1,
+      version: 2,
       profileId: "tick-data-platform",
-      profileVersion: 1,
+      profileVersion: 2,
       mode: "targeted",
       targetCompetency: "modern_cpp",
       variant: 1,
+      blueprintId: "new-feed",
+      blueprintVersion: 1,
       durationMinutes: 30,
       scheduledMinutes: 7,
       questions: [candidate],
@@ -307,6 +309,7 @@ function question(
       responseMode: "text",
       language: "cpp",
       track: "cpp20",
+      scenarioFamilies: ["new-feed", "migration-incident"],
       ...questionOverrides,
     },
     readinessCompetency: competency,

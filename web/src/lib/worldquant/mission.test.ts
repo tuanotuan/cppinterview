@@ -259,7 +259,7 @@ describe("Today's WorldQuant Mission", () => {
       gaps: [
         {
           roleProfileId: "tick-data-platform",
-          roleProfileVersion: 1,
+          roleProfileVersion: 2,
           competency: "modern_cpp",
           status: "transfer_ready",
           openedAt: "2026-07-27T00:00:00.000Z",
@@ -314,6 +314,42 @@ describe("Today's WorldQuant Mission", () => {
     ).toBe(drillPack.checkpointRetry.id);
   });
 
+  it("does not reuse a historical v1 gap for the active v2 role profile", () => {
+    const drillPack = worldQuantDrillPacks.find(
+      (item) => item.competency === "modern_cpp",
+    )!;
+    const mission = buildWorldQuantMission({
+      roleProfileId: "tick-data-platform",
+      questions: [question],
+      states: new Map([[question.id, state]]),
+      trainingState: {
+        ...EMPTY_WORLDQUANT_TRAINING_STATE,
+        gaps: [
+          {
+            roleProfileId: "tick-data-platform",
+            roleProfileVersion: 1,
+            competency: "modern_cpp",
+            status: "transfer_ready",
+            openedAt: "2026-07-27T00:00:00.000Z",
+            updatedAt: "2026-07-28T00:00:00.000Z",
+            sourceKind: "drill",
+            sourceId: "historical-v1",
+            sourceScore: 90,
+            practiceAttemptId: null,
+            verificationAttemptId: null,
+          },
+        ],
+      },
+      today: "2026-07-28",
+      timeBudgetMinutes: 45,
+      daysSinceComparableMock: 2,
+    });
+
+    expect(
+      mission.items.find((item) => item.kind === "drill"),
+    ).toMatchObject({ id: `drill:${drillPack.practice.id}` });
+  });
+
   it("does not schedule or budget a practice drill already completed today", () => {
     const drillPack = worldQuantDrillPacks.find(
       (item) => item.competency === "modern_cpp",
@@ -342,7 +378,7 @@ describe("Today's WorldQuant Mission", () => {
       gaps: [
         {
           roleProfileId: "tick-data-platform",
-          roleProfileVersion: 1,
+          roleProfileVersion: 2,
           competency: "modern_cpp",
           status: "learning",
           openedAt: "2026-07-27T00:00:00.000Z",

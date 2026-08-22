@@ -4,6 +4,7 @@ import { codeExecutionResultSchema } from "@/lib/code-runner/contracts";
 import {
   worldQuantMockDebriefSchema,
 } from "@/lib/worldquant/mock-debrief";
+import { worldQuantMockGateSetSchema } from "@/lib/worldquant/mock-gates";
 
 import {
   mockInterviewReportRequestV4Schema,
@@ -22,7 +23,11 @@ import {
 } from "../practice/browser-storage-lock";
 
 export const MOCK_INTERVIEW_SESSION_VERSION = 4 as const;
-export const MOCK_INTERVIEW_PROFILE_VERSION = 1 as const;
+export const MOCK_INTERVIEW_PROFILE_VERSION = 2 as const;
+const mockInterviewProfileVersionSchema = z.union([
+  z.literal(1),
+  z.literal(2),
+]);
 
 const answerSchema = z
   .object({
@@ -45,7 +50,7 @@ export const mockInterviewSessionV4Schema = z
     sessionId: z.string().uuid(),
     accountId: z.string().uuid(),
     profileId: targetedMockPlanSchema.shape.profileId,
-    profileVersion: z.literal(MOCK_INTERVIEW_PROFILE_VERSION),
+    profileVersion: mockInterviewProfileVersionSchema,
     sourceRevision: z.string().regex(/^[a-f0-9]{40,64}$/),
     plan: targetedMockPlanSchema,
     status: z.enum(["in_progress", "evaluating", "completed"]),
@@ -77,6 +82,7 @@ export const mockInterviewSessionV4Schema = z
     activeQuestionStartedAt: z.string().datetime(),
     report: mockInterviewScopedReportV4Schema.optional(),
     debrief: worldQuantMockDebriefSchema.optional(),
+    gates: worldQuantMockGateSetSchema.optional(),
     reportModel: z.string().trim().max(120).optional(),
     reportProvider: z.enum(["openai", "gemini"]).optional(),
   })
@@ -213,6 +219,7 @@ export const mockInterviewSessionV4Schema = z
     if (session.debrief) {
       if (
         session.debrief.profileId !== session.profileId ||
+        session.debrief.profileVersion !== session.profileVersion ||
         session.debrief.planMode !== session.plan.mode
       ) {
         context.addIssue({

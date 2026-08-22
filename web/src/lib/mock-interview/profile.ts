@@ -439,6 +439,62 @@ DecodedEvent decode(std::vector<std::byte> packet) {
     prompt:
       "Việc phát lại dữ liệu lịch sử hiện chỉ chạy trên một luồng và quá chậm. Bạn sẽ song song hóa theo ngày, địa điểm giao dịch hoặc mã giao dịch như thế nào để kết quả thống kê theo khoảng thời gian vẫn xác định và tương đương với hệ thống cũ? Hãy thảo luận về thứ tự, cách gộp kết quả, số dấu phẩy động, bộ nhớ, điểm lưu trạng thái và phương pháp đo hiệu năng.",
   },
+  {
+    id: "worldquant-cmake-sanitizer-pipeline",
+    origin: "role_profile",
+    version: 1,
+    contentRevision: ROLE_CONTENT_REVISION,
+    language: "cpp",
+    track: "cpp20",
+    responseMode: "text",
+    estimatedMinutes: 7,
+    competency: "engineering_quality",
+    selectionTopics: ["cmake", "ctest", "sanitizer", "ci-cd", "compatibility"],
+    prompt:
+      "Bạn đang đưa một feed C++ mới vào monorepo có thành phần cũ vẫn dùng C++11 và target mới dùng C++20. Hãy mô tả cấu trúc CMake/CTest và pipeline CI: ranh giới target, compiler matrix, sanitizer, fixture replay, benchmark không nhiễu, artifact cần giữ và điều kiện nào chặn merge. Tránh biến CMake thành câu hỏi cú pháp; hãy nêu bằng chứng mà pipeline phải tạo ra.",
+  },
+  {
+    id: "worldquant-stream-reconciliation-script",
+    origin: "role_profile",
+    version: 1,
+    contentRevision: ROLE_CONTENT_REVISION,
+    language: "cpp",
+    track: "cpp20",
+    responseMode: "text",
+    estimatedMinutes: 7,
+    competency: "scripting",
+    selectionTopics: ["python", "perl", "reconciliation", "checkpoint", "automation"],
+    prompt:
+      "Một tác vụ Python hoặc Perl cần đối soát hàng tỷ bản ghi giữa nền tảng cũ và mới mà không nạp toàn bộ dữ liệu vào bộ nhớ. Hãy thiết kế input contract, khoá join, checkpoint/resume, báo cáo sai khác có thể tái tạo, giới hạn bộ nhớ và cách chạy an toàn trong CI hoặc vận hành. Giải thích khi nào nên gọi thư viện C++ thay vì viết lại logic xử lý dữ liệu trong script.",
+  },
+  {
+    id: "worldquant-cross-asset-event-time",
+    origin: "role_profile",
+    version: 1,
+    contentRevision: ROLE_CONTENT_REVISION,
+    language: "cpp",
+    track: "cpp20",
+    responseMode: "text",
+    estimatedMinutes: 8,
+    competency: "tick_data_order_book",
+    selectionTopics: ["cross-asset", "event-time", "trading-session", "reference-data", "corrections"],
+    prompt:
+      "Feed mới hỗ trợ nhiều asset class nhưng mỗi venue có lịch giao dịch, mã định danh, clock và correction khác nhau. Hãy thiết kế mô hình chuẩn hoá sao cho interval feature dùng event-time đúng, không lẫn receive-time, có thể xử lý late data/correction và vẫn truy vết được reference data cùng phiên bản quy tắc đã dùng.",
+  },
+  {
+    id: "worldquant-concurrency-code-review",
+    origin: "role_profile",
+    version: 1,
+    contentRevision: ROLE_CONTENT_REVISION,
+    language: "cpp",
+    track: "cpp20",
+    responseMode: "code",
+    estimatedMinutes: 8,
+    competency: "data_pipeline_performance",
+    selectionTopics: ["concurrency", "memory-model", "bounded-queue", "backpressure", "code-review"],
+    prompt:
+      "Bạn review một worker C++ nhận tick từ producer và cập nhật aggregate. Hãy viết hoặc phác thảo lại ranh giới ownership và đồng bộ hoá cho bounded queue: điều gì được publish, memory ordering nào cần được chứng minh, xử lý shutdown/backpressure ra sao, và test nào bắt được race hoặc mất dữ liệu? Không cần viết lock-free nếu mutex rõ ràng, an toàn và đáp ứng yêu cầu độ trễ.",
+  },
 ];
 
 const curatedById = new Map(

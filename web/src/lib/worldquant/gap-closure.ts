@@ -10,9 +10,10 @@ import {
   type WorldQuantTrainingState,
 } from "./training-state";
 import { worldQuantDrillById } from "./drills";
-import type {
-  WorldQuantCompetencyKey,
-  WorldQuantRoleProfileId,
+import {
+  worldQuantRoleProfileById,
+  type WorldQuantCompetencyKey,
+  type WorldQuantRoleProfileId,
 } from "./readiness";
 
 export const GAP_OPEN_SCORE_THRESHOLD = 70;
@@ -22,6 +23,7 @@ export type MockGapEvidence = {
   attemptId: string;
   completedAt: string;
   roleProfileId: WorldQuantRoleProfileId;
+  roleProfileVersion?: 1 | 2;
   competency: WorldQuantCompetencyKey;
   status: "assessed" | "not_assessed";
   score: number | null;
@@ -54,16 +56,17 @@ export function openOrReconcileGapFromMock(
   state: WorldQuantTrainingState,
   evidence: MockGapEvidence,
 ): WorldQuantTrainingState {
-  if (
-    evidence.status !== "assessed" ||
-    evidence.score === null
-  ) {
+  if (evidence.status !== "assessed" || evidence.score === null) {
     return state;
   }
+  const roleProfileVersion =
+    evidence.roleProfileVersion ??
+    worldQuantRoleProfileById(evidence.roleProfileId).version;
   const existing = gapForCompetency(
     state,
     evidence.roleProfileId,
     evidence.competency,
+    roleProfileVersion,
   );
   if (
     existing &&
@@ -75,7 +78,7 @@ export function openOrReconcileGapFromMock(
   if (evidence.score < GAP_OPEN_SCORE_THRESHOLD) {
     return upsertCompetencyGap(state, {
       roleProfileId: evidence.roleProfileId,
-      roleProfileVersion: 1,
+      roleProfileVersion,
       competency: evidence.competency,
       status: "open",
       openedAt: existing?.openedAt ?? evidence.completedAt,
@@ -94,6 +97,9 @@ export function completeDrillAndReconcileGap(
   state: WorldQuantTrainingState,
   input: DrillCompletionInput,
 ): DrillCompletionResult {
+  const roleProfileVersion = worldQuantRoleProfileById(
+    input.roleProfileId,
+  ).version;
   const drill = worldQuantDrillById(input.attempt.drillId);
   if (!drill) {
     throw new Error(`Unknown drill: ${input.attempt.drillId}`);
@@ -133,6 +139,7 @@ export function completeDrillAndReconcileGap(
     next,
     input.roleProfileId,
     drill.competency,
+    roleProfileVersion,
   );
   let gap = existing;
 
@@ -166,7 +173,7 @@ export function completeDrillAndReconcileGap(
   } else if (!passed || drill.variant === "practice") {
     gap = {
       roleProfileId: input.roleProfileId,
-      roleProfileVersion: 1,
+      roleProfileVersion,
       competency: drill.competency,
       status: passed ? "transfer_ready" : "learning",
       openedAt: input.now,

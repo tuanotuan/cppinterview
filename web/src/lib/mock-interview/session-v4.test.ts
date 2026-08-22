@@ -37,6 +37,7 @@ describe("mock interview session v4", () => {
         language: question.language,
         track: question.track,
         execution: question.execution,
+        scenarioFamilies: [...question.scenarioFamilies],
       },
     })),
   });

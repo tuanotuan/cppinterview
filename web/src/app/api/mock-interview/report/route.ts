@@ -107,6 +107,7 @@ import {
   type TargetedMockPlan,
 } from "@/lib/mock-interview/target-plan";
 import { buildWorldQuantMockDebrief } from "@/lib/worldquant/mock-debrief";
+import { buildWorldQuantMockGates } from "@/lib/worldquant/mock-gates";
 import {
   worldQuantRoleProfileById,
   type WorldQuantCompetencyKey,
@@ -308,6 +309,7 @@ export async function POST(request: Request) {
         mode: reportRequest.plan.mode,
         targetCompetency: reportRequest.plan.targetCompetency,
         variant: reportRequest.plan.variant,
+        blueprintId: reportRequest.plan.blueprintId,
         durationMinutes: reportRequest.plan.durationMinutes,
         candidates: targetedMockCandidates(catalog),
       });
@@ -504,6 +506,7 @@ export async function POST(request: Request) {
           "worldquant",
           reportRequest.profileId,
           reportRequest.plan.mode,
+          reportRequest.plan.blueprintId ?? "legacy",
           reportRequest.plan.durationMinutes,
           reportRequest.plan.variant,
         ].join("-"),
@@ -801,6 +804,14 @@ export async function POST(request: Request) {
           priorityGaps: report.priorityGaps,
           studyPlan: report.studyPlan,
         });
+      const gates = buildWorldQuantMockGates({
+        plan: reportRequest.plan,
+        scores: report.questionAssessments.map((assessment) => ({
+          questionId: assessment.questionId,
+          score: assessment.score,
+        })),
+        executionByQuestionId,
+      });
       const artifact =
         mockInterviewCompletedArtifactV4Schema.parse({
           schemaVersion: 4,
@@ -812,6 +823,7 @@ export async function POST(request: Request) {
           completedAt: new Date().toISOString(),
           report: scopedReport,
           debrief,
+          gates,
           model: modelLabel,
           provider,
           executionResults,
@@ -1164,7 +1176,7 @@ type NormalizedV4ReportRequest = {
   idempotencyKey: string;
   sessionId: string;
   profileId: WorldQuantRoleProfileId;
-  profileVersion: 1;
+  profileVersion: 1 | 2;
   sourceRevision: string;
   durationMinutes: 30 | 45 | 60;
   elapsedSeconds: number;

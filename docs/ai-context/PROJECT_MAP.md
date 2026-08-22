@@ -59,7 +59,7 @@ retired Python/CMake database content while preserving revision history.
 | `/practice` | `practice/page.tsx`, `practice-app.tsx`, `code-review-workspace.tsx`, `question-editor-dialog.tsx`, `confirmation-dialog.tsx` | Today workspace: CTA tiếp tục/luyện thêm, tiến độ và chỉ số ngày trước card; guest mode `?guest=1` giữ tiến độ local và mở Luna với giới hạn public 3 lượt/24 giờ; Daily/custom study và Focus Sprint exact queue; mỗi thẻ chỉ hiện hai nhãn phân loại Dễ/Trung bình/Khó và Text/Code, còn taxonomy nội bộ không lộ ra hoặc lọc ở UI; `code_review` thay textarea bằng workspace chọn dòng, lưu annotation vào candidate answer để tồn tại qua F5 và gửi nguyên vẹn cho Coach, không lộ rubric/comment mẫu; answer không giới hạn sản phẩm, blank = chưa biết và vẫn gọi được AI, rating, scheduler, cloud sync, saved state, owner-only edit/archive thẻ và return về Guided Mission; thao tác phá hủy dùng confirmation sheet của cppinterview thay vì hộp thoại trình duyệt |
 | `/worldquant/*` | `worldquant/layout.tsx` và các module lịch sử | Workspace chuẩn bị theo một công ty cũ chỉ còn truy cập được bởi admin GitHub `tuanotuan`; người học thường bị chuyển về `/practice`. Không có entry point công khai tới vùng này. |
 | `/learn` | `learn/page.tsx`, `learn/[lessonId]/page.tsx` | Thư viện lesson từ manifest với tổng quan bài/thẻ đã duyệt/bài có mã, tìm kiếm và chip lọc lộ trình, Markdown an toàn, tự kiểm tra và mở phiên ôn tập trọng tâm |
-| `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Phỏng vấn thử v4 toàn diện/trọng tâm 30/45/60 phút, kiểm thử ẩn, báo cáo tám tiêu chí có evidence server-canonical, lịch sử và kế hoạch ôn tiếp; report mới tạo đúng ba việc luyện tiếp để capture vào Mistake Inbox sau khi history hoàn tất bền vững; desktop session rail chỉ lộ thứ tự/trạng thái trả lời, còn thanh chuyển câu/nộp bài sticky; nộp sớm, reset, thay Focus hoặc xóa history đều xác nhận trong UI |
+| `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Phỏng vấn thử v4 toàn diện/trọng tâm 30/45/60 phút. Targeted Mock v2 có hai scenario rõ nghĩa (tích hợp feed mới; chuyển đổi & sự cố), exact server-rebuilt plan và lịch sử v1 vẫn chỉ đọc; báo cáo tám tiêu chí có evidence server-canonical, deterministic gate C++/market-data/migration và không đưa ra phán quyết role-ready. Lịch sử và kế hoạch ôn tiếp vẫn tạo đúng ba việc luyện tiếp để capture vào Mistake Inbox sau durable history; desktop session rail chỉ lộ thứ tự/trạng thái trả lời, còn thanh chuyển câu/nộp bài sticky; nộp sớm, reset, thay Focus hoặc xóa history đều xác nhận trong UI |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx`, `lib/learn/tick-data-guide.ts` | Guide tick data/order book |
 | `/stats` | `stats/page.tsx`, `fsrs-shadow-panel.tsx` | Analytics học tập và FSRS-6 shadow comparison |
 | `/profile` | `profile/page.tsx`, `lib/profile/{contribution-activity,mobile-usage,profile-activity.server}.ts` | Trang cá nhân và contribution graph 53 tuần từ lượt ôn, AI coach và phỏng vấn thử đã hoàn tất; riêng admin `tuanotuan` còn có tổng thời gian cppinterview hoạt động trên điện thoại hôm nay/7/30 ngày |
@@ -100,10 +100,10 @@ API quan trọng:
 | `ai` | `openai.ts`, `gemini.ts`, `fallback.ts`, `access.ts` | Provider call không transport retry, fallback và chặn AI không quota ngoài local development; Luna cho học tập/Coach, Terra chỉ cho report Mock |
 | `ai` | `budget.ts`, `usage.ts`, `billing.ts`, `coach-idempotency-client.ts`, `coach-reservation.server.ts`, `coach-follow-up-reservation.server.ts` | Sổ hạn mức UUID, phân loại kết quả provider và terminal cache Coach theo exact request |
 | `ai` | `public-ai-quota.server.ts`, `public-ai-admission.server.ts`, `public-ai-quota-display.ts`, `public-ai-budget.server.ts` | AI Coach public/non-admin: HMAC IP/device/account, đọc quota hiệu dụng khi tải Practice, rolling 24 giờ, lease chống gọi trùng và ledger Luna site-wide riêng; không dùng quota account hay Gemini fallback của owner |
-| `mock-interview` | `profile.ts`, `profile-server.ts`, `catalog.ts`, `target-plan.ts` | JD question/version grounding, canonical competency mapping và deterministic balanced/targeted blueprint |
+| `mock-interview` | `profile.ts`, `profile-server.ts`, `catalog.ts`, `target-plan.ts` | JD question/version grounding, canonical competency mapping, scenario family và deterministic balanced/targeted blueprint v2 |
 | `mock-interview` | `session-v4.ts`, `contracts-v4.ts`, `session.ts`, `contracts.ts` | Account-scoped frozen v4 session/API contract, owner check và revision CAS; legacy parser không cấp dữ liệu cho Hub |
 | `mock-interview` | `contracts.ts`, `report-prompt.ts`, `history.server.ts`, `report-submission-client.ts`, `trends.ts` | Report raw/normalized, danh mục evidence server-owned cho tám tiêu chí và đúng ba next-practice actions; lease/cache/idempotency chống stale cross-tab submission và trend chỉ trên attempt comparable |
-| `worldquant` | `mock-debrief.ts`, `mock-remediation.ts` | Role-scoped evidence, assessed/not-assessed matrix, deterministic ranked gaps và Focus remediation |
+| `worldquant` | `mock-debrief.ts`, `mock-gates.ts`, `mock-remediation.ts` | Role-scoped evidence, assessed/not-assessed matrix, deterministic ranked gaps, non-AI competency gate và Focus remediation |
 | `worldquant` | `hub-preferences.ts` | Preference của Readiness Hub tách theo account/local và đồng bộ giữa tab cùng scope |
 | `code-runner` | `admission.server.ts`, `execution-specs.server.ts`, `vercel-sandbox.server.ts` | Quota/idempotency, harness server-owned, VM cô lập |
 | `profile` | `contribution-activity.ts`, `profile-activity.server.ts` | Tổng hợp nhật ký theo ngày Việt Nam, phân trang dữ liệu owner-private và dựng contribution calendar |
@@ -181,7 +181,7 @@ nhất chỉ hiển thị riêng, chưa trộn vào index. Hub đọc history v4
 chỉ so trend cùng role/profile version, duration và evidence scope; mục
 `not_assessed` không bị đổi thành điểm 0.
 
-### WorldQuant Interview Loop v4
+### WorldQuant Interview Loop v4 / Targeted Mock v2
 
 Catalog question đã duyệt + curated JD question → canonical competency →
 deterministic blueprint theo role/mode/duration/variant → exact account-scoped
@@ -199,6 +199,14 @@ thành `failed`, không được renew để gọi provider lần nữa. Targete
 chỉ là evidence cho competency đã chọn; balanced cũng là sample trên phần trọng
 số đã hỏi, không phải hiring/readiness verdict. Canonical debrief tạo remediation
 từ assessed gap; AI text chỉ là nhận xét định tính.
+
+Targeted Mock v2 đóng băng profile v2 và scenario family (`new-feed` hoặc
+`migration-incident`) vào plan. Đề v1 cũ vẫn parse/read để lịch sử còn xem được,
+nhưng không bị so trend trực tiếp với v2. Server dựng lại exact plan từ catalog
+trước khi chạy hidden test/AI; gate C++ correctness, market-data correctness và
+migration evidence được tính từ mapping và hidden execution, không từ nhận xét
+của AI. Mỗi gate ngưỡng 65, có trạng thái `not_assessed` khi scenario không đo
+được; artifact luôn tuyên bố rõ đây không phải kết luận sẵn sàng cho vị trí.
 
 ### WorldQuant Focus Sprint
 

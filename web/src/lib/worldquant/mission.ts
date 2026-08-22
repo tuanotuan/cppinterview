@@ -58,7 +58,7 @@ export type WorldQuantMissionItem =
       estimatedMinutes: number;
       reason: string;
       href: string;
-      roleProfileVersion: 1;
+      roleProfileVersion: 1 | 2;
       durationMinutes: 30;
       mode: "balanced";
       targetCompetency: null;
@@ -107,6 +107,7 @@ export function buildWorldQuantMission({
   const gaps = trainingState.gaps.filter(
     (gap) =>
       gap.roleProfileId === roleProfileId &&
+      gap.roleProfileVersion === profile.version &&
       gap.status !== "verified" &&
       profile.weights[gap.competency] > 0,
   );
@@ -236,10 +237,16 @@ export function buildWorldQuantMission({
 
   const allRoleGapsVerified =
     trainingState.gaps.some(
-      (gap) => gap.roleProfileId === roleProfileId,
+      (gap) =>
+        gap.roleProfileId === roleProfileId &&
+        gap.roleProfileVersion === profile.version,
     ) &&
     trainingState.gaps
-      .filter((gap) => gap.roleProfileId === roleProfileId)
+      .filter(
+        (gap) =>
+          gap.roleProfileId === roleProfileId &&
+          gap.roleProfileVersion === profile.version,
+      )
       .every((gap) => gap.status === "verified");
   if (
     mockAvailable &&
@@ -250,14 +257,14 @@ export function buildWorldQuantMission({
     remaining >= 30
   ) {
     items.push({
-      id: `mock:${roleProfileId}:v1:balanced:30`,
+      id: `mock:${roleProfileId}:v${profile.version}:balanced:30`,
       kind: "mock",
       competency: null,
       estimatedMinutes: 30,
       reason:
         "Bài kiểm tra định kỳ; kết quả phỏng vấn thử vẫn tách khỏi Chỉ số chuẩn bị.",
       href: `/mock-interview?role=${roleProfileId}&mode=balanced&duration=30`,
-      roleProfileVersion: 1,
+      roleProfileVersion: profile.version,
       durationMinutes: 30,
       mode: "balanced",
       targetCompetency: null,
@@ -313,9 +320,11 @@ export function selectMissionDrill({
   trainingState: WorldQuantTrainingState;
   today: string;
 }) {
+  const profile = worldQuantRoleProfileById(roleProfileId);
   const gap = trainingState.gaps.find(
     (item) =>
       item.roleProfileId === roleProfileId &&
+      item.roleProfileVersion === profile.version &&
       item.competency === competency,
   );
   const candidateVariant =

@@ -104,6 +104,17 @@ trạng thái từ tên nhánh.
   freeze/complete/reset giữ CAS nghiêm ngặt. Phiên đúng owner nhưng stale theo
   question revision được thay nguyên tử khi tạo buổi mới. Hub chỉ đọc local v4
   theo account hoặc server history v4; không nhận shared v3/ownerless state.
+- Targeted Mock hiện hành dùng role profile v2: C++ hiện đại 22%, tick/order book
+  22%, migration/replay 10%, build/test/CI 10%, concurrency 8%, performance 8%,
+  ownership/English 7%, algorithms 6%, scripting 5% và Linux 2%. Người học chọn
+  scenario `new-feed` hoặc `migration-incident`; lịch sử profile/plan v1 vẫn đọc
+  được nhưng có nhãn không so trực tiếp với v2. Report thêm ba gate deterministic
+  C++/market-data/migration ngưỡng 65 (không đánh giá thì không phải 0) và nêu
+  rõ không phải verdict role-ready. Câu curated mới phủ CMake+sanitizer,
+  reconciliation script, event time cross-asset và concurrency review. Guided
+  Full Round chỉ mở follow-up/rubric theo tiến trình; Strict Mock không lộ hint.
+- Xác thực mới nhất tại local: ESLint, TypeScript, toàn bộ Vitest (97 file,
+  580 tests), Next.js production build (63 route) và `context:check` đều pass.
 - Supabase project `cpp-recall` đã áp đủ migration đến `20260730220000`; lịch
   sử remote đã được đối chiếu với local. Bootstrap xử lý hai view cũ không có
   lịch sử (`content_current_questions` và
@@ -232,11 +243,10 @@ trạng thái từ tên nhánh.
   `context:check`, ESLint, TypeScript, 111 file/676 Vitest test và Next.js
   production build 64 route. Mười câu C++ mẫu mới vẫn là `draft`, nên phải duyệt
   trong Admin trước khi xuất hiện trong lịch học hay coverage verified.
-- `npm audit --omit=dev --audit-level=moderate` không tìm thấy lỗ hổng production.
-  Audit gồm dev dependency còn 9 cảnh báo mức cao trong chuỗi công cụ ESLint
-  (`minimatch`/`brace-expansion`); cách sửa tự động hiện yêu cầu nâng cưỡng bức lên
-  ESLint 10, không tương thích bộ Next.js hiện dùng. Các gói này không nằm trong
-  dependency production, nên giữ cảnh báo này được ghi nhận thay vì phá vỡ lint.
+- `npm audit --omit=dev --audit-level=moderate` không còn sạch: 5 cảnh báo
+  production hiện có qua Monaco/DOMPurify, nanoid, postcss và undici. Không có
+  package thay đổi trong nhánh này; auto-fix đề xuất nâng Monaco theo cách breaking,
+  nên giữ rủi ro đã ghi nhận để xử lý trong đợt upgrade dependency tương thích.
 - Lần smoke production gần nhất dùng Chrome 1440×1200 và mobile CDP 390×844:
   Practice, WorldQuant, guide tick và Full Round không tràn ngang ở cấp
   trang. Đây không phải bằng chứng deployment hiện tại đang hoạt động.

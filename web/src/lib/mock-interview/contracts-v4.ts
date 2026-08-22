@@ -5,6 +5,7 @@ import {
   codeExecutionResultSchema,
 } from "@/lib/code-runner/contracts";
 import { worldQuantMockDebriefSchema } from "@/lib/worldquant/mock-debrief";
+import { worldQuantMockGateSetSchema } from "@/lib/worldquant/mock-gates";
 
 import {
   mockInterviewReportSchema,
@@ -12,6 +13,8 @@ import {
   normalizedNextPracticeActionsSchema,
 } from "./contracts";
 import { targetedMockPlanSchema } from "./target-plan";
+
+const roleProfileVersionSchema = z.union([z.literal(1), z.literal(2)]);
 
 export const publicHiddenExecutionResultSchema =
   codeExecutionResultSchema
@@ -40,7 +43,7 @@ export const mockInterviewReportRequestV4Schema = z
     idempotencyKey: z.string().uuid(),
     sessionId: z.string().uuid(),
     profileId: targetedMockPlanSchema.shape.profileId,
-    profileVersion: z.literal(1),
+    profileVersion: roleProfileVersionSchema,
     sourceRevision: z.string().regex(/^[a-f0-9]{40,64}$/),
     startedAt: z.string().datetime(),
     submittedAt: z.string().datetime(),
@@ -109,7 +112,7 @@ export const mockCodeRunRequestV4Schema = z
     idempotencyKey: z.string().uuid(),
     sessionId: z.string().uuid(),
     profileId: targetedMockPlanSchema.shape.profileId,
-    profileVersion: z.literal(1),
+    profileVersion: roleProfileVersionSchema,
     sourceRevision: z.string().regex(/^[a-f0-9]{40,64}$/),
     plan: targetedMockPlanSchema,
     question: targetedMockPlanSchema.shape.questions.element,
@@ -153,12 +156,15 @@ export const mockInterviewCompletedArtifactV4Schema = z
     schemaVersion: z.literal(4),
     sessionId: z.string().uuid(),
     profileId: targetedMockPlanSchema.shape.profileId,
-    profileVersion: z.literal(1),
+    profileVersion: roleProfileVersionSchema,
     plan: targetedMockPlanSchema,
     startedAt: z.string().datetime(),
     completedAt: z.string().datetime(),
     report: mockInterviewScopedReportV4Schema,
     debrief: worldQuantMockDebriefSchema,
+    // Older persisted v4 artifacts do not have deterministic gate outcomes.
+    // New reports always include them; optionality keeps the audit trail legible.
+    gates: worldQuantMockGateSetSchema.optional(),
     model: z.string().trim().min(1).max(120),
     provider: z.enum(["openai", "gemini"]),
     executionResults: z
@@ -177,7 +183,9 @@ export const mockInterviewCompletedArtifactV4Schema = z
   .superRefine((artifact, context) => {
     if (
       artifact.profileId !== artifact.plan.profileId ||
+      artifact.profileVersion !== artifact.plan.profileVersion ||
       artifact.debrief.profileId !== artifact.profileId ||
+      artifact.debrief.profileVersion !== artifact.profileVersion ||
       artifact.debrief.planMode !== artifact.plan.mode ||
       artifact.report.evidenceScope !== artifact.debrief.scope
     ) {
