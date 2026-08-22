@@ -43,15 +43,18 @@ export default async function StatsPage({
 }: {
   searchParams: Promise<{ deck?: string | string[] }>;
 }) {
-  const params = await searchParams;
+  const [params, cloud] = await Promise.all([
+    searchParams,
+    loadCloudContext({
+      includeAiUsage: false,
+      includeDailyAiBudget: false,
+      includeGeminiUsage: false,
+      includeProviderSettings: false,
+      includeMistakeQuestionIds: false,
+    }),
+  ]);
   const deckParam = Array.isArray(params.deck) ? params.deck[0] : params.deck;
   const selectedDeck = parsePracticeDeck(deckParam);
-  const cloud = await loadCloudContext({
-    includeAiUsage: false,
-    includeDailyAiBudget: false,
-    includeGeminiUsage: false,
-    includeProviderSettings: false,
-  });
   if (!cloud.enabled) {
     return <StatsGate mode="not-configured" deck={selectedDeck} />;
   }
