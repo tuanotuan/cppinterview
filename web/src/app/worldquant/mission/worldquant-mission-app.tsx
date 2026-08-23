@@ -8,6 +8,7 @@ import {
   useSyncExternalStore,
 } from "react";
 
+import type { EvidenceProjection } from "@/lib/evidence/engine";
 import type { QuestionLearningState } from "@/lib/practice/learning-state";
 import {
   buildLearningStates,
@@ -81,6 +82,7 @@ export function WorldQuantMissionApp({
   initialQuestionStates,
   today,
   initialMockCompletions,
+  initialEvidenceProjection,
   mockAvailable,
 }: {
   accountId: string | null;
@@ -91,6 +93,7 @@ export function WorldQuantMissionApp({
   initialQuestionStates: QuestionLearningState[];
   today: string;
   initialMockCompletions: MissionMockCompletion[];
+  initialEvidenceProjection: EvidenceProjection;
   mockAvailable: boolean;
 }) {
   useEffect(() => {
@@ -234,6 +237,7 @@ export function WorldQuantMissionApp({
         questions,
         trainingState,
         mockAvailable,
+        attemptEvidence: initialEvidenceProjection,
         build: () =>
           buildWorldQuantMission({
             roleProfileId: roleId,
@@ -243,6 +247,7 @@ export function WorldQuantMissionApp({
             today,
             timeBudgetMinutes: minutes,
             mockAvailable,
+            attemptEvidence: initialEvidenceProjection,
             daysSinceComparableMock: daysSinceLatestMock(
               initialMockCompletions,
               roleId,
@@ -257,6 +262,7 @@ export function WorldQuantMissionApp({
     },
     [
       initialMockCompletions,
+      initialEvidenceProjection,
       hydrated,
       minutes,
       mockAvailable,

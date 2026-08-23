@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import type { EvidenceProjection } from "@/lib/evidence/engine";
 import { newQuestionLearningState } from "@/lib/practice/learning-state";
 
 import { buildWorldQuantMission } from "./mission";
@@ -142,6 +143,80 @@ describe("WorldQuant mission snapshot", () => {
     expect(JSON.stringify(snapshot)).not.toContain(
       "candidateAnswer",
     );
+  });
+
+  it("keeps legacy v2 snapshots compatible when no assessed evidence exists", () => {
+    const mission = missionFor(question);
+    const snapshot = createWorldQuantMissionSnapshot(mission);
+    const legacyV2 = Object.fromEntries(
+      Object.entries(snapshot).filter(
+        ([key]) => key !== "evidenceFingerprint",
+      ),
+    );
+    const parsed = parseWorldQuantMissionSnapshot(JSON.stringify(legacyV2));
+
+    expect(parsed?.evidenceFingerprint).toBe("none");
+    expect(
+      parsed
+        ? rehydrateWorldQuantMissionSnapshot({
+            snapshot: parsed,
+            questions: [question],
+            trainingState: EMPTY_WORLDQUANT_TRAINING_STATE,
+          })
+        : null,
+    ).toEqual(mission);
+  });
+
+  it("restores only while durable evidence still matches the frozen mission", () => {
+    const evidence = repairEvidence(question.id, "coach:1");
+    const changedEvidence = repairEvidence(question.id, "coach:2");
+    const mission = buildWorldQuantMission({
+      roleProfileId: "tick-data-platform",
+      questions: [question],
+      states: new Map([[question.id, newQuestionLearningState({
+        questionId: question.id,
+        questionVersion: question.version,
+        sourceHash: question.sourceHash,
+      })]]),
+      trainingState: EMPTY_WORLDQUANT_TRAINING_STATE,
+      today: "2026-07-28",
+      timeBudgetMinutes: 45,
+      daysSinceComparableMock: 2,
+      attemptEvidence: evidence,
+    });
+    const rawSnapshot = serializeWorldQuantMissionSnapshot(
+      createWorldQuantMissionSnapshot(mission),
+    );
+
+    expect(
+      restoreOrBuildWorldQuantMission({
+        rawSnapshot,
+        scope: {
+          date: mission.date,
+          roleProfileId: mission.roleProfileId,
+          timeBudgetMinutes: mission.timeBudgetMinutes,
+        },
+        questions: [question],
+        trainingState: EMPTY_WORLDQUANT_TRAINING_STATE,
+        attemptEvidence: evidence,
+        build: () => mission,
+      }).restored,
+    ).toBe(true);
+
+    const rebuilt = restoreOrBuildWorldQuantMission({
+      rawSnapshot,
+      scope: {
+        date: mission.date,
+        roleProfileId: mission.roleProfileId,
+        timeBudgetMinutes: mission.timeBudgetMinutes,
+      },
+      questions: [question],
+      trainingState: EMPTY_WORLDQUANT_TRAINING_STATE,
+      attemptEvidence: changedEvidence,
+      build: () => missionFor(question),
+    });
+    expect(rebuilt.restored).toBe(false);
+    expect(rebuilt.mission.evidenceFingerprint).toBe("none");
   });
 
   it("fails closed on a stale card revision and rebuilds a new snapshot", () => {
@@ -387,3 +462,29 @@ describe("WorldQuant mission snapshot", () => {
     ).toEqual([]);
   });
 });
+
+function repairEvidence(
+  questionId: string,
+  artifactId: string,
+): EvidenceProjection {
+  return {
+    version: 1,
+    asOf: "2026-07-28T00:00:00.000Z",
+    competencies: [
+      {
+        key: "modern_cpp",
+        status: "learning",
+        content: "available",
+        gapKind: "learner",
+        nextAction: "repair",
+        score: 40,
+        assessmentCount: 1,
+        successfulAttemptCount: 0,
+        latestEvidenceAt: "2026-07-27T00:00:00.000Z",
+        supportingArtifactIds: [],
+        contradictingArtifactIds: [artifactId],
+        recommendedQuestionIds: [questionId],
+      },
+    ],
+  };
+}

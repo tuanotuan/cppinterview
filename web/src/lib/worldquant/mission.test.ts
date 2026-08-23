@@ -4,6 +4,7 @@ import {
   newQuestionLearningState,
   type QuestionLearningState,
 } from "@/lib/practice/learning-state";
+import type { EvidenceProjection } from "@/lib/evidence/engine";
 
 import { worldQuantDrillPacks } from "./drills";
 import {
@@ -182,6 +183,7 @@ describe("Today's WorldQuant Mission", () => {
       date: "2026-07-28",
       roleProfileId: "tick-data-platform" as const,
       timeBudgetMinutes: 30,
+      evidenceFingerprint: "none",
       items: [],
     };
 
@@ -194,6 +196,18 @@ describe("Today's WorldQuant Mission", () => {
       worldQuantMissionId({
         ...base,
         primaryCompetency: "tick_market_data",
+      }),
+    );
+    expect(
+      worldQuantMissionId({
+        ...base,
+        primaryCompetency: "modern_cpp",
+        evidenceFingerprint: "evidence1",
+      }),
+    ).not.toBe(
+      worldQuantMissionId({
+        ...base,
+        primaryCompetency: "modern_cpp",
       }),
     );
   });
@@ -225,6 +239,80 @@ describe("Today's WorldQuant Mission", () => {
       timeBudgetMinutes: 30,
     });
     expect(mission.items[0].kind).toBe("repair");
+  });
+
+  it("lets exact durable repair evidence outrank a training gap", () => {
+    const tickQuestion: ReadinessQuestionSummary = {
+      ...question,
+      id: "tick-order-book-repair",
+      lessonId: "tick-data-order-book",
+      competency: "tick_market_data",
+    };
+    const trainingState: WorldQuantTrainingState = {
+      ...EMPTY_WORLDQUANT_TRAINING_STATE,
+      gaps: [
+        {
+          roleProfileId: "tick-data-platform",
+          roleProfileVersion: 2,
+          competency: "modern_cpp",
+          status: "open",
+          openedAt: "2026-07-26T00:00:00.000Z",
+          updatedAt: "2026-07-27T00:00:00.000Z",
+          sourceKind: "drill",
+          sourceId: "modern-gap",
+          sourceScore: 50,
+          practiceAttemptId: null,
+          verificationAttemptId: null,
+        },
+      ],
+    };
+    const mission = buildWorldQuantMission({
+      roleProfileId: "tick-data-platform",
+      questions: [question, tickQuestion],
+      states: new Map([
+        [question.id, state],
+        [
+          tickQuestion.id,
+          newQuestionLearningState({
+            questionId: tickQuestion.id,
+            questionVersion: tickQuestion.version,
+            sourceHash: tickQuestion.sourceHash,
+          }),
+        ],
+      ]),
+      trainingState,
+      today: "2026-07-28",
+      timeBudgetMinutes: 45,
+      daysSinceComparableMock: 2,
+      attemptEvidence: repairEvidence(tickQuestion.id),
+    });
+
+    expect(mission.primaryCompetency).toBe("tick_market_data");
+    expect(mission.evidenceFingerprint).not.toBe("none");
+    expect(mission.items[0]).toMatchObject({
+      kind: "flashcards",
+      reason: expect.stringContaining("lần làm gần nhất"),
+      focusPlan: {
+        questions: [
+          expect.objectContaining({
+            question: expect.objectContaining({ id: tickQuestion.id }),
+            queueReason: "evidence_repair",
+          }),
+        ],
+      },
+    });
+
+    const unknownQuestionMission = buildWorldQuantMission({
+      roleProfileId: "tick-data-platform",
+      questions: [question, tickQuestion],
+      states: new Map([[question.id, state]]),
+      trainingState,
+      today: "2026-07-28",
+      timeBudgetMinutes: 45,
+      daysSinceComparableMock: 2,
+      attemptEvidence: repairEvidence("mock-session-question"),
+    });
+    expect(unknownQuestionMission.primaryCompetency).toBe("modern_cpp");
   });
 
   it("never schedules more work than the selected mission budget", () => {
@@ -469,3 +557,26 @@ describe("Today's WorldQuant Mission", () => {
     );
   });
 });
+
+function repairEvidence(questionId: string): EvidenceProjection {
+  return {
+    version: 1,
+    asOf: "2026-07-28T00:00:00.000Z",
+    competencies: [
+      {
+        key: "tick_market_data",
+        status: "learning",
+        content: "available",
+        gapKind: "learner",
+        nextAction: "repair",
+        score: 45,
+        assessmentCount: 1,
+        successfulAttemptCount: 0,
+        latestEvidenceAt: "2026-07-27T00:00:00.000Z",
+        supportingArtifactIds: [],
+        contradictingArtifactIds: ["coach:10:tick-order-book-repair"],
+        recommendedQuestionIds: [questionId],
+      },
+    ],
+  };
+}

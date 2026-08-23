@@ -1,11 +1,15 @@
 import { z } from "zod";
 
+import {
+  evidenceProjectionFingerprint,
+  type EvidenceProjection,
+} from "@/lib/evidence/engine";
+
 import { withBrowserStorageLock } from "../practice/browser-storage-lock";
 import { focusPlanSchema } from "./focus-plan";
+import { worldQuantDrillById } from "./drills";
 import {
-  worldQuantDrillById,
-} from "./drills";
-import {
+  worldQuantFocusMissionReason,
   worldQuantMissionId,
   type WorldQuantMission,
   type WorldQuantMissionItem,
@@ -100,6 +104,10 @@ export const worldQuantMissionSnapshotSchema = z
     timeBudgetMinutes: timeBudgetSchema,
     plannedMinutes: z.number().int().nonnegative().max(120),
     primaryCompetency: competencySchema,
+    evidenceFingerprint: z
+      .string()
+      .regex(/^(?:none|[a-z0-9]{1,16})$/)
+      .default("none"),
     items: z.array(snapshotItemSchema).max(25),
   })
   .strict()
@@ -172,6 +180,7 @@ export function createWorldQuantMissionSnapshot(
     timeBudgetMinutes: mission.timeBudgetMinutes,
     plannedMinutes: mission.plannedMinutes,
     primaryCompetency: mission.primaryCompetency,
+    evidenceFingerprint: mission.evidenceFingerprint,
     items: mission.items.map(snapshotItem),
   });
 }
@@ -201,15 +210,23 @@ export function rehydrateWorldQuantMissionSnapshot({
   questions,
   trainingState,
   mockAvailable = true,
+  attemptEvidence,
 }: {
   snapshot: WorldQuantMissionSnapshot;
   questions: readonly ReadinessQuestionSummary[];
   trainingState: WorldQuantTrainingState;
   mockAvailable?: boolean;
+  attemptEvidence?: EvidenceProjection;
 }): WorldQuantMission | null {
   const parsed = worldQuantMissionSnapshotSchema.safeParse(snapshot);
   if (!parsed.success) return null;
   const frozen = parsed.data;
+  if (
+    frozen.evidenceFingerprint !==
+    evidenceProjectionFingerprint(attemptEvidence)
+  ) {
+    return null;
+  }
   if (
     !mockAvailable &&
     frozen.items.some((item) => item.kind === "mock")
@@ -286,8 +303,7 @@ export function rehydrateWorldQuantMissionSnapshot({
         kind: "flashcards",
         competency: item.competency,
         estimatedMinutes: item.estimatedMinutes,
-        reason:
-          "Ôn đúng các thẻ đã duyệt trước khi chuyển sang bài vận dụng.",
+        reason: worldQuantFocusMissionReason(item.focusPlan.questions),
         focusPlan: item.focusPlan,
       });
       continue;
@@ -353,6 +369,7 @@ export function rehydrateWorldQuantMissionSnapshot({
     timeBudgetMinutes: frozen.timeBudgetMinutes,
     plannedMinutes: frozen.plannedMinutes,
     primaryCompetency: frozen.primaryCompetency,
+    evidenceFingerprint: frozen.evidenceFingerprint,
     items,
   };
   return worldQuantMissionId({
@@ -360,6 +377,7 @@ export function rehydrateWorldQuantMissionSnapshot({
     roleProfileId: mission.roleProfileId,
     timeBudgetMinutes: mission.timeBudgetMinutes,
     primaryCompetency: mission.primaryCompetency,
+    evidenceFingerprint: mission.evidenceFingerprint,
     items: mission.items,
   }) === mission.missionId
     ? mission
@@ -372,6 +390,7 @@ export function restoreOrBuildWorldQuantMission({
   questions,
   trainingState,
   mockAvailable = true,
+  attemptEvidence,
   build,
 }: {
   rawSnapshot: string | null;
@@ -379,6 +398,7 @@ export function restoreOrBuildWorldQuantMission({
   questions: readonly ReadinessQuestionSummary[];
   trainingState: WorldQuantTrainingState;
   mockAvailable?: boolean;
+  attemptEvidence?: EvidenceProjection;
   build: () => WorldQuantMission;
 }): {
   mission: WorldQuantMission;
@@ -397,6 +417,7 @@ export function restoreOrBuildWorldQuantMission({
       questions,
       trainingState,
       mockAvailable,
+      attemptEvidence,
     });
     if (mission) return { mission, snapshot, restored: true };
   }
