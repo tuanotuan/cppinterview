@@ -97,6 +97,7 @@ API quan trọng:
 | `practice` | `focus-session.ts`, `focus-eligibility.ts` | Session Focus Sprint identity-only, resume/reconcile/completion và lọc exact approved refs |
 | `practice` | `cloud-server.ts`, `cloud.ts`, `practice-review-reader.server.ts`, `question-learning-state-reader.server.ts` | `loadCloudAccount` chỉ xác minh account/owner cho guard; `loadCloudContext` dùng lại identity đã xác minh trong request rồi đọc review trước/state generation sau với fallback migration hẹp, approval, overrides, usage và manifest |
 | `practice` | `mistake-cards.ts`, `mistake-cards.server.ts` | Capture lỗi durable, dedupe, grounded generation và materialize draft |
+| `evidence` | `contracts.ts`, `adapters.ts`, `engine.ts`, `golden-*` | `AttemptArtifact` v1 chuẩn hóa attempt Practice/Coach/Mock; projection riêng tư tổng hợp `unassessed`/`learning`/`verified`/`stale`, tách content gap khỏi learner gap và corpus golden khóa grading contract |
 | `worldquant` | `readiness.ts`, `focus-plan.ts` | Role/competency model, preparation evidence và planner queue deterministic theo gap/time budget |
 | `worldquant` | `curriculum.ts`, `curriculum-evidence.ts`, `drills.ts` | Concept graph, content/transfer coverage và catalog 30 scenario: một practice + hai checkpoint mỗi competency |
 | `worldquant` | `training-state.ts`, `mission-snapshot.ts`, `tick-replay.ts`, `legacy-modern-capstone.ts` | Evidence account-scoped, cloud CAS/local fallback, Mission frozen, mô phỏng tick và capstone chuyển đổi legacy |
@@ -181,8 +182,10 @@ competency → browser merge local/cloud progress → learning evidence theo Ank
 (content bank đã kiểm chứng) khỏi `Preparation Index` (bằng chứng người học đã tích
 lũy), nên thiếu content không bị diễn giải thành điểm yếu cá nhân. Mock report gần
 nhất chỉ hiển thị riêng, chưa trộn vào index. Hub đọc history v4 theo account,
-chỉ so trend cùng role/profile version, duration và evidence scope; mục
-`not_assessed` không bị đổi thành điểm 0.
+chỉ so trend cùng role/profile version, duration và evidence scope; report có
+exact question identity được chuyển thành `AttemptArtifact` rồi qua Evidence
+Engine, còn lịch sử cũ dùng debrief fallback. Mục `not_assessed` không bị đổi
+thành điểm 0.
 
 ### WorldQuant Interview Loop v4 / Targeted Mock v2
 

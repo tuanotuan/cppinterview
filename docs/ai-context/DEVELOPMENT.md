@@ -27,6 +27,7 @@ npm run context:check   # generated AI snapshot có khớp project inputs
 npm run lint
 npm run typecheck
 npm test
+npm run eval:evidence  # corpus grading/evidence deterministic, không gọi provider
 npm run build
 npm run validate        # toàn bộ gate theo thứ tự trên
 ```
@@ -548,6 +549,16 @@ service-role-only/browser grants như contract hiện tại.
   actionable item và không được làm UI báo Mission đã hoàn tất.
 - Personal remediation, drill và draft không được tính thay approved card trong
   content coverage.
+- `AttemptArtifact` v1 là contract domain riêng tư cho Practice/Coach/Mock. Chỉ
+  `EvidenceProjection` không chứa answer/code/excerpt private mới được đưa vào
+  read model. Self-rating có confidence thấp nên không tự xác minh competency;
+  blank/reveal/hint hay hidden test fail không được tính là evidence thành công.
+  Projection bỏ evidence nằm sau `asOf`; contradiction mới nhất hạ trạng thái về
+  `learning`. Content `missing` là trục độc lập, không được đổi thành learner weakness.
+- Golden grading corpus chạy offline bằng `npm run eval:evidence`; không gọi AI
+  hay ghi Supabase. Khi đổi grading contract, artifact schema hoặc policy evidence,
+  cập nhật corpus theo version và giữ các case strong, thiếu ý bắt buộc, sai tinh
+  vi, blank, prompt injection và hidden-test failure.
 
 ## Chọn validation theo phạm vi
 
