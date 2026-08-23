@@ -15,8 +15,8 @@
 
 - App pages: 20 (/, /admin, /admin/coverage, /auth, /auth/reset-password, /auth/set-password, /learn, /learn/[lessonId], /learn/tick-data-order-book, /mock-interview, /practice, /profile, /stats, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/legacy-modern-capstone, /worldquant/mission, /worldquant/tick-replay-lab)
 - API routes: 26 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/admin/questions/manual, /api/coach/clarify, /api/coach/evaluate, /api/coach/follow-up, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/profile/mobile-usage, /api/progress/sync, /api/questions/approve, /api/worldquant/mission-snapshot, /api/worldquant/training-state, /auth/callback, /auth/confirm, /auth/login, /auth/logout)
-- TypeScript source files excluding tests: 190
-- Colocated test files: 97
+- TypeScript source files excluding tests: 196
+- Colocated test files: 99
 - Supabase migrations: 45
 - Latest migration filename: `20260818110000_archive_non_cpp_content.sql`
 
@@ -29,12 +29,12 @@
 - OpenAI SDK: ^6.48.0
 - Supabase JS: ^2.110.7
 - Vercel Sandbox: ^2.8.0
-- npm scripts: 23
+- npm scripts: 24
 
 ## Consistency marker
 
-- Project input fingerprint: `f110eb2ece043b593950018f831d166496222424b16ba08993278dc60d3e6d41`
-- Fingerprinted files: 423
+- Project input fingerprint: `bead83e082e8414f8c2254e3b531dca650efb24009afd7a2c436918a1b186fa0`
+- Fingerprinted files: 431
 
 The fingerprint covers registered lesson sources, content files, application
 source/tests, scripts, package metadata, environment template, workflows, and

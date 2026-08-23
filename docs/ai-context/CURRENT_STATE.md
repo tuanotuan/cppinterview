@@ -62,6 +62,13 @@ trạng thái từ tên nhánh.
 
 - Báo cáo Mock v4 mới tách tám tiêu chí: correctness, complexity, idiomatic C++, lifetime/ownership, testing/debugging, communication, requirement clarification và trade-off reasoning. Server tạo evidence catalog từ exact câu trả lời, mã, mã trong đề và tổng hợp hidden-test; AI chỉ cite ID trong catalog rồi server resolve trước khi lưu. Cuối report có đúng ba việc luyện tiếp priority 1–3, được capture vào Mistake Inbox sau durable history theo chế độ `ask`/`auto`/`off`; các artifact Mock cũ vẫn đọc được nhưng hiển thị fallback cũ.
 
+- Evidence Engine đợt 1 có `AttemptArtifact` v1 và adapter cho Practice review,
+  Coach feedback, Mock v4 history. Projection chung không mang answer/code thô,
+  phân biệt `unassessed`/`learning`/`verified`/`stale` và giữ content gap độc lập
+  với learner gap. Mock trend đã đọc qua engine khi artifact có exact question
+  identity; lịch sử cũ tiếp tục dùng debrief fallback. Golden corpus v1 chạy
+  offline, không gọi provider hay cần migration.
+
 - Câu hỏi thủ công trong Admin dùng DB-native revision/audit, không phải override của question Git. Form chỉ cần đề bài và đáp án tham khảo; lesson nội bộ không có file `.md` giữ revision/approval và không bị repository sync archive. Migration `20260809100000_create_standalone_admin_manual_questions.sql` phải chạy sau khi deploy app mới; trước đó API fail an toàn và không tạo row nào.
 
 - Luna “Làm rõ câu hỏi” hiện dành cho admin `tuanotuan` trên Practice. Route dùng budget ledger sẵn có, không cần migration hay biến môi trường mới; prompt chỉ nhận đề và mã trong đề, không nhận đáp án/rubric/tài liệu nguồn. Kết quả nói nôm na bằng tình huống gần gũi, không dựng từ điển thuật ngữ; dữ liệu local cũ vẫn đọc được và kết quả lưu theo exact question version/hash để tồn tại qua F5.
@@ -113,10 +120,6 @@ trạng thái từ tên nhánh.
   rõ không phải verdict role-ready. Câu curated mới phủ CMake+sanitizer,
   reconciliation script, event time cross-asset và concurrency review. Guided
   Full Round chỉ mở follow-up/rubric theo tiến trình; Strict Mock không lộ hint.
-- Xác thực mới nhất tại local cho light-theme refresh: ESLint, TypeScript, toàn
-  bộ Vitest (97 file, 580 tests), Next.js production build (63 route) và
-  `context:check` đều pass. Chrome smoke ở 1440×1200 và CDP mobile 390×844 cho
-  thấy landing/Practice không tràn ngang; bottom navigation đủ bốn mục.
 - Supabase project `cpp-recall` đã áp đủ migration đến `20260730220000`; lịch
   sử remote đã được đối chiếu với local. Bootstrap xử lý hai view cũ không có
   lịch sử (`content_current_questions` và
@@ -220,10 +223,10 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Báo cáo Mock evidence-backed đạt `content:check`, `context:check`, TypeScript,
-  ESLint trên mọi file thay đổi, 110 file/675 Vitest test (chia hai lượt do giới
-  hạn terminal) và Next.js production build 64 route. Không cần migration hay
-  biến môi trường mới; report/artifact cũ vẫn đọc bằng fallback cũ.
+- Evidence Engine đợt 1 đạt `npm run validate`: content/context check, ESLint,
+  TypeScript, 99 file/594 Vitest test và Next.js production build 63 route;
+  golden evaluation riêng đạt 14/14 test. Không cần migration, biến môi trường
+  hay provider call; Mock artifact cũ vẫn đọc qua debrief fallback.
 - Google OAuth ở `/auth` dùng cùng callback PKCE của Supabase như GitHub; trước
   khi nút hoạt động cần bật provider, điền Google Client ID/Secret và đăng ký
   callback/origin theo `web/supabase/README.md`. Thay đổi UI/route đã đạt
@@ -249,7 +252,7 @@ trạng thái từ tên nhánh.
   `context:check`, ESLint, TypeScript, 111 file/676 Vitest test và Next.js
   production build 64 route. Mười câu C++ mẫu mới vẫn là `draft`, nên phải duyệt
   trong Admin trước khi xuất hiện trong lịch học hay coverage verified.
-- `npm audit --omit=dev --audit-level=moderate` không còn sạch: 5 cảnh báo
+- `npm audit --omit=dev --audit-level=moderate` không còn sạch: 6 cảnh báo
   production hiện có qua Monaco/DOMPurify, nanoid, postcss và undici. Không có
   package thay đổi trong nhánh này; auto-fix đề xuất nâng Monaco theo cách breaking,
   nên giữ rủi ro đã ghi nhận để xử lý trong đợt upgrade dependency tương thích.

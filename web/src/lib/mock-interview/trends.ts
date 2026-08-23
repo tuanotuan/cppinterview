@@ -4,6 +4,8 @@ import {
   type WorldQuantCompetencyKey,
   type WorldQuantRoleProfileId,
 } from "../worldquant/readiness";
+import { buildEvidenceProjection } from "../evidence/engine";
+import { attemptArtifactsFromMockHistoryEntry } from "./evidence-adapter";
 
 export type MockInterviewTrendDuration = 30 | 45 | 60;
 
@@ -133,7 +135,10 @@ export function buildWorldQuantMockTrends({
   let assessedAttemptCount = 0;
 
   for (const entry of comparable) {
-    const scores = readAssessedScores(entry.report);
+    const artifacts = attemptArtifactsFromMockHistoryEntry(entry);
+    const scores = artifacts.length
+      ? readArtifactScores(artifacts, entry.completedAt)
+      : readAssessedScores(entry.report);
     if (scores.size > 0) assessedAttemptCount += 1;
     for (const [competency, score] of scores) {
       observations.get(competency)!.push(score);
@@ -174,6 +179,28 @@ export function buildWorldQuantMockTrends({
     assessedAttemptCount,
     competencies,
   };
+}
+
+function readArtifactScores(
+  artifacts: ReturnType<typeof attemptArtifactsFromMockHistoryEntry>,
+  asOf: string,
+) {
+  const projection = buildEvidenceProjection({
+    artifacts,
+    competencies: worldQuantCompetencyKeys.map((key) => ({
+      key,
+      content: "available" as const,
+      targetSuccessfulAttempts: 1,
+    })),
+    asOf,
+  });
+  return new Map(
+    projection.competencies.flatMap((competency) =>
+      competency.assessmentCount > 0 && competency.score !== null
+        ? [[competency.key as WorldQuantCompetencyKey, competency.score] as const]
+        : [],
+    ),
+  );
 }
 
 function readTrendScope(report: unknown): {
