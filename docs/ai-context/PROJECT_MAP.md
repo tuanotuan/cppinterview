@@ -98,7 +98,7 @@ API quan trọng:
 | `practice` | `cloud-server.ts`, `cloud.ts`, `practice-review-reader.server.ts`, `question-learning-state-reader.server.ts` | `loadCloudAccount` chỉ xác minh account/owner cho guard; `loadCloudContext` dùng lại identity đã xác minh trong request rồi đọc review trước/state generation sau với fallback migration hẹp, approval, overrides, usage và manifest; loader evidence Coach dùng cùng identity đã cache |
 | `practice` | `mistake-cards.ts`, `mistake-cards.server.ts` | Capture lỗi durable, dedupe, grounded generation và materialize draft |
 | `evidence` | `contracts.ts`, `adapters.ts`, `account-evidence.server.ts`, `engine.ts`, `golden-*` | `AttemptArtifact` v1 chuẩn hóa attempt Practice/Coach/Mock; account reader dựng projection an toàn từ durable Coach history; projection tổng hợp `unassessed`/`learning`/`verified`/`stale`, tách content gap khỏi learner gap và corpus golden khóa grading contract |
-| `worldquant` | `readiness.ts`, `focus-plan.ts` | Role/competency model, preparation evidence và planner queue deterministic theo gap/time budget; Coach/Mock projection đóng góp có giới hạn và có thể ưu tiên đúng câu cần repair/refresh |
+| `worldquant` | `evidence.ts`, `readiness.ts`, `focus-plan.ts`, `mission.ts` | Composer Coach/Mock dùng chung cho Hub và Mission; role/competency model cùng planner deterministic theo gap/time budget, có thể ưu tiên đúng câu cần repair/refresh |
 | `worldquant` | `curriculum.ts`, `curriculum-evidence.ts`, `drills.ts` | Concept graph, content/transfer coverage và catalog 30 scenario: một practice + hai checkpoint mỗi competency |
 | `worldquant` | `training-state.ts`, `mission-snapshot.ts`, `tick-replay.ts`, `legacy-modern-capstone.ts` | Evidence account-scoped, cloud CAS/local fallback, Mission frozen, mô phỏng tick và capstone chuyển đổi legacy |
 | `ai` | `openai.ts`, `gemini.ts`, `fallback.ts`, `access.ts` | Provider call không transport retry, fallback và chặn AI không quota ngoài local development; Luna cho học tập/Coach, Terra chỉ cho report Mock |
@@ -179,7 +179,8 @@ có, không gọi AI và không tạo thêm bảng activity.
 Question `verified` hoặc owner-approved hợp lệ → classifier taxonomy gán đúng một
 competency → browser merge local/cloud progress → learning evidence theo Anki state;
 song song, server đọc bounded Coach history theo account và Mock v4 history, validate
-exact identity rồi dựng `EvidenceProjection` không có câu trả lời thô → giới hạn hai
+exact identity rồi composer dùng chung dựng `EvidenceProjection` không có câu trả lời thô
+cho cả Hub và Today’s Mission → giới hạn hai
 card mỗi lesson + tối đa một đơn vị Coach/Mock mỗi competency → áp target và role weight.
 Hub tách `coverage`
 (content bank đã kiểm chứng) khỏi `Preparation Index` (bằng chứng người học đã tích
@@ -239,10 +240,11 @@ clean không hint và đạt ngưỡng chỉ xác minh khi unseen hoặc spaced 
 cooldown 24 giờ. Mỗi competency có hai prompt checkpoint khác nhau; Rubric atom còn
 thiếu sinh repair prompt grounded, không sao chép candidate answer. Today’s
 Mission ghép due repair, exact approved Focus card, practice/checkpoint và mock
-history thật trong time budget. Exact mission được snapshot theo
+history thật trong time budget; evidence `repair` rồi `refresh` được ưu tiên trước
+gap cũ khi projection đề xuất một exact question còn hiện hành. Exact mission được snapshot theo
 account/local + ngày + role + budget, cap 24 snapshot/account; reload chỉ rebuild
 khi exact card competency/revision, canonical content truth hoặc capability mock
-bền vững không còn hợp lệ. Hub là Guided entry: một CTA tạo exact role/budget
+bền vững không còn hợp lệ, hoặc fingerprint an toàn của evidence đã đổi. Hub là Guided entry: một CTA tạo exact role/budget
 Mission; Mission chỉ đưa một actionable item lên làm bước kế tiếp. Focus, Drill và Mock chỉ nhận
 structured return context rồi dựng lại internal Mission URL, không nhận redirect
 URL tùy ý. Content gap không được coi là item có thể hoàn tất hoặc evidence hoàn

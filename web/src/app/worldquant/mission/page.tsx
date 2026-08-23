@@ -6,8 +6,13 @@ import {
   listMockInterviewAttempts,
   MockHistoryConfigurationError,
 } from "@/lib/mock-interview/history.server";
+import type { MockInterviewHistoryEntry } from "@/lib/mock-interview/trends";
 import { isQuestionApproved } from "@/lib/practice/approvals";
-import { loadCloudContext } from "@/lib/practice/cloud-server";
+import {
+  loadAccountCoachEvidence,
+  loadCloudContext,
+} from "@/lib/practice/cloud-server";
+import { buildWorldQuantAccountEvidenceProjection } from "@/lib/worldquant/evidence";
 import {
   classifyWorldQuantCompetency,
   parseWorldQuantRoleProfile,
@@ -33,13 +38,15 @@ export default async function WorldQuantMissionPage({
     minutes?: string | string[];
   }>;
 }) {
-  const cloud = await loadCloudContext({
-    includeAiUsage: false,
-    includeDailyAiBudget: false,
-    includeGeminiUsage: false,
-    includeProviderSettings: false,
-  });
-  const params = await searchParams;
+  const [cloud, params] = await Promise.all([
+    loadCloudContext({
+      includeAiUsage: false,
+      includeDailyAiBudget: false,
+      includeGeminiUsage: false,
+      includeProviderSettings: false,
+    }),
+    searchParams,
+  ]);
   const roleParam = Array.isArray(params.role)
     ? params.role[0]
     : params.role;
@@ -47,52 +54,6 @@ export default async function WorldQuantMissionPage({
     ? params.minutes[0]
     : params.minutes;
   const mistakeIds = new Set(cloud.mistakeQuestionIds);
-  let initialMockCompletions: MissionMockCompletion[] = [];
-  let mockAvailable = false;
-  if (cloud.account) {
-    try {
-      const history = await listMockInterviewAttempts(
-        createMockHistoryAdminClient(),
-        {
-          userId: cloud.account.id,
-          limit: 50,
-        },
-      );
-      initialMockCompletions = history.items.flatMap((attempt) => {
-        if (attempt.status !== "completed" || !attempt.completedAt) {
-          return [];
-        }
-        const artifact =
-          mockInterviewCompletedArtifactV4Schema.safeParse(
-            attempt.report,
-          );
-        if (!artifact.success) return [];
-        return [
-          {
-            roleProfileId: attempt.roleProfileId,
-            roleProfileVersion: attempt.roleProfileVersion,
-            durationMinutes: attempt.durationMinutes,
-            mode: artifact.data.plan.mode,
-            targetCompetency:
-              artifact.data.plan.mode === "targeted"
-                ? artifact.data.plan.targetCompetency
-                : null,
-            completedAt: attempt.completedAt,
-            completedOn: vietnamDateKey(
-              new Date(attempt.completedAt),
-            ),
-          },
-        ];
-      });
-      mockAvailable = true;
-    } catch (error) {
-      if (!(error instanceof MockHistoryConfigurationError)) {
-        console.error("WorldQuant mission mock history load failed", {
-          name: error instanceof Error ? error.name : "UnknownError",
-        });
-      }
-    }
-  }
   const questions: ReadinessQuestionSummary[] =
     cloud.manifest.questions
       .filter(
@@ -121,6 +82,95 @@ export default async function WorldQuantMissionPage({
             ? "repository_verified"
             : "owner_approved",
       }));
+  const manifestQuestionsById = new Map(
+    cloud.manifest.questions.map((question) => [question.id, question]),
+  );
+  const coachEvidencePromise = cloud.account
+    ? loadAccountCoachEvidence({
+        questions: questions.flatMap((question) => {
+          const manifestQuestion = manifestQuestionsById.get(question.id);
+          return manifestQuestion
+            ? [
+                {
+                  id: question.id,
+                  version: question.version,
+                  sourceRevision: cloud.manifest.sourceRevision,
+                  responseMode: manifestQuestion.responseMode ?? "text",
+                  competency: question.competency,
+                },
+              ]
+            : [];
+        }),
+      })
+    : Promise.resolve({
+        artifacts: [],
+        discardedCount: 0,
+        error: null,
+      });
+  const initialMockCompletions: MissionMockCompletion[] = [];
+  const initialMockHistory: MockInterviewHistoryEntry[] = [];
+  let mockAvailable = false;
+  if (cloud.account) {
+    try {
+      const history = await listMockInterviewAttempts(
+        createMockHistoryAdminClient(),
+        {
+          userId: cloud.account.id,
+          limit: 50,
+        },
+      );
+      for (const attempt of history.items) {
+        if (attempt.status !== "completed" || !attempt.completedAt) {
+          continue;
+        }
+        const artifact =
+          mockInterviewCompletedArtifactV4Schema.safeParse(
+            attempt.report,
+          );
+        if (!artifact.success) continue;
+        initialMockHistory.push({
+          attemptId: attempt.attemptId,
+          status: attempt.status,
+          roleProfileId: attempt.roleProfileId,
+          roleProfileVersion: attempt.roleProfileVersion,
+          durationMinutes: attempt.durationMinutes,
+          completedAt: attempt.completedAt,
+          report: artifact.data,
+        });
+        initialMockCompletions.push({
+          roleProfileId: attempt.roleProfileId,
+          roleProfileVersion: attempt.roleProfileVersion,
+          durationMinutes: attempt.durationMinutes,
+          mode: artifact.data.plan.mode,
+          targetCompetency:
+            artifact.data.plan.mode === "targeted"
+              ? artifact.data.plan.targetCompetency
+              : null,
+          completedAt: attempt.completedAt,
+          completedOn: vietnamDateKey(new Date(attempt.completedAt)),
+        });
+      }
+      mockAvailable = true;
+    } catch (error) {
+      if (!(error instanceof MockHistoryConfigurationError)) {
+        console.error("WorldQuant mission mock history load failed", {
+          name: error instanceof Error ? error.name : "UnknownError",
+        });
+      }
+    }
+  }
+  const coachEvidence = await coachEvidencePromise;
+  if (coachEvidence.error) {
+    console.error("WorldQuant mission Coach evidence load failed", {
+      code: coachEvidence.error.code ?? "unknown",
+    });
+  }
+  const initialEvidenceProjection = buildWorldQuantAccountEvidenceProjection({
+    coachArtifacts: coachEvidence.artifacts,
+    mockHistory: initialMockHistory,
+    questions,
+    asOf: new Date().toISOString(),
+  });
 
   return (
     <WorldQuantMissionApp
@@ -132,6 +182,7 @@ export default async function WorldQuantMissionPage({
       initialQuestionStates={cloud.questionStates}
       today={vietnamDateKey()}
       initialMockCompletions={initialMockCompletions}
+      initialEvidenceProjection={initialEvidenceProjection}
       mockAvailable={mockAvailable}
     />
   );

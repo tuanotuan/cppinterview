@@ -62,11 +62,14 @@ trạng thái từ tên nhánh.
 
 - Báo cáo Mock v4 mới tách tám tiêu chí: correctness, complexity, idiomatic C++, lifetime/ownership, testing/debugging, communication, requirement clarification và trade-off reasoning. Server tạo evidence catalog từ exact câu trả lời, mã, mã trong đề và tổng hợp hidden-test; AI chỉ cite ID trong catalog rồi server resolve trước khi lưu. Cuối report có đúng ba việc luyện tiếp priority 1–3, được capture vào Mistake Inbox sau durable history theo chế độ `ask`/`auto`/`off`; các artifact Mock cũ vẫn đọc được nhưng hiển thị fallback cũ.
 
-- Evidence Engine đợt 2 đã nối read model vào vòng lặp thật. WorldQuant server đọc
+- Evidence Engine đợt 3 đã nối read model thống nhất vào Hub và Today’s Mission. WorldQuant server đọc
   tối đa 250 Coach attempt theo account/RLS mà không SELECT `candidate_answer`, kết
-  hợp Mock v4 history rồi chỉ gửi projection an toàn xuống client. Readiness nhận
+  hợp Mock v4 history qua cùng một composer rồi chỉ gửi projection an toàn xuống client. Readiness nhận
   đóng góp Coach/Mock có giới hạn nhưng không làm tăng content coverage; Focus planner
-  đưa exact câu bị contradiction hoặc stale vào hàng `repair`/`refresh`. Artifact lệch
+  và Mission đưa exact câu bị contradiction hoặc stale vào hàng `repair`/`refresh`,
+  ưu tiên evidence hành động được trước training gap cũ. Mission snapshot v2 giữ
+  fingerprint không chứa câu trả lời và tự rebuild khi evidence thay đổi; snapshot v2
+  cũ vẫn đọc được khi chưa có assessed evidence. Artifact lệch
   version/revision không được xác minh. Anki vẫn là nguồn lịch ôn trực tiếp để không
   đếm đôi Practice evidence; không có migration, biến môi trường hay provider call mới.
 
@@ -224,12 +227,12 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Evidence consumers đợt 2 đạt `npm run validate`: content/context check, ESLint,
-  TypeScript, 100 file/601 Vitest test và Next.js production build 63 route;
-  golden evaluation riêng đạt 16/16 test. Không cần migration, biến môi trường
-  hay provider call; durable Coach reader và superseded Mock identity đều có test.
-  Security review 10/10 OWASP không có finding mới; bốn override patch đã đưa
-  `npm audit` về 0 lỗ hổng.
+- Evidence consumers đợt 3 đạt `npm run validate`: content/context check, ESLint,
+  TypeScript, 101 file/606 Vitest test và Next.js production build 63 route;
+  golden evaluation riêng đạt 17/17 test. Không cần migration, biến môi trường
+  hay provider call; shared Hub/Mission projection, exact evidence priority và
+  snapshot invalidation đều có test. Security review 10/10 OWASP không có finding
+  mới; `npm audit` báo 0 lỗ hổng.
 - Google OAuth ở `/auth` dùng cùng callback PKCE của Supabase như GitHub; trước
   khi nút hoạt động cần bật provider, điền Google Client ID/Secret và đăng ký
   callback/origin theo `web/supabase/README.md`. Thay đổi UI/route đã đạt

@@ -1,3 +1,7 @@
+import {
+  evidenceProjectionFingerprint,
+  type EvidenceProjection,
+} from "@/lib/evidence/engine";
 import type { QuestionLearningState } from "@/lib/practice/learning-state";
 
 import {
@@ -18,6 +22,7 @@ import {
 } from "./training-state";
 import {
   worldQuantCompetencies,
+  worldQuantCompetencyKeys,
   worldQuantRoleProfileById,
   type ReadinessQuestionSummary,
   type WorldQuantCompetencyKey,
@@ -80,6 +85,7 @@ export type WorldQuantMission = {
   timeBudgetMinutes: number;
   plannedMinutes: number;
   primaryCompetency: WorldQuantCompetencyKey;
+  evidenceFingerprint: string;
   items: WorldQuantMissionItem[];
 };
 
@@ -92,6 +98,7 @@ export function buildWorldQuantMission({
   timeBudgetMinutes,
   daysSinceComparableMock = null,
   mockAvailable = true,
+  attemptEvidence,
 }: {
   roleProfileId: WorldQuantRoleProfileId;
   questions: readonly ReadinessQuestionSummary[];
@@ -101,6 +108,7 @@ export function buildWorldQuantMission({
   timeBudgetMinutes: number;
   daysSinceComparableMock?: number | null;
   mockAvailable?: boolean;
+  attemptEvidence?: EvidenceProjection;
 }): WorldQuantMission {
   const budget = clamp(Math.round(timeBudgetMinutes), 15, 120);
   const profile = worldQuantRoleProfileById(roleProfileId);
@@ -111,7 +119,13 @@ export function buildWorldQuantMission({
       gap.status !== "verified" &&
       profile.weights[gap.competency] > 0,
   );
+  const evidencePriority = selectEvidencePriority({
+    roleProfileId,
+    questions,
+    attemptEvidence,
+  });
   const primaryCompetency =
+    evidencePriority ??
     [...gaps].sort(
       (left, right) =>
         gapPriority(left.status) - gapPriority(right.status) ||
@@ -160,6 +174,7 @@ export function buildWorldQuantMission({
     today,
     timeBudgetMinutes: focusBudget,
     focusCompetency: primaryCompetency,
+    attemptEvidence,
   });
   const missionFocusQuestions = focusPlan.questions.reduce(
     (selected, item) => {
@@ -196,8 +211,7 @@ export function buildWorldQuantMission({
       kind: "flashcards",
       competency: primaryCompetency,
       estimatedMinutes: focusMinutes,
-      reason:
-        "Ôn đúng các thẻ đã duyệt trước khi chuyển sang bài vận dụng.",
+      reason: worldQuantFocusMissionReason(missionFocusQuestions),
       focusPlan: missionFocusPlan,
     });
     remaining -= focusMinutes;
@@ -272,6 +286,7 @@ export function buildWorldQuantMission({
     remaining -= 30;
   }
 
+  const evidenceFingerprint = evidenceProjectionFingerprint(attemptEvidence);
   return {
     version: WORLDQUANT_MISSION_VERSION,
     missionId: worldQuantMissionId({
@@ -279,6 +294,7 @@ export function buildWorldQuantMission({
       roleProfileId,
       timeBudgetMinutes: budget,
       primaryCompetency,
+      evidenceFingerprint,
       items,
     }),
     date: today,
@@ -289,6 +305,7 @@ export function buildWorldQuantMission({
       0,
     ),
     primaryCompetency,
+    evidenceFingerprint,
     items,
   };
 }
@@ -298,15 +315,90 @@ export function worldQuantMissionId({
   roleProfileId,
   timeBudgetMinutes,
   primaryCompetency,
+  evidenceFingerprint,
   items,
 }: {
   date: string;
   roleProfileId: WorldQuantRoleProfileId;
   timeBudgetMinutes: number;
   primaryCompetency: WorldQuantCompetencyKey;
+  evidenceFingerprint: string;
   items: readonly WorldQuantMissionItem[];
 }) {
-  return `wq-mission-v1:${date}:${roleProfileId}:${timeBudgetMinutes}:${primaryCompetency}:${missionFingerprint(items)}`;
+  const evidenceSegment =
+    evidenceFingerprint === "none" ? "" : `:${evidenceFingerprint}`;
+  return `wq-mission-v1:${date}:${roleProfileId}:${timeBudgetMinutes}:${primaryCompetency}${evidenceSegment}:${missionFingerprint(items)}`;
+}
+
+function selectEvidencePriority({
+  roleProfileId,
+  questions,
+  attemptEvidence,
+}: {
+  roleProfileId: WorldQuantRoleProfileId;
+  questions: readonly ReadinessQuestionSummary[];
+  attemptEvidence: EvidenceProjection | undefined;
+}) {
+  const profile = worldQuantRoleProfileById(roleProfileId);
+  return (attemptEvidence?.competencies ?? [])
+    .filter(
+      (competency): competency is typeof competency & {
+        key: WorldQuantCompetencyKey;
+      } => isWorldQuantCompetencyKey(competency.key),
+    )
+    .filter(
+      (competency) =>
+        profile.weights[competency.key] > 0 &&
+        (competency.nextAction === "repair" ||
+          competency.nextAction === "refresh") &&
+        questions.some(
+          (question) =>
+            question.competency === competency.key &&
+            competency.recommendedQuestionIds.includes(question.id),
+        ),
+    )
+    .sort(
+      (left, right) =>
+        evidenceActionRank(left.nextAction) -
+          evidenceActionRank(right.nextAction) ||
+        profile.weights[right.key] - profile.weights[left.key] ||
+        (right.latestEvidenceAt ?? "").localeCompare(
+          left.latestEvidenceAt ?? "",
+        ) ||
+        left.key.localeCompare(right.key),
+    )[0]?.key;
+}
+
+function isWorldQuantCompetencyKey(
+  value: string,
+): value is WorldQuantCompetencyKey {
+  return worldQuantCompetencyKeys.includes(
+    value as WorldQuantCompetencyKey,
+  );
+}
+
+function evidenceActionRank(action: string) {
+  return action === "repair" ? 0 : action === "refresh" ? 1 : 2;
+}
+
+export function worldQuantFocusMissionReason(
+  questions: WorldQuantFocusPlan["questions"],
+) {
+  if (
+    questions.some(
+      (question) => question.queueReason === "evidence_repair",
+    )
+  ) {
+    return "Sửa đúng câu còn thiếu theo lần làm gần nhất trước khi chuyển sang bài vận dụng.";
+  }
+  if (
+    questions.some(
+      (question) => question.queueReason === "evidence_refresh",
+    )
+  ) {
+    return "Làm mới bằng chứng đã cũ bằng đúng câu từng xác minh năng lực này.";
+  }
+  return "Ôn đúng các thẻ đã duyệt trước khi chuyển sang bài vận dụng.";
 }
 
 export function selectMissionDrill({

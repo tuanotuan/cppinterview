@@ -74,6 +74,40 @@ export type CompetencyEvidenceProjection = z.infer<
 >;
 export type EvidenceProjection = z.infer<typeof evidenceProjectionSchema>;
 
+export function evidenceProjectionFingerprint(
+  projection: EvidenceProjection | undefined,
+) {
+  if (!projection) return "none";
+  const assessed = projection.competencies
+    .filter((competency) => competency.assessmentCount > 0)
+    .sort((left, right) => left.key.localeCompare(right.key));
+  if (assessed.length === 0) return "none";
+  const signature = assessed
+    .map((competency) =>
+      [
+        competency.key,
+        competency.status,
+        competency.content,
+        competency.gapKind,
+        competency.score ?? "null",
+        competency.assessmentCount,
+        competency.successfulAttemptCount,
+        competency.latestEvidenceAt ?? "none",
+        competency.nextAction,
+        [...competency.supportingArtifactIds].sort().join(","),
+        [...competency.contradictingArtifactIds].sort().join(","),
+        [...competency.recommendedQuestionIds].sort().join(","),
+      ].join(":"),
+    )
+    .join("|");
+  let hash = 2166136261;
+  for (const character of signature) {
+    hash ^= character.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36);
+}
+
 type AssessmentObservation = {
   artifact: AttemptArtifact;
   assessment: CompetencyAssessment;

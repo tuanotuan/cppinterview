@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 
-import { buildEvidenceProjection } from "@/lib/evidence/engine";
 import { mockInterviewCompletedArtifactV4Schema } from "@/lib/mock-interview/contracts-v4";
-import { attemptArtifactsFromMockHistoryEntry } from "@/lib/mock-interview/evidence-adapter";
 import {
   createMockHistoryAdminClient,
   listMockInterviewAttempts,
@@ -14,10 +12,10 @@ import {
   loadAccountCoachEvidence,
   loadCloudContext,
 } from "@/lib/practice/cloud-server";
+import { buildWorldQuantAccountEvidenceProjection } from "@/lib/worldquant/evidence";
 import {
   classifyWorldQuantCompetency,
   parseWorldQuantRoleProfile,
-  worldQuantCompetencyKeys,
   type ReadinessQuestionSummary,
   type WorldQuantCompetencyKey,
   type WorldQuantRoleProfileId,
@@ -174,31 +172,11 @@ export default async function WorldQuantPage({
       code: coachEvidence.error.code ?? "unknown",
     });
   }
-  const evidenceAsOf = new Date().toISOString();
-  const currentMockQuestions = questions.map((question) => ({
-    id: question.id,
-    version: question.version,
-    contentRevision: question.sourceHash,
-  }));
-  const initialEvidenceProjection = buildEvidenceProjection({
-    artifacts: [
-      ...coachEvidence.artifacts,
-      ...initialMockHistory.flatMap((entry) =>
-        attemptArtifactsFromMockHistoryEntry(entry, currentMockQuestions),
-      ),
-    ],
-    competencies: worldQuantCompetencyKeys.map((key) => ({
-      key,
-      content: questions.some(
-        (question) =>
-          question.competency === key &&
-          question.validation !== "personal_remediation",
-      )
-        ? "available"
-        : "missing",
-      targetSuccessfulAttempts: 2,
-    })),
-    asOf: evidenceAsOf,
+  const initialEvidenceProjection = buildWorldQuantAccountEvidenceProjection({
+    coachArtifacts: coachEvidence.artifacts,
+    mockHistory: initialMockHistory,
+    questions,
+    asOf: new Date().toISOString(),
   });
 
   return (

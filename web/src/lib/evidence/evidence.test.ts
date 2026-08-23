@@ -6,7 +6,10 @@ import {
   practiceReviewToAttemptArtifact,
 } from "./adapters";
 import { attemptArtifactSchema } from "./contracts";
-import { buildEvidenceProjection } from "./engine";
+import {
+  buildEvidenceProjection,
+  evidenceProjectionFingerprint,
+} from "./engine";
 import {
   evaluateCoachGoldenCase,
   evaluateCoachGoldenCorpus,
@@ -87,6 +90,63 @@ describe("AttemptArtifact v1", () => {
 });
 
 describe("Evidence Engine v1", () => {
+  it("creates a stable fingerprint from assessed evidence, not projection time", () => {
+    const artifact = artifactFor(
+      coachGoldenCases[0],
+      "fingerprint",
+      "2026-08-20T00:00:00.000Z",
+    );
+    const definitions = [
+      {
+        key: "modern_cpp",
+        content: "available" as const,
+        targetSuccessfulAttempts: 2,
+      },
+      {
+        key: "tick_market_data",
+        content: "available" as const,
+        targetSuccessfulAttempts: 2,
+      },
+    ];
+    const first = buildEvidenceProjection({
+      artifacts: [artifact],
+      competencies: definitions,
+      asOf: "2026-08-22T00:00:00.000Z",
+    });
+    const reordered = buildEvidenceProjection({
+      artifacts: [artifact],
+      competencies: [...definitions].reverse(),
+      asOf: "2026-08-23T00:00:00.000Z",
+    });
+    const changed = buildEvidenceProjection({
+      artifacts: [
+        artifactFor(
+          coachGoldenCases[0],
+          "different-attempt",
+          "2026-08-20T00:00:00.000Z",
+        ),
+      ],
+      competencies: definitions,
+      asOf: "2026-08-23T00:00:00.000Z",
+    });
+
+    expect(evidenceProjectionFingerprint(first)).toBe(
+      evidenceProjectionFingerprint(reordered),
+    );
+    expect(evidenceProjectionFingerprint(changed)).not.toBe(
+      evidenceProjectionFingerprint(first),
+    );
+    expect(
+      evidenceProjectionFingerprint(
+        buildEvidenceProjection({
+          artifacts: [],
+          competencies: definitions,
+          asOf: "2026-08-23T00:00:00.000Z",
+        }),
+      ),
+    ).toBe("none");
+  });
+
   it("keeps content gaps separate from learner weakness", () => {
     const projection = buildEvidenceProjection({
       artifacts: [],

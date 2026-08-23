@@ -215,7 +215,8 @@ Trạng thái trình duyệt không thêm migration:
   checkpoint exposure trên browser thiếu Web Locks bị phân loại bảo thủ là
   repeat, không được dùng làm bằng chứng unseen.
 - Mission snapshot tách theo account/local, ngày Việt Nam, role và budget; chỉ
-  giữ identity/version/hash, drill revision và repair ID. Snapshot stale phải
+  giữ identity/version/hash, drill revision, repair ID và fingerprint an toàn của
+  projection evidence; không lưu answer/code/excerpt hay payload attempt. Snapshot stale phải
   fail closed rồi rebuild, không được giữ card revision/competency cũ hoặc
   `content_gap` trái với canonical approved content hiện tại. Personal remediation
   có thể cùng tồn tại với canonical gap và vẫn phải round-trip. Snapshot chứa
@@ -223,7 +224,8 @@ Trạng thái trình duyệt không thêm migration:
   completion bền vững. Mỗi account chỉ giữ tối đa 24 key snapshot v2; prune
   không được chạm key account/namespace khác hoặc key v1. Snapshot v1 không được
   di chuyển vì kế hoạch có thể chứa revision cũ; đường đọc phải bỏ qua và dựng
-  lại bản v2 từ dữ liệu hiện hành.
+  lại bản v2 từ dữ liệu hiện hành. Snapshot v2 cũ thiếu fingerprint được hiểu là
+  `none`; nó chỉ còn hợp lệ khi projection hiện tại cũng chưa có evidence đã đánh giá.
 - Guided onboarding là UI state versioned riêng theo `account UUID`/`local`,
   không phải learning evidence. Return từ Focus/Drill/Mock chỉ dùng allowlisted
   marker + role + budget 15 phút hợp lệ để dựng lại `/worldquant/mission`; không
@@ -562,7 +564,10 @@ service-role-only/browser grants như contract hiện tại.
 - Coach/Mock artifact lệch question version/revision hiện hành không được xác minh.
   Readiness chỉ nhận projection an toàn, giữ content coverage độc lập và giới hạn
   Coach/Mock ở một đơn vị mỗi competency. Focus chỉ ưu tiên `repair`/`refresh` cho
-  exact question ID do projection đề xuất; Anki state vẫn quyết định lịch ôn thường.
+  exact question ID do projection đề xuất; Today’s Mission phải dùng cùng composer,
+  ưu tiên `repair` trước `refresh`, rồi mới fallback về training gap/ít được luyện.
+  Anki state vẫn quyết định lịch ôn thường. Fingerprint không được phụ thuộc `asOf`
+  đơn thuần nhưng phải đổi khi evidence đã đánh giá hoặc hành động khuyến nghị đổi.
 - Golden grading corpus chạy offline bằng `npm run eval:evidence`; không gọi AI
   hay ghi Supabase. Khi đổi grading contract, artifact schema hoặc policy evidence,
   cập nhật corpus theo version và giữ các case strong, thiếu ý bắt buộc, sai tinh
