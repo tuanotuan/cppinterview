@@ -42,6 +42,7 @@ export const competencyEvidenceProjectionSchema = z
     nextAction: z.enum([
       "add_content",
       "assess",
+      "practice",
       "repair",
       "refresh",
       "maintain",
@@ -52,6 +53,7 @@ export const competencyEvidenceProjectionSchema = z
     latestEvidenceAt: z.string().datetime({ offset: true }).nullable(),
     supportingArtifactIds: z.array(z.string().min(1).max(360)),
     contradictingArtifactIds: z.array(z.string().min(1).max(360)),
+    recommendedQuestionIds: z.array(competencyKeySchema).max(10),
   })
   .strict();
 
@@ -116,7 +118,7 @@ export function buildEvidenceProjection({
     const latestSuccessful = latestObservation(successful);
     const latest = latestObservation(observations);
     const latestContradicts =
-      latest !== null && !isSuccessful(latest, parsedPolicy);
+      latest !== null && isContradiction(latest, parsedPolicy);
     const verified =
       successful.length >= definition.targetSuccessfulAttempts &&
       !latestContradicts;
@@ -139,21 +141,28 @@ export function buildEvidenceProjection({
     );
     const contradictingArtifactIds = uniqueSorted(
       observations
-        .filter((observation) => !isSuccessful(observation, parsedPolicy))
+        .filter((observation) => isContradiction(observation, parsedPolicy))
         .map((observation) => observation.artifact.id),
     );
+    const recommendedQuestionIds = recommendedQuestions({
+      latest,
+      latestSuccessful,
+      status,
+      latestContradicts,
+    });
     return competencyEvidenceProjectionSchema.parse({
       key: definition.key,
       status,
       content: definition.content,
       gapKind: gapKind(definition.content, status),
-      nextAction: nextAction(definition.content, status),
+      nextAction: nextAction(definition.content, status, latestContradicts),
       score,
       assessmentCount: observations.length,
       successfulAttemptCount: successful.length,
       latestEvidenceAt: latest?.artifact.occurredAt ?? null,
       supportingArtifactIds,
       contradictingArtifactIds,
+      recommendedQuestionIds,
     });
   });
 
@@ -197,6 +206,7 @@ function isSuccessful(
     (status) => status === "failed" || status === "infrastructure_error",
   );
   return (
+    artifact.question.current &&
     assessment.score !== null &&
     assessment.score >= policy.passingScore &&
     assessment.confidence >= policy.minimumConfidence &&
@@ -204,6 +214,29 @@ function isSuccessful(
     !artifact.response.usedHint &&
     !artifact.response.revealedReference &&
     !executionInvalid
+  );
+}
+
+function isContradiction(
+  observation: AssessmentObservation,
+  policy: EvidencePolicy,
+) {
+  const { artifact, assessment } = observation;
+  const executionInvalid = [
+    artifact.verification.compile,
+    artifact.verification.tests,
+    artifact.verification.sanitizers,
+  ].some(
+    (status) => status === "failed" || status === "infrastructure_error",
+  );
+  return (
+    !artifact.question.current ||
+    assessment.score === null ||
+    assessment.score < policy.passingScore ||
+    artifact.response.status === "not_provided" ||
+    artifact.response.usedHint ||
+    artifact.response.revealedReference ||
+    executionInvalid
   );
 }
 
@@ -242,12 +275,33 @@ function gapKind(
 function nextAction(
   content: EvidenceCompetencyDefinition["content"],
   status: CompetencyEvidenceProjection["status"],
+  latestContradicts: boolean,
 ): CompetencyEvidenceProjection["nextAction"] {
   if (content === "missing" && status === "unassessed") return "add_content";
   if (status === "unassessed") return "assess";
-  if (status === "learning") return "repair";
+  if (status === "learning") return latestContradicts ? "repair" : "practice";
   if (status === "stale") return "refresh";
   return "maintain";
+}
+
+function recommendedQuestions({
+  latest,
+  latestSuccessful,
+  status,
+  latestContradicts,
+}: {
+  latest: AssessmentObservation | null;
+  latestSuccessful: AssessmentObservation | null;
+  status: CompetencyEvidenceProjection["status"];
+  latestContradicts: boolean;
+}) {
+  if (status === "stale" && latestSuccessful) {
+    return [latestSuccessful.artifact.question.id];
+  }
+  if (status === "learning" && latestContradicts && latest) {
+    return [latest.artifact.question.id];
+  }
+  return [];
 }
 
 function uniqueSorted(values: readonly string[]) {

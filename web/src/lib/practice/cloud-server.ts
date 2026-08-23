@@ -12,6 +12,11 @@ import {
 } from "@/lib/content/question-store-server";
 import type { ContentManifest } from "@/lib/content/schema";
 import {
+  readAccountCoachEvidenceArtifacts,
+  type AccountCoachEvidenceRead,
+  type AccountEvidenceQuestion,
+} from "@/lib/evidence/account-evidence.server";
+import {
   applyQuestionOverrides,
   questionOverrideSelect,
   rowsToQuestionOverrides,
@@ -146,6 +151,26 @@ export async function loadCloudAccount(): Promise<CloudAccountContext> {
     account: toPracticeAccount(user),
     canManageQuestionBank: isTuanotuanQuestionAdmin(user),
   };
+}
+
+export async function loadAccountCoachEvidence({
+  questions,
+}: {
+  questions: readonly AccountEvidenceQuestion[];
+}): Promise<AccountCoachEvidenceRead> {
+  if (!isSupabaseConfigured()) {
+    return { artifacts: [], discardedCount: 0, error: null };
+  }
+
+  const { supabase, user } = await loadCloudIdentity();
+  if (!user) {
+    return { artifacts: [], discardedCount: 0, error: null };
+  }
+
+  return readAccountCoachEvidenceArtifacts(supabase, {
+    userId: user.id,
+    questions,
+  });
 }
 
 export async function loadCloudContext(

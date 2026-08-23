@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
+import { buildEvidenceProjection } from "@/lib/evidence/engine";
 import { mockInterviewCompletedArtifactV4Schema } from "@/lib/mock-interview/contracts-v4";
+import { attemptArtifactsFromMockHistoryEntry } from "@/lib/mock-interview/evidence-adapter";
 import {
   createMockHistoryAdminClient,
   listMockInterviewAttempts,
@@ -8,10 +10,14 @@ import {
 } from "@/lib/mock-interview/history.server";
 import type { MockInterviewHistoryEntry } from "@/lib/mock-interview/trends";
 import { isQuestionApproved } from "@/lib/practice/approvals";
-import { loadCloudContext } from "@/lib/practice/cloud-server";
+import {
+  loadAccountCoachEvidence,
+  loadCloudContext,
+} from "@/lib/practice/cloud-server";
 import {
   classifyWorldQuantCompetency,
   parseWorldQuantRoleProfile,
+  worldQuantCompetencyKeys,
   type ReadinessQuestionSummary,
   type WorldQuantCompetencyKey,
   type WorldQuantRoleProfileId,
@@ -99,6 +105,31 @@ export default async function WorldQuantPage({
       },
       {},
     );
+  const manifestQuestionsById = new Map(
+    cloud.manifest.questions.map((question) => [question.id, question]),
+  );
+  const coachEvidencePromise = cloud.account
+    ? loadAccountCoachEvidence({
+        questions: questions.flatMap((question) => {
+          const manifestQuestion = manifestQuestionsById.get(question.id);
+          return manifestQuestion
+            ? [
+                {
+                  id: question.id,
+                  version: question.version,
+                  sourceRevision: cloud.manifest.sourceRevision,
+                  responseMode: manifestQuestion.responseMode ?? "text",
+                  competency: question.competency,
+                },
+              ]
+            : [];
+        }),
+      })
+    : Promise.resolve({
+        artifacts: [],
+        discardedCount: 0,
+        error: null,
+      });
   let mockHistoryAvailable = false;
   let initialMockHistory: MockInterviewHistoryEntry[] = [];
   if (cloud.account) {
@@ -137,6 +168,38 @@ export default async function WorldQuantPage({
       }
     }
   }
+  const coachEvidence = await coachEvidencePromise;
+  if (coachEvidence.error) {
+    console.error("WorldQuant Coach evidence load failed", {
+      code: coachEvidence.error.code ?? "unknown",
+    });
+  }
+  const evidenceAsOf = new Date().toISOString();
+  const currentMockQuestions = questions.map((question) => ({
+    id: question.id,
+    version: question.version,
+    contentRevision: question.sourceHash,
+  }));
+  const initialEvidenceProjection = buildEvidenceProjection({
+    artifacts: [
+      ...coachEvidence.artifacts,
+      ...initialMockHistory.flatMap((entry) =>
+        attemptArtifactsFromMockHistoryEntry(entry, currentMockQuestions),
+      ),
+    ],
+    competencies: worldQuantCompetencyKeys.map((key) => ({
+      key,
+      content: questions.some(
+        (question) =>
+          question.competency === key &&
+          question.validation !== "personal_remediation",
+      )
+        ? "available"
+        : "missing",
+      targetSuccessfulAttempts: 2,
+    })),
+    asOf: evidenceAsOf,
+  });
 
   return (
     <WorldQuantReadinessApp
@@ -149,6 +212,7 @@ export default async function WorldQuantPage({
       cloudError={cloud.error}
       today={vietnamDateKey()}
       initialMockHistory={initialMockHistory}
+      initialEvidenceProjection={initialEvidenceProjection}
       mockHistoryAvailable={mockHistoryAvailable}
       initialRoleId={initialRoleId}
     />

@@ -555,10 +555,21 @@ service-role-only/browser grants như contract hiện tại.
   blank/reveal/hint hay hidden test fail không được tính là evidence thành công.
   Projection bỏ evidence nằm sau `asOf`; contradiction mới nhất hạ trạng thái về
   `learning`. Content `missing` là trục độc lập, không được đổi thành learner weakness.
+- WorldQuant account evidence chỉ SELECT `id`, question identity, feedback và
+  `created_at` từ tối đa 250 `coach_attempts`; query phải có predicate `user_id`
+  bên cạnh RLS và không được chọn `candidate_answer`. Mọi row/feedback phải qua Zod
+  trước khi thành artifact; lỗi đọc trả projection rỗng, không đưa payload lỗi ra client.
+- Coach/Mock artifact lệch question version/revision hiện hành không được xác minh.
+  Readiness chỉ nhận projection an toàn, giữ content coverage độc lập và giới hạn
+  Coach/Mock ở một đơn vị mỗi competency. Focus chỉ ưu tiên `repair`/`refresh` cho
+  exact question ID do projection đề xuất; Anki state vẫn quyết định lịch ôn thường.
 - Golden grading corpus chạy offline bằng `npm run eval:evidence`; không gọi AI
   hay ghi Supabase. Khi đổi grading contract, artifact schema hoặc policy evidence,
   cập nhật corpus theo version và giữ các case strong, thiếu ý bắt buộc, sai tinh
   vi, blank, prompt injection và hidden-test failure.
+- Security overrides giữ `dompurify >= 3.4.14`, `nanoid >= 3.3.18`,
+  `postcss >= 8.5.26` và `undici >= 7.29.0`; không hạ các mức này khi cập nhật
+  lockfile. `npm audit` là gate dependency trước merge.
 
 ## Chọn validation theo phạm vi
 

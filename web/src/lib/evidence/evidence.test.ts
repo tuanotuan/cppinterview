@@ -80,6 +80,8 @@ describe("AttemptArtifact v1", () => {
       status: "learning",
       score: 90,
       successfulAttemptCount: 0,
+      nextAction: "practice",
+      recommendedQuestionIds: [],
     });
   });
 });
@@ -249,6 +251,34 @@ describe("Evidence Engine v1", () => {
       successfulAttemptCount: 1,
       latestEvidenceAt: "2026-08-21T00:00:00.000Z",
       contradictingArtifactIds: [laterFailure.id],
+      nextAction: "repair",
+      recommendedQuestionIds: ["golden-question"],
+    });
+  });
+
+  it("does not verify a superseded question revision", () => {
+    const base = artifactFor(
+      coachGoldenCases[0],
+      "superseded",
+      "2026-08-22T00:00:00.000Z",
+    );
+    const artifact = attemptArtifactSchema.parse({
+      ...base,
+      question: { ...base.question, current: false },
+    });
+    const projection = buildEvidenceProjection({
+      artifacts: [artifact],
+      competencies: [
+        { key: "modern_cpp", content: "available", targetSuccessfulAttempts: 1 },
+      ],
+      asOf: "2026-08-23T00:00:00.000Z",
+    });
+
+    expect(projection.competencies[0]).toMatchObject({
+      status: "learning",
+      successfulAttemptCount: 0,
+      nextAction: "repair",
+      recommendedQuestionIds: ["golden-question"],
     });
   });
 });

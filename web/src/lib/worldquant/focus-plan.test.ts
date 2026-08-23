@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { PracticeDeckId } from "@/lib/content/schema";
+import type { EvidenceProjection } from "@/lib/evidence/engine";
 import type { QuestionLearningState } from "@/lib/practice/learning-state";
 
 import {
@@ -253,6 +254,41 @@ describe("WorldQuant Focus Sprint planner", () => {
 
     expect(plan.questions.map((step) => step.question.id)).toEqual([
       "available-new",
+    ]);
+  });
+
+  it("promotes the exact question recommended by durable evidence", () => {
+    const repairQuestion = question({ id: "repair-this" });
+    const healthyQuestion = question({ id: "leave-healthy" });
+    const futureReview = (questionId: string) =>
+      state({
+        questionId,
+        state: "review",
+        intervalDays: 30,
+        dueOn: "2026-09-01",
+      });
+
+    const plan = buildWorldQuantFocusPlan({
+      profileId: "tick-data-platform",
+      questions: [healthyQuestion, repairQuestion],
+      states: new Map([
+        [repairQuestion.id, futureReview(repairQuestion.id)],
+        [healthyQuestion.id, futureReview(healthyQuestion.id)],
+      ]),
+      today: TODAY,
+      timeBudgetMinutes: 15,
+      focusCompetency: "modern_cpp",
+      attemptEvidence: evidenceProjection({
+        nextAction: "repair",
+        recommendedQuestionIds: [repairQuestion.id],
+      }),
+    });
+
+    expect(plan.questions).toEqual([
+      expect.objectContaining({
+        question: expect.objectContaining({ id: repairQuestion.id }),
+        queueReason: "evidence_repair",
+      }),
     ]);
   });
 
@@ -548,5 +584,34 @@ function state(
     historyResetOn: null,
     historyResetToken: null,
     ...overrides,
+  };
+}
+
+function evidenceProjection({
+  nextAction,
+  recommendedQuestionIds,
+}: {
+  nextAction: "repair" | "refresh";
+  recommendedQuestionIds: string[];
+}): EvidenceProjection {
+  return {
+    version: 1,
+    asOf: "2026-07-26T00:00:00.000Z",
+    competencies: [
+      {
+        key: "modern_cpp",
+        status: nextAction === "repair" ? "learning" : "stale",
+        content: "available",
+        gapKind: "learner",
+        nextAction,
+        score: 60,
+        assessmentCount: 1,
+        successfulAttemptCount: 0,
+        latestEvidenceAt: "2026-07-25T00:00:00.000Z",
+        supportingArtifactIds: [],
+        contradictingArtifactIds: ["coach:1:repair-this"],
+        recommendedQuestionIds,
+      },
+    ],
   };
 }

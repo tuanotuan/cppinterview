@@ -106,6 +106,9 @@ export const attemptArtifactSchema = z
         version: z.number().int().positive(),
         contentRevision: z.string().trim().min(1).max(128),
         responseMode: z.enum(["text", "code"]),
+        // Historical artifacts remain readable, while superseded question
+        // revisions cannot silently count as current verification.
+        current: z.boolean().default(true),
       })
       .strict(),
     response: z

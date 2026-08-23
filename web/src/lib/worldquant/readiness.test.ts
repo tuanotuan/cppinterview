@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { QuestionLearningState } from "@/lib/practice/learning-state";
+import type { EvidenceProjection } from "@/lib/evidence/engine";
 
 import {
   buildWorldQuantReadiness,
@@ -162,6 +163,50 @@ describe("WorldQuant readiness evidence", () => {
     expect(modern.coveragePercent).toBe(100);
     expect(modern.preparedPercent).toBe(0);
     expect(modern.gapKind).toBe("learning");
+  });
+
+  it("adds a capped Coach/Mock signal without inflating bank coverage", () => {
+    const attemptEvidence: EvidenceProjection = {
+      version: 1,
+      asOf: "2026-07-26T00:00:00.000Z",
+      competencies: [
+        {
+          key: "modern_cpp",
+          status: "verified",
+          content: "missing",
+          gapKind: "content",
+          nextAction: "maintain",
+          score: 88,
+          assessmentCount: 2,
+          successfulAttemptCount: 2,
+          latestEvidenceAt: "2026-07-25T00:00:00.000Z",
+          supportingArtifactIds: ["mock:1:q", "coach:2:q"],
+          contradictingArtifactIds: [],
+          recommendedQuestionIds: [],
+        },
+      ],
+    };
+    const result = buildWorldQuantReadiness({
+      profileId: "tick-data-platform",
+      questions: [],
+      states: new Map(),
+      today: "2026-07-26",
+      attemptEvidence,
+    });
+    const modern = result.competencies.find(
+      (competency) => competency.key === "modern_cpp",
+    )!;
+
+    expect(modern).toMatchObject({
+      coveragePercent: 0,
+      preparedPercent: 17,
+      status: "starting",
+      gapKind: "content",
+      attemptEvidenceStatus: "verified",
+      attemptEvidenceScore: 88,
+      attemptAssessmentCount: 2,
+      attemptNextAction: "maintain",
+    });
   });
 
   it("reports a mixed gap when the bank and learning evidence are both incomplete", () => {
