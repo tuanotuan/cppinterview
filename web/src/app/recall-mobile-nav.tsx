@@ -31,7 +31,7 @@ export function RecallMobileNav() {
   return (
     <nav
       aria-label="Điều hướng chính"
-      className="recall-mobile-nav fixed inset-x-3 bottom-3 z-40 mx-auto grid max-w-md grid-cols-4 items-center rounded-xl border border-white/30 bg-[color:var(--pine)]/96 px-2 py-2 text-white shadow-[var(--shadow-lift)] backdrop-blur lg:hidden"
+      className="recall-mobile-nav fixed inset-x-3 bottom-3 z-40 mx-auto grid max-w-md grid-cols-4 items-center rounded-2xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] px-2 py-2 shadow-[0_10px_30px_rgb(15_58_105_/_16%)] lg:hidden"
     >
       {items.map((item) => {
         const active = isCurrent(pathname, item.href);
@@ -41,10 +41,10 @@ export function RecallMobileNav() {
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
-            className={`grid min-h-11 min-w-0 place-items-center gap-0.5 rounded-xl px-1 py-1.5 text-center transition focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none ${
+            className={`relative grid min-h-11 min-w-0 place-items-center gap-0.5 rounded-xl px-1 py-1.5 text-center transition focus-visible:ring-4 focus-visible:ring-[color:var(--focus-ring)] focus-visible:outline-none ${
               active
-                ? "bg-[color:var(--accent)] text-[color:var(--pine-strong)]"
-                : "text-white/65 hover:bg-white/10 hover:text-white"
+                ? "bg-[color:var(--accent-soft)] text-[color:var(--pine)] after:absolute after:inset-x-4 after:top-0 after:h-0.5 after:rounded-full after:bg-[color:var(--accent)]"
+                : "text-[color:var(--ink-muted)] hover:bg-[color:var(--surface-muted)] hover:text-[color:var(--pine)]"
             }`}
           >
             <Icon />

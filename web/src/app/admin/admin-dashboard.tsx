@@ -792,26 +792,26 @@ function mistakeErrorMessage(code: string) {
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
       <div className="mx-auto max-w-[1500px]">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
+        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#0f3a69]/15 pb-5">
           <div className="flex items-center gap-3">
             <Link
               href="/"
               aria-label="Về trang chủ cppinterview"
               title="Về trang chủ cppinterview"
-              className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+              className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
               R
             </Link>
             <div>
               <p className="text-lg font-bold">Quản trị cppinterview</p>
-              <p className="text-xs text-[#64736c]">
+              <p className="text-xs text-[#526276]">
                 Quản lý nội dung và hoạt động học tập
               </p>
             </div>
           </div>
           <nav className="flex flex-wrap items-center gap-2">
             <Link
-              className="rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-[#d7ff91] transition hover:bg-[#245748]"
+              className="rounded-xl bg-[#0f3a69] px-4 py-2 text-sm font-bold text-[#65e6d2] transition hover:bg-[#16865a]"
               href="/practice"
             >
               Luyện hôm nay
@@ -834,11 +834,11 @@ function mistakeErrorMessage(code: string) {
             >
               Chuẩn bị phỏng vấn
             </Link>
-            <span className="rounded-full border border-[#173f35]/15 bg-white/65 px-4 py-2 text-xs font-semibold">
+            <span className="rounded-full border border-[#0f3a69]/15 bg-white/65 px-4 py-2 text-xs font-semibold">
               @{account.login ?? account.displayName}
             </span>
             <form action="/auth/logout" method="post">
-              <button className="rounded-xl border border-[#173f35]/15 bg-white/70 px-4 py-2 text-sm font-bold hover:border-[#ba4b2f]/40">
+              <button className="rounded-xl border border-[#0f3a69]/15 bg-white/70 px-4 py-2 text-sm font-bold hover:border-[#a65c0e]/40">
                 Đăng xuất
               </button>
             </form>
@@ -846,7 +846,7 @@ function mistakeErrorMessage(code: string) {
         </header>
 
         <section className="py-9">
-          <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+          <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
             Tổng quan
           </p>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
@@ -854,7 +854,7 @@ function mistakeErrorMessage(code: string) {
               <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
                 Quản lý cppinterview
               </h1>
-              <p className="mt-3 text-[#64736c]">
+              <p className="mt-3 text-[#526276]">
                 Phiên bản nguồn{" "}
                 <span className="font-mono">
                   {initialSnapshot.sourceRevision.slice(0, 10)}
@@ -863,7 +863,7 @@ function mistakeErrorMessage(code: string) {
             </div>
           </div>
           {notice ? (
-            <p className="mt-4 rounded-2xl border border-[#173f35]/15 bg-white/65 px-4 py-3 text-sm font-semibold">
+            <p className="mt-4 rounded-2xl border border-[#0f3a69]/15 bg-white/65 px-4 py-3 text-sm font-semibold">
               {notice}
             </p>
           ) : null}
@@ -887,10 +887,10 @@ function mistakeErrorMessage(code: string) {
           />
         </section>
 
-        <section className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#173f35]/15 bg-white/65 px-5 py-4">
+        <section className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#0f3a69]/15 bg-white/65 px-5 py-4">
           <div>
             <p className="text-sm font-bold">Gemini miễn phí dự phòng</p>
-            <p className="mt-1 text-xs leading-5 text-[#64736c]">
+            <p className="mt-1 text-xs leading-5 text-[#526276]">
               Chỉ dùng khi đã hết hạn mức OpenAI theo ngày hoặc tháng; không
               dùng cho các lỗi OpenAI thông thường.
             </p>
@@ -903,8 +903,8 @@ function mistakeErrorMessage(code: string) {
             onClick={() => void toggleGeminiFallback()}
             className={`rounded-full px-4 py-2 text-xs font-bold transition disabled:cursor-wait disabled:opacity-60 ${
               geminiFallbackEnabled
-                ? "bg-[#173f35] text-white"
-                : "border border-[#173f35]/20 bg-white text-[#52645c]"
+                ? "bg-[#0f3a69] text-white"
+                : "border border-[#0f3a69]/20 bg-white text-[#43546a]"
             }`}
           >
             {geminiSettingSaving
@@ -915,22 +915,22 @@ function mistakeErrorMessage(code: string) {
           </button>
         </section>
 
-        <details className="group mt-4 overflow-hidden rounded-2xl border border-[#173f35]/15 bg-white/65">
+        <details className="group mt-4 overflow-hidden rounded-2xl border border-[#0f3a69]/15 bg-white/65">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4">
             <div>
               <p className="text-sm font-bold">
                 Quy trình tạo nội dung trực tiếp từ cơ sở dữ liệu
               </p>
-              <p className="mt-1 text-xs text-[#64736c]">
+              <p className="mt-1 text-xs text-[#526276]">
                 {generationJobs.filter((job) => ["pending", "running", "deferred"].includes(job.status)).length} tác vụ đang chờ hoặc đang chạy · {generationJobs.filter((job) => ["failed", "dead_letter"].includes(job.status)).length} tác vụ cần xử lý
               </p>
             </div>
-            <span className="text-xs font-bold text-[#356b58]">
+            <span className="text-xs font-bold text-[#285f86]">
               <span className="group-open:hidden">Xem quy trình ↓</span>
               <span className="hidden group-open:inline">Thu gọn ↑</span>
             </span>
           </summary>
-          <div className="border-t border-[#173f35]/10 px-5 py-4">
+          <div className="border-t border-[#0f3a69]/10 px-5 py-4">
             <div className="space-y-2">
               {generationJobs.slice(0, 20).map((job) => {
                 const obsoleteGenerator =
@@ -942,10 +942,10 @@ function mistakeErrorMessage(code: string) {
                   ? job.lastError.code
                   : null;
                 return (
-                  <div key={job.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#173f35]/10 bg-white/70 px-4 py-3">
+                  <div key={job.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#0f3a69]/10 bg-white/70 px-4 py-3">
                     <div className="min-w-0">
                       <p className="truncate font-mono text-xs font-bold">#{job.id} · {job.lessonId}</p>
-                      <p className="mt-1 text-xs text-[#64736c]">
+                      <p className="mt-1 text-xs text-[#526276]">
                         {generationStatusLabels[job.status]} · lần{" "}
                         {job.attemptCount}/5 · {job.provider}/{job.model}
                         {obsoleteGenerator ? " · phiên bản bộ sinh cũ" : ""}
@@ -959,7 +959,7 @@ function mistakeErrorMessage(code: string) {
                         type="button"
                         disabled={retryingJobId !== null}
                         onClick={() => void retryGenerationJob(job)}
-                        className="rounded-xl border border-[#ba4b2f]/25 bg-white px-3 py-2 text-xs font-bold text-[#8e3825] disabled:opacity-50"
+                        className="rounded-xl border border-[#a65c0e]/25 bg-white px-3 py-2 text-xs font-bold text-[#c43d3d] disabled:opacity-50"
                       >
                         {retryingJobId === job.id
                           ? "Đang xử lý…"
@@ -972,7 +972,7 @@ function mistakeErrorMessage(code: string) {
                 );
               })}
               {!generationJobs.length ? (
-                <p className="rounded-xl border border-dashed border-[#173f35]/15 px-4 py-6 text-center text-sm text-[#64736c]">
+                <p className="rounded-xl border border-dashed border-[#0f3a69]/15 px-4 py-6 text-center text-sm text-[#526276]">
                   Chưa có tác vụ tạo nội dung; bài học mới hoặc nguồn thay đổi
                   sẽ tự tạo tác vụ.
                 </p>
@@ -983,38 +983,38 @@ function mistakeErrorMessage(code: string) {
 
         <details
           id="mistake-inbox"
-          className="group mt-8 scroll-mt-5 overflow-hidden rounded-[2rem] border border-[#356b58]/20 bg-[#eef6e7]"
+          className="group mt-8 scroll-mt-5 overflow-hidden rounded-[1.25rem] border border-[#285f86]/20 bg-[#e6f8f5]"
         >
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 sm:px-7 sm:py-6">
             <div className="flex min-w-0 items-center gap-4">
-              <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#d7ff91] font-mono text-sm font-bold text-[#173f35]">
+              <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#65e6d2] font-mono text-sm font-bold text-[#0f3a69]">
                 {mistakeFunnel.detected}
               </span>
               <div>
-                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
+                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#285f86] uppercase">
                   Lỗi sai → thẻ ghi nhớ
                 </p>
                 <h2 className="mt-1 text-xl font-semibold">Hộp lỗi cần ôn</h2>
-                <p className="mt-1 text-xs text-[#64736c]">
+                <p className="mt-1 text-xs text-[#526276]">
                   {mistakeFunnel.generated} đã tạo · {mistakeFunnel.approved} đã duyệt · {mistakeFunnel.firstReviewed} đã ôn · {mistakeFunnel.resolved} đạt 21 ngày · {mistakeFunnel.repeated} lỗi lặp lại
                 </p>
               </div>
             </div>
-            <span className="text-xs font-bold text-[#356b58]">
+            <span className="text-xs font-bold text-[#285f86]">
               <span className="group-open:hidden">Xem hộp lỗi ↓</span>
               <span className="hidden group-open:inline">Thu gọn ↑</span>
             </span>
           </summary>
-          <div className="border-t border-[#356b58]/15 px-5 py-6 sm:px-7">
+          <div className="border-t border-[#285f86]/15 px-5 py-6 sm:px-7">
             {!mistakeQueueAvailable ? (
-              <p className="rounded-xl border border-[#ba4b2f]/20 bg-[#fff4df] p-4 text-sm text-[#8e3825]">
+              <p className="rounded-xl border border-[#a65c0e]/20 bg-[#fff4df] p-4 text-sm text-[#c43d3d]">
                 Chưa cài đặt dữ liệu chuyển lỗi thành thẻ ghi nhớ trong
                 Supabase.
               </p>
             ) : (
               <>
                 <div className="flex flex-wrap items-center justify-between gap-4">
-                  <p className="max-w-2xl text-sm text-[#64736c]">
+                  <p className="max-w-2xl text-sm text-[#526276]">
                     Chỉ những lỗi đã được lưu từ trợ lý AI hoặc buổi phỏng vấn
                     thử mới xuất hiện ở đây. AI tạo bản nháp có nguồn; quản trị
                     viên vẫn cần duyệt câu trước khi đưa vào lịch ôn.
@@ -1024,7 +1024,7 @@ function mistakeErrorMessage(code: string) {
                       type="button"
                       disabled={mistakeBackfilling}
                       onClick={() => void backfillMistakes()}
-                      className="rounded-xl border border-[#173f35]/15 bg-white px-3 py-2 text-xs font-bold disabled:opacity-50"
+                      className="rounded-xl border border-[#0f3a69]/15 bg-white px-3 py-2 text-xs font-bold disabled:opacity-50"
                     >
                       {mistakeBackfilling
                         ? "Đang quét…"
@@ -1039,7 +1039,7 @@ function mistakeErrorMessage(code: string) {
                             event.target.value as MistakeGenerationMode,
                           )
                         }
-                        className="rounded-xl border border-[#173f35]/15 bg-white px-3 py-2"
+                        className="rounded-xl border border-[#0f3a69]/15 bg-white px-3 py-2"
                       >
                         <option value="ask">Hỏi trước khi tạo</option>
                         <option value="auto">Tự tạo vào danh sách chờ</option>
@@ -1052,13 +1052,13 @@ function mistakeErrorMessage(code: string) {
                   {visibleMistakes.map((candidate) => (
                     <article
                       key={candidate.id}
-                      className="rounded-2xl border border-[#173f35]/12 bg-white/70 p-5"
+                      className="rounded-2xl border border-[#0f3a69]/12 bg-white/70 p-5"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <span className="rounded-full bg-[#e7eee3] px-3 py-1 font-mono text-[10px] font-bold uppercase">
                           {mistakeStatusLabels[candidate.status]}
                         </span>
-                        <span className="font-mono text-[10px] text-[#64736c]">
+                        <span className="font-mono text-[10px] text-[#526276]">
                           {candidate.sourceKind === "coach"
                             ? "Trợ lý AI"
                             : "Phỏng vấn thử"}{" "}
@@ -1068,12 +1068,12 @@ function mistakeErrorMessage(code: string) {
                       <h3 className="mt-4 font-semibold leading-6">
                         {candidate.criterionText}
                       </h3>
-                      <p className="mt-2 break-all font-mono text-[10px] text-[#64736c]">
+                      <p className="mt-2 break-all font-mono text-[10px] text-[#526276]">
                         {candidate.sourceQuestionId} ·{" "}
                         {candidate.lessonId ?? "chưa có bài học nguồn"}
                       </p>
                       {candidate.lastErrorCode ? (
-                        <p className="mt-2 text-xs text-[#a3321f]">
+                        <p className="mt-2 text-xs text-[#c43d3d]">
                           Lỗi gần nhất:{" "}
                           {mistakeErrorMessage(candidate.lastErrorCode)}
                         </p>
@@ -1084,7 +1084,7 @@ function mistakeErrorMessage(code: string) {
                             type="button"
                             disabled={mistakeSavingId !== null}
                             onClick={() => void generateMistake(candidate.id)}
-                            className="rounded-xl bg-[#173f35] px-3 py-2 text-xs font-bold text-white disabled:opacity-50"
+                            className="rounded-xl bg-[#0f3a69] px-3 py-2 text-xs font-bold text-white disabled:opacity-50"
                           >
                             {mistakeSavingId === candidate.id
                               ? "Đang tạo…"
@@ -1096,7 +1096,7 @@ function mistakeErrorMessage(code: string) {
                             type="button"
                             disabled={mistakeSavingId !== null}
                             onClick={() => void groundMistake(candidate.id)}
-                            className="rounded-xl bg-[#fff4df] px-3 py-2 text-xs font-bold text-[#8e3825]"
+                            className="rounded-xl bg-[#fff4df] px-3 py-2 text-xs font-bold text-[#c43d3d]"
                           >
                             Bổ sung bài học nguồn
                           </button>
@@ -1104,7 +1104,7 @@ function mistakeErrorMessage(code: string) {
                         {candidate.materializedQuestionId ? (
                           <a
                             href="#review-queue"
-                            className="rounded-xl border border-[#356b58]/25 px-3 py-2 text-xs font-bold text-[#356b58]"
+                            className="rounded-xl border border-[#285f86]/25 px-3 py-2 text-xs font-bold text-[#285f86]"
                           >
                             {candidate.materializedQuestionId}
                           </a>
@@ -1122,7 +1122,7 @@ function mistakeErrorMessage(code: string) {
                                   "reinforce_existing",
                                 )
                               }
-                              className="rounded-xl border border-[#173f35]/15 px-3 py-2 text-xs font-bold"
+                              className="rounded-xl border border-[#0f3a69]/15 px-3 py-2 text-xs font-bold"
                             >
                               Dùng câu đã có
                             </button>
@@ -1132,7 +1132,7 @@ function mistakeErrorMessage(code: string) {
                               onClick={() =>
                                 void resolveMistake(candidate.id, "dismiss")
                               }
-                              className="rounded-xl px-3 py-2 text-xs font-bold text-[#8e3825]"
+                              className="rounded-xl px-3 py-2 text-xs font-bold text-[#c43d3d]"
                             >
                               Bỏ qua
                             </button>
@@ -1142,7 +1142,7 @@ function mistakeErrorMessage(code: string) {
                     </article>
                   ))}
                   {!visibleMistakes.length ? (
-                    <p className="rounded-2xl border border-dashed border-[#356b58]/25 p-8 text-center text-sm text-[#64736c] lg:col-span-2">
+                    <p className="rounded-2xl border border-dashed border-[#285f86]/25 p-8 text-center text-sm text-[#526276] lg:col-span-2">
                       Chưa có lỗi đủ điều kiện. Khi bạn chọn “Chưa nhớ” hoặc
                       “Khó” sau phản hồi của AI, hay hoàn tất một buổi phỏng
                       vấn thử, hệ thống sẽ ghi nhận lỗi cần ôn.
@@ -1154,14 +1154,14 @@ function mistakeErrorMessage(code: string) {
           </div>
         </details>
 
-        <details id="review-queue" className="group mt-8 scroll-mt-5 overflow-hidden rounded-[2rem] border border-[#ba4b2f]/20 bg-[#fff7e8]">
+        <details id="review-queue" className="group mt-8 scroll-mt-5 overflow-hidden rounded-[1.25rem] border border-[#a65c0e]/20 bg-[#fff7e8]">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 sm:px-7 sm:py-6">
             <div className="flex min-w-0 items-center gap-4">
-              <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#ffe0a8] font-mono text-sm font-bold text-[#8e3825]">
+              <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#ffe0a8] font-mono text-sm font-bold text-[#c43d3d]">
                 {reviewQueue.length}
               </span>
               <div className="min-w-0">
-                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
+                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#a65c0e] uppercase">
                   Danh sách chờ duyệt
                 </p>
                 <h2 className="mt-1 truncate text-xl font-semibold">
@@ -1169,22 +1169,22 @@ function mistakeErrorMessage(code: string) {
                 </h2>
               </div>
             </div>
-            <span className="shrink-0 text-xs font-bold text-[#356b58]">
+            <span className="shrink-0 text-xs font-bold text-[#285f86]">
               <span className="group-open:hidden">Xem danh sách ↓</span>
               <span className="hidden group-open:inline">Thu gọn ↑</span>
             </span>
           </summary>
 
-          <div className="border-t border-[#ba4b2f]/15 px-5 py-6 sm:px-7">
+          <div className="border-t border-[#a65c0e]/15 px-5 py-6 sm:px-7">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="max-w-2xl">
-                <p className="text-sm text-[#64736c]">
+                <p className="text-sm text-[#526276]">
                   Mở từng câu để đối chiếu đáp án, tiêu chí chấm và nguồn trước
                   khi đưa vào lịch luyện.
                 </p>
                 <Link
                   href="/learn/tick-data-order-book"
-                  className="mt-2 inline-flex text-xs font-bold text-[#356b58] underline decoration-[#79b82a]/60 underline-offset-4"
+                  className="mt-2 inline-flex text-xs font-bold text-[#285f86] underline decoration-[#138f8c]/60 underline-offset-4"
                 >
                   Chưa có nền tảng về dữ liệu tick? Đọc bài nhập môn trước →
                 </Link>
@@ -1194,7 +1194,7 @@ function mistakeErrorMessage(code: string) {
                   type="button"
                   onClick={() => void approve(reviewQueue.map((question) => question.id))}
                   disabled={savingIds.size > 0}
-                  className="rounded-xl border border-[#ba4b2f]/35 bg-white/70 px-4 py-2.5 text-xs font-bold text-[#8e3825] transition hover:bg-white disabled:cursor-wait disabled:opacity-60"
+                  className="rounded-xl border border-[#a65c0e]/35 bg-white/70 px-4 py-2.5 text-xs font-bold text-[#c43d3d] transition hover:bg-white disabled:cursor-wait disabled:opacity-60"
                 >
                   {savingIds.size ? "Đang duyệt…" : `Duyệt tất cả (${reviewQueue.length})`}
                 </button>
@@ -1211,7 +1211,7 @@ function mistakeErrorMessage(code: string) {
                 />
               ))}
               {!reviewQueue.length ? (
-                <div className="rounded-2xl border border-dashed border-[#356b58]/25 bg-white/45 px-5 py-10 text-center text-sm text-[#52645c] lg:col-span-2">
+                <div className="rounded-2xl border border-dashed border-[#285f86]/25 bg-white/45 px-5 py-10 text-center text-sm text-[#43546a] lg:col-span-2">
                   Danh sách đã trống — không có câu nào cần duyệt.
                 </div>
               ) : null}
@@ -1220,15 +1220,15 @@ function mistakeErrorMessage(code: string) {
         </details>
 
         <section className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
-          <div className="rounded-[2rem] border border-[#173f35]/15 bg-white/65 p-5 sm:p-7">
+          <div className="rounded-[1.25rem] border border-[#0f3a69]/15 bg-white/65 p-5 sm:p-7">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
-                <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#356b58] uppercase">
+                <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#285f86] uppercase">
                   Ngân hàng câu hỏi
                 </p>
                 <h2 className="mt-2 text-2xl font-semibold">Ngân hàng câu hỏi</h2>
               </div>
-              <span className="font-mono text-xs text-[#64736c]">
+              <span className="font-mono text-xs text-[#526276]">
                 {filteredQuestions.length}/{questions.length} câu
               </span>
               <button
@@ -1237,7 +1237,7 @@ function mistakeErrorMessage(code: string) {
                   setManualQuestionError(null);
                   setManualQuestionOpen(true);
                 }}
-                className="rounded-xl bg-[#173f35] px-4 py-2.5 text-xs font-bold text-[#d7ff91] transition hover:bg-[#245748]"
+                className="rounded-xl bg-[#0f3a69] px-4 py-2.5 text-xs font-bold text-[#65e6d2] transition hover:bg-[#16865a]"
               >
                 + Thêm câu hỏi thủ công
               </button>
@@ -1248,7 +1248,7 @@ function mistakeErrorMessage(code: string) {
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Tìm câu hỏi, bài học…"
-                className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2.5 text-sm outline-none focus:ring-3 focus:ring-[#d7ff91]"
+                className="rounded-xl border border-[#0f3a69]/15 bg-white px-4 py-2.5 text-sm outline-none focus:ring-3 focus:ring-[#65e6d2]"
               />
               <Filter value={status} onChange={setStatus} label="Trạng thái" options={[['current', 'Chưa lưu trữ'], ['all', 'Mọi trạng thái'], ['active', 'Đang dùng'], ['pending', 'Chờ duyệt'], ['stale', 'Nguồn đã đổi'], ['archived', 'Đã lưu trữ']]} />
               <Filter value={learningFilter} onChange={setLearningFilter} label="Trạng thái học" options={[['all', 'Mọi trạng thái học'], ['new', 'Mới'], ['learning', 'Đang học'], ['review', 'Ôn tập'], ['relearning', 'Học lại'], ['due', 'Đến hạn'], ['suspended', 'Tạm dừng'], ['leech', 'Câu khó nhớ']]} />
@@ -1271,7 +1271,7 @@ function mistakeErrorMessage(code: string) {
                 />
               ))}
               {!filteredQuestions.length ? (
-                <div className="rounded-2xl border border-dashed border-[#173f35]/20 px-5 py-10 text-center text-sm text-[#64736c]">
+                <div className="rounded-2xl border border-dashed border-[#0f3a69]/20 px-5 py-10 text-center text-sm text-[#526276]">
                   Không có câu hỏi khớp bộ lọc.
                 </div>
               ) : null}
@@ -1280,8 +1280,8 @@ function mistakeErrorMessage(code: string) {
 
           <aside className="space-y-5">
             <CoveragePanel lessons={lessonCoverage} />
-            <div className="rounded-[2rem] bg-[#173f35] p-6 text-white">
-              <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
+            <div className="rounded-[1.25rem] bg-[#0f3a69] p-6 text-white">
+              <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#65e6d2] uppercase">
                 Tình trạng học tập
               </p>
               <div className="mt-5 grid grid-cols-2 gap-3">
@@ -1291,15 +1291,15 @@ function mistakeErrorMessage(code: string) {
                 <SmallStat label="Khó" value={initialSnapshot.ratingCounts.hard} />
               </div>
             </div>
-            <div className="rounded-[2rem] border border-[#173f35]/15 bg-white/65 p-6">
-              <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
+            <div className="rounded-[1.25rem] border border-[#0f3a69]/15 bg-white/65 p-6">
+              <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#a65c0e] uppercase">
                 Vận hành
               </p>
               <div className="mt-4 grid gap-2 text-sm font-bold">
-                <a className="rounded-xl bg-white px-4 py-3 hover:bg-[#edf0e8]" href="https://github.com/tuanotuan/modern-cpp-features/actions" target="_blank" rel="noreferrer">GitHub Actions ↗</a>
-                <a className="rounded-xl bg-white px-4 py-3 hover:bg-[#edf0e8]" href="https://github.com/tuanotuan/modern-cpp-features" target="_blank" rel="noreferrer">Kho mã nguồn ↗</a>
+                <a className="rounded-xl bg-white px-4 py-3 hover:bg-[#eaf2f8]" href="https://github.com/tuanotuan/modern-cpp-features/actions" target="_blank" rel="noreferrer">GitHub Actions ↗</a>
+                <a className="rounded-xl bg-white px-4 py-3 hover:bg-[#eaf2f8]" href="https://github.com/tuanotuan/modern-cpp-features" target="_blank" rel="noreferrer">Kho mã nguồn ↗</a>
               </div>
-              <p className="mt-4 text-xs leading-5 text-[#64736c]">
+              <p className="mt-4 text-xs leading-5 text-[#526276]">
                 Bản sửa và trạng thái lưu trữ được ghi đè trong Supabase. Ghi
                 chú và câu gốc trên GitHub vẫn được giữ để đối chiếu.
               </p>
@@ -1366,7 +1366,7 @@ function mistakeErrorMessage(code: string) {
 
 function QueueReviewCard({ question, saving, onApprove }: { question: AdminQuestion; saving: boolean; onApprove: () => void }) {
   return (
-    <article className="rounded-2xl border border-[#173f35]/12 bg-white/80 p-5">
+    <article className="rounded-2xl border border-[#0f3a69]/12 bg-white/80 p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-wrap gap-2">
           <StatusBadge status={question.adminStatus} />
@@ -1376,7 +1376,7 @@ function QueueReviewCard({ question, saving, onApprove }: { question: AdminQuest
           type="button"
           disabled={saving}
           onClick={onApprove}
-          className="rounded-xl bg-[#ba4b2f] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#963a25] disabled:cursor-wait disabled:opacity-60"
+          className="rounded-xl bg-[#a65c0e] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#c43d3d] disabled:cursor-wait disabled:opacity-60"
         >
           {saving ? "Đang duyệt…" : "Duyệt câu này"}
         </button>
@@ -1384,11 +1384,11 @@ function QueueReviewCard({ question, saving, onApprove }: { question: AdminQuest
       <h3 className="mt-4 font-semibold leading-6">
         {displayQuestionPrompt(question)}
       </h3>
-      <p className="mt-2 font-mono text-[11px] text-[#718078]">
+      <p className="mt-2 font-mono text-[11px] text-[#64748b]">
         {question.id} · {question.lessonTitle}
       </p>
-      <details className="group mt-4 border-t border-[#173f35]/10 pt-4">
-        <summary className="cursor-pointer list-none text-xs font-bold text-[#356b58]">
+      <details className="group mt-4 border-t border-[#0f3a69]/10 pt-4">
+        <summary className="cursor-pointer list-none text-xs font-bold text-[#285f86]">
           <span className="group-open:hidden">
             Xem đáp án, tiêu chí chấm và nguồn ↓
           </span>
@@ -1429,7 +1429,7 @@ function QuestionCard({
     "reset" | "archive" | null
   >(null);
   return (
-    <details className="group rounded-2xl border border-[#173f35]/12 bg-white/75 open:border-[#356b58]/35">
+    <details className="group rounded-2xl border border-[#0f3a69]/12 bg-white/75 open:border-[#285f86]/35">
       <summary className="flex list-none cursor-pointer items-start justify-between gap-4 p-4 sm:p-5">
         <div className="min-w-0">
           <div className="flex flex-wrap gap-2">
@@ -1440,14 +1440,14 @@ function QuestionCard({
           <h3 className="mt-3 font-semibold leading-6">
             {displayQuestionPrompt(question)}
           </h3>
-          <p className="mt-2 truncate font-mono text-[11px] text-[#718078]">{question.id} · {question.lessonTitle}</p>
+          <p className="mt-2 truncate font-mono text-[11px] text-[#64748b]">{question.id} · {question.lessonTitle}</p>
         </div>
-        <span className="mt-1 text-xl text-[#64736c] transition group-open:rotate-45">+</span>
+        <span className="mt-1 text-xl text-[#526276] transition group-open:rotate-45">+</span>
       </summary>
-      <div className="border-t border-[#173f35]/10 px-4 py-5 sm:px-5">
+      <div className="border-t border-[#0f3a69]/10 px-4 py-5 sm:px-5">
         <QuestionDetails question={question} />
-        <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-[#173f35]/10 pt-4">
-          {reviewable ? <button type="button" disabled={saving} onClick={onApprove} className="rounded-xl bg-[#ba4b2f] px-4 py-2 text-xs font-bold text-white disabled:opacity-60">{saving ? "Đang duyệt…" : "Duyệt câu này"}</button> : null}
+        <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-[#0f3a69]/10 pt-4">
+          {reviewable ? <button type="button" disabled={saving} onClick={onApprove} className="rounded-xl bg-[#a65c0e] px-4 py-2 text-xs font-bold text-white disabled:opacity-60">{saving ? "Đang duyệt…" : "Duyệt câu này"}</button> : null}
           {question.adminStatus === "active" ? (
             <>
               <button
@@ -1456,7 +1456,7 @@ function QuestionCard({
                 onClick={() =>
                   onManage(question.learning.suspended ? "unsuspend" : "suspend")
                 }
-                className="rounded-xl border border-[#173f35]/20 bg-white px-3 py-2 text-xs font-bold text-[#356b58] disabled:opacity-50"
+                className="rounded-xl border border-[#0f3a69]/20 bg-white px-3 py-2 text-xs font-bold text-[#285f86] disabled:opacity-50"
               >
                 {question.learning.suspended ? "Tiếp tục" : "Tạm dừng"}
               </button>
@@ -1464,7 +1464,7 @@ function QuestionCard({
                 type="button"
                 disabled={saving}
                 onClick={() => setPendingConfirmation("reset")}
-                className="rounded-xl border border-[#ba4b2f]/25 bg-white px-3 py-2 text-xs font-bold text-[#8e3825] disabled:opacity-50"
+                className="rounded-xl border border-[#a65c0e]/25 bg-white px-3 py-2 text-xs font-bold text-[#c43d3d] disabled:opacity-50"
               >
                 Đặt lại thành câu mới
               </button>
@@ -1474,13 +1474,13 @@ function QuestionCard({
                     type="date"
                     value={dueOn}
                     onChange={(event) => setDueOn(event.target.value)}
-                    className="rounded-xl border border-[#173f35]/15 bg-white px-3 py-2 text-xs"
+                    className="rounded-xl border border-[#0f3a69]/15 bg-white px-3 py-2 text-xs"
                   />
                   <button
                     type="button"
                     disabled={saving || !dueOn}
                     onClick={() => onManage("reschedule", dueOn)}
-                    className="rounded-xl bg-[#173f35] px-3 py-2 text-xs font-bold text-white disabled:opacity-50"
+                    className="rounded-xl bg-[#0f3a69] px-3 py-2 text-xs font-bold text-white disabled:opacity-50"
                   >
                     Đổi hạn
                   </button>
@@ -1494,7 +1494,7 @@ function QuestionCard({
                 type="button"
                 disabled={saving}
                 onClick={() => setEditing((current) => !current)}
-                className="rounded-xl border border-[#173f35]/20 bg-white px-3 py-2 text-xs font-bold text-[#356b58] disabled:opacity-50"
+                className="rounded-xl border border-[#0f3a69]/20 bg-white px-3 py-2 text-xs font-bold text-[#285f86] disabled:opacity-50"
               >
                 {editing ? "Đóng biểu mẫu chỉnh sửa" : "Chỉnh sửa"}
               </button>
@@ -1502,7 +1502,7 @@ function QuestionCard({
                 type="button"
                 disabled={saving}
                 onClick={() => setPendingConfirmation("archive")}
-                className="rounded-xl border border-[#ba4b2f]/30 bg-white px-3 py-2 text-xs font-bold text-[#8e3825] disabled:opacity-50"
+                className="rounded-xl border border-[#a65c0e]/30 bg-white px-3 py-2 text-xs font-bold text-[#c43d3d] disabled:opacity-50"
               >
                 Lưu trữ
               </button>
@@ -1512,12 +1512,12 @@ function QuestionCard({
               type="button"
               disabled={saving}
               onClick={() => void onMutate("restore")}
-              className="rounded-xl bg-[#173f35] px-3 py-2 text-xs font-bold text-white disabled:opacity-50"
+              className="rounded-xl bg-[#0f3a69] px-3 py-2 text-xs font-bold text-white disabled:opacity-50"
             >
               Khôi phục câu hỏi
             </button>
           ) : (
-            <span className="rounded-xl bg-[#edf0e8] px-3 py-2 text-xs font-bold text-[#64736c]">
+            <span className="rounded-xl bg-[#eaf2f8] px-3 py-2 text-xs font-bold text-[#526276]">
               Đã lưu trữ từ kho mã nguồn
             </span>
           )}
@@ -1614,7 +1614,7 @@ function QuestionEditor({
 
   return (
     <form
-      className="mt-5 rounded-2xl border border-[#356b58]/25 bg-[#f7f9f2] p-4 sm:p-5"
+      className="mt-5 rounded-2xl border border-[#285f86]/25 bg-[#f8fafc] p-4 sm:p-5"
       onSubmit={(event) => {
         event.preventDefault();
         void onSave({
@@ -1640,14 +1640,14 @@ function QuestionEditor({
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
+          <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#285f86] uppercase">
             Trình sửa câu hỏi
           </p>
-          <p className="mt-1 text-sm text-[#64736c]">
+          <p className="mt-1 text-sm text-[#526276]">
             Khi lưu, hệ thống sẽ tăng phiên bản và yêu cầu duyệt lại câu hỏi.
           </p>
         </div>
-        <span className="font-mono text-xs text-[#64736c]">
+        <span className="font-mono text-xs text-[#526276]">
           v{question.version} → v{question.version + 1}
         </span>
       </div>
@@ -1695,7 +1695,7 @@ function QuestionEditor({
             ]),
           ]}
         />
-        <label className="text-xs font-bold text-[#52645c]">
+        <label className="text-xs font-bold text-[#43546a]">
           Thời gian (phút)
           <input
             type="number"
@@ -1703,7 +1703,7 @@ function QuestionEditor({
             max={15}
             value={estimatedMinutes}
             onChange={(event) => setEstimatedMinutes(Number(event.target.value))}
-            className="mt-1.5 w-full rounded-xl border border-[#173f35]/15 bg-white px-3 py-2.5 text-sm font-normal"
+            className="mt-1.5 w-full rounded-xl border border-[#0f3a69]/15 bg-white px-3 py-2.5 text-sm font-normal"
           />
         </label>
       </div>
@@ -1718,10 +1718,10 @@ function QuestionEditor({
         <EditorTextarea label="Hiểu lầm thường gặp (mỗi dòng một ý)" value={misconceptions} onChange={setMisconceptions} rows={6} required={false} />
       </div>
       <div className="mt-4 flex justify-end gap-2">
-        <button type="button" onClick={onCancel} disabled={saving} className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-xs font-bold disabled:opacity-50">
+        <button type="button" onClick={onCancel} disabled={saving} className="rounded-xl border border-[#0f3a69]/15 bg-white px-4 py-2 text-xs font-bold disabled:opacity-50">
           Hủy
         </button>
-        <button type="submit" disabled={saving || !required.trim()} className="rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
+        <button type="submit" disabled={saving || !required.trim()} className="rounded-xl bg-[#0f3a69] px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
           {saving ? "Đang lưu…" : "Lưu phiên bản mới"}
         </button>
       </div>
@@ -1731,18 +1731,18 @@ function QuestionEditor({
 
 function EditorTextarea({ label, value, onChange, rows, mono = false, required = true }: { label: string; value: string; onChange: (value: string) => void; rows: number; mono?: boolean; required?: boolean }) {
   return (
-    <label className="mt-3 block text-xs font-bold text-[#52645c]">
+    <label className="mt-3 block text-xs font-bold text-[#43546a]">
       {label}
-      <textarea required={required} value={value} onChange={(event) => onChange(event.target.value)} rows={rows} className={`mt-1.5 w-full resize-y rounded-xl border border-[#173f35]/15 bg-white px-3 py-2.5 text-sm font-normal leading-6 ${mono ? "font-mono" : ""}`} />
+      <textarea required={required} value={value} onChange={(event) => onChange(event.target.value)} rows={rows} className={`mt-1.5 w-full resize-y rounded-xl border border-[#0f3a69]/15 bg-white px-3 py-2.5 text-sm font-normal leading-6 ${mono ? "font-mono" : ""}`} />
     </label>
   );
 }
 
 function EditorSelect({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: Array<[string, string]> }) {
   return (
-    <label className="text-xs font-bold text-[#52645c]">
+    <label className="text-xs font-bold text-[#43546a]">
       {label}
-      <select value={value} onChange={(event) => onChange(event.target.value)} className="mt-1.5 w-full rounded-xl border border-[#173f35]/15 bg-white px-3 py-2.5 text-sm font-normal">
+      <select value={value} onChange={(event) => onChange(event.target.value)} className="mt-1.5 w-full rounded-xl border border-[#0f3a69]/15 bg-white px-3 py-2.5 text-sm font-normal">
         {options.map(([optionValue, optionLabel]) => <option key={optionValue} value={optionValue}>{optionLabel}</option>)}
       </select>
     </label>
@@ -1780,11 +1780,11 @@ function QuestionDetails({ question }: { question: AdminQuestion }) {
         <InfoBlock label="Tiêu chí chấm"><ul className="list-disc space-y-1 pl-4">{question.rubric.required.map((item) => <li key={item}>{item}</li>)}</ul></InfoBlock>
         <InfoBlock label="Phạm vi đánh giá">
           <p className="font-semibold">{interviewQuestionCategoryLabels[category]}</p>
-          <p className="mt-1 text-xs text-[#64736c]">
+          <p className="mt-1 text-xs text-[#526276]">
             Kỹ năng: {assessmentSkills.join(" · ")} · {standardLabels[question.taxonomy.standard]} · {question.estimatedMinutes} phút
           </p>
           {interviewFormat ? (
-            <p className="mt-1 text-xs text-[#64736c]">
+            <p className="mt-1 text-xs text-[#526276]">
               Kiểu bài: {interviewQuestionFormatLabels[interviewFormat]}
             </p>
           ) : null}
@@ -1804,14 +1804,14 @@ function QuestionDetails({ question }: { question: AdminQuestion }) {
         </InfoBlock>
       </div>
       {question.sourceHeadings.length ? (
-        <p className="mt-4 text-xs text-[#64736c]">
+        <p className="mt-4 text-xs text-[#526276]">
           Nguồn: {question.sourceHeadings.join(" · ")}
         </p>
       ) : null}
-      <div className="mt-4 rounded-xl border border-[#173f35]/10 bg-white/70 p-4">
+      <div className="mt-4 rounded-xl border border-[#0f3a69]/10 bg-white/70 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="font-mono text-[10px] font-bold tracking-wide text-[#356b58] uppercase">
+            <p className="font-mono text-[10px] font-bold tracking-wide text-[#285f86] uppercase">
               Lịch Anki
             </p>
             <p className="mt-1 text-sm font-semibold">
@@ -1819,20 +1819,20 @@ function QuestionDetails({ question }: { question: AdminQuestion }) {
               {question.learning.suspended ? " · đang tạm dừng" : ""}
             </p>
           </div>
-          <p className="font-mono text-xs text-[#64736c]">
+          <p className="font-mono text-xs text-[#526276]">
             hạn {question.learning.dueOn ?? "—"} · khoảng cách{" "}
             {question.learning.intervalDays} ngày
           </p>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-[#64736c]">
+        <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-[#526276]">
           <span>{question.learning.reviewCount} lượt ôn</span>
           <span>· {question.learning.lapseCount} lần quên</span>
           {question.learning.leech ? (
-            <span className="font-bold text-[#ba4b2f]">· Câu khó nhớ</span>
+            <span className="font-bold text-[#a65c0e]">· Câu khó nhớ</span>
           ) : null}
         </div>
-        <details className="mt-4 border-t border-[#173f35]/10 pt-3">
-          <summary className="cursor-pointer text-xs font-bold text-[#356b58]">
+        <details className="mt-4 border-t border-[#0f3a69]/10 pt-3">
+          <summary className="cursor-pointer text-xs font-bold text-[#285f86]">
             Lịch sử trả lời ({question.reviewHistory.length})
           </summary>
           {question.reviewHistory.length ? (
@@ -1840,18 +1840,18 @@ function QuestionDetails({ question }: { question: AdminQuestion }) {
               {question.reviewHistory.map((review) => (
                 <li
                   key={`${review.questionId}:${review.reviewedOn}`}
-                  className="flex items-center justify-between gap-3 rounded-lg bg-[#f3f4ee] px-3 py-2 text-xs"
+                  className="flex items-center justify-between gap-3 rounded-lg bg-[#f8fafc] px-3 py-2 text-xs"
                 >
                   <span>{review.reviewedOn}</span>
-                  <strong className="uppercase text-[#356b58]">
+                  <strong className="uppercase text-[#285f86]">
                     {reviewRatingLabels[review.rating] ?? review.rating}
                   </strong>
-                  <span className="font-mono text-[#64736c]">→ {review.nextDueOn}</span>
+                  <span className="font-mono text-[#526276]">→ {review.nextDueOn}</span>
                 </li>
               ))}
             </ol>
           ) : (
-            <p className="mt-3 text-xs text-[#64736c]">Chưa có lần ôn nào.</p>
+            <p className="mt-3 text-xs text-[#526276]">Chưa có lần ôn nào.</p>
           )}
         </details>
       </div>
@@ -1863,24 +1863,24 @@ function CoveragePanel({ lessons }: { lessons: AdminDashboardSnapshot["lessons"]
   const missing = lessons.filter((lesson) => lesson.currentQuestions === 0);
   const waiting = lessons.filter((lesson) => lesson.currentQuestions > 0 && lesson.activeQuestions === 0);
   return (
-    <div className="rounded-[2rem] border border-[#173f35]/15 bg-white/65 p-6">
-      <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#356b58] uppercase">Mức bao phủ kiến thức</p>
+    <div className="rounded-[1.25rem] border border-[#0f3a69]/15 bg-white/65 p-6">
+      <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#285f86] uppercase">Mức bao phủ kiến thức</p>
       <h2 className="mt-2 text-xl font-semibold">Độ phủ bài học</h2>
-      <div className="mt-5 h-2 overflow-hidden rounded-full bg-[#dfe5dc]"><div className="h-full bg-[#7fb43d]" style={{ width: `${lessons.length ? ((lessons.length - missing.length) / lessons.length) * 100 : 0}%` }} /></div>
-      <p className="mt-3 text-sm text-[#64736c]">{lessons.length - missing.length}/{lessons.length} bài đã có câu hỏi khớp nguồn.</p>
-      {missing.length ? <div className="mt-5"><p className="text-xs font-bold text-[#ba4b2f] uppercase">Chưa có câu ({missing.length})</p><ul className="mt-2 space-y-2 text-sm">{missing.slice(0, 8).map((lesson) => <li key={lesson.id} className="rounded-xl bg-[#fff4df] px-3 py-2"><span className="font-semibold">{lesson.title}</span><span className="ml-2 font-mono text-[10px] text-[#64736c]">{standardLabels[lesson.standard]}</span></li>)}</ul>{missing.length > 8 ? <p className="mt-2 text-xs text-[#64736c]">+{missing.length - 8} bài khác</p> : null}</div> : null}
-      {waiting.length ? <p className="mt-4 text-xs text-[#86511f]">{waiting.length} bài đã có bản nháp nhưng chưa được duyệt.</p> : null}
+      <div className="mt-5 h-2 overflow-hidden rounded-full bg-[#dce4ec]"><div className="h-full bg-[#138f8c]" style={{ width: `${lessons.length ? ((lessons.length - missing.length) / lessons.length) * 100 : 0}%` }} /></div>
+      <p className="mt-3 text-sm text-[#526276]">{lessons.length - missing.length}/{lessons.length} bài đã có câu hỏi khớp nguồn.</p>
+      {missing.length ? <div className="mt-5"><p className="text-xs font-bold text-[#a65c0e] uppercase">Chưa có câu ({missing.length})</p><ul className="mt-2 space-y-2 text-sm">{missing.slice(0, 8).map((lesson) => <li key={lesson.id} className="rounded-xl bg-[#fff4df] px-3 py-2"><span className="font-semibold">{lesson.title}</span><span className="ml-2 font-mono text-[10px] text-[#526276]">{standardLabels[lesson.standard]}</span></li>)}</ul>{missing.length > 8 ? <p className="mt-2 text-xs text-[#526276]">+{missing.length - 8} bài khác</p> : null}</div> : null}
+      {waiting.length ? <p className="mt-4 text-xs text-[#a65c0e]">{waiting.length} bài đã có bản nháp nhưng chưa được duyệt.</p> : null}
     </div>
   );
 }
 
 function MetricCard({ label, value, detail, tone = "default" }: { label: string; value: React.ReactNode; detail: string; tone?: "default" | "dark" | "warning" }) {
-  const classes = tone === "dark" ? "bg-[#173f35] text-white" : tone === "warning" ? "bg-[#fff0d2] border border-[#ba4b2f]/20" : "bg-white/65 border border-[#173f35]/15";
-  return <div className={`rounded-[1.6rem] p-5 ${classes}`}><p className={`text-xs font-bold uppercase tracking-[0.12em] ${tone === 'dark' ? 'text-[#d7ff91]' : 'text-[#64736c]'}`}>{label}</p><p className="mt-3 text-4xl font-semibold">{value}</p><p className={`mt-2 text-xs ${tone === 'dark' ? 'text-white/65' : 'text-[#64736c]'}`}>{detail}</p></div>;
+  const classes = tone === "dark" ? "bg-[#0f3a69] text-white" : tone === "warning" ? "bg-[#fff0d2] border border-[#a65c0e]/20" : "bg-white/65 border border-[#0f3a69]/15";
+  return <div className={`rounded-[1.25rem] p-5 ${classes}`}><p className={`text-xs font-bold uppercase tracking-[0.12em] ${tone === 'dark' ? 'text-[#65e6d2]' : 'text-[#526276]'}`}>{label}</p><p className="mt-3 text-4xl font-semibold">{value}</p><p className={`mt-2 text-xs ${tone === 'dark' ? 'text-white/65' : 'text-[#526276]'}`}>{detail}</p></div>;
 }
 
 function SmallStat({ label, value }: { label: string; value: number }) {
-  return <div className="rounded-2xl bg-white/10 p-4"><p className="text-2xl font-semibold text-[#d7ff91]">{value}</p><p className="mt-1 text-xs text-white/65">{label}</p></div>;
+  return <div className="rounded-2xl bg-white/10 p-4"><p className="text-2xl font-semibold text-[#65e6d2]">{value}</p><p className="mt-1 text-xs text-white/65">{label}</p></div>;
 }
 
 function LearningBadge({ question }: { question: AdminQuestion }) {
@@ -1890,12 +1890,12 @@ function LearningBadge({ question }: { question: AdminQuestion }) {
       ? "Câu khó nhớ"
       : learningLabels[question.learning.state];
   const classes = question.learning.suspended
-    ? "bg-[#e4e6e2] text-[#64736c]"
+    ? "bg-[#eaf2f8] text-[#526276]"
     : question.learning.state === "relearning" || question.learning.leech
-      ? "bg-[#f1d6c9] text-[#8e3825]"
+      ? "bg-[#fee7e7] text-[#c43d3d]"
       : question.learning.state === "new"
         ? "bg-[#e8f0ff] text-[#315e91]"
-        : "bg-[#e8f3dc] text-[#356b58]";
+        : "bg-[#e8f3dc] text-[#285f86]";
   return (
     <span className={`rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase ${classes}`}>
       {label}
@@ -1904,12 +1904,12 @@ function LearningBadge({ question }: { question: AdminQuestion }) {
 }
 
 function StatusBadge({ status }: { status: AdminQuestionStatus }) {
-  const classes = status === "active" ? "bg-[#d7ff91] text-[#356b58]" : status === "pending" ? "bg-[#ffe0a8] text-[#86511f]" : status === "stale" ? "bg-[#f1d6c9] text-[#8e3825]" : "bg-[#e4e6e2] text-[#64736c]";
+  const classes = status === "active" ? "bg-[#65e6d2] text-[#285f86]" : status === "pending" ? "bg-[#ffe0a8] text-[#a65c0e]" : status === "stale" ? "bg-[#fee7e7] text-[#c43d3d]" : "bg-[#eaf2f8] text-[#526276]";
   return <span className={`rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase ${classes}`}>{statusLabels[status]}</span>;
 }
 
 function InfoBlock({ label, children }: { label: string; children: React.ReactNode }) {
-  return <div className="rounded-xl bg-[#f3f4ee] p-4 text-sm leading-6"><p className="mb-2 font-mono text-[10px] font-bold tracking-[0.12em] text-[#356b58] uppercase">{label}</p>{children}</div>;
+  return <div className="rounded-xl bg-[#f8fafc] p-4 text-sm leading-6"><p className="mb-2 font-mono text-[10px] font-bold tracking-[0.12em] text-[#285f86] uppercase">{label}</p>{children}</div>;
 }
 
 function QuestionClassificationBadges({
@@ -1919,10 +1919,10 @@ function QuestionClassificationBadges({
 }) {
   return (
     <>
-      <span className="rounded-full bg-[#edf0e8] px-2.5 py-1 font-mono text-[10px] font-bold uppercase">
+      <span className="rounded-full bg-[#eaf2f8] px-2.5 py-1 font-mono text-[10px] font-bold uppercase">
         {questionDifficultyLabels[question.difficulty]}
       </span>
-      <span className="rounded-full bg-[#edf0e8] px-2.5 py-1 font-mono text-[10px] font-bold uppercase">
+      <span className="rounded-full bg-[#eaf2f8] px-2.5 py-1 font-mono text-[10px] font-bold uppercase">
         {questionResponseModeLabels[question.responseMode ?? "text"]}
       </span>
     </>
@@ -1930,5 +1930,5 @@ function QuestionClassificationBadges({
 }
 
 function Filter({ value, onChange, label, options }: { value: string; onChange: (value: string) => void; label: string; options: Array<[string, string]> }) {
-  return <label><span className="sr-only">{label}</span><select value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-xl border border-[#173f35]/15 bg-white px-3 py-2.5 text-sm outline-none focus:ring-3 focus:ring-[#d7ff91]">{options.map(([optionValue, optionLabel]) => <option key={optionValue} value={optionValue}>{optionLabel}</option>)}</select></label>;
+  return <label><span className="sr-only">{label}</span><select value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-xl border border-[#0f3a69]/15 bg-white px-3 py-2.5 text-sm outline-none focus:ring-3 focus:ring-[#65e6d2]">{options.map(([optionValue, optionLabel]) => <option key={optionValue} value={optionValue}>{optionLabel}</option>)}</select></label>;
 }

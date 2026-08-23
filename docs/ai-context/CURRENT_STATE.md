@@ -113,8 +113,10 @@ trạng thái từ tên nhánh.
   rõ không phải verdict role-ready. Câu curated mới phủ CMake+sanitizer,
   reconciliation script, event time cross-asset và concurrency review. Guided
   Full Round chỉ mở follow-up/rubric theo tiến trình; Strict Mock không lộ hint.
-- Xác thực mới nhất tại local: ESLint, TypeScript, toàn bộ Vitest (97 file,
-  580 tests), Next.js production build (63 route) và `context:check` đều pass.
+- Xác thực mới nhất tại local cho light-theme refresh: ESLint, TypeScript, toàn
+  bộ Vitest (97 file, 580 tests), Next.js production build (63 route) và
+  `context:check` đều pass. Chrome smoke ở 1440×1200 và CDP mobile 390×844 cho
+  thấy landing/Practice không tràn ngang; bottom navigation đủ bốn mục.
 - Supabase project `cpp-recall` đã áp đủ migration đến `20260730220000`; lịch
   sử remote đã được đối chiếu với local. Bootstrap xử lý hai view cũ không có
   lịch sử (`content_current_questions` và
@@ -139,11 +141,15 @@ trạng thái từ tên nhánh.
 - Thao tác xác nhận, xóa, reset hay nhập metadata trong client phải dùng dialog
   của cppinterview; không quay lại hộp thoại native `alert`/`confirm`/`prompt` vì chúng
   thiếu ngữ cảnh và phá vỡ trải nghiệm trên mobile.
-- Giao diện learner-facing theo hướng technical editorial: deep-pine là cấu trúc,
-  acid-lime chỉ dùng cho CTA/trạng thái, bề mặt sáng và khoảng thở thay vì nhiều
-  card/pill. Landing, Today workspace, thư viện, Mock, Stats và Profile dùng
-  header/card/CTA nhất quán; shell mobile, session rail và sticky action vẫn giữ
-  nguyên. Mobile chỉ hiện tiến độ/account ở header và bottom nav cho workspace;
+- Giao diện learner-facing theo hướng technical editorial light theme: navy là
+  màu hành động/chữ cấu trúc, turquoise dành cho focus/active/progress, còn success
+  dùng xanh lá riêng. Workspace dùng nền phẳng, card trắng, border mảnh, shadow ngắn
+  và thang bo góc 12/16/20 px; gradient chỉ dành cho landing. Navigation active dùng
+  tonal background + indicator, không dùng pill tối. Landing, Today workspace, thư
+  viện, Mock, Stats và Profile dùng header/card/CTA nhất quán; shell mobile, session
+  rail và sticky action vẫn giữ nguyên. Practice chỉ có một bộ C++ nên header dùng
+  metadata số câu đã duyệt thay control chuyển bộ câu. Mobile chỉ hiện tiến độ/account
+  ở header và bottom nav cho workspace;
   landing/auth/admin không mang bottom nav. Practice có Chế độ tập trung cục bộ
   (Esc thoát, Alt+A mở/ẩn đáp án) để ẩn shell/sidebar; feedback AI trình bày
   ba bước đúng/cần cải thiện/làm tiếp, rubric chi tiết được thu gọn. Thay đổi UI

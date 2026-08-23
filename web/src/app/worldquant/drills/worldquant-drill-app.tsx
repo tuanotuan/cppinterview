@@ -310,19 +310,19 @@ export function WorldQuantDrillApp({
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
       <div className="mx-auto max-w-[1500px]">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
+        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#0f3a69]/15 pb-5">
           <Link
             href="/"
             aria-label="Về trang chủ cppinterview"
             title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
+            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
               WQ
             </span>
             <span>
               <span className="block font-bold">Phòng luyện tình huống</span>
-              <span className="block text-xs text-[#64736c]">
+              <span className="block text-xs text-[#526276]">
                 Nhớ lại → vận dụng → bảo vệ lập luận
               </span>
             </span>
@@ -359,8 +359,8 @@ export function WorldQuantDrillApp({
         </header>
 
         <section className="grid gap-5 py-7 xl:grid-cols-[320px_minmax(0,1fr)]">
-          <aside className="rounded-[2rem] border border-[#173f35]/12 bg-white/60 p-5">
-            <label className="block text-xs font-bold text-[#64736c]">
+          <aside className="rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/60 p-5">
+            <label className="block text-xs font-bold text-[#526276]">
               Vị trí mục tiêu
               <select
                 value={roleId}
@@ -378,7 +378,7 @@ export function WorldQuantDrillApp({
                   selectCompetency(firstPack.competency);
                 }}
                 disabled={storagePending}
-                className="mt-2 w-full rounded-xl border border-[#173f35]/15 bg-white px-3 py-2 disabled:cursor-not-allowed disabled:opacity-45"
+                className="mt-2 w-full rounded-xl border border-[#0f3a69]/15 bg-white px-3 py-2 disabled:cursor-not-allowed disabled:opacity-45"
               >
                 {worldQuantRoleProfiles.map((profile) => (
                   <option key={profile.id} value={profile.id}>
@@ -404,8 +404,8 @@ export function WorldQuantDrillApp({
                     }
                     className={`w-full rounded-xl border p-3 text-left disabled:cursor-not-allowed disabled:opacity-45 ${
                       selectedCompetency === drillPack.competency
-                        ? "border-[#356b58] bg-[#edf3e7]"
-                        : "border-[#173f35]/10 bg-white/65"
+                        ? "border-[#285f86] bg-[#eaf2f8]"
+                        : "border-[#0f3a69]/10 bg-white/65"
                     }`}
                   >
                     <span className="block text-xs font-bold">
@@ -415,7 +415,7 @@ export function WorldQuantDrillApp({
                         ].shortLabel
                       }
                     </span>
-                    <span className="mt-1 block text-[10px] text-[#64736c]">
+                    <span className="mt-1 block text-[10px] text-[#526276]">
                       Tiến độ: {gapStatusLabel(packGap?.status)}
                     </span>
                   </button>
@@ -424,16 +424,16 @@ export function WorldQuantDrillApp({
             </div>
           </aside>
 
-          <section className="min-w-0 rounded-[2rem] border border-[#173f35]/12 bg-white/65 p-5 shadow-[0_24px_80px_rgb(23_63_53_/_8%)] sm:p-8">
+          <section className="min-w-0 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/65 p-5 shadow-[0_24px_80px_rgb(15_58_105_/_8%)] sm:p-8">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
+                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#a65c0e] uppercase">
                   {worldQuantCompetencies[selectedDrill.competency].label}
                 </p>
                 <h1 className="mt-2 text-3xl font-semibold tracking-tight">
                   {selectedDrill.title}
                 </h1>
-                <p className="mt-2 text-sm text-[#64736c]">
+                <p className="mt-2 text-sm text-[#526276]">
                   {drillKindLabel(selectedDrill.kind)} ·{" "}
                   {drillLanguageLabel(selectedDrill.language)} ·{" "}
                   {selectedDrill.estimatedMinutes} phút
@@ -469,7 +469,7 @@ export function WorldQuantDrillApp({
                           : pack.practice,
                       );
                     }}
-                    className="rounded-xl border border-[#173f35]/15 px-4 py-2 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-45"
+                    className="rounded-xl border border-[#0f3a69]/15 px-4 py-2 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-45"
                   >
                     {selectedDrill.variant === "practice"
                       ? "Đề kiểm tra mới"
@@ -481,7 +481,7 @@ export function WorldQuantDrillApp({
 
             {stage === "overview" ? (
               <div className="mt-7 grid gap-5 lg:grid-cols-[1fr_280px]">
-                <div className="rounded-2xl bg-[#fbfaf4] p-5">
+                <div className="rounded-2xl bg-[#f8fafc] p-5">
                   <p className="text-sm leading-7">
                     {selectedDrill.variant === "checkpoint"
                       ? "Đề bài được ẩn cho tới khi bấm Bắt đầu. Lần mở đề vẫn được ghi nhận ngay cả khi bạn bỏ dở."
@@ -491,20 +491,20 @@ export function WorldQuantDrillApp({
                     {selectedDrill.conceptIds.map((conceptId) => (
                       <span
                         key={conceptId}
-                        className="rounded-full border border-[#173f35]/10 bg-white px-3 py-1 text-[10px]"
+                        className="rounded-full border border-[#0f3a69]/10 bg-white px-3 py-1 text-[10px]"
                       >
                         {conceptId}
                       </span>
                     ))}
                   </div>
                 </div>
-                <div className="rounded-2xl border border-[#173f35]/10 p-5">
+                <div className="rounded-2xl border border-[#0f3a69]/10 p-5">
                   <p className="text-xs font-bold">
                     {selectedDrill.variant === "checkpoint"
                       ? "Xác nhận bằng đề mới"
                       : "Luyện tập có chủ đích"}
                   </p>
-                  <p className="mt-2 text-xs leading-5 text-[#64736c]">
+                  <p className="mt-2 text-xs leading-5 text-[#526276]">
                     {selectedDrill.variant === "checkpoint"
                       ? checkpointUnlocked
                         ? "Năng lực đã sẵn sàng để xác nhận. Bạn cần đạt ngay lần đầu, trả lời đủ câu hỏi tiếp nối và không dùng gợi ý."
@@ -515,14 +515,14 @@ export function WorldQuantDrillApp({
                     type="button"
                     disabled={!checkpointUnlocked || storagePending}
                     onClick={startDrill}
-                    className="mt-5 w-full rounded-xl bg-[#173f35] px-4 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-45"
+                    className="mt-5 w-full rounded-xl bg-[#0f3a69] px-4 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-45"
                   >
                     Bắt đầu bài luyện
                   </button>
                   {storageError ? (
                     <p
                       role="alert"
-                      className="mt-3 rounded-xl bg-[#f8e8df] p-3 text-xs text-[#713929]"
+                      className="mt-3 rounded-xl bg-[#fff1f1] p-3 text-xs text-[#9f2f2f]"
                     >
                       {storageError}
                     </p>
@@ -532,8 +532,8 @@ export function WorldQuantDrillApp({
             ) : null}
 
             {stage === "warmup" && warmup ? (
-              <div className="mt-7 rounded-2xl border border-[#173f35]/10 bg-[#fbfaf4] p-6">
-                <p className="font-mono text-[10px] font-bold text-[#ba4b2f] uppercase">
+              <div className="mt-7 rounded-2xl border border-[#0f3a69]/10 bg-[#f8fafc] p-6">
+                <p className="font-mono text-[10px] font-bold text-[#a65c0e] uppercase">
                   Khởi động {warmupIndex + 1}/{matchingWarmups.length}
                   {warmup.personalRemediation ? " · thẻ sửa lỗi" : ""}
                 </p>
@@ -541,14 +541,14 @@ export function WorldQuantDrillApp({
                   {warmup.prompt}
                 </h2>
                 {warmupRevealed ? (
-                  <div className="mt-5 rounded-xl bg-[#edf3e7] p-4 text-sm leading-6">
+                  <div className="mt-5 rounded-xl bg-[#eaf2f8] p-4 text-sm leading-6">
                     {warmup.answer}
                   </div>
                 ) : (
                   <button
                     type="button"
                     onClick={() => setWarmupRevealed(true)}
-                    className="mt-5 rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-sm font-bold"
+                    className="mt-5 rounded-xl border border-[#0f3a69]/15 bg-white px-4 py-2 text-sm font-bold"
                   >
                     Đã suy nghĩ xong, xem đáp án
                   </button>
@@ -557,14 +557,14 @@ export function WorldQuantDrillApp({
                   type="button"
                   disabled={!warmupRevealed || storagePending}
                   onClick={nextWarmup}
-                  className="mt-5 ml-2 rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white disabled:opacity-40"
+                  className="mt-5 ml-2 rounded-xl bg-[#0f3a69] px-4 py-2 text-sm font-bold text-white disabled:opacity-40"
                 >
                   Tiếp tục
                 </button>
                 {storageError ? (
                   <p
                     role="alert"
-                    className="mt-3 rounded-xl bg-[#f8e8df] p-3 text-xs text-[#713929]"
+                    className="mt-3 rounded-xl bg-[#fff1f1] p-3 text-xs text-[#9f2f2f]"
                   >
                     {storageError}
                   </p>
@@ -579,7 +579,7 @@ export function WorldQuantDrillApp({
                   {selectedDrill.prompt}
                 </p>
                 {selectedDrill.starterCode ? (
-                  <pre className="mt-4 overflow-x-auto rounded-2xl bg-[#102b24] p-5 text-sm leading-6 text-[#dcebe2]">
+                  <pre className="mt-4 overflow-x-auto rounded-2xl bg-[#092c51] p-5 text-sm leading-6 text-[#e6f8f5]">
                     <code>{selectedDrill.starterCode}</code>
                   </pre>
                 ) : null}
@@ -588,20 +588,20 @@ export function WorldQuantDrillApp({
                   onChange={(event) => setAnswer(event.target.value)}
                   rows={selectedDrill.starterCode ? 14 : 10}
                   placeholder="Tự trả lời đầy đủ như khi đang nói với người phỏng vấn..."
-                  className="mt-4 w-full rounded-2xl border border-[#173f35]/15 bg-white p-4 font-mono text-sm leading-6 outline-none focus:border-[#356b58]"
+                  className="mt-4 w-full rounded-2xl border border-[#0f3a69]/15 bg-white p-4 font-mono text-sm leading-6 outline-none focus:border-[#285f86]"
                 />
                 {selectedDrill.variant === "practice" ? (
                   <button
                     type="button"
                     onClick={() => setHintUsed(true)}
-                    className="mt-3 text-xs font-bold text-[#64736c] underline"
+                    className="mt-3 text-xs font-bold text-[#526276] underline"
                   >
                     {hintUsed
                       ? `Gợi ý cần xem xét: ${selectedDrill.rubric[0]}`
                       : "Cần một gợi ý để xem xét"}
                   </button>
                 ) : null}
-                <label className="mt-5 block rounded-2xl border border-[#173f35]/10 bg-[#f4f3ec] p-4">
+                <label className="mt-5 block rounded-2xl border border-[#0f3a69]/10 bg-[#f8fafc] p-4">
                   <span className="text-xs font-bold">
                     Mức tự tin với câu trả lời hiện tại:{" "}
                     {confidence}%
@@ -622,7 +622,7 @@ export function WorldQuantDrillApp({
                   type="button"
                   disabled={answer.trim().length < 20}
                   onClick={() => setStage("followup")}
-                  className="mt-5 block rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white disabled:opacity-40"
+                  className="mt-5 block rounded-xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white disabled:opacity-40"
                 >
                   Người phỏng vấn hỏi sâu
                 </button>
@@ -650,7 +650,7 @@ export function WorldQuantDrillApp({
                           )
                         }
                         rows={5}
-                        className="mt-2 w-full rounded-2xl border border-[#173f35]/15 bg-white p-4 text-sm leading-6"
+                        className="mt-2 w-full rounded-2xl border border-[#0f3a69]/15 bg-white p-4 text-sm leading-6"
                       />
                     </label>
                   ))}
@@ -661,7 +661,7 @@ export function WorldQuantDrillApp({
                     (item) => item.trim().length < 10,
                   )}
                   onClick={() => setStage("rubric")}
-                  className="mt-5 rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white disabled:opacity-40"
+                  className="mt-5 rounded-xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white disabled:opacity-40"
                 >
                   Tự chấm theo tiêu chí
                 </button>
@@ -671,7 +671,7 @@ export function WorldQuantDrillApp({
             {stage === "rubric" ? (
               <div className="mt-7">
                 <StageLabel>Tiêu chí tự chấm</StageLabel>
-                <p className="mt-3 text-sm text-[#64736c]">
+                <p className="mt-3 text-sm text-[#526276]">
                   Chỉ chọn tiêu chí đã thể hiện rõ trong câu trả lời, không
                   chọn chỉ vì bạn đã nghĩ tới. Đây là kết quả tự đánh giá,
                   không phải đánh giá tuyển dụng độc lập.
@@ -680,7 +680,7 @@ export function WorldQuantDrillApp({
                   {selectedDrill.rubric.map((rubric, index) => (
                     <label
                       key={rubric}
-                      className="flex items-start gap-3 rounded-xl border border-[#173f35]/10 bg-[#fbfaf4] p-4"
+                      className="flex items-start gap-3 rounded-xl border border-[#0f3a69]/10 bg-[#f8fafc] p-4"
                     >
                       <input
                         type="checkbox"
@@ -702,7 +702,7 @@ export function WorldQuantDrillApp({
                 {storageError ? (
                   <p
                     role="alert"
-                    className="mt-5 rounded-xl bg-[#f8e8df] p-3 text-sm text-[#713929]"
+                    className="mt-5 rounded-xl bg-[#fff1f1] p-3 text-sm text-[#9f2f2f]"
                   >
                     {storageError}
                   </p>
@@ -711,7 +711,7 @@ export function WorldQuantDrillApp({
                   type="button"
                   onClick={finishDrill}
                   disabled={storagePending}
-                  className="mt-5 rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white"
+                  className="mt-5 rounded-xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white"
                 >
                   {storagePending ? "Đang lưu…" : "Lưu kết quả"}
                 </button>
@@ -719,12 +719,12 @@ export function WorldQuantDrillApp({
             ) : null}
 
             {stage === "result" && result ? (
-              <div className="mt-7 rounded-2xl bg-[#edf3e7] p-6">
+              <div className="mt-7 rounded-2xl bg-[#eaf2f8] p-6">
                 <StageLabel>Đã hoàn thành bài luyện</StageLabel>
                 <h2 className="mt-3 text-3xl font-semibold">
                   {result.passed ? "Đạt yêu cầu bài luyện" : "Cần ôn lại"}
                 </h2>
-                <p className="mt-3 leading-7 text-[#52645c]">
+                <p className="mt-3 leading-7 text-[#43546a]">
                   Trạng thái năng lực:{" "}
                   <b>{gapStatusLabel(result.gapStatus)}</b>. Đã tạo{" "}
                   {result.repairCount} câu ôn lại từ tiêu chí còn thiếu.
@@ -741,7 +741,7 @@ export function WorldQuantDrillApp({
                   <button
                     type="button"
                     onClick={() => resetDrill("overview")}
-                    className="rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white"
+                    className="rounded-xl bg-[#0f3a69] px-4 py-2 text-sm font-bold text-white"
                   >
                     Về danh sách bài luyện
                   </button>
@@ -753,7 +753,7 @@ export function WorldQuantDrillApp({
                         roleId,
                       )
                     }
-                    className="inline-flex min-h-11 items-center rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-sm font-bold"
+                    className="inline-flex min-h-11 items-center rounded-xl border border-[#0f3a69]/15 bg-white px-4 py-2 text-sm font-bold"
                   >
                     Tiếp tục bước tiếp theo trong nhiệm vụ
                   </Link>
@@ -786,7 +786,7 @@ function HeaderLink({
 
 function StageLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
+    <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#a65c0e] uppercase">
       {children}
     </p>
   );

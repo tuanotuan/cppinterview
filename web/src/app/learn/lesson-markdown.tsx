@@ -35,18 +35,18 @@ function renderNode(node: MarkdownNode, key: string): ReactNode {
     case "paragraph":
       return <p key={key}>{children}</p>;
     case "strong":
-      return <strong key={key} className="font-bold text-[#17221d]">{children}</strong>;
+      return <strong key={key} className="font-bold text-[#172033]">{children}</strong>;
     case "emphasis":
       return <em key={key}>{children}</em>;
     case "inlineCode":
       return (
-        <code key={key} className="rounded-md bg-[#e8ede8] px-1.5 py-0.5 font-mono text-[0.9em] text-[#245748]">
+        <code key={key} className="rounded-md bg-[#eaf2f8] px-1.5 py-0.5 font-mono text-[0.9em] text-[#16865a]">
           {node.value ?? ""}
         </code>
       );
     case "code":
       return (
-        <pre key={key} className="overflow-x-auto rounded-2xl bg-[#0b241d] p-5 font-mono text-[13px] leading-6 text-[#e8f4ec]">
+        <pre key={key} className="overflow-x-auto rounded-2xl bg-[#092c51] p-5 font-mono text-[13px] leading-6 text-[#e6f8f5]">
           <code>{node.value ?? ""}</code>
         </pre>
       );
@@ -58,8 +58,8 @@ function renderNode(node: MarkdownNode, key: string): ReactNode {
           key,
           className:
             depth === 3
-              ? "pt-3 text-xl font-semibold tracking-tight text-[#17221d]"
-              : "pt-2 text-lg font-semibold text-[#17221d]",
+              ? "pt-3 text-xl font-semibold tracking-tight text-[#172033]"
+              : "pt-2 text-lg font-semibold text-[#172033]",
         },
         children,
       );
@@ -79,14 +79,14 @@ function renderNode(node: MarkdownNode, key: string): ReactNode {
       return <li key={key} className="pl-1">{children}</li>;
     case "blockquote":
       return (
-        <blockquote key={key} className="border-l-4 border-[#79b82a] bg-[#eef6e7] px-4 py-3 text-[#52645c]">
+        <blockquote key={key} className="border-l-4 border-[#138f8c] bg-[#e6f8f5] px-4 py-3 text-[#43546a]">
           {children}
         </blockquote>
       );
     case "link": {
       const href = safeHref(node.url);
       return href ? (
-        <a key={key} href={href} className="font-semibold text-[#245748] underline decoration-[#79b82a] underline-offset-4">
+        <a key={key} href={href} className="font-semibold text-[#16865a] underline decoration-[#138f8c] underline-offset-4">
           {children}
         </a>
       ) : (
@@ -96,7 +96,7 @@ function renderNode(node: MarkdownNode, key: string): ReactNode {
     case "break":
       return <br key={key} />;
     case "thematicBreak":
-      return <hr key={key} className="border-[#173f35]/12" />;
+      return <hr key={key} className="border-[#0f3a69]/12" />;
     case "image":
       return node.alt ? <span key={key}>[Hình: {node.alt}]</span> : null;
     case "html":

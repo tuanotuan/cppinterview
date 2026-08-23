@@ -82,7 +82,7 @@ export function LegacyModernCapstoneApp({
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
       <div className="mx-auto max-w-[1380px]">
-        <header className="flex items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
+        <header className="flex items-center justify-between gap-4 border-b border-[#0f3a69]/15 pb-5">
           <Link
             href="/"
             aria-label="Về trang chủ cppinterview"
@@ -92,8 +92,8 @@ export function LegacyModernCapstoneApp({
             ← Trang chủ cppinterview
           </Link>
         </header>
-        <section className="mt-7 rounded-[2rem] bg-[#173f35] p-7 text-white">
-          <p className="font-mono text-xs font-bold tracking-[.16em] text-[#d7ff91] uppercase">
+        <section className="mt-7 rounded-[1.25rem] bg-[#0f3a69] p-7 text-white">
+          <p className="font-mono text-xs font-bold tracking-[.16em] text-[#65e6d2] uppercase">
             {done.size}/{legacyModernCapstonePhases.length} checkpoint hoàn tất
           </p>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
@@ -106,7 +106,7 @@ export function LegacyModernCapstoneApp({
           </p>
         </section>
         <section className="mt-7 grid gap-6 lg:grid-cols-[280px_1fr]">
-          <aside className="space-y-2 rounded-3xl border border-[#173f35]/12 bg-white/60 p-3">
+          <aside className="space-y-2 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/60 p-3">
             {legacyModernCapstonePhases.map((item, i) => {
               const available =
                 i === 0 || done.has(legacyModernCapstonePhases[i - 1].id);
@@ -115,7 +115,7 @@ export function LegacyModernCapstoneApp({
                   key={item.id}
                   disabled={!available}
                   onClick={() => setId(item.id)}
-                  className={`w-full rounded-2xl p-3 text-left text-sm disabled:opacity-40 ${item.id === phase.id ? "bg-[#173f35] text-white" : "bg-white"}`}
+                  className={`w-full rounded-2xl p-3 text-left text-sm disabled:opacity-40 ${item.id === phase.id ? "bg-[#0f3a69] text-white" : "bg-white"}`}
                 >
                   {done.has(item.id) ? "✓ " : `${i + 1}. `}
                   {item.title}
@@ -123,8 +123,8 @@ export function LegacyModernCapstoneApp({
               );
             })}
           </aside>
-          <section className="rounded-3xl border border-[#173f35]/12 bg-white/70 p-6">
-            <p className="font-mono text-xs font-bold text-[#ba4b2f] uppercase">
+          <section className="rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/70 p-6">
+            <p className="font-mono text-xs font-bold text-[#a65c0e] uppercase">
               {phase.title}
             </p>
             <h2 className="mt-3 text-3xl font-semibold">{phase.summary}</h2>
@@ -133,7 +133,7 @@ export function LegacyModernCapstoneApp({
                 {phase.checks.map((check, i) => (
                   <fieldset
                     key={check.id}
-                    className="mt-6 rounded-2xl border border-[#173f35]/10 p-4"
+                    className="mt-6 rounded-2xl border border-[#0f3a69]/10 p-4"
                   >
                     <legend className="px-2 font-bold">
                       {i + 1}. {check.prompt}
@@ -164,13 +164,13 @@ export function LegacyModernCapstoneApp({
                   type="button"
           disabled={phase.checks.some((item) => !answers[item.id])}
                   onClick={submit}
-                  className="mt-6 rounded-xl bg-[#173f35] px-5 py-3 font-bold text-white disabled:opacity-40"
+                  className="mt-6 rounded-xl bg-[#0f3a69] px-5 py-3 font-bold text-white disabled:opacity-40"
                 >
                   Kiểm tra checkpoint
                 </button>
                 {grade && (
                   <div
-                    className={`mt-5 rounded-2xl p-5 ${grade.passed ? "bg-[#eaf8cf]" : "bg-[#f8e8df]"}`}
+                    className={`mt-5 rounded-2xl p-5 ${grade.passed ? "bg-[#e6f8f5]" : "bg-[#fff1f1]"}`}
                   >
                     <strong>
                       {grade.passed

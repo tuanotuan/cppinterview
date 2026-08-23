@@ -30,13 +30,13 @@ export function PasswordRecoveryForm({
 
   return (
     <>
-      <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
+      <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#285f86] uppercase">
         {stage === "request" ? "Khôi phục tài khoản" : stage === "verify" ? "Xác minh email" : "Đặt mật khẩu mới"}
       </p>
       <h1 className="mt-2 text-3xl font-semibold tracking-tight">
         {stage === "request" ? "Quên mật khẩu?" : stage === "verify" ? "Nhập mã trong email" : "Tạo mật khẩu mới"}
       </h1>
-      <p className="mt-3 text-sm leading-6 text-[#64736c]">
+      <p className="mt-3 text-sm leading-6 text-[#526276]">
         {stage === "request"
           ? "Nhập email đã đăng ký. Nếu tài khoản dùng email và mật khẩu, chúng tôi sẽ gửi mã khôi phục. Nếu bạn đăng nhập bằng Google hoặc GitHub, hãy đăng nhập nhà cung cấp đó rồi đặt mật khẩu trong Hồ sơ."
           : stage === "verify"
@@ -46,14 +46,14 @@ export function PasswordRecoveryForm({
 
       <form action={action} className="mt-6 space-y-4">
         {stage === "request" ? (
-          <label className="block text-sm font-bold text-[#245748]">
+          <label className="block text-sm font-bold text-[#16865a]">
             Email
-            <input required name="email" type="email" autoComplete="email" inputMode="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="ban@example.com" className="mt-2 min-h-12 w-full rounded-xl border border-[#173f35]/18 bg-white px-3 text-base font-normal outline-none transition placeholder:text-[#839087] focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/55" />
+            <input required name="email" type="email" autoComplete="email" inputMode="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="ban@example.com" className="mt-2 min-h-12 w-full rounded-xl border border-[#0f3a69]/18 bg-white px-3 text-base font-normal outline-none transition placeholder:text-[#718096] focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/55" />
           </label>
         ) : stage === "verify" ? (
-          <label className="block text-sm font-bold text-[#245748]">
+          <label className="block text-sm font-bold text-[#16865a]">
             Mã xác minh
-            <input required name="code" type="text" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 8))} placeholder="Nhập mã trong email" className="mt-2 min-h-12 w-full rounded-xl border border-[#173f35]/18 bg-white px-3 font-mono text-base font-normal tracking-[0.18em] outline-none transition placeholder:font-sans placeholder:tracking-normal placeholder:text-[#839087] focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/55" />
+            <input required name="code" type="text" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 8))} placeholder="Nhập mã trong email" className="mt-2 min-h-12 w-full rounded-xl border border-[#0f3a69]/18 bg-white px-3 font-mono text-base font-normal tracking-[0.18em] outline-none transition placeholder:font-sans placeholder:tracking-normal placeholder:text-[#718096] focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/55" />
           </label>
         ) : (
           <>
@@ -62,18 +62,18 @@ export function PasswordRecoveryForm({
           </>
         )}
 
-        {notice ? <p aria-live="polite" className={(state.status === "success" ? "bg-[#e5f6c5] text-[#245748]" : "bg-[#fff1e8] text-[#8e3825]") + " rounded-xl px-3 py-3 text-sm leading-6"}>{notice}</p> : null}
+        {notice ? <p aria-live="polite" className={(state.status === "success" ? "bg-[#e2f5ec] text-[#16865a]" : "bg-[#fff1f1] text-[#c43d3d]") + " rounded-xl px-3 py-3 text-sm leading-6"}>{notice}</p> : null}
 
-        <button type="submit" disabled={pending} className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#173f35] px-4 py-3 text-sm font-bold text-[#d7ff91] transition hover:bg-[#245748] disabled:cursor-wait disabled:opacity-65 focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none">
+        <button type="submit" disabled={pending} className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#0f3a69] px-4 py-3 text-sm font-bold text-[#65e6d2] transition hover:bg-[#16865a] disabled:cursor-wait disabled:opacity-65 focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none">
           {pending ? "Đang xử lý…" : stage === "request" ? "Gửi mã khôi phục" : stage === "verify" ? "Xác minh mã" : "Lưu mật khẩu mới"}
         </button>
       </form>
-      {stage === "verify" ? <p className="mt-4 text-center text-sm text-[#64736c]"><Link href="/auth/reset-password" className="font-bold text-[#245748] underline underline-offset-4">Dùng email khác hoặc gửi lại mã</Link></p> : null}
-      <p className="mt-6 text-center text-sm text-[#64736c]"><Link href="/auth" className="font-bold text-[#245748] underline underline-offset-4">Quay lại đăng nhập</Link></p>
+      {stage === "verify" ? <p className="mt-4 text-center text-sm text-[#526276]"><Link href="/auth/reset-password" className="font-bold text-[#16865a] underline underline-offset-4">Dùng email khác hoặc gửi lại mã</Link></p> : null}
+      <p className="mt-6 text-center text-sm text-[#526276]"><Link href="/auth" className="font-bold text-[#16865a] underline underline-offset-4">Quay lại đăng nhập</Link></p>
     </>
   );
 }
 
 function PasswordInput({ name, label, value, visible, onChange, onToggle }: { name: string; label: string; value: string; visible: boolean; onChange: (value: string) => void; onToggle: () => void }) {
-  return <label className="block text-sm font-bold text-[#245748]">{label}<span className="relative mt-2 block"><input required name={name} type={visible ? "text" : "password"} autoComplete="new-password" minLength={8} value={value} onChange={(event) => onChange(event.target.value)} placeholder="Ít nhất 8 ký tự" className="min-h-12 w-full rounded-xl border border-[#173f35]/18 bg-white py-2 pl-3 pr-16 text-base font-normal outline-none transition placeholder:text-[#839087] focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/55" /><button type="button" aria-label={visible ? "Ẩn mật khẩu" : "Hiện mật khẩu"} aria-pressed={visible} onClick={onToggle} className="absolute inset-y-1 right-1 rounded-lg px-3 text-xs font-bold text-[#356b58] transition hover:bg-[#edf0e8] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none">{visible ? "Ẩn" : "Hiện"}</button></span></label>;
+  return <label className="block text-sm font-bold text-[#16865a]">{label}<span className="relative mt-2 block"><input required name={name} type={visible ? "text" : "password"} autoComplete="new-password" minLength={8} value={value} onChange={(event) => onChange(event.target.value)} placeholder="Ít nhất 8 ký tự" className="min-h-12 w-full rounded-xl border border-[#0f3a69]/18 bg-white py-2 pl-3 pr-16 text-base font-normal outline-none transition placeholder:text-[#718096] focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/55" /><button type="button" aria-label={visible ? "Ẩn mật khẩu" : "Hiện mật khẩu"} aria-pressed={visible} onClick={onToggle} className="absolute inset-y-1 right-1 rounded-lg px-3 text-xs font-bold text-[#285f86] transition hover:bg-[#eaf2f8] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none">{visible ? "Ẩn" : "Hiện"}</button></span></label>;
 }

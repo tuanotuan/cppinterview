@@ -402,7 +402,7 @@ export function WorldQuantMissionApp({
   if (!hydrated) {
     return (
       <main className="grid min-h-screen place-items-center px-5">
-        <p className="font-mono text-sm text-[#64736c]">
+        <p className="font-mono text-sm text-[#526276]">
           Đang khôi phục đúng kế hoạch đã lưu…
         </p>
       </main>
@@ -468,21 +468,21 @@ export function WorldQuantMissionApp({
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
       <div className="mx-auto max-w-[1350px]">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
+        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#0f3a69]/15 pb-5">
           <Link
             href="/"
             aria-label="Về trang chủ cppinterview"
             title="Về trang chủ cppinterview"
             className="flex min-w-0 items-center gap-3"
           >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
+            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
               WQ
             </span>
             <span>
               <span className="block font-bold">
                 Nhiệm vụ hôm nay
               </span>
-              <span className="block text-xs text-[#64736c]">
+              <span className="block text-xs text-[#526276]">
                 {today} · kế hoạch được giữ nguyên trong ngày
               </span>
             </span>
@@ -498,7 +498,7 @@ export function WorldQuantMissionApp({
             </HeaderLink>
             <HeaderLink href="/">Luyện thẻ</HeaderLink>
             <details className="group relative w-full sm:w-auto">
-              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-xl border border-[#173f35]/12 bg-white/65 px-4 py-2 text-sm font-bold focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none sm:justify-start [&::-webkit-details-marker]:hidden">
+              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-xl border border-[#0f3a69]/12 bg-white/65 px-4 py-2 text-sm font-bold focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none sm:justify-start [&::-webkit-details-marker]:hidden">
                 Nâng cao
                 <span
                   aria-hidden="true"
@@ -507,7 +507,7 @@ export function WorldQuantMissionApp({
                   ↓
                 </span>
               </summary>
-              <div className="mt-2 grid w-full gap-1 rounded-2xl border border-[#173f35]/12 bg-[#fbfaf4] p-2 shadow-[0_18px_60px_rgb(23_63_53_/_12%)] sm:absolute sm:right-0 sm:z-30 sm:w-64">
+              <div className="mt-2 grid w-full gap-1 rounded-2xl border border-[#0f3a69]/12 bg-[#f8fafc] p-2 shadow-[0_18px_60px_rgb(15_58_105_/_12%)] sm:absolute sm:right-0 sm:z-30 sm:w-64">
                 <HeaderLink
                   href={worldQuantRoleHref(
                     "/worldquant/drills",
@@ -539,7 +539,7 @@ export function WorldQuantMissionApp({
         </header>
 
         {notice ? (
-          <p className="mt-5 rounded-xl border border-[#ba4b2f]/20 bg-[#f8e8df] p-3 text-sm text-[#8e3825]">
+          <p className="mt-5 rounded-xl border border-[#a65c0e]/20 bg-[#fff1f1] p-3 text-sm text-[#c43d3d]">
             {notice}
           </p>
         ) : null}
@@ -551,11 +551,11 @@ export function WorldQuantMissionApp({
 
         <section
           aria-live="polite"
-          className={`mt-6 w-full min-w-0 max-w-full rounded-[2rem] border p-6 shadow-[0_20px_70px_rgb(23_63_53_/_8%)] sm:p-8 ${
+          className={`mt-6 w-full min-w-0 max-w-full rounded-[1.25rem] border p-6 shadow-[0_20px_70px_rgb(15_58_105_/_8%)] sm:p-8 ${
             nextStep
-              ? "border-[#173f35]/12 bg-[#173f35] text-white"
+              ? "border-[#0f3a69]/12 bg-[#0f3a69] text-white"
               : missionComplete
-                ? "border-[#356b58]/20 bg-[#edf3e7]"
+                ? "border-[#285f86]/20 bg-[#eaf2f8]"
                 : "border-[#b8882f]/25 bg-[#f8edcf]"
           }`}
         >
@@ -563,7 +563,7 @@ export function WorldQuantMissionApp({
             <>
               <div className="flex flex-wrap items-start justify-between gap-5">
                 <div className="min-w-0 max-w-3xl">
-                  <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
+                  <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#65e6d2] uppercase">
                     Bước tiếp theo · {nextStep.position}/{nextStep.total}
                   </p>
                   <h1 className="mt-3 break-words text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -611,13 +611,13 @@ export function WorldQuantMissionApp({
           ) : missionComplete ? (
             <div className="flex flex-wrap items-center justify-between gap-5">
               <div>
-                <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#356b58] uppercase">
+                <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#285f86] uppercase">
                   Nhiệm vụ hoàn tất
                 </p>
                 <h1 className="mt-3 text-3xl font-semibold tracking-tight">
                   Xong buổi học hôm nay.
                 </h1>
-                <p className="mt-2 text-sm text-[#64736c]">
+                <p className="mt-2 text-sm text-[#526276]">
                   Kết quả đã được lưu. Ngày mai nhiệm vụ sẽ tự chọn danh sách
                   học mới.
                 </p>
@@ -625,7 +625,7 @@ export function WorldQuantMissionApp({
               <div className="flex w-full flex-wrap gap-3 sm:w-auto">
                 <Link
                   href={worldQuantRoleHref("/worldquant", roleId)}
-                  className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-[#173f35] px-5 py-3 text-center text-sm font-bold text-white sm:flex-none"
+                  className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-[#0f3a69] px-5 py-3 text-center text-sm font-bold text-white sm:flex-none"
                 >
                    Về Trung tâm chuẩn bị
                 </Link>
@@ -634,7 +634,7 @@ export function WorldQuantMissionApp({
                     "/worldquant/full-round",
                     roleId,
                   )}
-                  className="flex min-h-12 flex-1 items-center justify-center rounded-xl border border-[#173f35]/15 bg-white px-5 py-3 text-center text-sm font-bold sm:flex-none"
+                  className="flex min-h-12 flex-1 items-center justify-center rounded-xl border border-[#0f3a69]/15 bg-white px-5 py-3 text-center text-sm font-bold sm:flex-none"
                 >
                   Luyện buổi mô phỏng phỏng vấn đầy đủ
                 </Link>
@@ -643,7 +643,7 @@ export function WorldQuantMissionApp({
           ) : (
             <div className="flex flex-wrap items-center justify-between gap-5">
               <div className="min-w-0 max-w-3xl">
-                <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#8e5a1f] uppercase">
+                <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#a65c0e] uppercase">
                   Chưa thể hoàn tất toàn bộ nhiệm vụ
                 </p>
                 <h1 className="mt-3 text-3xl font-semibold tracking-tight">
@@ -661,14 +661,14 @@ export function WorldQuantMissionApp({
                 {contentGapItems[0]?.href ? (
                   <Link
                     href={contentGapItems[0].href}
-                    className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-[#173f35] px-5 py-3 text-center text-sm font-bold text-white sm:flex-none"
+                    className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-[#0f3a69] px-5 py-3 text-center text-sm font-bold text-white sm:flex-none"
                   >
                     Mở học liệu còn thiếu
                   </Link>
                 ) : null}
                 <Link
                   href={worldQuantRoleHref("/worldquant", roleId)}
-                  className="flex min-h-12 flex-1 items-center justify-center rounded-xl border border-[#173f35]/15 bg-white px-5 py-3 text-center text-sm font-bold sm:flex-none"
+                  className="flex min-h-12 flex-1 items-center justify-center rounded-xl border border-[#0f3a69]/15 bg-white px-5 py-3 text-center text-sm font-bold sm:flex-none"
                 >
                    Về Trung tâm chuẩn bị
                 </Link>
@@ -679,31 +679,31 @@ export function WorldQuantMissionApp({
 
         <section className="grid gap-6 py-9 lg:grid-cols-[1fr_360px]">
           <div>
-            <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+            <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
               Nhiệm vụ hôm nay
             </p>
             <h2 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
                Một danh sách cho cả ghi nhớ, sửa lỗi và vận dụng.
             </h2>
-            <p className="mt-4 max-w-3xl leading-7 text-[#64736c]">
+            <p className="mt-4 max-w-3xl leading-7 text-[#526276]">
               Mỗi bước đều nói rõ lý do được chọn. Phần học liệu còn thiếu được
               báo riêng; kết quả phỏng vấn thử được theo dõi riêng và không tính
               vào chỉ số chuẩn bị.
             </p>
           </div>
-          <details className="rounded-2xl border border-[#173f35]/10 bg-white/65 p-3">
-            <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between rounded-xl px-3 py-2 font-bold focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none [&::-webkit-details-marker]:hidden">
+          <details className="rounded-2xl border border-[#0f3a69]/10 bg-white/65 p-3">
+            <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between rounded-xl px-3 py-2 font-bold focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none [&::-webkit-details-marker]:hidden">
               <span>
                 {worldQuantRoleProfiles.find(
                   (profile) => profile.id === roleId,
                 )?.label ?? roleId}
-                <span className="mt-1 block text-xs font-normal text-[#64736c]">
+                <span className="mt-1 block text-xs font-normal text-[#526276]">
                   {minutes} phút · bấm để tùy chỉnh
                 </span>
               </span>
               <span aria-hidden="true">⚙</span>
             </summary>
-            <div className="border-t border-[#173f35]/10 px-3 pt-4">
+            <div className="border-t border-[#0f3a69]/10 px-3 pt-4">
               <label className="block text-xs font-bold">
                  Vị trí
                 <select
@@ -713,7 +713,7 @@ export function WorldQuantMissionApp({
                       event.target.value as WorldQuantRoleProfileId,
                     )
                   }
-                  className="mt-2 min-h-11 w-full rounded-xl border border-[#173f35]/15 bg-white px-3 py-2 focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+                  className="mt-2 min-h-11 w-full rounded-xl border border-[#0f3a69]/15 bg-white px-3 py-2 focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
                 >
                   {worldQuantRoleProfiles.map((profile) => (
                     <option key={profile.id} value={profile.id}>
@@ -733,7 +733,7 @@ export function WorldQuantMissionApp({
                   onChange={(event) =>
                     setDraftMinutes(Number(event.target.value))
                   }
-                  className="mt-2 w-full accent-[#173f35]"
+                  className="mt-2 w-full accent-[#0f3a69]"
                 />
               </label>
               <button
@@ -742,7 +742,7 @@ export function WorldQuantMissionApp({
                 disabled={
                   draftRoleId === roleId && draftMinutes === minutes
                 }
-                className="mt-4 min-h-11 w-full rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-45"
+                className="mt-4 min-h-11 w-full rounded-xl bg-[#0f3a69] px-4 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-45"
               >
                 Áp dụng kế hoạch
               </button>
@@ -768,11 +768,11 @@ export function WorldQuantMissionApp({
           />
         </section>
 
-        <details className="group mt-6 rounded-[2rem] border border-[#173f35]/12 bg-white/45 p-3 sm:p-4">
-          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 rounded-2xl bg-white/65 px-4 py-3 font-bold focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none [&::-webkit-details-marker]:hidden">
+        <details className="group mt-6 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/45 p-3 sm:p-4">
+          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 rounded-2xl bg-white/65 px-4 py-3 font-bold focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none [&::-webkit-details-marker]:hidden">
             <span>
               Xem toàn bộ kế hoạch
-              <span className="mt-1 block text-xs font-normal text-[#64736c]">
+              <span className="mt-1 block text-xs font-normal text-[#526276]">
                 {completedCount}/{actionableItems.length} bước đã xong
                 {contentGapItems.length > 0
                   ? ` · ${contentGapItems.length} phần học liệu còn thiếu`
@@ -794,21 +794,21 @@ export function WorldQuantMissionApp({
                 <article
                   key={item.id}
                   aria-current={isNext ? "step" : undefined}
-                  className={`rounded-[2rem] border p-5 sm:p-7 ${
+                  className={`rounded-[1.25rem] border p-5 sm:p-7 ${
                     completed
-                      ? "border-[#356b58]/20 bg-[#edf3e7]"
+                      ? "border-[#285f86]/20 bg-[#eaf2f8]"
                       : isNext
-                        ? "border-[#ba4b2f]/35 bg-[#fff6ed]"
-                        : "border-[#173f35]/12 bg-white/65"
+                        ? "border-[#a65c0e]/35 bg-[#fff6ed]"
+                        : "border-[#0f3a69]/12 bg-white/65"
                   }`}
                 >
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="flex items-start gap-4">
-                    <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#173f35] font-mono text-xs font-bold text-white">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#0f3a69] font-mono text-xs font-bold text-white">
                       {completed ? "✓" : index + 1}
                     </span>
                     <div>
-                      <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#ba4b2f] uppercase">
+                      <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#a65c0e] uppercase">
                          {missionItemKindLabel(item.kind)}
                         {item.estimatedMinutes
                           ? ` · ${item.estimatedMinutes} phút`
@@ -817,7 +817,7 @@ export function WorldQuantMissionApp({
                       <h2 className="mt-2 text-xl font-semibold">
                         {itemTitle(item)}
                       </h2>
-                      <p className="mt-2 max-w-3xl text-sm leading-6 text-[#64736c]">
+                      <p className="mt-2 max-w-3xl text-sm leading-6 text-[#526276]">
                         {item.reason}
                       </p>
                     </div>
@@ -885,14 +885,14 @@ function MissionAction({
   prominent?: boolean;
 }) {
   const primaryClass = prominent
-    ? "flex min-h-12 w-full items-center justify-center rounded-xl bg-[#d7ff91] px-6 py-3 text-sm font-bold text-[#173f35] transition hover:bg-[#e5ffb7] focus-visible:ring-4 focus-visible:ring-white focus-visible:outline-none sm:w-auto"
-    : "min-h-11 rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none";
+    ? "flex min-h-12 w-full items-center justify-center rounded-xl bg-[#65e6d2] px-6 py-3 text-sm font-bold text-[#0f3a69] transition hover:bg-[#8eebdc] focus-visible:ring-4 focus-visible:ring-white focus-visible:outline-none sm:w-auto"
+    : "min-h-11 rounded-xl bg-[#0f3a69] px-4 py-2 text-xs font-bold text-white focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none";
   const secondaryClass = prominent
     ? "flex min-h-12 w-full items-center justify-center rounded-xl border border-white/20 bg-white/10 px-6 py-3 text-sm font-bold text-white focus-visible:ring-4 focus-visible:ring-white focus-visible:outline-none sm:w-auto"
-    : "min-h-11 rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-xs font-bold focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none";
+    : "min-h-11 rounded-xl border border-[#0f3a69]/15 bg-white px-4 py-2 text-xs font-bold focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none";
   if (completed) {
     return (
-      <span className="rounded-full bg-[#d7ff91] px-3 py-1 text-xs font-bold">
+      <span className="rounded-full bg-[#65e6d2] px-3 py-1 text-xs font-bold">
         Hoàn thành
       </span>
     );
@@ -967,7 +967,7 @@ function MissionAction({
       Mở học liệu
     </Link>
   ) : (
-    <span className="text-xs text-[#64736c]">
+    <span className="text-xs text-[#526276]">
        Cần bổ sung học liệu
     </span>
   );
@@ -1070,8 +1070,8 @@ function Metric({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl border border-[#173f35]/10 bg-white/65 p-4">
-      <p className="font-mono text-[10px] font-bold text-[#64736c] uppercase">
+    <div className="rounded-2xl border border-[#0f3a69]/10 bg-white/65 p-4">
+      <p className="font-mono text-[10px] font-bold text-[#526276] uppercase">
         {label}
       </p>
       <p className="mt-2 text-2xl font-semibold">{value}</p>

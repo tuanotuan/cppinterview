@@ -1,26 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f3f5f0;
-  --foreground: #13221d;
-  --surface: #fafbf7;
-  --surface-raised: #fffefa;
-  --surface-muted: #eaf0e9;
-  --surface-warning: #fff4df;
-  --ink-muted: #64736c;
-  --ink-subtle: #52645c;
-  --ink-on-dark: rgb(255 255 255 / 72%);
-  --border-subtle: rgb(23 63 53 / 15%);
-  --accent: #c9fa79;
-  --pine: #12362d;
-  --pine-strong: #0b2921;
-  --success: #356b58;
-  --warning: #86511f;
-  --danger: #8e3825;
-  --radius-card: 1.5rem;
-  --radius-control: 0.875rem;
-  --shadow-card: 0 14px 42px rgb(20 51 43 / 7%);
-  --shadow-lift: 0 24px 70px rgb(20 51 43 / 13%);
+  --background: #f5f7fa;
+  --foreground: #172033;
+  --surface: #f8fafc;
+  --surface-raised: #ffffff;
+  --surface-muted: #eaf2f8;
+  --surface-warning: #fff5e8;
+  --ink-muted: #526276;
+  --ink-subtle: #43546a;
+  --ink-on-dark: rgb(255 255 255 / 76%);
+  --border-subtle: #dce4ec;
+  --accent: #65e6d2;
+  --accent-soft: #e6f8f5;
+  --focus-ring: #138f8c;
+  --pine: #0f3a69;
+  --pine-strong: #092c51;
+  --success: #16865a;
+  --warning: #a65c0e;
+  --danger: #c43d3d;
+  --radius-card: 1rem;
+  --radius-panel: 1.25rem;
+  --radius-control: 0.75rem;
+  --shadow-card: 0 6px 20px rgb(15 58 105 / 7%);
+  --shadow-lift: 0 14px 36px rgb(15 58 105 / 12%);
   --ease-standard: 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
   --content-max: 90rem;
 }
@@ -38,9 +41,7 @@
 
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at 84% -12%, rgb(201 250 121 / 28%), transparent 32rem),
-    linear-gradient(180deg, #fbfcf9 0%, var(--background) 52rem);
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   line-height: 1.5;
@@ -62,7 +63,7 @@ button:disabled {
 }
 
 :focus-visible {
-  outline: 3px solid rgb(121 184 42 / 68%);
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
   scroll-margin-block: 1rem 7rem;
 }
@@ -109,7 +110,7 @@ button:disabled {
 .ui-surface-card {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-card);
-  background: color-mix(in srgb, var(--surface-raised) 92%, transparent);
+  background: var(--surface-raised);
   box-shadow: var(--shadow-card);
 }
 
@@ -119,10 +120,16 @@ button:disabled {
 
 .ui-app-header {
   border: 1px solid var(--border-subtle);
-  border-radius: 1.25rem;
-  background: color-mix(in srgb, var(--surface-raised) 82%, transparent);
-  box-shadow: 0 8px 26px rgb(20 51 43 / 4%);
-  backdrop-filter: blur(14px);
+  border-radius: var(--radius-panel);
+  background: var(--surface-raised);
+  box-shadow: 0 4px 16px rgb(15 58 105 / 6%);
+}
+
+.ui-landing-background {
+  background:
+    radial-gradient(circle at 88% 4%, rgb(101 230 210 / 22%), transparent 30rem),
+    radial-gradient(circle at 8% 22%, rgb(15 58 105 / 7%), transparent 34rem),
+    linear-gradient(180deg, #fbfdff 0%, var(--background) 54rem);
 }
 
 .ui-action-primary,
@@ -139,29 +146,28 @@ button:disabled {
     background-color var(--ease-standard),
     border-color var(--ease-standard),
     box-shadow var(--ease-standard),
-    transform var(--ease-standard);
+    color var(--ease-standard);
 }
 
 .ui-action-primary {
   background: var(--pine);
-  color: var(--accent);
-  box-shadow: 0 10px 24px rgb(18 54 45 / 16%);
+  color: white;
+  box-shadow: 0 8px 18px rgb(15 58 105 / 18%);
 }
 
 .ui-action-primary:hover {
   background: var(--pine-strong);
-  transform: translateY(-1px);
 }
 
 .ui-action-secondary {
   border: 1px solid var(--border-subtle);
-  background: color-mix(in srgb, var(--surface-raised) 88%, transparent);
+  background: var(--surface-raised);
   color: var(--pine);
 }
 
 .ui-action-secondary:hover {
-  border-color: rgb(53 107 88 / 42%);
-  background: #fff;
+  border-color: rgb(15 58 105 / 30%);
+  background: var(--surface-muted);
 }
 
 .ui-panel-label {
@@ -175,37 +181,37 @@ button:disabled {
 
 .rating-button[data-tone="red"] {
   border-color: rgb(186 75 47 / 35%);
-  color: #8e3825;
+  color: #c43d3d;
 }
 
 .rating-button[data-tone="orange"] {
   border-color: rgb(190 123 57 / 38%);
-  color: #86511f;
+  color: #a65c0e;
 }
 
 .rating-button[data-tone="green"] {
-  border-color: rgb(53 107 88 / 35%);
-  color: #245748;
+  border-color: rgb(22 134 90 / 35%);
+  color: var(--success);
 }
 
 .rating-button[data-tone="lime"] {
-  border-color: rgb(122 154 52 / 42%);
-  color: #526d1f;
+  border-color: rgb(19 143 140 / 42%);
+  color: #0b716f;
 }
 
 .coverage-status[data-status="met"] {
-  background: rgb(215 255 145 / 70%);
-  color: #356b58;
+  background: #e2f5ec;
+  color: var(--success);
 }
 
 .coverage-status[data-status="partial"] {
   background: #f4dfc5;
-  color: #86511f;
+  color: #a65c0e;
 }
 
 .coverage-status[data-status="missed"] {
-  background: #f1d6c9;
-  color: #8e3825;
+  background: #fee7e7;
+  color: #c43d3d;
 }
 
 .sync-dot[data-status="local"] {
@@ -222,12 +228,12 @@ button:disabled {
 }
 
 .sync-dot[data-status="error"] {
-  background: #ba4b2f;
+  background: #a65c0e;
 }
 
 ::selection {
-  background: #d7ff91;
-  color: #173f35;
+  background: var(--accent);
+  color: var(--pine-strong);
 }
 
 .sr-only {
@@ -243,10 +249,6 @@ button:disabled {
 }
 
 @media (max-width: 1023px) {
-  :root {
-    --radius-card: 1.25rem;
-  }
-
   body[data-practice-focus-mode="true"] {
     padding-bottom: 0;
   }

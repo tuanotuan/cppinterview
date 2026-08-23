@@ -17,11 +17,11 @@ export function SetPasswordForm() {
 
   return (
     <>
-      <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
+      <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#285f86] uppercase">
         Bảo mật tài khoản
       </p>
       <h1 className="mt-2 text-3xl font-semibold tracking-tight">Đặt mật khẩu đăng nhập</h1>
-      <p className="mt-3 text-sm leading-6 text-[#64736c]">
+      <p className="mt-3 text-sm leading-6 text-[#526276]">
         Tài khoản đăng nhập bằng Google hoặc GitHub có thể thêm mật khẩu tại đây.
         Bạn cần đăng nhập nhà cung cấp trước khi lưu mật khẩu.
       </p>
@@ -50,8 +50,8 @@ export function SetPasswordForm() {
             className={
               "rounded-xl px-3 py-3 text-sm leading-6 " +
               (state.status === "success"
-                ? "bg-[#e5f6c5] text-[#245748]"
-                : "bg-[#fff1e8] text-[#8e3825]")
+                ? "bg-[#e2f5ec] text-[#16865a]"
+                : "bg-[#fff1f1] text-[#c43d3d]")
             }
           >
             {state.message}
@@ -61,14 +61,14 @@ export function SetPasswordForm() {
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#173f35] px-4 py-3 text-sm font-bold text-[#d7ff91] transition hover:bg-[#245748] disabled:cursor-wait disabled:opacity-65 focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+          className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#0f3a69] px-4 py-3 text-sm font-bold text-[#65e6d2] transition hover:bg-[#16865a] disabled:cursor-wait disabled:opacity-65 focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
         >
           {pending ? "Đang lưu…" : "Lưu mật khẩu"}
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-[#64736c]">
-        <Link href="/profile" className="font-bold text-[#245748] underline underline-offset-4">
+      <p className="mt-6 text-center text-sm text-[#526276]">
+        <Link href="/profile" className="font-bold text-[#16865a] underline underline-offset-4">
           Quay lại hồ sơ
         </Link>
       </p>
@@ -92,7 +92,7 @@ function PasswordField({
   onToggle: () => void;
 }) {
   return (
-    <label className="block text-sm font-bold text-[#245748]">
+    <label className="block text-sm font-bold text-[#16865a]">
       {label}
       <span className="relative mt-2 block">
         <input
@@ -104,14 +104,14 @@ function PasswordField({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder="Ít nhất 8 ký tự"
-          className="min-h-12 w-full rounded-xl border border-[#173f35]/18 bg-white py-2 pl-3 pr-16 text-base font-normal outline-none transition placeholder:text-[#839087] focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/55"
+          className="min-h-12 w-full rounded-xl border border-[#0f3a69]/18 bg-white py-2 pl-3 pr-16 text-base font-normal outline-none transition placeholder:text-[#718096] focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/55"
         />
         <button
           type="button"
           aria-label={visible ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
           aria-pressed={visible}
           onClick={onToggle}
-          className="absolute inset-y-1 right-1 rounded-lg px-3 text-xs font-bold text-[#356b58] transition hover:bg-[#edf0e8] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+          className="absolute inset-y-1 right-1 rounded-lg px-3 text-xs font-bold text-[#285f86] transition hover:bg-[#eaf2f8] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
         >
           {visible ? "Ẩn" : "Hiện"}
         </button>

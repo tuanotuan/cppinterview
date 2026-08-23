@@ -20,8 +20,8 @@ export default async function AuthPage({
 
   if (!isSupabaseConfigured()) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[#f5f6ed] px-4 text-center">
-        <div className="max-w-md rounded-[2rem] border border-[#ba4b2f]/20 bg-[#fff1e8] p-7 text-[#8e3825]">
+      <main className="grid min-h-screen place-items-center bg-[#f8fafc] px-4 text-center">
+        <div className="max-w-md rounded-[1.25rem] border border-[#a65c0e]/20 bg-[#fff1f1] p-7 text-[#c43d3d]">
           <h1 className="text-xl font-bold">Đăng nhập chưa sẵn sàng</h1>
           <p className="mt-3 leading-7">Supabase chưa được cấu hình cho trang này.</p>
         </div>

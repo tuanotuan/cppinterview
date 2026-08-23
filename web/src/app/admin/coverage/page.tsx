@@ -38,8 +38,8 @@ export default async function CoverageStudioPage() {
   if (!cloud.enabled || !cloud.account || !cloud.canManageQuestionBank) {
     return (
       <main className="grid min-h-screen place-items-center px-5">
-        <section className="max-w-lg rounded-[2rem] border border-[#173f35]/15 bg-white/70 p-8">
-          <p className="font-mono text-xs font-bold text-[#ba4b2f] uppercase">
+        <section className="max-w-lg rounded-[1.25rem] border border-[#0f3a69]/15 bg-white/70 p-8">
+          <p className="font-mono text-xs font-bold text-[#a65c0e] uppercase">
             Dành cho quản trị viên
           </p>
           <h1 className="mt-3 text-3xl font-semibold">
@@ -47,7 +47,7 @@ export default async function CoverageStudioPage() {
           </h1>
           <Link
             href="/admin"
-            className="mt-6 inline-flex rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white"
+            className="mt-6 inline-flex rounded-xl bg-[#0f3a69] px-4 py-2 text-sm font-bold text-white"
           >
             Về trang quản trị
           </Link>
@@ -74,19 +74,19 @@ export default async function CoverageStudioPage() {
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
       <div className="mx-auto max-w-[1450px]">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
+        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#0f3a69]/15 pb-5">
           <Link
             href="/"
             aria-label="Về trang chủ cppinterview"
             title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono font-bold text-[#d7ff91]">
+            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono font-bold text-[#65e6d2]">
               R
             </span>
             <span>
               <span className="block font-bold">Mức bao phủ nội dung</span>
-              <span className="block text-xs text-[#64736c]">
+              <span className="block text-xs text-[#526276]">
                 Điều phối việc biên tập
               </span>
             </span>
@@ -108,23 +108,23 @@ export default async function CoverageStudioPage() {
         </header>
 
         <section className="py-9">
-          <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+          <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
             Ưu tiên bổ sung học liệu
           </p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
             Ưu tiên duyệt những phần còn thiếu.
           </h1>
-          <p className="mt-4 max-w-3xl leading-7 text-[#64736c]">
+          <p className="mt-4 max-w-3xl leading-7 text-[#526276]">
             Thẻ sửa lỗi cá nhân không được tính vào mức bao phủ nội dung. Bài
             luyện cũng không thay thế thẻ ghi nhớ đã duyệt; hai loại bằng
             chứng học tập được theo dõi riêng.
           </p>
         </section>
 
-        <section className="rounded-[2rem] border border-[#173f35]/12 bg-[#173f35] p-5 text-white sm:p-7">
+        <section className="rounded-[1.25rem] border border-[#0f3a69]/12 bg-[#0f3a69] p-5 text-white sm:p-7">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
+              <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#65e6d2] uppercase">
                 Ngân hàng phỏng vấn C++
               </p>
               <h2 className="mt-2 text-2xl font-semibold sm:text-3xl">
@@ -155,13 +155,13 @@ export default async function CoverageStudioPage() {
                     <h3 className="text-sm font-semibold">
                       {interviewQuestionCategoryLabels[item.category]}
                     </h3>
-                    <span className="font-mono text-xs font-bold text-[#d7ff91]">
+                    <span className="font-mono text-xs font-bold text-[#65e6d2]">
                       {item.verified}/{item.target}
                     </span>
                   </div>
                   <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/15">
                     <div
-                      className="h-full rounded-full bg-[#d7ff91]"
+                      className="h-full rounded-full bg-[#65e6d2]"
                       style={{ width: `${percent}%` }}
                     />
                   </div>
@@ -180,7 +180,7 @@ export default async function CoverageStudioPage() {
             return (
               <article
                 key={competency}
-                className="rounded-2xl border border-[#173f35]/10 bg-white/65 p-4"
+                className="rounded-2xl border border-[#0f3a69]/10 bg-white/65 p-4"
               >
                 <p className="text-xs font-bold">
                   {worldQuantCompetencies[competency].shortLabel}
@@ -188,7 +188,7 @@ export default async function CoverageStudioPage() {
                 <p className="mt-3 text-3xl font-semibold">
                   {summary.coveredConceptCount}/{summary.conceptCount}
                 </p>
-                <p className="mt-1 text-[10px] leading-4 text-[#64736c]">
+                <p className="mt-1 text-[10px] leading-4 text-[#526276]">
                   {summary.activeQuestionCount} đang dùng ·{" "}
                   {summary.pendingQuestionCount} chờ duyệt ·{" "}
                   {summary.transferReadyConceptCount} sẵn sàng vận dụng
@@ -198,10 +198,10 @@ export default async function CoverageStudioPage() {
           })}
         </section>
 
-        <section className="mt-6 rounded-[2rem] border border-[#173f35]/12 bg-white/60 p-5 sm:p-7">
+        <section className="mt-6 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/60 p-5 sm:p-7">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
+              <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#a65c0e] uppercase">
                 Danh sách chờ biên tập
               </p>
               <h2 className="mt-2 text-2xl font-semibold">
@@ -209,7 +209,7 @@ export default async function CoverageStudioPage() {
                 dụng
               </h2>
             </div>
-            <p className="text-xs text-[#64736c]">
+            <p className="text-xs text-[#526276]">
               {coverage.unclassifiedQuestionIds.length} câu hỏi chưa được gắn
               với khái niệm
             </p>
@@ -218,7 +218,7 @@ export default async function CoverageStudioPage() {
             {editorialQueue.map((item) => (
               <article
                 key={item.concept.id}
-                className="rounded-2xl border border-[#173f35]/10 bg-[#fbfaf4] p-4"
+                className="rounded-2xl border border-[#0f3a69]/10 bg-[#f8fafc] p-4"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -233,11 +233,11 @@ export default async function CoverageStudioPage() {
                       {item.concept.label}
                     </h3>
                   </div>
-                  <span className="rounded-full bg-[#f1d6c9] px-3 py-1 text-[10px] font-bold text-[#8e3825]">
+                  <span className="rounded-full bg-[#fee7e7] px-3 py-1 text-[10px] font-bold text-[#c43d3d]">
                     {coverageStatusLabels[item.status] ?? item.status}
                   </span>
                 </div>
-                <p className="mt-2 text-sm leading-6 text-[#64736c]">
+                <p className="mt-2 text-sm leading-6 text-[#526276]">
                   {item.concept.summary}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2 text-[10px]">
@@ -251,14 +251,14 @@ export default async function CoverageStudioPage() {
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Link
                     href="/admin"
-                    className="rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white"
+                    className="rounded-xl bg-[#0f3a69] px-4 py-2 text-xs font-bold text-white"
                   >
                     Mở danh sách chờ duyệt
                   </Link>
                   {item.concept.guideHref ? (
                     <Link
                       href={item.concept.guideHref}
-                      className="rounded-xl border border-[#173f35]/15 px-4 py-2 text-xs font-bold"
+                      className="rounded-xl border border-[#0f3a69]/15 px-4 py-2 text-xs font-bold"
                     >
                       Kiểm tra nguồn
                     </Link>
@@ -276,7 +276,7 @@ export default async function CoverageStudioPage() {
 function MiniStat({ value, label }: { value: number; label: string }) {
   return (
     <div className="min-w-20 rounded-xl bg-white/8 px-3 py-2.5">
-      <p className="text-lg font-semibold text-[#d7ff91]">{value}</p>
+      <p className="text-lg font-semibold text-[#65e6d2]">{value}</p>
       <p className="mt-0.5 text-[10px] text-white/60">{label}</p>
     </div>
   );
@@ -284,7 +284,7 @@ function MiniStat({ value, label }: { value: number; label: string }) {
 
 function Pill({ children }: { children: React.ReactNode }) {
   return (
-    <span className="rounded-full border border-[#173f35]/10 bg-white px-2.5 py-1">
+    <span className="rounded-full border border-[#0f3a69]/10 bg-white px-2.5 py-1">
       {children}
     </span>
   );

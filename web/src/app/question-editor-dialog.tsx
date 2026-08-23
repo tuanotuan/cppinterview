@@ -79,10 +79,10 @@ export function QuestionEditorDialog({
       role="dialog"
       aria-modal="true"
       aria-labelledby="question-editor-title"
-      className="fixed inset-0 z-50 overflow-y-auto bg-[#102d26]/55 px-4 py-6 backdrop-blur-sm sm:px-7 sm:py-10"
+      className="fixed inset-0 z-50 overflow-y-auto bg-[#092c51]/55 px-4 py-6 backdrop-blur-sm sm:px-7 sm:py-10"
     >
       <form
-        className="mx-auto w-full max-w-4xl rounded-[2rem] border border-[#d7ff91]/35 bg-[#f7f9f2] p-5 shadow-[0_28px_90px_rgba(7,33,26,0.35)] sm:p-7"
+        className="mx-auto w-full max-w-4xl rounded-[1.25rem] border border-[#65e6d2]/35 bg-[#f8fafc] p-5 shadow-[0_28px_90px_rgba(7,33,26,0.35)] sm:p-7"
         onSubmit={(event) => {
           event.preventDefault();
           void onSave({
@@ -108,18 +108,18 @@ export function QuestionEditorDialog({
       >
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
+            <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#285f86] uppercase">
               Quản trị thẻ đang học
             </p>
-            <h2 id="question-editor-title" className="mt-2 text-2xl font-semibold tracking-tight text-[#173f35]">
+            <h2 id="question-editor-title" className="mt-2 text-2xl font-semibold tracking-tight text-[#0f3a69]">
               Chỉnh sửa câu hỏi
             </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#64736c]">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#526276]">
               Lưu thay đổi sẽ tạo phiên bản mới và đưa thẻ về chờ duyệt trước khi xuất hiện trong lịch học tiếp theo.
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="rounded-full border border-[#173f35]/15 bg-white px-3 py-1.5 font-mono text-xs text-[#64736c]">
+            <span className="rounded-full border border-[#0f3a69]/15 bg-white px-3 py-1.5 font-mono text-xs text-[#526276]">
               v{question.version} → v{question.version + 1}
             </span>
             <button
@@ -127,7 +127,7 @@ export function QuestionEditorDialog({
               type="button"
               onClick={dismiss}
               disabled={saving}
-              className="grid size-11 place-items-center rounded-xl border border-[#173f35]/15 bg-white text-xl leading-none text-[#356b58] transition hover:bg-[#edf0e8] disabled:opacity-50"
+              className="grid size-11 place-items-center rounded-xl border border-[#0f3a69]/15 bg-white text-xl leading-none text-[#285f86] transition hover:bg-[#eaf2f8] disabled:opacity-50"
               aria-label="Đóng trình chỉnh sửa câu hỏi"
               title="Đóng"
             >
@@ -184,7 +184,7 @@ export function QuestionEditorDialog({
               ]),
             ]}
           />
-          <label className="text-xs font-bold text-[#52645c]">
+          <label className="text-xs font-bold text-[#43546a]">
             Thời gian (phút)
             <input
               type="number"
@@ -192,7 +192,7 @@ export function QuestionEditorDialog({
               max={15}
               value={estimatedMinutes}
               onChange={(event) => setEstimatedMinutes(Number(event.target.value))}
-              className="mt-1.5 w-full rounded-xl border border-[#173f35]/15 bg-white px-3 py-2.5 text-sm font-normal"
+              className="mt-1.5 w-full rounded-xl border border-[#0f3a69]/15 bg-white px-3 py-2.5 text-sm font-normal"
             />
           </label>
         </div>
@@ -209,7 +209,7 @@ export function QuestionEditorDialog({
         </div>
 
         {error ? (
-          <p role="alert" className="mt-4 rounded-xl border border-[#ba4b2f]/25 bg-[#f8e8df] px-3 py-2 text-sm text-[#8e3825]">
+          <p role="alert" className="mt-4 rounded-xl border border-[#a65c0e]/25 bg-[#fff1f1] px-3 py-2 text-sm text-[#c43d3d]">
             {error}
           </p>
         ) : null}
@@ -218,14 +218,14 @@ export function QuestionEditorDialog({
             type="button"
             onClick={dismiss}
             disabled={saving}
-            className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2.5 text-sm font-bold text-[#356b58] disabled:opacity-50"
+            className="rounded-xl border border-[#0f3a69]/15 bg-white px-4 py-2.5 text-sm font-bold text-[#285f86] disabled:opacity-50"
           >
             Hủy
           </button>
           <button
             type="submit"
             disabled={saving || !required.trim()}
-            className="rounded-xl bg-[#173f35] px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+            className="rounded-xl bg-[#0f3a69] px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50"
           >
             {saving ? "Đang lưu…" : "Lưu phiên bản mới"}
           </button>
@@ -258,14 +258,14 @@ function EditorTextarea({
   required?: boolean;
 }) {
   return (
-    <label className="mt-3 block text-xs font-bold text-[#52645c]">
+    <label className="mt-3 block text-xs font-bold text-[#43546a]">
       {label}
       <textarea
         required={required}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         rows={rows}
-        className={`mt-1.5 w-full resize-y rounded-xl border border-[#173f35]/15 bg-white px-3 py-2.5 text-sm font-normal leading-6 ${mono ? "font-mono" : ""}`}
+        className={`mt-1.5 w-full resize-y rounded-xl border border-[#0f3a69]/15 bg-white px-3 py-2.5 text-sm font-normal leading-6 ${mono ? "font-mono" : ""}`}
       />
     </label>
   );
@@ -283,12 +283,12 @@ function EditorSelect({
   options: Array<[string, string]>;
 }) {
   return (
-    <label className="text-xs font-bold text-[#52645c]">
+    <label className="text-xs font-bold text-[#43546a]">
       {label}
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1.5 w-full rounded-xl border border-[#173f35]/15 bg-white px-3 py-2.5 text-sm font-normal"
+        className="mt-1.5 w-full rounded-xl border border-[#0f3a69]/15 bg-white px-3 py-2.5 text-sm font-normal"
       >
         {options.map(([optionValue, optionLabel]) => (
           <option key={optionValue} value={optionValue}>

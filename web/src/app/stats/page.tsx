@@ -32,9 +32,9 @@ const ratingLabels: Record<Rating, string> = {
 };
 
 const ratingColors: Record<Rating, string> = {
-  again: "bg-[#ba4b2f]",
+  again: "bg-[#a65c0e]",
   hard: "bg-[#d08a36]",
-  good: "bg-[#356b58]",
+  good: "bg-[#285f86]",
   easy: "bg-[#8ebf3f]",
 };
 
@@ -104,13 +104,13 @@ export default async function StatsPage({
               href="/"
               aria-label="Về trang chủ cppinterview"
               title="Về trang chủ cppinterview"
-              className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+              className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
               {activeDeck.badge}
             </Link>
             <div>
               <p className="text-lg font-bold">Thống kê cppinterview</p>
-              <p className="text-xs text-[#64736c]">
+              <p className="text-xs text-[#526276]">
                 Theo dõi sức khỏe học tập
               </p>
             </div>
@@ -134,7 +134,7 @@ export default async function StatsPage({
             </Link>
             <Link
               href="/profile"
-              className="rounded-full border border-[#173f35]/15 bg-white/65 px-4 py-2 text-xs font-semibold transition hover:border-[#356b58]/40"
+              className="rounded-full border border-[#0f3a69]/15 bg-white/65 px-4 py-2 text-xs font-semibold transition hover:border-[#285f86]/40"
             >
               @{cloud.account.login ?? cloud.account.displayName}
             </Link>
@@ -142,7 +142,7 @@ export default async function StatsPage({
         </header>
 
         <section className="py-9">
-          <p className="ui-eyebrow text-[#ba4b2f]">
+          <p className="ui-eyebrow text-[#a65c0e]">
             Phân tích học tập
           </p>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
@@ -150,12 +150,12 @@ export default async function StatsPage({
               <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
                 Sức khỏe bộ câu hỏi
               </h1>
-              <p className="mt-3 max-w-2xl leading-7 text-[#64736c]">
+              <p className="mt-3 max-w-2xl leading-7 text-[#526276]">
                 Dựa trên lịch sử mức đánh giá thực tế của bạn. Trang này không
                 gọi AI và không trừ hạn mức sử dụng.
               </p>
             </div>
-            <p className="font-mono text-xs text-[#64736c]">Cập nhật đến {formatDate(today)}</p>
+            <p className="font-mono text-xs text-[#526276]">Cập nhật đến {formatDate(today)}</p>
           </div>
         </section>
 
@@ -198,19 +198,19 @@ export default async function StatsPage({
               {analytics.activity.map((day) => (
                 <div key={day.date} className="group relative">
                   <div
-                    className="aspect-square rounded-md border border-[#173f35]/8 bg-[#356b58]"
+                    className="aspect-square rounded-md border border-[#0f3a69]/8 bg-[#285f86]"
                     style={{ opacity: day.count ? 0.2 + (day.count / activityMax) * 0.8 : 0.06 }}
                     title={`${formatDate(day.date)}: ${day.count} lượt`}
                   />
-                  <span className="pointer-events-none absolute -top-8 left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#173f35] px-2 py-1 text-[10px] text-white group-hover:block">
+                  <span className="pointer-events-none absolute -top-8 left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#0f3a69] px-2 py-1 text-[10px] text-white group-hover:block">
                     {day.count} lượt · {formatDate(day.date)}
                   </span>
                 </div>
               ))}
             </div>
-            <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-[#64736c]">
-              <span>Hôm nay: <strong className="text-[#17221d]">{analytics.summary.reviewedToday}</strong></span>
-              <span>28 ngày: <strong className="text-[#17221d]">{analytics.activity.reduce((sum, day) => sum + day.count, 0)}</strong></span>
+            <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-[#526276]">
+              <span>Hôm nay: <strong className="text-[#172033]">{analytics.summary.reviewedToday}</strong></span>
+              <span>28 ngày: <strong className="text-[#172033]">{analytics.activity.reduce((sum, day) => sum + day.count, 0)}</strong></span>
             </div>
           </Panel>
 
@@ -228,9 +228,9 @@ export default async function StatsPage({
                   <div key={rating}>
                     <div className="mb-1.5 flex justify-between text-sm">
                       <span className="font-semibold">{ratingLabels[rating]}</span>
-                      <span className="font-mono text-xs text-[#64736c]">{count} · {Math.round(width)}%</span>
+                      <span className="font-mono text-xs text-[#526276]">{count} · {Math.round(width)}%</span>
                     </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-[#173f35]/8">
+                    <div className="h-2 overflow-hidden rounded-full bg-[#0f3a69]/8">
                       <div className={`h-full rounded-full ${ratingColors[rating]}`} style={{ width: `${width}%` }} />
                     </div>
                   </div>
@@ -242,7 +242,7 @@ export default async function StatsPage({
 
         <section className="mt-5 grid gap-5 xl:grid-cols-2">
           <Panel eyebrow="Dự báo" title="14 ngày sắp tới">
-            <p className="mt-2 text-sm text-[#64736c]">
+            <p className="mt-2 text-sm text-[#526276]">
               {analytics.overdueCount
                 ? `${analytics.overdueCount} câu quá hạn được gộp vào hôm nay.`
                 : "Không có câu quá hạn."}
@@ -253,7 +253,7 @@ export default async function StatsPage({
                   kind: "due",
                   limit: 20,
                 })}
-                className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#245748] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+                className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-[#0f3a69] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#16865a] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
               >
                 Luyện ngay câu đến hạn
               </Link>
@@ -261,15 +261,15 @@ export default async function StatsPage({
             <div className="mt-6 flex h-48 items-end gap-2">
               {analytics.forecast.map((day, index) => (
                 <div key={day.date} className="flex min-w-0 flex-1 flex-col items-center gap-2">
-                  <span className="font-mono text-[10px] text-[#64736c]">{day.count || ""}</span>
-                  <div className="flex h-32 w-full items-end rounded-lg bg-[#173f35]/5">
+                  <span className="font-mono text-[10px] text-[#526276]">{day.count || ""}</span>
+                  <div className="flex h-32 w-full items-end rounded-lg bg-[#0f3a69]/5">
                     <div
-                      className="w-full rounded-lg bg-[#356b58] transition-[height]"
+                      className="w-full rounded-lg bg-[#285f86] transition-[height]"
                       style={{ height: `${day.count ? Math.max(8, (day.count / forecastMax) * 100) : 0}%` }}
                       title={`${formatDate(day.date)}: ${day.count} câu đến hạn`}
                     />
                   </div>
-                  <span className="font-mono text-[9px] text-[#64736c]">{index === 0 ? "nay" : day.date.slice(8)}</span>
+                  <span className="font-mono text-[9px] text-[#526276]">{index === 0 ? "nay" : day.date.slice(8)}</span>
                 </div>
               ))}
             </div>
@@ -279,23 +279,23 @@ export default async function StatsPage({
             {analytics.weakTopics.length ? (
               <div className="mt-5 space-y-3">
                 {analytics.weakTopics.map((topic) => (
-                  <div key={topic.topic} className="rounded-2xl border border-[#173f35]/10 bg-white/55 p-4">
+                  <div key={topic.topic} className="rounded-2xl border border-[#0f3a69]/10 bg-white/55 p-4">
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="font-semibold">
                           {taxonomyTopicLabel(topic.topic)}
                         </p>
-                        <p className="mt-1 font-mono text-[10px] text-[#64736c]">
+                        <p className="mt-1 font-mono text-[10px] text-[#526276]">
                           {topic.attempts} lượt · {topic.again} Chưa nhớ ·{" "}
                           {topic.hard} Khó
                         </p>
                       </div>
-                      <span className="rounded-full bg-[#f1d6c9] px-3 py-1 font-mono text-xs font-bold text-[#8e3825]">
+                      <span className="rounded-full bg-[#fee7e7] px-3 py-1 font-mono text-xs font-bold text-[#c43d3d]">
                         khó {topic.difficultyPercent}%
                       </span>
                     </div>
-                    <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#173f35]/8">
-                      <div className="h-full rounded-full bg-[#ba4b2f]" style={{ width: `${topic.difficultyPercent}%` }} />
+                    <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#0f3a69]/8">
+                      <div className="h-full rounded-full bg-[#a65c0e]" style={{ width: `${topic.difficultyPercent}%` }} />
                     </div>
                     <Link
                       href={buildCustomStudyLaunchHref(selectedDeck, {
@@ -303,7 +303,7 @@ export default async function StatsPage({
                         topic: topic.topic,
                         limit: 10,
                       })}
-                      className="mt-3 inline-flex min-h-10 items-center rounded-xl border border-[#173f35]/15 bg-white px-3 py-2 text-xs font-bold text-[#245748] transition hover:border-[#356b58]/40 focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+                      className="mt-3 inline-flex min-h-10 items-center rounded-xl border border-[#0f3a69]/15 bg-white px-3 py-2 text-xs font-bold text-[#16865a] transition hover:border-[#285f86]/40 focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
                     >
                       Luyện chủ đề này
                     </Link>
@@ -351,7 +351,7 @@ export default async function StatsPage({
 
 function StatsDeckSwitcher({ selected }: { selected: PracticeDeckId }) {
   return (
-    <div className="flex rounded-xl border border-[#173f35]/15 bg-white/55 p-1">
+    <div className="flex rounded-xl border border-[#0f3a69]/15 bg-white/55 p-1">
       {ENABLED_PRACTICE_DECK_IDS.map((deckId) => {
         const deck = PRACTICE_DECKS[deckId];
         return (
@@ -360,8 +360,8 @@ function StatsDeckSwitcher({ selected }: { selected: PracticeDeckId }) {
             href={`/stats?deck=${deckId}`}
             className={`rounded-lg px-3 py-1.5 text-xs font-bold ${
               selected === deckId
-                ? "bg-[#173f35] text-white"
-                : "text-[#52645c] hover:bg-white"
+                ? "bg-[#0f3a69] text-white"
+                : "text-[#43546a] hover:bg-white"
             }`}
           >
             {deck.badge}
@@ -374,8 +374,8 @@ function StatsDeckSwitcher({ selected }: { selected: PracticeDeckId }) {
 
 function Panel({ eyebrow, title, children }: { eyebrow: string; title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-[2rem] border border-[#173f35]/12 bg-white/58 p-5 shadow-[0_18px_70px_rgb(23_63_53_/_7%)] sm:p-7">
-      <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">{eyebrow}</p>
+    <section className="rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/58 p-5 shadow-[0_18px_70px_rgb(15_58_105_/_7%)] sm:p-7">
+      <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#a65c0e] uppercase">{eyebrow}</p>
       <h2 className="mt-2 text-2xl font-semibold tracking-tight">{title}</h2>
       {children}
     </section>
@@ -384,10 +384,10 @@ function Panel({ eyebrow, title, children }: { eyebrow: string; title: string; c
 
 function MetricCard({ label, value, note }: { label: string; value: string; note: string }) {
   return (
-    <article className="rounded-[1.75rem] border border-[#173f35]/12 bg-white/62 p-5">
-      <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#64736c] uppercase">{label}</p>
+    <article className="rounded-2xl border border-[#0f3a69]/12 bg-white/62 p-5">
+      <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#526276] uppercase">{label}</p>
       <p className="mt-3 text-3xl font-semibold tracking-tight">{value}</p>
-      <p className="mt-2 text-xs text-[#64736c]">{note}</p>
+      <p className="mt-2 text-xs text-[#526276]">{note}</p>
     </article>
   );
 }
@@ -403,7 +403,7 @@ function StateCard({
   tone?: "default" | "warning" | "muted";
   href?: string;
 }) {
-  const toneClass = tone === "warning" ? "bg-[#f1d6c9] text-[#8e3825]" : tone === "muted" ? "bg-[#edf0e8] text-[#64736c]" : "bg-[#eaf8cf] text-[#245748]";
+  const toneClass = tone === "warning" ? "bg-[#fee7e7] text-[#c43d3d]" : tone === "muted" ? "bg-[#eaf2f8] text-[#526276]" : "bg-[#e6f8f5] text-[#16865a]";
   const content = (
     <>
       <p className="font-mono text-[10px] font-bold uppercase">{label}</p>
@@ -415,7 +415,7 @@ function StateCard({
     return (
       <Link
         href={href}
-        className={`rounded-2xl p-4 transition hover:-translate-y-0.5 focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none ${toneClass}`}
+        className={`rounded-2xl p-4 transition hover:-translate-y-0.5 focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none ${toneClass}`}
       >
         {content}
       </Link>
@@ -429,7 +429,7 @@ function StateCard({
 }
 
 function EmptyState({ children }: { children: React.ReactNode }) {
-  return <p className="mt-6 rounded-2xl border border-dashed border-[#173f35]/20 p-6 text-sm text-[#64736c]">{children}</p>;
+  return <p className="mt-6 rounded-2xl border border-dashed border-[#0f3a69]/20 p-6 text-sm text-[#526276]">{children}</p>;
 }
 
 function StatsGate({
@@ -441,27 +441,27 @@ function StatsGate({
 }) {
   return (
     <main className="grid min-h-screen place-items-center px-5 py-12">
-      <section className="w-full max-w-lg rounded-[2rem] border border-[#173f35]/15 bg-white/70 p-8 shadow-[0_24px_80px_rgb(23_63_53_/_10%)] sm:p-10">
-        <div className="grid size-12 place-items-center rounded-2xl bg-[#173f35] font-mono font-bold text-[#d7ff91]">R</div>
-        <p className="mt-8 font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+      <section className="w-full max-w-lg rounded-[1.25rem] border border-[#0f3a69]/15 bg-white/70 p-8 shadow-[0_24px_80px_rgb(15_58_105_/_10%)] sm:p-10">
+        <div className="grid size-12 place-items-center rounded-2xl bg-[#0f3a69] font-mono font-bold text-[#65e6d2]">R</div>
+        <p className="mt-8 font-mono text-xs font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
           Phân tích học tập
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight">
           Thống kê học tập của bạn
         </h1>
-        <p className="mt-4 leading-7 text-[#64736c]">
+        <p className="mt-4 leading-7 text-[#526276]">
           {mode === "login" ? "Đăng nhập để tải lịch sử ôn đã đồng bộ." : "Supabase chưa được cấu hình nên chưa tải được lịch sử."}
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           {mode === "login" ? (
             <Link
               href={`/auth?next=${encodeURIComponent(`/stats?deck=${deck}`)}`}
-              className="rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white"
+              className="rounded-2xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white"
             >
               Đăng nhập
             </Link>
           ) : null}
-          <Link href={`/practice?deck=${deck}`} className="rounded-2xl border border-[#173f35]/15 bg-white px-5 py-3 text-sm font-bold">Về trang luyện tập</Link>
+          <Link href={`/practice?deck=${deck}`} className="rounded-2xl border border-[#0f3a69]/15 bg-white px-5 py-3 text-sm font-bold">Về trang luyện tập</Link>
         </div>
       </section>
     </main>

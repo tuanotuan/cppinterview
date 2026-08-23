@@ -58,19 +58,19 @@ export default async function LessonReaderPage({
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
       <div className="mx-auto max-w-[1380px]">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
+        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#0f3a69]/15 pb-5">
           <Link
             href="/"
             aria-label="Về trang chủ cppinterview"
             title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
+            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
               L
             </span>
             <span>
               <span className="block font-bold">Thư viện cppinterview</span>
-              <span className="block text-xs text-[#64736c]">
+              <span className="block text-xs text-[#526276]">
                 {lessonTrackLabel(lesson.track)}
               </span>
             </span>
@@ -85,9 +85,9 @@ export default async function LessonReaderPage({
           </nav>
         </header>
 
-        <section className="mt-7 rounded-[2.25rem] bg-[#173f35] p-6 text-white shadow-[0_24px_90px_rgb(23_63_53_/_16%)] sm:p-10">
+        <section className="mt-7 rounded-[1.25rem] bg-[#0f3a69] p-6 text-white shadow-[0_24px_90px_rgb(15_58_105_/_16%)] sm:p-10">
           <div className="flex flex-wrap gap-2 font-mono text-[10px] font-bold uppercase">
-            <span className="rounded-full bg-[#d7ff91] px-3 py-1 text-[#173f35]">
+            <span className="rounded-full bg-[#65e6d2] px-3 py-1 text-[#0f3a69]">
               {lessonTrackLabel(lesson.track)}
             </span>
             <span className="rounded-full bg-white/10 px-3 py-1">
@@ -103,7 +103,7 @@ export default async function LessonReaderPage({
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
               href={lessonPracticeHref(lesson)}
-              className="inline-flex min-h-12 items-center rounded-xl bg-[#d7ff91] px-5 py-3 text-sm font-bold text-[#173f35]"
+              className="inline-flex min-h-12 items-center rounded-xl bg-[#65e6d2] px-5 py-3 text-sm font-bold text-[#0f3a69]"
             >
               Luyện thẻ của bài này
             </Link>
@@ -124,8 +124,8 @@ export default async function LessonReaderPage({
         </section>
 
         <div className="mt-7 grid items-start gap-7 xl:grid-cols-[260px_minmax(0,1fr)]">
-          <aside className="h-fit rounded-[1.75rem] border border-[#173f35]/12 bg-white/60 p-4 xl:sticky xl:top-5">
-            <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#64736c] uppercase">
+          <aside className="h-fit rounded-2xl border border-[#0f3a69]/12 bg-white/60 p-4 xl:sticky xl:top-5">
+            <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#526276] uppercase">
               Nội dung bài
             </p>
             <nav className="mt-3 space-y-1">
@@ -133,7 +133,7 @@ export default async function LessonReaderPage({
                 <a
                   key={section.id}
                   href={`#${section.id}`}
-                  className="block rounded-xl px-3 py-2 text-xs font-semibold text-[#52645c] hover:bg-white hover:text-[#245748]"
+                  className="block rounded-xl px-3 py-2 text-xs font-semibold text-[#43546a] hover:bg-white hover:text-[#16865a]"
                 >
                   {index + 1}. {section.heading}
                 </a>
@@ -141,35 +141,35 @@ export default async function LessonReaderPage({
               {lesson.code ? (
                 <a
                   href="#code-sample"
-                  className="block rounded-xl px-3 py-2 text-xs font-semibold text-[#52645c] hover:bg-white hover:text-[#245748]"
+                  className="block rounded-xl px-3 py-2 text-xs font-semibold text-[#43546a] hover:bg-white hover:text-[#16865a]"
                 >
                   Mã mẫu
                 </a>
               ) : null}
               <a
                 href="#self-check"
-                className="block rounded-xl px-3 py-2 text-xs font-semibold text-[#52645c] hover:bg-white hover:text-[#245748]"
+                className="block rounded-xl px-3 py-2 text-xs font-semibold text-[#43546a] hover:bg-white hover:text-[#16865a]"
               >
                 Tự kiểm tra
               </a>
             </nav>
 
-            <div className="mt-5 border-t border-[#173f35]/10 pt-4">
-              <p className="text-xs font-bold text-[#52645c]">Cần học trước</p>
+            <div className="mt-5 border-t border-[#0f3a69]/10 pt-4">
+              <p className="text-xs font-bold text-[#43546a]">Cần học trước</p>
               {lesson.prerequisites.length ? (
                 <div className="mt-2 space-y-2">
                   {lesson.prerequisites.map((prerequisiteId) => (
                     <Link
                       key={prerequisiteId}
                       href={`/learn/${prerequisiteId}`}
-                      className="block text-xs font-semibold text-[#245748] underline decoration-[#79b82a] underline-offset-4"
+                      className="block text-xs font-semibold text-[#16865a] underline decoration-[#138f8c] underline-offset-4"
                     >
                       {titleById.get(prerequisiteId) ?? prerequisiteId}
                     </Link>
                   ))}
                 </div>
               ) : (
-                <p className="mt-2 text-xs text-[#64736c]">
+                <p className="mt-2 text-xs text-[#526276]">
                   Không có bài bắt buộc.
                 </p>
               )}
@@ -181,9 +181,9 @@ export default async function LessonReaderPage({
               <section
                 key={section.id}
                 id={section.id}
-                className="scroll-mt-5 rounded-[2rem] border border-[#173f35]/12 bg-white/65 p-5 shadow-[0_16px_60px_rgb(23_63_53_/_6%)] sm:p-8"
+                className="scroll-mt-5 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/65 p-5 shadow-[0_16px_60px_rgb(15_58_105_/_6%)] sm:p-8"
               >
-                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
+                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#a65c0e] uppercase">
                   Phần {index + 1}
                 </p>
                 <h2 className="mt-2 mb-5 text-2xl font-semibold tracking-tight sm:text-3xl">
@@ -196,11 +196,11 @@ export default async function LessonReaderPage({
             {lesson.code ? (
               <section
                 id="code-sample"
-                className="scroll-mt-5 overflow-hidden rounded-[2rem] border border-[#173f35]/12 bg-[#0b241d]"
+                className="scroll-mt-5 overflow-hidden rounded-[1.25rem] border border-[#0f3a69]/12 bg-[#092c51]"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-5 py-4 text-white sm:px-7">
                   <div>
-                    <p className="font-mono text-xs font-bold text-[#d7ff91]">
+                    <p className="font-mono text-xs font-bold text-[#65e6d2]">
                       Mã mẫu hoàn chỉnh
                     </p>
                     <p className="mt-1 text-[10px] text-white/45">
@@ -211,7 +211,7 @@ export default async function LessonReaderPage({
                     C++
                   </span>
                 </div>
-                <pre className="max-h-[42rem] overflow-auto p-5 font-mono text-[12px] leading-6 text-[#e8f4ec] sm:p-7">
+                <pre className="max-h-[42rem] overflow-auto p-5 font-mono text-[12px] leading-6 text-[#e6f8f5] sm:p-7">
                   <code>{lesson.code}</code>
                 </pre>
               </section>
@@ -219,9 +219,9 @@ export default async function LessonReaderPage({
 
             <section
               id="self-check"
-              className="scroll-mt-5 rounded-[2rem] border border-[#356b58]/18 bg-[#eef6e7] p-5 sm:p-8"
+              className="scroll-mt-5 rounded-[1.25rem] border border-[#285f86]/18 bg-[#e6f8f5] p-5 sm:p-8"
             >
-              <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
+              <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#285f86] uppercase">
                 Tự kiểm tra · không chấm điểm
               </p>
               <h2 className="mt-2 mb-5 text-2xl font-semibold tracking-tight">
@@ -234,7 +234,7 @@ export default async function LessonReaderPage({
               {previous ? (
                 <Link
                   href={`/learn/${previous.id}`}
-                  className="rounded-2xl border border-[#173f35]/12 bg-white/65 p-4 text-sm font-bold"
+                  className="rounded-2xl border border-[#0f3a69]/12 bg-white/65 p-4 text-sm font-bold"
                 >
                   ← {previous.title}
                 </Link>
@@ -242,7 +242,7 @@ export default async function LessonReaderPage({
               {next ? (
                 <Link
                   href={`/learn/${next.id}`}
-                  className="rounded-2xl border border-[#173f35]/12 bg-white/65 p-4 text-right text-sm font-bold"
+                  className="rounded-2xl border border-[#0f3a69]/12 bg-white/65 p-4 text-right text-sm font-bold"
                 >
                   {next.title} →
                 </Link>

@@ -61,17 +61,17 @@ export default async function AdminPage() {
 function AdminGate({ mode }: { mode: "login" | "not-configured" | "restricted" }) {
   return (
     <main className="grid min-h-screen place-items-center px-5 py-12">
-      <section className="w-full max-w-lg rounded-[2rem] border border-[#173f35]/15 bg-white/70 p-8 shadow-[0_24px_80px_rgb(23_63_53_/_10%)] backdrop-blur sm:p-10">
-        <div className="grid size-12 place-items-center rounded-2xl bg-[#173f35] font-mono font-bold text-[#d7ff91]">
+      <section className="w-full max-w-lg rounded-[1.25rem] border border-[#0f3a69]/15 bg-white/70 p-8 shadow-[0_24px_80px_rgb(15_58_105_/_10%)] backdrop-blur sm:p-10">
+        <div className="grid size-12 place-items-center rounded-2xl bg-[#0f3a69] font-mono font-bold text-[#65e6d2]">
           R
         </div>
-        <p className="mt-8 font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+        <p className="mt-8 font-mono text-xs font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
           Khu vực quản trị
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight">
           Khu vực quản trị riêng
         </h1>
-        <p className="mt-4 leading-7 text-[#64736c]">
+        <p className="mt-4 leading-7 text-[#526276]">
           {mode === "login"
             ? "Đăng nhập bằng tài khoản GitHub của quản trị viên để xem bản nháp, đáp án và quản lý ngân hàng câu hỏi."
             : mode === "restricted"
@@ -83,7 +83,7 @@ function AdminGate({ mode }: { mode: "login" | "not-configured" | "restricted" }
             <form action="/auth/login?next=/admin" method="post">
               <button
                 type="submit"
-                className="rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#245748] focus:ring-4 focus:ring-[#d7ff91] focus:outline-none"
+                className="rounded-2xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#16865a] focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
               >
                 Đăng nhập GitHub
               </button>
@@ -91,14 +91,14 @@ function AdminGate({ mode }: { mode: "login" | "not-configured" | "restricted" }
           ) : null}
           <Link
             href="/practice"
-            className="rounded-2xl border border-[#173f35]/15 bg-white px-5 py-3 text-sm font-bold transition hover:border-[#356b58]/40"
+            className="rounded-2xl border border-[#0f3a69]/15 bg-white px-5 py-3 text-sm font-bold transition hover:border-[#285f86]/40"
           >
             Về trang luyện tập
           </Link>
           {mode === "restricted" ? (
             <Link
               href="/mock-interview"
-              className="rounded-2xl border border-[#173f35]/15 bg-white px-5 py-3 text-sm font-bold transition hover:border-[#356b58]/40"
+              className="rounded-2xl border border-[#0f3a69]/15 bg-white px-5 py-3 text-sm font-bold transition hover:border-[#285f86]/40"
             >
               Phỏng vấn thử
             </Link>

@@ -532,21 +532,21 @@ export function WorldQuantFullRoundApp({
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
       <div className="mx-auto max-w-[1450px]">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
+        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#0f3a69]/15 pb-5">
           <Link
             href="/"
             aria-label="Về trang chủ cppinterview"
             title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
+            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
               WQ
             </span>
             <span>
               <span className="block font-bold">
                 Buổi mô phỏng phỏng vấn đầy đủ
               </span>
-              <span className="block text-xs text-[#64736c]">
+              <span className="block text-xs text-[#526276]">
                 5 chặng · có giới hạn thời gian · đánh giá dựa trên kết quả
               </span>
             </span>
@@ -593,8 +593,8 @@ export function WorldQuantFullRoundApp({
         {stage === "running" && currentRound ? (
           <section className="py-7">
             <div className="grid gap-5 xl:grid-cols-[280px_minmax(0,1fr)]">
-              <aside className="h-fit rounded-[2rem] border border-[#173f35]/12 bg-white/60 p-5 xl:sticky xl:top-5">
-                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
+              <aside className="h-fit rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/60 p-5 xl:sticky xl:top-5">
+                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#a65c0e] uppercase">
                   Tiến trình phỏng vấn
                 </p>
                 <div className="mt-4 space-y-2">
@@ -603,10 +603,10 @@ export function WorldQuantFullRoundApp({
                       key={round.id}
                       className={`rounded-xl border p-3 ${
                         index === roundIndex
-                          ? "border-[#356b58] bg-[#eaf8cf]"
+                          ? "border-[#285f86] bg-[#e6f8f5]"
                           : index < roundIndex
-                            ? "border-[#173f35]/8 bg-white/45 text-[#64736c]"
-                            : "border-[#173f35]/8 bg-transparent text-[#8b9690]"
+                            ? "border-[#0f3a69]/8 bg-white/45 text-[#526276]"
+                            : "border-[#0f3a69]/8 bg-transparent text-[#8b9690]"
                       }`}
                     >
                       <p className="font-mono text-[10px]">
@@ -624,8 +624,8 @@ export function WorldQuantFullRoundApp({
                   aria-live="polite"
                   className={`mt-5 rounded-2xl p-4 text-center ${
                     remainingSeconds === 0
-                      ? "bg-[#f1d6c9] text-[#8e3825]"
-                      : "bg-[#173f35] text-white"
+                      ? "bg-[#fee7e7] text-[#c43d3d]"
+                      : "bg-[#0f3a69] text-white"
                   }`}
                 >
                   <p className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] opacity-70">
@@ -639,10 +639,10 @@ export function WorldQuantFullRoundApp({
                 </div>
               </aside>
 
-              <article className="min-w-0 rounded-[2rem] border border-[#173f35]/12 bg-white/68 p-5 shadow-[0_24px_80px_rgb(23_63_53_/_8%)] sm:p-8">
+              <article className="min-w-0 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/68 p-5 shadow-[0_24px_80px_rgb(15_58_105_/_8%)] sm:p-8">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
+                    <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#a65c0e] uppercase">
                       Chặng {roundIndex + 1}/{rounds.length} ·{" "}
                       {
                         worldQuantCompetencies[
@@ -653,27 +653,27 @@ export function WorldQuantFullRoundApp({
                     <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
                       {currentRound.drill.title}
                     </h1>
-                    <p className="mt-2 text-sm text-[#64736c]">
+                    <p className="mt-2 text-sm text-[#526276]">
                       {currentRound.brief}
                     </p>
                   </div>
                   {currentRound.englishVoice ? (
-                    <span className="rounded-full bg-[#d7ff91]/70 px-3 py-1 font-mono text-[10px] font-bold text-[#245748]">
+                    <span className="rounded-full bg-[#65e6d2]/70 px-3 py-1 font-mono text-[10px] font-bold text-[#16865a]">
                       trả lời bằng tiếng Anh
                     </span>
                   ) : null}
                 </div>
 
-                <div className="mt-6 rounded-2xl border border-[#173f35]/10 bg-[#f4f3ec] p-5 leading-7">
+                <div className="mt-6 rounded-2xl border border-[#0f3a69]/10 bg-[#f8fafc] p-5 leading-7">
                   {currentRound.drill.prompt}
                 </div>
                 {currentRound.drill.starterCode ? (
-                  <pre className="mt-4 overflow-x-auto rounded-2xl bg-[#102d26] p-5 font-mono text-[13px] leading-6 text-[#e8f4ec]">
+                  <pre className="mt-4 overflow-x-auto rounded-2xl bg-[#092c51] p-5 font-mono text-[13px] leading-6 text-[#e6f8f5]">
                     <code>{currentRound.drill.starterCode}</code>
                   </pre>
                 ) : null}
                 {currentRound.englishVoice ? (
-                  <div className="mt-6 rounded-2xl border border-[#356b58]/20 bg-[#edf3e7] p-4">
+                  <div className="mt-6 rounded-2xl border border-[#285f86]/20 bg-[#eaf2f8] p-4">
                     <div className="flex flex-wrap items-center gap-2">
                       {voiceSupported ? (
                         <button
@@ -687,7 +687,7 @@ export function WorldQuantFullRoundApp({
                             voicePhase === "stopping" ||
                             roundExpired
                           }
-                          className="rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-45"
+                          className="rounded-xl bg-[#0f3a69] px-4 py-2 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-45"
                         >
                           {voicePhase === "stopping"
                             ? "Đang hoàn tất bản ghi…"
@@ -696,7 +696,7 @@ export function WorldQuantFullRoundApp({
                             : "● Luyện nói tiếng Anh"}
                         </button>
                       ) : (
-                        <span className="text-sm font-semibold text-[#52645c]">
+                        <span className="text-sm font-semibold text-[#43546a]">
                           Tính năng nhận dạng giọng nói không có sẵn — hãy dùng
                           ô nhập bên dưới.
                         </span>
@@ -704,17 +704,17 @@ export function WorldQuantFullRoundApp({
                       <button
                         type="button"
                         onClick={deleteCurrentTranscript}
-                        className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-sm font-bold"
+                        className="rounded-xl border border-[#0f3a69]/15 bg-white px-4 py-2 text-sm font-bold"
                       >
                          Xóa bản ghi ngay
                       </button>
                     </div>
                     {voiceInterim ? (
-                      <p className="mt-3 text-sm italic text-[#64736c]">
+                      <p className="mt-3 text-sm italic text-[#526276]">
                         {voiceInterim}
                       </p>
                     ) : null}
-                    <p className="mt-3 text-xs leading-5 text-[#64736c]">
+                    <p className="mt-3 text-xs leading-5 text-[#526276]">
                       cppinterview không lưu hoặc tải âm thanh lên máy chủ. Bản ghi
                       chỉ ở trong bộ nhớ trang và bị xóa khi hoàn tất. Tính năng
                       nhận dạng giọng nói trên web do trình duyệt hoặc hệ điều
@@ -726,7 +726,7 @@ export function WorldQuantFullRoundApp({
                   </div>
                 ) : null}
 
-                <label className="mt-6 block text-sm font-bold text-[#344a40]">
+                <label className="mt-6 block text-sm font-bold text-[#43546a]">
                   {currentRound.englishVoice
                     ? "Bản ghi tiếng Anh có thể chỉnh sửa"
                     : "Ghi chú / câu trả lời phỏng vấn"}
@@ -741,7 +741,7 @@ export function WorldQuantFullRoundApp({
                     }}
                     disabled={roundExpired}
                     maxLength={8000}
-                    className="mt-2 min-h-56 w-full resize-y rounded-2xl border border-[#173f35]/18 bg-[#fbfaf5] px-4 py-3 font-normal leading-7 outline-none focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/45 disabled:cursor-not-allowed disabled:opacity-65"
+                    className="mt-2 min-h-56 w-full resize-y rounded-2xl border border-[#0f3a69]/18 bg-[#f8fafc] px-4 py-3 font-normal leading-7 outline-none focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/45 disabled:cursor-not-allowed disabled:opacity-65"
                     placeholder={
                       currentRound.englishVoice
                         ? "Nói hoặc nhập câu trả lời bằng tiếng Anh…"
@@ -749,14 +749,14 @@ export function WorldQuantFullRoundApp({
                     }
                   />
                 </label>
-                <p className="mt-2 font-mono text-[10px] text-[#64736c]">
+                <p className="mt-2 font-mono text-[10px] text-[#526276]">
                    {currentAnswer.length}/8000 · chỉ lưu trong bộ nhớ · không
                    gửi đến máy chủ cppinterview
                 </p>
 
                 {currentAnswer.trim().length >= 20 && !currentFollowUpsRevealed ? (
-                  <div className="mt-6 rounded-2xl border border-[#173f35]/12 bg-[#f8faf5] p-5">
-                    <p className="text-sm leading-6 text-[#52645c]">
+                  <div className="mt-6 rounded-2xl border border-[#0f3a69]/12 bg-[#f8fafc] p-5">
+                    <p className="text-sm leading-6 text-[#43546a]">
                       Khi đã trả lời phần gốc, mở hai câu hỏi tiếp nối để tự kiểm tra
                       quyết định và trade-off. Tiêu chí tự chấm chỉ xuất hiện sau bước này.
                     </p>
@@ -769,7 +769,7 @@ export function WorldQuantFullRoundApp({
                         }))
                       }
                       disabled={roundExpired}
-                      className="mt-4 min-h-11 rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white disabled:opacity-45"
+                      className="mt-4 min-h-11 rounded-xl bg-[#0f3a69] px-4 py-2 text-sm font-bold text-white disabled:opacity-45"
                     >
                       Mở câu hỏi tiếp nối
                     </button>
@@ -781,9 +781,9 @@ export function WorldQuantFullRoundApp({
                     {currentRound.drill.followUps.map((followUp) => (
                       <div
                         key={followUp.id}
-                        className="rounded-xl border border-[#173f35]/10 bg-white/55 p-3 text-sm text-[#52645c]"
+                        className="rounded-xl border border-[#0f3a69]/10 bg-white/55 p-3 text-sm text-[#43546a]"
                       >
-                        <span className="font-mono text-[10px] font-bold text-[#ba4b2f]">
+                        <span className="font-mono text-[10px] font-bold text-[#a65c0e]">
                           Câu hỏi tiếp nối
                         </span>
                         <p className="mt-1">{followUp.prompt}</p>
@@ -793,8 +793,8 @@ export function WorldQuantFullRoundApp({
                 ) : null}
 
                 {currentAnswer.trim().length >= 20 && currentFollowUpsRevealed ? (
-                  <fieldset className="mt-6 rounded-2xl border border-[#173f35]/12 bg-white/55 p-5">
-                    <legend className="px-2 text-sm font-bold text-[#173f35]">
+                  <fieldset className="mt-6 rounded-2xl border border-[#0f3a69]/12 bg-white/55 p-5">
+                    <legend className="px-2 text-sm font-bold text-[#0f3a69]">
                        Tiêu chí tự chấm
                     </legend>
                     <div className="space-y-3">
@@ -802,14 +802,14 @@ export function WorldQuantFullRoundApp({
                         (criterion, index) => (
                           <label
                             key={criterion}
-                            className="flex cursor-pointer gap-3 rounded-xl border border-[#173f35]/8 bg-white/65 p-3 text-sm leading-6"
+                            className="flex cursor-pointer gap-3 rounded-xl border border-[#0f3a69]/8 bg-white/65 p-3 text-sm leading-6"
                           >
                             <input
                               type="checkbox"
                               checked={currentRubric.has(index)}
                               onChange={() => toggleRubric(index)}
                               disabled={roundExpired}
-                              className="mt-1 size-4 accent-[#356b58]"
+                              className="mt-1 size-4 accent-[#285f86]"
                             />
                             <span>{criterion}</span>
                           </label>
@@ -818,7 +818,7 @@ export function WorldQuantFullRoundApp({
                     </div>
                   </fieldset>
                 ) : currentAnswer.trim().length < 20 ? (
-                  <p className="mt-6 rounded-2xl border border-dashed border-[#173f35]/20 p-5 text-sm text-[#64736c]">
+                  <p className="mt-6 rounded-2xl border border-dashed border-[#0f3a69]/20 p-5 text-sm text-[#526276]">
                      Tiêu chí chấm sẽ mở sau khi bạn ghi câu trả lời, để tránh
                      đọc gợi ý trước khi tự lập luận.
                   </p>
@@ -827,13 +827,13 @@ export function WorldQuantFullRoundApp({
                 {notice ? (
                   <p
                     role="status"
-                    className="mt-4 rounded-xl bg-[#f8e8df] p-3 text-sm text-[#713929]"
+                    className="mt-4 rounded-xl bg-[#fff1f1] p-3 text-sm text-[#9f2f2f]"
                   >
                     {notice}
                   </p>
                 ) : null}
                 <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-xs text-[#64736c]">
+                  <p className="text-xs text-[#526276]">
                      Tiêu chí đạt: {currentRubric.size}/
                     {currentRound.drill.rubric.length}
                   </p>
@@ -843,7 +843,7 @@ export function WorldQuantFullRoundApp({
                     disabled={
                       storagePending || voicePhase !== "idle"
                     }
-                    className="rounded-2xl bg-[#173f35] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45"
+                    className="rounded-2xl bg-[#0f3a69] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45"
                   >
                     {storagePending
                        ? "Đang lưu kết quả…"
@@ -895,14 +895,14 @@ function SetupScreen({
     <section className="py-9">
       <div className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
         <div>
-          <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+          <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
              Mô phỏng phỏng vấn WorldQuant
           </p>
           <h1 className="mt-3 max-w-3xl text-4xl font-semibold tracking-tight sm:text-6xl">
             Một mạch từ C++ chuyên sâu đến trình bày cách xử lý công việc bằng
             tiếng Anh.
           </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-[#64736c]">
+          <p className="mt-5 max-w-2xl text-lg leading-8 text-[#526276]">
              5 chặng có đồng hồ, tình huống riêng và tiêu chí tự chấm. Không
              dùng AI, không tốn hạn mức; câu trả lời chỉ tồn tại trong bộ nhớ
              của trang.
@@ -916,7 +916,7 @@ function SetupScreen({
                   event.target.value as WorldQuantRoleProfileId,
                 )
               }
-              className="mt-2 w-full rounded-xl border border-[#173f35]/15 bg-white px-4 py-3"
+              className="mt-2 w-full rounded-xl border border-[#0f3a69]/15 bg-white px-4 py-3"
             >
               {worldQuantRoleProfiles.map((profile) => (
                 <option key={profile.id} value={profile.id}>
@@ -929,11 +929,11 @@ function SetupScreen({
             <button
               type="button"
               onClick={onStart}
-              className="rounded-2xl bg-[#173f35] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5"
+              className="rounded-2xl bg-[#0f3a69] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5"
             >
               Bắt đầu {totalMinutes} phút
             </button>
-            <span className="font-mono text-xs text-[#64736c]">
+            <span className="font-mono text-xs text-[#526276]">
                {priorRounds} buổi mô phỏng phỏng vấn đầy đủ đã hoàn tất
             </span>
           </div>
@@ -942,18 +942,18 @@ function SetupScreen({
           {rounds.map((round, index) => (
             <article
               key={round.id}
-              className="grid grid-cols-[48px_1fr_auto] items-center gap-4 rounded-2xl border border-[#173f35]/12 bg-white/62 p-4"
+              className="grid grid-cols-[48px_1fr_auto] items-center gap-4 rounded-2xl border border-[#0f3a69]/12 bg-white/62 p-4"
             >
-              <span className="grid size-12 place-items-center rounded-xl bg-[#edf3e7] font-mono font-bold text-[#356b58]">
+              <span className="grid size-12 place-items-center rounded-xl bg-[#eaf2f8] font-mono font-bold text-[#285f86]">
                 {index + 1}
               </span>
               <div>
                 <h2 className="font-bold">{round.label}</h2>
-                <p className="mt-1 text-sm text-[#64736c]">
+                <p className="mt-1 text-sm text-[#526276]">
                   {round.brief}
                 </p>
               </div>
-              <span className="font-mono text-xs text-[#64736c]">
+              <span className="font-mono text-xs text-[#526276]">
                  {round.durationMinutes} phút
               </span>
             </article>
@@ -984,14 +984,14 @@ function SummaryScreen({
   );
   return (
     <section className="py-12">
-      <div className="mx-auto max-w-4xl rounded-[2.5rem] border border-[#173f35]/12 bg-white/68 p-6 text-center shadow-[0_28px_90px_rgb(23_63_53_/_10%)] sm:p-10">
-        <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+      <div className="mx-auto max-w-4xl rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/68 p-6 text-center shadow-[0_28px_90px_rgb(15_58_105_/_10%)] sm:p-10">
+        <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
            Đã hoàn thành vòng phỏng vấn
         </p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
            Đạt {score}% tiêu chí chấm
         </h1>
-        <p className="mx-auto mt-4 max-w-2xl leading-7 text-[#64736c]">
+        <p className="mx-auto mt-4 max-w-2xl leading-7 text-[#526276]">
            Bản ghi và mọi câu trả lời đã bị xóa khỏi bộ nhớ của phiên.
            Chỉ kết quả tổng hợp dạng số được giữ lại.
         </p>
@@ -1018,33 +1018,33 @@ function SummaryScreen({
           />
         </div>
         {!result.english ? (
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-[#64736c]">
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-[#526276]">
              Không có bản ghi lời nói kèm thời gian dùng micro, nên vòng
             này không ước tính tốc độ nói từ phần nhập bằng bàn phím.
           </p>
         ) : null}
         {notice ? (
-          <p className="mt-5 rounded-xl bg-[#f8e8df] p-3 text-sm text-[#713929]">
+          <p className="mt-5 rounded-xl bg-[#fff1f1] p-3 text-sm text-[#9f2f2f]">
             {notice}
           </p>
         ) : null}
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link
             href={worldQuantRoleHref("/mock-interview", roleId)}
-            className="rounded-2xl bg-[#173f35] px-6 py-3 text-sm font-bold text-white"
+            className="rounded-2xl bg-[#0f3a69] px-6 py-3 text-sm font-bold text-white"
           >
             Tiếp tục phỏng vấn thử với AI để nhận phản hồi
           </Link>
           <Link
             href="/worldquant"
-            className="rounded-2xl border border-[#173f35]/15 bg-white px-6 py-3 text-sm font-bold"
+            className="rounded-2xl border border-[#0f3a69]/15 bg-white px-6 py-3 text-sm font-bold"
           >
              Về Trung tâm chuẩn bị
           </Link>
           <button
             type="button"
             onClick={onRestart}
-            className="rounded-2xl border border-[#173f35]/15 bg-white px-6 py-3 text-sm font-bold"
+            className="rounded-2xl border border-[#0f3a69]/15 bg-white px-6 py-3 text-sm font-bold"
           >
             Luyện lại
           </button>
@@ -1079,8 +1079,8 @@ function ResultMetric({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl bg-[#f4f3ec] p-4">
-      <p className="font-mono text-[9px] font-bold tracking-[0.12em] text-[#64736c] uppercase">
+    <div className="rounded-2xl bg-[#f8fafc] p-4">
+      <p className="font-mono text-[9px] font-bold tracking-[0.12em] text-[#526276] uppercase">
         {label}
       </p>
       <p className="mt-2 text-xl font-semibold">{value}</p>
