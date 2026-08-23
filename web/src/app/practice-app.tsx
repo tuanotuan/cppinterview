@@ -1,6 +1,7 @@
 "use client";
 
 import Link, { useLinkStatus } from "next/link";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import {
   useCallback,
@@ -2987,9 +2988,17 @@ export function PracticeApp({
               href="/"
               aria-label="Về trang chủ cppinterview"
               title="Về trang chủ cppinterview"
-              className="grid size-10 place-items-center rounded-xl bg-[color:var(--pine)] font-mono text-sm font-bold text-[color:var(--accent)] focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none"
+              className="size-10 overflow-hidden rounded-xl focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none"
             >
-              {PRACTICE_DECKS[requestedDeck].badge}
+              <Image
+                src="/icon.svg"
+                alt=""
+                aria-hidden="true"
+                width={40}
+                height={40}
+                unoptimized
+                className="size-full"
+              />
             </Link>
             <div>
               <p className="font-semibold tracking-[-0.025em]">cppinterview</p>
@@ -4409,8 +4418,12 @@ function DeckSwitcher({
             }`}
           >
             {deck.badge}
-            <span className={`ml-1 font-mono text-[9px] ${active ? "text-[#d7ff91]" : "text-[#78857f]"}`}>
-              {counts[deckId]}
+            <span
+              className={`ml-1.5 font-mono text-[9px] ${
+                active ? "text-[#d7ff91]" : "text-[#78857f]"
+              }`}
+            >
+              · {counts[deckId]} câu
             </span>
             {active && pending ? (
               <span
