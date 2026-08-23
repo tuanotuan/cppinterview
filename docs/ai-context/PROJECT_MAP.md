@@ -26,10 +26,13 @@ App phải ở `web/`; content tooling dựa vào vị trí này để tìm repo
 ## Visual foundation
 
 Root layout cung cấp skip link, footer và mobile navigation dùng chung. `globals.css`
-chứa token semantic, bề mặt/sắc độ deep-pine + acid-lime, action và app-header
-dùng chung theo hướng technical editorial; ưu tiên hierarchy, khoảng thở và
-trạng thái rõ hơn "card" trang trí. Landing, Practice, thư viện, Mock, Stats và
-Profile dùng header/card/CTA này cùng `ui-page-width` trên desktop và mobile.
+chứa token semantic cho light theme navy + turquoise, bề mặt workspace phẳng,
+action, app-header trắng và thang bo góc 12/16/20 px dùng chung. Gradient chỉ nằm
+ở landing; navigation active dùng nền turquoise nhạt, chữ navy và indicator thay
+vì pill tối. Landing, Practice, thư viện, Mock, Stats và Profile dùng cùng
+header/card/CTA và `ui-page-width` trên desktop lẫn mobile. Practice chỉ có một bộ
+câu C++ nên header hiển thị số câu đã duyệt như metadata, không dựng control đổi
+bộ câu không có lựa chọn thực.
 Practice có Chế độ tập trung tạm thời (thoát `Esc`, mở đáp án `Alt + A`) để ẩn
 shell/sidebar; feedback AI ưu tiên đúng/sửa/làm tiếp, còn rubric đầy đủ nằm trong
 `details`. Focus-visible và responsive inset vẫn áp dụng cho control sticky. Modal do app tự tạo dùng

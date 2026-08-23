@@ -10,7 +10,6 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
-  useTransition,
 } from "react";
 
 import type {
@@ -34,10 +33,7 @@ import {
   aiDailyBudgetStorageKey,
   parseCurrentAiDailyBudgetSnapshot,
 } from "@/lib/ai/budget-cache";
-import {
-  ENABLED_PRACTICE_DECK_IDS,
-  PRACTICE_DECKS,
-} from "@/lib/content/decks";
+import { PRACTICE_DECKS } from "@/lib/content/decks";
 import type {
   ContentLanguage,
   ContentQuestion,
@@ -155,7 +151,7 @@ const MonacoCodeEditor = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="grid h-96 place-items-center bg-[#0b241d] font-mono text-xs text-white/45">
+      <div className="grid h-96 place-items-center bg-[#092c51] font-mono text-xs text-white/45">
         Đang tải trình soạn mã…
       </div>
     ),
@@ -475,7 +471,6 @@ export function PracticeApp({
   const [pendingReview, setPendingReview] = useState(reviewQueue);
   const [selectedDeck, setSelectedDeck] = useState(initialDeck);
   const [requestedDeck, setRequestedDeck] = useState(initialDeck);
-  const [deckTransitionPending, startDeckTransition] = useTransition();
   const [approvalStatus, setApprovalStatus] = useState<
     "idle" | "saving" | "error"
   >("idle");
@@ -1427,7 +1422,6 @@ export function PracticeApp({
 
   const {
     completedToday,
-    deckCounts,
     deckQuestions,
     latest,
     learningCounts,
@@ -1437,13 +1431,6 @@ export function PracticeApp({
     selectedPendingReview,
     streak,
   } = useMemo(() => {
-    const nextDeckCounts = {
-      "cpp-interview": 0,
-    } satisfies Record<PracticeDeckId, number>;
-    availableQuestions.forEach((question) => {
-      nextDeckCounts[question.taxonomy.deckId] += 1;
-    });
-
     const nextDeckQuestions = availableQuestions.filter(
       (question) => question.taxonomy.deckId === selectedDeck,
     );
@@ -1487,7 +1474,6 @@ export function PracticeApp({
 
     return {
       completedToday: nextCompletedToday,
-      deckCounts: nextDeckCounts,
       deckQuestions: nextDeckQuestions,
       latest: nextLatest,
       learningCounts: countLearningStates(nextLearningStates.values()),
@@ -2050,24 +2036,6 @@ export function PracticeApp({
       document
         .getElementById("practice-question")
         ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  }
-
-  function selectDeck(deck: PracticeDeckId) {
-    if (isFocusActive) return;
-    if (deck === requestedDeck) return;
-    setDistractionFreeMode(false);
-    setRequestedDeck(deck);
-    const url = new URL(window.location.href);
-    url.searchParams.set("deck", deck);
-    window.history.replaceState(null, "", url);
-    window.scrollTo({ top: 0 });
-    startDeckTransition(() => {
-      clearStudySessionState();
-      setSelectedQuestionId(null);
-      setCustomStudyIds(null);
-      setCustomStudyNotice(null);
-      setSelectedDeck(deck);
     });
   }
 
@@ -3002,22 +2970,15 @@ export function PracticeApp({
             </Link>
             <div>
               <p className="font-semibold tracking-[-0.025em]">cppinterview</p>
-              <p className="hidden text-xs text-[color:var(--ink-muted)] sm:block">Luyện phỏng vấn C++</p>
+              <p className="hidden text-xs text-[color:var(--ink-muted)] sm:block">
+                Luyện phỏng vấn C++ · {deckQuestions.length} câu đã duyệt
+              </p>
             </div>
             {isFocusActive ? (
-              <span className="hidden rounded-full border border-[#356b58]/20 bg-[#d7ff91]/55 px-3 py-1.5 font-mono text-[11px] font-bold text-[#173f35] sm:inline-flex">
+              <span className="hidden rounded-full border border-[color:var(--success)]/20 bg-[#e2f5ec] px-3 py-1.5 font-mono text-[11px] font-bold text-[color:var(--success)] sm:inline-flex">
                 PHIÊN ÔN TẬP TRỌNG TÂM WQ
               </span>
-            ) : (
-              <div className="hidden sm:block">
-                <DeckSwitcher
-                  selected={requestedDeck}
-                  counts={deckCounts}
-                  pending={deckTransitionPending}
-                  onSelect={selectDeck}
-                />
-              </div>
-            )}
+            ) : null}
           </div>
 
           <div className="flex items-center justify-end gap-2 text-sm">
@@ -3085,7 +3046,7 @@ export function PracticeApp({
         {authNotice ? (
           <p
             role="alert"
-            className="mt-5 rounded-2xl border border-[#ba4b2f]/25 bg-[#f8e8df] px-4 py-3 text-sm text-[#8e3825]"
+            className="mt-5 rounded-2xl border border-[#a65c0e]/25 bg-[#fff1f1] px-4 py-3 text-sm text-[#c43d3d]"
           >
             {authNotice}
           </p>
@@ -3094,7 +3055,7 @@ export function PracticeApp({
         {canManageQuestionBank && questionAdminError && !questionAdminEditing ? (
           <p
             role="alert"
-            className="mt-5 rounded-2xl border border-[#ba4b2f]/25 bg-[#f8e8df] px-4 py-3 text-sm text-[#8e3825]"
+            className="mt-5 rounded-2xl border border-[#a65c0e]/25 bg-[#fff1f1] px-4 py-3 text-sm text-[#c43d3d]"
           >
             {questionAdminError}
           </p>
@@ -3103,7 +3064,7 @@ export function PracticeApp({
         {mistakeNotice ? (
           <div
             role="status"
-            className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#356b58]/25 bg-[#eaf4df] px-4 py-3 text-sm text-[#245748]"
+            className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#285f86]/25 bg-[#e6f8f5] px-4 py-3 text-sm text-[#16865a]"
           >
             <span>{mistakeNotice}</span>
             <Link href="/admin#mistake-inbox" className="font-bold underline">
@@ -3132,17 +3093,17 @@ export function PracticeApp({
         ) : null}
 
         {!distractionFreeMode && isFocusActive && focusSession ? (
-          <section className="mt-6 rounded-3xl border border-[#356b58]/20 bg-[#eaf4df] p-5 shadow-sm sm:p-6">
+          <section className="mt-6 rounded-[1.25rem] border border-[#285f86]/20 bg-[#e6f8f5] p-5 shadow-sm sm:p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="font-mono text-xs font-bold tracking-[0.14em] text-[#356b58] uppercase">
+                <p className="font-mono text-xs font-bold tracking-[0.14em] text-[#285f86] uppercase">
                   Phiên ôn tập trọng tâm
                 </p>
-                <h1 className="mt-2 text-xl font-semibold tracking-tight text-[#173f35]">
+                <h1 className="mt-2 text-xl font-semibold tracking-tight text-[#0f3a69]">
                   Câu {focusPosition}/{focusQueueTotal} · giữ nguyên danh sách đã
                   chốt
                 </h1>
-                <p className="mt-1 text-sm text-[#596a62]">
+                <p className="mt-1 text-sm text-[#526276]">
                   {focusStep
                     ? `${focusCompetencyLabel(focusStep.competency)} · ${focusReasonLabel(focusStep.queueReason)}`
                     : "Ôn theo điểm cần cải thiện đã chọn trong kế hoạch học."}
@@ -3152,14 +3113,14 @@ export function PracticeApp({
                 <button
                   type="button"
                   onClick={pauseFocusSprint}
-                  className="rounded-xl border border-[#356b58]/25 bg-white/70 px-4 py-2 text-sm font-bold text-[#356b58] transition hover:bg-white"
+                  className="rounded-xl border border-[#285f86]/25 bg-white/70 px-4 py-2 text-sm font-bold text-[#285f86] transition hover:bg-white"
                 >
                   Tạm dừng
                 </button>
                 <button
                   type="button"
                   onClick={cancelFocusSprint}
-                  className="rounded-xl border border-[#ba4b2f]/20 bg-[#f8e8df] px-4 py-2 text-sm font-bold text-[#8e3825] transition hover:bg-[#f4d9cc]"
+                  className="rounded-xl border border-[#a65c0e]/20 bg-[#fff1f1] px-4 py-2 text-sm font-bold text-[#c43d3d] transition hover:bg-[#f4d9cc]"
                 >
                   Hủy phiên ôn tập
                 </button>
@@ -3173,7 +3134,7 @@ export function PracticeApp({
             ) : null}
             {focusNotice ? (
               <p
-                className="mt-3 text-xs font-semibold text-[#a3321f]"
+                className="mt-3 text-xs font-semibold text-[#c43d3d]"
                 role="alert"
               >
                 {focusNotice}
@@ -3196,8 +3157,8 @@ export function PracticeApp({
         ) : null}
 
         {!isFocusActive && !distractionFreeMode && !current && selectedPendingReview.length ? (
-          <section className="mt-7 rounded-3xl border border-[#ba4b2f]/25 bg-[#fff4df] p-6 sm:p-8">
-            <p className="font-mono text-xs tracking-[0.15em] text-[#ba4b2f] uppercase">
+          <section className="mt-7 rounded-[1.25rem] border border-[#a65c0e]/25 bg-[#fff4df] p-6 sm:p-8">
+            <p className="font-mono text-xs tracking-[0.15em] text-[#a65c0e] uppercase">
               Danh sách chờ duyệt
             </p>
             <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
@@ -3205,7 +3166,7 @@ export function PracticeApp({
                 <h1 className="text-2xl font-semibold">
                   {selectedPendingReview.length} câu chờ duyệt
                 </h1>
-                <p className="mt-1 text-sm text-[#64736c]">
+                <p className="mt-1 text-sm text-[#526276]">
                   Duyệt xong, các câu này sẽ được đưa vào lịch ôn cá nhân.
                 </p>
               </div>
@@ -3213,13 +3174,13 @@ export function PracticeApp({
                 type="button"
                 onClick={() => void approveAllPending()}
                 disabled={approvalStatus === "saving"}
-                className="rounded-2xl bg-[#ba4b2f] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#963a25] disabled:cursor-wait disabled:opacity-60"
+                className="rounded-2xl bg-[#a65c0e] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#c43d3d] disabled:cursor-wait disabled:opacity-60"
               >
                 {approvalStatus === "saving" ? "Đang duyệt…" : "Duyệt tất cả"}
               </button>
             </div>
             {approvalStatus === "error" ? (
-              <p className="mt-3 text-xs font-semibold text-[#a3321f]">
+              <p className="mt-3 text-xs font-semibold text-[#c43d3d]">
                 Chưa lưu được kết quả duyệt. Kiểm tra bản cập nhật cơ sở dữ liệu
                 rồi thử lại.
               </p>
@@ -3238,7 +3199,7 @@ export function PracticeApp({
             <section id="practice-question" className="scroll-mt-5">
               <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-[#d7ff91] px-3 py-1 font-mono text-xs font-bold text-[#173f35]">
+                  <span className="rounded-full bg-[#65e6d2] px-3 py-1 font-mono text-xs font-bold text-[#0f3a69]">
                     {isFocusActive
                       ? "ÔN TẬP TRỌNG TÂM"
                       : isCustomStudyQuestion
@@ -3249,7 +3210,7 @@ export function PracticeApp({
                         ? "CÂU HÔM NAY"
                         : "ÔN ĐẾN HẠN"}
                   </span>
-                  <span className="font-mono text-xs text-[#6c7b73]">
+                  <span className="font-mono text-xs text-[#64748b]">
                     {isFocusActive
                       ? `${focusPosition}/${focusQueueTotal}`
                       : isCustomStudyQuestion && customStudyIds
@@ -3259,7 +3220,7 @@ export function PracticeApp({
                       : `${completedToday + 1}/${dailyTotal}`}
                   </span>
                   {currentLearningState ? (
-                    <span className="rounded-full border border-[#173f35]/15 bg-white/55 px-2.5 py-1 font-mono text-[10px] font-bold text-[#356b58] uppercase">
+                    <span className="rounded-full border border-[#0f3a69]/15 bg-white/55 px-2.5 py-1 font-mono text-[10px] font-bold text-[#285f86] uppercase">
                       {learningStateLabels[currentLearningState.state]}
                     </span>
                   ) : null}
@@ -3272,7 +3233,7 @@ export function PracticeApp({
                   <button
                     type="button"
                     onClick={enterDistractionFreeMode}
-                    className="rounded-xl border border-[#356b58]/25 bg-[#edf3e9] px-3 py-2 text-xs font-bold text-[#245748] transition hover:-translate-y-0.5 hover:bg-[#e4f0df] focus:ring-4 focus:ring-[#d7ff91]/55 focus:outline-none"
+                    className="rounded-xl border border-[#285f86]/25 bg-[#eaf2f8] px-3 py-2 text-xs font-bold text-[#16865a] transition hover:-translate-y-0.5 hover:bg-[#e4f0df] focus:ring-4 focus:ring-[#65e6d2]/55 focus:outline-none"
                   >
                     Chế độ tập trung
                   </button>
@@ -3288,7 +3249,7 @@ export function PracticeApp({
                         context: current.code || current.sourcePath,
                       })
                     }
-                    className="rounded-xl border border-[#173f35]/18 bg-white/65 px-3 py-2 text-xs font-bold text-[#356b58] transition hover:-translate-y-0.5 hover:bg-white focus:ring-4 focus:ring-[#d7ff91]/55 focus:outline-none"
+                    className="rounded-xl border border-[#0f3a69]/18 bg-white/65 px-3 py-2 text-xs font-bold text-[#285f86] transition hover:-translate-y-0.5 hover:bg-white focus:ring-4 focus:ring-[#65e6d2]/55 focus:outline-none"
                   >
                     {isSaved(`question:${current.id}`) ? "★ Đã lưu" : "☆ Lưu câu hỏi"}
                   </button>
@@ -3300,7 +3261,7 @@ export function PracticeApp({
                           setQuestionAdminError(null);
                           setQuestionAdminEditing(true);
                         }}
-                        className="rounded-xl border border-[#356b58]/30 bg-[#eaf4df] px-3 py-2 text-xs font-bold text-[#245748] transition hover:-translate-y-0.5 hover:bg-[#dff0d3] focus:ring-4 focus:ring-[#d7ff91]/55 focus:outline-none"
+                        className="rounded-xl border border-[#285f86]/30 bg-[#e6f8f5] px-3 py-2 text-xs font-bold text-[#16865a] transition hover:-translate-y-0.5 hover:bg-[#d7f7f2] focus:ring-4 focus:ring-[#65e6d2]/55 focus:outline-none"
                       >
                         Chỉnh sửa thẻ
                       </button>
@@ -3308,7 +3269,7 @@ export function PracticeApp({
                         type="button"
                         onClick={() => setArchiveConfirmationOpen(true)}
                         disabled={questionAdminSaving}
-                        className="rounded-xl border border-[#ba4b2f]/30 bg-white px-3 py-2 text-xs font-bold text-[#8e3825] transition hover:-translate-y-0.5 hover:bg-[#fff3eb] disabled:cursor-wait disabled:opacity-50 focus:ring-4 focus:ring-[#f8d1bc] focus:outline-none"
+                        className="rounded-xl border border-[#a65c0e]/30 bg-white px-3 py-2 text-xs font-bold text-[#c43d3d] transition hover:-translate-y-0.5 hover:bg-[#fff3eb] disabled:cursor-wait disabled:opacity-50 focus:ring-4 focus:ring-[#f8d1bc] focus:outline-none"
                       >
                         Xóa thẻ
                       </button>
@@ -3319,19 +3280,19 @@ export function PracticeApp({
                       type="button"
                       onClick={showRandomQuestion}
                       disabled={!randomCandidates.length}
-                      className="rounded-xl border border-[#173f35]/18 bg-white/65 px-3 py-2 text-xs font-bold text-[#356b58] transition hover:-translate-y-0.5 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#d7ff91]/55 focus:outline-none"
+                      className="rounded-xl border border-[#0f3a69]/18 bg-white/65 px-3 py-2 text-xs font-bold text-[#285f86] transition hover:-translate-y-0.5 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#65e6d2]/55 focus:outline-none"
                     >
                       ↻ Câu khác ngẫu nhiên
                     </button>
                   ) : null}
-                  <span className="font-mono text-xs text-[#6c7b73]">{today}</span>
+                  <span className="font-mono text-xs text-[#64748b]">{today}</span>
                 </div>
               </div>
 
-              <article className="overflow-hidden rounded-[1.5rem] border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] shadow-[var(--shadow-card)]">
+              <article className="overflow-hidden rounded-2xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] shadow-[var(--shadow-card)]">
                 <div className="p-6 sm:p-9 lg:p-10">
                   {isRepairActive ? (
-                    <div className="mb-6 rounded-2xl border border-[#ba4b2f]/25 bg-[#f8e8df] p-4 text-sm leading-6 text-[#713929]">
+                    <div className="mb-6 rounded-2xl border border-[#a65c0e]/25 bg-[#fff1f1] p-4 text-sm leading-6 text-[#9f2f2f]">
                       <p className="font-mono text-[11px] font-bold uppercase tracking-[0.16em]">
                         Ôn lại điểm yếu · lần {(repairItem?.attempts ?? 0) + 1}
                       </p>
@@ -3350,13 +3311,13 @@ export function PracticeApp({
                   ) : null}
 
                   <h1
-                    className={`${hasAnswered ? "mt-7" : ""} max-w-4xl font-semibold text-[#17221d] ${questionHeadingTypography(currentPrompt)}`}
+                    className={`${hasAnswered ? "mt-7" : ""} max-w-4xl font-semibold text-[#172033] ${questionHeadingTypography(currentPrompt)}`}
                   >
                     <InlineCode text={currentPrompt} />
                   </h1>
 
                   {current.code && !isCodeReviewQuestion(current) ? (
-                    <pre className="mt-7 overflow-x-auto rounded-2xl border border-[#d7ff91]/20 bg-[#102d26] p-5 font-mono text-[13px] leading-6 text-[#e8f4ec] shadow-inner sm:text-sm">
+                    <pre className="mt-7 overflow-x-auto rounded-2xl border border-[#65e6d2]/20 bg-[#092c51] p-5 font-mono text-[13px] leading-6 text-[#e6f8f5] shadow-inner sm:text-sm">
                       <code>{current.code}</code>
                     </pre>
                   ) : null}
@@ -3377,12 +3338,12 @@ export function PracticeApp({
                       <div>
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <label
-                            className="text-sm font-semibold text-[#344a40]"
+                            className="text-sm font-semibold text-[#43546a]"
                             htmlFor="candidate-answer"
                           >
                             Giải thích lựa chọn thiết kế
                           </label>
-                          <span className="font-mono text-[11px] text-[#6c7b73]">
+                          <span className="font-mono text-[11px] text-[#64748b]">
                             không bắt buộc · tự lưu
                           </span>
                         </div>
@@ -3395,7 +3356,7 @@ export function PracticeApp({
                           }
                           value={answers[current.id] ?? ""}
                           onChange={(event) => updateAnswer(current.id, event.target.value)}
-                          className="mt-2 min-h-28 w-full resize-y rounded-2xl border border-[#173f35]/20 bg-[#fbfaf5] px-4 py-3 leading-7 outline-none transition focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/45"
+                          className="mt-2 min-h-28 w-full resize-y rounded-2xl border border-[#0f3a69]/20 bg-[#f8fafc] px-4 py-3 leading-7 outline-none transition focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/45"
                           placeholder="Giải thích quyền sở hữu, API, các đánh đổi và quyết định quan trọng…"
                         />
                       </div>
@@ -3407,12 +3368,12 @@ export function PracticeApp({
                         className="mt-8 flex flex-wrap items-center justify-between gap-2"
                       >
                         <label
-                          className="text-sm font-semibold text-[#344a40]"
+                          className="text-sm font-semibold text-[#43546a]"
                           htmlFor="candidate-answer"
                         >
                           Câu trả lời của bạn
                         </label>
-                        <span className="font-mono text-[11px] text-[#6c7b73]">
+                        <span className="font-mono text-[11px] text-[#64748b]">
                           ● tự lưu trên trình duyệt
                         </span>
                       </div>
@@ -3425,18 +3386,18 @@ export function PracticeApp({
                         }
                         value={answers[current.id] ?? ""}
                         onChange={(event) => updateAnswer(current.id, event.target.value)}
-                        className="mt-2 min-h-36 w-full resize-y rounded-2xl border border-[#173f35]/20 bg-[#fbfaf5] px-4 py-3 leading-7 outline-none transition focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/45"
+                        className="mt-2 min-h-36 w-full resize-y rounded-2xl border border-[#0f3a69]/20 bg-[#f8fafc] px-4 py-3 leading-7 outline-none transition focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/45"
                         placeholder="Tự trả lời như đang ngồi phỏng vấn, hoặc để trống nếu chưa biết…"
                       />
                     </>
                   )}
 
-                  <p className="mt-3 text-xs leading-5 text-[#64736c]">
+                  <p className="mt-3 text-xs leading-5 text-[#526276]">
                     Chưa biết thì cứ để trống. Nhờ AI sẽ giải từ đầu; câu trả lời
                     không bị giới hạn ký tự.
                   </p>
                   {usesPublicAi ? (
-                    <p className="mt-2 text-xs font-semibold text-[#356b58]">
+                    <p className="mt-2 text-xs font-semibold text-[#285f86]">
                       Luna hỗ trợ tối đa 3 lượt AI trong 24 giờ; hạn mức áp dụng theo thiết bị và mạng.
                     </p>
                   ) : null}
@@ -3444,11 +3405,11 @@ export function PracticeApp({
                   {currentRescueRetry?.phase === "retrying" ? (
                     <div
                       id="rescue-retry-instruction"
-                      className="mt-4 rounded-2xl border border-[#356b58]/25 bg-[#edf3e9] p-4 text-sm text-[#29493d]"
+                      className="mt-4 rounded-2xl border border-[#285f86]/25 bg-[#eaf2f8] p-4 text-sm text-[#285f86]"
                       role="status"
                       aria-live="polite"
                     >
-                      <p className="font-mono text-[11px] font-bold tracking-[0.14em] text-[#356b58] uppercase">
+                      <p className="font-mono text-[11px] font-bold tracking-[0.14em] text-[#285f86] uppercase">
                         Làm lại · lượt {currentRescueRetry.attempts + 1}
                       </p>
                       <p className="mt-1 font-semibold">
@@ -3471,7 +3432,7 @@ export function PracticeApp({
                           });
                           toggleSet(setHints, current.id);
                         }}
-                        className="rounded-xl px-1 py-2 text-sm font-semibold text-[#356b58] underline-offset-4 hover:underline"
+                        className="rounded-xl px-1 py-2 text-sm font-semibold text-[#285f86] underline-offset-4 hover:underline"
                       >
                         {hints.has(current.id) ? "Ẩn gợi ý" : "Cần một gợi ý?"}
                       </button>
@@ -3480,7 +3441,7 @@ export function PracticeApp({
                           type="button"
                           onClick={clarifyCurrentQuestion}
                           disabled={questionClarificationLoading === current.id}
-                          className="rounded-xl border border-[#356b58]/25 bg-white px-3 py-2 text-sm font-semibold text-[#356b58] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#edf3e9] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#d7ff91]/60 focus:outline-none"
+                          className="rounded-xl border border-[#285f86]/25 bg-white px-3 py-2 text-sm font-semibold text-[#285f86] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#eaf2f8] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#65e6d2]/60 focus:outline-none"
                         >
                           {questionClarificationLoading === current.id
                             ? "Luna đang diễn giải…"
@@ -3499,7 +3460,7 @@ export function PracticeApp({
                           (currentRescueRetry?.phase === "rescue" &&
                             Boolean(coachFeedback[current.id]))
                         }
-                        className="rounded-xl border border-[#356b58]/25 bg-[#d7ff91] px-5 py-3 text-sm font-bold text-[#173f35] shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#d7ff91]/60 focus:outline-none"
+                        className="rounded-xl border border-[#285f86]/25 bg-[#65e6d2] px-5 py-3 text-sm font-bold text-[#0f3a69] shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#65e6d2]/60 focus:outline-none"
                       >
                         {coachLoading === current.id
                           ? currentRescueRetry?.phase === "retrying"
@@ -3519,7 +3480,7 @@ export function PracticeApp({
                       <button
                         type="button"
                         onClick={toggleReferenceAnswer}
-                        className="rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#245748] focus:ring-4 focus:ring-[#d7ff91] focus:outline-none"
+                        className="rounded-xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#16865a] focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
                       >
                         {revealed.has(current.id) ? "Ẩn đáp án" : "Mở đáp án"}
                       </button>
@@ -3527,7 +3488,7 @@ export function PracticeApp({
                   </div>
 
                   {hints.has(current.id) ? (
-                    <div className="mt-4 rounded-2xl border border-[#ba4b2f]/20 bg-[#f8e8df] p-4 text-sm leading-6 text-[#713929]">
+                    <div className="mt-4 rounded-2xl border border-[#a65c0e]/20 bg-[#fff1f1] p-4 text-sm leading-6 text-[#9f2f2f]">
                       <span className="mr-2 font-mono font-bold">gợi ý:</span>
                       <InlineCode text={current.hint} />
                     </div>
@@ -3535,14 +3496,14 @@ export function PracticeApp({
 
                   {questionClarifications[current.id] ? (
                     <section
-                      className="mt-4 rounded-2xl border border-[#356b58]/20 bg-[#edf3e9] p-4 text-sm text-[#29493d]"
+                      className="mt-4 rounded-2xl border border-[#285f86]/20 bg-[#eaf2f8] p-4 text-sm text-[#285f86]"
                       aria-live="polite"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="font-mono text-[11px] font-bold tracking-[0.14em] text-[#356b58] uppercase">
+                        <p className="font-mono text-[11px] font-bold tracking-[0.14em] text-[#285f86] uppercase">
                           Luna làm rõ đề bài
                         </p>
-                        <span className="rounded-full border border-[#356b58]/20 bg-white/65 px-2 py-1 font-mono text-[10px] text-[#356b58]">
+                        <span className="rounded-full border border-[#285f86]/20 bg-white/65 px-2 py-1 font-mono text-[10px] text-[#285f86]">
                           {questionClarificationModels[current.id] || "Luna"}
                         </span>
                       </div>
@@ -3551,7 +3512,7 @@ export function PracticeApp({
                       </p>
                       <div className="mt-4">
                         <div>
-                          <p className="font-semibold text-[#173f35]">Đề thực ra muốn bạn làm gì?</p>
+                          <p className="font-semibold text-[#0f3a69]">Đề thực ra muốn bạn làm gì?</p>
                           <ul className="mt-2 space-y-1.5 leading-6">
                             {questionClarifications[current.id].whatToAddress.map(
                               (item) => (
@@ -3564,10 +3525,10 @@ export function PracticeApp({
                           </ul>
                         </div>
                       </div>
-                      <p className="mt-4 border-t border-[#356b58]/15 pt-3 text-xs leading-5 text-[#52675e]">
+                      <p className="mt-4 border-t border-[#285f86]/15 pt-3 text-xs leading-5 text-[#526276]">
                         Chỉ cần hiểu như vậy: {questionClarifications[current.id].scopeNote}
                       </p>
-                      <p className="mt-2 text-xs text-[#52675e]">
+                      <p className="mt-2 text-xs text-[#526276]">
                         Phần này chỉ diễn giải đề, không mở đáp án hay hướng giải.
                       </p>
                     </section>
@@ -3575,7 +3536,7 @@ export function PracticeApp({
 
                   {questionClarificationErrors[current.id] ? (
                     <p
-                      className="mt-4 rounded-2xl border border-[#ba4b2f]/25 bg-[#f8e8df] p-4 text-sm text-[#8e3825]"
+                      className="mt-4 rounded-2xl border border-[#a65c0e]/25 bg-[#fff1f1] p-4 text-sm text-[#c43d3d]"
                       role="alert"
                     >
                       {questionClarificationErrors[current.id]}
@@ -3584,7 +3545,7 @@ export function PracticeApp({
 
                   {coachErrors[current.id] ? (
                     <p
-                      className="mt-4 rounded-2xl border border-[#ba4b2f]/25 bg-[#f8e8df] p-4 text-sm text-[#8e3825]"
+                      className="mt-4 rounded-2xl border border-[#a65c0e]/25 bg-[#fff1f1] p-4 text-sm text-[#c43d3d]"
                       role="alert"
                     >
                       {coachErrors[current.id]}
@@ -3594,11 +3555,11 @@ export function PracticeApp({
                   {canRateCurrent && !rescueOutcomeRating ? (
                     <div
                       ref={handleRatingSectionRef}
-                      className="sticky bottom-24 z-20 mt-5 scroll-m-4 rounded-3xl border-2 border-[#356b58]/35 bg-[#fffef9]/95 p-4 shadow-[0_16px_45px_rgba(23,63,53,0.18)] backdrop-blur-md sm:p-5 lg:bottom-3"
+                      className="sticky bottom-24 z-20 mt-5 scroll-m-4 rounded-[1.25rem] border-2 border-[#285f86]/35 bg-[#ffffff]/95 p-4 shadow-[0_16px_45px_rgba(15,58,105,0.18)] backdrop-blur-md sm:p-5 lg:bottom-3"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div>
-                          <p className="text-sm font-bold text-[#173f35]">
+                          <p className="text-sm font-bold text-[#0f3a69]">
                             {isRepairActive
                               ? "Câu này đã được sửa chưa?"
                               : "Chấm mức độ ghi nhớ để sang câu tiếp theo"}
@@ -3612,7 +3573,7 @@ export function PracticeApp({
                           </p>
                         </div>
                         {currentSuggestedRating ? (
-                          <span className="rounded-full bg-[#d7ff91]/70 px-3 py-1 text-xs font-semibold text-[#356b58]">
+                          <span className="rounded-full bg-[#65e6d2]/70 px-3 py-1 text-xs font-semibold text-[#285f86]">
                             AI gợi ý mức đánh giá: {currentSuggestedRating.label}
                           </span>
                         ) : null}
@@ -3624,7 +3585,7 @@ export function PracticeApp({
                             type="button"
                             onClick={() => rateCurrent(option.value)}
                             data-tone={option.tone}
-                            className="rating-button rounded-2xl border bg-white px-3 py-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:ring-4 focus:ring-[#d7ff91] focus:outline-none"
+                            className="rating-button rounded-2xl border bg-white px-3 py-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
                           >
                             <span className="block text-sm font-bold">{option.label}</span>
                             <span className="mt-1 block font-mono text-[11px] opacity-65">
@@ -3763,19 +3724,19 @@ export function PracticeApp({
                 {revealed.has(current.id) ? (
                   <div
                     ref={handleReferenceAnswerRef}
-                    className="scroll-mt-6 border-t border-[#173f35]/12 bg-[#edf3e9] p-6 sm:p-9 lg:p-11"
+                    className="scroll-mt-6 border-t border-[#0f3a69]/12 bg-[#eaf2f8] p-6 sm:p-9 lg:p-11"
                   >
-                    <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#356b58] uppercase">
+                    <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#285f86] uppercase">
                       Đáp án tham khảo
                     </p>
                     <p className="mt-4 text-lg leading-8 font-medium text-[#213d32]">
                       <InlineCode text={current.answer.short} />
                     </p>
-                    <details className="mt-5 rounded-2xl border border-[#173f35]/15 bg-white/60 p-4 open:pb-5">
-                      <summary className="cursor-pointer text-sm font-bold text-[#356b58]">
+                    <details className="mt-5 rounded-2xl border border-[#0f3a69]/15 bg-white/60 p-4 open:pb-5">
+                      <summary className="cursor-pointer text-sm font-bold text-[#285f86]">
                         Giải thích kỹ hơn
                       </summary>
-                      <p className="mt-4 leading-7 text-[#465c52]">
+                      <p className="mt-4 leading-7 text-[#526276]">
                         <InlineCode text={current.answer.detailed} />
                       </p>
                     </details>
@@ -3792,7 +3753,7 @@ export function PracticeApp({
                     <button
                       type="button"
                       onClick={() => toggleSet(setVisibleSources, current.id)}
-                      className="mt-6 text-sm font-bold text-[#356b58] underline decoration-[#356b58]/35 underline-offset-4"
+                      className="mt-6 text-sm font-bold text-[#285f86] underline decoration-[#285f86]/35 underline-offset-4"
                     >
                       {visibleSources.has(current.id)
                         ? "Ẩn ghi chú nguồn"
@@ -3810,24 +3771,24 @@ export function PracticeApp({
             {!distractionFreeMode ? (
             <aside className="space-y-4 lg:pt-12">
               {!isFocusActive && selectedPendingReview.length ? (
-                <div className="rounded-3xl border border-[#ba4b2f]/25 bg-[#fff4df] p-6">
+                <div className="rounded-[1.25rem] border border-[#a65c0e]/25 bg-[#fff4df] p-6">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="font-mono text-xs tracking-[0.15em] text-[#ba4b2f] uppercase">
+                      <p className="font-mono text-xs tracking-[0.15em] text-[#a65c0e] uppercase">
                         Danh sách chờ duyệt
                       </p>
                       <p className="mt-2 text-2xl font-semibold">
                         {selectedPendingReview.length} câu chờ duyệt
                       </p>
                     </div>
-                    <span className="rounded-full bg-[#ba4b2f] px-2.5 py-1 font-mono text-xs font-bold text-white">
+                    <span className="rounded-full bg-[#a65c0e] px-2.5 py-1 font-mono text-xs font-bold text-white">
                       {selectedPendingReview.length}
                     </span>
                   </div>
-                  <ul className="mt-4 space-y-2 text-sm text-[#596a62]">
+                  <ul className="mt-4 space-y-2 text-sm text-[#526276]">
                     {selectedPendingReview.slice(0, 3).map((question) => (
                       <li key={question.id} className="line-clamp-2">
-                        <span className="font-mono text-[10px] font-bold text-[#ba4b2f] uppercase">
+                        <span className="font-mono text-[10px] font-bold text-[#a65c0e] uppercase">
                           {question.status === "draft" ? "Bản nháp AI" : "Nguồn đã đổi"}
                         </span>{" "}
                         · {displayQuestionPrompt(question)}
@@ -3838,12 +3799,12 @@ export function PracticeApp({
                     type="button"
                     onClick={() => void approveAllPending()}
                     disabled={approvalStatus === "saving"}
-                    className="mt-5 w-full rounded-2xl bg-[#ba4b2f] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#963a25] disabled:cursor-wait disabled:opacity-60"
+                    className="mt-5 w-full rounded-2xl bg-[#a65c0e] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#c43d3d] disabled:cursor-wait disabled:opacity-60"
                   >
                     {approvalStatus === "saving" ? "Đang duyệt…" : "Duyệt tất cả"}
                   </button>
                   {approvalStatus === "error" ? (
-                    <p className="mt-3 text-xs font-semibold text-[#a3321f]">
+                    <p className="mt-3 text-xs font-semibold text-[#c43d3d]">
                       Chưa lưu được kết quả duyệt. Kiểm tra bản cập nhật cơ sở dữ
                       liệu rồi thử lại.
                     </p>
@@ -3851,15 +3812,15 @@ export function PracticeApp({
                 </div>
               ) : null}
 
-              <div className="rounded-3xl bg-[#173f35] p-6 text-white">
-                <p className="font-mono text-xs tracking-[0.15em] text-[#d7ff91] uppercase">
+              <div className="rounded-[1.25rem] bg-[#0f3a69] p-6 text-white">
+                <p className="font-mono text-xs tracking-[0.15em] text-[#65e6d2] uppercase">
                   {isFocusActive
                     ? "Tiến độ phiên ôn tập trọng tâm"
                     : "Tiến độ hôm nay"}
                 </p>
                 <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/15">
                   <div
-                    className="h-full rounded-full bg-[#d7ff91] transition-all"
+                    className="h-full rounded-full bg-[#65e6d2] transition-all"
                     style={{
                       width: `${
                         isFocusActive
@@ -3896,12 +3857,12 @@ export function PracticeApp({
                 ) : null}
               </div>
 
-              <div className="rounded-3xl border border-[#173f35]/15 bg-white/55 p-6">
+              <div className="rounded-[1.25rem] border border-[#0f3a69]/15 bg-white/55 p-6">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm font-bold">Tiến độ đồng bộ trực tuyến</p>
                   <SyncDot status={syncStatus} />
                 </div>
-                <p className="mt-2 text-sm leading-6 text-[#64736c]">
+                <p className="mt-2 text-sm leading-6 text-[#526276]">
                   {account
                     ? syncStatus === "error"
                       ? "Dữ liệu trên thiết bị vẫn an toàn; hệ thống sẽ tự thử lại và đồng bộ phần còn chờ khi kết nối trở lại."
@@ -3913,29 +3874,29 @@ export function PracticeApp({
               </div>
 
               {hasAnswered ? (
-                <div className="rounded-3xl border border-[#173f35]/15 bg-white/55 p-6">
-                  <p className="text-xs font-bold tracking-[0.14em] text-[#ba4b2f] uppercase">
+                <div className="rounded-[1.25rem] border border-[#0f3a69]/15 bg-white/55 p-6">
+                  <p className="text-xs font-bold tracking-[0.14em] text-[#a65c0e] uppercase">
                     Chủ đề
                   </p>
                   <p className="mt-3 text-xl font-semibold tracking-tight">
                     {current.lessonTitle}
                   </p>
-                  <p className="mt-2 font-mono text-xs leading-5 text-[#6c7b73]">
+                  <p className="mt-2 font-mono text-xs leading-5 text-[#64748b]">
                     {current.sourcePath}
                   </p>
                 </div>
               ) : null}
 
-              <div className="rounded-3xl border border-[#356b58]/20 bg-[#eef4e9] p-6">
+              <div className="rounded-[1.25rem] border border-[#285f86]/20 bg-[#eaf2f8] p-6">
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-sm font-bold">Trợ lý AI</p>
                   <span className="size-2 rounded-full bg-[#65a30d] shadow-[0_0_0_4px_rgba(101,163,13,0.12)]" />
                 </div>
-                <p className="mt-2 text-sm leading-6 text-[#64736c]">
+                <p className="mt-2 text-sm leading-6 text-[#526276]">
                   Chấm theo đúng tiêu chí và ghi chú nguồn, sau đó gợi ý một câu
                   hỏi tiếp nối.
                 </p>
-                <span className="mt-4 inline-block rounded-full bg-[#d7ff91] px-3 py-1 font-mono text-[11px] font-semibold text-[#356b58]">
+                <span className="mt-4 inline-block rounded-full bg-[#65e6d2] px-3 py-1 font-mono text-[11px] font-semibold text-[#285f86]">
                   OpenAI · Luna cho AI Coach · Terra cho tổng kết phỏng vấn thử · Gemini khi hết hạn mức
                 </span>
               </div>
@@ -3986,7 +3947,7 @@ export function PracticeApp({
         ) : null}
 
         {!distractionFreeMode ? (
-          <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[#173f35]/12 py-5 font-mono text-[11px] text-[#78857f]">
+          <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[#0f3a69]/12 py-5 font-mono text-[11px] text-[#78857f]">
             <span>
               {account
                 ? `Đồng bộ riêng tư · ${account.displayName}`
@@ -4012,7 +3973,7 @@ function PracticeFocusBar({
   onToggleAnswer: () => void;
 }) {
   return (
-    <header className="sticky top-3 z-30 mb-5 flex min-h-14 flex-wrap items-center justify-between gap-3 rounded-xl border border-[#12362d]/20 bg-[color:var(--pine)] px-3 py-2 text-white shadow-[var(--shadow-lift)] sm:px-4">
+    <header className="sticky top-3 z-30 mb-5 flex min-h-14 flex-wrap items-center justify-between gap-3 rounded-xl border border-[#0f3a69]/20 bg-[color:var(--pine)] px-3 py-2 text-white shadow-[var(--shadow-lift)] sm:px-4">
       <div className="flex items-center gap-3">
         <button
           type="button"
@@ -4060,10 +4021,10 @@ function LoadingScreen() {
   return (
     <main className="grid min-h-screen place-items-center px-5">
       <div className="text-center">
-        <span className="mx-auto grid size-12 animate-pulse place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
+        <span className="mx-auto grid size-12 animate-pulse place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
           R
         </span>
-        <p className="mt-4 text-sm text-[#64736c]">Đang mở lịch ôn tập…</p>
+        <p className="mt-4 text-sm text-[#526276]">Đang mở lịch ôn tập…</p>
       </div>
     </main>
   );
@@ -4076,19 +4037,19 @@ function FocusUnavailableScreen({
 }) {
   return (
     <main className="grid min-h-screen place-items-center px-5 py-12">
-      <section className="w-full max-w-xl rounded-[2rem] border border-[#ba4b2f]/20 bg-white/70 p-8 text-center shadow-[0_20px_70px_rgba(23,63,53,0.08)]">
-        <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-[#f8e8df] font-mono font-bold text-[#ba4b2f]">
+      <section className="w-full max-w-xl rounded-[1.25rem] border border-[#a65c0e]/20 bg-white/70 p-8 text-center shadow-[0_20px_70px_rgba(15,58,105,0.08)]">
+        <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-[#fff1f1] font-mono font-bold text-[#a65c0e]">
           !
         </span>
-        <p className="mt-5 font-mono text-xs font-bold tracking-[0.14em] text-[#ba4b2f] uppercase">
+        <p className="mt-5 font-mono text-xs font-bold tracking-[0.14em] text-[#a65c0e] uppercase">
           Không mở được Phiên ôn tập trọng tâm
         </p>
-        <h1 className="mt-3 text-2xl font-semibold tracking-tight text-[#17221d]">
+        <h1 className="mt-3 text-2xl font-semibold tracking-tight text-[#172033]">
           {storageError
             ? "Trình duyệt đang chặn bộ nhớ trên thiết bị"
             : "Không tìm thấy đúng phiên ôn tập trong đường dẫn này"}
         </h1>
-        <p className="mt-3 text-sm leading-6 text-[#64736c]">
+        <p className="mt-3 text-sm leading-6 text-[#526276]">
           Danh sách không được tự đoán lại hoặc thay bằng phiên khác. Hãy quay
           về trang luyện tập để tiếp tục phiên ôn tập còn lưu hoặc tạo kế hoạch
           mới.
@@ -4096,13 +4057,13 @@ function FocusUnavailableScreen({
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link
             href="/practice"
-            className="rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#245748]"
+            className="rounded-xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#16865a]"
           >
             Về luyện tập
           </Link>
           <Link
             href="/"
-            className="rounded-xl border border-[#173f35]/18 bg-white px-5 py-3 text-sm font-bold text-[#356b58]"
+            className="rounded-xl border border-[#0f3a69]/18 bg-white px-5 py-3 text-sm font-bold text-[#285f86]"
           >
             Ôn tập bình thường
           </Link>
@@ -4125,17 +4086,17 @@ function FocusCompletionScreen({
 }) {
   return (
     <main className="grid min-h-screen place-items-center px-5 py-12">
-      <section className="w-full max-w-xl rounded-[2rem] border border-[#356b58]/18 bg-white/70 p-8 text-center shadow-[0_20px_70px_rgba(23,63,53,0.08)]">
-        <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-[#173f35] font-mono font-bold text-[#d7ff91]">
+      <section className="w-full max-w-xl rounded-[1.25rem] border border-[#285f86]/18 bg-white/70 p-8 text-center shadow-[0_20px_70px_rgba(15,58,105,0.08)]">
+        <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-[#0f3a69] font-mono font-bold text-[#65e6d2]">
           ✓
         </span>
-        <p className="mt-5 font-mono text-xs font-bold tracking-[0.14em] text-[#356b58] uppercase">
+        <p className="mt-5 font-mono text-xs font-bold tracking-[0.14em] text-[#285f86] uppercase">
           Phiên ôn tập trọng tâm đã hoàn tất
         </p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#17221d]">
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#172033]">
           Đã đánh giá {completedCount} câu
         </h1>
-        <p className="mt-3 text-sm leading-6 text-[#64736c]">
+        <p className="mt-3 text-sm leading-6 text-[#526276]">
           Mỗi mức đánh giá đã được xếp lịch và cập nhật bằng chứng sẵn sàng như
           một buổi luyện tập bình thường.
         </p>
@@ -4146,14 +4107,14 @@ function FocusCompletionScreen({
           </p>
         ) : null}
         {notice ? (
-          <p className="mt-3 text-xs font-semibold text-[#a3321f]" role="alert">
+          <p className="mt-3 text-xs font-semibold text-[#c43d3d]" role="alert">
             {notice}
           </p>
         ) : null}
         <div className="mt-7 flex flex-wrap justify-center gap-3">
           <Link
             href={returnHref ?? "/practice"}
-            className="rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#245748]"
+            className="rounded-xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#16865a]"
           >
             {returnHref
               ? "Tiếp tục bước kế tiếp trong nhiệm vụ"
@@ -4162,14 +4123,14 @@ function FocusCompletionScreen({
           {returnHref ? (
             <Link
               href="/practice"
-              className="rounded-xl border border-[#173f35]/18 bg-white px-5 py-3 text-sm font-bold text-[#356b58]"
+              className="rounded-xl border border-[#0f3a69]/18 bg-white px-5 py-3 text-sm font-bold text-[#285f86]"
             >
               Về luyện tập
             </Link>
           ) : null}
           <Link
             href="/"
-            className="rounded-xl border border-[#173f35]/18 bg-white px-5 py-3 text-sm font-bold text-[#356b58]"
+            className="rounded-xl border border-[#0f3a69]/18 bg-white px-5 py-3 text-sm font-bold text-[#285f86]"
           >
             Tiếp tục luyện tập
           </Link>
@@ -4195,16 +4156,16 @@ function CompletionScreen({
   return (
     <section className="grid min-h-[72vh] place-items-center py-12">
       <div className="max-w-xl text-center">
-        <span className="mx-auto grid size-20 place-items-center rounded-full bg-[#d7ff91] text-3xl text-[#173f35]">
+        <span className="mx-auto grid size-20 place-items-center rounded-full bg-[#65e6d2] text-3xl text-[#0f3a69]">
           ✓
         </span>
-        <p className="mt-7 font-mono text-xs font-bold tracking-[0.16em] text-[#356b58] uppercase">
+        <p className="mt-7 font-mono text-xs font-bold tracking-[0.16em] text-[#285f86] uppercase">
           {today} · hoàn thành
         </p>
         <h1 className="mt-3 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
           Xong buổi ôn hôm nay.
         </h1>
-        <p className="mt-5 text-lg leading-8 text-[#64736c]">
+        <p className="mt-5 text-lg leading-8 text-[#526276]">
           {completedToday} câu đã tự chấm. Chuỗi học hiện tại là {streak} ngày
           — ngày mai quay lại, hệ thống sẽ chọn câu mới và đưa các câu đến hạn
           lên trước.
@@ -4213,7 +4174,7 @@ function CompletionScreen({
           <button
             type="button"
             onClick={onRandomQuestion}
-            className="mt-7 rounded-2xl bg-[#173f35] px-6 py-3 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#245748] focus:ring-4 focus:ring-[#d7ff91] focus:outline-none"
+            className="mt-7 rounded-2xl bg-[#0f3a69] px-6 py-3 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#16865a] focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
           >
             ↻ Luyện thêm câu ngẫu nhiên
           </button>
@@ -4240,14 +4201,14 @@ function CustomStudyPanel({
   const [limit, setLimit] = useState(10);
 
   return (
-    <details className="mt-5 rounded-2xl border border-[#173f35]/15 bg-white/55 px-4 py-3 open:bg-white/70">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold text-[#356b58]">
+    <details className="mt-5 rounded-2xl border border-[#0f3a69]/15 bg-white/55 px-4 py-3 open:bg-white/70">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold text-[#285f86]">
         <span>Phiên học tự chọn · ôn theo trạng thái hoặc thẻ</span>
         <span className="font-mono text-xs">
           {activeCount ? `${activeCount} câu còn lại` : "Mở bộ lọc ↓"}
         </span>
       </summary>
-      <div className="mt-4 grid gap-3 border-t border-[#173f35]/10 pt-4 sm:grid-cols-2">
+      <div className="mt-4 grid gap-3 border-t border-[#0f3a69]/10 pt-4 sm:grid-cols-2">
         <StudySelect
           label="Trạng thái"
           value={learningState}
@@ -4264,7 +4225,7 @@ function CustomStudyPanel({
             ["leech", "Câu khó nhớ"],
           ]}
         />
-        <label className="text-xs font-bold text-[#52645c]">
+        <label className="text-xs font-bold text-[#43546a]">
           Số câu
           <input
             type="number"
@@ -4272,7 +4233,7 @@ function CustomStudyPanel({
             max={20}
             value={limit}
             onChange={(event) => setLimit(Number(event.target.value))}
-            className="mt-1 w-full rounded-xl border border-[#173f35]/15 bg-white px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-xl border border-[#0f3a69]/15 bg-white px-3 py-2 text-sm"
           />
         </label>
       </div>
@@ -4289,7 +4250,7 @@ function CustomStudyPanel({
               limit,
             })
           }
-          className="rounded-xl bg-[#173f35] px-4 py-2.5 text-xs font-bold text-white"
+          className="rounded-xl bg-[#0f3a69] px-4 py-2.5 text-xs font-bold text-white"
         >
           Bắt đầu phiên học
         </button>
@@ -4297,14 +4258,14 @@ function CustomStudyPanel({
           <button
             type="button"
             onClick={onStop}
-            className="rounded-xl border border-[#ba4b2f]/25 bg-white px-4 py-2.5 text-xs font-bold text-[#8e3825]"
+            className="rounded-xl border border-[#a65c0e]/25 bg-white px-4 py-2.5 text-xs font-bold text-[#c43d3d]"
           >
             Dừng phiên
           </button>
         ) : null}
-        {notice ? <p className="text-xs text-[#64736c]">{notice}</p> : null}
+        {notice ? <p className="text-xs text-[#526276]">{notice}</p> : null}
       </div>
-      <p className="mt-3 text-[11px] text-[#718078]">
+      <p className="mt-3 text-[11px] text-[#64748b]">
         Mức đánh giá trong phiên học tự chọn vẫn cập nhật lịch ôn ngắt quãng
         của câu hỏi.
       </p>
@@ -4324,12 +4285,12 @@ function StudySelect({
   options: Array<[string, string]>;
 }) {
   return (
-    <label className="text-xs font-bold text-[#52645c]">
+    <label className="text-xs font-bold text-[#43546a]">
       {label}
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1 w-full rounded-xl border border-[#173f35]/15 bg-white px-3 py-2 text-sm"
+        className="mt-1 w-full rounded-xl border border-[#0f3a69]/15 bg-white px-3 py-2 text-sm"
       >
         {options.map(([optionValue, optionLabel]) => (
           <option key={optionValue} value={optionValue}>
@@ -4347,7 +4308,7 @@ function LearningCount({ label, value }: { label: string; value: number }) {
       <span className="block font-mono text-[10px] tracking-wide text-white/55 uppercase">
         {label}
       </span>
-      <strong className="mt-0.5 block text-base text-[#d7ff91]">{value}</strong>
+      <strong className="mt-0.5 block text-base text-[#65e6d2]">{value}</strong>
     </div>
   );
 }
@@ -4362,79 +4323,26 @@ function DeckEmptyState({
   const config = PRACTICE_DECKS[deck];
   return (
     <section className="grid min-h-[64vh] place-items-center py-12">
-      <div className="max-w-xl rounded-[2rem] border border-[#173f35]/15 bg-white/65 p-8 text-center shadow-[0_20px_70px_rgba(23,63,53,0.08)] sm:p-10">
-        <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-[#173f35] font-mono text-lg font-bold text-[#d7ff91]">
+      <div className="max-w-xl rounded-[1.25rem] border border-[#0f3a69]/15 bg-white/65 p-8 text-center shadow-[0_20px_70px_rgba(15,58,105,0.08)] sm:p-10">
+        <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-lg font-bold text-[#65e6d2]">
           {config.badge}
         </span>
         <h1 className="mt-6 text-3xl font-semibold tracking-tight">
           Chưa có câu đã duyệt trong {config.label}.
         </h1>
-        <p className="mt-4 leading-7 text-[#64736c]">
+        <p className="mt-4 leading-7 text-[#526276]">
           {pendingCount
             ? `${pendingCount} câu đang nằm trong danh sách chờ duyệt. Hãy duyệt để bắt đầu luyện.`
             : "Thêm hoặc duyệt câu hỏi C++ trong trang Quản trị để bắt đầu luyện."}
         </p>
         <Link
           href="/admin"
-          className="mt-7 inline-flex rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white"
+          className="mt-7 inline-flex rounded-2xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white"
         >
           Mở trang Quản trị
         </Link>
       </div>
     </section>
-  );
-}
-
-function DeckSwitcher({
-  selected,
-  counts,
-  pending,
-  onSelect,
-}: {
-  selected: PracticeDeckId;
-  counts: Record<PracticeDeckId, number>;
-  pending: boolean;
-  onSelect: (deck: PracticeDeckId) => void;
-}) {
-  return (
-    <div
-      className="ml-1 flex rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-muted)] p-1"
-      aria-label="Chọn bộ câu hỏi"
-    >
-      {ENABLED_PRACTICE_DECK_IDS.map((deckId) => {
-        const deck = PRACTICE_DECKS[deckId];
-        const active = deckId === selected;
-        return (
-          <button
-            key={deckId}
-            type="button"
-            onClick={() => onSelect(deckId)}
-            aria-pressed={active}
-            aria-busy={active && pending}
-            className={`rounded-lg px-3 py-2 text-xs font-bold transition ${
-              active
-              ? "bg-[color:var(--pine)] text-white shadow-sm"
-                : "text-[color:var(--ink-subtle)] hover:bg-[color:var(--surface-raised)]"
-            }`}
-          >
-            {deck.badge}
-            <span
-              className={`ml-1.5 font-mono text-[9px] ${
-                active ? "text-[#d7ff91]" : "text-[#78857f]"
-              }`}
-            >
-              · {counts[deckId]} câu
-            </span>
-            {active && pending ? (
-              <span
-                className="ml-1.5 inline-block size-2 animate-pulse rounded-full bg-[#d7ff91]"
-                aria-hidden="true"
-              />
-            ) : null}
-          </button>
-        );
-      })}
-    </div>
   );
 }
 
@@ -4449,19 +4357,19 @@ function ProgressSummaryControl({
 }) {
   return (
     <details className="group relative">
-      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] px-3 py-2 text-xs font-bold text-[color:var(--pine)] transition hover:border-[#356b58]/35 hover:bg-white focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none">
-        <span aria-hidden="true" className="text-[#ba4b2f]">{icon}</span>
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] px-3 py-2 text-xs font-bold text-[color:var(--pine)] transition hover:border-[#285f86]/35 hover:bg-white focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none">
+        <span aria-hidden="true" className="text-[#a65c0e]">{icon}</span>
         <span className="hidden sm:inline">Tiến độ</span>
         <span className="font-mono text-xs">{value}</span>
         <ChevronIcon />
       </summary>
       <div className="absolute right-0 z-30 mt-2 grid min-w-56 gap-2 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] p-3 shadow-[var(--shadow-lift)]">
-        <p className="ui-eyebrow text-[#356b58]">Tiến độ hôm nay</p>
+        <p className="ui-eyebrow text-[#285f86]">Tiến độ hôm nay</p>
         <div className="grid grid-cols-2 gap-2">
           <ProgressSummaryMetric label="Đã học" value={value} />
           <ProgressSummaryMetric label="Chuỗi ngày" value={`${streak} ngày`} />
         </div>
-        <Link href="/stats" className="mt-1 text-xs font-bold text-[#356b58] underline decoration-[#356b58]/35 underline-offset-4 hover:text-[#173f35]">
+        <Link href="/stats" className="mt-1 text-xs font-bold text-[#285f86] underline decoration-[#285f86]/35 underline-offset-4 hover:text-[#0f3a69]">
           Xem tiến độ chi tiết
         </Link>
       </div>
@@ -4472,8 +4380,8 @@ function ProgressSummaryControl({
 function ProgressSummaryMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg bg-[color:var(--surface-muted)] px-3 py-2">
-      <p className="text-sm font-bold text-[#173f35]">{value}</p>
-      <p className="mt-0.5 text-[11px] text-[#52645c]">{label}</p>
+      <p className="text-sm font-bold text-[#0f3a69]">{value}</p>
+      <p className="mt-0.5 text-[11px] text-[#43546a]">{label}</p>
     </div>
   );
 }
@@ -4499,13 +4407,13 @@ function AiBudgetPill({ budget }: { budget: AiDailyBudgetSnapshot }) {
     >
       <div className="flex items-center justify-between gap-2 font-mono text-[11px] font-bold uppercase">
         <span>OpenAI hôm nay</span>
-        <span className={low ? "text-[#ba4b2f]" : "text-[#245748]"}>
+        <span className={low ? "text-[#a65c0e]" : "text-[#16865a]"}>
           {budget.remainingPercent}% còn lại
         </span>
       </div>
-      <div className="mt-1 h-1 overflow-hidden rounded-full bg-[#173f35]/15">
+      <div className="mt-1 h-1 overflow-hidden rounded-full bg-[#0f3a69]/15">
         <div
-          className={`h-full rounded-full transition-[width] ${low ? "bg-[#ba4b2f]" : "bg-[#79b82a]"}`}
+          className={`h-full rounded-full transition-[width] ${low ? "bg-[#a65c0e]" : "bg-[#138f8c]"}`}
           style={{ width: `${budget.remainingPercent}%` }}
         />
       </div>
@@ -4531,7 +4439,7 @@ function TodayWorkspace({
   const progress = dailyTotal ? Math.round((completedToday / dailyTotal) * 100) : 100;
 
   return (
-    <section className="mt-6 overflow-hidden rounded-[1.5rem] border border-[#12362d]/16 bg-[color:var(--pine)] text-white shadow-[var(--shadow-lift)]">
+    <section className="mt-6 overflow-hidden rounded-2xl border border-[#0f3a69]/16 bg-[color:var(--pine)] text-white shadow-[var(--shadow-lift)]">
       <div className="grid gap-7 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-end lg:p-10">
         <div>
           <p className="ui-panel-label text-[color:var(--accent)]">
@@ -4558,11 +4466,11 @@ function TodayWorkspace({
         <div className="border-l border-white/15 pl-5 sm:pl-6">
           <div className="flex items-center justify-between font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-white/72">
             <span>Tiến độ hôm nay</span>
-            <span className="text-[#d7ff91]">{progress}%</span>
+            <span className="text-[#65e6d2]">{progress}%</span>
           </div>
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/15">
             <div
-              className="h-full rounded-full bg-[#d7ff91] transition-[width]"
+              className="h-full rounded-full bg-[#65e6d2] transition-[width]"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -4597,14 +4505,14 @@ function PublicAiQuotaPill({
     >
       <div className="flex items-center justify-between gap-2 font-mono text-[10px] font-bold uppercase">
         <span>AI Luna</span>
-        <span className={exhausted ? "text-[#ba4b2f]" : "text-[#245748]"}>
+        <span className={exhausted ? "text-[#a65c0e]" : "text-[#16865a]"}>
           {label}
         </span>
       </div>
-      <div className="mt-1 h-1 overflow-hidden rounded-full bg-[#173f35]/15">
+      <div className="mt-1 h-1 overflow-hidden rounded-full bg-[#0f3a69]/15">
         <div
           className={`h-full rounded-full transition-[width] ${
-            exhausted ? "bg-[#ba4b2f]" : "bg-[#79b82a]"
+            exhausted ? "bg-[#a65c0e]" : "bg-[#138f8c]"
           }`}
           style={{ width: `${progressPercent}%` }}
         />
@@ -4652,7 +4560,7 @@ function formatPublicAiReset(value: string) {
 function TodayMetric({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="rounded-lg bg-black/12 px-2 py-3">
-      <p className="text-lg font-semibold text-[#d7ff91]">{value}</p>
+      <p className="text-lg font-semibold text-[#65e6d2]">{value}</p>
       <p className="mt-1 text-[11px] font-bold text-white/70 uppercase">{label}</p>
     </div>
   );
@@ -4673,7 +4581,7 @@ function WorkspaceNavLink({
       aria-current={active ? "page" : undefined}
       className={`relative inline-flex min-h-10 items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition ${
         active
-          ? "bg-[color:var(--pine)] text-[color:var(--accent)]"
+          ? "bg-[color:var(--accent-soft)] text-[color:var(--pine)] after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:rounded-full after:bg-[color:var(--accent)]"
           : "text-[color:var(--ink-muted)] hover:bg-[color:var(--surface-muted)] hover:text-[color:var(--pine)]"
       }`}
     >
@@ -4693,7 +4601,7 @@ function HeaderNavLink({
   return (
     <Link
       href={href}
-      className="relative inline-flex items-center gap-1.5 rounded-full border border-[#173f35]/15 bg-white/65 px-3 py-2 font-mono text-[10px] font-bold uppercase transition hover:border-[#356b58]/40"
+      className="relative inline-flex items-center gap-1.5 rounded-full border border-[#0f3a69]/15 bg-white/65 px-3 py-2 font-mono text-[10px] font-bold uppercase transition hover:border-[#285f86]/40"
     >
       <span>{children}</span>
       <HeaderNavPending />
@@ -4705,7 +4613,7 @@ function HeaderNavPending() {
   const { pending } = useLinkStatus();
   return pending ? (
     <span
-      className="size-2 animate-spin rounded-full border border-[#356b58]/35 border-t-[#356b58]"
+      className="size-2 animate-spin rounded-full border border-[#285f86]/35 border-t-[#285f86]"
       aria-label="Đang chuyển trang"
     />
   ) : null;
@@ -4735,9 +4643,9 @@ function AccountControl({
         <Link
           href="/profile"
           title="Mở trang cá nhân"
-          className="flex items-center gap-2 rounded-full border border-[#173f35]/15 bg-white/65 px-2.5 py-1.5 transition hover:border-[#356b58]/40"
+          className="flex items-center gap-2 rounded-full border border-[#0f3a69]/15 bg-white/65 px-2.5 py-1.5 transition hover:border-[#285f86]/40"
         >
-            <span className="grid size-7 place-items-center rounded-full bg-[#173f35] text-xs font-bold text-[#d7ff91]">
+            <span className="grid size-7 place-items-center rounded-full bg-[#0f3a69] text-xs font-bold text-[#65e6d2]">
               {account.displayName.slice(0, 1).toUpperCase()}
             </span>
             <span className="hidden max-w-28 truncate text-xs font-semibold sm:block">
@@ -4750,7 +4658,7 @@ function AccountControl({
             type="submit"
             title="Đăng xuất"
             aria-label="Đăng xuất"
-            className="grid size-9 place-items-center rounded-full border border-[#173f35]/15 bg-white/65 text-sm font-bold transition hover:border-[#ba4b2f]/40 hover:text-[#ba4b2f]"
+            className="grid size-9 place-items-center rounded-full border border-[#0f3a69]/15 bg-white/65 text-sm font-bold transition hover:border-[#a65c0e]/40 hover:text-[#a65c0e]"
           >
             ↪
           </button>
@@ -4761,7 +4669,7 @@ function AccountControl({
 
   if (guestMode && !account) {
     return (
-      <span className="rounded-full border border-[#173f35]/12 bg-[#e7e3d8] px-3 py-2 font-mono text-[10px] font-semibold text-[#64736c]">
+      <span className="rounded-full border border-[#0f3a69]/12 bg-[#e7e3d8] px-3 py-2 font-mono text-[10px] font-semibold text-[#526276]">
         luyện trên thiết bị
       </span>
     );
@@ -4771,7 +4679,7 @@ function AccountControl({
     return (
       <Link
         href={`/auth?next=${encodeURIComponent(`/practice?deck=${selectedDeck}`)}`}
-        className="rounded-full bg-[#173f35] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#245748] focus:ring-4 focus:ring-[#d7ff91] focus:outline-none"
+        className="rounded-full bg-[#0f3a69] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#16865a] focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
       >
         Đăng nhập
       </Link>
@@ -4779,7 +4687,7 @@ function AccountControl({
   }
 
   return (
-    <span className="rounded-full border border-[#173f35]/12 bg-[#e7e3d8] px-3 py-2 font-mono text-[10px] font-semibold text-[#64736c]">
+    <span className="rounded-full border border-[#0f3a69]/12 bg-[#e7e3d8] px-3 py-2 font-mono text-[10px] font-semibold text-[#526276]">
       chỉ lưu trên thiết bị
     </span>
   );
@@ -4805,7 +4713,7 @@ function SyncDot({ status }: { status: SyncStatus }) {
 
 function Tag({ children }: { children: React.ReactNode }) {
   return (
-    <span className="rounded-full border border-[#173f35]/12 bg-[#edf0e8] px-2.5 py-1 font-mono text-[11px] font-semibold text-[#52645c] uppercase">
+    <span className="rounded-full border border-[#0f3a69]/12 bg-[#eaf2f8] px-2.5 py-1 font-mono text-[11px] font-semibold text-[#43546a] uppercase">
       {children}
     </span>
   );
@@ -4833,19 +4741,19 @@ function ScenarioCodeEditor({
     <section
       className={
         expanded
-          ? "fixed inset-0 z-50 flex flex-col bg-[#071b16]/95 p-3 backdrop-blur-sm sm:p-6"
+          ? "fixed inset-0 z-50 flex flex-col bg-[#061a31]/95 p-3 backdrop-blur-sm sm:p-6"
           : ""
       }
     >
-      <div className="overflow-hidden rounded-2xl border border-[#356b58]/35 bg-[#0d2821] shadow-[0_18px_55px_rgba(7,27,22,0.22)]">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-[#102f27] px-4 py-3 text-white">
+      <div className="overflow-hidden rounded-2xl border border-[#285f86]/35 bg-[#0d2821] shadow-[0_18px_55px_rgba(7,27,22,0.22)]">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-[#092c51] px-4 py-3 text-white">
           <div className="flex items-center gap-3">
             <span className="flex gap-1.5" aria-hidden="true">
               <i className="size-2.5 rounded-full bg-[#e2684a]" />
               <i className="size-2.5 rounded-full bg-[#e7b84b]" />
               <i className="size-2.5 rounded-full bg-[#75aa52]" />
             </span>
-            <span className="font-mono text-xs font-bold text-[#d7ff91]">
+            <span className="font-mono text-xs font-bold text-[#65e6d2]">
               {editor.fileName}
             </span>
             <span className="rounded-full bg-white/8 px-2 py-0.5 font-mono text-[10px] text-white/55">
@@ -4873,7 +4781,7 @@ function ScenarioCodeEditor({
             </button>
           </div>
         </div>
-        <div className="bg-[#0b241d]">
+        <div className="bg-[#092c51]">
           <MonacoCodeEditor
             language={language}
             value={value}
@@ -4883,7 +4791,7 @@ function ScenarioCodeEditor({
             placeholder={editor.placeholder}
           />
         </div>
-        <div className="flex items-center justify-between border-t border-white/8 bg-[#102f27] px-4 py-2 font-mono text-[10px] text-white/40">
+        <div className="flex items-center justify-between border-t border-white/8 bg-[#092c51] px-4 py-2 font-mono text-[10px] text-white/40">
           <span>Monaco · Ctrl+F tìm kiếm · Alt+↑↓ chuyển dòng · Ctrl+S tự lưu</span>
           <span>{value.length} ký tự</span>
         </div>
@@ -4900,7 +4808,7 @@ function InlineCode({ text, inverted = false }: { text: string; inverted?: boole
         className={`rounded-md px-1.5 py-0.5 font-mono text-[0.88em] ${
           inverted
             ? "bg-white/14 text-[#e7ffc2]"
-            : "bg-[#173f35]/8 text-[#245748]"
+            : "bg-[#0f3a69]/8 text-[#16865a]"
         }`}
       >
         {part.slice(1, -1)}
@@ -4985,7 +4893,7 @@ function CodeBlock({ code, language }: { code: string; language: string }) {
   }
 
   return (
-    <div className="my-3 overflow-hidden rounded-2xl border border-white/10 bg-[#102f27] text-[#e8f7df] shadow-sm">
+    <div className="my-3 overflow-hidden rounded-2xl border border-white/10 bg-[#092c51] text-[#e8f7df] shadow-sm">
       <div className="flex items-center justify-between border-b border-white/10 bg-black/10 px-4 py-2">
         <span className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#b9d7ca] uppercase">
           {language}
@@ -4993,7 +4901,7 @@ function CodeBlock({ code, language }: { code: string; language: string }) {
         <button
           type="button"
           onClick={copyCode}
-          className="rounded-md px-2 py-1 font-mono text-[10px] font-semibold text-[#d7ff91] transition hover:bg-white/10"
+          className="rounded-md px-2 py-1 font-mono text-[10px] font-semibold text-[#65e6d2] transition hover:bg-white/10"
           aria-label="Sao chép đoạn mã"
         >
           {copied ? "Đã sao chép ✓" : "Sao chép"}
@@ -5019,15 +4927,15 @@ function RubricList({
     <div
       className={`rounded-2xl border p-5 ${
         warning
-          ? "border-[#ba4b2f]/20 bg-[#f8e8df]"
-          : "border-[#356b58]/15 bg-[#f8faf5]"
+          ? "border-[#a65c0e]/20 bg-[#fff1f1]"
+          : "border-[#285f86]/15 bg-[#f8fafc]"
       }`}
     >
       <p className="text-sm font-bold">{title}</p>
-      <ul className="mt-3 space-y-2 text-sm leading-6 text-[#52645c]">
+      <ul className="mt-3 space-y-2 text-sm leading-6 text-[#43546a]">
         {items.map((item) => (
           <li key={item} className="flex gap-2">
-            <span className={warning ? "text-[#ba4b2f]" : "text-[#356b58]"}>
+            <span className={warning ? "text-[#a65c0e]" : "text-[#285f86]"}>
               {warning ? "×" : "✓"}
             </span>
             <span><InlineCode text={item} /></span>
@@ -5085,29 +4993,29 @@ function RescueRetryOutcomePanel({
 
   return (
     <section
-      className={`mt-5 rounded-3xl border-2 p-5 shadow-sm sm:p-6 ${
+      className={`mt-5 rounded-[1.25rem] border-2 p-5 shadow-sm sm:p-6 ${
         state.phase === "rescue"
-          ? "border-[#ba4b2f]/25 bg-[#fff4e8]"
+          ? "border-[#a65c0e]/25 bg-[#fff4e8]"
           : passed
-            ? "border-[#356b58]/30 bg-[#edf8e8]"
-            : "border-[#ba4b2f]/25 bg-[#f8e8df]"
+            ? "border-[#285f86]/30 bg-[#edf8e8]"
+            : "border-[#a65c0e]/25 bg-[#fff1f1]"
       }`}
       role="status"
       aria-live="polite"
     >
-      <p className="font-mono text-[11px] font-bold tracking-[0.14em] text-[#356b58] uppercase">
+      <p className="font-mono text-[11px] font-bold tracking-[0.14em] text-[#285f86] uppercase">
         {state.phase === "rescue"
           ? "Trợ giúp AI · đọc lời giải trước"
           : `Làm lại · lượt ${state.attempts}`}
       </p>
-      <h2 className="mt-2 text-xl font-semibold tracking-tight text-[#173f35]">
+      <h2 className="mt-2 text-xl font-semibold tracking-tight text-[#0f3a69]">
         {state.phase === "rescue"
           ? "Đã có lời giải — giờ đến lượt bạn tự làm lại"
           : passed
             ? `Đạt ${score}/100`
             : `Chưa đạt ${score}/100`}
       </h2>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-[#52645c]">
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-[#43546a]">
         {state.phase === "rescue"
           ? "Đọc phần giải thích phía trên để hiểu, rồi đóng lời giải và trả lời lại bằng trí nhớ. Mức đánh giá đang khóa cho tới khi AI chấm lần làm lại."
           : passed
@@ -5119,7 +5027,7 @@ function RescueRetryOutcomePanel({
           <button
             type="button"
             onClick={onRetry}
-            className="rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#245748] focus:ring-4 focus:ring-[#d7ff91] focus:outline-none"
+            className="rounded-xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#16865a] focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
           >
             Tự làm lại không nhìn lời giải
           </button>
@@ -5128,7 +5036,7 @@ function RescueRetryOutcomePanel({
             <button
               type="button"
               onClick={onContinue}
-              className="rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#245748] focus:ring-4 focus:ring-[#d7ff91] focus:outline-none"
+              className="rounded-xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#16865a] focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
             >
               {passed
                 ? "Đạt · sang câu tiếp"
@@ -5137,7 +5045,7 @@ function RescueRetryOutcomePanel({
             <button
               type="button"
               onClick={onRetry}
-              className="rounded-xl border border-[#356b58]/25 bg-white/70 px-5 py-3 text-sm font-bold text-[#245748] transition hover:-translate-y-0.5 hover:bg-white focus:ring-4 focus:ring-[#d7ff91]/60 focus:outline-none"
+              className="rounded-xl border border-[#285f86]/25 bg-white/70 px-5 py-3 text-sm font-bold text-[#16865a] transition hover:-translate-y-0.5 hover:bg-white focus:ring-4 focus:ring-[#65e6d2]/60 focus:outline-none"
             >
               {passed ? "Làm lại lần nữa" : "Thử lại ngay"}
             </button>
@@ -5189,7 +5097,7 @@ function CoachFeedbackPanel({
   ].slice(0, 3);
 
   return (
-    <section className="mt-6 overflow-hidden rounded-[1.5rem] border border-[#356b58]/20 bg-[#f6faef] shadow-[var(--shadow-card)]">
+    <section className="mt-6 overflow-hidden rounded-2xl border border-[#285f86]/20 bg-[#f8fafc] shadow-[var(--shadow-card)]">
       <header className="flex flex-wrap items-start justify-between gap-4 bg-[color:var(--pine)] p-5 text-white sm:p-6">
         <div className="flex min-w-0 items-start gap-4">
           <div className="grid size-14 shrink-0 place-items-center rounded-xl border border-white/15 bg-white/8 text-center">
@@ -5231,9 +5139,9 @@ function CoachFeedbackPanel({
       <div className="space-y-5 p-5 sm:p-6">
         <div className="grid gap-px overflow-hidden rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--border-subtle)] lg:grid-cols-3">
           <section className="bg-[color:var(--surface-raised)] p-5">
-            <p className="ui-panel-label text-[#356b58]">01 · Bạn đã làm được</p>
+            <p className="ui-panel-label text-[#285f86]">01 · Bạn đã làm được</p>
             {strengths.length ? (
-              <ul className="mt-3 space-y-2 text-sm leading-6 text-[#465c52]">
+              <ul className="mt-3 space-y-2 text-sm leading-6 text-[#526276]">
                 {strengths.slice(0, 3).map((strength) => (
                   <li key={strength} className="flex gap-2">
                     <span aria-hidden="true" className="font-bold text-[#65a30d]">✓</span>
@@ -5242,7 +5150,7 @@ function CoachFeedbackPanel({
                 ))}
               </ul>
             ) : (
-              <p className="mt-3 text-sm leading-6 text-[#64736c]">
+              <p className="mt-3 text-sm leading-6 text-[#526276]">
                 AI chưa thấy phần nào đủ rõ để ghi nhận. Hãy dùng phần cần cải thiện
                 bên cạnh làm trọng tâm cho lần trả lời sau.
               </p>
@@ -5252,7 +5160,7 @@ function CoachFeedbackPanel({
           <section className="bg-[#fff8f2] p-5">
             <p className="ui-panel-label text-[#a34d30]">02 · Cần cải thiện</p>
             {improvements.length ? (
-              <ul className="mt-3 space-y-2 text-sm leading-6 text-[#713929]">
+              <ul className="mt-3 space-y-2 text-sm leading-6 text-[#9f2f2f]">
                 {improvements.map((item) => (
                   <li key={item} className="flex gap-2">
                     <span aria-hidden="true">→</span>
@@ -5261,19 +5169,19 @@ function CoachFeedbackPanel({
                 ))}
               </ul>
             ) : (
-              <p className="mt-3 text-sm leading-6 text-[#713929]">
+              <p className="mt-3 text-sm leading-6 text-[#9f2f2f]">
                 Chưa có lỗi cụ thể cần sửa ngay. Hãy kiểm tra phần giải thích để củng cố.
               </p>
             )}
           </section>
 
           <section className="flex flex-col bg-[#edffd0] p-5">
-            <p className="ui-panel-label text-[#356b58]">03 · Làm tiếp ngay</p>
-            <p className="mt-3 text-sm leading-6 font-semibold text-[#29493d]">
+            <p className="ui-panel-label text-[#285f86]">03 · Làm tiếp ngay</p>
+            <p className="mt-3 text-sm leading-6 font-semibold text-[#285f86]">
               <InlineCode text={feedback.nextStep} />
             </p>
             {rescueMode ? (
-              <p className="mt-4 text-xs leading-5 text-[#52645c]">
+              <p className="mt-4 text-xs leading-5 text-[#43546a]">
                 Đọc để hiểu rồi chọn <strong>Tự làm lại không nhìn lời giải</strong>
                 ở phần bên dưới.
               </p>
@@ -5283,7 +5191,7 @@ function CoachFeedbackPanel({
                   type="button"
                   onClick={onExpandNextStep}
                   disabled={learningActionLoading || learningActionDisabled}
-                  className="min-h-10 rounded-lg border border-[#356b58]/20 bg-white/75 px-3 text-xs font-bold text-[#245748] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-45 focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none"
+                  className="min-h-10 rounded-lg border border-[#285f86]/20 bg-white/75 px-3 text-xs font-bold text-[#16865a] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-45 focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none"
                 >
                   {learningActionLoading ? "AI đang mở rộng…" : "Học tiếp →"}
                 </button>
@@ -5300,26 +5208,26 @@ function CoachFeedbackPanel({
         </div>
 
         {!rescueMode ? (
-          <p className="rounded-lg border border-[#356b58]/16 bg-white/65 px-4 py-3 text-sm text-[#52645c]">
-            AI gợi ý mức đánh giá: <strong className="text-[#245748]">{suggestedRating?.label}</strong>.
+          <p className="rounded-lg border border-[#285f86]/16 bg-white/65 px-4 py-3 text-sm text-[#43546a]">
+            AI gợi ý mức đánh giá: <strong className="text-[#16865a]">{suggestedRating?.label}</strong>.
             Hãy tự quyết định sau khi đối chiếu đáp án nguồn.
           </p>
         ) : null}
 
         <details className="rounded-xl border border-[color:var(--border-subtle)] bg-white/65 p-4 open:bg-white">
-          <summary className="cursor-pointer text-sm font-bold text-[#245748] marker:text-[#356b58]">
+          <summary className="cursor-pointer text-sm font-bold text-[#16865a] marker:text-[#285f86]">
             Xem lý do AI đánh giá như vậy và rubric đầy đủ
           </summary>
           <div className="mt-5 space-y-6 border-t border-[color:var(--border-subtle)] pt-5">
             <div>
-              <p className="text-sm font-bold text-[#245748]">Giải thích</p>
-              <div className="mt-2 leading-7 text-[#52645c]">
+              <p className="text-sm font-bold text-[#16865a]">Giải thích</p>
+              <div className="mt-2 leading-7 text-[#43546a]">
                 <RichText text={feedback.explanation} />
               </div>
             </div>
             <div>
-              <p className="text-sm font-bold text-[#245748]">Rubric đầy đủ</p>
-              <div className="mt-3 divide-y divide-[#173f35]/10 rounded-xl border border-[#173f35]/12 bg-white px-4">
+              <p className="text-sm font-bold text-[#16865a]">Rubric đầy đủ</p>
+              <div className="mt-3 divide-y divide-[#0f3a69]/10 rounded-xl border border-[#0f3a69]/12 bg-white px-4">
                 {feedback.coverage.map((item) => (
                   <div key={item.criterion} className="grid gap-2 py-4 sm:grid-cols-[5rem_1fr]">
                     <span
@@ -5332,7 +5240,7 @@ function CoachFeedbackPanel({
                       <p className="text-sm font-semibold leading-6">
                         <InlineCode text={item.criterion} />
                       </p>
-                      <p className="mt-1 text-sm leading-6 text-[#64736c]">
+                      <p className="mt-1 text-sm leading-6 text-[#526276]">
                         <InlineCode text={item.feedback} />
                       </p>
                     </div>
@@ -5380,14 +5288,14 @@ function DeepDivePracticePanel({
     .filter((section): section is NonNullable<typeof section> => Boolean(section));
 
   return (
-    <section className="mt-5 rounded-3xl border border-[#7fb43d]/30 bg-[#f3ffdd] p-5 shadow-[0_12px_35px_rgba(23,63,53,0.05)] sm:p-6">
-      <p className="font-mono text-xs font-bold tracking-[0.14em] text-[#356b58] uppercase">
+    <section className="mt-5 rounded-[1.25rem] border border-[#138f8c]/30 bg-[#e6f8f5] p-5 shadow-[0_12px_35px_rgba(15,58,105,0.05)] sm:p-6">
+      <p className="font-mono text-xs font-bold tracking-[0.14em] text-[#285f86] uppercase">
         Câu phỏng vấn mở rộng
       </p>
-      <h3 className="mt-3 text-xl leading-8 font-semibold text-[#203d32]">
+      <h3 className="mt-3 text-xl leading-8 font-semibold text-[#172033]">
         <InlineCode text={prompt} />
       </h3>
-      <p className="mt-2 text-sm leading-6 text-[#64736c]">
+      <p className="mt-2 text-sm leading-6 text-[#526276]">
         Tự trả lời như một câu phỏng vấn mới, hoặc để trống nếu chưa biết để AI
         dạy từ đầu.
       </p>
@@ -5399,7 +5307,7 @@ function DeepDivePracticePanel({
           onSubmit();
         }}
       >
-        <label htmlFor={`deep-dive-${question.id}`} className="text-sm font-bold text-[#29493d]">
+        <label htmlFor={`deep-dive-${question.id}`} className="text-sm font-bold text-[#285f86]">
           Câu trả lời của bạn
         </label>
         <textarea
@@ -5409,16 +5317,16 @@ function DeepDivePracticePanel({
           rows={5}
           disabled={loading}
           placeholder="Trả lời câu mở rộng trước khi xem nhận xét của AI…"
-          className="mt-2 w-full resize-y rounded-2xl border border-[#356b58]/20 bg-white/80 px-4 py-3 leading-7 outline-none transition focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/55 disabled:bg-[#edf1ea]"
+          className="mt-2 w-full resize-y rounded-2xl border border-[#285f86]/20 bg-white/80 px-4 py-3 leading-7 outline-none transition focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/55 disabled:bg-[#eaf2f8]"
         />
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-          <span className="font-mono text-[11px] text-[#718078]">
+          <span className="font-mono text-[11px] text-[#64748b]">
             ● tự lưu · không có đáp án mẫu
           </span>
           <button
             type="submit"
             disabled={loading}
-            className="rounded-xl bg-[#173f35] px-5 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#d7ff91] focus:outline-none"
+            className="rounded-xl bg-[#0f3a69] px-5 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
           >
             {loading
               ? "AI đang giúp…"
@@ -5430,20 +5338,20 @@ function DeepDivePracticePanel({
       </form>
 
       {error ? (
-        <p className="mt-4 rounded-xl bg-[#f8e8df] px-3 py-2 text-sm text-[#8e3825]" role="alert">
+        <p className="mt-4 rounded-xl bg-[#fff1f1] px-3 py-2 text-sm text-[#c43d3d]" role="alert">
           {error}
         </p>
       ) : null}
 
       {feedback ? (
-        <div className="mt-5 rounded-2xl border border-[#356b58]/15 bg-white/75 p-5">
+        <div className="mt-5 rounded-2xl border border-[#285f86]/15 bg-white/75 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-sm font-bold text-[#245748]">
+              <p className="text-sm font-bold text-[#16865a]">
                 Nhận xét của người phỏng vấn AI
               </p>
               {model ? (
-                <span className="rounded-full bg-[#e8efe2] px-2 py-0.5 font-mono text-[10px] text-[#356b58]">
+                <span className="rounded-full bg-[#eaf2f8] px-2 py-0.5 font-mono text-[10px] text-[#285f86]">
                   {model}
                 </span>
               ) : null}
@@ -5451,18 +5359,18 @@ function DeepDivePracticePanel({
             <button
               type="button"
               onClick={onToggleSaveFeedback}
-              className="rounded-lg border border-[#356b58]/15 px-2.5 py-1.5 text-[11px] font-bold text-[#356b58]"
+              className="rounded-lg border border-[#285f86]/15 px-2.5 py-1.5 text-[11px] font-bold text-[#285f86]"
             >
               {feedbackSaved ? "★ Đã lưu" : "☆ Lưu nhận xét"}
             </button>
           </div>
-          <div className="mt-3 text-sm leading-7 text-[#465c52]">
+          <div className="mt-3 text-sm leading-7 text-[#526276]">
             <RichText text={feedback.answer} />
           </div>
           {citedSections.length ? (
-            <div className="mt-4 flex flex-wrap gap-2 border-t border-[#173f35]/10 pt-3">
+            <div className="mt-4 flex flex-wrap gap-2 border-t border-[#0f3a69]/10 pt-3">
               {citedSections.map((section) => (
-                <span key={section.id} className="rounded-full bg-[#e8efe2] px-2.5 py-1 text-[11px] font-semibold text-[#356b58]">
+                <span key={section.id} className="rounded-full bg-[#eaf2f8] px-2.5 py-1 text-[11px] font-semibold text-[#285f86]">
                   Nguồn: {section.heading}
                 </span>
               ))}
@@ -5501,17 +5409,17 @@ function CoachFollowUpPanel({
   );
 
   return (
-    <section className="mt-5 rounded-3xl border border-[#173f35]/16 bg-white/70 p-5 shadow-[0_12px_35px_rgba(23,63,53,0.05)] sm:p-6">
+    <section className="mt-5 rounded-[1.25rem] border border-[#0f3a69]/16 bg-white/70 p-5 shadow-[0_12px_35px_rgba(15,58,105,0.05)] sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="font-mono text-xs font-bold tracking-[0.14em] text-[#356b58] uppercase">
+          <p className="font-mono text-xs font-bold tracking-[0.14em] text-[#285f86] uppercase">
             Chưa hiểu? Hỏi tiếp AI
           </p>
-          <p className="mt-2 text-sm leading-6 text-[#64736c]">
+          <p className="mt-2 text-sm leading-6 text-[#526276]">
             AI sẽ giải thích lại dựa trên câu này, phản hồi vừa chấm và ghi chú nguồn.
           </p>
         </div>
-        <span className="rounded-full bg-[#edf3e9] px-3 py-1 font-mono text-[11px] text-[#52645c]">
+        <span className="rounded-full bg-[#eaf2f8] px-3 py-1 font-mono text-[11px] text-[#43546a]">
           {Math.floor(messages.length / 2)}/4 lượt
         </span>
       </div>
@@ -5527,8 +5435,8 @@ function CoachFollowUpPanel({
                 key={`${message.role}-${index}`}
                 className={
                   message.role === "user"
-                    ? "ml-auto max-w-[88%] rounded-2xl rounded-br-md bg-[#173f35] px-4 py-3 text-sm leading-6 text-white"
-                    : "max-w-[94%] rounded-2xl rounded-bl-md border border-[#356b58]/15 bg-[#f6faef] px-4 py-4 text-sm leading-6 text-[#465c52]"
+                    ? "ml-auto max-w-[88%] rounded-2xl rounded-br-md bg-[#0f3a69] px-4 py-3 text-sm leading-6 text-white"
+                    : "max-w-[94%] rounded-2xl rounded-bl-md border border-[#285f86]/15 bg-[#f8fafc] px-4 py-4 text-sm leading-6 text-[#526276]"
                 }
               >
                 <RichText
@@ -5536,17 +5444,17 @@ function CoachFollowUpPanel({
                   inverted={message.role === "user"}
                 />
                 {message.role === "assistant" && message.model ? (
-                  <span className="mt-3 inline-block rounded-full bg-[#e8efe2] px-2 py-0.5 font-mono text-[10px] text-[#356b58]">
+                  <span className="mt-3 inline-block rounded-full bg-[#eaf2f8] px-2 py-0.5 font-mono text-[10px] text-[#285f86]">
                     {message.model}
                   </span>
                 ) : null}
                 {citedSections.length ? (
-                  <div className="mt-3 flex flex-wrap gap-2 border-t border-[#173f35]/10 pt-3">
+                  <div className="mt-3 flex flex-wrap gap-2 border-t border-[#0f3a69]/10 pt-3">
                     {citedSections.map((section) => (
                       <span
                         key={section.id}
                         title={`#${section.id}`}
-                        className="rounded-full bg-[#e8efe2] px-2.5 py-1 text-[11px] font-semibold text-[#356b58]"
+                        className="rounded-full bg-[#eaf2f8] px-2.5 py-1 text-[11px] font-semibold text-[#285f86]"
                       >
                         Nguồn: {section.heading}
                       </span>
@@ -5554,7 +5462,7 @@ function CoachFollowUpPanel({
                   </div>
                 ) : null}
                 {message.checkQuestion ? (
-                  <p className="mt-3 rounded-xl bg-[#d7ff91]/45 px-3 py-2 text-xs font-semibold text-[#29493d]">
+                  <p className="mt-3 rounded-xl bg-[#65e6d2]/45 px-3 py-2 text-xs font-semibold text-[#285f86]">
                     Tự kiểm tra: <InlineCode text={message.checkQuestion} />
                   </p>
                 ) : null}
@@ -5562,7 +5470,7 @@ function CoachFollowUpPanel({
                   <button
                     type="button"
                     onClick={() => onToggleSaveMessage(index, message)}
-                    className="mt-3 rounded-lg border border-[#356b58]/15 bg-white/60 px-2.5 py-1.5 text-[11px] font-bold text-[#356b58] transition hover:bg-white"
+                    className="mt-3 rounded-lg border border-[#285f86]/15 bg-white/60 px-2.5 py-1.5 text-[11px] font-bold text-[#285f86] transition hover:bg-white"
                   >
                     {isMessageSaved(index) ? "★ Đã lưu" : "☆ Lưu câu trả lời AI"}
                   </button>
@@ -5591,10 +5499,10 @@ function CoachFollowUpPanel({
           rows={3}
           disabled={loading || limitReached}
           placeholder="Ví dụ: Tại sao chỗ này lại là hành vi không xác định (undefined behavior)? Có thể giải thích bằng ví dụ nhỏ không?"
-          className="w-full resize-y rounded-2xl border border-[#173f35]/18 bg-white px-4 py-3 text-sm leading-6 text-[#1e352d] outline-none transition placeholder:text-[#819087] focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/45 disabled:bg-[#edf1ea]"
+          className="w-full resize-y rounded-2xl border border-[#0f3a69]/18 bg-white px-4 py-3 text-sm leading-6 text-[#172033] outline-none transition placeholder:text-[#718096] focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/45 disabled:bg-[#eaf2f8]"
         />
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs text-[#78867f]">
+          <p className="text-xs text-[#718096]">
             {limitReached
               ? "Đã đủ 4 lượt. Chấm lại để bắt đầu hội thoại mới."
               : "Enter để xuống dòng · tối đa 2.000 ký tự"}
@@ -5602,13 +5510,13 @@ function CoachFollowUpPanel({
           <button
             type="submit"
             disabled={!input.trim() || loading || limitReached}
-            className="rounded-xl bg-[#173f35] px-5 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#d7ff91] focus:outline-none"
+            className="rounded-xl bg-[#0f3a69] px-5 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
           >
             {loading ? "AI đang giải thích…" : "Hỏi tiếp AI"}
           </button>
         </div>
         {error ? (
-          <p className="mt-3 rounded-xl bg-[#f8e8df] px-3 py-2 text-sm text-[#8e3825]" role="alert">
+          <p className="mt-3 rounded-xl bg-[#fff1f1] px-3 py-2 text-sm text-[#c43d3d]" role="alert">
             {error}
           </p>
         ) : null}
@@ -5621,8 +5529,8 @@ function SourceNotes({ question }: { question: PracticeQuestion }) {
   return (
     <div className="mt-4 space-y-3">
       {question.sourceSections.map((section) => (
-        <div key={section.id} className="rounded-2xl bg-[#102d26] p-5 text-[#e8f4ec]">
-          <p className="font-mono text-xs text-[#d7ff91]">#{section.id}</p>
+        <div key={section.id} className="rounded-2xl bg-[#092c51] p-5 text-[#e6f8f5]">
+          <p className="font-mono text-xs text-[#65e6d2]">#{section.id}</p>
           <p className="mt-2 font-semibold">{section.heading}</p>
           <p className="mt-3 whitespace-pre-line text-sm leading-6 text-white/70">
             {section.excerpt}
@@ -5650,7 +5558,7 @@ function SavedItemsControl({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="rounded-full border border-[#173f35]/15 bg-white/55 px-3 py-2 text-xs font-bold transition hover:bg-white"
+        className="rounded-full border border-[#0f3a69]/15 bg-white/55 px-3 py-2 text-xs font-bold transition hover:bg-white"
       >
         ☆ Đã lưu {items.length ? `(${items.length})` : ""}
       </button>
@@ -5681,20 +5589,20 @@ function SavedLibrary({
   onOpenQuestion: (questionId: string) => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-[#102d26]/35 p-3 backdrop-blur-sm sm:p-5" role="presentation">
+    <div className="fixed inset-0 z-50 flex justify-end bg-[#092c51]/35 p-3 backdrop-blur-sm sm:p-5" role="presentation">
       <aside
         role="dialog"
         aria-modal="true"
         aria-label="Nội dung đã lưu"
-        className="flex h-full w-full max-w-xl flex-col overflow-hidden rounded-[2rem] border border-white/35 bg-[#f7f5ed] shadow-2xl"
+        className="flex h-full w-full max-w-xl flex-col overflow-hidden rounded-[1.25rem] border border-white/35 bg-[#f8fafc] shadow-2xl"
       >
-        <header className="flex items-start justify-between gap-4 border-b border-[#173f35]/12 p-5 sm:p-7">
+        <header className="flex items-start justify-between gap-4 border-b border-[#0f3a69]/12 p-5 sm:p-7">
           <div>
-            <p className="font-mono text-xs font-bold tracking-[0.15em] text-[#ba4b2f] uppercase">
+            <p className="font-mono text-xs font-bold tracking-[0.15em] text-[#a65c0e] uppercase">
               Nội dung đã lưu
             </p>
             <h2 className="mt-2 text-2xl font-semibold">Nội dung đáng xem lại</h2>
-            <p className="mt-2 text-sm text-[#64736c]">
+            <p className="mt-2 text-sm text-[#526276]">
               {items.length} mục · lưu trên trình duyệt này
             </p>
           </div>
@@ -5702,7 +5610,7 @@ function SavedLibrary({
             type="button"
             onClick={onClose}
             aria-label="Đóng danh sách đã lưu"
-            className="grid size-10 shrink-0 place-items-center rounded-full border border-[#173f35]/15 bg-white text-lg font-bold"
+            className="grid size-10 shrink-0 place-items-center rounded-full border border-[#0f3a69]/15 bg-white text-lg font-bold"
           >
             ×
           </button>
@@ -5718,7 +5626,7 @@ function SavedLibrary({
             />
           ))}
           {!items.length ? (
-            <div className="rounded-2xl border border-dashed border-[#173f35]/20 px-5 py-12 text-center text-sm leading-6 text-[#64736c]">
+            <div className="rounded-2xl border border-dashed border-[#0f3a69]/20 px-5 py-12 text-center text-sm leading-6 text-[#526276]">
               Chưa lưu gì. Dùng nút ☆ ở câu hỏi hoặc phản hồi AI mà bạn thấy
               đáng xem lại.
             </div>
@@ -5741,31 +5649,31 @@ function SavedLibraryItem({
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <article className="rounded-2xl border border-[#173f35]/12 bg-white/75 p-4">
+    <article className="rounded-2xl border border-[#0f3a69]/12 bg-white/75 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className={`rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase ${item.kind === "question" ? "bg-[#d7ff91] text-[#356b58]" : "bg-[#e3ddff] text-[#55468c]"}`}>
+        <span className={`rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase ${item.kind === "question" ? "bg-[#65e6d2] text-[#285f86]" : "bg-[#e3ddff] text-[#55468c]"}`}>
           {item.kind === "question" ? "Câu hỏi" : "AI trả lời"}
         </span>
-        <time className="font-mono text-[10px] text-[#78867f]">
+        <time className="font-mono text-[10px] text-[#718096]">
           {new Date(item.savedAt).toLocaleDateString("vi-VN")}
         </time>
       </div>
       <h3 className="mt-3 font-semibold">{item.title}</h3>
       {item.context ? (
-        <p className="mt-2 line-clamp-3 text-xs leading-5 text-[#718078]">
+        <p className="mt-2 line-clamp-3 text-xs leading-5 text-[#64748b]">
           <InlineCode text={item.context} />
         </p>
       ) : null}
       <details
-        className="group mt-3 rounded-xl bg-[#f2f4ed] px-3 py-2.5"
+        className="group mt-3 rounded-xl bg-[#f8fafc] px-3 py-2.5"
         onToggle={(event) => setExpanded(event.currentTarget.open)}
       >
-        <summary className="cursor-pointer list-none text-xs font-bold text-[#356b58]">
+        <summary className="cursor-pointer list-none text-xs font-bold text-[#285f86]">
           <span className="group-open:hidden">Xem nội dung ↓</span>
           <span className="hidden group-open:inline">Thu gọn ↑</span>
         </summary>
         {expanded ? (
-          <div className="mt-3 text-sm leading-6 text-[#465c52]">
+          <div className="mt-3 text-sm leading-6 text-[#526276]">
             <RichText text={item.content} />
           </div>
         ) : null}
@@ -5774,14 +5682,14 @@ function SavedLibraryItem({
         <button
           type="button"
           onClick={() => onOpenQuestion(item.questionId)}
-          className="rounded-lg border border-[#356b58]/18 bg-white px-3 py-2 text-xs font-bold text-[#356b58]"
+          className="rounded-lg border border-[#285f86]/18 bg-white px-3 py-2 text-xs font-bold text-[#285f86]"
         >
           Mở câu gốc
         </button>
         <button
           type="button"
           onClick={() => onRemove(item.id)}
-          className="rounded-lg px-3 py-2 text-xs font-bold text-[#a0442d] hover:bg-[#f8e8df]"
+          className="rounded-lg px-3 py-2 text-xs font-bold text-[#a0442d] hover:bg-[#fff1f1]"
         >
           Bỏ lưu
         </button>

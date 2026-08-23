@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 type LandingPageProps = {
   authNotice: string | null;
@@ -38,7 +39,7 @@ export function RecallLandingPage({
   cloudEnabled,
 }: LandingPageProps) {
   return (
-    <main data-recall-landing className="min-h-screen overflow-x-hidden">
+    <main data-recall-landing className="ui-landing-background min-h-screen overflow-x-hidden">
       <div className="ui-page-width px-4 py-5 sm:px-7 lg:px-10">
         <header className="ui-app-header flex flex-wrap items-center justify-between gap-x-4 gap-y-3 px-4 py-3 sm:px-5">
           <Link
@@ -47,9 +48,15 @@ export function RecallLandingPage({
             title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
-            <span className="grid size-10 place-items-center rounded-xl bg-[color:var(--pine)] font-mono text-sm font-bold text-[color:var(--accent)]">
-              CI
-            </span>
+            <Image
+              src="/icon.svg"
+              alt=""
+              aria-hidden="true"
+              width={40}
+              height={40}
+              unoptimized
+              className="size-10 rounded-xl"
+            />
             <span>
               <span className="block text-base font-bold tracking-[-0.025em] sm:text-lg">cppinterview</span>
               <span className="block text-xs text-[color:var(--ink-muted)]">
@@ -61,7 +68,7 @@ export function RecallLandingPage({
           <div className="flex items-center gap-2">
             <Link
               href="/learn"
-              className="hidden rounded-xl px-4 py-2 text-sm font-bold text-[#52645c] transition hover:bg-white/65 hover:text-[#173f35] sm:inline-flex"
+              className="hidden rounded-xl px-4 py-2 text-sm font-bold text-[color:var(--ink-subtle)] transition hover:bg-[color:var(--surface-muted)] hover:text-[color:var(--pine)] sm:inline-flex"
             >
               Thư viện
             </Link>
@@ -83,7 +90,7 @@ export function RecallLandingPage({
         {authNotice ? (
           <p
             role="alert"
-            className="mt-5 rounded-2xl border border-[#ba4b2f]/20 bg-[#fff1e8] px-5 py-4 text-sm font-semibold text-[#8e3825]"
+            className="mt-5 rounded-2xl border border-[#a65c0e]/20 bg-[#fff1f1] px-5 py-4 text-sm font-semibold text-[#c43d3d]"
           >
             {authNotice}
           </p>
@@ -92,7 +99,7 @@ export function RecallLandingPage({
         <section className="grid gap-10 pb-16 pt-16 lg:grid-cols-[minmax(0,1.04fr)_minmax(25rem,.96fr)] lg:items-center lg:gap-14 lg:pb-24 lg:pt-24">
           <div>
             <p className="ui-panel-label flex items-center gap-2 text-[color:var(--success)]">
-              <span aria-hidden="true" className="size-1.5 rounded-full bg-[#79b82a]" />
+              <span aria-hidden="true" className="size-1.5 rounded-full bg-[#138f8c]" />
               Luyện phỏng vấn C++
             </p>
             <h1 className="mt-5 max-w-4xl text-balance text-5xl font-semibold tracking-[-0.055em] text-[color:var(--foreground)] sm:text-6xl lg:text-7xl">
@@ -125,8 +132,8 @@ export function RecallLandingPage({
           </div>
 
           <div className="relative isolate">
-            <div aria-hidden="true" className="absolute -inset-5 -z-10 rounded-[2rem] bg-[#c9fa79]/30 blur-3xl" />
-            <div className="overflow-hidden rounded-[1.7rem] border border-white/10 bg-[color:var(--pine)] text-white shadow-[var(--shadow-lift)]">
+            <div aria-hidden="true" className="absolute -inset-5 -z-10 rounded-[1.25rem] bg-[color:var(--accent)]/24 blur-3xl" />
+            <div className="overflow-hidden rounded-[1.25rem] border border-white/10 bg-[color:var(--pine)] text-white shadow-[var(--shadow-lift)]">
               <div className="flex items-center justify-between border-b border-white/10 px-5 py-4 sm:px-7">
                 <span className="ui-panel-label text-[color:var(--accent)]">Phiên học hôm nay</span>
                 <span className="font-mono text-xs text-white/60">01 / 07</span>
@@ -136,7 +143,7 @@ export function RecallLandingPage({
                 <h2 className="mt-3 text-balance text-2xl font-semibold leading-tight tracking-[-0.03em] sm:text-3xl">
                   Khi nào dùng reference, khi nào dùng pointer trong API C++?
                 </h2>
-                <div className="mt-7 rounded-xl border border-white/10 bg-black/12 p-4 font-mono text-sm leading-7 text-[#dff0e8]">
+                <div className="mt-7 rounded-xl border border-white/10 bg-black/12 p-4 font-mono text-sm leading-7 text-[#e6f8f5]">
                   <p className="text-white/45">Câu trả lời của bạn</p>
                   <p className="mt-3">Reference biểu đạt đối tượng luôn tồn tại; pointer phù hợp khi…</p>
                   <span className="mt-3 block h-px w-4/5 bg-white/15" />
@@ -152,10 +159,10 @@ export function RecallLandingPage({
           </div>
         </section>
 
-        <section id="features" className="border-t border-[#173f35]/12 py-12 lg:py-16">
+        <section id="features" className="border-t border-[color:var(--border-subtle)] py-12 lg:py-16">
           <div className="flex flex-wrap items-end justify-between gap-5">
             <div>
-              <p className="ui-eyebrow text-[#ba4b2f]">
+              <p className="ui-eyebrow text-[#a65c0e]">
                 Một vòng học có chủ đích
               </p>
               <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -164,7 +171,7 @@ export function RecallLandingPage({
             </div>
             <Link
               href="/mock-interview"
-              className="rounded-xl px-4 py-2 text-sm font-bold text-[#356b58] transition hover:bg-white/65"
+              className="rounded-xl px-4 py-2 text-sm font-bold text-[color:var(--pine)] transition hover:bg-[color:var(--surface-muted)]"
             >
               Xem phòng phỏng vấn thử →
             </Link>
@@ -175,13 +182,13 @@ export function RecallLandingPage({
                 key={item.number}
                 className="group border-t border-[color:var(--border-subtle)] py-6 first:border-t-0 first:pt-0 md:border-t-0 md:border-l md:px-0 md:py-0 md:pl-5 md:first:border-l-0 md:first:pl-0"
               >
-                <span className="ui-panel-label text-[#ba4b2f]">
+                <span className="ui-panel-label text-[#a65c0e]">
                   {item.number}
                 </span>
-                <h3 className="mt-5 text-xl font-semibold tracking-[-0.025em] group-hover:text-[#356b58]">
+                <h3 className="mt-5 text-xl font-semibold tracking-[-0.025em] group-hover:text-[color:var(--pine)]">
                   {item.title}
                 </h3>
-                <p className="mt-3 leading-7 text-[#64736c]">
+                <p className="mt-3 leading-7 text-[color:var(--ink-muted)]">
                   {item.description}
                 </p>
               </article>
@@ -189,7 +196,7 @@ export function RecallLandingPage({
           </div>
         </section>
 
-        <section className="grid overflow-hidden rounded-[1.7rem] border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] pb-0 lg:grid-cols-[.82fr_1.18fr] lg:pb-0">
+        <section className="grid overflow-hidden rounded-[1.25rem] border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] pb-0 lg:grid-cols-[.82fr_1.18fr] lg:pb-0">
           <div className="bg-[color:var(--pine)] p-7 text-white sm:p-9">
             <p className="ui-panel-label text-[color:var(--accent)]">
               Ngân hàng được quản lý kỹ
@@ -204,7 +211,7 @@ export function RecallLandingPage({
             </p>
             <Link
               href="/learn"
-              className="mt-7 inline-flex min-h-11 items-center rounded-xl bg-[color:var(--accent)] px-4 py-2 text-sm font-bold text-[color:var(--pine-strong)] transition hover:bg-[#e1ffac] focus-visible:ring-4 focus-visible:ring-white/30 focus-visible:outline-none"
+              className="mt-7 inline-flex min-h-11 items-center rounded-xl bg-[color:var(--accent)] px-4 py-2 text-sm font-bold text-[color:var(--pine-strong)] transition hover:bg-[#8eebdc] focus-visible:ring-4 focus-visible:ring-white/30 focus-visible:outline-none"
             >
               Khám phá thư viện
             </Link>
@@ -216,12 +223,12 @@ export function RecallLandingPage({
                 key={number}
                 className="flex gap-4 bg-[color:var(--surface-raised)] p-6 sm:p-7"
               >
-                <span className="ui-panel-label text-[#ba4b2f]">
+                <span className="ui-panel-label text-[#a65c0e]">
                   {number}
                 </span>
                 <div>
                   <h3 className="font-semibold">{title}</h3>
-                  <p className="mt-1 text-sm leading-6 text-[#64736c]">
+                  <p className="mt-1 text-sm leading-6 text-[color:var(--ink-muted)]">
                     {description}
                   </p>
                 </div>
@@ -248,7 +255,7 @@ function AuthLink({
 }) {
   const className =
     tone === "quiet"
-      ? "inline-flex min-h-11 items-center justify-center rounded-xl px-3 py-2 text-sm font-bold text-[#356b58] transition hover:bg-white/65 focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none sm:px-4"
+      ? "inline-flex min-h-11 items-center justify-center rounded-xl px-3 py-2 text-sm font-bold text-[color:var(--pine)] transition hover:bg-[color:var(--surface-muted)] focus-visible:ring-4 focus-visible:ring-[color:var(--focus-ring)] focus-visible:outline-none sm:px-4"
       : tone === "hero"
         ? "ui-action-primary min-h-12 px-5 focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none"
         : "ui-action-primary min-h-11 px-3 focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none sm:px-4";

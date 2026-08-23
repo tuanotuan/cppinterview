@@ -126,19 +126,19 @@ export function TickReplayLab({
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
       <div className="mx-auto max-w-[1380px]">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
+        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#0f3a69]/15 pb-5">
           <Link
             href="/"
             aria-label="Về trang chủ cppinterview"
             title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
+            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
               TR
             </span>
             <span>
               <span className="block font-bold">Tick Replay Lab</span>
-              <span className="block text-xs text-[#64736c]">
+              <span className="block text-xs text-[#526276]">
                 Phát lại dữ liệu xác định
               </span>
             </span>
@@ -153,8 +153,8 @@ export function TickReplayLab({
           </nav>
         </header>
 
-        <section className="mt-7 overflow-hidden rounded-[2.25rem] bg-[#173f35] p-6 text-white shadow-[0_24px_90px_rgb(23_63_53_/_16%)] sm:p-9">
-          <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#d7ff91] uppercase">
+        <section className="mt-7 overflow-hidden rounded-[1.25rem] bg-[#0f3a69] p-6 text-white shadow-[0_24px_90px_rgb(15_58_105_/_16%)] sm:p-9">
+          <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#65e6d2] uppercase">
             Lab thực hành · {completedIds.size}/{tickReplayScenarios.length} tình huống
           </p>
           <div className="mt-4 grid gap-7 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-end">
@@ -169,7 +169,7 @@ export function TickReplayLab({
               </p>
             </div>
             <div className="rounded-2xl bg-white/10 p-4 text-sm leading-6 text-white/72">
-              <strong className="block text-[#d7ff91]">
+              <strong className="block text-[#65e6d2]">
                 Đây là bài mô phỏng xác định
               </strong>
               Kết quả chứng minh bạn đã luyện quy trình, không tự động xác nhận
@@ -179,14 +179,14 @@ export function TickReplayLab({
         </section>
 
         {storageNotice ? (
-          <p role="status" className="mt-5 rounded-2xl border border-[#ba4b2f]/20 bg-[#f8e8df] px-4 py-3 text-sm text-[#8e3825]">
+          <p role="status" className="mt-5 rounded-2xl border border-[#a65c0e]/20 bg-[#fff1f1] px-4 py-3 text-sm text-[#c43d3d]">
             {storageNotice}
           </p>
         ) : null}
 
         <section className="mt-7 grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-          <aside className="h-fit rounded-[1.75rem] border border-[#173f35]/12 bg-white/60 p-3 lg:sticky lg:top-5">
-            <p className="px-3 py-2 font-mono text-[10px] font-bold tracking-[0.16em] text-[#64736c] uppercase">
+          <aside className="h-fit rounded-2xl border border-[#0f3a69]/12 bg-white/60 p-3 lg:sticky lg:top-5">
+            <p className="px-3 py-2 font-mono text-[10px] font-bold tracking-[0.16em] text-[#526276] uppercase">
               Tình huống
             </p>
             <div className="space-y-2">
@@ -198,9 +198,9 @@ export function TickReplayLab({
                     key={item.id}
                     type="button"
                     onClick={() => openScenario(item.id)}
-                    className={`w-full rounded-2xl px-4 py-3 text-left transition focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none ${
+                    className={`w-full rounded-2xl px-4 py-3 text-left transition focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none ${
                       active
-                        ? "bg-[#173f35] text-white"
+                        ? "bg-[#0f3a69] text-white"
                         : "bg-white/65 hover:bg-white"
                     }`}
                   >
@@ -217,14 +217,14 @@ export function TickReplayLab({
           </aside>
 
           <div className="min-w-0">
-            <section className="rounded-[2rem] border border-[#173f35]/12 bg-white/65 p-5 shadow-[0_18px_70px_rgb(23_63_53_/_7%)] sm:p-8">
-              <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
+            <section className="rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/65 p-5 shadow-[0_18px_70px_rgb(15_58_105_/_7%)] sm:p-8">
+              <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#a65c0e] uppercase">
                 {scenario.title}
               </p>
               <h2 className="mt-3 text-3xl font-semibold tracking-tight">
                 Quyết định như bộ xử lý feed production
               </h2>
-              <p className="mt-3 max-w-3xl leading-7 text-[#64736c]">
+              <p className="mt-3 max-w-3xl leading-7 text-[#526276]">
                 {scenario.summary}
               </p>
 
@@ -232,7 +232,7 @@ export function TickReplayLab({
                 {scenario.events.map((event, index) => (
                   <fieldset
                     key={event.id}
-                    className="rounded-2xl border border-[#173f35]/10 bg-[#f8faf5] p-4 sm:p-5"
+                    className="rounded-2xl border border-[#0f3a69]/10 bg-[#f8fafc] p-4 sm:p-5"
                   >
                     <legend className="px-2 text-sm font-bold">
                       {index + 1}. {event.label}
@@ -243,8 +243,8 @@ export function TickReplayLab({
                           key={action}
                           className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border px-3 py-2 text-sm transition ${
                             selections[event.id] === action
-                              ? "border-[#356b58] bg-[#eaf8cf] text-[#245748]"
-                              : "border-[#173f35]/10 bg-white hover:border-[#356b58]/35"
+                              ? "border-[#285f86] bg-[#e6f8f5] text-[#16865a]"
+                              : "border-[#0f3a69]/10 bg-white hover:border-[#285f86]/35"
                           }`}
                         >
                           <input
@@ -277,11 +277,11 @@ export function TickReplayLab({
                   disabled={scenario.events.some(
                     (event) => !selections[event.id],
                   )}
-                  className="min-h-12 rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"
+                  className="min-h-12 rounded-xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Nộp và chạy phát lại
                 </button>
-                <span className="text-xs text-[#64736c]">
+                <span className="text-xs text-[#526276]">
                   {Object.keys(selections).length}/{scenario.events.length} quyết định
                 </span>
               </div>
@@ -290,10 +290,10 @@ export function TickReplayLab({
             {grade ? (
               <section
                 aria-live="polite"
-                className={`mt-5 rounded-[2rem] border p-5 sm:p-7 ${
+                className={`mt-5 rounded-[1.25rem] border p-5 sm:p-7 ${
                   grade.passed
-                    ? "border-[#79b82a]/30 bg-[#eaf8cf]"
-                    : "border-[#ba4b2f]/20 bg-[#f8e8df]"
+                    ? "border-[#138f8c]/30 bg-[#e6f8f5]"
+                    : "border-[#a65c0e]/20 bg-[#fff1f1]"
                 }`}
               >
                 <h2 className="text-2xl font-semibold">
@@ -304,27 +304,27 @@ export function TickReplayLab({
                 <ul className="mt-5 space-y-3">
                   {grade.checks.map((check) => (
                     <li key={check.id} className="flex gap-3 text-sm leading-6">
-                      <span className={check.passed ? "text-[#579318]" : "text-[#ba4b2f]"}>
+                      <span className={check.passed ? "text-[#579318]" : "text-[#a65c0e]"}>
                         {check.passed ? "✓" : "×"}
                       </span>
                       <span>
                         <strong>{check.label}</strong>
-                        <span className="block text-[#64736c]">
+                        <span className="block text-[#526276]">
                           {check.message}
                         </span>
                       </span>
                     </li>
                   ))}
                 </ul>
-                <p className="mt-5 break-all rounded-xl bg-white/55 p-3 font-mono text-[10px] text-[#52645c]">
+                <p className="mt-5 break-all rounded-xl bg-white/55 p-3 font-mono text-[10px] text-[#43546a]">
                   Chữ ký trạng thái: {grade.signature}
                 </p>
               </section>
             ) : null}
 
             {completedIds.size === tickReplayScenarios.length ? (
-              <section className="mt-5 rounded-[2rem] border border-[#356b58]/20 bg-[#173f35] p-6 text-white">
-                <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
+              <section className="mt-5 rounded-[1.25rem] border border-[#285f86]/20 bg-[#0f3a69] p-6 text-white">
+                <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#65e6d2] uppercase">
                   Hoàn tất Tick Replay Lab
                 </p>
                 <h2 className="mt-3 text-2xl font-semibold">
@@ -332,7 +332,7 @@ export function TickReplayLab({
                 </h2>
                 <Link
                   href="/mock-interview?mode=targeted&focus=tick_market_data"
-                  className="mt-5 inline-flex min-h-11 items-center rounded-xl bg-[#d7ff91] px-4 py-2 text-sm font-bold text-[#173f35]"
+                  className="mt-5 inline-flex min-h-11 items-center rounded-xl bg-[#65e6d2] px-4 py-2 text-sm font-bold text-[#0f3a69]"
                 >
                   Luyện câu C++ dữ liệu tick
                 </Link>

@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 const codeClass =
-  "overflow-x-auto rounded-2xl border border-white/10 bg-[#0b241d] p-5 font-mono text-[13px] leading-7 text-[#dcebe3] shadow-[0_18px_50px_rgba(11,36,29,0.16)]";
+  "overflow-x-auto rounded-2xl border border-white/10 bg-[#092c51] p-5 font-mono text-[13px] leading-7 text-[#dcebe3] shadow-[0_18px_50px_rgba(11,36,29,0.16)]";
 
 export default function TickDataOrderBookGuide() {
   return (
@@ -21,15 +21,15 @@ export default function TickDataOrderBookGuide() {
       <div className="mx-auto max-w-[1380px]">
         <GuideHeader />
 
-        <section className="relative mt-7 min-w-0 overflow-hidden rounded-[2.25rem] border border-[#173f35]/15 bg-[#173f35] px-6 py-8 text-white shadow-[0_24px_90px_rgba(23,63,53,0.16)] sm:px-10 sm:py-11 lg:grid lg:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)] lg:gap-12">
+        <section className="relative mt-7 min-w-0 overflow-hidden rounded-[1.25rem] border border-[#0f3a69]/15 bg-[#0f3a69] px-6 py-8 text-white shadow-[0_24px_90px_rgba(15,58,105,0.16)] sm:px-10 sm:py-11 lg:grid lg:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)] lg:gap-12">
           <div className="relative z-10 min-w-0">
-            <p className="font-mono text-[11px] font-bold tracking-[0.2em] text-[#d7ff91] uppercase">
+            <p className="font-mono text-[11px] font-bold tracking-[0.2em] text-[#65e6d2] uppercase">
               Nền tảng dữ liệu thị trường
             </p>
             <h1 className="mt-5 max-w-4xl text-4xl font-semibold tracking-[-0.045em] text-balance sm:text-6xl lg:text-7xl">
               Dữ liệu tick và
               <span className="block sm:inline"> Sổ lệnh</span>
-              <span className="block text-[#d7ff91]">từ số 0.</span>
+              <span className="block text-[#65e6d2]">từ số 0.</span>
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-white/72 sm:text-lg">
               Bài này dành cho người đã biết C++ nhưng chưa biết về giao dịch.
@@ -48,13 +48,13 @@ export default function TickDataOrderBookGuide() {
             <div className="mt-8 flex min-w-0 flex-wrap gap-3">
               <a
                 href="#market-first-principles"
-                className="w-full rounded-2xl bg-[#d7ff91] px-5 py-3 text-center text-sm font-bold text-[#173f35] transition hover:bg-white sm:w-auto"
+                className="w-full rounded-2xl bg-[#65e6d2] px-5 py-3 text-center text-sm font-bold text-[#0f3a69] transition hover:bg-white sm:w-auto"
               >
                 Bắt đầu từ giá mua / giá bán ↓
               </a>
               <Link
                 href="/mock-interview"
-                className="w-full rounded-2xl border border-[#d7ff91]/35 bg-[#d7ff91]/10 px-5 py-3 text-center text-sm font-bold text-[#d7ff91] transition hover:bg-[#d7ff91]/18 sm:w-auto"
+                className="w-full rounded-2xl border border-[#65e6d2]/35 bg-[#65e6d2]/10 px-5 py-3 text-center text-sm font-bold text-[#65e6d2] transition hover:bg-[#65e6d2]/18 sm:w-auto"
               >
                 Thử câu hỏi tình huống
               </Link>
@@ -73,17 +73,17 @@ export default function TickDataOrderBookGuide() {
 
           <div
             aria-hidden="true"
-            className="absolute -right-24 -bottom-32 size-96 rounded-full bg-[#d7ff91]/10 blur-3xl"
+            className="absolute -right-24 -bottom-32 size-96 rounded-full bg-[#65e6d2]/10 blur-3xl"
           />
         </section>
 
-        <section className="mt-5 rounded-3xl border border-[#ba4b2f]/20 bg-[#fff4df] p-5 sm:p-6">
+        <section className="mt-5 rounded-[1.25rem] border border-[#a65c0e]/20 bg-[#fff4df] p-5 sm:p-6">
           <div className="flex items-start gap-4">
-            <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-[#ba4b2f] font-mono text-sm font-bold text-white">
+            <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-[#a65c0e] font-mono text-sm font-bold text-white">
               !
             </span>
             <div>
-              <h2 className="font-bold text-[#8e3825]">
+              <h2 className="font-bold text-[#c43d3d]">
                 Đọc đặc tả của sở giao dịch trước khi tổng quát hóa
               </h2>
               <p className="mt-2 max-w-5xl text-sm leading-7 text-[#71574a]">
@@ -149,8 +149,8 @@ export default function TickDataOrderBookGuide() {
                 quan nhưng không giống nhau.
               </p>
 
-              <div className="my-7 overflow-hidden rounded-2xl border border-[#173f35]/12 bg-white/65">
-                <div className="grid grid-cols-[112px_minmax(0,1fr)_minmax(0,1fr)] border-b border-[#173f35]/10 bg-[#edf0e8] px-4 py-3 font-mono text-[10px] font-bold tracking-wide uppercase">
+              <div className="my-7 overflow-hidden rounded-2xl border border-[#0f3a69]/12 bg-white/65">
+                <div className="grid grid-cols-[112px_minmax(0,1fr)_minmax(0,1fr)] border-b border-[#0f3a69]/10 bg-[#eaf2f8] px-4 py-3 font-mono text-[10px] font-bold tracking-wide uppercase">
                   <span>Sự kiện</span>
                   <span>Sổ lệnh sau sự kiện</span>
                   <span>Lịch sử giao dịch</span>
@@ -197,9 +197,9 @@ export default function TickDataOrderBookGuide() {
 
               <PipelineDiagram />
 
-              <div className="my-7 overflow-x-auto rounded-2xl border border-[#173f35]/12 bg-white/65">
+              <div className="my-7 overflow-x-auto rounded-2xl border border-[#0f3a69]/12 bg-white/65">
                 <table className="w-full min-w-[700px] border-collapse text-left text-sm">
-                  <thead className="bg-[#edf0e8] font-mono text-[10px] tracking-wide uppercase">
+                  <thead className="bg-[#eaf2f8] font-mono text-[10px] tracking-wide uppercase">
                     <tr>
                       <th className="px-4 py-3">Sự kiện</th>
                       <th className="px-4 py-3">Sổ lệnh</th>
@@ -305,8 +305,8 @@ std::visit(EventRouter{book, tape, session}, event);`}</code>
                 />
               </div>
 
-              <div className="rounded-2xl border border-[#173f35]/12 bg-[#edf0e8] p-5">
-                <p className="font-mono text-[10px] font-bold tracking-wide text-[#356b58] uppercase">
+              <div className="rounded-2xl border border-[#0f3a69]/12 bg-[#eaf2f8] p-5">
+                <p className="font-mono text-[10px] font-bold tracking-wide text-[#285f86] uppercase">
                   Danh sách kiểm tra bộ phân tích
                 </p>
                 <ol className="mt-4 grid gap-3 text-sm leading-6 sm:grid-cols-2">
@@ -319,7 +319,7 @@ std::visit(EventRouter{book, tape, session}, event);`}</code>
                     "Số thứ tự và dấu thời gian đã được gắn chưa?",
                   ].map((item, index) => (
                     <li key={item} className="flex gap-3">
-                      <span className="font-mono text-xs font-bold text-[#ba4b2f]">
+                      <span className="font-mono text-xs font-bold text-[#a65c0e]">
                         {String(index + 1).padStart(2, "0")}
                       </span>
                       <span>{item}</span>
@@ -414,7 +414,7 @@ std::visit(EventRouter{book, tape, session}, event);`}</code>
                 ].map((item) => (
                   <div
                     key={item}
-                    className="flex gap-3 rounded-2xl border border-[#173f35]/10 bg-white/60 p-4 text-sm leading-6"
+                    className="flex gap-3 rounded-2xl border border-[#0f3a69]/10 bg-white/60 p-4 text-sm leading-6"
                   >
                     <span className="text-[#65a30d]">✓</span>
                     <span>{item}</span>
@@ -439,8 +439,8 @@ std::visit(EventRouter{book, tape, session}, event);`}</code>
                 từng công cụ tài chính, không nên viết cố định cho toàn kênh.
               </KeyPoint>
 
-              <div className="my-7 rounded-2xl border border-[#ba4b2f]/18 bg-[#fff4df] p-5 text-sm leading-7 text-[#71574a]">
-                <strong className="text-[#8e3825]">
+              <div className="my-7 rounded-2xl border border-[#a65c0e]/18 bg-[#fff4df] p-5 text-sm leading-7 text-[#71574a]">
+                <strong className="text-[#c43d3d]">
                   Ngoại lệ đáng biết:
                 </strong>{" "}
                 Sổ lệnh thông thường lấy giá mua cao nhất và giá bán thấp nhất,
@@ -510,9 +510,9 @@ std::visit(EventRouter{book, tape, session}, event);`}</code>
                 ].map((item, index) => (
                   <li
                     key={item}
-                    className="flex gap-4 rounded-2xl border border-[#173f35]/10 bg-white/60 p-4 text-sm leading-6"
+                    className="flex gap-4 rounded-2xl border border-[#0f3a69]/10 bg-white/60 p-4 text-sm leading-6"
                   >
-                    <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#173f35] font-mono text-[10px] font-bold text-[#d7ff91]">
+                    <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#0f3a69] font-mono text-[10px] font-bold text-[#65e6d2]">
                       {index + 1}
                     </span>
                     <span>{item}</span>
@@ -550,8 +550,8 @@ std::visit(EventRouter{book, tape, session}, event);`}</code>
                 liệu không đúng thứ tự.
               </p>
 
-              <div className="my-7 overflow-hidden rounded-2xl border border-[#173f35]/12 bg-white/65">
-                <div className="grid grid-cols-[90px_110px_90px_minmax(0,1fr)] border-b border-[#173f35]/10 bg-[#edf0e8] px-4 py-3 font-mono text-[10px] font-bold tracking-wide uppercase">
+              <div className="my-7 overflow-hidden rounded-2xl border border-[#0f3a69]/12 bg-white/65">
+                <div className="grid grid-cols-[90px_110px_90px_minmax(0,1fr)] border-b border-[#0f3a69]/10 bg-[#eaf2f8] px-4 py-3 font-mono text-[10px] font-bold tracking-wide uppercase">
                   <span>Thời gian</span>
                   <span>Giá × lượng</span>
                   <span>Được tính?</span>
@@ -649,21 +649,21 @@ std::visit(EventRouter{book, tape, session}, event);`}</code>
                 ].map(([number, title, body]) => (
                   <div
                     key={number}
-                    className="grid gap-2 rounded-2xl border border-[#173f35]/10 bg-white/65 p-4 sm:grid-cols-[44px_170px_minmax(0,1fr)] sm:items-center"
+                    className="grid gap-2 rounded-2xl border border-[#0f3a69]/10 bg-white/65 p-4 sm:grid-cols-[44px_170px_minmax(0,1fr)] sm:items-center"
                   >
-                    <span className="font-mono text-xs font-bold text-[#ba4b2f]">
+                    <span className="font-mono text-xs font-bold text-[#a65c0e]">
                       {number}
                     </span>
                     <strong>{title}</strong>
-                    <span className="text-sm leading-6 text-[#64736c]">
+                    <span className="text-sm leading-6 text-[#526276]">
                       {body}
                     </span>
                   </div>
                 ))}
               </div>
 
-              <div className="rounded-3xl bg-[#173f35] p-6 text-white sm:p-8">
-                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
+              <div className="rounded-[1.25rem] bg-[#0f3a69] p-6 text-white sm:p-8">
+                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#65e6d2] uppercase">
                   Dự án tổng kết đề xuất
                 </p>
                 <h3 className="mt-3 text-2xl font-semibold text-white">
@@ -687,36 +687,36 @@ std::visit(EventRouter{book, tape, session}, event);`}</code>
                 </ul>
               </div>
 
-              <div className="mt-7 rounded-3xl border border-[#79b82a]/35 bg-[#e8facb] p-6 sm:flex sm:items-center sm:justify-between sm:gap-6">
+              <div className="mt-7 rounded-[1.25rem] border border-[#138f8c]/35 bg-[#d7f7f2] p-6 sm:flex sm:items-center sm:justify-between sm:gap-6">
                 <div>
-                  <p className="font-mono text-[10px] font-bold tracking-wide text-[#526d1f] uppercase">
+                  <p className="font-mono text-[10px] font-bold tracking-wide text-[#0b716f] uppercase">
                     Bước tiếp theo
                   </p>
                   <h3 className="mt-2 text-2xl font-semibold">
                     Giờ bạn đã có nền tảng để đọc 10 câu mới.
                   </h3>
-                  <p className="mt-2 text-sm leading-6 text-[#52645c]">
+                  <p className="mt-2 text-sm leading-6 text-[#43546a]">
                     Mở từng câu, thử trả lời trước rồi mới xem đáp án và tiêu chí
                     chấm.
                   </p>
                 </div>
                 <Link
                   href="/admin#review-queue"
-                  className="mt-5 inline-flex shrink-0 rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white sm:mt-0"
+                  className="mt-5 inline-flex shrink-0 rounded-2xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white sm:mt-0"
                 >
                   Tới danh sách chờ duyệt →
                 </Link>
               </div>
             </GuideSection>
 
-            <section className="scroll-mt-8 border-t border-[#173f35]/15 py-12">
-              <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+            <section className="scroll-mt-8 border-t border-[#0f3a69]/15 py-12">
+              <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
                 Nguồn tham khảo chính
               </p>
               <h2 className="mt-3 text-3xl font-semibold tracking-tight">
                 Nguồn dùng để kiểm chứng bài
               </h2>
-              <p className="mt-3 max-w-3xl leading-7 text-[#64736c]">
+              <p className="mt-3 max-w-3xl leading-7 text-[#526276]">
                 Bài viết diễn giải lại cho người mới; khi triển khai luồng dữ
                 liệu thật, đặc tả của sở giao dịch và phiên bản đang dùng mới là
                 nguồn đáng tin cậy nhất.
@@ -728,15 +728,15 @@ std::visit(EventRouter{book, tape, session}, event);`}</code>
                     href={source.href}
                     target="_blank"
                     rel="noreferrer"
-                    className="group rounded-2xl border border-[#173f35]/12 bg-white/65 p-5 transition hover:-translate-y-0.5 hover:border-[#356b58]/35 hover:bg-white"
+                    className="group rounded-2xl border border-[#0f3a69]/12 bg-white/65 p-5 transition hover:-translate-y-0.5 hover:border-[#285f86]/35 hover:bg-white"
                   >
                     <span className="flex items-center justify-between gap-4 font-bold">
                       {source.label}
-                      <span className="text-[#356b58] transition group-hover:translate-x-0.5">
+                      <span className="text-[#285f86] transition group-hover:translate-x-0.5">
                         ↗
                       </span>
                     </span>
-                    <span className="mt-2 block text-sm leading-6 text-[#64736c]">
+                    <span className="mt-2 block text-sm leading-6 text-[#526276]">
                       {source.description}
                     </span>
                   </a>
@@ -752,19 +752,19 @@ std::visit(EventRouter{book, tape, session}, event);`}</code>
 
 function GuideHeader() {
   return (
-    <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
+    <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#0f3a69]/15 pb-5">
       <Link
         href="/"
         aria-label="Về trang chủ cppinterview"
         title="Về trang chủ cppinterview"
         className="flex items-center gap-3"
       >
-        <span className="grid size-10 place-items-center rounded-xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
+        <span className="grid size-10 place-items-center rounded-xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
           C++
         </span>
         <span>
           <span className="block font-semibold tracking-[-0.02em]">cppinterview</span>
-          <span className="block text-xs text-[#64736c]">Hướng dẫn học</span>
+          <span className="block text-xs text-[#526276]">Hướng dẫn học</span>
         </span>
       </Link>
       <nav className="flex flex-wrap items-center gap-2 text-sm" aria-label="Điều hướng">
@@ -788,7 +788,7 @@ function GuideHeader() {
         </Link>
         <Link
           href="/admin"
-          className="rounded-xl border border-[#173f35]/15 bg-white/65 px-4 py-2 font-bold transition hover:border-[#356b58]/35"
+          className="rounded-xl border border-[#0f3a69]/15 bg-white/65 px-4 py-2 font-bold transition hover:border-[#285f86]/35"
         >
           Quản trị
         </Link>
@@ -807,7 +807,7 @@ function HeroChip({ children }: { children: React.ReactNode }) {
 
 function OrderBookPreview() {
   return (
-    <div className="min-w-0 max-w-full overflow-hidden rounded-3xl border border-white/14 bg-[#0d2d25] shadow-2xl">
+    <div className="min-w-0 max-w-full overflow-hidden rounded-[1.25rem] border border-white/14 bg-[#092c51] shadow-2xl">
       <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
         <div className="flex items-center gap-2">
           <span className="size-2.5 rounded-full bg-[#ef6f56]" />
@@ -826,10 +826,10 @@ function OrderBookPreview() {
         </div>
         <PreviewRow price="100.02" quantity="40" side="ASK" tone="ask" />
         <PreviewRow price="100.01" quantity="30" side="BEST ASK" tone="ask" />
-        <div className="my-3 flex items-center gap-3 text-[9px] text-[#d7ff91]/70">
-          <span className="h-px flex-1 bg-[#d7ff91]/20" />
+        <div className="my-3 flex items-center gap-3 text-[9px] text-[#65e6d2]/70">
+          <span className="h-px flex-1 bg-[#65e6d2]/20" />
           CHÊNH LỆCH 0.01
-          <span className="h-px flex-1 bg-[#d7ff91]/20" />
+          <span className="h-px flex-1 bg-[#65e6d2]/20" />
         </div>
         <PreviewRow price="100.00" quantity="50" side="BEST BID" tone="bid" />
         <PreviewRow price="99.99" quantity="70" side="BID" tone="bid" />
@@ -857,7 +857,7 @@ function PreviewRow({
   return (
     <div
       className={`grid grid-cols-3 rounded-xl px-3 py-2.5 ${
-        tone === "ask" ? "text-[#ffb4a2]" : "text-[#d7ff91]"
+        tone === "ask" ? "text-[#ffb4a2]" : "text-[#65e6d2]"
       }`}
     >
       <span>{price}</span>
@@ -882,22 +882,22 @@ function PreviewMetric({ label, value }: { label: string; value: string }) {
 
 function MobileTableOfContents() {
   return (
-    <details className="group mt-7 overflow-hidden rounded-2xl border border-[#173f35]/15 bg-white/60 xl:hidden">
+    <details className="group mt-7 overflow-hidden rounded-2xl border border-[#0f3a69]/15 bg-white/60 xl:hidden">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-bold">
         <span>Mục lục bài học</span>
-        <span className="text-xs text-[#356b58] group-open:hidden">Mở ↓</span>
-        <span className="hidden text-xs text-[#356b58] group-open:inline">
+        <span className="text-xs text-[#285f86] group-open:hidden">Mở ↓</span>
+        <span className="hidden text-xs text-[#285f86] group-open:inline">
           Thu gọn ↑
         </span>
       </summary>
-      <nav className="grid gap-1 border-t border-[#173f35]/10 p-3 sm:grid-cols-2">
+      <nav className="grid gap-1 border-t border-[#0f3a69]/10 p-3 sm:grid-cols-2">
         {TICK_DATA_GUIDE_CHAPTERS.map((chapter) => (
           <a
             key={chapter.id}
             href={`#${chapter.id}`}
-            className="rounded-xl px-3 py-2.5 text-sm transition hover:bg-[#edf0e8]"
+            className="rounded-xl px-3 py-2.5 text-sm transition hover:bg-[#eaf2f8]"
           >
-            <span className="mr-2 font-mono text-[10px] font-bold text-[#ba4b2f]">
+            <span className="mr-2 font-mono text-[10px] font-bold text-[#a65c0e]">
               {chapter.number}
             </span>
             {chapter.shortTitle}
@@ -910,8 +910,8 @@ function MobileTableOfContents() {
 
 function GuideSidebar() {
   return (
-    <aside className="sticky top-6 hidden rounded-3xl border border-[#173f35]/12 bg-white/55 p-4 xl:block">
-      <p className="px-3 pt-2 font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
+    <aside className="sticky top-6 hidden rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/55 p-4 xl:block">
+      <p className="px-3 pt-2 font-mono text-[10px] font-bold tracking-[0.16em] text-[#285f86] uppercase">
         Lộ trình đọc
       </p>
       <nav className="mt-3 space-y-1" aria-label="Mục lục bài học">
@@ -921,17 +921,17 @@ function GuideSidebar() {
             href={`#${chapter.id}`}
             className="group flex gap-3 rounded-xl px-3 py-2.5 text-sm transition hover:bg-white"
           >
-            <span className="font-mono text-[10px] font-bold text-[#ba4b2f]">
+            <span className="font-mono text-[10px] font-bold text-[#a65c0e]">
               {chapter.number}
             </span>
-            <span className="leading-5 text-[#52645c] group-hover:text-[#17221d]">
+            <span className="leading-5 text-[#43546a] group-hover:text-[#172033]">
               {chapter.shortTitle}
             </span>
           </a>
         ))}
       </nav>
-      <div className="mt-4 rounded-2xl bg-[#173f35] p-4 text-white">
-        <p className="font-mono text-[9px] font-bold tracking-wide text-[#d7ff91] uppercase">
+      <div className="mt-4 rounded-2xl bg-[#0f3a69] p-4 text-white">
+        <p className="font-mono text-[9px] font-bold tracking-wide text-[#65e6d2] uppercase">
           Nguyên tắc vàng
         </p>
         <p className="mt-2 text-xs leading-6 text-white/70">
@@ -960,21 +960,21 @@ function GuideSection({
   return (
     <section
       id={id}
-      className="scroll-mt-6 border-t border-[#173f35]/15 py-12 first:border-t-0 first:pt-0"
+      className="scroll-mt-6 border-t border-[#0f3a69]/15 py-12 first:border-t-0 first:pt-0"
     >
       <div className="flex items-center gap-3">
-        <span className="grid size-9 place-items-center rounded-xl bg-[#173f35] font-mono text-[10px] font-bold text-[#d7ff91]">
+        <span className="grid size-9 place-items-center rounded-xl bg-[#0f3a69] font-mono text-[10px] font-bold text-[#65e6d2]">
           {number}
         </span>
-        <p className="font-mono text-[10px] font-bold tracking-[0.17em] text-[#ba4b2f] uppercase">
+        <p className="font-mono text-[10px] font-bold tracking-[0.17em] text-[#a65c0e] uppercase">
           {eyebrow}
         </p>
       </div>
       <h2 className="mt-5 text-3xl font-semibold tracking-[-0.035em] text-balance sm:text-5xl">
         {title}
       </h2>
-      <p className="mt-4 max-w-3xl text-lg leading-8 text-[#64736c]">{lead}</p>
-      <div className="mt-7 space-y-6 leading-8 [&_h3]:mt-9 [&_h3]:text-xl [&_h3]:font-semibold [&_strong]:font-semibold [&_strong]:text-[#173f35]">
+      <p className="mt-4 max-w-3xl text-lg leading-8 text-[#526276]">{lead}</p>
+      <div className="mt-7 space-y-6 leading-8 [&_h3]:mt-9 [&_h3]:text-xl [&_h3]:font-semibold [&_strong]:font-semibold [&_strong]:text-[#0f3a69]">
         {children}
       </div>
     </section>
@@ -983,7 +983,7 @@ function GuideSection({
 
 function Term({ children }: { children: React.ReactNode }) {
   return (
-    <span className="rounded-md bg-[#e4ebe6] px-1.5 py-0.5 font-semibold text-[#245748]">
+    <span className="rounded-md bg-[#eaf2f8] px-1.5 py-0.5 font-semibold text-[#16865a]">
       {children}
     </span>
   );
@@ -991,7 +991,7 @@ function Term({ children }: { children: React.ReactNode }) {
 
 function InlineCode({ children }: { children: React.ReactNode }) {
   return (
-    <code className="rounded-md bg-[#e4ebe6] px-1.5 py-1 font-mono text-[0.88em] text-[#245748]">
+    <code className="rounded-md bg-[#eaf2f8] px-1.5 py-1 font-mono text-[0.88em] text-[#16865a]">
       {children}
     </code>
   );
@@ -1007,12 +1007,12 @@ function ConceptCard({
   rows: Array<[string, string, string]>;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#173f35]/12 bg-white/65">
+    <div className="overflow-hidden rounded-2xl border border-[#0f3a69]/12 bg-white/65">
       <p
         className={`px-5 py-3 font-mono text-[10px] font-bold tracking-wide uppercase ${
           tone === "green"
-            ? "bg-[#e8facb] text-[#526d1f]"
-            : "bg-[#f8e8df] text-[#8e3825]"
+            ? "bg-[#d7f7f2] text-[#0b716f]"
+            : "bg-[#fff1f1] text-[#c43d3d]"
         }`}
       >
         {label}
@@ -1025,7 +1025,7 @@ function ConceptCard({
           >
             <span>{price}</span>
             <span className="text-right">{quantity}</span>
-            <span className="text-right text-[9px] text-[#64736c]">{note}</span>
+            <span className="text-right text-[9px] text-[#526276]">{note}</span>
           </div>
         ))}
       </div>
@@ -1035,7 +1035,7 @@ function ConceptCard({
 
 function Formula({ children }: { children: React.ReactNode }) {
   return (
-    <div className="my-6 rounded-2xl border border-[#79b82a]/30 bg-[#e8facb] px-5 py-4 font-mono text-sm font-bold text-[#356b58]">
+    <div className="my-6 rounded-2xl border border-[#138f8c]/30 bg-[#d7f7f2] px-5 py-4 font-mono text-sm font-bold text-[#285f86]">
       {children}
     </div>
   );
@@ -1055,12 +1055,12 @@ function TimelineRow({
   return (
     <div
       className={`grid grid-cols-[112px_minmax(0,1fr)_minmax(0,1fr)] px-4 py-3 text-sm ${
-        last ? "" : "border-b border-[#173f35]/8"
+        last ? "" : "border-b border-[#0f3a69]/8"
       }`}
     >
       <strong>{event}</strong>
-      <span className="text-[#52645c]">{book}</span>
-      <span className="text-[#52645c]">{tape}</span>
+      <span className="text-[#43546a]">{book}</span>
+      <span className="text-[#43546a]">{tape}</span>
     </div>
   );
 }
@@ -1073,22 +1073,22 @@ function Checkpoint({
   answer: string;
 }) {
   return (
-    <details className="group my-8 overflow-hidden rounded-2xl border border-[#ba4b2f]/20 bg-[#fff4df]">
+    <details className="group my-8 overflow-hidden rounded-2xl border border-[#a65c0e]/20 bg-[#fff4df]">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4">
         <span>
-          <span className="mr-2 font-mono text-[9px] font-bold tracking-wide text-[#ba4b2f] uppercase">
+          <span className="mr-2 font-mono text-[9px] font-bold tracking-wide text-[#a65c0e] uppercase">
             Bài kiểm tra xác nhận
           </span>
           <strong>{question}</strong>
         </span>
-        <span className="shrink-0 text-xs font-bold text-[#8e3825] group-open:hidden">
+        <span className="shrink-0 text-xs font-bold text-[#c43d3d] group-open:hidden">
           Xem đáp án ↓
         </span>
-        <span className="hidden shrink-0 text-xs font-bold text-[#8e3825] group-open:inline">
+        <span className="hidden shrink-0 text-xs font-bold text-[#c43d3d] group-open:inline">
           Đóng ↑
         </span>
       </summary>
-      <p className="border-t border-[#ba4b2f]/15 px-5 py-4 text-sm leading-7 text-[#71574a]">
+      <p className="border-t border-[#a65c0e]/15 px-5 py-4 text-sm leading-7 text-[#71574a]">
         {answer}
       </p>
     </details>
@@ -1103,7 +1103,7 @@ function PipelineDiagram() {
     ["Khôi phục", "khoảng trống / tín hiệu duy trì kết nối"],
   ];
   return (
-    <div className="my-7 rounded-3xl border border-[#173f35]/12 bg-white/55 p-5 sm:p-6">
+    <div className="my-7 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/55 p-5 sm:p-6">
       <div className="grid gap-3 text-center sm:grid-cols-[1fr_40px_1fr_40px_1fr] sm:items-center">
         <DiagramNode label="Gói tin mạng" detail="byte thô" />
         <DiagramArrow />
@@ -1111,7 +1111,7 @@ function PipelineDiagram() {
         <DiagramArrow />
         <DiagramNode label="Sự kiện đã chuẩn hóa" detail="giá trị có sở hữu" accent />
       </div>
-      <div className="mx-auto my-3 h-8 w-px bg-[#173f35]/20" />
+      <div className="mx-auto my-3 h-8 w-px bg-[#0f3a69]/20" />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {consumers.map(([label, detail]) => (
           <DiagramNode key={label} label={label} detail={detail} compact />
@@ -1136,12 +1136,12 @@ function DiagramNode({
     <div
       className={`rounded-2xl border px-4 ${compact ? "py-3" : "py-4"} ${
         accent
-          ? "border-[#79b82a]/40 bg-[#e8facb]"
-          : "border-[#173f35]/12 bg-white/75"
+          ? "border-[#138f8c]/40 bg-[#d7f7f2]"
+          : "border-[#0f3a69]/12 bg-white/75"
       }`}
     >
       <strong className="block text-sm">{label}</strong>
-      <span className="mt-1 block font-mono text-[9px] tracking-wide text-[#64736c] uppercase">
+      <span className="mt-1 block font-mono text-[9px] tracking-wide text-[#526276] uppercase">
         {detail}
       </span>
     </div>
@@ -1150,7 +1150,7 @@ function DiagramNode({
 
 function DiagramArrow() {
   return (
-    <span className="rotate-90 text-center text-[#79b82a] sm:rotate-0">→</span>
+    <span className="rotate-90 text-center text-[#138f8c] sm:rotate-0">→</span>
   );
 }
 
@@ -1162,12 +1162,12 @@ function RoutingRow({
   last?: boolean;
 }) {
   return (
-    <tr className={last ? "" : "border-b border-[#173f35]/8"}>
+    <tr className={last ? "" : "border-b border-[#0f3a69]/8"}>
       {values.map((value, index) => (
         <td
           key={`${value}-${index}`}
           className={`px-4 py-3 ${
-            index === 0 ? "font-semibold" : "text-[#52645c]"
+            index === 0 ? "font-semibold" : "text-[#43546a]"
           }`}
         >
           {value}
@@ -1179,8 +1179,8 @@ function RoutingRow({
 
 function KeyPoint({ children }: { children: React.ReactNode }) {
   return (
-    <div className="my-7 border-l-4 border-[#79b82a] bg-[#edf0e8] px-5 py-4 text-sm leading-7 text-[#52645c]">
-      <strong className="mr-2 text-[#245748]">Điểm cần nhớ.</strong>
+    <div className="my-7 border-l-4 border-[#138f8c] bg-[#eaf2f8] px-5 py-4 text-sm leading-7 text-[#43546a]">
+      <strong className="mr-2 text-[#16865a]">Điểm cần nhớ.</strong>
       {children}
     </div>
   );
@@ -1188,8 +1188,8 @@ function KeyPoint({ children }: { children: React.ReactNode }) {
 
 function ByteLayout() {
   return (
-    <div className="my-7 overflow-x-auto rounded-2xl border border-[#173f35]/12 bg-white/65 p-5">
-      <p className="font-mono text-[10px] font-bold tracking-wide text-[#64736c] uppercase">
+    <div className="my-7 overflow-x-auto rounded-2xl border border-[#0f3a69]/12 bg-white/65 p-5">
+      <p className="font-mono text-[10px] font-bold tracking-wide text-[#526276] uppercase">
         Bản ghi thêm lệnh (Add) mô phỏng · 17 byte
       </p>
       <div className="mt-4 flex min-w-[650px] font-mono text-xs text-center">
@@ -1198,7 +1198,7 @@ function ByteLayout() {
         <ByteField width="w-[160px]" label="quantity : 4" range="12..15" />
         <ByteField width="w-[70px]" label="side" range="16" />
       </div>
-      <p className="mt-3 font-mono text-[10px] text-[#64736c]">
+      <p className="mt-3 font-mono text-[10px] text-[#526276]">
         big-endian · độ rộng cố định · đã kiểm tra giới hạn
       </p>
     </div>
@@ -1216,10 +1216,10 @@ function ByteField({
 }) {
   return (
     <div
-      className={`${width} border-y border-l border-[#173f35]/20 bg-[#edf0e8] px-2 py-4 last:border-r`}
+      className={`${width} border-y border-l border-[#0f3a69]/20 bg-[#eaf2f8] px-2 py-4 last:border-r`}
     >
       <strong className="block">{label}</strong>
-      <span className="mt-1 block text-[9px] text-[#64736c]">{range}</span>
+      <span className="mt-1 block text-[9px] text-[#526276]">{range}</span>
     </div>
   );
 }
@@ -1234,12 +1234,12 @@ function SmallRule({
   body: string;
 }) {
   return (
-    <div className="rounded-2xl border border-[#173f35]/12 bg-white/65 p-5">
-      <span className="font-mono text-[9px] font-bold tracking-wide text-[#ba4b2f] uppercase">
+    <div className="rounded-2xl border border-[#0f3a69]/12 bg-white/65 p-5">
+      <span className="font-mono text-[9px] font-bold tracking-wide text-[#a65c0e] uppercase">
         {label}
       </span>
       <strong className="mt-2 block">{title}</strong>
-      <p className="mt-2 text-sm leading-6 text-[#64736c]">{body}</p>
+      <p className="mt-2 text-sm leading-6 text-[#526276]">{body}</p>
     </div>
   );
 }
@@ -1254,15 +1254,15 @@ function CompareCard({
   bullets: string[];
 }) {
   return (
-    <div className="rounded-3xl border border-[#173f35]/12 bg-white/65 p-6">
-      <p className="font-mono text-[9px] font-bold tracking-[0.14em] text-[#ba4b2f] uppercase">
+    <div className="rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/65 p-6">
+      <p className="font-mono text-[9px] font-bold tracking-[0.14em] text-[#a65c0e] uppercase">
         {label}
       </p>
       <h3 className="mt-2! text-2xl!">{title}</h3>
-      <ul className="mt-4 space-y-2 text-sm leading-6 text-[#52645c]">
+      <ul className="mt-4 space-y-2 text-sm leading-6 text-[#43546a]">
         {bullets.map((bullet) => (
           <li key={bullet} className="flex gap-2">
-            <span className="text-[#79b82a]">◆</span>
+            <span className="text-[#138f8c]">◆</span>
             <span>{bullet}</span>
           </li>
         ))}
@@ -1279,11 +1279,11 @@ function LifecycleRow({
   description: string;
 }) {
   return (
-    <div className="grid gap-2 rounded-2xl border border-[#173f35]/10 bg-white/60 p-4 sm:grid-cols-[150px_minmax(0,1fr)] sm:items-center">
-      <span className="font-mono text-[10px] font-bold tracking-wide text-[#ba4b2f]">
+    <div className="grid gap-2 rounded-2xl border border-[#0f3a69]/10 bg-white/60 p-4 sm:grid-cols-[150px_minmax(0,1fr)] sm:items-center">
+      <span className="font-mono text-[10px] font-bold tracking-wide text-[#a65c0e]">
         {action}
       </span>
-      <span className="text-sm text-[#52645c]">{description}</span>
+      <span className="text-sm text-[#43546a]">{description}</span>
     </div>
   );
 }
@@ -1297,17 +1297,17 @@ function SnapshotDiagram() {
     ["Công bố", "công bố thế hệ mới bằng thao tác nguyên tử"],
   ];
   return (
-    <div className="my-7 grid gap-2 rounded-3xl border border-[#173f35]/12 bg-white/55 p-5 md:grid-cols-5 md:items-stretch">
+    <div className="my-7 grid gap-2 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/55 p-5 md:grid-cols-5 md:items-stretch">
       {steps.map(([label, detail], index) => (
         <div key={label} className="flex min-w-0 items-center gap-2 md:block">
           <div className="flex-1 rounded-2xl bg-white/75 p-4 text-center">
             <strong className="block text-sm">{label}</strong>
-            <span className="mt-2 block font-mono text-[9px] leading-5 text-[#64736c]">
+            <span className="mt-2 block font-mono text-[9px] leading-5 text-[#526276]">
               {detail}
             </span>
           </div>
           {index < steps.length - 1 ? (
-            <span className="text-[#79b82a] md:my-2 md:block md:text-center">
+            <span className="text-[#138f8c] md:my-2 md:block md:text-center">
               →
             </span>
           ) : null}
@@ -1319,7 +1319,7 @@ function SnapshotDiagram() {
 
 function FeedTimeline() {
   return (
-    <div className="my-7 overflow-x-auto rounded-3xl border border-[#173f35]/12 bg-[#173f35] p-6 text-white">
+    <div className="my-7 overflow-x-auto rounded-[1.25rem] border border-[#0f3a69]/12 bg-[#0f3a69] p-6 text-white">
       <div className="min-w-[620px] space-y-4 font-mono text-xs">
         <TimelineTrack
           label="Luồng A"
@@ -1357,7 +1357,7 @@ function TimelineTrack({
 }) {
   return (
     <div className="grid grid-cols-[70px_repeat(4,1fr)] items-center gap-3">
-      <span className={accent ? "text-[#d7ff91]" : "text-white/45"}>
+      <span className={accent ? "text-[#65e6d2]" : "text-white/45"}>
         {label}
       </span>
       {points.map((point, index) => (
@@ -1367,7 +1367,7 @@ function TimelineTrack({
             index === mutedIndex
               ? "border-dashed border-[#ef6f56]/50 text-[#ffb4a2]"
               : accent
-                ? "border-[#d7ff91]/30 bg-[#d7ff91]/10 text-[#d7ff91]"
+                ? "border-[#65e6d2]/30 bg-[#65e6d2]/10 text-[#65e6d2]"
                 : "border-white/12 bg-white/5 text-white/75"
           }`}
         >
@@ -1388,29 +1388,29 @@ function SequenceCase({
   body: string;
 }) {
   return (
-    <div className="rounded-2xl border border-[#173f35]/12 bg-white/65 p-5">
-      <code className="font-mono text-xs font-bold text-[#ba4b2f]">
+    <div className="rounded-2xl border border-[#0f3a69]/12 bg-white/65 p-5">
+      <code className="font-mono text-xs font-bold text-[#a65c0e]">
         {expression}
       </code>
       <strong className="mt-3 block">{title}</strong>
-      <p className="mt-2 text-sm leading-6 text-[#64736c]">{body}</p>
+      <p className="mt-2 text-sm leading-6 text-[#526276]">{body}</p>
     </div>
   );
 }
 
 function RecoveryStateMachine() {
   return (
-    <div className="my-7 rounded-3xl border border-[#173f35]/12 bg-white/55 p-6">
+    <div className="my-7 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/55 p-6">
       <div className="grid gap-3 text-center md:grid-cols-[1fr_50px_1fr] md:items-center">
         <StateNode label="ĐÃ ĐỒNG BỘ" detail="có thể công bố trạng thái" tone="green" />
-        <span className="rotate-90 text-[#ba4b2f] md:rotate-0">thiếu dữ liệu →</span>
+        <span className="rotate-90 text-[#a65c0e] md:rotate-0">thiếu dữ liệu →</span>
         <StateNode
           label="ĐANG KHÔI PHỤC"
           detail="giữ tạm + phát lại"
           tone="orange"
         />
       </div>
-      <div className="mx-auto my-3 h-8 w-px bg-[#173f35]/20 md:ml-[75%]" />
+      <div className="mx-auto my-3 h-8 w-px bg-[#0f3a69]/20 md:ml-[75%]" />
       <div className="ml-auto max-w-md">
         <StateNode
           label="DỰNG LẠI TỪ ẢNH CHỤP"
@@ -1432,9 +1432,9 @@ function StateNode({
   tone: "green" | "orange" | "dark";
 }) {
   const toneClass = {
-    green: "border-[#79b82a]/35 bg-[#e8facb] text-[#356b58]",
-    orange: "border-[#ba4b2f]/25 bg-[#fff4df] text-[#8e3825]",
-    dark: "border-[#173f35] bg-[#173f35] text-white",
+    green: "border-[#138f8c]/35 bg-[#d7f7f2] text-[#285f86]",
+    orange: "border-[#a65c0e]/25 bg-[#fff4df] text-[#c43d3d]",
+    dark: "border-[#0f3a69] bg-[#0f3a69] text-white",
   }[tone];
   return (
     <div className={`rounded-2xl border p-4 ${toneClass}`}>
@@ -1452,23 +1452,23 @@ function StateNode({
 
 function TradeForkDiagram() {
   return (
-    <div className="my-7 rounded-3xl border border-[#173f35]/12 bg-white/55 p-6">
+    <div className="my-7 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/55 p-6">
       <DiagramNode
         label="Lần khớp tại sở giao dịch"
         detail="một sự kiện nguồn"
         accent
       />
-      <div className="mx-auto h-8 w-px bg-[#173f35]/20" />
+      <div className="mx-auto h-8 w-px bg-[#0f3a69]/20" />
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-[#173f35]/12 bg-white/75 p-5 text-center">
+        <div className="rounded-2xl border border-[#0f3a69]/12 bg-white/75 p-5 text-center">
           <strong className="block">Thay đổi sổ lệnh</strong>
-          <span className="mt-2 block text-sm text-[#64736c]">
+          <span className="mt-2 block text-sm text-[#526276]">
             Giảm khối lượng còn lại đang hiển thị
           </span>
         </div>
-        <div className="rounded-2xl border border-[#79b82a]/35 bg-[#e8facb] p-5 text-center">
+        <div className="rounded-2xl border border-[#138f8c]/35 bg-[#d7f7f2] p-5 text-center">
           <strong className="block">Quy tắc được tính → lịch sử giao dịch</strong>
-          <span className="mt-2 block text-sm text-[#64736c]">
+          <span className="mt-2 block text-sm text-[#526276]">
             OHLCV / VWAP / đặc trưng theo khoảng
           </span>
         </div>
@@ -1493,26 +1493,26 @@ function TradeRow({
   return (
     <div
       className={`grid grid-cols-[90px_110px_90px_minmax(0,1fr)] px-4 py-3 text-sm ${
-        last ? "" : "border-b border-[#173f35]/8"
+        last ? "" : "border-b border-[#0f3a69]/8"
       }`}
     >
       <span className="font-mono text-xs">{time}</span>
       <strong>{trade}</strong>
-      <span className={eligible === "Có" ? "text-[#65a30d]" : "text-[#ba4b2f]"}>
+      <span className={eligible === "Có" ? "text-[#65a30d]" : "text-[#a65c0e]"}>
         {eligible}
       </span>
-      <span className="text-[#64736c]">{effect}</span>
+      <span className="text-[#526276]">{effect}</span>
     </div>
   );
 }
 
 function FormulaCard({ label, lines }: { label: string; lines: string[] }) {
   return (
-    <div className="rounded-2xl border border-[#173f35]/12 bg-white/65 p-5">
-      <p className="font-mono text-[9px] font-bold tracking-wide text-[#ba4b2f] uppercase">
+    <div className="rounded-2xl border border-[#0f3a69]/12 bg-white/65 p-5">
+      <p className="font-mono text-[9px] font-bold tracking-wide text-[#a65c0e] uppercase">
         {label}
       </p>
-      <div className="mt-4 space-y-1 font-mono text-xs leading-6 text-[#356b58]">
+      <div className="mt-4 space-y-1 font-mono text-xs leading-6 text-[#285f86]">
         {lines.map((line) => (
           <p key={line}>{line}</p>
         ))}
@@ -1523,9 +1523,9 @@ function FormulaCard({ label, lines }: { label: string; lines: string[] }) {
 
 function ClockCard({ label, body }: { label: string; body: string }) {
   return (
-    <div className="rounded-2xl border border-[#173f35]/10 bg-white/65 p-4">
+    <div className="rounded-2xl border border-[#0f3a69]/10 bg-white/65 p-4">
       <strong className="block text-sm">{label}</strong>
-      <span className="mt-2 block text-xs leading-5 text-[#64736c]">{body}</span>
+      <span className="mt-2 block text-xs leading-5 text-[#526276]">{body}</span>
     </div>
   );
 }

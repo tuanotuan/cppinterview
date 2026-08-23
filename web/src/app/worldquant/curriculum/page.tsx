@@ -28,11 +28,11 @@ const statusLabels = {
 } as const;
 
 const statusStyles = {
-  transfer_ready: "bg-[#d7ff91] text-[#173f35]",
-  flashcard_only: "bg-[#dcebe2] text-[#245748]",
+  transfer_ready: "bg-[#65e6d2] text-[#0f3a69]",
+  flashcard_only: "bg-[#e6f8f5] text-[#16865a]",
   pending_review: "bg-[#f4dfaf] text-[#795517]",
   drill_only: "bg-[#dfe7f4] text-[#334e78]",
-  content_gap: "bg-[#f1d6c9] text-[#8e3825]",
+  content_gap: "bg-[#fee7e7] text-[#c43d3d]",
 } as const;
 
 export default async function WorldQuantCurriculumPage({
@@ -65,19 +65,19 @@ export default async function WorldQuantCurriculumPage({
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
       <div className="mx-auto max-w-[1450px]">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
+        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#0f3a69]/15 pb-5">
           <Link
             href="/"
             aria-label="Về trang chủ cppinterview"
             title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
+            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
               WQ
             </span>
             <span>
               <span className="block font-bold">Lộ trình kiến thức</span>
-              <span className="block text-xs text-[#64736c]">
+              <span className="block text-xs text-[#526276]">
                 Mức độ đầy đủ của học liệu khác với mức độ thành thạo
               </span>
             </span>
@@ -114,25 +114,25 @@ export default async function WorldQuantCurriculumPage({
 
         <section className="grid gap-6 py-9 lg:grid-cols-[1fr_360px] lg:items-end">
           <div>
-            <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+            <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
               Lộ trình v1 · 30 khái niệm
             </p>
             <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
               Học theo kiến thức nền, không học một tập thẻ rời rạc.
             </h1>
-            <p className="mt-4 max-w-3xl leading-7 text-[#64736c]">
+            <p className="mt-4 max-w-3xl leading-7 text-[#526276]">
               Mức bao phủ thẻ, bài luyện vận dụng và học liệu chờ duyệt được
               hiển thị riêng. Một khái niệm thiếu thẻ không đồng nghĩa với
               việc bạn còn yếu.
             </p>
           </div>
           <form>
-            <label className="block text-xs font-bold text-[#64736c]">
+            <label className="block text-xs font-bold text-[#526276]">
               Vị trí mục tiêu
               <select
                 name="role"
                 defaultValue={roleId}
-                className="mt-2 w-full rounded-2xl border border-[#173f35]/15 bg-white px-4 py-3 text-sm font-bold"
+                className="mt-2 w-full rounded-2xl border border-[#0f3a69]/15 bg-white px-4 py-3 text-sm font-bold"
               >
                 {worldQuantRoleProfiles.map((profile) => (
                   <option key={profile.id} value={profile.id}>
@@ -141,7 +141,7 @@ export default async function WorldQuantCurriculumPage({
                 ))}
               </select>
             </label>
-            <button className="mt-3 w-full rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white">
+            <button className="mt-3 w-full rounded-xl bg-[#0f3a69] px-4 py-2 text-sm font-bold text-white">
               Xem lộ trình
             </button>
           </form>
@@ -153,7 +153,7 @@ export default async function WorldQuantCurriculumPage({
             return (
               <div
                 key={competency}
-                className="rounded-2xl border border-[#173f35]/10 bg-white/65 p-4"
+                className="rounded-2xl border border-[#0f3a69]/10 bg-white/65 p-4"
               >
                 <p className="text-xs font-bold">
                   {worldQuantCompetencies[competency].shortLabel}
@@ -161,7 +161,7 @@ export default async function WorldQuantCurriculumPage({
                 <p className="mt-2 text-2xl font-semibold">
                   {summary.coveredConceptCount}/{summary.conceptCount}
                 </p>
-                <p className="mt-1 text-[11px] text-[#64736c]">
+                <p className="mt-1 text-[11px] text-[#526276]">
                   khái niệm có thẻ · {summary.transferReadyConceptCount} có
                   bài kiểm tra xác nhận
                 </p>
@@ -179,11 +179,11 @@ export default async function WorldQuantCurriculumPage({
             return (
               <section
                 key={competency}
-                className="rounded-[2rem] border border-[#173f35]/12 bg-white/60 p-5 shadow-[0_18px_70px_rgb(23_63_53_/_7%)] sm:p-7"
+                className="rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/60 p-5 shadow-[0_18px_70px_rgb(15_58_105_/_7%)] sm:p-7"
               >
                 <div className="flex flex-wrap items-end justify-between gap-3">
                   <div>
-                    <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
+                    <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#a65c0e] uppercase">
                       Mức độ quan trọng với vị trí {role.weights[competency]}%
                     </p>
                     <h2 className="mt-2 text-2xl font-semibold">
@@ -192,7 +192,7 @@ export default async function WorldQuantCurriculumPage({
                   </div>
                   <Link
                     href={`/worldquant/drills?role=${roleId}&competency=${competency}`}
-                    className="rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white"
+                    className="rounded-xl bg-[#0f3a69] px-4 py-2 text-xs font-bold text-white"
                   >
                     Luyện tình huống
                   </Link>
@@ -201,10 +201,10 @@ export default async function WorldQuantCurriculumPage({
                   {concepts.map((item, index) => (
                     <article
                       key={item.concept.id}
-                      className="rounded-2xl border border-[#173f35]/10 bg-[#fbfaf4] p-4"
+                      className="rounded-2xl border border-[#0f3a69]/10 bg-[#f8fafc] p-4"
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#173f35] font-mono text-[10px] font-bold text-white">
+                        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#0f3a69] font-mono text-[10px] font-bold text-white">
                           {index + 1}
                         </span>
                         <span
@@ -216,7 +216,7 @@ export default async function WorldQuantCurriculumPage({
                       <h3 className="mt-4 font-semibold">
                         {item.concept.label}
                       </h3>
-                      <p className="mt-2 text-sm leading-6 text-[#64736c]">
+                      <p className="mt-2 text-sm leading-6 text-[#526276]">
                         {item.concept.summary}
                       </p>
                       <dl className="mt-4 grid grid-cols-2 gap-2 text-[11px]">
@@ -237,7 +237,7 @@ export default async function WorldQuantCurriculumPage({
                           value={item.checkpointDrillIds.length}
                         />
                       </dl>
-                      <p className="mt-4 text-[10px] leading-4 text-[#64736c]">
+                      <p className="mt-4 text-[10px] leading-4 text-[#526276]">
                         Kiến thức nền:{" "}
                         {item.concept.prerequisites.length
                           ? item.concept.prerequisites.join(", ")
@@ -281,7 +281,7 @@ function Metric({
 }) {
   return (
     <div className="rounded-xl bg-white/70 p-2">
-      <dt className="text-[#64736c]">{label}</dt>
+      <dt className="text-[#526276]">{label}</dt>
       <dd className="mt-1 font-mono font-bold">{value}</dd>
     </div>
   );

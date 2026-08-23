@@ -6,7 +6,7 @@ export function LessonSelfCheck({ items }: { items: string[] }) {
   const [checked, setChecked] = useState<Set<number>>(() => new Set());
   if (!items.length) {
     return (
-      <p className="rounded-2xl border border-dashed border-[#173f35]/20 p-5 text-sm text-[#64736c]">
+      <p className="rounded-2xl border border-dashed border-[#0f3a69]/20 p-5 text-sm text-[#526276]">
         Bài này chưa có danh sách tự kiểm tra trong nguồn.
       </p>
     );
@@ -18,7 +18,7 @@ export function LessonSelfCheck({ items }: { items: string[] }) {
         {items.slice(0, 8).map((item, index) => (
           <label
             key={`${index}:${item}`}
-            className="flex cursor-pointer gap-3 rounded-xl border border-[#173f35]/10 bg-white/65 p-3 text-sm leading-6"
+            className="flex cursor-pointer gap-3 rounded-xl border border-[#0f3a69]/10 bg-white/65 p-3 text-sm leading-6"
           >
             <input
               type="checkbox"
@@ -37,7 +37,7 @@ export function LessonSelfCheck({ items }: { items: string[] }) {
           </label>
         ))}
       </div>
-      <p className="mt-4 font-mono text-xs text-[#64736c]">
+      <p className="mt-4 font-mono text-xs text-[#526276]">
         Đã tự kiểm tra {checked.size}/{Math.min(8, items.length)} mục
       </p>
     </div>

@@ -1214,7 +1214,7 @@ export function MockInterviewApp({
   if (!hydrated) {
     return (
       <main className="grid min-h-screen place-items-center">
-        <p className="font-mono text-xs text-[#64736c]">
+        <p className="font-mono text-xs text-[#526276]">
           Đang khôi phục phòng phỏng vấn…
         </p>
       </main>
@@ -1306,16 +1306,16 @@ export function MockInterviewApp({
     return (
       <>
         <main className="grid min-h-screen place-items-center px-5">
-        <section className="max-w-lg rounded-3xl border border-[#ba4b2f]/20 bg-white/70 p-8 text-center">
+        <section className="max-w-lg rounded-[1.25rem] border border-[#a65c0e]/20 bg-white/70 p-8 text-center">
           <h1 className="text-2xl font-semibold">Không khôi phục được câu hỏi</h1>
-          <p className="mt-3 text-[#64736c]">
+          <p className="mt-3 text-[#526276]">
             Ngân hàng câu hỏi đã thay đổi. Hãy tạo buổi mới để tránh chấm
             nhầm phiên bản.
           </p>
           <button
             type="button"
             onClick={() => resetInterview()}
-            className="mt-6 rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white"
+            className="mt-6 rounded-2xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white"
           >
             Tạo buổi mới
           </button>
@@ -1361,7 +1361,7 @@ export function MockInterviewApp({
               href="/"
               aria-label="Về trang chủ cppinterview"
               title="Về trang chủ cppinterview"
-              className="grid size-10 place-items-center rounded-xl bg-[#173f35] font-mono text-xs font-bold text-[#d7ff91] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+              className="grid size-10 place-items-center rounded-xl bg-[#0f3a69] font-mono text-xs font-bold text-[#65e6d2] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
               CI
             </Link>
@@ -1378,8 +1378,8 @@ export function MockInterviewApp({
             <span
               className={`rounded-full border px-4 py-2 font-mono text-sm font-bold ${
                 remainingSeconds <= 300
-                  ? "border-[#ba4b2f]/30 bg-[#f8e8df] text-[#8e3825]"
-                  : "border-[#173f35]/15 bg-white/65 text-[#245748]"
+                  ? "border-[#a65c0e]/30 bg-[#fff1f1] text-[#c43d3d]"
+                  : "border-[#0f3a69]/15 bg-white/65 text-[#16865a]"
               }`}
             >
               {formatClock(remainingSeconds)}
@@ -1396,7 +1396,7 @@ export function MockInterviewApp({
                 session.status === "evaluating" &&
                 !visibleReportError
               }
-              className="rounded-xl border border-[#173f35]/15 bg-white/60 px-3 py-2 text-xs font-bold disabled:opacity-40"
+              className="rounded-xl border border-[#0f3a69]/15 bg-white/60 px-3 py-2 text-xs font-bold disabled:opacity-40"
             >
               {missionReturnHref && !guidedMissionMatchesSession
                 ? "Đổi sang buổi phỏng vấn của nhiệm vụ"
@@ -1406,15 +1406,15 @@ export function MockInterviewApp({
         </header>
 
         <div className="mt-5">
-          <div className="flex items-center justify-between gap-3 text-xs text-[#64736c]">
+          <div className="flex items-center justify-between gap-3 text-xs text-[#526276]">
             <span className="font-mono font-bold">
               Câu {session.currentIndex + 1}/{session.questions.length}
             </span>
             <span>{answeredCount} câu đã trả lời · tự lưu khi F5</span>
           </div>
-          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#173f35]/10">
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#0f3a69]/10">
             <div
-              className="h-full rounded-full bg-[#79b82a] transition-[width]"
+              className="h-full rounded-full bg-[#138f8c] transition-[width]"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -1422,8 +1422,8 @@ export function MockInterviewApp({
 
         <section className="grid gap-5 py-7 lg:grid-cols-[13.5rem_minmax(0,1fr)]">
           <aside className="hidden lg:block">
-            <div className="sticky top-5 rounded-[1.6rem] border border-[#173f35]/12 bg-white/58 p-4 shadow-sm">
-              <p className="ui-eyebrow text-[#356b58]">
+            <div className="sticky top-5 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/58 p-4 shadow-sm">
+              <p className="ui-eyebrow text-[#285f86]">
                 Điều hướng buổi
               </p>
               <p className="mt-2 text-xs leading-5 text-[color:var(--ink-subtle)]">
@@ -1443,30 +1443,30 @@ export function MockInterviewApp({
                       aria-label={`Câu ${index + 1}${answered ? ", đã trả lời" : ", chưa trả lời"}`}
                       className={`relative rounded-xl px-3 py-2.5 text-left font-mono text-xs font-bold transition disabled:opacity-45 ${
                         active
-                          ? "bg-[#173f35] text-[#d7ff91]"
-                          : "border border-[#173f35]/12 bg-white text-[#52645c] hover:border-[#356b58]/35"
+                          ? "border border-[#65e6d2] bg-[#e6f8f5] text-[#0f3a69] shadow-[inset_0_-2px_0_#65e6d2]"
+                          : "border border-[#0f3a69]/12 bg-white text-[#43546a] hover:border-[#285f86]/35"
                       }`}
                     >
                       {String(index + 1).padStart(2, "0")}
                       <span
                         aria-hidden="true"
                         className={`ml-2 inline-block size-1.5 rounded-full ${
-                          answered ? "bg-[#79b82a]" : "bg-[#ba4b2f]/45"
+                          answered ? "bg-[#138f8c]" : "bg-[#a65c0e]/45"
                         }`}
                       />
                     </button>
                   );
                 })}
               </div>
-              <div className="mt-5 border-t border-[#173f35]/10 pt-4 text-xs leading-5 text-[#64736c]">
-                <strong className="text-[#173f35]">{answeredCount}</strong>/{session.questions.length} câu đã trả lời
+              <div className="mt-5 border-t border-[#0f3a69]/10 pt-4 text-xs leading-5 text-[#526276]">
+                <strong className="text-[#0f3a69]">{answeredCount}</strong>/{session.questions.length} câu đã trả lời
               </div>
             </div>
           </aside>
           <div className="min-w-0">
-          <article className="overflow-hidden rounded-[2rem] border border-[#173f35]/15 bg-white/68 shadow-[0_22px_80px_rgb(23_63_53_/_8%)]">
-            <div className="border-b border-[#173f35]/10 bg-[#173f35] px-6 py-4 text-white sm:px-9">
-              <p className="ui-eyebrow text-[#d7ff91]">
+          <article className="overflow-hidden rounded-[1.25rem] border border-[#0f3a69]/15 bg-white/68 shadow-[0_22px_80px_rgb(15_58_105_/_8%)]">
+            <div className="border-b border-[#0f3a69]/10 bg-[#0f3a69] px-6 py-4 text-white sm:px-9">
+              <p className="ui-eyebrow text-[#65e6d2]">
                 Người phỏng vấn
               </p>
               <p className="mt-1 text-sm text-on-dark-muted">
@@ -1480,7 +1480,7 @@ export function MockInterviewApp({
 
               {currentQuestion.code &&
               currentQuestion.responseMode !== "code" ? (
-                <pre className="mt-7 max-h-[26rem] overflow-auto rounded-2xl bg-[#102d26] p-5 font-mono text-[13px] leading-6 text-[#e8f4ec]">
+                <pre className="mt-7 max-h-[26rem] overflow-auto rounded-2xl bg-[#092c51] p-5 font-mono text-[13px] leading-6 text-[#e6f8f5]">
                   <code>{currentQuestion.code}</code>
                 </pre>
               ) : null}
@@ -1488,9 +1488,9 @@ export function MockInterviewApp({
               <div className="mt-8">
                 {currentQuestion.responseMode === "code" ? (
                   <div className="space-y-5">
-                    <div className="overflow-hidden rounded-2xl border border-[#173f35]/15 bg-[#0b241d]">
+                    <div className="overflow-hidden rounded-2xl border border-[#0f3a69]/15 bg-[#092c51]">
                       <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 text-white">
-                        <span className="font-mono text-xs font-bold text-[#d7ff91]">
+                        <span className="font-mono text-xs font-bold text-[#65e6d2]">
                           Bài làm của ứng viên
                         </span>
                         <span className="text-[10px] text-white/45">
@@ -1517,13 +1517,13 @@ export function MockInterviewApp({
                       />
                     </div>
                     {currentQuestion.execution ? (
-                      <div className="rounded-2xl border border-[#173f35]/15 bg-[#f8faf5] p-4">
+                      <div className="rounded-2xl border border-[#0f3a69]/15 bg-[#f8fafc] p-4">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div>
-                            <p className="text-sm font-bold text-[#29493d]">
+                            <p className="text-sm font-bold text-[#285f86]">
                               Chạy mã
                             </p>
-                            <p className="mt-1 text-xs leading-5 text-[#64736c]">
+                            <p className="mt-1 text-xs leading-5 text-[#526276]">
                               Kiểm thử mẫu hiển thị chi tiết; kiểm thử ẩn chỉ
                               chạy khi kết thúc buổi.
                             </p>
@@ -1536,7 +1536,7 @@ export function MockInterviewApp({
                               session.status === "evaluating" ||
                               runningQuestionId !== null
                             }
-                            className="rounded-xl bg-[#173f35] px-4 py-2.5 text-sm font-bold text-white disabled:cursor-wait disabled:opacity-45"
+                            className="rounded-xl bg-[#0f3a69] px-4 py-2.5 text-sm font-bold text-white disabled:cursor-wait disabled:opacity-45"
                           >
                             {runningQuestionId === currentQuestion.id
                               ? "Đang biên dịch và kiểm thử…"
@@ -1554,14 +1554,14 @@ export function MockInterviewApp({
                         {codeRunError ? (
                           <p
                             role="alert"
-                            className="mt-3 rounded-xl border border-[#ba4b2f]/20 bg-[#f8e8df] px-3 py-2 text-xs leading-5 text-[#8e3825]"
+                            className="mt-3 rounded-xl border border-[#a65c0e]/20 bg-[#fff1f1] px-3 py-2 text-xs leading-5 text-[#c43d3d]"
                           >
                             {codeRunError}
                           </p>
                         ) : null}
                       </div>
                     ) : null}
-                    <label className="block text-sm font-bold text-[#29493d]">
+                    <label className="block text-sm font-bold text-[#285f86]">
                       Độ phức tạp, giả định và các điểm đánh đổi
                       <textarea
                         value={currentDraft.explanation}
@@ -1576,12 +1576,12 @@ export function MockInterviewApp({
                         rows={5}
                         disabled={session.status === "evaluating"}
                         placeholder="Giải thích như đang trao đổi với người phỏng vấn…"
-                        className="mt-2 w-full resize-y rounded-2xl border border-[#173f35]/15 bg-white/80 px-4 py-3 font-normal leading-7 outline-none focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/45"
+                        className="mt-2 w-full resize-y rounded-2xl border border-[#0f3a69]/15 bg-white/80 px-4 py-3 font-normal leading-7 outline-none focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/45"
                       />
                     </label>
                   </div>
                 ) : (
-                  <label className="block text-sm font-bold text-[#29493d]">
+                  <label className="block text-sm font-bold text-[#285f86]">
                     Câu trả lời của bạn
                     <textarea
                       value={currentDraft.response}
@@ -1596,7 +1596,7 @@ export function MockInterviewApp({
                       rows={10}
                       disabled={session.status === "evaluating"}
                       placeholder="Trả lời thành tiếng hoặc viết như đang trao đổi với người phỏng vấn…"
-                      className="mt-2 w-full resize-y rounded-2xl border border-[#173f35]/15 bg-white/80 px-4 py-3 font-normal leading-7 outline-none focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/45"
+                      className="mt-2 w-full resize-y rounded-2xl border border-[#0f3a69]/15 bg-white/80 px-4 py-3 font-normal leading-7 outline-none focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/45"
                     />
                   </label>
                 )}
@@ -1607,20 +1607,20 @@ export function MockInterviewApp({
           {visibleReportError ? (
             <p
               role="alert"
-              className="mt-5 rounded-2xl border border-[#ba4b2f]/20 bg-[#f8e8df] px-4 py-3 text-sm text-[#8e3825]"
+              className="mt-5 rounded-2xl border border-[#a65c0e]/20 bg-[#fff1f1] px-4 py-3 text-sm text-[#c43d3d]"
             >
               {visibleReportError}
             </p>
           ) : null}
 
-          <div className="sticky bottom-24 z-20 mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#173f35]/12 bg-[#f7f5ed]/94 p-3 shadow-[0_12px_38px_rgba(23,63,53,0.12)] backdrop-blur lg:bottom-3">
+          <div className="sticky bottom-24 z-20 mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#0f3a69]/12 bg-[#f8fafc]/94 p-3 shadow-[0_12px_38px_rgba(15,58,105,0.12)] backdrop-blur lg:bottom-3">
             <button
               type="button"
               onClick={() => moveToQuestion(session.currentIndex - 1)}
               disabled={
                 session.currentIndex === 0 || session.status === "evaluating"
               }
-              className="rounded-xl border border-[#173f35]/15 bg-white/70 px-5 py-3 text-sm font-bold disabled:opacity-35"
+              className="rounded-xl border border-[#0f3a69]/15 bg-white/70 px-5 py-3 text-sm font-bold disabled:opacity-35"
             >
               ← Câu trước
             </button>
@@ -1630,7 +1630,7 @@ export function MockInterviewApp({
                   type="button"
                   onClick={() => moveToQuestion(session.currentIndex + 1)}
                   disabled={session.status === "evaluating"}
-                  className="rounded-xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white disabled:cursor-wait disabled:opacity-50"
+                  className="rounded-xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white disabled:cursor-wait disabled:opacity-50"
                 >
                   Câu tiếp theo →
                 </button>
@@ -1642,7 +1642,7 @@ export function MockInterviewApp({
                   session.status === "evaluating" &&
                   !visibleReportError
                 }
-                className="rounded-xl bg-[#d7ff91] px-5 py-3 text-sm font-bold text-[#173f35] shadow-sm disabled:cursor-wait disabled:opacity-55"
+                className="rounded-xl bg-[#65e6d2] px-5 py-3 text-sm font-bold text-[#0f3a69] shadow-sm disabled:cursor-wait disabled:opacity-55"
               >
                 {session.status === "evaluating"
                   ? visibleReportError
@@ -1753,13 +1753,13 @@ function MockSetup({
               href="/"
               aria-label="Về trang chủ cppinterview"
               title="Về trang chủ cppinterview"
-              className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+              className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
               WQ
             </Link>
             <div>
               <p className="font-bold">Phỏng vấn thử cùng cppinterview</p>
-              <p className="text-xs text-[#64736c]">
+              <p className="text-xs text-[#526276]">
                 Vị trí C++ mục tiêu
               </p>
             </div>
@@ -1783,27 +1783,27 @@ function MockSetup({
             >
               Thống kê
             </Link>
-            <span className="rounded-full border border-[#173f35]/15 bg-white/65 px-4 py-2 text-xs font-semibold">
+            <span className="rounded-full border border-[#0f3a69]/15 bg-white/65 px-4 py-2 text-xs font-semibold">
               @{account.login ?? account.displayName}
             </span>
           </nav>
         </header>
 
         {notice ? (
-          <p className="mt-5 rounded-2xl border border-[#ba4b2f]/20 bg-[#f8e8df] px-4 py-3 text-sm text-[#8e3825]">
+          <p className="mt-5 rounded-2xl border border-[#a65c0e]/20 bg-[#fff1f1] px-4 py-3 text-sm text-[#c43d3d]">
             {notice}
           </p>
         ) : null}
 
         <section className="grid gap-7 py-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
           <div>
-            <p className="ui-eyebrow text-[#ba4b2f]">
+            <p className="ui-eyebrow text-[#a65c0e]">
                Vị trí mục tiêu
             </p>
             <h1 className="mt-3 text-balance text-4xl font-semibold tracking-[-0.045em] sm:text-5xl lg:text-6xl">
               {role.label}
             </h1>
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-[#52645c]">
+            <p className="mt-5 max-w-2xl text-lg leading-8 text-[#43546a]">
               {role.summary} Trong buổi phỏng vấn, hệ thống không hiện gợi ý
               hay phản hồi. Báo cáo chỉ xuất hiện sau khi bạn hoàn thành toàn
               bộ câu hỏi.
@@ -1813,14 +1813,14 @@ function MockSetup({
               {role.coreCompetencies.map((competency) => (
                 <div
                   key={competency}
-                  className="flex gap-3 rounded-2xl border border-[#173f35]/10 bg-white/55 p-4 text-sm leading-6"
+                  className="flex gap-3 rounded-2xl border border-[#0f3a69]/10 bg-white/55 p-4 text-sm leading-6"
                 >
                   <span className="mt-1 text-[#79a72e]">◆</span>
                   <span>
                     <strong>
                       {worldQuantCompetencies[competency].shortLabel}
                     </strong>
-                    <span className="mt-1 block text-xs text-[#64736c]">
+                    <span className="mt-1 block text-xs text-[#526276]">
                       Trọng số của vị trí {role.weights[competency]}%
                     </span>
                   </span>
@@ -1829,8 +1829,8 @@ function MockSetup({
             </div>
           </div>
 
-          <aside className="rounded-[2rem] border border-[#173f35]/15 bg-[#173f35] p-6 text-white shadow-[0_22px_80px_rgb(23_63_53_/_16%)] sm:p-7">
-            <p className="font-mono text-[11px] font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
+          <aside className="rounded-[1.25rem] border border-[#0f3a69]/15 bg-[#0f3a69] p-6 text-white shadow-[0_22px_80px_rgb(15_58_105_/_16%)] sm:p-7">
+            <p className="font-mono text-[11px] font-bold tracking-[0.16em] text-[#65e6d2] uppercase">
               Chọn vị trí
             </p>
             <select
@@ -1838,7 +1838,7 @@ function MockSetup({
               onChange={(event) =>
                 onRole(event.target.value as WorldQuantRoleProfileId)
               }
-              className="mt-3 w-full rounded-2xl border border-white/15 bg-[#214f42] px-4 py-3 text-sm font-bold text-white outline-none"
+              className="mt-3 w-full rounded-2xl border border-white/15 bg-[#12467a] px-4 py-3 text-sm font-bold text-white outline-none"
             >
               {worldQuantRoleProfiles.map((profile) => (
                 <option key={profile.id} value={profile.id}>
@@ -1846,7 +1846,7 @@ function MockSetup({
                 </option>
               ))}
             </select>
-            <p className="mt-6 font-mono text-[11px] font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
+            <p className="mt-6 font-mono text-[11px] font-bold tracking-[0.16em] text-[#65e6d2] uppercase">
               Thời lượng
             </p>
             <div className="mt-4 space-y-3">
@@ -1860,7 +1860,7 @@ function MockSetup({
                     aria-pressed={active}
                     className={`w-full rounded-2xl border p-4 text-left transition ${
                       active
-                        ? "border-[#d7ff91] bg-white/12"
+                        ? "border-[#65e6d2] bg-white/12"
                         : "border-white/12 bg-white/5 hover:bg-white/9"
                     }`}
                   >
@@ -1869,7 +1869,7 @@ function MockSetup({
                       <span
                         className={`size-3 rounded-full border ${
                           active
-                            ? "border-[#d7ff91] bg-[#d7ff91]"
+                            ? "border-[#65e6d2] bg-[#65e6d2]"
                             : "border-white/30"
                         }`}
                       />
@@ -1878,7 +1878,7 @@ function MockSetup({
                 );
               })}
             </div>
-            <p className="mt-6 font-mono text-[11px] font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
+            <p className="mt-6 font-mono text-[11px] font-bold tracking-[0.16em] text-[#65e6d2] uppercase">
               Phạm vi đánh giá
             </p>
             <div className="mt-3 grid grid-cols-2 gap-3">
@@ -1890,7 +1890,7 @@ function MockSetup({
                   aria-pressed={mode === scope}
                   className={`rounded-2xl border p-4 text-left transition ${
                     mode === scope
-                      ? "border-[#d7ff91] bg-[#d7ff91]/12"
+                      ? "border-[#65e6d2] bg-[#65e6d2]/12"
                       : "border-white/12 bg-white/5 hover:bg-white/9"
                   }`}
                 >
@@ -1913,7 +1913,7 @@ function MockSetup({
                     event.target.value as WorldQuantCompetencyKey,
                   )
                 }
-                className="mt-3 w-full rounded-2xl border border-white/15 bg-[#214f42] px-4 py-3 text-sm font-bold text-white outline-none"
+                className="mt-3 w-full rounded-2xl border border-white/15 bg-[#12467a] px-4 py-3 text-sm font-bold text-white outline-none"
               >
                 {eligibleCompetencies.map((competency) => (
                   <option key={competency} value={competency}>
@@ -1923,7 +1923,7 @@ function MockSetup({
                 ))}
               </select>
             ) : null}
-            <p className="mt-6 font-mono text-[11px] font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
+            <p className="mt-6 font-mono text-[11px] font-bold tracking-[0.16em] text-[#65e6d2] uppercase">
               Tình huống
             </p>
             <div className="mt-3 grid gap-3">
@@ -1946,7 +1946,7 @@ function MockSetup({
                   aria-pressed={blueprintId === scenario.id}
                   className={`rounded-2xl border p-4 text-left transition ${
                     blueprintId === scenario.id
-                      ? "border-[#d7ff91] bg-[#d7ff91]/12"
+                      ? "border-[#65e6d2] bg-[#65e6d2]/12"
                       : "border-white/12 bg-white/5 hover:bg-white/9"
                   }`}
                 >
@@ -1977,7 +1977,7 @@ function MockSetup({
                 !plan ||
                 plan.questions.length < 3
               }
-              className="mt-5 w-full rounded-2xl bg-[#d7ff91] px-5 py-3.5 text-sm font-bold text-[#173f35] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-35"
+              className="mt-5 w-full rounded-2xl bg-[#65e6d2] px-5 py-3.5 text-sm font-bold text-[#0f3a69] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-35"
             >
               {!historyAvailable
                 ? "Lịch sử trực tuyến chưa sẵn sàng"
@@ -2001,8 +2001,8 @@ function MockSetup({
         </section>
 
         <section className="grid gap-5 pb-10 lg:grid-cols-2">
-          <article className="rounded-[2rem] border border-[#173f35]/12 bg-white/62 p-6 sm:p-7">
-            <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
+          <article className="rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/62 p-6 sm:p-7">
+            <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#285f86] uppercase">
               Câu hỏi cho bộ đề tiếp theo
             </p>
             <h2 className="mt-2 text-2xl font-semibold">
@@ -2014,8 +2014,8 @@ function MockSetup({
                   key={competency}
                   className={`rounded-xl p-3 ${
                     coverage[competency]
-                      ? "bg-[#eaf8cf] text-[#245748]"
-                      : "bg-[#f1e6dc] text-[#8e3825]"
+                      ? "bg-[#e6f8f5] text-[#16865a]"
+                      : "bg-[#f1e6dc] text-[#c43d3d]"
                   }`}
                 >
                   <span className="block font-mono text-lg font-bold">
@@ -2029,8 +2029,8 @@ function MockSetup({
             </div>
           </article>
 
-          <article className="rounded-[2rem] border border-[#ba4b2f]/18 bg-[#fff4df] p-6 sm:p-7">
-            <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
+          <article className="rounded-[1.25rem] border border-[#a65c0e]/18 bg-[#fff4df] p-6 sm:p-7">
+            <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#a65c0e] uppercase">
               Kiểm soát mức bao phủ
             </p>
             <h2 className="mt-2 text-2xl font-semibold">
@@ -2043,7 +2043,7 @@ function MockSetup({
               tuyển dụng thật hoặc đại diện cho bất kỳ công ty nào.
             </p>
             {plan?.contentGaps.length ? (
-              <p className="mt-4 text-xs leading-5 text-[#8e3825]">
+              <p className="mt-4 text-xs leading-5 text-[#c43d3d]">
                 Bộ đề hiện thiếu câu đủ điều kiện cho:{" "}
                 <strong>
                   {plan.contentGaps
@@ -2060,17 +2060,17 @@ function MockSetup({
           </article>
         </section>
 
-        <section className="mb-10 rounded-[2rem] border border-[#173f35]/12 bg-white/62 p-6 sm:p-7">
+        <section className="mb-10 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/62 p-6 sm:p-7">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
+              <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#285f86] uppercase">
                 Lịch sử phỏng vấn
               </p>
               <h2 className="mt-2 text-2xl font-semibold">
                 Những lượt đã hoàn thành
               </h2>
             </div>
-            <span className="text-xs text-[#64736c]">
+            <span className="text-xs text-[#526276]">
               {historyAvailable
                 ? "Lịch sử trực tuyến theo tài khoản"
                 : "Lịch sử trực tuyến chưa được cấu hình"}
@@ -2079,7 +2079,7 @@ function MockSetup({
           {historyError ? (
             <p
               role="alert"
-              className="mt-4 rounded-xl border border-[#ba4b2f]/20 bg-[#f8e8df] px-4 py-3 text-xs text-[#8e3825]"
+              className="mt-4 rounded-xl border border-[#a65c0e]/20 bg-[#fff1f1] px-4 py-3 text-xs text-[#c43d3d]"
             >
               {historyError}
             </p>
@@ -2089,7 +2089,7 @@ function MockSetup({
               {visibleHistory.slice(0, 6).map((entry) => (
                 <article
                   key={entry.attemptId}
-                  className="rounded-2xl border border-[#173f35]/10 bg-[#f8faf5] p-4"
+                  className="rounded-2xl border border-[#0f3a69]/10 bg-[#f8fafc] p-4"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -2098,7 +2098,7 @@ function MockSetup({
                           entry.artifact.profileId,
                         ).label}
                       </p>
-                      <p className="mt-1 text-xs text-[#64736c]">
+                      <p className="mt-1 text-xs text-[#526276]">
                         {entry.artifact.plan.mode === "targeted"
                           ? `Trọng tâm · ${
                               worldQuantCompetencies[
@@ -2109,7 +2109,7 @@ function MockSetup({
                         · {entry.artifact.plan.durationMinutes} phút ·{" "}
                         {formatDateTime(entry.artifact.completedAt)}
                       </p>
-                      <p className="mt-1 text-[10px] text-[#64736c]">
+                      <p className="mt-1 text-[10px] text-[#526276]">
                         {
                           entry.artifact.debrief
                             .assessedWeightPercent
@@ -2120,11 +2120,11 @@ function MockSetup({
                           : ""}
                       </p>
                     </div>
-                    <span className="rounded-full bg-[#d7ff91]/65 px-3 py-1 font-mono text-xs font-bold">
+                    <span className="rounded-full bg-[#65e6d2]/65 px-3 py-1 font-mono text-xs font-bold">
                       {entry.artifact.debrief.roleInterviewScore ?? "—"}
                     </span>
                   </div>
-                  <details className="mt-3 text-xs text-[#52645c]">
+                  <details className="mt-3 text-xs text-[#43546a]">
                     <summary className="cursor-pointer font-bold">
                       Xem bằng chứng
                     </summary>
@@ -2149,7 +2149,7 @@ function MockSetup({
                     <button
                       type="button"
                       onClick={() => onDeleteHistory(entry.attemptId)}
-                      className="mt-3 text-xs font-bold text-[#8e3825] underline decoration-[#8e3825]/30 underline-offset-4"
+                      className="mt-3 text-xs font-bold text-[#c43d3d] underline decoration-[#c43d3d]/30 underline-offset-4"
                     >
                       Xóa lượt phỏng vấn
                     </button>
@@ -2158,7 +2158,7 @@ function MockSetup({
               ))}
             </div>
           ) : (
-            <p className="mt-5 text-sm text-[#64736c]">
+            <p className="mt-5 text-sm text-[#526276]">
               Chưa có lượt phỏng vấn hoàn chỉnh ở phiên bản mới. Báo cáo cũ
               vẫn được giữ trong bộ nhớ trước đây và không tự động gán vào tài
               khoản này.
@@ -2166,7 +2166,7 @@ function MockSetup({
           )}
         </section>
 
-        <p className="pb-8 text-center text-xs leading-5 text-[#64736c]">
+        <p className="pb-8 text-center text-xs leading-5 text-[#526276]">
           {WORLDQUANT_PROFILE.disclaimer}
         </p>
       </div>
@@ -2230,26 +2230,26 @@ function MockReport({
               href="/"
               aria-label="Về trang chủ cppinterview"
               title="Về trang chủ cppinterview"
-              className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+              className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
               WQ
             </Link>
             <div>
               <p className="font-bold">Báo cáo phỏng vấn thử</p>
-              <p className="text-xs text-[#64736c]">
+              <p className="text-xs text-[#526276]">
                 {role.label}
               </p>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-[#eaf4df] px-3 py-1.5 font-mono text-[10px] font-bold tracking-[0.12em] text-[#356b58] uppercase">
+            <span className="rounded-full bg-[#e6f8f5] px-3 py-1.5 font-mono text-[10px] font-bold tracking-[0.12em] text-[#285f86] uppercase">
               Đã hoàn thành
             </span>
             {missionStartRequired ? (
               <button
                 type="button"
                 onClick={onStartMissionMock}
-                className="min-h-11 rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white"
+                className="min-h-11 rounded-xl bg-[#0f3a69] px-4 py-2 text-sm font-bold text-white"
               >
                 Tạo buổi phỏng vấn theo nhiệm vụ
               </button>
@@ -2258,8 +2258,8 @@ function MockReport({
                 href={missionReturnHref ?? "/practice"}
                 className={`inline-flex min-h-11 items-center rounded-xl px-4 py-2 text-sm font-bold ${
                   missionReturnHref
-                    ? "bg-[#173f35] text-white"
-                    : "border border-[#173f35]/15 bg-white/65"
+                    ? "bg-[#0f3a69] text-white"
+                    : "border border-[#0f3a69]/15 bg-white/65"
                 }`}
               >
                 {missionReturnHref
@@ -2269,33 +2269,33 @@ function MockReport({
             )}
             <Link
               href="/"
-              className="rounded-xl border border-[#173f35]/15 bg-white/65 px-4 py-2 text-sm font-bold"
+              className="rounded-xl border border-[#0f3a69]/15 bg-white/65 px-4 py-2 text-sm font-bold"
             >
               Luyện thẻ
             </Link>
             <button
               type="button"
               onClick={onReset}
-              className="rounded-xl border border-[#173f35]/15 bg-white/65 px-4 py-2 text-sm font-bold"
+              className="rounded-xl border border-[#0f3a69]/15 bg-white/65 px-4 py-2 text-sm font-bold"
             >
               Chọn bộ khác
             </button>
             <button
               type="button"
               onClick={onReplay}
-              className="rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white"
+              className="rounded-xl bg-[#0f3a69] px-4 py-2 text-sm font-bold text-white"
             >
               Luyện lại bộ này
             </button>
-            <span className="rounded-full border border-[#173f35]/15 bg-white/65 px-4 py-2 text-xs font-semibold">
+            <span className="rounded-full border border-[#0f3a69]/15 bg-white/65 px-4 py-2 text-xs font-semibold">
               @{account.login ?? account.displayName}
             </span>
           </div>
         </header>
 
         <section className="grid gap-5 py-8 lg:grid-cols-[minmax(17rem,.34fr)_minmax(0,1fr)]">
-          <article className="rounded-[2rem] bg-[#173f35] p-7 text-white shadow-[0_22px_80px_rgb(23_63_53_/_16%)] sm:p-8">
-            <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#d7ff91] uppercase">
+          <article className="rounded-[1.25rem] bg-[#0f3a69] p-7 text-white shadow-[0_22px_80px_rgb(15_58_105_/_16%)] sm:p-8">
+            <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#65e6d2] uppercase">
               {debrief.scope === "targeted_evidence"
                 ? `Trọng tâm · ${
                     worldQuantCompetencies[
@@ -2304,7 +2304,7 @@ function MockReport({
                   }`
                 : "Đánh giá toàn diện theo vị trí"}
             </p>
-            <p className="mt-4 font-mono text-6xl font-bold text-[#d7ff91]">
+            <p className="mt-4 font-mono text-6xl font-bold text-[#65e6d2]">
               {debrief.roleInterviewScore ?? "—"}
             </p>
             <p className="mt-1 text-xs text-white/45">/ 100</p>
@@ -2341,19 +2341,19 @@ function MockReport({
                 className="mt-6 flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3 text-xs font-bold text-white transition hover:bg-white/16"
               >
                 <span>Xem bước ôn tiếp theo</span>
-                <span aria-hidden="true" className="text-[#d7ff91]">↓</span>
+                <span aria-hidden="true" className="text-[#65e6d2]">↓</span>
               </a>
             ) : null}
           </article>
 
-          <article className="rounded-[2rem] border border-[#173f35]/12 bg-white/75 p-7 sm:p-8">
-            <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+          <article className="rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/75 p-7 sm:p-8">
+            <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
               Tổng kết phỏng vấn
             </p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight">
               Một buổi đã hoàn thành.
             </h2>
-            <p className="mt-4 leading-7 text-[#52645c]">{report.summary}</p>
+            <p className="mt-4 leading-7 text-[#43546a]">{report.summary}</p>
             {!report.interviewDimensions?.length ? (
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
                 <ReportList
@@ -2374,24 +2374,24 @@ function MockReport({
         {historyWarning ? (
           <p
             role="alert"
-            className="mb-5 rounded-2xl border border-[#ba4b2f]/20 bg-[#f8e8df] px-4 py-3 text-sm text-[#8e3825]"
+            className="mb-5 rounded-2xl border border-[#a65c0e]/20 bg-[#fff1f1] px-4 py-3 text-sm text-[#c43d3d]"
           >
             {historyWarning}
           </p>
         ) : null}
 
         {session.gates ? (
-          <section className="mb-5 rounded-[2rem] border border-[#173f35]/12 bg-white/62 p-6 sm:p-7">
+          <section className="mb-5 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/62 p-6 sm:p-7">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#356b58] uppercase">
+                <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#285f86] uppercase">
                   Cổng bằng chứng
                 </p>
                 <h2 className="mt-2 text-2xl font-semibold">
                   Điều kiện không thể suy diễn
                 </h2>
               </div>
-              <p className="max-w-md text-xs leading-5 text-[#64736c]">
+              <p className="max-w-md text-xs leading-5 text-[#526276]">
                 Phiên trọng tâm và phiên ngắn chỉ đo phần đã hỏi. Hệ thống không
                 đưa ra kết luận sẵn sàng cho vị trí từ các kết quả này.
               </p>
@@ -2400,17 +2400,17 @@ function MockReport({
               {session.gates.gates.map((gate) => (
                 <article
                   key={gate.key}
-                  className="rounded-2xl border border-[#173f35]/10 bg-[#f8faf5] p-5"
+                  className="rounded-2xl border border-[#0f3a69]/10 bg-[#f8fafc] p-5"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <h3 className="font-semibold">{gate.label}</h3>
                     <span
                       className={`rounded-full px-3 py-1 font-mono text-[10px] font-bold ${
                         gate.status === "passed"
-                          ? "bg-[#eaf8cf] text-[#245748]"
+                          ? "bg-[#e6f8f5] text-[#16865a]"
                           : gate.status === "needs_work"
-                            ? "bg-[#f8e8df] text-[#8e3825]"
-                            : "bg-[#edf0e8] text-[#64736c]"
+                            ? "bg-[#fff1f1] text-[#c43d3d]"
+                            : "bg-[#eaf2f8] text-[#526276]"
                       }`}
                     >
                       {gate.status === "passed"
@@ -2420,11 +2420,11 @@ function MockReport({
                           : "Chưa đánh giá"}
                     </span>
                   </div>
-                  <p className="mt-3 font-mono text-2xl font-bold text-[#173f35]">
+                  <p className="mt-3 font-mono text-2xl font-bold text-[#0f3a69]">
                     {gate.score ?? "—"}
                     {gate.score !== null ? <span className="text-xs"> / 100</span> : null}
                   </p>
-                  <p className="mt-2 text-xs leading-5 text-[#52645c]">
+                  <p className="mt-2 text-xs leading-5 text-[#43546a]">
                     {gate.reason}
                   </p>
                 </article>
@@ -2434,17 +2434,17 @@ function MockReport({
         ) : null}
 
         {report.interviewDimensions?.length ? (
-          <section className="mb-5 rounded-[2rem] border border-[#173f35]/12 bg-white/62 p-6 sm:p-7">
+          <section className="mb-5 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/62 p-6 sm:p-7">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#356b58] uppercase">
+                <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#285f86] uppercase">
                   Báo cáo có bằng chứng
                 </p>
                 <h2 className="mt-2 text-2xl font-semibold">
                   Tám tiêu chí phỏng vấn
                 </h2>
               </div>
-              <p className="max-w-md text-xs leading-5 text-[#64736c]">
+              <p className="max-w-md text-xs leading-5 text-[#526276]">
                 Mỗi nhận xét bên dưới đều dẫn về mã, kết quả kiểm thử hoặc câu trả lời cụ thể của bạn.
               </p>
             </div>
@@ -2452,7 +2452,7 @@ function MockReport({
               {report.interviewDimensions.map((dimension) => (
                 <article
                   key={dimension.key}
-                  className="rounded-2xl border border-[#173f35]/10 bg-[#f8faf5] p-5"
+                  className="rounded-2xl border border-[#0f3a69]/10 bg-[#f8fafc] p-5"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <h3 className="font-semibold">
@@ -2461,8 +2461,8 @@ function MockReport({
                     <span
                       className={`rounded-full px-3 py-1 font-mono text-xs font-bold ${
                         dimension.status === "assessed"
-                          ? "bg-[#eaf8cf] text-[#245748]"
-                          : "bg-[#edf0e8] text-[#64736c]"
+                          ? "bg-[#e6f8f5] text-[#16865a]"
+                          : "bg-[#eaf2f8] text-[#526276]"
                       }`}
                     >
                       {dimension.status === "assessed"
@@ -2470,7 +2470,7 @@ function MockReport({
                         : "Chưa đánh giá"}
                     </span>
                   </div>
-                  <p className="mt-3 text-sm leading-6 text-[#52645c]">
+                  <p className="mt-3 text-sm leading-6 text-[#43546a]">
                     {dimension.summary}
                   </p>
                   {dimension.status === "assessed" ? (
@@ -2483,9 +2483,9 @@ function MockReport({
                         {dimension.observations.map((observation, index) => (
                           <div
                             key={`${dimension.key}-${index}`}
-                            className="rounded-xl border border-[#173f35]/10 bg-white/75 p-3"
+                            className="rounded-xl border border-[#0f3a69]/10 bg-white/75 p-3"
                           >
-                            <p className="text-sm leading-6 text-[#52645c]">
+                            <p className="text-sm leading-6 text-[#43546a]">
                               {observation.feedback}
                             </p>
                             <ReportEvidence
@@ -2515,11 +2515,11 @@ function MockReport({
             return (
               <article
                 key={result.competency}
-                className="rounded-[1.75rem] border border-[#173f35]/12 bg-white/62 p-5"
+                className="rounded-2xl border border-[#0f3a69]/12 bg-white/62 p-5"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#64736c] uppercase">
+                    <p className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#526276] uppercase">
                       Năng lực
                     </p>
                     <h3 className="mt-1 font-semibold">
@@ -2532,8 +2532,8 @@ function MockReport({
                   <span
                     className={`rounded-full px-3 py-1 font-mono text-xs font-bold ${
                       result.status === "assessed"
-                        ? "bg-[#d7ff91]/70 text-[#245748]"
-                        : "bg-[#edf0e8] text-[#64736c]"
+                        ? "bg-[#65e6d2]/70 text-[#16865a]"
+                        : "bg-[#eaf2f8] text-[#526276]"
                     }`}
                   >
                     {result.status === "assessed"
@@ -2541,7 +2541,7 @@ function MockReport({
                       : "Chưa hỏi"}
                   </span>
                 </div>
-                <p className="mt-4 text-sm leading-6 text-[#52645c]">
+                <p className="mt-4 text-sm leading-6 text-[#43546a]">
                   {result.status === "assessed"
                     ? `${result.evidenceCount} câu làm bằng chứng · điểm còn thiếu ${result.scoreDeficit} · mức ưu tiên ${result.weightedDeficit}`
                     : "Buổi phỏng vấn này chưa kiểm tra năng lực này."}
@@ -2551,8 +2551,8 @@ function MockReport({
           })}
         </section>
 
-        <section id="next-training" className="mt-5 scroll-mt-5 rounded-[2rem] border border-[#173f35]/12 bg-white/62 p-6 sm:p-7">
-          <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+        <section id="next-training" className="mt-5 scroll-mt-5 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/62 p-6 sm:p-7">
+          <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
             Bước ôn tập tiếp theo
           </p>
           <h2 className="mt-2 text-2xl font-semibold">
@@ -2562,20 +2562,20 @@ function MockReport({
           </h2>
           {report.nextPracticeActions?.length ? (
             <>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#52645c]">
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#43546a]">
                 Ba việc này được ghi vào hàng chờ lỗi cần ôn sau khi lịch sử trực tuyến được xác nhận. Hệ thống chỉ tạo bản nháp, không tự xuất bản thẻ.
               </p>
               <div className="mt-5 grid gap-3 lg:grid-cols-3">
                 {report.nextPracticeActions.map((action) => (
                   <article
                     key={action.priority}
-                    className="rounded-2xl border border-[#173f35]/10 bg-[#f8faf5] p-4"
+                    className="rounded-2xl border border-[#0f3a69]/10 bg-[#f8fafc] p-4"
                   >
-                    <span className="font-mono text-[10px] font-bold text-[#ba4b2f]">
+                    <span className="font-mono text-[10px] font-bold text-[#a65c0e]">
                       Việc #{action.priority}
                     </span>
                     <h3 className="mt-1 font-semibold">{action.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-[#52645c]">
+                    <p className="mt-2 text-sm leading-6 text-[#43546a]">
                       {action.action}
                     </p>
                     <ReportEvidence
@@ -2591,7 +2591,7 @@ function MockReport({
           {!report.nextPracticeActions?.length ? (
             <>
           <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-bold text-[#64736c]">Thời lượng:</span>
+            <span className="font-bold text-[#526276]">Thời lượng:</span>
             {[15, 30, 45, 60].map((minutes) => (
               <button
                 key={minutes}
@@ -2600,8 +2600,8 @@ function MockReport({
                 aria-pressed={remediationMinutes === minutes}
                 className={`rounded-full border px-3 py-1.5 font-bold ${
                   remediationMinutes === minutes
-                    ? "border-[#173f35] bg-[#173f35] text-white"
-                    : "border-[#173f35]/15 bg-white"
+                    ? "border-[#0f3a69] bg-[#0f3a69] text-white"
+                    : "border-[#0f3a69]/15 bg-white"
                 }`}
               >
                 {minutes} phút
@@ -2617,9 +2617,9 @@ function MockReport({
                 return (
                   <article
                     key={option.competency}
-                    className="rounded-2xl border border-[#173f35]/10 bg-[#f8faf5] p-4"
+                    className="rounded-2xl border border-[#0f3a69]/10 bg-[#f8fafc] p-4"
                   >
-                    <span className="font-mono text-[10px] font-bold text-[#ba4b2f]">
+                    <span className="font-mono text-[10px] font-bold text-[#a65c0e]">
                       Điểm cần cải thiện #{option.rank} · mức ưu tiên{" "}
                       {option.weightedDeficit}
                     </span>
@@ -2629,7 +2629,7 @@ function MockReport({
                           .shortLabel
                       }
                     </h3>
-                    <p className="mt-2 text-xs leading-5 text-[#64736c]">
+                    <p className="mt-2 text-xs leading-5 text-[#526276]">
                       {option.availability === "focus_sprint"
                         ? `${option.plan.questions.length} thẻ đã duyệt · ~${option.plan.scheduledMinutes} phút`
                         : option.availability === "guide"
@@ -2642,14 +2642,14 @@ function MockReport({
                       <button
                         type="button"
                         onClick={() => onRemediate(option)}
-                        className="mt-4 rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white"
+                        className="mt-4 rounded-xl bg-[#0f3a69] px-4 py-2 text-xs font-bold text-white"
                       >
                         Tạo phiên ôn trọng tâm
                       </button>
                     ) : guide?.kind === "guide" ? (
                       <Link
                         href={guide.href}
-                        className="mt-4 inline-flex rounded-xl border border-[#173f35]/15 px-4 py-2 text-xs font-bold"
+                        className="mt-4 inline-flex rounded-xl border border-[#0f3a69]/15 px-4 py-2 text-xs font-bold"
                       >
                         Mở bài hướng dẫn
                       </Link>
@@ -2660,11 +2660,11 @@ function MockReport({
             </div>
           ) : null}
           {remediationMessage ? (
-            <p className="mt-4 rounded-xl bg-[#fff4df] px-4 py-3 text-xs text-[#8e3825]">
+            <p className="mt-4 rounded-xl bg-[#fff4df] px-4 py-3 text-xs text-[#c43d3d]">
               {remediationMessage}
             </p>
           ) : null}
-              <h3 className="mt-7 text-sm font-bold text-[#356b58]">
+              <h3 className="mt-7 text-sm font-bold text-[#285f86]">
                 Gợi ý tham khảo từ AI
               </h3>
               {report.studyPlan.length ? (
@@ -2672,20 +2672,20 @@ function MockReport({
               {report.studyPlan.map((item) => (
                 <div
                   key={`${item.priority}:${item.topic}`}
-                  className="rounded-2xl border border-[#173f35]/10 bg-[#f8faf5] p-4"
+                  className="rounded-2xl border border-[#0f3a69]/10 bg-[#f8fafc] p-4"
                 >
-                  <span className="font-mono text-[10px] font-bold text-[#ba4b2f]">
+                  <span className="font-mono text-[10px] font-bold text-[#a65c0e]">
                     Ưu tiên {item.priority}
                   </span>
                   <h3 className="mt-1 font-semibold">{item.topic}</h3>
-                  <p className="mt-2 text-sm leading-6 text-[#52645c]">
+                  <p className="mt-2 text-sm leading-6 text-[#43546a]">
                     {item.action}
                   </p>
                 </div>
               ))}
             </div>
               ) : (
-                <p className="mt-4 text-sm text-[#64736c]">
+                <p className="mt-4 text-sm text-[#526276]">
                   Báo cáo chưa đề xuất thêm hành động.
                 </p>
               )}
@@ -2695,7 +2695,7 @@ function MockReport({
 
         <section className="mt-5 pb-10">
           <div className="mb-4">
-            <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#356b58] uppercase">
+            <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#285f86] uppercase">
               Xem lại câu hỏi
             </p>
             <h2 className="mt-2 text-2xl font-semibold">Xem lại từng câu</h2>
@@ -2710,25 +2710,25 @@ function MockReport({
               return (
                 <details
                   key={question.id}
-                  className="group rounded-2xl border border-[#173f35]/12 bg-white/62 p-5"
+                  className="group rounded-2xl border border-[#0f3a69]/12 bg-white/62 p-5"
                 >
                   <summary className="flex list-none cursor-pointer items-center justify-between gap-4">
                     <div>
-                      <span className="font-mono text-[10px] text-[#64736c]">
+                      <span className="font-mono text-[10px] text-[#526276]">
                         Câu {index + 1}
                       </span>
                       <p className="mt-1 line-clamp-2 font-semibold">
                         {question.prompt}
                       </p>
                     </div>
-                    <span className="shrink-0 rounded-full bg-[#eaf8cf] px-3 py-1 font-mono text-xs font-bold text-[#245748]">
+                    <span className="shrink-0 rounded-full bg-[#e6f8f5] px-3 py-1 font-mono text-xs font-bold text-[#16865a]">
                       {assessment.score} · {verdictLabels[assessment.verdict]}
                     </span>
                   </summary>
-                  <div className="mt-5 space-y-5 border-t border-[#173f35]/10 pt-5">
+                  <div className="mt-5 space-y-5 border-t border-[#0f3a69]/10 pt-5">
                     {hiddenExecution ? (
                       <div>
-                        <p className="text-xs font-bold text-[#356b58]">
+                        <p className="text-xs font-bold text-[#285f86]">
                           Kiểm thử ẩn trong môi trường cô lập
                         </p>
                         <ExecutionResultPanel
@@ -2738,26 +2738,26 @@ function MockReport({
                       </div>
                     ) : null}
                     <div>
-                      <p className="text-xs font-bold text-[#356b58]">
+                      <p className="text-xs font-bold text-[#285f86]">
                         Câu trả lời của bạn
                       </p>
-                      <pre className="mt-2 max-h-72 overflow-auto whitespace-pre-wrap rounded-xl bg-[#102d26] p-4 font-mono text-xs leading-6 text-[#e8f4ec]">
+                      <pre className="mt-2 max-h-72 overflow-auto whitespace-pre-wrap rounded-xl bg-[#092c51] p-4 font-mono text-xs leading-6 text-[#e6f8f5]">
                         {answer
                           ? candidateAnswer(question, answer) || "(Bỏ trống)"
                           : "(Bỏ trống)"}
                       </pre>
                     </div>
                     {report.interviewDimensions?.length ? (
-                      <p className="rounded-xl bg-[#edf0e8] px-4 py-3 text-sm leading-6 text-[#52645c]">
+                      <p className="rounded-xl bg-[#eaf2f8] px-4 py-3 text-sm leading-6 text-[#43546a]">
                         Các nhận xét chi tiết có bằng chứng được tổng hợp ở tám tiêu chí phía trên.
                       </p>
                     ) : (
                       <>
                         <div>
-                          <p className="text-xs font-bold text-[#356b58]">
+                          <p className="text-xs font-bold text-[#285f86]">
                             Nhận xét
                           </p>
-                          <p className="mt-2 text-sm leading-6 text-[#52645c]">
+                          <p className="mt-2 text-sm leading-6 text-[#43546a]">
                             {assessment.summary}
                           </p>
                         </div>
@@ -2793,18 +2793,18 @@ function ReportList({
   return (
     <div
       className={`rounded-2xl p-5 ${
-        tone === "positive" ? "bg-[#eaf8cf]" : "bg-[#f8e8df]"
+        tone === "positive" ? "bg-[#e6f8f5]" : "bg-[#fff1f1]"
       }`}
     >
       <p
         className={`text-sm font-bold ${
-          tone === "positive" ? "text-[#245748]" : "text-[#8e3825]"
+          tone === "positive" ? "text-[#16865a]" : "text-[#c43d3d]"
         }`}
       >
         {title}
       </p>
       {items.length ? (
-        <ul className="mt-3 space-y-2 text-sm leading-6 text-[#52645c]">
+        <ul className="mt-3 space-y-2 text-sm leading-6 text-[#43546a]">
           {items.map((item) => (
             <li key={item} className="flex gap-2">
               <span>{tone === "positive" ? "✓" : "→"}</span>
@@ -2813,7 +2813,7 @@ function ReportList({
           ))}
         </ul>
       ) : (
-        <p className="mt-2 text-sm text-[#64736c]">Chưa có bằng chứng.</p>
+        <p className="mt-2 text-sm text-[#526276]">Chưa có bằng chứng.</p>
       )}
     </div>
   );
@@ -2837,14 +2837,14 @@ function ReportEvidence({
         return (
           <div
             key={item.id}
-            className="rounded-lg border border-[#173f35]/10 bg-[#edf0e8]/65 px-3 py-2"
+            className="rounded-lg border border-[#0f3a69]/10 bg-[#eaf2f8]/65 px-3 py-2"
           >
-            <p className="font-mono text-[10px] font-bold tracking-[0.08em] text-[#356b58] uppercase">
+            <p className="font-mono text-[10px] font-bold tracking-[0.08em] text-[#285f86] uppercase">
               {questionNumber ? `Câu ${questionNumber} · ` : ""}
               {item.label}
             </p>
             <pre
-              className={`mt-1 max-h-28 overflow-auto whitespace-pre-wrap text-[11px] leading-5 text-[#52645c] ${
+              className={`mt-1 max-h-28 overflow-auto whitespace-pre-wrap text-[11px] leading-5 text-[#43546a] ${
                 code ? "font-mono" : "font-sans"
               }`}
             >
@@ -2884,38 +2884,38 @@ function ExecutionResultPanel({
     <div
       className={`mt-3 rounded-xl border p-4 ${
         positive
-          ? "border-[#79b82a]/25 bg-[#eaf8cf]"
+          ? "border-[#138f8c]/25 bg-[#e6f8f5]"
           : infrastructureError
-            ? "border-[#173f35]/12 bg-[#edf0e8]"
-            : "border-[#ba4b2f]/20 bg-[#f8e8df]"
+            ? "border-[#0f3a69]/12 bg-[#eaf2f8]"
+            : "border-[#a65c0e]/20 bg-[#fff1f1]"
       }`}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <strong
           className={
             positive
-              ? "text-[#245748]"
+              ? "text-[#16865a]"
               : infrastructureError
-                ? "text-[#52645c]"
-                : "text-[#8e3825]"
+                ? "text-[#43546a]"
+                : "text-[#c43d3d]"
           }
         >
           {executionStatusLabels[result.status]}
         </strong>
-        <span className="font-mono text-[10px] text-[#64736c]">
+        <span className="font-mono text-[10px] text-[#526276]">
           {result.passedTests}/{result.totalTests} kiểm thử ·{" "}
           {result.durationMs}ms · {result.toolchain}
         </span>
       </div>
       {result.suite === "sample" && result.cases.length ? (
-        <ul className="mt-3 space-y-2 text-xs leading-5 text-[#52645c]">
+        <ul className="mt-3 space-y-2 text-xs leading-5 text-[#43546a]">
           {result.cases.map((testCase) => (
             <li key={testCase.name} className="flex gap-2">
               <span
                 className={
                   testCase.passed
                     ? "text-[#67a41d]"
-                    : "text-[#ba4b2f]"
+                    : "text-[#a65c0e]"
                 }
               >
                 {testCase.passed ? "✓" : "×"}
@@ -2930,26 +2930,26 @@ function ExecutionResultPanel({
       ) : null}
       {!compact && result.diagnostics ? (
         <div className="mt-3">
-          <p className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#64736c] uppercase">
+          <p className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#526276] uppercase">
             Thông báo của trình biên dịch
           </p>
-          <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap rounded-lg bg-[#102d26] p-3 font-mono text-[11px] leading-5 text-[#e8f4ec]">
+          <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap rounded-lg bg-[#092c51] p-3 font-mono text-[11px] leading-5 text-[#e6f8f5]">
             {result.diagnostics}
           </pre>
         </div>
       ) : null}
       {!compact && result.output ? (
         <div className="mt-3">
-          <p className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#64736c] uppercase">
+          <p className="font-mono text-[10px] font-bold tracking-[0.12em] text-[#526276] uppercase">
             Kết quả kiểm thử
           </p>
-          <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap rounded-lg bg-[#102d26] p-3 font-mono text-[11px] leading-5 text-[#e8f4ec]">
+          <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap rounded-lg bg-[#092c51] p-3 font-mono text-[11px] leading-5 text-[#e6f8f5]">
             {result.output}
           </pre>
         </div>
       ) : null}
       {result.suite === "hidden" ? (
-        <p className="mt-2 text-[11px] leading-5 text-[#64736c]">
+        <p className="mt-2 text-[11px] leading-5 text-[#526276]">
           Chỉ hiển thị kết quả tổng hợp để không làm lộ các trường hợp kiểm
           thử ẩn.
         </p>
@@ -2966,7 +2966,7 @@ function InlineCode({ text }: { text: string }) {
         segment.startsWith("`") && segment.endsWith("`") ? (
           <code
             key={`${index}:${segment}`}
-            className="rounded-md bg-[#e8ede8] px-1.5 py-0.5 font-mono text-[0.88em] text-[#245748]"
+            className="rounded-md bg-[#eaf2f8] px-1.5 py-0.5 font-mono text-[0.88em] text-[#16865a]"
           >
             {segment.slice(1, -1)}
           </code>

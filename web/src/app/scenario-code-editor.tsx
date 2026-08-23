@@ -123,7 +123,7 @@ export function MonacoCodeEditor({
       onMount={handleMount}
       onChange={(nextValue) => onChange(nextValue ?? "")}
       loading={
-        <div className="grid h-full place-items-center bg-[#0b241d] font-mono text-xs text-white/45">
+        <div className="grid h-full place-items-center bg-[#092c51] font-mono text-xs text-white/45">
           Đang tải trình soạn mã…
         </div>
       }

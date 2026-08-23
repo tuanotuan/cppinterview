@@ -14,11 +14,11 @@ export const metadata: Metadata = {
 };
 
 const contributionColors = {
-  0: "border-[#173f35]/8 bg-[#173f35]/5",
+  0: "border-[#0f3a69]/8 bg-[#0f3a69]/5",
   1: "border-[#b8dc78]/45 bg-[#dff6b7]",
   2: "border-[#91c94b]/50 bg-[#bde979]",
   3: "border-[#4f9a55]/55 bg-[#69b85b]",
-  4: "border-[#245748]/60 bg-[#245748]",
+  4: "border-[#16865a]/60 bg-[#16865a]",
 } as const;
 
 export default async function ProfilePage() {
@@ -43,12 +43,12 @@ export default async function ProfilePage() {
             title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
+            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
               R
             </span>
             <span>
               <span className="block text-lg font-bold">cppinterview</span>
-              <span className="block text-xs text-[#64736c]">
+              <span className="block text-xs text-[#526276]">
                 Nhật ký học tập cá nhân
               </span>
             </span>
@@ -61,7 +61,7 @@ export default async function ProfilePage() {
             <form action="/auth/logout" method="post">
               <button
                 type="submit"
-                className="rounded-xl border border-[#173f35]/15 bg-white/65 px-4 py-2 text-sm font-bold transition hover:border-[#356b58]/40"
+                className="rounded-xl border border-[#0f3a69]/15 bg-white/65 px-4 py-2 text-sm font-bold transition hover:border-[#285f86]/40"
               >
                 Đăng xuất
               </button>
@@ -69,18 +69,18 @@ export default async function ProfilePage() {
           </nav>
         </header>
 
-        <section className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#173f35]/12 bg-white/62 px-5 py-4">
+        <section className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#0f3a69]/12 bg-white/62 px-5 py-4">
           <div>
-            <p className="ui-eyebrow text-[#356b58]">
+            <p className="ui-eyebrow text-[#285f86]">
               Bảo mật
             </p>
-            <p className="mt-1 text-sm text-[#64736c]">
+            <p className="mt-1 text-sm text-[#526276]">
               Đặt hoặc đổi mật khẩu đăng nhập cho tài khoản hiện tại.
             </p>
           </div>
           <Link
             href="/auth/set-password"
-            className="rounded-xl border border-[#173f35]/18 bg-white px-4 py-2 text-sm font-bold text-[#245748] transition hover:border-[#356b58]/45 hover:bg-[#edf0e8]"
+            className="rounded-xl border border-[#0f3a69]/18 bg-white px-4 py-2 text-sm font-bold text-[#16865a] transition hover:border-[#285f86]/45 hover:bg-[#eaf2f8]"
           >
             Đặt mật khẩu
           </Link>
@@ -88,23 +88,23 @@ export default async function ProfilePage() {
 
         <section className="grid gap-6 py-9 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div className="flex items-center gap-5">
-            <div className="grid size-20 shrink-0 place-items-center rounded-[1.7rem] bg-[#173f35] text-3xl font-semibold text-[#d7ff91] shadow-[0_18px_60px_rgb(23_63_53_/_20%)]">
+            <div className="grid size-20 shrink-0 place-items-center rounded-[1.25rem] bg-[#0f3a69] text-3xl font-semibold text-[#65e6d2] shadow-[0_18px_60px_rgb(15_58_105_/_20%)]">
               {account.displayName.slice(0, 1).toUpperCase()}
             </div>
             <div>
-              <p className="ui-eyebrow text-[#ba4b2f]">
+              <p className="ui-eyebrow text-[#a65c0e]">
                 Trang cá nhân
               </p>
               <h1 className="mt-2 text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
                 {account.displayName}
               </h1>
-              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-[#64736c]">
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-[#526276]">
                 {account.login ? (
                   <a
                     href={`https://github.com/${account.login}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="font-semibold text-[#356b58] hover:underline"
+                    className="font-semibold text-[#285f86] hover:underline"
                   >
                     @{account.login}
                   </a>
@@ -113,7 +113,7 @@ export default async function ProfilePage() {
               </div>
             </div>
           </div>
-          <p className="max-w-md text-sm leading-6 text-[#64736c] lg:text-right">
+          <p className="max-w-md text-sm leading-6 text-[#526276] lg:text-right">
             Mỗi lượt ôn thẻ, lần nhờ AI coach và bài phỏng vấn thử hoàn tất đều
             được ghi thành một hoạt động. Dữ liệu chỉ hiển thị trong tài khoản
             của bạn.
@@ -121,7 +121,7 @@ export default async function ProfilePage() {
         </section>
 
         {profile.error ? (
-          <div className="mb-5 rounded-2xl border border-[#ba4b2f]/20 bg-[#fff1e8] px-5 py-4 text-sm text-[#8e3825]">
+          <div className="mb-5 rounded-2xl border border-[#a65c0e]/20 bg-[#fff1f1] px-5 py-4 text-sm text-[#c43d3d]">
             Một phần nhật ký chưa tải được. Graph bên dưới vẫn hiển thị các dữ
             liệu đã đọc thành công.
           </div>
@@ -158,22 +158,22 @@ export default async function ProfilePage() {
         </section>
 
         {mobileUsage ? (
-          <p className="mt-4 rounded-2xl border border-[#173f35]/12 bg-[#eaf8cf]/55 px-5 py-3 text-sm leading-6 text-[#356b58]">
+          <p className="mt-4 rounded-2xl border border-[#0f3a69]/12 bg-[#e6f8f5]/55 px-5 py-3 text-sm leading-6 text-[#285f86]">
             Thời gian điện thoại chỉ được tính khi tab cppinterview đang hiển thị và hoạt động. Dữ liệu không lưu địa chỉ IP, user-agent hay trang bạn đang xem.
           </p>
         ) : null}
 
-        <section className="mt-5 rounded-[2rem] border border-[#173f35]/12 bg-white/62 p-5 shadow-[0_18px_70px_rgb(23_63_53_/_7%)] sm:p-7">
+        <section className="mt-5 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/62 p-5 shadow-[0_18px_70px_rgb(15_58_105_/_7%)] sm:p-7">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="ui-eyebrow text-[#ba4b2f]">
+              <p className="ui-eyebrow text-[#a65c0e]">
                 Contribution graph
               </p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight">
                 Hoạt động học tập trong 53 tuần
               </h2>
             </div>
-            <div className="flex items-center gap-2 font-mono text-[10px] text-[#64736c]">
+            <div className="flex items-center gap-2 font-mono text-[10px] text-[#526276]">
               <span>Ít</span>
               {([0, 1, 2, 3, 4] as const).map((level) => (
                 <span
@@ -191,14 +191,14 @@ export default async function ProfilePage() {
                 {weeks.map((week, index) => (
                   <span
                     key={week[0]?.date}
-                    className="h-5 font-mono text-[9px] text-[#64736c]"
+                    className="h-5 font-mono text-[9px] text-[#526276]"
                   >
                     {monthLabel(week, index)}
                   </span>
                 ))}
               </div>
               <div className="mt-1 flex">
-                <div className="mr-2 grid w-6 grid-rows-7 gap-1.5 font-mono text-[9px] text-[#64736c]">
+                <div className="mr-2 grid w-6 grid-rows-7 gap-1.5 font-mono text-[9px] text-[#526276]">
                   <span />
                   <span>T2</span>
                   <span />
@@ -220,25 +220,25 @@ export default async function ProfilePage() {
             </div>
           </div>
 
-          <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 border-t border-[#173f35]/10 pt-5 text-sm text-[#64736c]">
+          <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 border-t border-[#0f3a69]/10 pt-5 text-sm text-[#526276]">
             <span>
-              <strong className="text-[#17221d]">{calendar.totals.review}</strong>{" "}
+              <strong className="text-[#172033]">{calendar.totals.review}</strong>{" "}
               lượt ôn thẻ
             </span>
             <span>
-              <strong className="text-[#17221d]">{calendar.totals.coach}</strong>{" "}
+              <strong className="text-[#172033]">{calendar.totals.coach}</strong>{" "}
               lần AI coach
             </span>
             <span>
-              <strong className="text-[#17221d]">{calendar.totals.mock}</strong>{" "}
+              <strong className="text-[#172033]">{calendar.totals.mock}</strong>{" "}
               bài phỏng vấn thử
             </span>
           </div>
         </section>
 
         <section className="mt-5 grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
-          <section className="rounded-[2rem] border border-[#173f35]/12 bg-[#173f35] p-6 text-white sm:p-7">
-            <p className="ui-eyebrow text-[#d7ff91]">
+          <section className="rounded-[1.25rem] border border-[#0f3a69]/12 bg-[#0f3a69] p-6 text-white sm:p-7">
+            <p className="ui-eyebrow text-[#65e6d2]">
               Nhịp học hiện tại
             </p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight">
@@ -253,21 +253,21 @@ export default async function ProfilePage() {
             </p>
             <Link
               href="/"
-              className="mt-7 inline-flex rounded-2xl bg-[#d7ff91] px-5 py-3 text-sm font-bold text-[#173f35] transition hover:bg-[#c8f27b]"
+              className="mt-7 inline-flex rounded-2xl bg-[#65e6d2] px-5 py-3 text-sm font-bold text-[#0f3a69] transition hover:bg-[#c8f27b]"
             >
               Luyện thẻ hôm nay →
             </Link>
           </section>
 
-          <section className="rounded-[2rem] border border-[#173f35]/12 bg-white/62 p-6 sm:p-7">
-            <p className="ui-eyebrow text-[#ba4b2f]">
+          <section className="rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/62 p-6 sm:p-7">
+            <p className="ui-eyebrow text-[#a65c0e]">
               Nhật ký gần đây
             </p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight">
               Những ngày có hoạt động
             </h2>
             {recentDays.length ? (
-              <div className="mt-5 divide-y divide-[#173f35]/10">
+              <div className="mt-5 divide-y divide-[#0f3a69]/10">
                 {recentDays.map((day) => (
                   <div
                     key={day.date}
@@ -275,18 +275,18 @@ export default async function ProfilePage() {
                   >
                     <div>
                       <p className="font-semibold">{formatLongDate(day.date)}</p>
-                      <p className="mt-1 text-xs text-[#64736c]">
+                      <p className="mt-1 text-xs text-[#526276]">
                         {activityBreakdown(day)}
                       </p>
                     </div>
-                    <span className="rounded-full bg-[#eaf8cf] px-3 py-1 font-mono text-xs font-bold text-[#245748]">
+                    <span className="rounded-full bg-[#e6f8f5] px-3 py-1 font-mono text-xs font-bold text-[#16865a]">
                       {day.total} hoạt động
                     </span>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="mt-6 rounded-2xl border border-dashed border-[#173f35]/20 p-6 text-sm text-[#64736c]">
+              <p className="mt-6 rounded-2xl border border-dashed border-[#0f3a69]/20 p-6 text-sm text-[#526276]">
                 Chưa có hoạt động nào trong khoảng thời gian này.
               </p>
             )}
@@ -315,7 +315,7 @@ function ContributionCell({
         title={future ? undefined : `${formatLongDate(day.date)}: ${day.total} hoạt động`}
       />
       {!future ? (
-        <div className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-20 hidden w-max max-w-64 -translate-x-1/2 rounded-xl bg-[#102f27] px-3 py-2 text-center text-[10px] leading-4 text-white shadow-xl group-hover:block">
+        <div className="pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 z-20 hidden w-max max-w-64 -translate-x-1/2 rounded-xl bg-[#092c51] px-3 py-2 text-center text-[10px] leading-4 text-white shadow-xl group-hover:block">
           <strong>{day.total} hoạt động</strong> · {formatLongDate(day.date)}
           {day.total ? (
             <span className="mt-0.5 block text-white/65">
@@ -338,12 +338,12 @@ function MetricCard({
   note: string;
 }) {
   return (
-    <article className="rounded-[1.75rem] border border-[#173f35]/12 bg-white/62 p-5">
-      <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#64736c] uppercase">
+    <article className="rounded-2xl border border-[#0f3a69]/12 bg-white/62 p-5">
+      <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#526276] uppercase">
         {label}
       </p>
       <p className="mt-3 text-3xl font-semibold tracking-tight">{value}</p>
-      <p className="mt-2 text-xs text-[#64736c]">{note}</p>
+      <p className="mt-2 text-xs text-[#526276]">{note}</p>
     </article>
   );
 }
@@ -368,17 +368,17 @@ function NavLink({
 function ProfileGate({ mode }: { mode: "login" | "not-configured" }) {
   return (
     <main className="grid min-h-screen place-items-center px-5 py-12">
-      <section className="w-full max-w-lg rounded-[2rem] border border-[#173f35]/15 bg-white/70 p-8 shadow-[0_24px_80px_rgb(23_63_53_/_10%)] sm:p-10">
-        <div className="grid size-12 place-items-center rounded-2xl bg-[#173f35] font-mono font-bold text-[#d7ff91]">
+      <section className="w-full max-w-lg rounded-[1.25rem] border border-[#0f3a69]/15 bg-white/70 p-8 shadow-[0_24px_80px_rgb(15_58_105_/_10%)] sm:p-10">
+        <div className="grid size-12 place-items-center rounded-2xl bg-[#0f3a69] font-mono font-bold text-[#65e6d2]">
           R
         </div>
-        <p className="mt-8 font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+        <p className="mt-8 font-mono text-xs font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
           Trang cá nhân
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight">
           Nhật ký học tập của bạn
         </h1>
-        <p className="mt-4 leading-7 text-[#64736c]">
+        <p className="mt-4 leading-7 text-[#526276]">
           {mode === "login"
             ? "Đăng nhập để xem contribution graph và lịch sử hoạt động riêng tư."
             : "Supabase chưa được cấu hình nên chưa thể tải nhật ký hoạt động."}
@@ -387,14 +387,14 @@ function ProfileGate({ mode }: { mode: "login" | "not-configured" }) {
           {mode === "login" ? (
             <Link
               href="/auth?next=%2Fprofile"
-              className="rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white"
+              className="rounded-2xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white"
             >
               Đăng nhập
             </Link>
           ) : null}
           <Link
             href="/practice"
-            className="rounded-2xl border border-[#173f35]/15 bg-white px-5 py-3 text-sm font-bold"
+            className="rounded-2xl border border-[#0f3a69]/15 bg-white px-5 py-3 text-sm font-bold"
           >
             Về trang luyện tập
           </Link>

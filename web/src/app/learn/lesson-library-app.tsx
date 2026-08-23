@@ -56,12 +56,12 @@ export function LessonLibraryApp({
             title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
+            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
               L
             </span>
             <span>
               <span className="block font-bold">Thư viện cppinterview</span>
-              <span className="block text-xs text-[#64736c]">
+              <span className="block text-xs text-[#526276]">
                 Học trước, nhớ lâu sau
               </span>
             </span>
@@ -76,8 +76,8 @@ export function LessonLibraryApp({
           </nav>
         </header>
 
-        <section className="mt-7 rounded-[2.25rem] bg-[#173f35] p-6 text-white shadow-[0_24px_90px_rgb(23_63_53_/_16%)] sm:p-10">
-          <p className="ui-eyebrow text-[#d7ff91]">
+        <section className="mt-7 rounded-[1.25rem] bg-[#0f3a69] p-6 text-white shadow-[0_24px_90px_rgb(15_58_105_/_16%)] sm:p-10">
+          <p className="ui-eyebrow text-[#65e6d2]">
             Thư viện học tập
           </p>
           <h1 className="mt-4 max-w-4xl text-balance text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
@@ -94,19 +94,19 @@ export function LessonLibraryApp({
           </div>
         </section>
 
-        <section className="mt-6 rounded-[1.75rem] border border-[#173f35]/12 bg-white/65 p-4 sm:p-5">
-          <label className="text-xs font-bold text-[#52645c]">
+        <section className="mt-6 rounded-2xl border border-[#0f3a69]/12 bg-white/65 p-4 sm:p-5">
+          <label className="text-xs font-bold text-[#43546a]">
             Tìm bài học
             <input
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Ví dụ: lambda, pointer, ownership…"
-              className="mt-2 min-h-12 w-full rounded-xl border border-[#173f35]/15 bg-white px-4 py-3 text-sm font-normal focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+              className="mt-2 min-h-12 w-full rounded-xl border border-[#0f3a69]/15 bg-white px-4 py-3 text-sm font-normal focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             />
           </label>
-          <div className="mt-4 border-t border-[#173f35]/10 pt-4">
-            <p className="text-xs font-bold text-[#52645c]">Lọc theo lộ trình</p>
+          <div className="mt-4 border-t border-[#0f3a69]/10 pt-4">
+            <p className="text-xs font-bold text-[#43546a]">Lọc theo lộ trình</p>
             <div
               role="group"
               aria-label="Lọc theo lộ trình"
@@ -122,8 +122,8 @@ export function LessonLibraryApp({
                     onClick={() => setTrack(value)}
                     className={`rounded-full px-3 py-2 text-xs font-bold transition ${
                       active
-                        ? "bg-[#173f35] text-[#d7ff91]"
-                        : "border border-[#173f35]/15 bg-white text-[#52645c] hover:border-[#356b58]/35 hover:text-[#173f35]"
+                        ? "border border-[#65e6d2] bg-[#e6f8f5] text-[#0f3a69] shadow-[inset_0_-2px_0_#65e6d2]"
+                        : "border border-[#0f3a69]/15 bg-white text-[#43546a] hover:border-[#285f86]/35 hover:text-[#0f3a69]"
                     }`}
                   >
                     {label}
@@ -139,7 +139,7 @@ export function LessonLibraryApp({
             <h2 className="text-2xl font-semibold tracking-tight">
               Danh sách bài học
             </h2>
-            <span className="font-mono text-xs text-[#64736c]">
+            <span className="font-mono text-xs text-[#526276]">
               {visibleLessons.length} kết quả
             </span>
           </div>
@@ -149,20 +149,20 @@ export function LessonLibraryApp({
                 <Link
                   key={lesson.id}
                   href={`/learn/${lesson.id}`}
-                  className="group rounded-[1.75rem] border border-[#173f35]/12 bg-white/65 p-5 transition hover:-translate-y-0.5 hover:border-[#356b58]/35 hover:bg-white focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+                  className="group rounded-2xl border border-[#0f3a69]/12 bg-white/65 p-5 transition hover:-translate-y-0.5 hover:border-[#285f86]/35 hover:bg-white focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="rounded-full bg-[#eaf8cf] px-3 py-1 font-mono text-[10px] font-bold text-[#245748]">
+                    <span className="rounded-full bg-[#e6f8f5] px-3 py-1 font-mono text-[10px] font-bold text-[#16865a]">
                       {lessonTrackLabel(lesson.track)}
                     </span>
-                    <span className="font-mono text-[10px] text-[#64736c]">
+                    <span className="font-mono text-[10px] text-[#526276]">
                       Bài {lesson.order}
                     </span>
                   </div>
-                  <h3 className="mt-4 text-xl font-semibold tracking-tight group-hover:text-[#245748]">
+                  <h3 className="mt-4 text-xl font-semibold tracking-tight group-hover:text-[#16865a]">
                     {lesson.title}
                   </h3>
-                  <div className="mt-5 flex flex-wrap gap-2 text-[10px] font-semibold text-[#64736c]">
+                  <div className="mt-5 flex flex-wrap gap-2 text-[10px] font-semibold text-[#526276]">
                     <span>{lesson.sectionCount} phần</span>
                     <span>•</span>
                     <span>{lesson.hasCode ? "Có mã mẫu" : "Chỉ ghi chú"}</span>
@@ -172,11 +172,11 @@ export function LessonLibraryApp({
                     </span>
                   </div>
                   {lesson.prerequisiteIds.length ? (
-                    <p className="mt-4 text-xs leading-5 text-[#64736c]">
+                    <p className="mt-4 text-xs leading-5 text-[#526276]">
                       Cần học trước: {lesson.prerequisiteIds.join(", ")}
                     </p>
                   ) : (
-                    <p className="mt-4 text-xs text-[#356b58]">
+                    <p className="mt-4 text-xs text-[#285f86]">
                       Có thể bắt đầu ngay
                     </p>
                   )}
@@ -184,7 +184,7 @@ export function LessonLibraryApp({
               ))}
             </div>
           ) : (
-            <p className="rounded-2xl border border-dashed border-[#173f35]/20 p-8 text-center text-sm text-[#64736c]">
+            <p className="rounded-2xl border border-dashed border-[#0f3a69]/20 p-8 text-center text-sm text-[#526276]">
               Không có bài nào khớp bộ lọc hiện tại.
             </p>
           )}
@@ -197,7 +197,7 @@ export function LessonLibraryApp({
 function LibraryMetric({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/8 px-3 py-3">
-      <p className="text-2xl font-semibold text-[#d7ff91]">{value}</p>
+      <p className="text-2xl font-semibold text-[#65e6d2]">{value}</p>
       <p className="mt-1 text-[11px] font-bold tracking-[0.08em] text-white/70 uppercase">
         {label}
       </p>

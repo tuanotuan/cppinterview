@@ -34,7 +34,7 @@ export function AuthForm({
   const pending = mode === "sign-up" ? signUpPending : signInPending;
 
   return (
-    <main className="min-h-screen bg-[#f5f6ed] px-4 py-7 text-[#17221d] sm:px-6 sm:py-10">
+    <main className="min-h-screen bg-[#f8fafc] px-4 py-7 text-[#172033] sm:px-6 sm:py-10">
       <div className="mx-auto w-full max-w-md">
         <Link
           href="/"
@@ -42,17 +42,17 @@ export function AuthForm({
           title="Về trang chủ cppinterview"
           className="inline-flex items-center gap-3"
         >
-          <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
+          <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
             CI
           </span>
           <span>
             <span className="block text-lg font-bold tracking-tight">cppinterview</span>
-            <span className="block text-xs text-[#64736c]">Học và chuẩn bị phỏng vấn</span>
+            <span className="block text-xs text-[#526276]">Học và chuẩn bị phỏng vấn</span>
           </span>
         </Link>
 
-        <section className="mt-9 rounded-[2rem] border border-[#173f35]/12 bg-white/80 p-5 shadow-[0_20px_60px_rgb(23_63_53_/_10%)] sm:p-7">
-          <div className="grid grid-cols-2 rounded-xl bg-[#edf0e8] p-1" role="tablist" aria-label="Tài khoản cppinterview">
+        <section className="mt-9 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/80 p-5 shadow-[0_20px_60px_rgb(15_58_105_/_10%)] sm:p-7">
+          <div className="grid grid-cols-2 rounded-xl bg-[#eaf2f8] p-1" role="tablist" aria-label="Tài khoản cppinterview">
             <ModeButton active={mode === "sign-in"} onClick={() => setMode("sign-in")}>
               Đăng nhập
             </ModeButton>
@@ -62,13 +62,13 @@ export function AuthForm({
           </div>
 
           <div className="mt-7">
-            <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
+            <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#285f86] uppercase">
               {mode === "sign-up" ? "Tài khoản mới" : "Chào mừng trở lại"}
             </p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight">
               {mode === "sign-up" ? "Tạo tài khoản cppinterview" : "Đăng nhập cppinterview"}
             </h1>
-            <p className="mt-3 text-sm leading-6 text-[#64736c]">
+            <p className="mt-3 text-sm leading-6 text-[#526276]">
               {mode === "sign-up"
                 ? "Dùng email và mật khẩu để lưu tiến độ riêng giữa các thiết bị."
                 : "Đăng nhập để tiếp tục lịch học, thư viện và lịch sử của bạn."}
@@ -76,7 +76,7 @@ export function AuthForm({
           </div>
 
           {initialNotice ? (
-            <p role="alert" className="mt-5 rounded-xl bg-[#fff1e8] px-3 py-3 text-sm leading-6 text-[#8e3825]">
+            <p role="alert" className="mt-5 rounded-xl bg-[#fff1f1] px-3 py-3 text-sm leading-6 text-[#c43d3d]">
               {initialNotice}
             </p>
           ) : null}
@@ -86,7 +86,7 @@ export function AuthForm({
             className="mt-6 space-y-4"
           >
             <input type="hidden" name="next" value={next} />
-            <label className="block text-sm font-bold text-[#245748]">
+            <label className="block text-sm font-bold text-[#16865a]">
               Email
               <input
                 required
@@ -96,7 +96,7 @@ export function AuthForm({
                 inputMode="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className="mt-2 min-h-12 w-full rounded-xl border border-[#173f35]/18 bg-white px-3 text-base font-normal outline-none transition placeholder:text-[#839087] focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/55"
+                className="mt-2 min-h-12 w-full rounded-xl border border-[#0f3a69]/18 bg-white px-3 text-base font-normal outline-none transition placeholder:text-[#718096] focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/55"
                 placeholder="ban@example.com"
               />
             </label>
@@ -113,7 +113,7 @@ export function AuthForm({
               <div className="-mt-1 text-right">
                 <Link
                   href="/auth/reset-password"
-                  className="text-sm font-bold text-[#356b58] underline underline-offset-4 hover:text-[#173f35]"
+                  className="text-sm font-bold text-[#285f86] underline underline-offset-4 hover:text-[#0f3a69]"
                 >
                   Quên mật khẩu?
                 </Link>
@@ -137,8 +137,8 @@ export function AuthForm({
                 className={
                   "rounded-xl px-3 py-3 text-sm leading-6 " +
                   (state.status === "success"
-                    ? "bg-[#e5f6c5] text-[#245748]"
-                    : "bg-[#fff1e8] text-[#8e3825]")
+                    ? "bg-[#e2f5ec] text-[#16865a]"
+                    : "bg-[#fff1f1] text-[#c43d3d]")
                 }
               >
                 {state.message}
@@ -148,7 +148,7 @@ export function AuthForm({
             <button
               type="submit"
               disabled={pending}
-              className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#173f35] px-4 py-3 text-sm font-bold text-[#d7ff91] transition hover:bg-[#245748] disabled:cursor-wait disabled:opacity-65 focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+              className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#0f3a69] px-4 py-3 text-sm font-bold text-[#65e6d2] transition hover:bg-[#16865a] disabled:cursor-wait disabled:opacity-65 focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
               {pending
                 ? "Đang xử lý…"
@@ -158,10 +158,10 @@ export function AuthForm({
             </button>
           </form>
 
-          <div className="my-6 flex items-center gap-3 text-xs font-medium text-[#839087]">
-            <span className="h-px flex-1 bg-[#173f35]/12" />
+          <div className="my-6 flex items-center gap-3 text-xs font-medium text-[#718096]">
+            <span className="h-px flex-1 bg-[#0f3a69]/12" />
             hoặc
-            <span className="h-px flex-1 bg-[#173f35]/12" />
+            <span className="h-px flex-1 bg-[#0f3a69]/12" />
           </div>
           <div className="grid gap-3">
             <OAuthButton provider="google" next={next}>
@@ -195,7 +195,7 @@ function OAuthButton({
     >
       <button
         type="submit"
-        className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#173f35]/18 bg-white px-4 py-3 text-sm font-bold text-[#245748] transition hover:bg-[#edf0e8] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+        className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#0f3a69]/18 bg-white px-4 py-3 text-sm font-bold text-[#16865a] transition hover:bg-[#eaf2f8] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
       >
         {children}
       </button>
@@ -238,8 +238,8 @@ function ModeButton({
       aria-selected={active}
       onClick={onClick}
       className={
-        "min-h-10 rounded-lg px-2 text-sm font-bold transition focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none " +
-        (active ? "bg-white text-[#173f35] shadow-sm" : "text-[#64736c]")
+        "min-h-10 rounded-lg px-2 text-sm font-bold transition focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none " +
+        (active ? "bg-white text-[#0f3a69] shadow-sm" : "text-[#526276]")
       }
     >
       {children}
@@ -265,7 +265,7 @@ function PasswordField({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="block text-sm font-bold text-[#245748]">
+    <label className="block text-sm font-bold text-[#16865a]">
       {label}
       <span className="relative mt-2 block">
         <input
@@ -276,7 +276,7 @@ function PasswordField({
           minLength={8}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="min-h-12 w-full rounded-xl border border-[#173f35]/18 bg-white py-2 pl-3 pr-16 text-base font-normal outline-none transition placeholder:text-[#839087] focus:border-[#356b58] focus:ring-4 focus:ring-[#d7ff91]/55"
+          className="min-h-12 w-full rounded-xl border border-[#0f3a69]/18 bg-white py-2 pl-3 pr-16 text-base font-normal outline-none transition placeholder:text-[#718096] focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/55"
           placeholder="Ít nhất 8 ký tự"
         />
         <button
@@ -284,7 +284,7 @@ function PasswordField({
           aria-label={visible ? `Ẩn ${label.toLowerCase()}` : `Hiện ${label.toLowerCase()}`}
           aria-pressed={visible}
           onClick={onToggle}
-          className="absolute inset-y-1 right-1 rounded-lg px-3 text-xs font-bold text-[#356b58] transition hover:bg-[#edf0e8] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+          className="absolute inset-y-1 right-1 rounded-lg px-3 text-xs font-bold text-[#285f86] transition hover:bg-[#eaf2f8] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
         >
           {visible ? "Ẩn" : "Hiện"}
         </button>

@@ -598,21 +598,21 @@ export function WorldQuantReadinessApp({
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
       <div className="mx-auto w-full min-w-0 max-w-[1440px]">
-        <header className="flex w-full min-w-0 flex-wrap items-center justify-between gap-4 border-b border-[#173f35]/15 pb-5">
+        <header className="flex w-full min-w-0 flex-wrap items-center justify-between gap-4 border-b border-[#0f3a69]/15 pb-5">
           <Link
             href="/"
             aria-label="Về trang chủ cppinterview"
             title="Về trang chủ cppinterview"
             className="flex min-w-0 items-center gap-3"
           >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#173f35] font-mono text-sm font-bold text-[#d7ff91]">
+            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
               WQ
             </span>
             <span>
               <span className="block font-bold">
                 Trung tâm chuẩn bị WorldQuant
               </span>
-              <span className="block text-xs text-[#64736c]">
+              <span className="block text-xs text-[#526276]">
                 Lộ trình C++ WorldQuant
               </span>
             </span>
@@ -623,7 +623,7 @@ export function WorldQuantReadinessApp({
           >
             <Link
               href={todayMissionHref}
-              className="inline-flex min-h-11 items-center rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#245748] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+              className="inline-flex min-h-11 items-center rounded-xl bg-[#0f3a69] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#16865a] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
               Hôm nay
             </Link>
@@ -631,12 +631,12 @@ export function WorldQuantReadinessApp({
             <button
               type="button"
               onClick={openGuidedOnboarding}
-              className="min-h-11 rounded-xl px-3 py-2 text-sm font-bold transition hover:bg-white/60 focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+              className="min-h-11 rounded-xl px-3 py-2 text-sm font-bold transition hover:bg-white/60 focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
               Cách dùng
             </button>
             <details className="group relative w-full sm:w-auto">
-              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-xl border border-[#173f35]/12 bg-white/65 px-4 py-2 text-sm font-bold transition hover:border-[#356b58]/35 focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none sm:justify-start [&::-webkit-details-marker]:hidden">
+              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-xl border border-[#0f3a69]/12 bg-white/65 px-4 py-2 text-sm font-bold transition hover:border-[#285f86]/35 focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none sm:justify-start [&::-webkit-details-marker]:hidden">
                 Nâng cao
                 <span
                   aria-hidden="true"
@@ -645,7 +645,7 @@ export function WorldQuantReadinessApp({
                   ↓
                 </span>
               </summary>
-              <div className="mt-2 grid w-full grid-cols-1 gap-1 rounded-2xl border border-[#173f35]/12 bg-[#fbfaf4] p-2 shadow-[0_18px_60px_rgb(23_63_53_/_12%)] sm:absolute sm:right-0 sm:z-30 sm:w-80 sm:grid-cols-2">
+              <div className="mt-2 grid w-full grid-cols-1 gap-1 rounded-2xl border border-[#0f3a69]/12 bg-[#f8fafc] p-2 shadow-[0_18px_60px_rgb(15_58_105_/_12%)] sm:absolute sm:right-0 sm:z-30 sm:w-80 sm:grid-cols-2">
                 <AdvancedLink href="/learn">
                   Thư viện bài học
                 </AdvancedLink>
@@ -701,12 +701,12 @@ export function WorldQuantReadinessApp({
             {account ? (
               <span
                 title={`@${account.login ?? account.displayName}`}
-                className="max-w-full min-w-0 truncate rounded-full border border-[#173f35]/15 bg-white/65 px-4 py-2 text-xs font-semibold"
+                className="max-w-full min-w-0 truncate rounded-full border border-[#0f3a69]/15 bg-white/65 px-4 py-2 text-xs font-semibold"
               >
                 @{account.login ?? account.displayName}
               </span>
             ) : (
-              <span className="rounded-full border border-[#173f35]/15 bg-white/65 px-4 py-2 text-xs font-semibold">
+              <span className="rounded-full border border-[#0f3a69]/15 bg-white/65 px-4 py-2 text-xs font-semibold">
                 Dùng trên thiết bị
               </span>
             )}
@@ -716,7 +716,7 @@ export function WorldQuantReadinessApp({
         {cloudError ? (
           <p
             role="alert"
-            className="mt-5 rounded-2xl border border-[#ba4b2f]/20 bg-[#f8e8df] px-4 py-3 text-sm text-[#8e3825]"
+            className="mt-5 rounded-2xl border border-[#a65c0e]/20 bg-[#fff1f1] px-4 py-3 text-sm text-[#c43d3d]"
           >
             Dịch vụ đồng bộ đang lỗi nên hệ thống tạm dùng dữ liệu trong trình
             duyệt. Không có tiến độ nào bị ghi đè.
@@ -736,11 +736,11 @@ export function WorldQuantReadinessApp({
 
         <section
           aria-labelledby="guided-session-title"
-          className="mt-6 w-full min-w-0 max-w-full rounded-[2rem] border border-[#173f35]/12 bg-[#173f35] p-5 text-white shadow-[0_24px_80px_rgb(23_63_53_/_16%)] sm:p-8"
+          className="mt-6 w-full min-w-0 max-w-full rounded-[1.25rem] border border-[#0f3a69]/12 bg-[#0f3a69] p-5 text-white shadow-[0_24px_80px_rgb(15_58_105_/_16%)] sm:p-8"
         >
           <div className="grid min-w-0 items-center gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-7">
             <div className="min-w-0">
-              <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
+              <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#65e6d2] uppercase">
                 Chế độ hướng dẫn · {today}
               </p>
               <h1
@@ -779,7 +779,7 @@ export function WorldQuantReadinessApp({
                       minutesPerDay: Number(event.target.value),
                     })
                   }
-                  className="mt-2 min-h-11 w-full rounded-xl border border-white/15 bg-[#244a40] px-3 py-2 font-bold text-white focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+                  className="mt-2 min-h-11 w-full rounded-xl border border-white/15 bg-[#244a40] px-3 py-2 font-bold text-white focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
                 >
                   {GUIDED_MISSION_MINUTE_OPTIONS.map((option) => (
                     <option key={option} value={option}>
@@ -792,14 +792,14 @@ export function WorldQuantReadinessApp({
                 <button
                   type="button"
                   onClick={resumeFocusSprint}
-                  className="mt-3 min-h-12 w-full rounded-xl bg-[#d7ff91] px-5 py-3 text-sm font-bold text-[#173f35] transition hover:bg-[#e5ffb7] focus-visible:ring-4 focus-visible:ring-white focus-visible:outline-none"
+                  className="mt-3 min-h-12 w-full rounded-xl bg-[#65e6d2] px-5 py-3 text-sm font-bold text-[#0f3a69] transition hover:bg-[#8eebdc] focus-visible:ring-4 focus-visible:ring-white focus-visible:outline-none"
                 >
                   Tiếp tục phiên ôn thẻ đang làm
                 </button>
               ) : (
                 <Link
                   href={todayMissionHref}
-                  className="mt-3 flex min-h-12 w-full items-center justify-center rounded-xl bg-[#d7ff91] px-5 py-3 text-center text-sm font-bold text-[#173f35] transition hover:bg-[#e5ffb7] focus-visible:ring-4 focus-visible:ring-white focus-visible:outline-none"
+                  className="mt-3 flex min-h-12 w-full items-center justify-center rounded-xl bg-[#65e6d2] px-5 py-3 text-center text-sm font-bold text-[#0f3a69] transition hover:bg-[#8eebdc] focus-visible:ring-4 focus-visible:ring-white focus-visible:outline-none"
                 >
                   Bắt đầu buổi học hôm nay
                 </Link>
@@ -821,7 +821,7 @@ export function WorldQuantReadinessApp({
           {focusFeedback?.competency === null ? (
             <p
               role="alert"
-              className="mt-5 rounded-2xl border border-[#ba4b2f]/30 bg-[#f8e8df] px-4 py-3 text-sm text-[#8e3825]"
+              className="mt-5 rounded-2xl border border-[#a65c0e]/30 bg-[#fff1f1] px-4 py-3 text-sm text-[#c43d3d]"
             >
               {focusFeedback.message}
             </p>
@@ -832,11 +832,11 @@ export function WorldQuantReadinessApp({
           <section
             id="cach-dung"
             aria-labelledby="guided-onboarding-title"
-            className="mt-5 rounded-[2rem] border border-[#356b58]/18 bg-[#edf3e7] p-6 sm:p-7"
+            className="mt-5 rounded-[1.25rem] border border-[#285f86]/18 bg-[#eaf2f8] p-6 sm:p-7"
           >
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#356b58] uppercase">
+                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#285f86] uppercase">
                   Bắt đầu tại đây · 3 bước
                 </p>
                 <h2
@@ -850,7 +850,7 @@ export function WorldQuantReadinessApp({
               <button
                 type="button"
                 onClick={dismissGuidedOnboarding}
-                className="min-h-11 rounded-xl border border-[#173f35]/15 bg-white/70 px-4 py-2 text-sm font-bold focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+                className="min-h-11 rounded-xl border border-[#0f3a69]/15 bg-white/70 px-4 py-2 text-sm font-bold focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
               >
                 Đã hiểu
               </button>
@@ -875,7 +875,7 @@ export function WorldQuantReadinessApp({
             {guidedStorageError ? (
               <p
                 role="alert"
-                className="mt-4 rounded-xl border border-[#ba4b2f]/20 bg-[#f8e8df] px-4 py-3 text-sm text-[#8e3825]"
+                className="mt-4 rounded-xl border border-[#a65c0e]/20 bg-[#fff1f1] px-4 py-3 text-sm text-[#c43d3d]"
               >
                 {guidedStorageError}
               </p>
@@ -884,21 +884,21 @@ export function WorldQuantReadinessApp({
         ) : null}
 
         <section className="grid w-full min-w-0 max-w-full grid-cols-1 gap-7 py-9 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:items-stretch">
-          <div className="w-full min-w-0 max-w-full rounded-[2rem] border border-[#173f35]/12 bg-white/65 p-6 shadow-[0_24px_80px_rgb(23_63_53_/_8%)] sm:p-9">
-            <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#ba4b2f] uppercase">
+          <div className="w-full min-w-0 max-w-full rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/65 p-6 shadow-[0_24px_80px_rgb(15_58_105_/_8%)] sm:p-9">
+            <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
               Trung tâm chuẩn bị WorldQuant
             </p>
             <h2 className="mt-4 max-w-3xl break-words text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
               Biết chính xác nên học gì tiếp theo.
             </h2>
-            <p className="mt-4 max-w-3xl leading-7 text-[#64736c]">
+            <p className="mt-4 max-w-3xl leading-7 text-[#526276]">
               Chọn vị trí mục tiêu, rồi hệ thống ghép kho câu hỏi đã kiểm chứng
               với lịch sử ôn thực tế của bạn. Mức bao phủ thấp nghĩa là học
               liệu còn thiếu; tiến độ thấp mới là phần cần luyện.
             </p>
 
             <label className="mt-7 block max-w-xl">
-              <span className="font-mono text-[11px] font-bold tracking-[0.14em] text-[#64736c] uppercase">
+              <span className="font-mono text-[11px] font-bold tracking-[0.14em] text-[#526276] uppercase">
                 Vị trí mục tiêu
               </span>
               <select
@@ -908,7 +908,7 @@ export function WorldQuantReadinessApp({
                     roleId: parseWorldQuantRoleProfile(event.target.value),
                   })
                 }
-                className="mt-2 w-full rounded-2xl border border-[#173f35]/15 bg-[#fbfaf4] px-3 py-3 text-sm font-bold focus-visible:border-[#356b58] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none sm:px-4 sm:text-base"
+                className="mt-2 w-full rounded-2xl border border-[#0f3a69]/15 bg-[#f8fafc] px-3 py-3 text-sm font-bold focus-visible:border-[#285f86] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none sm:px-4 sm:text-base"
               >
                 {worldQuantRoleProfiles.map((role) => (
                   <option key={role.id} value={role.id}>
@@ -917,13 +917,13 @@ export function WorldQuantReadinessApp({
                 ))}
               </select>
             </label>
-            <div className="mt-5 max-w-3xl rounded-2xl bg-[#edf3e7] p-5">
-              <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#356b58] uppercase">
+            <div className="mt-5 max-w-3xl rounded-2xl bg-[#eaf2f8] p-5">
+              <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#285f86] uppercase">
                 {profile.eyebrow}
               </p>
               <p className="mt-2 font-semibold">{profile.summary}</p>
             </div>
-            <p className="mt-5 max-w-3xl text-xs leading-5 text-[#64736c]">
+            <p className="mt-5 max-w-3xl text-xs leading-5 text-[#526276]">
               Đây là lộ trình được xây từ mô tả công việc bạn cung cấp và các
               chủ đề công khai, không phải tiêu chí tuyển dụng nội bộ hay dự
               đoán khả năng trúng tuyển WorldQuant.
@@ -939,11 +939,11 @@ export function WorldQuantReadinessApp({
           />
         </section>
 
-        <details className="group mt-5 rounded-[2rem] border border-[#173f35]/12 bg-white/45 p-3 sm:p-4">
-          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 rounded-2xl bg-white/65 px-4 py-3 font-bold focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none sm:px-5 [&::-webkit-details-marker]:hidden">
+        <details className="group mt-5 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/45 p-3 sm:p-4">
+          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 rounded-2xl bg-white/65 px-4 py-3 font-bold focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none sm:px-5 [&::-webkit-details-marker]:hidden">
             <span>
               Phân tích và công cụ nâng cao
-              <span className="mt-1 block text-xs font-normal text-[#64736c]">
+              <span className="mt-1 block text-xs font-normal text-[#526276]">
                 Mức bao phủ, năng lực, phiên ôn tập trọng tâm, ngày mục tiêu và
                 lịch sử phỏng vấn thử
               </span>
@@ -992,33 +992,33 @@ export function WorldQuantReadinessApp({
             eyebrow="Phiên ôn tập trọng tâm"
             title="Đúng ưu tiên, đúng thứ tự"
           >
-            <p className="mt-3 text-sm leading-6 text-[#64736c]">
+            <p className="mt-3 text-sm leading-6 text-[#526276]">
               Hệ thống ưu tiên thẻ quá hạn, thẻ đang học lại và thẻ khó nhớ
               trong kho đã duyệt, rồi mới đến thẻ đang học hoặc thẻ mới. Đánh
               giá vẫn đi qua lịch ôn bình thường; phiên học không tự ý thay đổi
               tiến độ.
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-              <span className="rounded-full bg-[#edf3e7] px-3 py-1.5 font-bold text-[#356b58]">
+              <span className="rounded-full bg-[#eaf2f8] px-3 py-1.5 font-bold text-[#285f86]">
                 {focusPlan.questions.length} thẻ · ~
                 {focusPlan.scheduledMinutes} phút
               </span>
-              <span className="rounded-full border border-[#173f35]/10 px-3 py-1.5 text-[#64736c]">
+              <span className="rounded-full border border-[#0f3a69]/10 px-3 py-1.5 text-[#526276]">
                 Thời lượng {focusPlan.requestedMinutes} phút · tối đa{" "}
                 {focusPlan.budgetCeilingMinutes} phút
               </span>
-              <span className="rounded-full border border-[#173f35]/10 px-3 py-1.5 text-[#64736c]">
+              <span className="rounded-full border border-[#0f3a69]/10 px-3 py-1.5 text-[#526276]">
                 Danh sách hằng ngày: {dailyQueue.length} thẻ
               </span>
             </div>
 
             {activeFocusSession ? (
-              <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#356b58]/20 bg-[#edf3e7] p-4">
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#285f86]/20 bg-[#eaf2f8] p-4">
                 <div>
                   <p className="font-semibold">
                     Có một phiên ôn tập đang làm dở.
                   </p>
-                  <p className="mt-1 text-xs text-[#64736c]">
+                  <p className="mt-1 text-xs text-[#526276]">
                     {activeFocusSession.completedQuestions.length}/
                     {activeFocusSession.plan.questions.length} thẻ đã xong ·{" "}
                     {activeFocusSession.remainingQuestions.length} thẻ còn lại
@@ -1027,7 +1027,7 @@ export function WorldQuantReadinessApp({
                 <button
                   type="button"
                   onClick={resumeFocusSprint}
-                  className="rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white"
+                  className="rounded-xl bg-[#0f3a69] px-4 py-2 text-xs font-bold text-white"
                 >
                   Tiếp tục phiên ôn
                 </button>
@@ -1039,10 +1039,10 @@ export function WorldQuantReadinessApp({
                 {focusPlan.questions.map((step, index) => (
                   <li
                     key={step.question.id}
-                    className="rounded-2xl border border-[#173f35]/10 bg-[#fbfaf4] p-4"
+                    className="rounded-2xl border border-[#0f3a69]/10 bg-[#f8fafc] p-4"
                   >
                     <div className="flex min-w-0 items-start gap-3">
-                      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#f1d6c9] font-mono text-xs font-bold text-[#8e3825]">
+                      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#fee7e7] font-mono text-xs font-bold text-[#c43d3d]">
                         {index + 1}
                       </span>
                       <div className="min-w-0 flex-1">
@@ -1053,15 +1053,15 @@ export function WorldQuantReadinessApp({
                                 .shortLabel
                             }
                           </p>
-                          <span className="text-[11px] text-[#64736c]">
+                          <span className="text-[11px] text-[#526276]">
                             ~{step.question.estimatedMinutes} phút
                           </span>
                         </div>
-                        <p className="mt-1 break-all font-mono text-[11px] text-[#173f35]">
+                        <p className="mt-1 break-all font-mono text-[11px] text-[#0f3a69]">
                           {step.question.id}
                         </p>
-                        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-[#64736c]">
-                          <span className="font-semibold text-[#8e3825]">
+                        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-[#526276]">
+                          <span className="font-semibold text-[#c43d3d]">
                             {focusQueueReasonLabel(step.queueReason)}
                           </span>
                           <span>
@@ -1078,7 +1078,7 @@ export function WorldQuantReadinessApp({
                 ))}
               </ol>
             ) : (
-              <p className="mt-5 rounded-2xl border border-dashed border-[#173f35]/20 p-5 text-sm leading-6 text-[#64736c]">
+              <p className="mt-5 rounded-2xl border border-dashed border-[#0f3a69]/20 p-5 text-sm leading-6 text-[#526276]">
                 Không có thẻ đã duyệt nào đủ điều kiện cho phiên ôn hôm nay.
                 Hệ thống chỉ mở hướng dẫn nếu năng lực đó có tài liệu phù hợp;
                 hệ thống không tạo danh sách giả.
@@ -1087,7 +1087,7 @@ export function WorldQuantReadinessApp({
 
             {focusPlan.fallbacks.length > 0 ? (
               <div className="mt-5 rounded-2xl border border-[#d08a36]/25 bg-[#fff4df] p-4">
-                <p className="text-xs font-bold text-[#8e5a1f]">
+                <p className="text-xs font-bold text-[#a65c0e]">
                   Kho câu hỏi chưa đủ nội dung
                 </p>
                 <ul className="mt-2 space-y-2 text-xs leading-5 text-[#765c39]">
@@ -1119,7 +1119,7 @@ export function WorldQuantReadinessApp({
                 ) ? (
                   <Link
                     href="/admin"
-                    className="mt-3 inline-flex rounded-xl border border-[#8e5a1f]/20 bg-white/65 px-3 py-2 text-xs font-bold text-[#8e5a1f]"
+                    className="mt-3 inline-flex rounded-xl border border-[#a65c0e]/20 bg-white/65 px-3 py-2 text-xs font-bold text-[#a65c0e]"
                   >
                     Mở danh sách chờ duyệt
                   </Link>
@@ -1131,13 +1131,13 @@ export function WorldQuantReadinessApp({
               <button
                 type="button"
                 onClick={() => startFocusSprint(focusPlan)}
-                className="rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#245748]"
+                className="rounded-2xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#16865a]"
               >
                 {focusPlanCtaLabel(focusPlan, Boolean(activeFocusSession))}
               </button>
               <Link
                 href={balancedMockHref}
-                className="rounded-2xl border border-[#173f35]/15 bg-white px-5 py-3 text-sm font-bold transition hover:border-[#356b58]/40"
+                className="rounded-2xl border border-[#0f3a69]/15 bg-white px-5 py-3 text-sm font-bold transition hover:border-[#285f86]/40"
               >
                 Luyện phỏng vấn thử
               </Link>
@@ -1147,7 +1147,7 @@ export function WorldQuantReadinessApp({
           <Panel eyebrow="Ngày mục tiêu" title="Nhịp học đến phỏng vấn">
             <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <label>
-                <span className="text-xs font-bold text-[#64736c]">
+                <span className="text-xs font-bold text-[#526276]">
                   Ngày phỏng vấn
                 </span>
                 <input
@@ -1156,11 +1156,11 @@ export function WorldQuantReadinessApp({
                   onChange={(event) =>
                     updatePreferences({ targetDate: event.target.value })
                   }
-                  className="mt-2 w-full rounded-2xl border border-[#173f35]/15 bg-[#fbfaf4] px-4 py-3 font-semibold outline-none focus:border-[#356b58]"
+                  className="mt-2 w-full rounded-2xl border border-[#0f3a69]/15 bg-[#f8fafc] px-4 py-3 font-semibold outline-none focus:border-[#285f86]"
                 />
               </label>
               <label>
-                <span className="text-xs font-bold text-[#64736c]">
+                <span className="text-xs font-bold text-[#526276]">
                   Phút mỗi ngày
                 </span>
                 <input
@@ -1176,14 +1176,14 @@ export function WorldQuantReadinessApp({
                       ),
                     })
                   }
-                  className="mt-2 w-full rounded-2xl border border-[#173f35]/15 bg-[#fbfaf4] px-4 py-3 font-semibold outline-none focus:border-[#356b58]"
+                  className="mt-2 w-full rounded-2xl border border-[#0f3a69]/15 bg-[#f8fafc] px-4 py-3 font-semibold outline-none focus:border-[#285f86]"
                 />
               </label>
             </div>
-            <div className="mt-5 rounded-2xl bg-[#173f35] p-5 text-white">
+            <div className="mt-5 rounded-2xl bg-[#0f3a69] p-5 text-white">
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                  <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#d7ff91] uppercase">
+                  <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#65e6d2] uppercase">
                     Còn lại
                   </p>
                   <p className="mt-2 text-3xl font-semibold">
@@ -1206,13 +1206,13 @@ export function WorldQuantReadinessApp({
             eyebrow="Mô hình năng lực v1"
             title={`Ma trận ${profile.label}`}
           >
-            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#64736c]">
+            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#526276]">
               <span>
-                <b className="text-[#173f35]">Mức bao phủ</b> = học liệu đã
+                <b className="text-[#0f3a69]">Mức bao phủ</b> = học liệu đã
                 kiểm chứng
               </span>
               <span>
-                <b className="text-[#173f35]">Mức chuẩn bị</b> = kết quả học
+                <b className="text-[#0f3a69]">Mức chuẩn bị</b> = kết quả học
                 đã tích lũy
               </span>
               <span>Năng lực cốt lõi cần mức bao phủ ≥50%</span>
@@ -1261,18 +1261,18 @@ export function WorldQuantReadinessApp({
                 return (
                   <div
                     key={key}
-                    className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#173f35]/10 bg-[#fbfaf4] p-4"
+                    className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#0f3a69]/10 bg-[#f8fafc] p-4"
                   >
                     <div className="flex min-w-0 items-start gap-3">
-                      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#f1d6c9] font-mono text-xs font-bold text-[#8e3825]">
+                      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#fee7e7] font-mono text-xs font-bold text-[#c43d3d]">
                         {index + 1}
                       </span>
                       <div>
                         <p className="font-semibold">{definition.label}</p>
-                        <p className="mt-1 text-xs text-[#64736c]">
+                        <p className="mt-1 text-xs text-[#526276]">
                           {gapDescription(competency.gapKind)}
                         </p>
-                        <p className="mt-1 font-mono text-[10px] text-[#52645c]">
+                        <p className="mt-1 font-mono text-[10px] text-[#43546a]">
                           Tiến độ cải thiện:{" "}
                           {gapClosureStatusLabel(closureGap?.status)}
                         </p>
@@ -1281,7 +1281,7 @@ export function WorldQuantReadinessApp({
                     <button
                       type="button"
                       onClick={() => startFocusSprint(competencyPlan, key)}
-                      className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-xs font-bold"
+                      className="rounded-xl border border-[#0f3a69]/15 bg-white px-4 py-2 text-xs font-bold"
                     >
                       {targetedFocusCtaLabel(competencyPlan)}
                     </button>
@@ -1291,20 +1291,20 @@ export function WorldQuantReadinessApp({
                         mode: "targeted",
                         competency: key,
                       })}
-                      className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-xs font-bold"
+                      className="rounded-xl border border-[#0f3a69]/15 bg-white px-4 py-2 text-xs font-bold"
                     >
                       Phỏng vấn thử năng lực này
                     </Link>
                     <Link
                       href={`/worldquant/drills?role=${preferences.roleId}&competency=${key}`}
-                      className="rounded-xl border border-[#173f35]/15 bg-white px-4 py-2 text-xs font-bold"
+                      className="rounded-xl border border-[#0f3a69]/15 bg-white px-4 py-2 text-xs font-bold"
                     >
                       Bài luyện tình huống
                     </Link>
                     {focusFeedback?.competency === key ? (
                       <p
                         role="alert"
-                        className="basis-full rounded-xl border border-[#ba4b2f]/20 bg-[#f8e8df] px-3 py-2 text-xs leading-5 text-[#8e3825]"
+                        className="basis-full rounded-xl border border-[#a65c0e]/20 bg-[#fff1f1] px-3 py-2 text-xs leading-5 text-[#c43d3d]"
                       >
                         {focusFeedback.message}
                       </p>
@@ -1321,12 +1321,12 @@ export function WorldQuantReadinessApp({
           >
             {activeV4Mock &&
             activeV4Mock.status !== "completed" ? (
-              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#356b58]/20 bg-[#edf3e7] p-4">
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#285f86]/20 bg-[#eaf2f8] p-4">
                 <div>
                   <p className="text-sm font-semibold">
                     Có một buổi phỏng vấn thử đang làm dở.
                   </p>
-                  <p className="mt-1 text-xs text-[#64736c]">
+                  <p className="mt-1 text-xs text-[#526276]">
                     {worldQuantRoleProfileById(activeV4Mock.profileId).label} ·{" "}
                     câu {activeV4Mock.currentIndex + 1}/
                     {activeV4Mock.questions.length} ·{" "}
@@ -1337,7 +1337,7 @@ export function WorldQuantReadinessApp({
                 </div>
                 <Link
                   href="/mock-interview"
-                  className="rounded-xl bg-[#173f35] px-4 py-2 text-xs font-bold text-white"
+                  className="rounded-xl bg-[#0f3a69] px-4 py-2 text-xs font-bold text-white"
                 >
                   Tiếp tục phỏng vấn thử
                 </Link>
@@ -1345,14 +1345,14 @@ export function WorldQuantReadinessApp({
             ) : null}
             {latestV4Artifact && latestV4Mock ? (
               <>
-                <div className="mt-5 rounded-2xl bg-[#edf3e7] p-5">
+                <div className="mt-5 rounded-2xl bg-[#eaf2f8] p-5">
                   <div className="flex flex-wrap items-end justify-between gap-4">
                     <div>
                       <p className="text-4xl font-semibold">
                         {latestV4Artifact.debrief.roleInterviewScore ?? "—"}
-                        <span className="text-lg text-[#64736c]">/100</span>
+                        <span className="text-lg text-[#526276]">/100</span>
                       </p>
-                      <p className="mt-2 text-sm text-[#64736c]">
+                      <p className="mt-2 text-sm text-[#526276]">
                         {latestV4Artifact.plan.mode === "targeted"
                           ? `Theo năng lực · ${
                               worldQuantCompetencies[
@@ -1364,19 +1364,19 @@ export function WorldQuantReadinessApp({
                         {latestV4Artifact.debrief.assessedWeightPercent}% trọng
                         số vị trí đã hỏi
                       </p>
-                      <p className="mt-1 text-xs text-[#64736c]">
+                      <p className="mt-1 text-xs text-[#526276]">
                         Hoàn thành{" "}
                         {formatDateTime(latestV4Artifact.completedAt)}
                       </p>
                     </div>
                     <Link
                       href={balancedMockHref}
-                      className="rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white"
+                      className="rounded-xl bg-[#0f3a69] px-4 py-2 text-sm font-bold text-white"
                     >
                       Làm phỏng vấn thử tổng hợp
                     </Link>
                   </div>
-                  <p className="mt-4 text-xs leading-5 text-[#52645c]">
+                  <p className="mt-4 text-xs leading-5 text-[#43546a]">
                     Đây là điểm trên phần đã hỏi, không phải kết luận sẵn sàng
                     tuyển dụng và không được cộng vào Chỉ số chuẩn bị.
                   </p>
@@ -1388,7 +1388,7 @@ export function WorldQuantReadinessApp({
                     .map((item) => (
                       <div
                         key={item.competency}
-                        className="rounded-xl border border-[#173f35]/10 px-4 py-3"
+                        className="rounded-xl border border-[#0f3a69]/10 px-4 py-3"
                       >
                         <div className="flex items-center justify-between gap-3">
                           <span className="text-xs font-semibold">
@@ -1403,7 +1403,7 @@ export function WorldQuantReadinessApp({
                               : "Chưa hỏi"}
                           </span>
                         </div>
-                        <p className="mt-1 text-[10px] text-[#64736c]">
+                        <p className="mt-1 text-[10px] text-[#526276]">
                           {item.status === "assessed"
                             ? `${item.evidenceCount} câu đã chấm · mức độ quan trọng với vị trí ${item.roleWeight}%`
                             : `Không có kết quả trong lượt này · mức độ quan trọng với vị trí ${item.roleWeight}%`}
@@ -1413,7 +1413,7 @@ export function WorldQuantReadinessApp({
                 </div>
 
                 {assessedMockTrends.length ? (
-                  <div className="mt-4 rounded-2xl border border-[#173f35]/10 bg-[#fbfaf4] p-4">
+                  <div className="mt-4 rounded-2xl border border-[#0f3a69]/10 bg-[#f8fafc] p-4">
                     <p className="text-xs font-bold">
                       Xu hướng cùng vị trí/cấu hình,{" "}
                       {mockTrends.planMode === "targeted"
@@ -1451,7 +1451,7 @@ export function WorldQuantReadinessApp({
                           </div>
                         ))}
                     </div>
-                    <p className="mt-3 text-[10px] leading-4 text-[#64736c]">
+                    <p className="mt-3 text-[10px] leading-4 text-[#526276]">
                       Chỉ so các năng lực đã được chấm; “Chưa hỏi” không bị
                       biến thành 0. Có {mockTrends.comparableAttemptCount} lượt
                       cùng phiên bản để đối chiếu.
@@ -1470,7 +1470,7 @@ export function WorldQuantReadinessApp({
                         .map((option) => (
                           <div
                             key={option.competency}
-                            className="rounded-xl border border-[#173f35]/10 p-3"
+                            className="rounded-xl border border-[#0f3a69]/10 p-3"
                           >
                             <p className="text-xs font-semibold">
                               #{option.rank}{" "}
@@ -1480,7 +1480,7 @@ export function WorldQuantReadinessApp({
                                 ].shortLabel
                               }
                             </p>
-                            <p className="mt-1 text-[10px] text-[#64736c]">
+                            <p className="mt-1 text-[10px] text-[#526276]">
                               {option.availability === "focus_sprint"
                                 ? `${option.plan.questions.length} thẻ đã duyệt`
                                 : option.availability === "guide"
@@ -1499,7 +1499,7 @@ export function WorldQuantReadinessApp({
                                     option.competency,
                                   )
                                 }
-                                className="mt-3 rounded-lg bg-[#173f35] px-3 py-2 text-[10px] font-bold text-white"
+                                className="mt-3 rounded-lg bg-[#0f3a69] px-3 py-2 text-[10px] font-bold text-white"
                               >
                                 {option.availability === "focus_sprint"
                                   ? "Tạo phiên ôn tập trọng tâm"
@@ -1512,25 +1512,25 @@ export function WorldQuantReadinessApp({
                   </div>
                 ) : null}
 
-                <p className="mt-4 text-xs leading-5 text-[#64736c]">
+                <p className="mt-4 text-xs leading-5 text-[#526276]">
                   {mockHistoryAvailable
                     ? `${roleMockHistory.length} lượt của vị trí này được lưu theo tài khoản.`
                     : "Lịch sử đồng bộ chưa được cấu hình; hệ thống chỉ hiện dữ liệu máy chủ đã tải được."}
                 </p>
               </>
             ) : (
-              <div className="mt-5 rounded-2xl border border-dashed border-[#173f35]/20 p-6">
+              <div className="mt-5 rounded-2xl border border-dashed border-[#0f3a69]/20 p-6">
                 <p className="font-semibold">
                   Chưa có kết quả phỏng vấn thử hoàn chỉnh.
                 </p>
-                <p className="mt-2 text-sm leading-6 text-[#64736c]">
+                <p className="mt-2 text-sm leading-6 text-[#526276]">
                   Làm một buổi 30 phút để nhận đánh giá theo tiêu chí cho C++,
                   Dữ liệu tick, hiệu năng, chất lượng kỹ thuật và tinh thần làm
                   chủ công việc.
                 </p>
                 <Link
                   href={balancedMockHref}
-                  className="mt-5 inline-flex rounded-xl bg-[#173f35] px-4 py-2 text-sm font-bold text-white"
+                  className="mt-5 inline-flex rounded-xl bg-[#0f3a69] px-4 py-2 text-sm font-bold text-white"
                 >
                   Bắt đầu phỏng vấn thử
                 </Link>
@@ -1542,12 +1542,12 @@ export function WorldQuantReadinessApp({
         </details>
 
         {!account ? (
-          <section className="mt-5 rounded-[2rem] border border-[#173f35]/12 bg-white/65 p-6 sm:flex sm:items-center sm:justify-between sm:gap-6">
+          <section className="mt-5 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/65 p-6 sm:flex sm:items-center sm:justify-between sm:gap-6">
             <div>
               <p className="font-semibold">
                 Tiến độ hiện đang nằm trong trình duyệt này.
               </p>
-              <p className="mt-1 text-sm text-[#64736c]">
+              <p className="mt-1 text-sm text-[#526276]">
                 {cloudEnabled
                   ? "Đăng nhập để hợp nhất tiến độ khi đổi thiết bị."
                   : "Supabase chưa được cấu hình; hệ thống vẫn hoạt động đầy đủ trên thiết bị."}
@@ -1556,7 +1556,7 @@ export function WorldQuantReadinessApp({
             {cloudEnabled ? (
               <Link
                 href="/auth?next=%2Fworldquant"
-                className="mt-4 inline-flex rounded-2xl bg-[#173f35] px-5 py-3 text-sm font-bold text-white sm:mt-0"
+                className="mt-4 inline-flex rounded-2xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white sm:mt-0"
               >
                 Đăng nhập
               </Link>
@@ -1582,10 +1582,10 @@ function ScoreCard({
   approvedCount: number;
 }) {
   return (
-    <article className="flex w-full min-w-0 max-w-full flex-col justify-between rounded-[2rem] bg-[#173f35] p-7 text-white shadow-[0_24px_80px_rgb(23_63_53_/_18%)] sm:p-9">
+    <article className="flex w-full min-w-0 max-w-full flex-col justify-between rounded-[1.25rem] bg-[#0f3a69] p-7 text-white shadow-[0_24px_80px_rgb(15_58_105_/_18%)] sm:p-9">
       <div>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#d7ff91] uppercase">
+          <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#65e6d2] uppercase">
             Chỉ số chuẩn bị
           </p>
           <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/80">
@@ -1609,7 +1609,7 @@ function ScoreCard({
         </div>
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
           <div
-            className="h-full rounded-full bg-[#d7ff91]"
+            className="h-full rounded-full bg-[#65e6d2]"
             style={{ width: `${coveragePercent}%` }}
           />
         </div>
@@ -1633,24 +1633,24 @@ function CompetencyCard({
 }) {
   const definition = worldQuantCompetencies[competency.key];
   return (
-    <article className="min-w-0 rounded-2xl border border-[#173f35]/10 bg-[#fbfaf4] p-5">
+    <article className="min-w-0 rounded-2xl border border-[#0f3a69]/10 bg-[#f8fafc] p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="font-semibold">{definition.label}</h3>
             {core ? (
-              <span className="rounded-full bg-[#f1d6c9] px-2 py-1 font-mono text-[9px] font-bold text-[#8e3825] uppercase">
+              <span className="rounded-full bg-[#fee7e7] px-2 py-1 font-mono text-[9px] font-bold text-[#c43d3d] uppercase">
                 Cốt lõi
               </span>
             ) : null}
           </div>
-          <p className="mt-1 max-w-xl text-xs leading-5 text-[#64736c]">
+          <p className="mt-1 max-w-xl text-xs leading-5 text-[#526276]">
             {definition.description}
           </p>
         </div>
         <div className="text-right">
           <p className="font-mono text-lg font-bold">{competency.weight}%</p>
-          <p className="text-[10px] text-[#64736c]">mức độ quan trọng</p>
+          <p className="text-[10px] text-[#526276]">mức độ quan trọng</p>
         </div>
       </div>
       <ProgressRow
@@ -1663,7 +1663,7 @@ function CompetencyCard({
         value={competency.coveragePercent}
         tone="orange"
       />
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#64736c]">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#526276]">
         <span>
           {competency.effectiveCount}/{competency.target} câu hỏi đủ điều kiện ·{" "}
           {competency.matureCount} thẻ đã nhớ lâu
@@ -1677,7 +1677,7 @@ function CompetencyCard({
       </div>
       <Link
         href={mockHref}
-        className="mt-4 inline-flex rounded-xl border border-[#173f35]/15 bg-white px-3 py-2 text-[11px] font-bold text-[#173f35]"
+        className="mt-4 inline-flex rounded-xl border border-[#0f3a69]/15 bg-white px-3 py-2 text-[11px] font-bold text-[#0f3a69]"
       >
         Phỏng vấn thử theo năng lực
       </Link>
@@ -1697,13 +1697,13 @@ function ProgressRow({
   return (
     <div className="mt-4">
       <div className="flex items-center justify-between text-[11px]">
-        <span className="font-semibold text-[#64736c]">{label}</span>
+        <span className="font-semibold text-[#526276]">{label}</span>
         <span className="font-mono font-bold">{value}%</span>
       </div>
-      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#173f35]/8">
+      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#0f3a69]/8">
         <div
           className={`h-full rounded-full ${
-            tone === "green" ? "bg-[#356b58]" : "bg-[#d08a36]"
+            tone === "green" ? "bg-[#285f86]" : "bg-[#d08a36]"
           }`}
           style={{ width: `${value}%` }}
         />
@@ -1722,8 +1722,8 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="min-w-0 rounded-[2rem] border border-[#173f35]/12 bg-white/65 p-6 shadow-[0_18px_60px_rgb(23_63_53_/_6%)] sm:p-7">
-      <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#ba4b2f] uppercase">
+    <section className="min-w-0 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/65 p-6 shadow-[0_18px_60px_rgb(15_58_105_/_6%)] sm:p-7">
+      <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#a65c0e] uppercase">
         {eyebrow}
       </p>
       <h2 className="mt-2 text-2xl font-semibold tracking-tight">{title}</h2>
@@ -1742,12 +1742,12 @@ function MetricCard({
   note: string;
 }) {
   return (
-    <article className="min-w-0 rounded-2xl border border-[#173f35]/10 bg-white/65 p-5">
-      <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#64736c] uppercase">
+    <article className="min-w-0 rounded-2xl border border-[#0f3a69]/10 bg-white/65 p-5">
+      <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#526276] uppercase">
         {label}
       </p>
       <p className="mt-3 text-3xl font-semibold tracking-tight">{value}</p>
-      <p className="mt-2 text-xs text-[#64736c]">{note}</p>
+      <p className="mt-2 text-xs text-[#526276]">{note}</p>
     </article>
   );
 }
@@ -1762,7 +1762,7 @@ function HeaderLink({
   return (
     <Link
       href={href}
-      className="inline-flex min-h-11 items-center rounded-xl px-3 py-2 text-sm font-bold transition hover:bg-white/60 focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+      className="inline-flex min-h-11 items-center rounded-xl px-3 py-2 text-sm font-bold transition hover:bg-white/60 focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
     >
       {children}
     </Link>
@@ -1779,7 +1779,7 @@ function AdvancedLink({
   return (
     <Link
       href={href}
-      className="flex min-h-11 items-center rounded-xl px-3 py-2 text-sm font-semibold transition hover:bg-[#edf3e7] focus-visible:ring-4 focus-visible:ring-[#d7ff91] focus-visible:outline-none"
+      className="flex min-h-11 items-center rounded-xl px-3 py-2 text-sm font-semibold transition hover:bg-[#eaf2f8] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
     >
       {children}
     </Link>
@@ -1796,13 +1796,13 @@ function GuidedStep({
   description: string;
 }) {
   return (
-    <li className="flex min-w-0 gap-3 rounded-2xl border border-[#173f35]/10 bg-white/65 p-4">
-      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#173f35] font-mono text-xs font-bold text-white">
+    <li className="flex min-w-0 gap-3 rounded-2xl border border-[#0f3a69]/10 bg-white/65 p-4">
+      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#0f3a69] font-mono text-xs font-bold text-white">
         {number}
       </span>
       <span className="min-w-0">
         <span className="block break-words font-semibold">{title}</span>
-        <span className="mt-1 block text-xs leading-5 text-[#64736c]">
+        <span className="mt-1 block text-xs leading-5 text-[#526276]">
           {description}
         </span>
       </span>
@@ -2009,8 +2009,8 @@ function gapClosureStatusLabel(status: string | null | undefined) {
 
 function gapToneClass(gapKind: CompetencyReadiness["gapKind"]) {
   return gapKind === "learning"
-    ? "font-bold text-[#356b58]"
-    : "font-bold text-[#8e3825]";
+    ? "font-bold text-[#285f86]"
+    : "font-bold text-[#c43d3d]";
 }
 
 function mockInterviewHref({
