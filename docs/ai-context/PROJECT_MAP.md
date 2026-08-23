@@ -95,10 +95,10 @@ API quan trọng:
 | `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts`, `progress-sync.ts`, `study-session.ts` | Queue Anki, rating nguyên tử, due date, streak, browser/cloud progress và draft/phase Trợ giúp → Làm lại |
 | `practice` | `repair-queue.ts`, `rescue-retry.ts`, `fsrs-shadow.ts`, `browser-storage-lock.ts` | Blank-answer Rescue → Retry, same-session repair exact identity, cross-tab mutation lock và FSRS-6 chỉ quan sát |
 | `practice` | `focus-session.ts`, `focus-eligibility.ts` | Session Focus Sprint identity-only, resume/reconcile/completion và lọc exact approved refs |
-| `practice` | `cloud-server.ts`, `cloud.ts`, `practice-review-reader.server.ts`, `question-learning-state-reader.server.ts` | `loadCloudAccount` chỉ xác minh account/owner cho guard; `loadCloudContext` dùng lại identity đã xác minh trong request rồi đọc review trước/state generation sau với fallback migration hẹp, approval, overrides, usage và manifest |
+| `practice` | `cloud-server.ts`, `cloud.ts`, `practice-review-reader.server.ts`, `question-learning-state-reader.server.ts` | `loadCloudAccount` chỉ xác minh account/owner cho guard; `loadCloudContext` dùng lại identity đã xác minh trong request rồi đọc review trước/state generation sau với fallback migration hẹp, approval, overrides, usage và manifest; loader evidence Coach dùng cùng identity đã cache |
 | `practice` | `mistake-cards.ts`, `mistake-cards.server.ts` | Capture lỗi durable, dedupe, grounded generation và materialize draft |
-| `evidence` | `contracts.ts`, `adapters.ts`, `engine.ts`, `golden-*` | `AttemptArtifact` v1 chuẩn hóa attempt Practice/Coach/Mock; projection riêng tư tổng hợp `unassessed`/`learning`/`verified`/`stale`, tách content gap khỏi learner gap và corpus golden khóa grading contract |
-| `worldquant` | `readiness.ts`, `focus-plan.ts` | Role/competency model, preparation evidence và planner queue deterministic theo gap/time budget |
+| `evidence` | `contracts.ts`, `adapters.ts`, `account-evidence.server.ts`, `engine.ts`, `golden-*` | `AttemptArtifact` v1 chuẩn hóa attempt Practice/Coach/Mock; account reader dựng projection an toàn từ durable Coach history; projection tổng hợp `unassessed`/`learning`/`verified`/`stale`, tách content gap khỏi learner gap và corpus golden khóa grading contract |
+| `worldquant` | `readiness.ts`, `focus-plan.ts` | Role/competency model, preparation evidence và planner queue deterministic theo gap/time budget; Coach/Mock projection đóng góp có giới hạn và có thể ưu tiên đúng câu cần repair/refresh |
 | `worldquant` | `curriculum.ts`, `curriculum-evidence.ts`, `drills.ts` | Concept graph, content/transfer coverage và catalog 30 scenario: một practice + hai checkpoint mỗi competency |
 | `worldquant` | `training-state.ts`, `mission-snapshot.ts`, `tick-replay.ts`, `legacy-modern-capstone.ts` | Evidence account-scoped, cloud CAS/local fallback, Mission frozen, mô phỏng tick và capstone chuyển đổi legacy |
 | `ai` | `openai.ts`, `gemini.ts`, `fallback.ts`, `access.ts` | Provider call không transport retry, fallback và chặn AI không quota ngoài local development; Luna cho học tập/Coach, Terra chỉ cho report Mock |
@@ -177,11 +177,15 @@ có, không gọi AI và không tạo thêm bảng activity.
 ### WorldQuant readiness
 
 Question `verified` hoặc owner-approved hợp lệ → classifier taxonomy gán đúng một
-competency → browser merge local/cloud progress → learning evidence theo Anki state
-→ giới hạn hai card mỗi lesson → áp target và role weight. Hub tách `coverage`
+competency → browser merge local/cloud progress → learning evidence theo Anki state;
+song song, server đọc bounded Coach history theo account và Mock v4 history, validate
+exact identity rồi dựng `EvidenceProjection` không có câu trả lời thô → giới hạn hai
+card mỗi lesson + tối đa một đơn vị Coach/Mock mỗi competency → áp target và role weight.
+Hub tách `coverage`
 (content bank đã kiểm chứng) khỏi `Preparation Index` (bằng chứng người học đã tích
-lũy), nên thiếu content không bị diễn giải thành điểm yếu cá nhân. Mock report gần
-nhất chỉ hiển thị riêng, chưa trộn vào index. Hub đọc history v4 theo account,
+lũy), nên thiếu content không bị diễn giải thành điểm yếu cá nhân. Anki vẫn là nguồn
+lịch ôn trực tiếp để Practice review không bị đếm đôi; Coach/Mock projection chỉ bổ
+sung readiness và ưu tiên exact câu `repair`/`refresh`. Hub đọc history v4 theo account,
 chỉ so trend cùng role/profile version, duration và evidence scope; report có
 exact question identity được chuyển thành `AttemptArtifact` rồi qua Evidence
 Engine, còn lịch sử cũ dùng debrief fallback. Mục `not_assessed` không bị đổi

@@ -10,8 +10,15 @@ type MockEvidenceHistoryEntry = {
   report: unknown;
 };
 
+type CurrentMockQuestion = {
+  id: string;
+  version: number;
+  contentRevision: string;
+};
+
 export function attemptArtifactsFromMockHistoryEntry(
   entry: MockEvidenceHistoryEntry,
+  currentQuestions?: readonly CurrentMockQuestion[],
 ): AttemptArtifact[] {
   if (!entry.completedAt || !isRecord(entry.report)) return [];
   const plan = readRecord(entry.report.plan);
@@ -81,6 +88,14 @@ export function attemptArtifactsFromMockHistoryEntry(
         version: question.version,
         contentRevision: question.contentRevision,
         responseMode: question.responseMode,
+        current:
+          currentQuestions === undefined ||
+          currentQuestions.some(
+            (current) =>
+              current.id === question.id &&
+              current.version === question.version &&
+              current.contentRevision === question.contentRevision,
+          ),
       },
       response: {
         // Completed reports intentionally do not persist raw candidate answers.

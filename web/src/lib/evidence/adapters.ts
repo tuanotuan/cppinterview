@@ -12,6 +12,7 @@ type QuestionIdentity = {
   version: number;
   contentRevision: string;
   responseMode: "text" | "code";
+  current?: boolean;
 };
 
 const ratingScore = {
@@ -128,6 +129,66 @@ export function coachFeedbackToAttemptArtifact({
       ...responsePayload,
       usedHint,
       revealedReference,
+    },
+    verification: {
+      compile: "not_run",
+      tests: "not_run",
+      sanitizers: "not_run",
+    },
+    evidence,
+    assessments: competencies.map((key) => ({
+      key,
+      status: "assessed",
+      score: feedback.score,
+      confidence: 0.8,
+      evidenceIds,
+      criteria: feedback.coverage.map((coverage, index) => ({
+        key: `required:${index + 1}`,
+        outcome: coverage.status,
+        evidenceIds: [`coach:criterion:${index + 1}`],
+      })),
+    })),
+    outcome: {
+      score: feedback.score,
+      verdict: feedback.verdict,
+      suggestedRating: feedback.suggestedRating,
+    },
+  });
+}
+
+export function coachFeedbackRecordToAttemptArtifact({
+  attemptId,
+  occurredAt,
+  question,
+  feedback,
+  competencies,
+}: {
+  attemptId: string;
+  occurredAt: string;
+  question: QuestionIdentity;
+  feedback: CoachFeedback;
+  competencies: readonly string[];
+}): AttemptArtifact {
+  const evidence = feedback.coverage.map((coverage, index) => ({
+    id: `coach:criterion:${index + 1}`,
+    kind: "coach_feedback" as const,
+    label: coverage.criterion,
+    excerpt: coverage.feedback,
+    visibility: "learner" as const,
+  }));
+  const evidenceIds = evidence.map((item) => item.id);
+
+  return attemptArtifactSchema.parse({
+    version: ATTEMPT_ARTIFACT_VERSION,
+    id: `coach:${attemptId}:${question.id}`,
+    source: { kind: "coach", attemptId },
+    occurredAt,
+    question,
+    response: {
+      // Durable Coach history is projected without reloading candidate text.
+      status: "not_captured",
+      usedHint: false,
+      revealedReference: false,
     },
     verification: {
       compile: "not_run",

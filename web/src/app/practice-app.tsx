@@ -4006,9 +4006,11 @@ function focusCompetencyLabel(competency: WorldQuantCompetencyKey) {
 
 function focusReasonLabel(reason: FocusQueueReason) {
   const labels: Record<FocusQueueReason, string> = {
+    evidence_repair: "cần sửa theo lần làm gần nhất",
     due_relearning: "học lại đã đến hạn",
     due_leech: "câu khó nhớ đã đến hạn",
     due: "đã đến hạn",
+    evidence_refresh: "bằng chứng cần làm mới",
     relearning: "đang học lại",
     leech: "câu khó nhớ",
     learning: "đang học",

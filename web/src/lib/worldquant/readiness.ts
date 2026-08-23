@@ -3,6 +3,10 @@ import type {
   PracticeDeckId,
 } from "@/lib/content/schema";
 import type { MockCompetencyKey } from "@/lib/mock-interview/profile";
+import type {
+  CompetencyEvidenceProjection,
+  EvidenceProjection,
+} from "@/lib/evidence/engine";
 import type { QuestionLearningState } from "@/lib/practice/learning-state";
 
 export const worldQuantCompetencyKeys = [
@@ -346,6 +350,10 @@ export type CompetencyReadiness = {
   learnedCount: number;
   matureCount: number;
   dueCount: number;
+  attemptEvidenceStatus: CompetencyEvidenceProjection["status"];
+  attemptEvidenceScore: number | null;
+  attemptAssessmentCount: number;
+  attemptNextAction: CompetencyEvidenceProjection["nextAction"];
   status: CompetencyReadinessStatus;
   gapKind: "content" | "learning" | "mixed";
   gapContribution: number;
@@ -706,11 +714,13 @@ export function buildWorldQuantReadiness({
   questions,
   states,
   today,
+  attemptEvidence,
 }: {
   profileId: WorldQuantRoleProfileId;
   questions: readonly ReadinessQuestionSummary[];
   states: ReadonlyMap<string, QuestionLearningState>;
   today: string;
+  attemptEvidence?: EvidenceProjection;
 }): WorldQuantReadinessSnapshot {
   const profile = worldQuantRoleProfileById(profileId);
   const roleQuestions = questions.filter(
@@ -723,6 +733,12 @@ export function buildWorldQuantReadiness({
     .map((question) => states.get(question.id))
     .filter((state): state is QuestionLearningState => Boolean(state))
     .filter((state) => !state.suspended);
+  const attemptEvidenceByCompetency = new Map(
+    (attemptEvidence?.competencies ?? []).map((competency) => [
+      competency.key,
+      competency,
+    ]),
+  );
   const competencies = worldQuantCompetencyKeys.map((key) => {
     const weight = profile.weights[key];
     const target = profile.targets[key];
@@ -740,13 +756,15 @@ export function buildWorldQuantReadiness({
       relevantQuestions,
       states,
     );
+    const attempt = attemptEvidenceByCompetency.get(key);
+    const attemptUnit = attemptEvidenceUnit(attempt);
     const evidenceTotal = evidenceQuestions.reduce(
       (sum, question) => sum + learningEvidence(states.get(question.id)),
       0,
     ) + capQuestionsPerLesson(remediationQuestions, states).reduce(
       (sum, question) => sum + learningEvidence(states.get(question.id)),
       0,
-    );
+    ) + attemptUnit;
     const effectiveCount = evidenceQuestions.length;
     const coverage = Math.min(1, effectiveCount / target);
     const prepared = Math.min(1, evidenceTotal / target);
@@ -783,11 +801,19 @@ export function buildWorldQuantReadiness({
       dueCount: relevantStates.filter(
         (state) => state.dueOn !== null && state.dueOn <= today,
       ).length,
-      status: competencyStatus(preparedPercent, effectiveCount),
+      attemptEvidenceStatus: attempt?.status ?? "unassessed",
+      attemptEvidenceScore: attempt?.score ?? null,
+      attemptAssessmentCount: attempt?.assessmentCount ?? 0,
+      attemptNextAction: attempt?.nextAction ?? "assess",
+      status: competencyStatus(
+        preparedPercent,
+        effectiveCount + (attempt && attempt.assessmentCount > 0 ? 1 : 0),
+      ),
       gapKind: competencyGapKind({
         coveragePercent,
         learningWithinCoveragePercent,
         effectiveCount,
+        attemptStatus: attempt?.status ?? "unassessed",
       }),
       gapContribution: Math.round(weight * (1 - prepared)),
     } satisfies CompetencyReadiness;
@@ -885,16 +911,32 @@ function competencyGapKind({
   coveragePercent,
   learningWithinCoveragePercent,
   effectiveCount,
+  attemptStatus,
 }: {
   coveragePercent: number;
   learningWithinCoveragePercent: number;
   effectiveCount: number;
+  attemptStatus: CompetencyEvidenceProjection["status"];
 }): CompetencyReadiness["gapKind"] {
   const contentGap = coveragePercent < 100;
   const learningGap =
-    effectiveCount > 0 && learningWithinCoveragePercent < 80;
+    (effectiveCount > 0 && learningWithinCoveragePercent < 80) ||
+    attemptStatus === "learning" ||
+    attemptStatus === "stale";
   if (contentGap && learningGap) return "mixed";
   return contentGap ? "content" : "learning";
+}
+
+function attemptEvidenceUnit(
+  evidence: CompetencyEvidenceProjection | undefined,
+) {
+  if (!evidence) return 0;
+  if (evidence.status === "verified") return 1;
+  if (evidence.status === "stale") return 0.5;
+  if (evidence.status === "learning") {
+    return ((evidence.score ?? 0) / 100) * 0.5;
+  }
+  return 0;
 }
 
 function headlineStatus({

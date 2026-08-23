@@ -51,6 +51,18 @@ describe("mock history evidence adapter", () => {
     });
   });
 
+  it("marks historical mock evidence superseded against the current bank", () => {
+    const artifacts = attemptArtifactsFromMockHistoryEntry(completedEntry(), [
+      {
+        id: "vector-growth",
+        version: 5,
+        contentRevision: "revision-5",
+      },
+    ]);
+
+    expect(artifacts[0].question.current).toBe(false);
+  });
+
   it("fails closed on malformed or ambiguous report data", () => {
     const entry = completedEntry();
     const malformed = {

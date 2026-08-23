@@ -18,6 +18,7 @@ import {
   type MockInterviewCompletedArtifactV4,
 } from "@/lib/mock-interview/contracts-v4";
 import { PRACTICE_DECKS } from "@/lib/content/decks";
+import type { EvidenceProjection } from "@/lib/evidence/engine";
 import {
   buildWorldQuantMockTrends,
   type MockInterviewHistoryEntry,
@@ -144,6 +145,7 @@ export function WorldQuantReadinessApp({
   cloudError,
   today,
   initialMockHistory,
+  initialEvidenceProjection,
   mockHistoryAvailable,
   initialRoleId,
 }: {
@@ -156,6 +158,7 @@ export function WorldQuantReadinessApp({
   cloudError: boolean;
   today: string;
   initialMockHistory: MockInterviewHistoryEntry[];
+  initialEvidenceProjection: EvidenceProjection;
   mockHistoryAvailable: boolean;
   initialRoleId: WorldQuantRoleProfileId | null;
 }) {
@@ -319,8 +322,9 @@ export function WorldQuantReadinessApp({
         questions,
         states: learningStates,
         today,
+        attemptEvidence: initialEvidenceProjection,
       }),
-    [learningStates, preferences.roleId, questions, today],
+    [initialEvidenceProjection, learningStates, preferences.roleId, questions, today],
   );
   const focusPlan = useMemo(
     () =>
@@ -330,8 +334,10 @@ export function WorldQuantReadinessApp({
         states: learningStates,
         today,
         timeBudgetMinutes: preferences.minutesPerDay,
+        attemptEvidence: initialEvidenceProjection,
       }),
     [
+      initialEvidenceProjection,
       learningStates,
       preferences.minutesPerDay,
       preferences.roleId,
@@ -1257,6 +1263,7 @@ export function WorldQuantReadinessApp({
                   today,
                   timeBudgetMinutes: preferences.minutesPerDay,
                   focusCompetency: key,
+                  attemptEvidence: initialEvidenceProjection,
                 });
                 return (
                   <div
@@ -1932,9 +1939,11 @@ function buildTargetPlan({
 
 function focusQueueReasonLabel(reason: FocusQueueReason) {
   return {
+    evidence_repair: "Cần sửa theo lần làm gần nhất",
     due_relearning: "Quá hạn · đang học lại",
     due_leech: "Quá hạn · thẻ khó nhớ",
     due: "Đến hạn",
+    evidence_refresh: "Bằng chứng cần làm mới",
     relearning: "Đang học lại",
     leech: "Thẻ khó nhớ cần củng cố",
     learning: "Đang học",

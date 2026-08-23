@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { practiceDeckSchema } from "../content/schema";
+import type { EvidenceProjection } from "../evidence/engine";
 import type { QuestionLearningState } from "../practice/learning-state";
 
 import {
@@ -20,9 +21,11 @@ export const WORLDQUANT_FOCUS_PLAN_VERSION = 1 as const;
 export const MAX_FOCUS_QUESTION_STEPS = 20;
 
 const queueReasons = [
+  "evidence_repair",
   "due_relearning",
   "due_leech",
   "due",
+  "evidence_refresh",
   "relearning",
   "leech",
   "learning",
@@ -174,6 +177,7 @@ export function buildWorldQuantFocusPlan({
   today,
   timeBudgetMinutes,
   focusCompetency = null,
+  attemptEvidence,
 }: {
   profileId: WorldQuantRoleProfileId;
   questions: readonly ReadinessQuestionSummary[];
@@ -181,6 +185,7 @@ export function buildWorldQuantFocusPlan({
   today: string;
   timeBudgetMinutes: number;
   focusCompetency?: WorldQuantCompetencyKey | null;
+  attemptEvidence?: EvidenceProjection;
 }): WorldQuantFocusPlan {
   const profile = worldQuantRoleProfileById(profileId);
   const requestedMinutes = normalizeTimeBudget(timeBudgetMinutes);
@@ -190,9 +195,16 @@ export function buildWorldQuantFocusPlan({
     questions,
     states,
     today,
+    attemptEvidence,
   });
   const competencyReadiness = new Map(
     readiness.competencies.map((competency) => [
+      competency.key,
+      competency,
+    ]),
+  );
+  const attemptEvidenceByCompetency = new Map(
+    (attemptEvidence?.competencies ?? []).map((competency) => [
       competency.key,
       competency,
     ]),
@@ -209,7 +221,19 @@ export function buildWorldQuantFocusPlan({
         mappedState?.questionId === question.id ? mappedState : undefined;
       if (state?.suspended || state?.lastReviewedOn === today) return [];
 
-      const priority = focusPriority(state, today);
+      const competencyEvidence = attemptEvidenceByCompetency.get(
+        question.competency,
+      );
+      const evidenceReason = competencyEvidence?.recommendedQuestionIds.includes(
+        question.id,
+      )
+        ? competencyEvidence.nextAction === "repair"
+          ? "evidence_repair"
+          : competencyEvidence.nextAction === "refresh"
+            ? "evidence_refresh"
+            : null
+        : null;
+      const priority = focusPriority(state, today, evidenceReason);
       if (!priority) return [];
 
       return [
@@ -311,21 +335,28 @@ function exactQuestionRef(
 function focusPriority(
   state: QuestionLearningState | undefined,
   today: string,
+  evidenceReason: "evidence_repair" | "evidence_refresh" | null,
 ): { rank: number; reason: FocusQueueReason } | null {
-  if (!state || state.state === "new") return { rank: 6, reason: "new" };
+  if (evidenceReason === "evidence_repair") {
+    return { rank: 0, reason: evidenceReason };
+  }
 
-  const due = state.dueOn !== null && state.dueOn <= today;
-  if (due && state.state === "relearning") {
-    return { rank: 0, reason: "due_relearning" };
+  const due = Boolean(state?.dueOn && state.dueOn <= today);
+  if (due && state?.state === "relearning") {
+    return { rank: 1, reason: "due_relearning" };
   }
-  if (due && state.leech) return { rank: 1, reason: "due_leech" };
-  if (due) return { rank: 2, reason: "due" };
+  if (due && state?.leech) return { rank: 2, reason: "due_leech" };
+  if (due) return { rank: 3, reason: "due" };
+  if (evidenceReason === "evidence_refresh") {
+    return { rank: 4, reason: evidenceReason };
+  }
+  if (!state || state.state === "new") return { rank: 8, reason: "new" };
   if (state.state === "relearning") {
-    return { rank: 3, reason: "relearning" };
+    return { rank: 5, reason: "relearning" };
   }
-  if (state.leech) return { rank: 4, reason: "leech" };
+  if (state.leech) return { rank: 6, reason: "leech" };
   if (state.state === "learning") {
-    return { rank: 5, reason: "learning" };
+    return { rank: 7, reason: "learning" };
   }
   return null;
 }
