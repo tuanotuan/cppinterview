@@ -167,7 +167,7 @@ describe("WorldQuant readiness evidence", () => {
 
   it("adds a capped Coach/Mock signal without inflating bank coverage", () => {
     const attemptEvidence: EvidenceProjection = {
-      version: 1,
+      version: 2,
       asOf: "2026-07-26T00:00:00.000Z",
       competencies: [
         {
@@ -182,6 +182,8 @@ describe("WorldQuant readiness evidence", () => {
           latestEvidenceAt: "2026-07-25T00:00:00.000Z",
           supportingArtifactIds: ["mock:1:q", "coach:2:q"],
           contradictingArtifactIds: [],
+          inconclusiveArtifactIds: [],
+          invalidatedArtifactIds: [],
           recommendedQuestionIds: [],
         },
       ],

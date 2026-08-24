@@ -595,7 +595,7 @@ function evidenceProjection({
   recommendedQuestionIds: string[];
 }): EvidenceProjection {
   return {
-    version: 1,
+    version: 2,
     asOf: "2026-07-26T00:00:00.000Z",
     competencies: [
       {
@@ -610,6 +610,8 @@ function evidenceProjection({
         latestEvidenceAt: "2026-07-25T00:00:00.000Z",
         supportingArtifactIds: [],
         contradictingArtifactIds: ["coach:1:repair-this"],
+        inconclusiveArtifactIds: [],
+        invalidatedArtifactIds: [],
         recommendedQuestionIds,
       },
     ],

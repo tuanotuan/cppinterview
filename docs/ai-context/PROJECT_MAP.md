@@ -97,7 +97,7 @@ API quan trọng:
 | `practice` | `focus-session.ts`, `focus-eligibility.ts` | Session Focus Sprint identity-only, resume/reconcile/completion và lọc exact approved refs |
 | `practice` | `cloud-server.ts`, `cloud.ts`, `practice-review-reader.server.ts`, `question-learning-state-reader.server.ts` | `loadCloudAccount` chỉ xác minh account/owner cho guard; `loadCloudContext` dùng lại identity đã xác minh trong request rồi đọc review trước/state generation sau với fallback migration hẹp, approval, overrides, usage và manifest; loader evidence Coach dùng cùng identity đã cache |
 | `practice` | `mistake-cards.ts`, `mistake-cards.server.ts` | Capture lỗi durable, dedupe, grounded generation và materialize draft |
-| `evidence` | `contracts.ts`, `adapters.ts`, `account-evidence.server.ts`, `engine.ts`, `golden-*` | `AttemptArtifact` v1 chuẩn hóa attempt Practice/Coach/Mock; account reader dựng projection an toàn từ durable Coach history; projection tổng hợp `unassessed`/`learning`/`verified`/`stale`, tách content gap khỏi learner gap và corpus golden khóa grading contract |
+| `evidence` | `contracts.ts`, `adapters.ts`, `account-evidence.server.ts`, `engine.ts`, `golden-*` | `AttemptArtifact` v1 chuẩn hóa attempt Practice/Coach/Mock; account reader dựng `EvidenceProjection` v2 an toàn từ durable Coach history; engine tách evidence kết luận khỏi lỗi hạ tầng/revision mất hiệu lực, tổng hợp `unassessed`/`learning`/`verified`/`stale` và corpus golden khóa grading contract |
 | `worldquant` | `evidence.ts`, `readiness.ts`, `focus-plan.ts`, `mission.ts` | Composer Coach/Mock dùng chung cho Hub và Mission; role/competency model cùng planner deterministic theo gap/time budget, có thể ưu tiên đúng câu cần repair/refresh |
 | `worldquant` | `curriculum.ts`, `curriculum-evidence.ts`, `drills.ts` | Concept graph, content/transfer coverage và catalog 30 scenario: một practice + hai checkpoint mỗi competency |
 | `worldquant` | `training-state.ts`, `mission-snapshot.ts`, `tick-replay.ts`, `legacy-modern-capstone.ts` | Evidence account-scoped, cloud CAS/local fallback, Mission frozen, mô phỏng tick và capstone chuyển đổi legacy |
@@ -182,6 +182,9 @@ song song, server đọc bounded Coach history theo account và Mock v4 history,
 exact identity rồi composer dùng chung dựng `EvidenceProjection` không có câu trả lời thô
 cho cả Hub và Today’s Mission → giới hạn hai
 card mỗi lesson + tối đa một đơn vị Coach/Mock mỗi competency → áp target và role weight.
+Projection v2 chỉ dùng artifact hiện hành và có kết quả hạ tầng kết luận được để
+tính điểm; lỗi runner đi vào `inconclusiveArtifactIds`, revision cũ đi vào
+`invalidatedArtifactIds`, không hạ readiness hay tạo nhiệm vụ sửa lỗi cho người học.
 Hub tách `coverage`
 (content bank đã kiểm chứng) khỏi `Preparation Index` (bằng chứng người học đã tích
 lũy), nên thiếu content không bị diễn giải thành điểm yếu cá nhân. Anki vẫn là nguồn

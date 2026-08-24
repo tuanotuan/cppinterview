@@ -552,16 +552,22 @@ service-role-only/browser grants như contract hiện tại.
 - Personal remediation, drill và draft không được tính thay approved card trong
   content coverage.
 - `AttemptArtifact` v1 là contract domain riêng tư cho Practice/Coach/Mock. Chỉ
-  `EvidenceProjection` không chứa answer/code/excerpt private mới được đưa vào
+  `EvidenceProjection` v2 không chứa answer/code/excerpt private mới được đưa vào
   read model. Self-rating có confidence thấp nên không tự xác minh competency;
   blank/reveal/hint hay hidden test fail không được tính là evidence thành công.
   Projection bỏ evidence nằm sau `asOf`; contradiction mới nhất hạ trạng thái về
-  `learning`. Content `missing` là trục độc lập, không được đổi thành learner weakness.
+  `learning`. Lỗi execution `failed` là contradiction, nhưng
+  `infrastructure_error` phải là inconclusive; artifact lệch exact question identity
+  phải là invalidated. Hai nhóm sau không được tính score/assessment, hạ trạng thái,
+  tạo `repair` hoặc đổi fingerprint Mission. Các bucket artifact phải rời nhau và
+  mọi projection phải qua invariant Zod. Content `missing` là trục độc lập, không
+  được đổi thành learner weakness.
 - WorldQuant account evidence chỉ SELECT `id`, question identity, feedback và
   `created_at` từ tối đa 250 `coach_attempts`; query phải có predicate `user_id`
   bên cạnh RLS và không được chọn `candidate_answer`. Mọi row/feedback phải qua Zod
   trước khi thành artifact; lỗi đọc trả projection rỗng, không đưa payload lỗi ra client.
-- Coach/Mock artifact lệch question version/revision hiện hành không được xác minh.
+- Coach/Mock artifact lệch question version/revision hiện hành không được xác minh
+  và cũng không được thu hồi bằng chứng hiện hành từ attempt khác.
   Readiness chỉ nhận projection an toàn, giữ content coverage độc lập và giới hạn
   Coach/Mock ở một đơn vị mỗi competency. Focus chỉ ưu tiên `repair`/`refresh` cho
   exact question ID do projection đề xuất; Today’s Mission phải dùng cùng composer,

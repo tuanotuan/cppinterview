@@ -468,7 +468,7 @@ function repairEvidence(
   artifactId: string,
 ): EvidenceProjection {
   return {
-    version: 1,
+    version: 2,
     asOf: "2026-07-28T00:00:00.000Z",
     competencies: [
       {
@@ -483,6 +483,8 @@ function repairEvidence(
         latestEvidenceAt: "2026-07-27T00:00:00.000Z",
         supportingArtifactIds: [],
         contradictingArtifactIds: [artifactId],
+        inconclusiveArtifactIds: [],
+        invalidatedArtifactIds: [],
         recommendedQuestionIds: [questionId],
       },
     ],

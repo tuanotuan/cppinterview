@@ -6,7 +6,7 @@ import {
   type CompetencyAssessment,
 } from "./contracts";
 
-export const EVIDENCE_PROJECTION_VERSION = 1 as const;
+export const EVIDENCE_PROJECTION_VERSION = 2 as const;
 
 const competencyKeySchema = z
   .string()
@@ -53,9 +53,102 @@ export const competencyEvidenceProjectionSchema = z
     latestEvidenceAt: z.string().datetime({ offset: true }).nullable(),
     supportingArtifactIds: z.array(z.string().min(1).max(360)),
     contradictingArtifactIds: z.array(z.string().min(1).max(360)),
+    inconclusiveArtifactIds: z.array(z.string().min(1).max(360)),
+    invalidatedArtifactIds: z.array(z.string().min(1).max(360)),
     recommendedQuestionIds: z.array(competencyKeySchema).max(10),
   })
-  .strict();
+  .strict()
+  .superRefine((projection, context) => {
+    const artifactIds = [
+      ...projection.supportingArtifactIds,
+      ...projection.contradictingArtifactIds,
+      ...projection.inconclusiveArtifactIds,
+      ...projection.invalidatedArtifactIds,
+    ];
+    if (new Set(artifactIds).size !== artifactIds.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["supportingArtifactIds"],
+        message: "Evidence artifact classifications must be disjoint",
+      });
+    }
+    if (
+      projection.successfulAttemptCount !==
+        projection.supportingArtifactIds.length ||
+      projection.successfulAttemptCount > projection.assessmentCount
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["successfulAttemptCount"],
+        message: "Successful attempts must match supporting artifacts",
+      });
+    }
+    if (
+      projection.supportingArtifactIds.length +
+        projection.contradictingArtifactIds.length >
+      projection.assessmentCount
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["assessmentCount"],
+        message: "Classified conclusive artifacts cannot exceed assessments",
+      });
+    }
+    if (
+      projection.status === "unassessed" &&
+      (projection.assessmentCount !== 0 ||
+        projection.score !== null ||
+        projection.latestEvidenceAt !== null)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["status"],
+        message: "Unassessed competencies cannot claim conclusive evidence",
+      });
+    }
+    if (
+      projection.status !== "unassessed" &&
+      projection.assessmentCount === 0
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["assessmentCount"],
+        message: "Assessed competency states require conclusive evidence",
+      });
+    }
+    if (
+      (projection.status === "verified" || projection.status === "stale") &&
+      projection.successfulAttemptCount === 0
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["successfulAttemptCount"],
+        message: "Verified competency states require supporting evidence",
+      });
+    }
+    if (
+      projection.gapKind !==
+      gapKind(projection.content, projection.status)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["gapKind"],
+        message: "Evidence gap kind must match content and learner state",
+      });
+    }
+    if (
+      projection.nextAction !== projectionNextAction(projection) ||
+      ((projection.nextAction === "repair" ||
+        projection.nextAction === "refresh") &&
+        projection.recommendedQuestionIds.length === 0)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["nextAction"],
+        message: "Evidence action must match status and recommendations",
+      });
+    }
+  });
 
 export const evidenceProjectionSchema = z
   .object({
@@ -146,11 +239,24 @@ export function buildEvidenceProjection({
       parsedArtifacts,
       definition.key,
     );
-    const successful = observations.filter((observation) =>
+    const invalidated = observations.filter(
+      (observation) => !observation.artifact.question.current,
+    );
+    const inconclusive = observations.filter(
+      (observation) =>
+        observation.artifact.question.current &&
+        hasInfrastructureError(observation.artifact),
+    );
+    const conclusive = observations.filter(
+      (observation) =>
+        observation.artifact.question.current &&
+        !hasInfrastructureError(observation.artifact),
+    );
+    const successful = conclusive.filter((observation) =>
       isSuccessful(observation, parsedPolicy),
     );
     const latestSuccessful = latestObservation(successful);
-    const latest = latestObservation(observations);
+    const latest = latestObservation(conclusive);
     const latestContradicts =
       latest !== null && isContradiction(latest, parsedPolicy);
     const verified =
@@ -162,21 +268,27 @@ export function buildEvidenceProjection({
       asOfMs - Date.parse(latestSuccessful.artifact.occurredAt) >
         parsedPolicy.staleAfterDays * 86_400_000;
     const status: CompetencyEvidenceProjection["status"] =
-      observations.length === 0
+      conclusive.length === 0
         ? "unassessed"
         : stale
           ? "stale"
           : verified
             ? "verified"
             : "learning";
-    const score = weightedScore(observations);
+    const score = weightedScore(conclusive);
     const supportingArtifactIds = uniqueSorted(
       successful.map((observation) => observation.artifact.id),
     );
     const contradictingArtifactIds = uniqueSorted(
-      observations
+      conclusive
         .filter((observation) => isContradiction(observation, parsedPolicy))
         .map((observation) => observation.artifact.id),
+    );
+    const inconclusiveArtifactIds = uniqueSorted(
+      inconclusive.map((observation) => observation.artifact.id),
+    );
+    const invalidatedArtifactIds = uniqueSorted(
+      invalidated.map((observation) => observation.artifact.id),
     );
     const recommendedQuestionIds = recommendedQuestions({
       latest,
@@ -191,11 +303,13 @@ export function buildEvidenceProjection({
       gapKind: gapKind(definition.content, status),
       nextAction: nextAction(definition.content, status, latestContradicts),
       score,
-      assessmentCount: observations.length,
+      assessmentCount: conclusive.length,
       successfulAttemptCount: successful.length,
       latestEvidenceAt: latest?.artifact.occurredAt ?? null,
       supportingArtifactIds,
       contradictingArtifactIds,
+      inconclusiveArtifactIds,
+      invalidatedArtifactIds,
       recommendedQuestionIds,
     });
   });
@@ -232,22 +346,14 @@ function isSuccessful(
   policy: EvidencePolicy,
 ) {
   const { artifact, assessment } = observation;
-  const executionInvalid = [
-    artifact.verification.compile,
-    artifact.verification.tests,
-    artifact.verification.sanitizers,
-  ].some(
-    (status) => status === "failed" || status === "infrastructure_error",
-  );
   return (
-    artifact.question.current &&
     assessment.score !== null &&
     assessment.score >= policy.passingScore &&
     assessment.confidence >= policy.minimumConfidence &&
     artifact.response.status !== "not_provided" &&
     !artifact.response.usedHint &&
     !artifact.response.revealedReference &&
-    !executionInvalid
+    !hasExecutionFailure(artifact)
   );
 }
 
@@ -256,22 +362,30 @@ function isContradiction(
   policy: EvidencePolicy,
 ) {
   const { artifact, assessment } = observation;
-  const executionInvalid = [
-    artifact.verification.compile,
-    artifact.verification.tests,
-    artifact.verification.sanitizers,
-  ].some(
-    (status) => status === "failed" || status === "infrastructure_error",
-  );
   return (
-    !artifact.question.current ||
     assessment.score === null ||
     assessment.score < policy.passingScore ||
     artifact.response.status === "not_provided" ||
     artifact.response.usedHint ||
     artifact.response.revealedReference ||
-    executionInvalid
+    hasExecutionFailure(artifact)
   );
+}
+
+function hasInfrastructureError(artifact: AttemptArtifact) {
+  return executionStatuses(artifact).includes("infrastructure_error");
+}
+
+function hasExecutionFailure(artifact: AttemptArtifact) {
+  return executionStatuses(artifact).includes("failed");
+}
+
+function executionStatuses(artifact: AttemptArtifact) {
+  return [
+    artifact.verification.compile,
+    artifact.verification.tests,
+    artifact.verification.sanitizers,
+  ];
 }
 
 function weightedScore(observations: readonly AssessmentObservation[]) {
@@ -315,6 +429,24 @@ function nextAction(
   if (status === "unassessed") return "assess";
   if (status === "learning") return latestContradicts ? "repair" : "practice";
   if (status === "stale") return "refresh";
+  return "maintain";
+}
+
+function projectionNextAction(
+  projection: Pick<
+    CompetencyEvidenceProjection,
+    "content" | "status" | "recommendedQuestionIds"
+  >,
+): CompetencyEvidenceProjection["nextAction"] {
+  if (projection.status === "unassessed") {
+    return projection.content === "missing" ? "add_content" : "assess";
+  }
+  if (projection.status === "learning") {
+    return projection.recommendedQuestionIds.length > 0
+      ? "repair"
+      : "practice";
+  }
+  if (projection.status === "stale") return "refresh";
   return "maintain";
 }
 
