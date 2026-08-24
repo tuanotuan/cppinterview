@@ -3396,12 +3396,6 @@ export function PracticeApp({
                     Chưa biết thì cứ để trống. Nhờ AI sẽ giải từ đầu; câu trả lời
                     không bị giới hạn ký tự.
                   </p>
-                  {usesPublicAi ? (
-                    <p className="mt-2 text-xs font-semibold text-[#285f86]">
-                      Luna hỗ trợ tối đa 3 lượt AI trong 24 giờ; hạn mức áp dụng theo thiết bị và mạng.
-                    </p>
-                  ) : null}
-
                   {currentRescueRetry?.phase === "retrying" ? (
                     <div
                       id="rescue-retry-instruction"
