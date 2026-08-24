@@ -51,6 +51,7 @@ describe("user-facing language", () => {
       /Interview practice/g,
       /Cloud progress/g,
       /local only/g,
+      /Luna hỗ trợ tối đa 3 lượt AI trong 24 giờ/g,
       /Trung tâm sẵn sàng/g,
       /Phân tích code/g,
       /Code mẫu/g,

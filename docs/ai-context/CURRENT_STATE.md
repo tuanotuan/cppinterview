@@ -230,12 +230,12 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Evidence quality đợt 4 đạt `npm run validate`: content/context check, ESLint,
-  TypeScript, 101 file/609 Vitest test và Next.js production build 63 route;
-  golden evaluation riêng đạt 20/20 test. Không cần migration, biến môi trường,
-  package hay provider call; projection invariants, infrastructure isolation,
-  superseded identity và stable Mission fingerprint đều có regression test.
-  Security review 10/10 OWASP không có finding mới; `npm audit` báo 0 lỗ hổng.
+- Practice đã bỏ câu cảnh báo hạn mức public AI lặp lại dưới vùng trả lời, nên tài
+  khoản đã đăng nhập không còn bị trình bày như đang ở chế độ thử. Chính sách quota,
+  indicator hiệu dụng và lỗi API khi hết lượt không đổi. Thay đổi đạt
+  `npm run validate`: content/context check, ESLint, TypeScript, 101 file/609
+  Vitest test và Next.js production build 63 route; không cần migration, biến môi
+  trường, package hay provider call.
 - Google OAuth ở `/auth` dùng cùng callback PKCE của Supabase như GitHub; trước
   khi nút hoạt động cần bật provider, điền Google Client ID/Secret và đăng ký
   callback/origin theo `web/supabase/README.md`. Thay đổi UI/route đã đạt
