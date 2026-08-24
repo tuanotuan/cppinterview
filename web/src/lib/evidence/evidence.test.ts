@@ -8,6 +8,7 @@ import {
 import { attemptArtifactSchema } from "./contracts";
 import {
   buildEvidenceProjection,
+  competencyEvidenceProjectionSchema,
   evidenceProjectionFingerprint,
 } from "./engine";
 import {
@@ -89,7 +90,37 @@ describe("AttemptArtifact v1", () => {
   });
 });
 
-describe("Evidence Engine v1", () => {
+describe("Evidence Engine v2", () => {
+  it("rejects internally inconsistent projection classifications", () => {
+    const valid = buildEvidenceProjection({
+      artifacts: [
+        artifactFor(
+          coachGoldenCases[0],
+          "projection-contract",
+          "2026-08-22T00:00:00.000Z",
+        ),
+      ],
+      competencies: [
+        { key: "modern_cpp", content: "available", targetSuccessfulAttempts: 1 },
+      ],
+      asOf: "2026-08-23T00:00:00.000Z",
+    }).competencies[0];
+
+    expect(
+      competencyEvidenceProjectionSchema.safeParse({
+        ...valid,
+        inconclusiveArtifactIds: [...valid.supportingArtifactIds],
+      }).success,
+    ).toBe(false);
+    expect(
+      competencyEvidenceProjectionSchema.safeParse({
+        ...valid,
+        status: "unassessed",
+        nextAction: "assess",
+      }).success,
+    ).toBe(false);
+  });
+
   it("creates a stable fingerprint from assessed evidence, not projection time", () => {
     const artifact = artifactFor(
       coachGoldenCases[0],
@@ -253,7 +284,7 @@ describe("Evidence Engine v1", () => {
     });
   });
 
-  it("does not turn infrastructure errors into verified evidence", () => {
+  it("keeps infrastructure errors inconclusive instead of blaming the learner", () => {
     const base = artifactFor(
       coachGoldenCases[0],
       "infra",
@@ -276,9 +307,71 @@ describe("Evidence Engine v1", () => {
     });
 
     expect(projection.competencies[0]).toMatchObject({
-      status: "learning",
+      status: "unassessed",
+      score: null,
+      assessmentCount: 0,
       successfulAttemptCount: 0,
+      nextAction: "assess",
+      contradictingArtifactIds: [],
+      inconclusiveArtifactIds: [artifact.id],
+      invalidatedArtifactIds: [],
+      recommendedQuestionIds: [],
     });
+  });
+
+  it("does not let a later infrastructure error revoke verified evidence", () => {
+    const successes = [
+      artifactFor(
+        coachGoldenCases[0],
+        "verified-a",
+        "2026-08-20T00:00:00.000Z",
+      ),
+      artifactFor(
+        coachGoldenCases[0],
+        "verified-b",
+        "2026-08-21T00:00:00.000Z",
+      ),
+    ];
+    const infrastructureError = attemptArtifactSchema.parse({
+      ...artifactFor(
+        coachGoldenCases[0],
+        "infra-after-verification",
+        "2026-08-22T00:00:00.000Z",
+      ),
+      verification: {
+        compile: "infrastructure_error",
+        tests: "infrastructure_error",
+        sanitizers: "not_run",
+      },
+    });
+    const verified = buildEvidenceProjection({
+      artifacts: successes,
+      competencies: [
+        { key: "modern_cpp", content: "available", targetSuccessfulAttempts: 2 },
+      ],
+      asOf: "2026-08-23T00:00:00.000Z",
+    });
+    const withInfrastructureError = buildEvidenceProjection({
+      artifacts: [...successes, infrastructureError],
+      competencies: [
+        { key: "modern_cpp", content: "available", targetSuccessfulAttempts: 2 },
+      ],
+      asOf: "2026-08-23T00:00:00.000Z",
+    });
+
+    expect(withInfrastructureError.competencies[0]).toMatchObject({
+      status: "verified",
+      score: 91,
+      assessmentCount: 2,
+      successfulAttemptCount: 2,
+      latestEvidenceAt: "2026-08-21T00:00:00.000Z",
+      inconclusiveArtifactIds: [infrastructureError.id],
+      contradictingArtifactIds: [],
+      nextAction: "maintain",
+    });
+    expect(evidenceProjectionFingerprint(withInfrastructureError)).toBe(
+      evidenceProjectionFingerprint(verified),
+    );
   });
 
   it("ignores future evidence and lets the latest contradiction revoke verification", () => {
@@ -316,7 +409,7 @@ describe("Evidence Engine v1", () => {
     });
   });
 
-  it("does not verify a superseded question revision", () => {
+  it("invalidates a superseded revision instead of creating a learner gap", () => {
     const base = artifactFor(
       coachGoldenCases[0],
       "superseded",
@@ -335,10 +428,49 @@ describe("Evidence Engine v1", () => {
     });
 
     expect(projection.competencies[0]).toMatchObject({
-      status: "learning",
+      status: "unassessed",
+      score: null,
+      assessmentCount: 0,
       successfulAttemptCount: 0,
-      nextAction: "repair",
-      recommendedQuestionIds: ["golden-question"],
+      nextAction: "assess",
+      contradictingArtifactIds: [],
+      inconclusiveArtifactIds: [],
+      invalidatedArtifactIds: [artifact.id],
+      recommendedQuestionIds: [],
+    });
+  });
+
+  it("does not let a superseded revision revoke current verification", () => {
+    const current = artifactFor(
+      coachGoldenCases[0],
+      "current",
+      "2026-08-20T00:00:00.000Z",
+    );
+    const supersededBase = artifactFor(
+      coachGoldenCases[2],
+      "superseded-later",
+      "2026-08-22T00:00:00.000Z",
+    );
+    const superseded = attemptArtifactSchema.parse({
+      ...supersededBase,
+      question: { ...supersededBase.question, current: false },
+    });
+    const projection = buildEvidenceProjection({
+      artifacts: [current, superseded],
+      competencies: [
+        { key: "modern_cpp", content: "available", targetSuccessfulAttempts: 1 },
+      ],
+      asOf: "2026-08-23T00:00:00.000Z",
+    });
+
+    expect(projection.competencies[0]).toMatchObject({
+      status: "verified",
+      assessmentCount: 1,
+      successfulAttemptCount: 1,
+      latestEvidenceAt: current.occurredAt,
+      contradictingArtifactIds: [],
+      invalidatedArtifactIds: [superseded.id],
+      nextAction: "maintain",
     });
   });
 });

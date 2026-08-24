@@ -62,15 +62,18 @@ trạng thái từ tên nhánh.
 
 - Báo cáo Mock v4 mới tách tám tiêu chí: correctness, complexity, idiomatic C++, lifetime/ownership, testing/debugging, communication, requirement clarification và trade-off reasoning. Server tạo evidence catalog từ exact câu trả lời, mã, mã trong đề và tổng hợp hidden-test; AI chỉ cite ID trong catalog rồi server resolve trước khi lưu. Cuối report có đúng ba việc luyện tiếp priority 1–3, được capture vào Mistake Inbox sau durable history theo chế độ `ask`/`auto`/`off`; các artifact Mock cũ vẫn đọc được nhưng hiển thị fallback cũ.
 
-- Evidence Engine đợt 3 đã nối read model thống nhất vào Hub và Today’s Mission. WorldQuant server đọc
+- Evidence Engine đợt 4 dùng `EvidenceProjection` v2 để harden chất lượng read model
+  thống nhất của Hub và Today’s Mission. WorldQuant server đọc
   tối đa 250 Coach attempt theo account/RLS mà không SELECT `candidate_answer`, kết
   hợp Mock v4 history qua cùng một composer rồi chỉ gửi projection an toàn xuống client. Readiness nhận
   đóng góp Coach/Mock có giới hạn nhưng không làm tăng content coverage; Focus planner
   và Mission đưa exact câu bị contradiction hoặc stale vào hàng `repair`/`refresh`,
   ưu tiên evidence hành động được trước training gap cũ. Mission snapshot v2 giữ
   fingerprint không chứa câu trả lời và tự rebuild khi evidence thay đổi; snapshot v2
-  cũ vẫn đọc được khi chưa có assessed evidence. Artifact lệch
-  version/revision không được xác minh. Anki vẫn là nguồn lịch ôn trực tiếp để không
+  cũ vẫn đọc được khi chưa có assessed evidence. Lỗi runner hạ tầng được ghi là
+  inconclusive, artifact lệch version/revision được ghi là invalidated; cả hai không
+  tính điểm, không thu hồi verification hiện hành và không tạo nhiệm vụ sửa lỗi oan.
+  Anki vẫn là nguồn lịch ôn trực tiếp để không
   đếm đôi Practice evidence; không có migration, biến môi trường hay provider call mới.
 
 - Câu hỏi thủ công trong Admin dùng DB-native revision/audit, không phải override của question Git. Form chỉ cần đề bài và đáp án tham khảo; lesson nội bộ không có file `.md` giữ revision/approval và không bị repository sync archive. Migration `20260809100000_create_standalone_admin_manual_questions.sql` phải chạy sau khi deploy app mới; trước đó API fail an toàn và không tạo row nào.
@@ -227,12 +230,12 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Evidence consumers đợt 3 đạt `npm run validate`: content/context check, ESLint,
-  TypeScript, 101 file/606 Vitest test và Next.js production build 63 route;
-  golden evaluation riêng đạt 17/17 test. Không cần migration, biến môi trường
-  hay provider call; shared Hub/Mission projection, exact evidence priority và
-  snapshot invalidation đều có test. Security review 10/10 OWASP không có finding
-  mới; `npm audit` báo 0 lỗ hổng.
+- Evidence quality đợt 4 đạt `npm run validate`: content/context check, ESLint,
+  TypeScript, 101 file/609 Vitest test và Next.js production build 63 route;
+  golden evaluation riêng đạt 20/20 test. Không cần migration, biến môi trường,
+  package hay provider call; projection invariants, infrastructure isolation,
+  superseded identity và stable Mission fingerprint đều có regression test.
+  Security review 10/10 OWASP không có finding mới; `npm audit` báo 0 lỗ hổng.
 - Google OAuth ở `/auth` dùng cùng callback PKCE của Supabase như GitHub; trước
   khi nút hoạt động cần bật provider, điền Google Client ID/Secret và đăng ký
   callback/origin theo `web/supabase/README.md`. Thay đổi UI/route đã đạt

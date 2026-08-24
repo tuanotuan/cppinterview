@@ -560,7 +560,7 @@ describe("Today's WorldQuant Mission", () => {
 
 function repairEvidence(questionId: string): EvidenceProjection {
   return {
-    version: 1,
+    version: 2,
     asOf: "2026-07-28T00:00:00.000Z",
     competencies: [
       {
@@ -575,6 +575,8 @@ function repairEvidence(questionId: string): EvidenceProjection {
         latestEvidenceAt: "2026-07-27T00:00:00.000Z",
         supportingArtifactIds: [],
         contradictingArtifactIds: ["coach:10:tick-order-book-repair"],
+        inconclusiveArtifactIds: [],
+        invalidatedArtifactIds: [],
         recommendedQuestionIds: [questionId],
       },
     ],
