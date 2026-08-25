@@ -251,11 +251,13 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Bản sửa English Practice đạt `content:check`, `context:check`, ESLint,
-  TypeScript, 106 file/637 Vitest test và Next.js production build 113 static
-  params/routes. Local SSR/browser smoke tại `/en/practice?guest=1` xác nhận hero,
-  control, question và sidebar đều dùng tiếng Anh, header báo đúng 10 approved
-  cards; `/vi/practice` vẫn giữ tiếng Việt. Test hồi quy khóa parity namespace
+- Bản sửa English Practice và menu đổi ngôn ngữ bằng cờ SVG đạt
+  `content:check`, `context:check`, ESLint, TypeScript, 107 file/639 Vitest test
+  và Next.js production build 113 static params/routes. Browser smoke tại
+  `/en/practice?guest=1#answer` ở 375px/1440px xác nhận header mobile dùng cờ +
+  `EN`/`VI`, desktop/footer dùng tên đầy đủ, menu không tràn ngang và footer mở
+  lên. Arrow/Home/End/Escape, focus restoration, query/hash và vùng cuộn đều
+  được giữ khi chuyển `en` sang `vi`. Test hồi quy vẫn khóa parity namespace
   Practice, scaffold code theo locale và bộ lọc exact-revision để question chưa
   dịch không quay lại hàng học tiếng Anh. Security review trước đó xác nhận auth
   next-path chặn URL ngoài, backslash/control character; translation tables bật

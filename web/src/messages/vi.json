@@ -12,6 +12,8 @@
     },
     "language": {
       "label": "Ngôn ngữ",
+      "menu": "Chọn ngôn ngữ",
+      "current": "Ngôn ngữ: {language}",
       "vi": "Tiếng Việt",
       "en": "English",
       "changed": "Đã chuyển sang Tiếng Việt"
