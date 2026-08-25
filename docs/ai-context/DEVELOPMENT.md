@@ -67,7 +67,11 @@ question/lesson dịch qua `src/lib/content/translations.ts` và catalog
 `src/content-translations/`. Bản dịch phải bind exact ID + version + source hash
 (lesson bind content hash), giữ nguyên code, nguồn, taxonomy, schema và enum.
 Không dùng machine translation ở runtime. Thiếu bản dịch thì dùng canonical
-content; không được trình bày fallback như một bản dịch đã được review.
+content ở các bề mặt cho phép fallback; không được trình bày fallback như một
+bản dịch đã được review. Riêng `/en/practice` chỉ đưa question có overlay bind
+đúng revision vào hàng học, và không hiển thị source excerpt/title của lesson
+chưa có overlay tiếng Anh. Quy tắc nghiêm ngặt này ngăn học liệu tiếng Việt lọt
+vào một phiên Practice được gắn nhãn English.
 
 Nội dung tiếng Việt người dùng nhìn thấy, thông báo lỗi từ API và lời nhắc tạo
 phản hồi AI phải dùng “bạn” hoặc câu trung tính. Chỉ giữ tên riêng, mã nguồn và

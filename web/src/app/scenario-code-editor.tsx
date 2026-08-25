@@ -5,6 +5,7 @@ import Editor, {
   type BeforeMount,
   type OnMount,
 } from "@monaco-editor/react";
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import type { editor } from "monaco-editor";
 
@@ -73,9 +74,10 @@ export function MonacoCodeEditor({
   expanded: boolean;
   placeholder: string;
 }) {
+  const t = useTranslations("Practice");
   const options = useMemo<editor.IStandaloneEditorConstructionOptions>(
     () => ({
-      ariaLabel: `Trình soạn mã ${languageIds[language]} cho câu hỏi thiết kế`,
+      ariaLabel: t("codeEditor.aria", { language: languageIds[language] }),
       automaticLayout: true,
       autoClosingBrackets: "always",
       autoClosingDelete: "always",
@@ -109,7 +111,7 @@ export function MonacoCodeEditor({
       tabSize: 2,
       wordWrap: "on",
     }),
-    [expanded, language, placeholder],
+    [expanded, language, placeholder, t],
   );
 
   return (
@@ -124,7 +126,7 @@ export function MonacoCodeEditor({
       onChange={(nextValue) => onChange(nextValue ?? "")}
       loading={
         <div className="grid h-full place-items-center bg-[#092c51] font-mono text-xs text-white/45">
-          Đang tải trình soạn mã…
+          {t("editorLoading")}
         </div>
       }
       saveViewState={false}

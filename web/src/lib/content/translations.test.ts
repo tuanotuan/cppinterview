@@ -5,6 +5,8 @@ import manifestJson from "@/generated/content-manifest.json";
 import { contentManifestSchema } from "./schema";
 import {
   contentTranslationCoverage,
+  hasExactLessonTranslation,
+  hasExactQuestionTranslation,
   localizeContentManifest,
 } from "./translations";
 
@@ -46,5 +48,21 @@ describe("content translations", () => {
       "en",
     );
     expect(coverage.questions).toBe(10);
+  });
+
+  it("distinguishes translated questions from canonical-language fallbacks", () => {
+    const translated = manifest.questions.find(
+      (question) => question.id === "cpp11-auto-001",
+    )!;
+    const untranslated = manifest.questions.find(
+      (question) => question.id === "cpp11-range-based-for-001",
+    )!;
+    const untranslatedLesson = manifest.lessons.find(
+      (lesson) => lesson.id === untranslated.lessonId,
+    )!;
+
+    expect(hasExactQuestionTranslation(translated, "en")).toBe(true);
+    expect(hasExactQuestionTranslation(untranslated, "en")).toBe(false);
+    expect(hasExactLessonTranslation(untranslatedLesson, "en")).toBe(false);
   });
 });

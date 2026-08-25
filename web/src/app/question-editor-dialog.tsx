@@ -1,17 +1,16 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { useDialogAccessibility } from "./accessible-dialog";
 
 import {
   categoryForInterviewFormat,
-  interviewQuestionFormatLabels,
   interviewQuestionFormats,
 } from "@/lib/content/interview-formats";
 import {
   interviewQuestionCategories,
-  interviewQuestionCategoryLabels,
   resolveInterviewQuestionCategory,
 } from "@/lib/content/interview-bank";
 import type { EditableQuestionContent } from "@/lib/content/question-overrides";
@@ -33,6 +32,7 @@ export function QuestionEditorDialog({
   onClose: () => void;
   onSave: (content: EditableQuestionContent) => Promise<void>;
 }) {
+  const t = useTranslations("Practice.questionEditor");
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [responseMode, setResponseMode] = useState(
@@ -109,13 +109,13 @@ export function QuestionEditorDialog({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#285f86] uppercase">
-              Quản trị thẻ đang học
+              {t("eyebrow")}
             </p>
             <h2 id="question-editor-title" className="mt-2 text-2xl font-semibold tracking-tight text-[#0f3a69]">
-              Chỉnh sửa câu hỏi
+              {t("title")}
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[#526276]">
-              Lưu thay đổi sẽ tạo phiên bản mới và đưa thẻ về chờ duyệt trước khi xuất hiện trong lịch học tiếp theo.
+              {t("description")}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -128,8 +128,8 @@ export function QuestionEditorDialog({
               onClick={dismiss}
               disabled={saving}
               className="grid size-11 place-items-center rounded-xl border border-[#0f3a69]/15 bg-white text-xl leading-none text-[#285f86] transition hover:bg-[#eaf2f8] disabled:opacity-50"
-              aria-label="Đóng trình chỉnh sửa câu hỏi"
-              title="Đóng"
+              aria-label={t("closeAria")}
+              title={t("close")}
             >
               ×
             </button>
@@ -138,23 +138,23 @@ export function QuestionEditorDialog({
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <EditorSelect
-            label="Cách trả lời"
+            label={t("responseMode")}
             value={responseMode}
             onChange={(value) => setResponseMode(value as typeof responseMode)}
             options={[["text", "Text"], ["code", "Code"]]}
           />
           <EditorSelect
-            label="Độ khó"
+            label={t("difficulty")}
             value={difficulty}
             onChange={(value) => setDifficulty(value as typeof difficulty)}
             options={[
-              ["beginner", "Dễ"],
-              ["intermediate", "Trung bình"],
-              ["advanced", "Khó"],
+              ["beginner", t("difficulties.beginner")],
+              ["intermediate", t("difficulties.intermediate")],
+              ["advanced", t("difficulties.advanced")],
             ]}
           />
           <EditorSelect
-            label="Dạng đánh giá"
+            label={t("category")}
             value={interviewCategory}
             onChange={(value) => {
               const next = value as typeof interviewCategory;
@@ -163,29 +163,29 @@ export function QuestionEditorDialog({
             }}
             options={interviewQuestionCategories.map((category) => [
               category,
-              interviewQuestionCategoryLabels[category],
+              t(`categories.${category}`),
             ])}
           />
           <EditorSelect
-            label="Kiểu bài phỏng vấn"
+            label={t("format")}
             value={interviewFormat}
             onChange={(value) => {
               setInterviewFormat(value as InterviewQuestionFormat | "");
               if (!value) return;
-              const format = value as keyof typeof interviewQuestionFormatLabels;
+              const format = value as InterviewQuestionFormat;
               setInterviewCategory(categoryForInterviewFormat(format));
               if (format === "code_review") setResponseMode("text");
             }}
             options={[
-              ["", "Chưa phân dạng"] as [string, string],
+              ["", t("formats.unclassified")] as [string, string],
               ...interviewQuestionFormats.map((format): [string, string] => [
                 format,
-                interviewQuestionFormatLabels[format],
+                t(`formats.${format}`),
               ]),
             ]}
           />
           <label className="text-xs font-bold text-[#43546a]">
-            Thời gian (phút)
+            {t("minutes")}
             <input
               type="number"
               min={1}
@@ -197,15 +197,15 @@ export function QuestionEditorDialog({
           </label>
         </div>
 
-        <EditorTextarea label="Đề bài" value={prompt} onChange={setPrompt} rows={4} />
-        <EditorTextarea label="Mã mẫu (để trống nếu không có)" value={code} onChange={setCode} rows={7} mono required={false} />
-        <EditorTextarea label="Gợi ý" value={hint} onChange={setHint} rows={3} />
-        <EditorTextarea label="Đáp án ngắn" value={shortAnswer} onChange={setShortAnswer} rows={3} />
-        <EditorTextarea label="Giải thích chi tiết" value={detailedAnswer} onChange={setDetailedAnswer} rows={6} />
+        <EditorTextarea label={t("prompt")} value={prompt} onChange={setPrompt} rows={4} />
+        <EditorTextarea label={t("sampleCode")} value={code} onChange={setCode} rows={7} mono required={false} />
+        <EditorTextarea label={t("hint")} value={hint} onChange={setHint} rows={3} />
+        <EditorTextarea label={t("shortAnswer")} value={shortAnswer} onChange={setShortAnswer} rows={3} />
+        <EditorTextarea label={t("detailedAnswer")} value={detailedAnswer} onChange={setDetailedAnswer} rows={6} />
         <div className="grid gap-3 lg:grid-cols-3">
-          <EditorTextarea label="Tiêu chí bắt buộc (mỗi dòng một ý)" value={required} onChange={setRequired} rows={6} />
-          <EditorTextarea label="Điểm cộng (mỗi dòng một ý)" value={bonus} onChange={setBonus} rows={6} required={false} />
-          <EditorTextarea label="Hiểu lầm thường gặp (mỗi dòng một ý)" value={misconceptions} onChange={setMisconceptions} rows={6} required={false} />
+          <EditorTextarea label={t("requiredPoints")} value={required} onChange={setRequired} rows={6} />
+          <EditorTextarea label={t("bonusPoints")} value={bonus} onChange={setBonus} rows={6} required={false} />
+          <EditorTextarea label={t("misconceptions")} value={misconceptions} onChange={setMisconceptions} rows={6} required={false} />
         </div>
 
         {error ? (
@@ -220,14 +220,14 @@ export function QuestionEditorDialog({
             disabled={saving}
             className="rounded-xl border border-[#0f3a69]/15 bg-white px-4 py-2.5 text-sm font-bold text-[#285f86] disabled:opacity-50"
           >
-            Hủy
+            {t("cancel")}
           </button>
           <button
             type="submit"
             disabled={saving || !required.trim()}
             className="rounded-xl bg-[#0f3a69] px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50"
           >
-            {saving ? "Đang lưu…" : "Lưu phiên bản mới"}
+            {saving ? t("saving") : t("save")}
           </button>
         </div>
       </form>

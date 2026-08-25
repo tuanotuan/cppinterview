@@ -13,11 +13,14 @@ trạng thái từ tên nhánh.
   pathname, query và hash; `html lang`, metadata canonical/hreflang, navigation,
   footer, landing, Auth và thư viện dùng locale hiện tại. Admin, WorldQuant, API
   và callback Auth kỹ thuật vẫn không prefix.
-- Mười question đang `verified` có overlay tiếng Anh bind exact revision; stable
-  identity, version, source hash, taxonomy, source và code không thay đổi. AI
-  Coach trả lời theo locale request. Mock đóng băng locale khi bắt đầu session
-  và lưu locale trong report artifact/history mới để chuyển URL giữa phiên không
-  làm đổi ngôn ngữ báo cáo.
+- Catalog hiện có 10 question với overlay tiếng Anh bind exact revision. Route
+  `/en/practice` chỉ xếp đúng các question này vào hàng học; question được duyệt
+  nhưng chưa dịch không còn fallback sang tiếng Việt, còn source excerpt/title
+  lesson chưa dịch được ẩn hoặc thay bằng nhãn chủ đề trung tính. Stable identity,
+  version, source hash, taxonomy, source và code không thay đổi. Toàn bộ control,
+  trạng thái, modal quản trị trong Practice và AI Coach dùng locale request. Mock
+  đóng băng locale khi bắt đầu session và lưu locale trong report artifact/history
+  mới để chuyển URL giữa phiên không làm đổi ngôn ngữ báo cáo.
 
 - Nền tảng UI đã được chuẩn hóa: có skip link, ring focus dùng chung, modal
   keyboard-safe (focus trap/Escape/trả focus), token semantic cho surface và
@@ -109,13 +112,12 @@ trạng thái từ tên nhánh.
 
 ## Giới hạn và trạng thái chưa xác minh
 
-- Catalog tiếng Anh hiện bao phủ đủ 10 question `verified` tại revision hiện
-  hành; question được duyệt mới và lesson chưa có overlay sẽ fallback về nội
-  dung canonical. Migration `20260825073227_add_content_translations.sql` tạo
-  bảng/view translation theo revision và `coach_attempts.response_locale` nhưng
-  chưa được áp dụng/xác minh trên Supabase production. Migration này tương thích
-  ngược và phải chạy trước deployment dùng `response_locale`; loader hiện vẫn
-  đọc catalog Git, chưa đọc view translation DB.
+- Catalog tiếng Anh hiện bao phủ 10 question tại revision hiện hành; 48 question
+  còn lại và toàn bộ lesson chưa có overlay tiếng Anh nên chưa xuất hiện trong
+  `/en/practice`. Đây là backlog học liệu, không được lấp bằng nội dung tiếng Việt.
+  Migration `20260825073227_add_content_translations.sql` đã được áp dụng trên
+  Supabase project liên kết và `supabase migration list` khớp local/remote đến
+  revision này. Loader hiện vẫn đọc catalog Git, chưa đọc view translation DB.
 
 - Kho câu hỏi đã duyệt chưa bao phủ đều tick data, Linux/mạng, hệ
   thống phân tán và kỹ năng chịu trách nhiệm đầu cuối. Giao diện phải gọi đây là
@@ -249,15 +251,16 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Nền tảng song ngữ đạt `content:check`, ESLint, TypeScript, 105 file/632 Vitest
-  test và Next.js production build 113 static params/routes. Production smoke
-  xác nhận `/` chuyển sang `/vi`, locale cookie chuyển URL không prefix sang
-  `/en`, query được giữ, `html lang`, canonical và hreflang `vi`/`en`/`x-default`
-  phân biệt đúng. Security review xác nhận auth next-path chặn URL ngoài,
-  backslash/control character; translation tables bật RLS, authenticated chỉ
-  được đọc bản `verified`, view dùng `security_invoker`, và question translation
-  có composite FK bind cả source hash. Generated snapshot đã refresh và
-  `context:check` đạt sau khi cập nhật handoff semantic.
+- Bản sửa English Practice đạt `content:check`, `context:check`, ESLint,
+  TypeScript, 106 file/637 Vitest test và Next.js production build 113 static
+  params/routes. Local SSR/browser smoke tại `/en/practice?guest=1` xác nhận hero,
+  control, question và sidebar đều dùng tiếng Anh, header báo đúng 10 approved
+  cards; `/vi/practice` vẫn giữ tiếng Việt. Test hồi quy khóa parity namespace
+  Practice, scaffold code theo locale và bộ lọc exact-revision để question chưa
+  dịch không quay lại hàng học tiếng Anh. Security review trước đó xác nhận auth
+  next-path chặn URL ngoài, backslash/control character; translation tables bật
+  RLS, authenticated chỉ được đọc bản `verified`, view dùng `security_invoker`,
+  và question translation có composite FK bind cả source hash.
 - Google OAuth ở `/auth` dùng cùng callback PKCE của Supabase như GitHub; trước
   khi nút hoạt động cần bật provider, điền Google Client ID/Secret và đăng ký
   callback/origin theo `web/supabase/README.md`. Thay đổi UI/route đã đạt

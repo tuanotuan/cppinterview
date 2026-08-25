@@ -9,7 +9,11 @@ import { parsePracticeDeck } from "@/lib/content/decks";
 import { parseCustomStudyLaunch } from "@/lib/practice/custom-study";
 import { parseFocusSessionId } from "@/lib/practice/focus-session";
 import { parseWorldQuantMissionReturn } from "@/lib/worldquant/guided-mode";
-import { localizeContentManifest } from "@/lib/content/translations";
+import {
+  hasExactLessonTranslation,
+  hasExactQuestionTranslation,
+  localizeContentManifest,
+} from "@/lib/content/translations";
 import { localizedAlternates } from "@/i18n/metadata";
 import type { Locale } from "@/i18n/routing";
 
@@ -98,6 +102,10 @@ export default async function PracticePage({
   const lessons = new Map(manifest.lessons.map((lesson) => [lesson.id, lesson]));
 
   const mappedQuestions: PracticeQuestion[] = manifest.questions
+    .filter(
+      (question) =>
+        locale === "vi" || hasExactQuestionTranslation(question, locale),
+    )
     .filter((question) => question.status !== "archived")
     .map((question) => {
       const lesson = lessons.get(question.lessonId);
@@ -105,14 +113,17 @@ export default async function PracticePage({
         throw new Error("Missing lesson " + question.lessonId);
       }
 
+      const lessonIsLocalized =
+        locale === "vi" || hasExactLessonTranslation(lesson, locale);
+
       return {
         ...question,
-        lessonTitle: lesson.title,
+        lessonTitle: lessonIsLocalized ? lesson.title : t("contentTopic"),
         language: lesson.language,
         track: lesson.track,
         standard: lesson.standard,
         sourcePath: lesson.knowledgePath,
-        sourceSections: question.sources.map(({ sectionId }) => {
+        sourceSections: lessonIsLocalized ? question.sources.map(({ sectionId }) => {
           const section = lesson.sections.find((item) => item.id === sectionId);
           if (!section) {
             throw new Error("Missing section " + question.lessonId + "#" + sectionId);
@@ -122,7 +133,7 @@ export default async function PracticePage({
             heading: section.heading,
             excerpt: section.bodyText.slice(0, 900),
           };
-        }),
+        }) : [],
       };
     });
   const questions = mappedQuestions.filter(
