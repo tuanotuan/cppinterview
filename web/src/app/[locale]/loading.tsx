@@ -1,12 +1,16 @@
-export default function RouteLoading() {
+import { getTranslations } from "next-intl/server";
+
+export default async function RouteLoading() {
+  const t = await getTranslations("Common.loading");
+
   return (
     <main
       className="min-h-screen px-4 py-5 sm:px-7 lg:px-10"
-      aria-label="Đang chuyển trang"
+      aria-label={t("aria")}
       aria-busy="true"
     >
       <p role="status" className="sr-only">
-        Đang tải trang mới.
+        {t("status")}
       </p>
       <div className="mx-auto max-w-7xl animate-pulse">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#0f3a69]/15 pb-5">

@@ -1,8 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { useActionState, useState, type ReactNode } from "react";
 
+import { Link } from "@/i18n/navigation";
+
+import { LanguageSwitcher } from "../language-switcher";
 import { signInWithEmailPassword, signUpWithEmailPassword } from "./auth-actions";
 import { initialAuthFormState } from "./auth-form-state";
 
@@ -17,6 +20,9 @@ export function AuthForm({
   initialNotice: string | null;
   next: string;
 }) {
+  const t = useTranslations("Auth.form");
+  const common = useTranslations("Common");
+  const locale = useLocale();
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [passwordsVisible, setPasswordsVisible] = useState(false);
   const [email, setEmail] = useState("");
@@ -36,42 +42,45 @@ export function AuthForm({
   return (
     <main className="min-h-screen bg-[#f8fafc] px-4 py-7 text-[#172033] sm:px-6 sm:py-10">
       <div className="mx-auto w-full max-w-md">
-        <Link
-          href="/"
-          aria-label="Về trang chủ cppinterview"
-          title="Về trang chủ cppinterview"
-          className="inline-flex items-center gap-3"
-        >
-          <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
-            CI
-          </span>
-          <span>
-            <span className="block text-lg font-bold tracking-tight">cppinterview</span>
-            <span className="block text-xs text-[#526276]">Học và chuẩn bị phỏng vấn</span>
-          </span>
-        </Link>
+        <div className="flex items-center justify-between gap-3">
+          <Link
+            href="/"
+            aria-label={common("homeAria")}
+            title={common("homeAria")}
+            className="inline-flex items-center gap-3"
+          >
+            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
+              CI
+            </span>
+            <span>
+              <span className="block text-lg font-bold tracking-tight">cppinterview</span>
+              <span className="block text-xs text-[#526276]">{common("tagline")}</span>
+            </span>
+          </Link>
+          <LanguageSwitcher compact />
+        </div>
 
         <section className="mt-9 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/80 p-5 shadow-[0_20px_60px_rgb(15_58_105_/_10%)] sm:p-7">
-          <div className="grid grid-cols-2 rounded-xl bg-[#eaf2f8] p-1" role="tablist" aria-label="Tài khoản cppinterview">
+          <div className="grid grid-cols-2 rounded-xl bg-[#eaf2f8] p-1" role="tablist" aria-label={t("accountTabs")}>
             <ModeButton active={mode === "sign-in"} onClick={() => setMode("sign-in")}>
-              Đăng nhập
+              {t("signIn")}
             </ModeButton>
             <ModeButton active={mode === "sign-up"} onClick={() => setMode("sign-up")}>
-              Tạo tài khoản
+              {t("signUp")}
             </ModeButton>
           </div>
 
           <div className="mt-7">
             <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#285f86] uppercase">
-              {mode === "sign-up" ? "Tài khoản mới" : "Chào mừng trở lại"}
+              {mode === "sign-up" ? t("newAccount") : t("welcomeBack")}
             </p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-              {mode === "sign-up" ? "Tạo tài khoản cppinterview" : "Đăng nhập cppinterview"}
+              {mode === "sign-up" ? t("signUpTitle") : t("signInTitle")}
             </h1>
             <p className="mt-3 text-sm leading-6 text-[#526276]">
               {mode === "sign-up"
-                ? "Dùng email và mật khẩu để lưu tiến độ riêng giữa các thiết bị."
-                : "Đăng nhập để tiếp tục lịch học, thư viện và lịch sử của bạn."}
+                ? t("signUpDescription")
+                : t("signInDescription")}
             </p>
           </div>
 
@@ -86,6 +95,7 @@ export function AuthForm({
             className="mt-6 space-y-4"
           >
             <input type="hidden" name="next" value={next} />
+            <input type="hidden" name="locale" value={locale} />
             <label className="block text-sm font-bold text-[#16865a]">
               Email
               <input
@@ -102,7 +112,7 @@ export function AuthForm({
             </label>
             <PasswordField
               name="password"
-              label="Mật khẩu"
+              label={t("password")}
               autoComplete={mode === "sign-up" ? "new-password" : "current-password"}
               visible={passwordsVisible}
               onToggle={() => setPasswordsVisible((current) => !current)}
@@ -115,14 +125,14 @@ export function AuthForm({
                   href="/auth/reset-password"
                   className="text-sm font-bold text-[#285f86] underline underline-offset-4 hover:text-[#0f3a69]"
                 >
-                  Quên mật khẩu?
+                  {t("forgotPassword")}
                 </Link>
               </div>
             ) : null}
             {mode === "sign-up" ? (
               <PasswordField
                 name="passwordConfirmation"
-                label="Nhập lại mật khẩu"
+                label={t("confirmPassword")}
                 autoComplete="new-password"
                 visible={passwordsVisible}
                 onToggle={() => setPasswordsVisible((current) => !current)}
@@ -151,26 +161,26 @@ export function AuthForm({
               className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#0f3a69] px-4 py-3 text-sm font-bold text-[#65e6d2] transition hover:bg-[#16865a] disabled:cursor-wait disabled:opacity-65 focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
               {pending
-                ? "Đang xử lý…"
+                ? t("processing")
                 : mode === "sign-up"
-                  ? "Tạo tài khoản"
-                  : "Đăng nhập"}
+                  ? t("signUp")
+                  : t("signIn")}
             </button>
           </form>
 
           <div className="my-6 flex items-center gap-3 text-xs font-medium text-[#718096]">
             <span className="h-px flex-1 bg-[#0f3a69]/12" />
-            hoặc
+            {t("or")}
             <span className="h-px flex-1 bg-[#0f3a69]/12" />
           </div>
           <div className="grid gap-3">
             <OAuthButton provider="google" next={next}>
               <GoogleMark />
-              Tiếp tục với Google
+              {t("google")}
             </OAuthButton>
             <OAuthButton provider="github" next={next}>
               <GitHubMark />
-              Tiếp tục với GitHub
+              {t("github")}
             </OAuthButton>
           </div>
         </section>
@@ -264,6 +274,7 @@ function PasswordField({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const t = useTranslations("Auth.form");
   return (
     <label className="block text-sm font-bold text-[#16865a]">
       {label}
@@ -277,16 +288,16 @@ function PasswordField({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           className="min-h-12 w-full rounded-xl border border-[#0f3a69]/18 bg-white py-2 pl-3 pr-16 text-base font-normal outline-none transition placeholder:text-[#718096] focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/55"
-          placeholder="Ít nhất 8 ký tự"
+          placeholder={t("passwordPlaceholder")}
         />
         <button
           type="button"
-          aria-label={visible ? `Ẩn ${label.toLowerCase()}` : `Hiện ${label.toLowerCase()}`}
+          aria-label={visible ? t("hidePassword", { label }) : t("showPassword", { label })}
           aria-pressed={visible}
           onClick={onToggle}
           className="absolute inset-y-1 right-1 rounded-lg px-3 text-xs font-bold text-[#285f86] transition hover:bg-[#eaf2f8] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
         >
-          {visible ? "Ẩn" : "Hiện"}
+          {visible ? t("hide") : t("show")}
         </button>
       </span>
     </label>

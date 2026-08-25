@@ -406,6 +406,7 @@ function normalizeIdentity(
     candidateAnswer: identity.candidateAnswer,
     feedback: identity.feedback,
     messages: identity.messages,
+    responseLocale: identity.responseLocale ?? "vi",
   });
   if (!parsed.success) {
     throw new CoachFollowUpReservationConfigurationError(
@@ -420,6 +421,7 @@ function normalizeIdentity(
     candidateAnswer: parsed.data.candidateAnswer,
     feedback,
     messages: parsed.data.messages,
+    responseLocale: parsed.data.responseLocale,
   };
 }
 

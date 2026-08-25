@@ -1,11 +1,15 @@
 import { z } from "zod";
 
+export const aiResponseLocaleSchema = z.enum(["vi", "en"]);
+export type AiResponseLocale = z.infer<typeof aiResponseLocaleSchema>;
+
 export const coachRequestSchema = z.object({
   questionId: z
     .string()
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
     .max(100),
   answer: z.string().trim(),
+  responseLocale: aiResponseLocaleSchema.default("vi"),
   idempotencyKey: z.string().uuid().optional(),
 });
 
@@ -97,6 +101,7 @@ export const coachFollowUpRequestSchema = z
     candidateAnswer: z.string().trim(),
     feedback: coachFeedbackSchema,
     messages: z.array(coachFollowUpMessageSchema).min(1).max(8),
+    responseLocale: aiResponseLocaleSchema.default("vi"),
     idempotencyKey: z.string().uuid().optional(),
   })
   .superRefine(({ messages }, context) => {
@@ -135,6 +140,7 @@ export const questionClarificationRequestSchema = z.object({
     .string()
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
     .max(100),
+  responseLocale: aiResponseLocaleSchema.default("vi"),
 });
 
 export const questionClarificationSchema = z.object({

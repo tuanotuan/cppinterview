@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
+import { LanguageSwitcher } from "@/app/language-switcher";
+import { localizedAlternates } from "@/i18n/metadata";
+import type { Locale } from "@/i18n/routing";
 
 import type { ContributionDay } from "@/lib/profile/contribution-activity";
 import { formatActiveDuration } from "@/lib/profile/mobile-usage";
@@ -7,11 +11,19 @@ import { loadProfileActivity } from "@/lib/profile/profile-activity.server";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Trang cá nhân — cppinterview",
-  description:
-    "Nhật ký học tập, chuỗi ngày hoạt động và contribution graph của bạn trên cppinterview.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Profile" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: localizedAlternates("/profile", locale),
+  };
+}
 
 const contributionColors = {
   0: "border-[#0f3a69]/8 bg-[#0f3a69]/5",
@@ -54,6 +66,7 @@ export default async function ProfilePage() {
             </span>
           </Link>
           <nav aria-label="Điều hướng hồ sơ" className="flex flex-wrap items-center gap-2">
+            <LanguageSwitcher compact />
             <NavLink href="/practice">Luyện hôm nay</NavLink>
             <NavLink href="/learn">Thư viện</NavLink>
             <NavLink href="/stats">Thống kê</NavLink>

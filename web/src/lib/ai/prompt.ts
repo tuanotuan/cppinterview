@@ -1,6 +1,10 @@
 import type { GeneratedLesson, Question } from "../content/schema";
 import { displayQuestionPrompt } from "../content/question-prompt";
-import type { CoachFeedback, CoachFollowUpMessage } from "./contracts";
+import type {
+  AiResponseLocale,
+  CoachFeedback,
+  CoachFollowUpMessage,
+} from "./contracts";
 
 function sourceNotesFor(question: Question, lesson: GeneratedLesson): string {
   return question.sources
@@ -31,15 +35,17 @@ export function buildCoachPrompt({
   question,
   lesson,
   candidateAnswer,
+  responseLocale = "vi",
 }: {
   question: Question;
   lesson: GeneratedLesson;
   candidateAnswer: string;
+  responseLocale?: AiResponseLocale;
 }): string {
   const sourceNotes = sourceNotesFor(question, lesson);
   const language = languageDisplayName(lesson);
 
-  return `Đánh giá câu trả lời phỏng vấn ${language} dưới đây bằng tiếng Việt. Xưng hô với người học là "bạn", dùng giọng thân thiện và chỉ giữ từ tiếng Anh khi đó là thuật ngữ kỹ thuật phổ biến hoặc không có cách dịch rõ ràng.
+  return `${outputLanguageInstruction(responseLocale, "evaluation")} Nội dung kỹ thuật là ${language}; giữ nguyên code, identifier và thuật ngữ kỹ thuật cần thiết.
 
 NGUYÊN TẮC CHẤM:
 - Trường score bắt buộc là số nguyên theo thang 0-100, tuyệt đối không dùng thang 0-10. Mốc nhất quán: needs_work 0-39, partial 40-64, solid 65-84, strong 85-100.
@@ -80,12 +86,14 @@ export function buildCoachFollowUpPrompt({
   candidateAnswer,
   feedback,
   messages,
+  responseLocale = "vi",
 }: {
   question: Question;
   lesson: GeneratedLesson;
   candidateAnswer: string;
   feedback: CoachFeedback;
   messages: CoachFollowUpMessage[];
+  responseLocale?: AiResponseLocale;
 }): string {
   const allowedSourceIds = question.sources.map(({ sectionId }) => sectionId);
   const language = languageDisplayName(lesson);
@@ -96,7 +104,7 @@ export function buildCoachFollowUpPrompt({
     )
     .join("\n");
 
-  return `Trả lời câu hỏi bổ sung của người học bằng tiếng Việt. Xưng hô là "bạn", dùng giọng thân thiện và chỉ giữ từ tiếng Anh khi đó là thuật ngữ ${language} phổ biến hoặc không có cách dịch rõ ràng.
+  return `${outputLanguageInstruction(responseLocale, "follow-up")} Nội dung kỹ thuật là ${language}; giữ nguyên code, identifier và thuật ngữ kỹ thuật cần thiết.
 
 NGUYÊN TẮC:
 - Chỉ giải thích trong phạm vi câu hỏi, đáp án chuẩn, phản hồi chấm bài và TÀI LIỆU NGUỒN bên dưới.
@@ -129,13 +137,15 @@ ${conversation}`;
 export function buildQuestionClarificationPrompt({
   question,
   lesson,
+  responseLocale = "vi",
 }: {
   question: Question;
   lesson: GeneratedLesson;
+  responseLocale?: AiResponseLocale;
 }): string {
   const language = languageDisplayName(lesson);
 
-  return `Diễn giải đề phỏng vấn ${language} dưới đây bằng tiếng Việt bình dân, dễ nắm. Xưng hô với người học là "bạn".
+  return `${outputLanguageInstruction(responseLocale, "clarification")} Đây là đề ${language}; giữ nguyên code và identifier.
 
 QUY TẮC AN TOÀN VÀ PHẠM VI:
 - Hãy nói nôm na như đang giải thích lại đề cho một người bạn vừa đọc xong mà vẫn chưa hiểu đề muốn gì. Ưu tiên câu ngắn, từ quen thuộc và một tình huống/so sánh đời thường nếu nó giúp hình dung.
@@ -158,8 +168,16 @@ Hãy trả về đúng cấu trúc được yêu cầu.`;
 export function buildCoachSystemInstruction(
   lesson: GeneratedLesson,
   mode: "evaluate" | "follow-up" | "clarify",
+  responseLocale: AiResponseLocale = "vi",
 ) {
   const language = languageDisplayName(lesson);
+  if (responseLocale === "en") {
+    return mode === "evaluate"
+      ? `You are an experienced ${language} interviewer. Grade fairly against the rubric and supplied sources. Return only the requested structured data, with every user-facing text field in clear English.`
+      : mode === "follow-up"
+        ? `You are an experienced ${language} interviewer explaining prior feedback. Be clear and source-grounded. Return only the requested structured data, with every user-facing text field in clear English.`
+        : `You are a friendly ${language} tutor. Restate only what the question asks in plain English. Never reveal an answer, solution direction, rubric, or sample code. Return only the requested structured data.`;
+  }
   return mode === "evaluate"
     ? `Bạn là người phỏng vấn ${language} giàu kinh nghiệm. Chấm công bằng, bám sát tiêu chí và tài liệu nguồn; chỉ trả về dữ liệu có cấu trúc được yêu cầu.`
     : mode === "follow-up"
@@ -170,4 +188,24 @@ export function buildCoachSystemInstruction(
 function languageDisplayName(_lesson: GeneratedLesson) {
   void _lesson;
   return "C++";
+}
+
+function outputLanguageInstruction(
+  locale: AiResponseLocale,
+  mode: "evaluation" | "follow-up" | "clarification",
+) {
+  if (locale === "en") {
+    const task = mode === "evaluation"
+      ? "Evaluate the interview answer"
+      : mode === "follow-up"
+        ? "Answer the learner's follow-up question"
+        : "Restate the interview question in plain language";
+    return `${task} in clear, friendly English. Address the learner as \"you\" and write every user-facing output field in English.`;
+  }
+  const task = mode === "evaluation"
+    ? "Đánh giá câu trả lời phỏng vấn"
+    : mode === "follow-up"
+      ? "Trả lời câu hỏi bổ sung của người học"
+      : "Diễn giải đề phỏng vấn bằng lời bình dân, dễ nắm";
+  return `${task} bằng tiếng Việt. Xưng hô với người học là \"bạn\" và dùng giọng thân thiện.`;
 }

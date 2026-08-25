@@ -707,7 +707,10 @@ export async function POST(request: Request) {
     }),
   });
   const role = worldQuantRoleProfileById(reportRequest.profileId);
-  const instructions = buildMockInterviewSystemInstruction(role?.label);
+  const instructions = buildMockInterviewSystemInstruction(
+    role?.label,
+    reportRequest.responseLocale,
+  );
   const prompt = buildMockInterviewReportPrompt({
     durationMinutes: reportRequest.durationMinutes,
     elapsedSeconds: reportRequest.elapsedSeconds,
@@ -715,6 +718,7 @@ export async function POST(request: Request) {
     roleLabel: role?.label,
     evidenceScope: reportRequest.plan.mode,
     evidenceCatalog,
+    responseLocale: reportRequest.responseLocale,
   });
 
   let providerCompleted = false;
@@ -815,6 +819,7 @@ export async function POST(request: Request) {
       const artifact =
         mockInterviewCompletedArtifactV4Schema.parse({
           schemaVersion: 4,
+          responseLocale: reportRequest.responseLocale,
           sessionId: reportRequest.sessionId,
           profileId: reportRequest.profileId,
           profileVersion: reportRequest.profileVersion,
@@ -1185,6 +1190,7 @@ type NormalizedV4ReportRequest = {
   plan: TargetedMockPlan;
   items: NormalizedReportItem[];
   raw: MockInterviewReportRequestV4;
+  responseLocale: "vi" | "en";
 };
 
 function normalizeV4ReportRequest(
@@ -1212,6 +1218,7 @@ function normalizeV4ReportRequest(
       readinessCompetency: item.question.readinessCompetency,
     })),
     raw: request,
+    responseLocale: request.responseLocale ?? "vi",
   };
 }
 

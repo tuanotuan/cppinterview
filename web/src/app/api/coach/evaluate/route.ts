@@ -209,6 +209,7 @@ export async function POST(request: Request) {
     questionVersion: question.version,
     sourceRevision: manifest.sourceRevision,
     candidateAnswer: parsed.data.answer,
+    responseLocale: parsed.data.responseLocale,
   };
 
   let evaluationReservation: CoachEvaluationReservation | null = null;
@@ -389,6 +390,7 @@ export async function POST(request: Request) {
                 lesson,
                 candidateAnswer: parsed.data.answer,
                 safetyIdentifier: safetyIdentifier(publicAdmission.reservationId),
+                responseLocale: parsed.data.responseLocale,
               }),
           },
         );
@@ -404,6 +406,7 @@ export async function POST(request: Request) {
                 lesson,
                 candidateAnswer: parsed.data.answer,
                 safetyIdentifier: safetyIdentifier(user?.id || clientKey),
+                responseLocale: parsed.data.responseLocale,
               }),
           },
         );
@@ -418,6 +421,7 @@ export async function POST(request: Request) {
           question,
           lesson,
           candidateAnswer: parsed.data.answer,
+          responseLocale: parsed.data.responseLocale,
         });
       });
       provider = "gemini";
@@ -492,6 +496,7 @@ export async function POST(request: Request) {
         feedback,
         model: modelLabel,
         idempotency_key: parsed.data.idempotencyKey ?? null,
+        response_locale: parsed.data.responseLocale,
       }).select("id").single();
       if (attempt.error) {
         console.error("AI coach history save failed", { code: attempt.error.code });

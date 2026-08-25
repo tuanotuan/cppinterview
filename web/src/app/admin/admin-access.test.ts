@@ -19,7 +19,7 @@ describe("admin workspace access", () => {
     expect(practiceApp).toContain(
       "canManageQuestionBank={canManageQuestionBank}",
     );
-    expect(practiceApp).toContain(
+    expect(practiceApp.replaceAll("\r\n", "\n")).toContain(
       "{canManageQuestionBank ? (\n          <HeaderNavLink href=\"/admin\">",
     );
   });

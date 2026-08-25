@@ -14,6 +14,34 @@ const migrationRoot = path.resolve(
 const webRoot = path.resolve(migrationRoot, "..", "..");
 
 describe("database hardening migrations", () => {
+  it("keeps content translations revision-bound, verified, and read-only", async () => {
+    const sql = await readMigration(
+      "20260825073227_add_content_translations.sql",
+    );
+
+    expect(sql).toContain("create table public.content_lesson_translations");
+    expect(sql).toContain("create table public.content_question_translations");
+    expect(sql).toContain(
+      "foreign key (lesson_revision_id, lesson_id, source_hash)",
+    );
+    expect(sql).toContain(
+      "foreign key (question_id, question_version, source_hash)",
+    );
+    expect(sql).toContain("enable row level security");
+    expect(sql).toContain("translation_status = 'verified'");
+    expect(sql).toContain("with (security_invoker = true)");
+    expect(sql).toContain(
+      "revoke all on table public.content_question_translations",
+    );
+    expect(sql).toContain(
+      "grant select on table public.content_question_translations to authenticated",
+    );
+    expect(sql).not.toMatch(
+      /grant (?:insert|update|delete|all).*content_(?:lesson|question)_translations.*authenticated/i,
+    );
+    expect(sql).toContain("coach_attempts_response_locale_check");
+  });
+
   it("refreshes the exact server-only public AI quota RPC contract", async () => {
     const sql = await readMigration(
       "20260809110000_refresh_public_ai_quota_rpc_contract.sql",

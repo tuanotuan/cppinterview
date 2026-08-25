@@ -8,6 +8,17 @@ trạng thái từ tên nhánh.
 
 ## Handoff hiện tại
 
+- Learner app hỗ trợ song ngữ Việt/Anh qua prefix bắt buộc `/vi` và `/en`; route
+  không prefix tự chuyển theo cookie/browser với mặc định `vi`. Switcher giữ
+  pathname, query và hash; `html lang`, metadata canonical/hreflang, navigation,
+  footer, landing, Auth và thư viện dùng locale hiện tại. Admin, WorldQuant, API
+  và callback Auth kỹ thuật vẫn không prefix.
+- Mười question đang `verified` có overlay tiếng Anh bind exact revision; stable
+  identity, version, source hash, taxonomy, source và code không thay đổi. AI
+  Coach trả lời theo locale request. Mock đóng băng locale khi bắt đầu session
+  và lưu locale trong report artifact/history mới để chuyển URL giữa phiên không
+  làm đổi ngôn ngữ báo cáo.
+
 - Nền tảng UI đã được chuẩn hóa: có skip link, ring focus dùng chung, modal
   keyboard-safe (focus trap/Escape/trả focus), token semantic cho surface và
   color, cùng mobile navigation grid bám đáy không đè control sticky. Các không
@@ -97,6 +108,14 @@ trạng thái từ tên nhánh.
   bản trên thiết bị vẫn là bản làm việc.
 
 ## Giới hạn và trạng thái chưa xác minh
+
+- Catalog tiếng Anh hiện bao phủ đủ 10 question `verified` tại revision hiện
+  hành; question được duyệt mới và lesson chưa có overlay sẽ fallback về nội
+  dung canonical. Migration `20260825073227_add_content_translations.sql` tạo
+  bảng/view translation theo revision và `coach_attempts.response_locale` nhưng
+  chưa được áp dụng/xác minh trên Supabase production. Migration này tương thích
+  ngược và phải chạy trước deployment dùng `response_locale`; loader hiện vẫn
+  đọc catalog Git, chưa đọc view translation DB.
 
 - Kho câu hỏi đã duyệt chưa bao phủ đều tick data, Linux/mạng, hệ
   thống phân tán và kỹ năng chịu trách nhiệm đầu cuối. Giao diện phải gọi đây là
@@ -230,12 +249,15 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Practice đã bỏ câu cảnh báo hạn mức public AI lặp lại dưới vùng trả lời, nên tài
-  khoản đã đăng nhập không còn bị trình bày như đang ở chế độ thử. Chính sách quota,
-  indicator hiệu dụng và lỗi API khi hết lượt không đổi. Thay đổi đạt
-  `npm run validate`: content/context check, ESLint, TypeScript, 101 file/609
-  Vitest test và Next.js production build 63 route; không cần migration, biến môi
-  trường, package hay provider call.
+- Nền tảng song ngữ đạt `content:check`, ESLint, TypeScript, 105 file/632 Vitest
+  test và Next.js production build 113 static params/routes. Production smoke
+  xác nhận `/` chuyển sang `/vi`, locale cookie chuyển URL không prefix sang
+  `/en`, query được giữ, `html lang`, canonical và hreflang `vi`/`en`/`x-default`
+  phân biệt đúng. Security review xác nhận auth next-path chặn URL ngoài,
+  backslash/control character; translation tables bật RLS, authenticated chỉ
+  được đọc bản `verified`, view dùng `security_invoker`, và question translation
+  có composite FK bind cả source hash. Generated snapshot đã refresh và
+  `context:check` đạt sau khi cập nhật handoff semantic.
 - Google OAuth ở `/auth` dùng cùng callback PKCE của Supabase như GitHub; trước
   khi nút hoạt động cần bật provider, điền Google Client ID/Secret và đăng ký
   callback/origin theo `web/supabase/README.md`. Thay đổi UI/route đã đạt
@@ -257,14 +279,15 @@ trạng thái từ tên nhánh.
   điều kiện bất biến duy nhất cho quyền Admin. Cảnh báo retry tác vụ AI vẫn được
   kiểm thử như một contract vì người dùng phải thấy rõ khả năng phát sinh chi
   phí; toàn bộ client không còn gọi `window.alert`/`confirm`/`prompt`.
-- Format bài phỏng vấn và code-review workspace đạt `content:check`,
-  `context:check`, ESLint, TypeScript, 111 file/676 Vitest test và Next.js
-  production build 64 route. Mười câu C++ mẫu mới vẫn là `draft`, nên phải duyệt
+- Format bài phỏng vấn, code-review workspace và lớp song ngữ đạt `content:check`,
+  `context:check`, ESLint, TypeScript, 105 file/632 Vitest test và Next.js
+  production build tạo 113 static page. Mười câu C++ mẫu mới vẫn là `draft`, nên phải duyệt
   trong Admin trước khi xuất hiện trong lịch học hay coverage verified.
-- `npm audit --omit=dev --audit-level=moderate` không còn sạch: 6 cảnh báo
-  production hiện có qua Monaco/DOMPurify, nanoid, postcss và undici. Không có
-  package thay đổi trong nhánh này; auto-fix đề xuất nâng Monaco theo cách breaking,
-  nên giữ rủi ro đã ghi nhận để xử lý trong đợt upgrade dependency tương thích.
+- `npm audit --omit=dev --audit-level=moderate` hiện báo 0 lỗ hổng production sau
+  khi thêm dependency `next-intl` được khóa ở 4.13.7. Lockfile được chuẩn hóa
+  bằng npm 10 của GitHub Actions và clean `npm ci` đã xác nhận dependency peer
+  `@swc/helpers` của SWC được cài đầy đủ. Source guard đa dòng chuẩn hóa CRLF/LF
+  để cùng một test chạy nhất quán trên Windows và Linux.
 - Lần smoke production gần nhất dùng Chrome 1440×1200 và mobile CDP 390×844:
   Practice, WorldQuant, guide tick và Full Round không tràn ngang ở cấp
   trang. Đây không phải bằng chứng deployment hiện tại đang hoạt động.

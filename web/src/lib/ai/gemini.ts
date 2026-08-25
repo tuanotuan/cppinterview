@@ -14,6 +14,7 @@ import {
 } from "../mock-interview/contracts";
 
 import {
+  type AiResponseLocale,
   coachFeedbackJsonSchema,
   coachFeedbackSchema,
   coachFollowUpResponseJsonSchema,
@@ -63,17 +64,19 @@ export async function evaluateWithGemini({
   question,
   lesson,
   candidateAnswer,
+  responseLocale = "vi",
 }: {
   question: Question;
   lesson: GeneratedLesson;
   candidateAnswer: string;
+  responseLocale?: AiResponseLocale;
 }): Promise<GeminiStructuredResult<CoachFeedback>> {
   const interaction = await geminiClient().interactions.create(
     {
       model: geminiFallbackModel(),
       store: false,
-      system_instruction: buildCoachSystemInstruction(lesson, "evaluate"),
-      input: buildCoachPrompt({ question, lesson, candidateAnswer }),
+      system_instruction: buildCoachSystemInstruction(lesson, "evaluate", responseLocale),
+      input: buildCoachPrompt({ question, lesson, candidateAnswer, responseLocale }),
       generation_config: {
         thinking_level: "high",
         temperature: 0.2,
@@ -107,24 +110,27 @@ export async function answerCoachFollowUpWithGemini({
   candidateAnswer,
   feedback,
   messages,
+  responseLocale = "vi",
 }: {
   question: Question;
   lesson: GeneratedLesson;
   candidateAnswer: string;
   feedback: CoachFeedback;
   messages: CoachFollowUpMessage[];
+  responseLocale?: AiResponseLocale;
 }): Promise<GeminiStructuredResult<CoachFollowUpResponse>> {
   const interaction = await geminiClient().interactions.create(
     {
       model: geminiFallbackModel(),
       store: false,
-      system_instruction: buildCoachSystemInstruction(lesson, "follow-up"),
+      system_instruction: buildCoachSystemInstruction(lesson, "follow-up", responseLocale),
       input: buildCoachFollowUpPrompt({
         question,
         lesson,
         candidateAnswer,
         feedback,
         messages,
+        responseLocale,
       }),
       generation_config: {
         thinking_level: "high",

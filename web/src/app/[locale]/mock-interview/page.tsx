@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { isCodeRunnerConfigured } from "@/lib/code-runner/config.server";
 import { isQuestionApproved } from "@/lib/practice/approvals";
@@ -25,19 +26,33 @@ import {
 } from "@/lib/worldquant/readiness";
 import { parseWorldQuantMissionReturn } from "@/lib/worldquant/guided-mode";
 
-import { MockInterviewApp } from "./mock-interview-app";
+import { MockInterviewApp } from "../../mock-interview/mock-interview-app";
+import { localizeContentManifest } from "@/lib/content/translations";
+import type { Locale } from "@/i18n/routing";
+import { localizedAlternates } from "@/i18n/metadata";
+import { LanguageSwitcher } from "@/app/language-switcher";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Phỏng vấn thử C++ — cppinterview",
-  description:
-    "Phỏng vấn thử cho các vị trí kỹ sư C++: từ ngôn ngữ, hệ thống đến hiệu năng và thiết kế.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Mock" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: localizedAlternates("/mock-interview", locale),
+  };
+}
 
 export default async function MockInterviewPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: Locale }>;
   searchParams: Promise<{
     role?: string | string[];
     mode?: string | string[];
@@ -58,20 +73,22 @@ export default async function MockInterviewPage({
   const initialHistoryPromise = accountPromise.then(({ account }) =>
     loadInitialMockHistory(account?.id ?? null),
   );
-  const [cloud, query, { historyAvailable, initialHistory }] = await Promise.all([
+  const [cloud, query, { locale }, { historyAvailable, initialHistory }] = await Promise.all([
     cloudPromise,
     searchParams,
+    params,
     initialHistoryPromise,
   ]);
   if (!cloud.enabled) return <MockInterviewGate mode="not-configured" />;
   if (!cloud.account) return <MockInterviewGate mode="login" />;
 
+  const manifest = localizeContentManifest(cloud.manifest, locale);
   const bankQuestions = buildWorldQuantBankCatalog({
-    manifest: cloud.manifest,
+    manifest,
     approvals: cloud.approvals,
   });
   const readinessQuestions: ReadinessQuestionSummary[] =
-    cloud.manifest.questions
+    manifest.questions
       .filter(
         (question) =>
           question.status !== "archived" &&
@@ -126,7 +143,7 @@ export default async function MockInterviewPage({
         displayName: cloud.account.displayName,
         login: cloud.account.login,
       }}
-      sourceRevision={cloud.manifest.sourceRevision}
+      sourceRevision={manifest.sourceRevision}
       bankQuestions={bankQuestions}
       readinessQuestions={readinessQuestions}
       initialCloudProgress={cloud.progress}
@@ -140,6 +157,7 @@ export default async function MockInterviewPage({
       initialHistory={initialHistory}
       historyAvailable={historyAvailable}
       codeRunnerAvailable={isCodeRunnerConfigured()}
+      locale={locale}
     />
   );
 }
@@ -239,27 +257,31 @@ function vietnamDateKey() {
   }).format(new Date());
 }
 
-function MockInterviewGate({
+async function MockInterviewGate({
   mode,
 }: {
   mode: "login" | "not-configured";
 }) {
+  const t = await getTranslations("Mock");
   return (
     <main className="grid min-h-screen place-items-center px-5 py-12">
       <section className="w-full max-w-lg rounded-[1.25rem] border border-[#0f3a69]/15 bg-white/70 p-8 shadow-[0_24px_80px_rgb(15_58_105_/_10%)] sm:p-10">
         <div className="grid size-12 place-items-center rounded-2xl bg-[#0f3a69] font-mono font-bold text-[#65e6d2]">
           CI
         </div>
-        <p className="mt-8 font-mono text-xs font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
-          Phỏng vấn thử
-        </p>
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+          <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
+            {t("eyebrow")}
+          </p>
+          <LanguageSwitcher compact hideOnMock={false} />
+        </div>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight">
-          Phòng phỏng vấn riêng
+          {t("gateTitle")}
         </h1>
         <p className="mt-4 leading-7 text-[#526276]">
           {mode === "login"
-            ? "Đăng nhập để dùng ngân hàng câu hỏi riêng và nhận báo cáo do AI tạo vào cuối buổi."
-            : "Supabase chưa được cấu hình nên chưa thể xác thực và chấm buổi phỏng vấn thử."}
+            ? t("loginDescription")
+            : t("notConfiguredDescription")}
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           {mode === "login" ? (
@@ -267,14 +289,14 @@ function MockInterviewGate({
               href="/auth?next=%2Fmock-interview"
               className="rounded-2xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white"
             >
-              Đăng nhập
+              {t("signIn")}
             </Link>
           ) : null}
           <Link
             href="/practice"
             className="rounded-2xl border border-[#0f3a69]/15 bg-white px-5 py-3 text-sm font-bold"
           >
-            Về trang luyện tập
+            {t("backToPractice")}
           </Link>
         </div>
       </section>

@@ -6,6 +6,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import {
   coachFeedbackSchema,
+  type AiResponseLocale,
   type CoachFeedback,
 } from "./contracts";
 
@@ -17,6 +18,7 @@ export type CoachEvaluationRequestIdentity = {
   questionVersion: number;
   sourceRevision: string;
   candidateAnswer: string;
+  responseLocale?: AiResponseLocale;
 };
 
 export type CoachEvaluationReservation = {
@@ -81,6 +83,7 @@ export function coachEvaluationRequestFingerprint(
         String(identity.questionVersion),
         identity.sourceRevision,
         identity.candidateAnswer,
+        identity.responseLocale ?? "vi",
       ].join("\u001f"),
       "utf8",
     )
@@ -409,7 +412,10 @@ function assertIdentity(identity: CoachEvaluationRequestIdentity) {
     identity.questionVersion <= 0 ||
     typeof identity.sourceRevision !== "string" ||
     !/^[a-f0-9]{64}$/.test(identity.sourceRevision) ||
-    typeof identity.candidateAnswer !== "string"
+    typeof identity.candidateAnswer !== "string" ||
+    (identity.responseLocale !== undefined &&
+      identity.responseLocale !== "vi" &&
+      identity.responseLocale !== "en")
   ) {
     throw new CoachEvaluationConfigurationError(
       "Coach evaluation request identity is invalid",

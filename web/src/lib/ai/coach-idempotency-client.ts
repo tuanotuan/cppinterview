@@ -1,4 +1,5 @@
 import type {
+  AiResponseLocale,
   CoachFeedback,
   CoachFollowUpMessage,
 } from "./contracts";
@@ -8,6 +9,7 @@ export type CoachEvaluationClientIdentity = {
   questionVersion: number;
   sourceRevision: string;
   candidateAnswer: string;
+  responseLocale?: AiResponseLocale;
 };
 
 export async function coachEvaluationIdempotencyKey(
@@ -19,6 +21,7 @@ export async function coachEvaluationIdempotencyKey(
       String(identity.questionVersion),
       identity.sourceRevision,
       identity.candidateAnswer,
+      identity.responseLocale ?? "vi",
     ].join("\u001f"),
   );
 }
@@ -30,6 +33,7 @@ export type CoachFollowUpClientIdentity = {
   candidateAnswer: string;
   feedback: CoachFeedback;
   messages: CoachFollowUpMessage[];
+  responseLocale?: AiResponseLocale;
 };
 
 export async function coachFollowUpIdempotencyKey(
@@ -67,6 +71,7 @@ export function coachFollowUpCanonicalRequest(
       role: message.role,
       content: message.content,
     })),
+    responseLocale: identity.responseLocale ?? "vi",
   });
 }
 

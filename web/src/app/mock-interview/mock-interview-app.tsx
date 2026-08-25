@@ -1,6 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import type { Locale } from "@/i18n/routing";
+import { LanguageSwitcher } from "@/app/language-switcher";
+import { useTranslations } from "next-intl";
 import {
   useEffect,
   useMemo,
@@ -127,6 +130,7 @@ type MockInterviewAppProps = {
   initialHistory: MockInterviewHistoryEntry[];
   historyAvailable: boolean;
   codeRunnerAvailable: boolean;
+  locale: Locale;
 };
 
 const EMPTY_MOCK_SESSION = "__empty_mock_session__";
@@ -302,6 +306,7 @@ export function MockInterviewApp({
   initialHistory,
   historyAvailable,
   codeRunnerAvailable,
+  locale,
 }: MockInterviewAppProps) {
   const [duration, setDuration] =
     useState<MockInterviewDuration>(initialDuration);
@@ -566,6 +571,7 @@ export function MockInterviewApp({
       plan: selectedPlan,
       catalog: allQuestions,
       startedAt,
+      responseLocale: locale,
     });
     setReportError(null);
     setHistoryError(null);
@@ -832,6 +838,7 @@ export function MockInterviewApp({
     const pendingReportRequest: MockInterviewReportRequestV4 =
       committed.pendingReportRequest ?? {
         schemaVersion: 4,
+        responseLocale: committed.responseLocale ?? locale,
         idempotencyKey:
           committed.reportIdempotencyKey ?? crypto.randomUUID(),
         sessionId: committed.sessionId,
@@ -1226,6 +1233,7 @@ export function MockInterviewApp({
       <>
         <MockSetup
           account={account}
+        locale={locale}
         duration={duration}
         roleProfileId={roleProfileId}
         mode={mode}
@@ -1359,8 +1367,8 @@ export function MockInterviewApp({
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              aria-label="Về trang chủ cppinterview"
-              title="Về trang chủ cppinterview"
+              aria-label={locale === "en" ? "Go to the cppinterview home page" : "Về trang chủ cppinterview"}
+              title={locale === "en" ? "Go to the cppinterview home page" : "Về trang chủ cppinterview"}
               className="grid size-10 place-items-center rounded-xl bg-[#0f3a69] font-mono text-xs font-bold text-[#65e6d2] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
               CI
@@ -1665,6 +1673,7 @@ export function MockInterviewApp({
 
 function MockSetup({
   account,
+  locale,
   duration,
   roleProfileId,
   mode,
@@ -1686,6 +1695,7 @@ function MockSetup({
   notice,
 }: {
   account: MockInterviewAppProps["account"];
+  locale: Locale;
   duration: MockInterviewDuration;
   roleProfileId: WorldQuantRoleProfileId;
   mode: TargetedMockMode;
@@ -1706,6 +1716,7 @@ function MockSetup({
   onDeleteHistory: (attemptId: string) => void;
   notice: string | null;
 }) {
+  const mockT = useTranslations("Mock");
   const role = worldQuantRoleProfileById(roleProfileId);
   const eligibleCompetencies = worldQuantCompetencyKeys.filter(
     (competency) => role.weights[competency] > 0,
@@ -1751,37 +1762,38 @@ function MockSetup({
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              aria-label="Về trang chủ cppinterview"
-              title="Về trang chủ cppinterview"
+              aria-label={locale === "en" ? "Go to the cppinterview home page" : "Về trang chủ cppinterview"}
+              title={locale === "en" ? "Go to the cppinterview home page" : "Về trang chủ cppinterview"}
               className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
               WQ
             </Link>
             <div>
-              <p className="font-bold">Phỏng vấn thử cùng cppinterview</p>
+              <p className="font-bold">{mockT("setupTitle")}</p>
               <p className="text-xs text-[#526276]">
-                Vị trí C++ mục tiêu
+                {mockT("targetRole")}
               </p>
             </div>
           </div>
           <nav aria-label="Điều hướng phỏng vấn thử" className="flex flex-wrap items-center gap-2">
+            <LanguageSwitcher compact hideOnMock={false} />
             <Link
               href="/learn/tick-data-order-book"
               className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
             >
-              Học dữ liệu tick
+              {mockT("learnTickData")}
             </Link>
             <Link
               href="/"
               className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
             >
-              Luyện thẻ
+              {mockT("practiceCards")}
             </Link>
             <Link
               href="/stats"
               className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
             >
-              Thống kê
+              {mockT("progress")}
             </Link>
             <span className="rounded-full border border-[#0f3a69]/15 bg-white/65 px-4 py-2 text-xs font-semibold">
               @{account.login ?? account.displayName}

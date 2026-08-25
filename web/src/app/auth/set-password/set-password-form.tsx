@@ -1,12 +1,16 @@
 "use client";
 
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
+
+import { Link } from "@/i18n/navigation";
 
 import { initialAuthFormState } from "../auth-form-state";
 import { setPasswordForSignedInUser } from "../auth-actions";
 
 export function SetPasswordForm() {
+  const t = useTranslations("Auth");
+  const locale = useLocale();
   const [passwordsVisible, setPasswordsVisible] = useState(false);
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
@@ -18,18 +22,18 @@ export function SetPasswordForm() {
   return (
     <>
       <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#285f86] uppercase">
-        Bảo mật tài khoản
+        {t("setPassword.eyebrow")}
       </p>
-      <h1 className="mt-2 text-3xl font-semibold tracking-tight">Đặt mật khẩu đăng nhập</h1>
+      <h1 className="mt-2 text-3xl font-semibold tracking-tight">{t("setPassword.title")}</h1>
       <p className="mt-3 text-sm leading-6 text-[#526276]">
-        Tài khoản đăng nhập bằng Google hoặc GitHub có thể thêm mật khẩu tại đây.
-        Bạn cần đăng nhập nhà cung cấp trước khi lưu mật khẩu.
+        {t("setPassword.description")}
       </p>
 
       <form action={action} className="mt-6 space-y-4">
+        <input type="hidden" name="locale" value={locale} />
         <PasswordField
           name="password"
-          label="Mật khẩu mới"
+          label={t("recovery.newPassword")}
           value={password}
           visible={passwordsVisible}
           onChange={setPassword}
@@ -37,7 +41,7 @@ export function SetPasswordForm() {
         />
         <PasswordField
           name="passwordConfirmation"
-          label="Nhập lại mật khẩu mới"
+          label={t("recovery.confirmNewPassword")}
           value={passwordConfirmation}
           visible={passwordsVisible}
           onChange={setPasswordConfirmation}
@@ -63,13 +67,13 @@ export function SetPasswordForm() {
           disabled={pending}
           className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#0f3a69] px-4 py-3 text-sm font-bold text-[#65e6d2] transition hover:bg-[#16865a] disabled:cursor-wait disabled:opacity-65 focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
         >
-          {pending ? "Đang lưu…" : "Lưu mật khẩu"}
+          {pending ? t("setPassword.saving") : t("setPassword.save")}
         </button>
       </form>
 
       <p className="mt-6 text-center text-sm text-[#526276]">
         <Link href="/profile" className="font-bold text-[#16865a] underline underline-offset-4">
-          Quay lại hồ sơ
+          {t("setPassword.back")}
         </Link>
       </p>
     </>
@@ -91,6 +95,7 @@ function PasswordField({
   onChange: (value: string) => void;
   onToggle: () => void;
 }) {
+  const t = useTranslations("Auth.form");
   return (
     <label className="block text-sm font-bold text-[#16865a]">
       {label}
@@ -103,17 +108,17 @@ function PasswordField({
           minLength={8}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          placeholder="Ít nhất 8 ký tự"
+          placeholder={t("passwordPlaceholder")}
           className="min-h-12 w-full rounded-xl border border-[#0f3a69]/18 bg-white py-2 pl-3 pr-16 text-base font-normal outline-none transition placeholder:text-[#718096] focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/55"
         />
         <button
           type="button"
-          aria-label={visible ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+          aria-label={visible ? t("hidePassword", { label }) : t("showPassword", { label })}
           aria-pressed={visible}
           onClick={onToggle}
           className="absolute inset-y-1 right-1 rounded-lg px-3 text-xs font-bold text-[#285f86] transition hover:bg-[#eaf2f8] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
         >
-          {visible ? "Ẩn" : "Hiện"}
+          {visible ? t("hide") : t("show")}
         </button>
       </span>
     </label>

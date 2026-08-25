@@ -47,6 +47,7 @@ export const mockInterviewSessionQuestionV4Schema =
 export const mockInterviewSessionV4Schema = z
   .object({
     schemaVersion: z.literal(MOCK_INTERVIEW_SESSION_VERSION),
+    responseLocale: z.enum(["vi", "en"]).optional(),
     sessionId: z.string().uuid(),
     accountId: z.string().uuid(),
     profileId: targetedMockPlanSchema.shape.profileId,
@@ -206,6 +207,8 @@ export const mockInterviewSessionV4Schema = z
         pending.profileVersion !== session.profileVersion ||
         pending.sourceRevision !== session.sourceRevision ||
         pending.startedAt !== session.startedAt ||
+        (pending.responseLocale ?? "vi") !==
+          (session.responseLocale ?? "vi") ||
         JSON.stringify(pending.plan) !== JSON.stringify(session.plan)
       ) {
         context.addIssue({
@@ -456,6 +459,7 @@ export function createMockInterviewSessionV4({
   plan,
   catalog,
   startedAt,
+  responseLocale = "vi",
 }: {
   sessionId: string;
   accountId: string;
@@ -463,6 +467,7 @@ export function createMockInterviewSessionV4({
   plan: TargetedMockPlan;
   catalog: readonly WorldQuantMockQuestion[];
   startedAt: Date;
+  responseLocale?: "vi" | "en";
 }): MockInterviewSessionV4 {
   const parsedPlan = targetedMockPlanSchema.parse(plan);
   if (parsedPlan.questions.length === 0) {
@@ -501,6 +506,7 @@ export function createMockInterviewSessionV4({
 
   return mockInterviewSessionV4Schema.parse({
     schemaVersion: MOCK_INTERVIEW_SESSION_VERSION,
+    responseLocale,
     sessionId,
     accountId,
     profileId: parsedPlan.profileId,
