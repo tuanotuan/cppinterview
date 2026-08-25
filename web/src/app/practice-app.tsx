@@ -3,7 +3,7 @@
 import { useLinkStatus } from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   useCallback,
   useEffect,
@@ -46,10 +46,6 @@ import type {
 } from "@/lib/content/schema";
 import type { EditableQuestionContent } from "@/lib/content/question-overrides";
 import { displayQuestionPrompt } from "@/lib/content/question-prompt";
-import {
-  questionDifficultyLabels,
-  questionResponseModeLabels,
-} from "@/lib/content/user-facing-labels";
 import type { PracticeAccount } from "@/lib/practice/cloud-server";
 import {
   buildCandidateAnswer,
@@ -144,22 +140,13 @@ import {
   scheduleQuestionReview,
   type QuestionLearningState,
 } from "@/lib/practice/learning-state";
-import type { FocusQueueReason } from "@/lib/worldquant/focus-plan";
-import {
-  worldQuantCompetencies,
-  type WorldQuantCompetencyKey,
-} from "@/lib/worldquant/readiness";
 
 const MonacoCodeEditor = dynamic(
   () =>
     import("./scenario-code-editor").then((module) => module.MonacoCodeEditor),
   {
     ssr: false,
-    loading: () => (
-      <div className="grid h-96 place-items-center bg-[#092c51] font-mono text-xs text-white/45">
-        Đang tải trình soạn mã…
-      </div>
-    ),
+    loading: () => <EditorLoading />,
   },
 );
 type SyncStatus = "local" | "syncing" | "synced" | "error";
@@ -198,26 +185,37 @@ type CoachApiPayload = {
   resetsAt?: string | null;
 };
 
-const ratingOptions: Array<{
+const ratingOptionDefinitions: Array<{
   value: Rating;
-  label: string;
-  interval: string;
+  labelKey: "again" | "hard" | "good" | "easy";
+  intervalKey: "oneDay" | "twoDays" | "fourDays" | "sevenDays";
   tone: string;
 }> = [
-  { value: "again", label: "Chưa nhớ", interval: "1 ngày", tone: "red" },
-  { value: "hard", label: "Khó", interval: "2 ngày", tone: "orange" },
-  { value: "good", label: "Ổn", interval: "4 ngày", tone: "green" },
-  { value: "easy", label: "Dễ", interval: "7 ngày", tone: "lime" },
+  { value: "again", labelKey: "again", intervalKey: "oneDay", tone: "red" },
+  { value: "hard", labelKey: "hard", intervalKey: "twoDays", tone: "orange" },
+  { value: "good", labelKey: "good", intervalKey: "fourDays", tone: "green" },
+  { value: "easy", labelKey: "easy", intervalKey: "sevenDays", tone: "lime" },
 ];
 
 type PracticeStandard = "cpp98" | "cpp11" | "cpp20";
 
-const learningStateLabels = {
-  new: "Mới",
-  learning: "Đang học",
-  review: "Ôn tập",
-  relearning: "Học lại",
-} as const;
+function useRatingOptions() {
+  const t = useTranslations("Practice");
+  return ratingOptionDefinitions.map((option) => ({
+    ...option,
+    label: t(`rating.${option.labelKey}`),
+    interval: t(`rating.${option.intervalKey}`),
+  }));
+}
+
+function EditorLoading() {
+  const t = useTranslations("Practice");
+  return (
+    <div className="grid h-96 place-items-center bg-[#092c51] font-mono text-xs text-white/45">
+      {t("editorLoading")}
+    </div>
+  );
+}
 
 export type PracticeQuestion = ContentQuestion & {
   lessonTitle: string;
@@ -360,6 +358,13 @@ export function PracticeApp({
 }) {
   const common = useTranslations("Common");
   const practiceT = useTranslations("Practice");
+  const ratingOptions = useRatingOptions();
+  const learningStateLabels = {
+    new: practiceT("learningState.new"),
+    learning: practiceT("learningState.learning"),
+    review: practiceT("learningState.review"),
+    relearning: practiceT("learningState.relearning"),
+  } as const;
   const accountId = account?.id ?? null;
   const usesPublicAi = !canManageQuestionBank;
   const studySessionKey = useMemo(
@@ -534,7 +539,9 @@ export function PracticeApp({
       if (candidates.length) {
         if (payload.mistakeCapture?.generationMode === "auto") {
           setMistakeNotice(
-            `Đã phát hiện ${candidates.length} điểm cần cải thiện; đang tạo thẻ ôn tập để chờ duyệt.`,
+            practiceT("notice.mistakesGenerating", {
+              count: candidates.length,
+            }),
           );
           void Promise.allSettled(
             candidates.map((candidate) =>
@@ -547,16 +554,18 @@ export function PracticeApp({
           );
         } else if (payload.mistakeCapture?.generationMode === "ask") {
           setMistakeNotice(
-            `Đã đưa ${candidates.length} lỗi vào Hộp lỗi cần ôn. Mở trang Quản trị để tạo thẻ.`,
+            practiceT("notice.mistakesQueued", {
+              count: candidates.length,
+            }),
           );
         }
       } else if (payload.mistakeQueueAvailable === false) {
         setMistakeNotice(
-          "Danh sách lỗi chưa được cài bản cập nhật cơ sở dữ liệu trong Supabase.",
+          practiceT("notice.mistakesUnavailable"),
         );
       }
     },
-    [],
+    [practiceT],
   );
   const sessionQuestions = useMemo(() => {
     const byId = new Map<string, PracticeQuestion>();
@@ -1314,12 +1323,12 @@ export function PracticeApp({
               setFocusStaleDroppedCount(0);
             }
             setFocusNotice(
-              "Phiên ôn tập trọng tâm đã được tiếp tục ở một thẻ trình duyệt khác. Trang này đã tải tiến độ mới nhất và sẽ không ghi đè.",
+              practiceT("notice.focusAdvancedElsewhere"),
             );
           })
           .catch(() => {
             setFocusNotice(
-              "Danh sách đã được đối chiếu trong thẻ này nhưng trình duyệt không lưu được thay đổi.",
+              practiceT("notice.focusReconciledUnsaved"),
             );
           });
       }
@@ -1347,6 +1356,7 @@ export function PracticeApp({
     allLatest,
     allLearningStates,
     allQuestionIdentities,
+    practiceT,
     requestedFocusId,
     snapshot,
     today,
@@ -1391,17 +1401,17 @@ export function PracticeApp({
             setFocusStaleDroppedCount(0);
           }
           setFocusNotice(
-            "Phiên ôn tập trọng tâm đã được tiếp tục ở một thẻ trình duyệt khác. Trang này đã tải tiến độ mới nhất và sẽ không ghi đè.",
+            practiceT("notice.focusAdvancedElsewhere"),
           );
         })
         .catch(() => {
           setFocusNotice(
-            "Danh sách đã được đối chiếu trong thẻ này nhưng trình duyệt không lưu được thay đổi.",
+            practiceT("notice.focusReconciledUnsaved"),
           );
         });
     } catch {
       setFocusNotice(
-        "Danh sách đã được đối chiếu trong thẻ này nhưng trình duyệt không lưu được thay đổi.",
+        practiceT("notice.focusReconciledUnsaved"),
       );
     }
     setFocusSession(sessionForTab);
@@ -1425,6 +1435,7 @@ export function PracticeApp({
     allQuestionIdentities,
     focusHydrationStatus,
     focusSession,
+    practiceT,
     requestedFocusId,
     today,
   ]);
@@ -1524,13 +1535,13 @@ export function PracticeApp({
     if (!ids.length) {
       setCustomStudyIds(null);
       setCustomStudyNotice(
-        "Không còn câu phù hợp với lựa chọn từ trang Thống kê.",
+        practiceT("notice.statsEmpty"),
       );
       return;
     }
     setCustomStudyIds(ids);
     setCustomStudyNotice(
-      `Đã mở phiên luyện từ Thống kê gồm ${ids.length} câu.`,
+      practiceT("notice.statsOpened", { count: ids.length }),
     );
     window.scrollTo({ top: 0 });
   }, [
@@ -1539,6 +1550,7 @@ export function PracticeApp({
     hasFocusRequest,
     initialCustomStudyFilters,
     learningStates,
+    practiceT,
     sessionHydrated,
     snapshot,
     today,
@@ -1751,8 +1763,8 @@ export function PracticeApp({
   ) {
     try {
       if (!requestedFocusId) {
-        setFocusNotice(
-          "Phiên ôn tập trọng tâm đã được tiếp tục ở một thẻ trình duyệt khác. Trang này đã tải tiến độ mới nhất và sẽ không khôi phục danh sách cũ.",
+          setFocusNotice(
+            practiceT("notice.focusRestoreElsewhere"),
         );
         return nextSession;
       }
@@ -1762,8 +1774,8 @@ export function PracticeApp({
         nextSession,
       );
       if (!result.applied) {
-        setFocusNotice(
-          "Phiên ôn tập trọng tâm đã được tiếp tục ở một thẻ trình duyệt khác. Trang này đã tải tiến độ mới nhất và sẽ không khôi phục danh sách cũ.",
+          setFocusNotice(
+            practiceT("notice.focusRestoreElsewhere"),
         );
         return result.session?.sessionId === requestedFocusId
           ? result.session
@@ -1773,7 +1785,7 @@ export function PracticeApp({
       return nextSession;
     } catch {
       setFocusNotice(
-        "Tiến độ phiên ôn tập mới chỉ được giữ trong thẻ này vì trình duyệt không ghi được vào bộ nhớ trên thiết bị.",
+        practiceT("notice.focusLocalOnly"),
       );
       return nextSession;
     }
@@ -1969,7 +1981,7 @@ export function PracticeApp({
         customRemainingIds.length <= 1
       ) {
         setCustomStudyIds(null);
-        setCustomStudyNotice("Đã hoàn thành phiên học tự chọn.");
+        setCustomStudyNotice(practiceT("customStudy.completed"));
       }
       if (
         ratingStillOwnsSession() &&
@@ -2017,14 +2029,14 @@ export function PracticeApp({
       filters,
     );
     if (!ids.length) {
-      setCustomStudyNotice("Không có câu nào khớp bộ lọc của phiên học tự chọn.");
+      setCustomStudyNotice(practiceT("customStudy.empty"));
       return;
     }
     setDistractionFreeMode(false);
     clearStudySessionState();
     setSelectedQuestionId(null);
     setCustomStudyIds(ids);
-    setCustomStudyNotice(`Đã tạo phiên học tự chọn gồm ${ids.length} câu.`);
+    setCustomStudyNotice(practiceT("customStudy.created", { count: ids.length }));
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -2059,7 +2071,7 @@ export function PracticeApp({
         !focusSession
       ) {
         setFocusNotice(
-          "Phiên ôn tập đã được tiếp tục ở một thẻ trình duyệt khác. Trang này sẽ không xóa tiến độ mới nhất; hãy tạm dừng để về Trung tâm chuẩn bị.",
+          practiceT("notice.focusCancelElsewhere"),
         );
         return;
       }
@@ -2082,14 +2094,14 @@ export function PracticeApp({
           }
         }
         setFocusNotice(
-          "Phiên ôn tập đã được tiếp tục ở một thẻ trình duyệt khác. Trang này sẽ không xóa tiến độ mới nhất; hãy tạm dừng để về Trung tâm chuẩn bị.",
+          practiceT("notice.focusCancelElsewhere"),
         );
         return;
       }
       window.location.assign(focusReturnHref ?? "/practice");
     } catch {
       setFocusNotice(
-        "Chưa xóa được phiên ôn tập khỏi bộ nhớ trên thiết bị. Hãy kiểm tra quyền lưu trữ của trình duyệt rồi thử lại.",
+        practiceT("notice.focusDeleteFailed"),
       );
     }
   }
@@ -2279,7 +2291,7 @@ export function PracticeApp({
         error?: string;
       };
       if (!response.ok || !payload.question) {
-        throw new Error(payload.error || "Không thể lưu thay đổi của thẻ.");
+        throw new Error(payload.error || practiceT("notice.cardSaveFailed"));
       }
 
       if (action === "archive") {
@@ -2328,7 +2340,7 @@ export function PracticeApp({
       setQuestionAdminError(
         error instanceof Error
           ? error.message
-          : "Không thể lưu thay đổi của thẻ.",
+          : practiceT("notice.cardSaveFailed"),
       );
     } finally {
       setQuestionAdminSaving(false);
@@ -2393,9 +2405,9 @@ export function PracticeApp({
 
       if (!response.ok || !payload.feedback) {
         throw new Error(
-          publicAiCoachErrorMessage(payload) ||
+          publicAiCoachErrorMessage(payload, locale, practiceT) ||
             payload.error ||
-            "Trợ lý AI chưa trả lời được.",
+            practiceT("notice.coachFailed"),
         );
       }
 
@@ -2445,7 +2457,7 @@ export function PracticeApp({
         setCoachErrors((errors) => ({
           ...errors,
           [questionId]:
-            "AI đã chấm xong nhưng số liệu sử dụng chưa được lưu. Hãy tạm dừng gọi thêm OpenAI và kiểm tra nhật ký.",
+            practiceT("notice.coachUsageFailed"),
         }));
       }
       setFollowUpChats((chats) => ({ ...chats, [questionId]: [] }));
@@ -2462,7 +2474,7 @@ export function PracticeApp({
       setCoachErrors((errors) => ({
         ...errors,
         [questionId]:
-          error instanceof Error ? error.message : "Trợ lý AI chưa trả lời được.",
+          error instanceof Error ? error.message : practiceT("notice.coachFailed"),
       }));
     } finally {
       if (
@@ -2512,7 +2524,7 @@ export function PracticeApp({
       }
       if (!response.ok || !payload.clarification) {
         throw new Error(
-          payload.error || "Luna chưa làm rõ câu hỏi được.",
+          payload.error || practiceT("notice.clarifyFailed"),
         );
       }
 
@@ -2533,7 +2545,7 @@ export function PracticeApp({
         setQuestionClarificationErrors((errors) => ({
           ...errors,
           [questionId]:
-            "Luna đã trả lời nhưng số liệu sử dụng chưa được lưu. Hãy tạm dừng gọi thêm AI và kiểm tra nhật ký.",
+            practiceT("notice.clarifyUsageFailed"),
         }));
       }
     } catch (error) {
@@ -2543,7 +2555,7 @@ export function PracticeApp({
           [questionId]:
             error instanceof Error
               ? error.message
-              : "Luna chưa làm rõ câu hỏi được.",
+              : practiceT("notice.clarifyFailed"),
         }));
       }
     } finally {
@@ -2615,9 +2627,9 @@ export function PracticeApp({
       }
       if (!response.ok || !payload.reply) {
         throw new Error(
-          publicAiCoachErrorMessage(payload) ||
+          publicAiCoachErrorMessage(payload, locale, practiceT) ||
             payload.error ||
-            "AI chưa giải thích thêm được.",
+            practiceT("notice.followUpFailed"),
         );
       }
 
@@ -2644,7 +2656,7 @@ export function PracticeApp({
       if (payload.aiUsageRecorded === false) {
         setFollowUpErrors((errors) => ({
           ...errors,
-          [questionId]: "AI đã trả lời nhưng số liệu sử dụng chưa được lưu.",
+          [questionId]: practiceT("notice.aiUsageFailed"),
         }));
       }
     } catch (error) {
@@ -2654,7 +2666,7 @@ export function PracticeApp({
       setFollowUpErrors((errors) => ({
         ...errors,
         [questionId]:
-          error instanceof Error ? error.message : "AI chưa giải thích thêm được.",
+          error instanceof Error ? error.message : practiceT("notice.followUpFailed"),
       }));
     } finally {
       if (studySessionGenerationRef.current === sessionGeneration) {
@@ -2729,9 +2741,9 @@ export function PracticeApp({
       }
       if (!response.ok || !payload.reply) {
         throw new Error(
-          publicAiCoachErrorMessage(payload) ||
+          publicAiCoachErrorMessage(payload, locale, practiceT) ||
             payload.error ||
-            "AI chưa chấm được câu mở rộng.",
+            practiceT("notice.deepDiveFailed"),
         );
       }
       setDeepDiveFeedback((feedback) => ({
@@ -2750,7 +2762,7 @@ export function PracticeApp({
       if (payload.aiUsageRecorded === false) {
         setDeepDiveErrors((errors) => ({
           ...errors,
-          [questionId]: "AI đã trả lời nhưng số liệu sử dụng chưa được lưu.",
+          [questionId]: practiceT("notice.aiUsageFailed"),
         }));
       }
     } catch (error) {
@@ -2760,7 +2772,7 @@ export function PracticeApp({
       setDeepDiveErrors((errors) => ({
         ...errors,
         [questionId]:
-          error instanceof Error ? error.message : "AI chưa chấm được câu mở rộng.",
+          error instanceof Error ? error.message : practiceT("notice.deepDiveFailed"),
       }));
     } finally {
       if (studySessionGenerationRef.current === sessionGeneration) {
@@ -2962,7 +2974,7 @@ export function PracticeApp({
                 : isCustomStudyQuestion && customStudyIds
                   ? `${customStudyIds.length - customRemainingIds.length + 1}/${customStudyIds.length}`
                   : isRandomQuestion
-                    ? "ngoài lịch"
+                    ? practiceT("question.outsideSchedule")
                     : `${completedToday + 1}/${dailyTotal || 1}`
             }
             answerRevealed={revealed.has(current.id)}
@@ -2997,7 +3009,7 @@ export function PracticeApp({
             </div>
             {isFocusActive ? (
               <span className="hidden rounded-full border border-[color:var(--success)]/20 bg-[#e2f5ec] px-3 py-1.5 font-mono text-[11px] font-bold text-[color:var(--success)] sm:inline-flex">
-                PHIÊN ÔN TẬP TRỌNG TÂM WQ
+                {practiceT("focusActive.badge")}
               </span>
             ) : null}
           </div>
@@ -3090,7 +3102,7 @@ export function PracticeApp({
           >
             <span>{mistakeNotice}</span>
             <Link href="/admin#mistake-inbox" className="font-bold underline">
-              Mở Hộp lỗi cần ôn
+              {practiceT("notice.openMistakes")}
             </Link>
           </div>
         ) : null}
@@ -3119,16 +3131,18 @@ export function PracticeApp({
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className="font-mono text-xs font-bold tracking-[0.14em] text-[#285f86] uppercase">
-                  Phiên ôn tập trọng tâm
+                  {practiceT("focusActive.eyebrow")}
                 </p>
                 <h1 className="mt-2 text-xl font-semibold tracking-tight text-[#0f3a69]">
-                  Câu {focusPosition}/{focusQueueTotal} · giữ nguyên danh sách đã
-                  chốt
+                  {practiceT("focusActive.position", {
+                    position: focusPosition,
+                    total: focusQueueTotal,
+                  })}
                 </h1>
                 <p className="mt-1 text-sm text-[#526276]">
                   {focusStep
-                    ? `${focusCompetencyLabel(focusStep.competency)} · ${focusReasonLabel(focusStep.queueReason)}`
-                    : "Ôn theo điểm cần cải thiện đã chọn trong kế hoạch học."}
+                    ? `${practiceT(`focusActive.competency.${focusStep.competency}`)} · ${practiceT(`focusActive.reason.${focusStep.queueReason}`)}`
+                    : practiceT("focusActive.defaultDescription")}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -3137,21 +3151,22 @@ export function PracticeApp({
                   onClick={pauseFocusSprint}
                   className="rounded-xl border border-[#285f86]/25 bg-white/70 px-4 py-2 text-sm font-bold text-[#285f86] transition hover:bg-white"
                 >
-                  Tạm dừng
+                  {practiceT("focusActive.pause")}
                 </button>
                 <button
                   type="button"
                   onClick={cancelFocusSprint}
                   className="rounded-xl border border-[#a65c0e]/20 bg-[#fff1f1] px-4 py-2 text-sm font-bold text-[#c43d3d] transition hover:bg-[#f4d9cc]"
                 >
-                  Hủy phiên ôn tập
+                  {practiceT("focusActive.cancel")}
                 </button>
               </div>
             </div>
             {focusStaleDroppedCount > 0 ? (
               <p className="mt-3 text-xs font-semibold text-[#8a5a20]">
-                Đã bỏ {focusStaleDroppedCount} câu không còn hợp lệ, bị đình chỉ hoặc đã
-                ôn hôm nay; không tự thay bằng nội dung khác.
+                {practiceT("focusActive.stale", {
+                  count: focusStaleDroppedCount,
+                })}
               </p>
             ) : null}
             {focusNotice ? (
@@ -3171,9 +3186,7 @@ export function PracticeApp({
             onStart={startCustomStudy}
             onStop={() => {
               setCustomStudyIds(null);
-              setCustomStudyNotice(
-                "Đã dừng phiên học tự chọn, quay lại lịch hôm nay.",
-              );
+              setCustomStudyNotice(practiceT("customStudy.stopped"));
             }}
           />
         ) : null}
@@ -3181,15 +3194,17 @@ export function PracticeApp({
         {!isFocusActive && !distractionFreeMode && !current && selectedPendingReview.length ? (
           <section className="mt-7 rounded-[1.25rem] border border-[#a65c0e]/25 bg-[#fff4df] p-6 sm:p-8">
             <p className="font-mono text-xs tracking-[0.15em] text-[#a65c0e] uppercase">
-              Danh sách chờ duyệt
+              {practiceT("reviewQueue.eyebrow")}
             </p>
             <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl font-semibold">
-                  {selectedPendingReview.length} câu chờ duyệt
+                  {practiceT("reviewQueue.count", {
+                    count: selectedPendingReview.length,
+                  })}
                 </h1>
                 <p className="mt-1 text-sm text-[#526276]">
-                  Duyệt xong, các câu này sẽ được đưa vào lịch ôn cá nhân.
+                  {practiceT("reviewQueue.description")}
                 </p>
               </div>
               <button
@@ -3198,13 +3213,14 @@ export function PracticeApp({
                 disabled={approvalStatus === "saving"}
                 className="rounded-2xl bg-[#a65c0e] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#c43d3d] disabled:cursor-wait disabled:opacity-60"
               >
-                {approvalStatus === "saving" ? "Đang duyệt…" : "Duyệt tất cả"}
+                {approvalStatus === "saving"
+                  ? practiceT("reviewQueue.saving")
+                  : practiceT("reviewQueue.approveAll")}
               </button>
             </div>
             {approvalStatus === "error" ? (
               <p className="mt-3 text-xs font-semibold text-[#c43d3d]">
-                Chưa lưu được kết quả duyệt. Kiểm tra bản cập nhật cơ sở dữ liệu
-                rồi thử lại.
+                {practiceT("reviewQueue.error")}
               </p>
             ) : null}
           </section>
@@ -3223,14 +3239,14 @@ export function PracticeApp({
                 <div className="flex items-center gap-2">
                   <span className="rounded-full bg-[#65e6d2] px-3 py-1 font-mono text-xs font-bold text-[#0f3a69]">
                     {isFocusActive
-                      ? "ÔN TẬP TRỌNG TÂM"
+                      ? practiceT("question.focusSession")
                       : isCustomStudyQuestion
-                      ? "PHIÊN HỌC TỰ CHỌN"
+                      ? practiceT("question.customSession")
                       : isRandomQuestion
-                      ? "CÂU NGẪU NHIÊN"
+                      ? practiceT("question.random")
                       : completedToday === 0
-                        ? "CÂU HÔM NAY"
-                        : "ÔN ĐẾN HẠN"}
+                        ? practiceT("question.today")
+                        : practiceT("question.due")}
                   </span>
                   <span className="font-mono text-xs text-[#64748b]">
                     {isFocusActive
@@ -3238,7 +3254,7 @@ export function PracticeApp({
                       : isCustomStudyQuestion && customStudyIds
                       ? `${customStudyIds.length - customRemainingIds.length + 1}/${customStudyIds.length}`
                       : isRandomQuestion
-                      ? "ngoài lịch hôm nay"
+                      ? practiceT("question.outsideSchedule")
                       : `${completedToday + 1}/${dailyTotal}`}
                   </span>
                   {currentLearningState ? (
@@ -3257,7 +3273,7 @@ export function PracticeApp({
                     onClick={enterDistractionFreeMode}
                     className="rounded-xl border border-[#285f86]/25 bg-[#eaf2f8] px-3 py-2 text-xs font-bold text-[#16865a] transition hover:-translate-y-0.5 hover:bg-[#e4f0df] focus:ring-4 focus:ring-[#65e6d2]/55 focus:outline-none"
                   >
-                    Chế độ tập trung
+                    {practiceT("question.focusMode")}
                   </button>
                   <button
                     type="button"
@@ -3273,7 +3289,9 @@ export function PracticeApp({
                     }
                     className="rounded-xl border border-[#0f3a69]/18 bg-white/65 px-3 py-2 text-xs font-bold text-[#285f86] transition hover:-translate-y-0.5 hover:bg-white focus:ring-4 focus:ring-[#65e6d2]/55 focus:outline-none"
                   >
-                    {isSaved(`question:${current.id}`) ? "★ Đã lưu" : "☆ Lưu câu hỏi"}
+                    {isSaved(`question:${current.id}`)
+                      ? practiceT("question.saved")
+                      : practiceT("question.save")}
                   </button>
                   {canManageQuestionBank && !isFocusActive && !isRepairActive ? (
                     <>
@@ -3285,7 +3303,7 @@ export function PracticeApp({
                         }}
                         className="rounded-xl border border-[#285f86]/30 bg-[#e6f8f5] px-3 py-2 text-xs font-bold text-[#16865a] transition hover:-translate-y-0.5 hover:bg-[#d7f7f2] focus:ring-4 focus:ring-[#65e6d2]/55 focus:outline-none"
                       >
-                        Chỉnh sửa thẻ
+                        {practiceT("question.edit")}
                       </button>
                       <button
                         type="button"
@@ -3293,7 +3311,7 @@ export function PracticeApp({
                         disabled={questionAdminSaving}
                         className="rounded-xl border border-[#a65c0e]/30 bg-white px-3 py-2 text-xs font-bold text-[#c43d3d] transition hover:-translate-y-0.5 hover:bg-[#fff3eb] disabled:cursor-wait disabled:opacity-50 focus:ring-4 focus:ring-[#f8d1bc] focus:outline-none"
                       >
-                        Xóa thẻ
+                        {practiceT("question.delete")}
                       </button>
                     </>
                   ) : null}
@@ -3304,7 +3322,7 @@ export function PracticeApp({
                       disabled={!randomCandidates.length}
                       className="rounded-xl border border-[#0f3a69]/18 bg-white/65 px-3 py-2 text-xs font-bold text-[#285f86] transition hover:-translate-y-0.5 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#65e6d2]/55 focus:outline-none"
                     >
-                      ↻ Câu khác ngẫu nhiên
+                      {practiceT("question.anotherRandom")}
                     </button>
                   ) : null}
                   <span className="font-mono text-xs text-[#64748b]">{today}</span>
@@ -3316,19 +3334,19 @@ export function PracticeApp({
                   {isRepairActive ? (
                     <div className="mb-6 rounded-2xl border border-[#a65c0e]/25 bg-[#fff1f1] p-4 text-sm leading-6 text-[#9f2f2f]">
                       <p className="font-mono text-[11px] font-bold uppercase tracking-[0.16em]">
-                        Ôn lại điểm yếu · lần {(repairItem?.attempts ?? 0) + 1}
+                        {practiceT("repair.eyebrow", {
+                          count: (repairItem?.attempts ?? 0) + 1,
+                        })}
                       </p>
                       <p className="mt-1 font-semibold">
-                        Câu này quay lại sau các thẻ xen kẽ. Lần trả lời này
-                        chỉ kiểm tra đã khắc phục điểm yếu hay chưa, không tạo
-                        thêm một lượt ôn trong ngày.
+                        {practiceT("repair.description")}
                       </p>
                     </div>
                   ) : null}
                   {hasAnswered ? (
                     <div className="flex flex-wrap gap-2">
-                      <Tag>{questionDifficultyLabels[current.difficulty]}</Tag>
-                      <Tag>{questionResponseModeLabels[current.responseMode ?? "text"]}</Tag>
+                      <Tag>{practiceT(`question.difficulty.${current.difficulty}`)}</Tag>
+                      <Tag>{practiceT(`question.responseMode.${current.responseMode ?? "text"}`)}</Tag>
                     </div>
                   ) : null}
 
@@ -3363,10 +3381,10 @@ export function PracticeApp({
                             className="text-sm font-semibold text-[#43546a]"
                             htmlFor="candidate-answer"
                           >
-                            Giải thích lựa chọn thiết kế
+                            {practiceT("question.designExplanation")}
                           </label>
                           <span className="font-mono text-[11px] text-[#64748b]">
-                            không bắt buộc · tự lưu
+                            {practiceT("question.optionalAutosaved")}
                           </span>
                         </div>
                         <textarea
@@ -3379,7 +3397,7 @@ export function PracticeApp({
                           value={answers[current.id] ?? ""}
                           onChange={(event) => updateAnswer(current.id, event.target.value)}
                           className="mt-2 min-h-28 w-full resize-y rounded-2xl border border-[#0f3a69]/20 bg-[#f8fafc] px-4 py-3 leading-7 outline-none transition focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/45"
-                          placeholder="Giải thích quyền sở hữu, API, các đánh đổi và quyết định quan trọng…"
+                          placeholder={practiceT("question.designPlaceholder")}
                         />
                       </div>
                     </div>
@@ -3393,10 +3411,10 @@ export function PracticeApp({
                           className="text-sm font-semibold text-[#43546a]"
                           htmlFor="candidate-answer"
                         >
-                          Câu trả lời của bạn
+                          {practiceT("question.yourAnswer")}
                         </label>
                         <span className="font-mono text-[11px] text-[#64748b]">
-                          ● tự lưu trên trình duyệt
+                          {practiceT("question.autosaved")}
                         </span>
                       </div>
                       <textarea
@@ -3409,14 +3427,13 @@ export function PracticeApp({
                         value={answers[current.id] ?? ""}
                         onChange={(event) => updateAnswer(current.id, event.target.value)}
                         className="mt-2 min-h-36 w-full resize-y rounded-2xl border border-[#0f3a69]/20 bg-[#f8fafc] px-4 py-3 leading-7 outline-none transition focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/45"
-                        placeholder="Tự trả lời như đang ngồi phỏng vấn, hoặc để trống nếu chưa biết…"
+                        placeholder={practiceT("question.answerPlaceholder")}
                       />
                     </>
                   )}
 
                   <p className="mt-3 text-xs leading-5 text-[#526276]">
-                    Chưa biết thì cứ để trống. Nhờ AI sẽ giải từ đầu; câu trả lời
-                    không bị giới hạn ký tự.
+                    {practiceT("question.blankHelp")}
                   </p>
                   {currentRescueRetry?.phase === "retrying" ? (
                     <div
@@ -3426,11 +3443,12 @@ export function PracticeApp({
                       aria-live="polite"
                     >
                       <p className="font-mono text-[11px] font-bold tracking-[0.14em] text-[#285f86] uppercase">
-                        Làm lại · lượt {currentRescueRetry.attempts + 1}
+                        {practiceT("question.retry", {
+                          count: currentRescueRetry.attempts + 1,
+                        })}
                       </p>
                       <p className="mt-1 font-semibold">
-                        Tự trả lời lại bằng lời của bạn, không nhìn lời giải.
-                        Khi xong, nhờ AI chấm lần làm lại.
+                        {practiceT("question.retryInstruction")}
                       </p>
                     </div>
                   ) : null}
@@ -3450,7 +3468,9 @@ export function PracticeApp({
                         }}
                         className="rounded-xl px-1 py-2 text-sm font-semibold text-[#285f86] underline-offset-4 hover:underline"
                       >
-                        {hints.has(current.id) ? "Ẩn gợi ý" : "Cần một gợi ý?"}
+                        {hints.has(current.id)
+                          ? practiceT("question.hideHint")
+                          : practiceT("question.needHint")}
                       </button>
                       {canManageQuestionBank ? (
                         <button
@@ -3460,10 +3480,10 @@ export function PracticeApp({
                           className="rounded-xl border border-[#285f86]/25 bg-white px-3 py-2 text-sm font-semibold text-[#285f86] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#eaf2f8] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#65e6d2]/60 focus:outline-none"
                         >
                           {questionClarificationLoading === current.id
-                            ? "Luna đang diễn giải…"
+                            ? practiceT("question.clarifyWorking")
                             : questionClarifications[current.id]
-                              ? "Làm rõ lại câu hỏi"
-                              : "Làm rõ câu hỏi"}
+                              ? practiceT("question.clarifyAgain")
+                              : practiceT("question.clarify")}
                         </button>
                       ) : null}
                     </div>
@@ -3480,32 +3500,36 @@ export function PracticeApp({
                       >
                         {coachLoading === current.id
                           ? currentRescueRetry?.phase === "retrying"
-                            ? "AI đang chấm lại…"
-                            : "AI đang giúp…"
+                            ? practiceT("question.aiRechecking")
+                            : practiceT("question.aiHelping")
                           : currentRescueRetry?.phase === "rescue" &&
                               coachFeedback[current.id]
-                            ? "Đọc lời giải bên dưới"
+                            ? practiceT("question.readSolution")
                             : currentRescueRetry?.phase === "retrying"
                               ? currentCandidateAnswer
-                                ? "Nhờ AI chấm lần làm lại"
-                                : "Nhờ AI giải lại"
+                                ? practiceT("question.askAiRetryGrade")
+                                : practiceT("question.askAiRetryExplain")
                               : currentCandidateAnswer
-                                ? "Nhờ AI chấm"
-                                : "Nhờ AI giải"}
+                                ? practiceT("question.askAiGrade")
+                                : practiceT("question.askAiExplain")}
                       </button>
                       <button
                         type="button"
                         onClick={toggleReferenceAnswer}
                         className="rounded-xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#16865a] focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
                       >
-                        {revealed.has(current.id) ? "Ẩn đáp án" : "Mở đáp án"}
+                        {revealed.has(current.id)
+                          ? practiceT("question.hideAnswer")
+                          : practiceT("question.showAnswer")}
                       </button>
                     </div>
                   </div>
 
                   {hints.has(current.id) ? (
                     <div className="mt-4 rounded-2xl border border-[#a65c0e]/20 bg-[#fff1f1] p-4 text-sm leading-6 text-[#9f2f2f]">
-                      <span className="mr-2 font-mono font-bold">gợi ý:</span>
+                      <span className="mr-2 font-mono font-bold">
+                        {practiceT("question.hint")}
+                      </span>
                       <InlineCode text={current.hint} />
                     </div>
                   ) : null}
@@ -3517,7 +3541,7 @@ export function PracticeApp({
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <p className="font-mono text-[11px] font-bold tracking-[0.14em] text-[#285f86] uppercase">
-                          Luna làm rõ đề bài
+                          {practiceT("question.clarificationEyebrow")}
                         </p>
                         <span className="rounded-full border border-[#285f86]/20 bg-white/65 px-2 py-1 font-mono text-[10px] text-[#285f86]">
                           {questionClarificationModels[current.id] || "Luna"}
@@ -3528,7 +3552,9 @@ export function PracticeApp({
                       </p>
                       <div className="mt-4">
                         <div>
-                          <p className="font-semibold text-[#0f3a69]">Đề thực ra muốn bạn làm gì?</p>
+                          <p className="font-semibold text-[#0f3a69]">
+                            {practiceT("clarification.question")}
+                          </p>
                           <ul className="mt-2 space-y-1.5 leading-6">
                             {questionClarifications[current.id].whatToAddress.map(
                               (item) => (
@@ -3542,10 +3568,12 @@ export function PracticeApp({
                         </div>
                       </div>
                       <p className="mt-4 border-t border-[#285f86]/15 pt-3 text-xs leading-5 text-[#526276]">
-                        Chỉ cần hiểu như vậy: {questionClarifications[current.id].scopeNote}
+                        {practiceT("clarification.scope", {
+                          scope: questionClarifications[current.id].scopeNote,
+                        })}
                       </p>
                       <p className="mt-2 text-xs text-[#526276]">
-                        Phần này chỉ diễn giải đề, không mở đáp án hay hướng giải.
+                        {practiceT("clarification.guard")}
                       </p>
                     </section>
                   ) : null}
@@ -3577,20 +3605,22 @@ export function PracticeApp({
                         <div>
                           <p className="text-sm font-bold text-[#0f3a69]">
                             {isRepairActive
-                              ? "Câu này đã được sửa chưa?"
-                              : "Chấm mức độ ghi nhớ để sang câu tiếp theo"}
+                              ? practiceT("ratingPanel.repairTitle")
+                              : practiceT("ratingPanel.titleBeforeAi")}
                           </p>
                           <p className="mt-0.5 text-xs text-[#5c6e65]">
                             {isRepairActive
-                              ? "Ổn/Dễ kết thúc lượt ôn điểm yếu; Chưa nhớ/Khó sẽ đưa câu này trở lại sau vài thẻ."
+                              ? practiceT("ratingPanel.repairDescription")
                               : revealed.has(current.id)
-                              ? "So với đáp án, bạn nhớ được đến đâu?"
-                              : "AI đã chấm xong — giờ bạn hãy chọn mức phù hợp."}
+                              ? practiceT("ratingPanel.compare")
+                              : practiceT("ratingPanel.afterAi")}
                           </p>
                         </div>
                         {currentSuggestedRating ? (
                           <span className="rounded-full bg-[#65e6d2]/70 px-3 py-1 text-xs font-semibold text-[#285f86]">
-                            AI gợi ý mức đánh giá: {currentSuggestedRating.label}
+                            {practiceT("ratingPanel.suggestion", {
+                              rating: currentSuggestedRating.label,
+                            })}
                           </span>
                         ) : null}
                       </div>
@@ -3608,13 +3638,16 @@ export function PracticeApp({
                               {isRepairActive
                                 ? option.value === "good" ||
                                   option.value === "easy"
-                                  ? "đã khắc phục"
-                                  : "lặp lại trong phiên"
-                                : `lại sau ${
-                                    currentLearningState
-                                      ? `${ratingIntervalDays(currentLearningState, option.value)} ngày`
-                                      : option.interval
-                                  }`}
+                                  ? practiceT("rating.fixed")
+                                  : practiceT("rating.repeatSession")
+                                : currentLearningState
+                                  ? practiceT("rating.againAfterDays", {
+                                      count: ratingIntervalDays(
+                                        currentLearningState,
+                                        option.value,
+                                      ),
+                                    })
+                                  : option.interval}
                             </span>
                           </button>
                         ))}
@@ -3642,14 +3675,24 @@ export function PracticeApp({
                               id: `ai-feedback:${current.id}:${current.version}:${current.sourceHash}`,
                               kind: "ai_answer",
                               questionId: current.id,
-                              title: `Phản hồi AI · ${current.lessonTitle}`,
-                              content: formatCoachFeedback(coachFeedback[current.id]),
+                              title: practiceT("savedTitle.feedback", {
+                                title: current.lessonTitle,
+                              }),
+                              content: formatCoachFeedback(
+                                coachFeedback[current.id],
+                                practiceT(
+                                  `coach.verdict.${coachFeedback[current.id].verdict}`,
+                                ),
+                                practiceT("coach.corrections"),
+                              ),
                               context: displayQuestionPrompt(current),
                             })
                           }
                           onExpandNextStep={() =>
                             void askCoachFollowUp(
-                              `Hãy biến bước tiếp theo này thành một bài học C++ ngắn, dễ hiểu, có ví dụ C++ và một bài tập nhỏ: ${coachFeedback[current.id].nextStep}`,
+                              practiceT("expandNextStepPrompt", {
+                                nextStep: coachFeedback[current.id].nextStep,
+                              }),
                             )
                           }
                           onExploreInterviewerQuestion={() =>
@@ -3697,7 +3740,9 @@ export function PracticeApp({
                               id: `ai-deep-dive:${current.id}:${current.version}:${current.sourceHash}`,
                               kind: "ai_answer",
                               questionId: current.id,
-                              title: `Tìm hiểu sâu · ${current.lessonTitle}`,
+                              title: practiceT("savedTitle.deepDive", {
+                                title: current.lessonTitle,
+                              }),
                               content: feedback.answer,
                               context: coachFeedback[current.id].followUpQuestion,
                             });
@@ -3719,7 +3764,9 @@ export function PracticeApp({
                               id: `ai-follow-up:${current.id}:${index}`,
                               kind: "ai_answer",
                               questionId: current.id,
-                              title: `AI giải thích · ${current.lessonTitle}`,
+                              title: practiceT("savedTitle.explanation", {
+                                title: current.lessonTitle,
+                              }),
                               content: message.content,
                               context: displayQuestionPrompt(current),
                             })
@@ -3743,14 +3790,14 @@ export function PracticeApp({
                     className="scroll-mt-6 border-t border-[#0f3a69]/12 bg-[#eaf2f8] p-6 sm:p-9 lg:p-11"
                   >
                     <p className="font-mono text-xs font-bold tracking-[0.16em] text-[#285f86] uppercase">
-                      Đáp án tham khảo
+                      {practiceT("question.referenceAnswer")}
                     </p>
                     <p className="mt-4 text-lg leading-8 font-medium text-[#213d32]">
                       <InlineCode text={current.answer.short} />
                     </p>
                     <details className="mt-5 rounded-2xl border border-[#0f3a69]/15 bg-white/60 p-4 open:pb-5">
                       <summary className="cursor-pointer text-sm font-bold text-[#285f86]">
-                        Giải thích kỹ hơn
+                        {practiceT("question.moreExplanation")}
                       </summary>
                       <p className="mt-4 leading-7 text-[#526276]">
                         <InlineCode text={current.answer.detailed} />
@@ -3758,9 +3805,12 @@ export function PracticeApp({
                     </details>
 
                     <div className="mt-7 grid gap-4 md:grid-cols-2">
-                      <RubricList title="Ý chính cần có" items={current.rubric.required} />
                       <RubricList
-                        title="Bẫy cần tránh"
+                        title={practiceT("question.requiredPoints")}
+                        items={current.rubric.required}
+                      />
+                      <RubricList
+                        title={practiceT("question.pitfalls")}
                         items={current.rubric.misconceptions}
                         warning
                       />
@@ -3772,8 +3822,8 @@ export function PracticeApp({
                       className="mt-6 text-sm font-bold text-[#285f86] underline decoration-[#285f86]/35 underline-offset-4"
                     >
                       {visibleSources.has(current.id)
-                        ? "Ẩn ghi chú nguồn"
-                        : "Đối chiếu ghi chú nguồn"}
+                        ? practiceT("question.hideSources")
+                        : practiceT("question.showSources")}
                     </button>
                     {visibleSources.has(current.id) ? (
                       <SourceNotes question={current} />
@@ -3791,10 +3841,12 @@ export function PracticeApp({
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="font-mono text-xs tracking-[0.15em] text-[#a65c0e] uppercase">
-                        Danh sách chờ duyệt
+                        {practiceT("reviewQueue.eyebrow")}
                       </p>
                       <p className="mt-2 text-2xl font-semibold">
-                        {selectedPendingReview.length} câu chờ duyệt
+                        {practiceT("reviewQueue.count", {
+                          count: selectedPendingReview.length,
+                        })}
                       </p>
                     </div>
                     <span className="rounded-full bg-[#a65c0e] px-2.5 py-1 font-mono text-xs font-bold text-white">
@@ -3805,7 +3857,9 @@ export function PracticeApp({
                     {selectedPendingReview.slice(0, 3).map((question) => (
                       <li key={question.id} className="line-clamp-2">
                         <span className="font-mono text-[10px] font-bold text-[#a65c0e] uppercase">
-                          {question.status === "draft" ? "Bản nháp AI" : "Nguồn đã đổi"}
+                          {question.status === "draft"
+                            ? practiceT("reviewQueue.aiDraft")
+                            : practiceT("reviewQueue.sourceChanged")}
                         </span>{" "}
                         · {displayQuestionPrompt(question)}
                       </li>
@@ -3817,12 +3871,13 @@ export function PracticeApp({
                     disabled={approvalStatus === "saving"}
                     className="mt-5 w-full rounded-2xl bg-[#a65c0e] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#c43d3d] disabled:cursor-wait disabled:opacity-60"
                   >
-                    {approvalStatus === "saving" ? "Đang duyệt…" : "Duyệt tất cả"}
+                    {approvalStatus === "saving"
+                      ? practiceT("reviewQueue.saving")
+                      : practiceT("reviewQueue.approveAll")}
                   </button>
                   {approvalStatus === "error" ? (
                     <p className="mt-3 text-xs font-semibold text-[#c43d3d]">
-                      Chưa lưu được kết quả duyệt. Kiểm tra bản cập nhật cơ sở dữ
-                      liệu rồi thử lại.
+                      {practiceT("reviewQueue.error")}
                     </p>
                   ) : null}
                 </div>
@@ -3831,8 +3886,8 @@ export function PracticeApp({
               <div className="rounded-[1.25rem] bg-[#0f3a69] p-6 text-white">
                 <p className="font-mono text-xs tracking-[0.15em] text-[#65e6d2] uppercase">
                   {isFocusActive
-                    ? "Tiến độ phiên ôn tập trọng tâm"
-                    : "Tiến độ hôm nay"}
+                    ? practiceT("progressPanel.focus")
+                    : practiceT("progressPanel.today")}
                 </p>
                 <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/15">
                   <div
@@ -3854,19 +3909,29 @@ export function PracticeApp({
                 </div>
                 <p className="mt-3 text-sm text-white/65">
                   {isFocusActive
-                    ? `${focusSession?.remainingQuestions.length ?? 0} câu còn lại · mức đánh giá vẫn cập nhật lịch ôn chính`
-                    : `${remainingIds.length} câu còn lại · ưu tiên câu mới trước`}
+                    ? practiceT("progressPanel.focusRemaining", {
+                        count: focusSession?.remainingQuestions.length ?? 0,
+                      })
+                    : practiceT("progressPanel.remaining", {
+                        count: remainingIds.length,
+                      })}
                 </p>
                 {!isFocusActive ? (
                   <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
-                    <LearningCount label="Mới" value={learningCounts.new} />
                     <LearningCount
-                      label="Đang học"
+                      label={practiceT("learningState.new")}
+                      value={learningCounts.new}
+                    />
+                    <LearningCount
+                      label={practiceT("learningState.learning")}
                       value={learningCounts.learning}
                     />
-                    <LearningCount label="Ôn tập" value={learningCounts.review} />
                     <LearningCount
-                      label="Học lại"
+                      label={practiceT("learningState.review")}
+                      value={learningCounts.review}
+                    />
+                    <LearningCount
+                      label={practiceT("learningState.relearning")}
                       value={learningCounts.relearning}
                     />
                   </div>
@@ -3875,24 +3940,26 @@ export function PracticeApp({
 
               <div className="rounded-[1.25rem] border border-[#0f3a69]/15 bg-white/55 p-6">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-bold">Tiến độ đồng bộ trực tuyến</p>
+                  <p className="text-sm font-bold">
+                    {practiceT("progressPanel.cloudTitle")}
+                  </p>
                   <SyncDot status={syncStatus} />
                 </div>
                 <p className="mt-2 text-sm leading-6 text-[#526276]">
                   {account
-                    ? syncStatus === "error"
-                      ? "Dữ liệu trên thiết bị vẫn an toàn; hệ thống sẽ tự thử lại và đồng bộ phần còn chờ khi kết nối trở lại."
-                      : "Đồng bộ riêng tư giữa các thiết bị bằng tài khoản cppinterview."
+                      ? syncStatus === "error"
+                      ? practiceT("progressPanel.cloudError")
+                      : practiceT("progressPanel.cloudAccount")
                     : cloudEnabled
-                      ? "Đăng nhập để bật đồng bộ nhiều thiết bị."
-                      : "Chưa cấu hình Supabase; hiện tiến độ chỉ lưu trên thiết bị này."}
+                      ? practiceT("progressPanel.cloudSignIn")
+                      : practiceT("progressPanel.cloudUnavailable")}
                 </p>
               </div>
 
               {hasAnswered ? (
                 <div className="rounded-[1.25rem] border border-[#0f3a69]/15 bg-white/55 p-6">
                   <p className="text-xs font-bold tracking-[0.14em] text-[#a65c0e] uppercase">
-                    Chủ đề
+                    {practiceT("question.topic")}
                   </p>
                   <p className="mt-3 text-xl font-semibold tracking-tight">
                     {current.lessonTitle}
@@ -3905,15 +3972,16 @@ export function PracticeApp({
 
               <div className="rounded-[1.25rem] border border-[#285f86]/20 bg-[#eaf2f8] p-6">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm font-bold">Trợ lý AI</p>
+                  <p className="text-sm font-bold">
+                    {practiceT("progressPanel.aiTitle")}
+                  </p>
                   <span className="size-2 rounded-full bg-[#65a30d] shadow-[0_0_0_4px_rgba(101,163,13,0.12)]" />
                 </div>
                 <p className="mt-2 text-sm leading-6 text-[#526276]">
-                  Chấm theo đúng tiêu chí và ghi chú nguồn, sau đó gợi ý một câu
-                  hỏi tiếp nối.
+                  {practiceT("progressPanel.aiDescription")}
                 </p>
                 <span className="mt-4 inline-block rounded-full bg-[#65e6d2] px-3 py-1 font-mono text-[11px] font-semibold text-[#285f86]">
-                  OpenAI · Luna cho AI Coach · Terra cho tổng kết phỏng vấn thử · Gemini khi hết hạn mức
+                  {practiceT("progressPanel.aiProviders")}
                 </span>
               </div>
             </aside>
@@ -3950,9 +4018,11 @@ export function PracticeApp({
         ) : null}
         {canManageQuestionBank && archiveConfirmationOpen && current ? (
           <ConfirmationDialog
-            title="Xóa thẻ khỏi lịch học?"
-            description="Thẻ sẽ không còn xuất hiện trong lịch luyện. Lịch sử ôn và các phản hồi AI vẫn được giữ để bạn có thể kiểm tra hoặc khôi phục sau này."
-            confirmLabel="Xóa khỏi lịch học"
+            title={practiceT("dialog.deleteTitle")}
+            description={practiceT("dialog.deleteDescription")}
+            confirmLabel={practiceT("dialog.deleteConfirm")}
+            cancelLabel={practiceT("dialog.cancel")}
+            busyLabel={practiceT("dialog.working")}
             busy={questionAdminSaving}
             onCancel={() => setArchiveConfirmationOpen(false)}
             onConfirm={() => {
@@ -3966,10 +4036,14 @@ export function PracticeApp({
           <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[#0f3a69]/12 py-5 font-mono text-[11px] text-[#78857f]">
             <span>
               {account
-                ? `Đồng bộ riêng tư · ${account.displayName}`
-                : "Tiến độ lưu trên trình duyệt này"}
+                ? practiceT("footer.synced", { name: account.displayName })
+                : practiceT("footer.local")}
             </span>
-            <span>Nguồn {sourceRevision.slice(0, 7)}</span>
+            <span>
+              {practiceT("footer.source", {
+                revision: sourceRevision.slice(0, 7),
+              })}
+            </span>
           </footer>
         ) : null}
       </div>
@@ -3988,6 +4062,7 @@ function PracticeFocusBar({
   onExit: () => void;
   onToggleAnswer: () => void;
 }) {
+  const t = useTranslations("Practice");
   return (
     <header className="sticky top-3 z-30 mb-5 flex min-h-14 flex-wrap items-center justify-between gap-3 rounded-xl border border-[#0f3a69]/20 bg-[color:var(--pine)] px-3 py-2 text-white shadow-[var(--shadow-lift)] sm:px-4">
       <div className="flex items-center gap-3">
@@ -3996,12 +4071,14 @@ function PracticeFocusBar({
           onClick={onExit}
           className="min-h-10 rounded-lg px-3 text-sm font-bold text-white/80 transition hover:bg-white/10 hover:text-white focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none"
         >
-          ← Thoát
+          {t("focus.exit")}
         </button>
         <span className="h-5 w-px bg-white/15" aria-hidden="true" />
         <div>
-          <p className="ui-panel-label text-[color:var(--accent)]">Chế độ tập trung</p>
-          <p className="mt-0.5 font-mono text-xs text-white/65">Câu {questionPosition}</p>
+          <p className="ui-panel-label text-[color:var(--accent)]">{t("focus.mode")}</p>
+          <p className="mt-0.5 font-mono text-xs text-white/65">
+            {t("focus.question", { position: questionPosition })}
+          </p>
         </div>
       </div>
       <button
@@ -4009,40 +4086,22 @@ function PracticeFocusBar({
         onClick={onToggleAnswer}
         className="min-h-10 rounded-lg border border-white/15 bg-white/10 px-3 text-sm font-bold text-white transition hover:bg-white/18 focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none"
       >
-        {answerRevealed ? "Ẩn đáp án" : "Mở đáp án"}
+        {answerRevealed ? t("question.hideAnswer") : t("question.showAnswer")}
         <span className="ml-2 hidden font-mono text-[10px] text-white/55 sm:inline">Alt + A</span>
       </button>
     </header>
   );
 }
 
-function focusCompetencyLabel(competency: WorldQuantCompetencyKey) {
-  return worldQuantCompetencies[competency].shortLabel;
-}
-
-function focusReasonLabel(reason: FocusQueueReason) {
-  const labels: Record<FocusQueueReason, string> = {
-    evidence_repair: "cần sửa theo lần làm gần nhất",
-    due_relearning: "học lại đã đến hạn",
-    due_leech: "câu khó nhớ đã đến hạn",
-    due: "đã đến hạn",
-    evidence_refresh: "bằng chứng cần làm mới",
-    relearning: "đang học lại",
-    leech: "câu khó nhớ",
-    learning: "đang học",
-    new: "câu mới",
-  };
-  return labels[reason];
-}
-
 function LoadingScreen() {
+  const t = useTranslations("Practice");
   return (
     <main className="grid min-h-screen place-items-center px-5">
       <div className="text-center">
         <span className="mx-auto grid size-12 animate-pulse place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
           R
         </span>
-        <p className="mt-4 text-sm text-[#526276]">Đang mở lịch ôn tập…</p>
+        <p className="mt-4 text-sm text-[#526276]">{t("focus.loading")}</p>
       </div>
     </main>
   );
@@ -4053,6 +4112,7 @@ function FocusUnavailableScreen({
 }: {
   storageError: boolean;
 }) {
+  const t = useTranslations("Practice");
   return (
     <main className="grid min-h-screen place-items-center px-5 py-12">
       <section className="w-full max-w-xl rounded-[1.25rem] border border-[#a65c0e]/20 bg-white/70 p-8 text-center shadow-[0_20px_70px_rgba(15,58,105,0.08)]">
@@ -4060,30 +4120,28 @@ function FocusUnavailableScreen({
           !
         </span>
         <p className="mt-5 font-mono text-xs font-bold tracking-[0.14em] text-[#a65c0e] uppercase">
-          Không mở được Phiên ôn tập trọng tâm
+          {t("focus.unavailable")}
         </p>
         <h1 className="mt-3 text-2xl font-semibold tracking-tight text-[#172033]">
           {storageError
-            ? "Trình duyệt đang chặn bộ nhớ trên thiết bị"
-            : "Không tìm thấy đúng phiên ôn tập trong đường dẫn này"}
+            ? t("focus.storageBlocked")
+            : t("focus.notFound")}
         </h1>
         <p className="mt-3 text-sm leading-6 text-[#526276]">
-          Danh sách không được tự đoán lại hoặc thay bằng phiên khác. Hãy quay
-          về trang luyện tập để tiếp tục phiên ôn tập còn lưu hoặc tạo kế hoạch
-          mới.
+          {t("focus.unavailableDescription")}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link
             href="/practice"
             className="rounded-xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#16865a]"
           >
-            Về luyện tập
+            {t("focus.back")}
           </Link>
           <Link
             href="/"
             className="rounded-xl border border-[#0f3a69]/18 bg-white px-5 py-3 text-sm font-bold text-[#285f86]"
           >
-            Ôn tập bình thường
+            {t("focus.normal")}
           </Link>
         </div>
       </section>
@@ -4102,6 +4160,7 @@ function FocusCompletionScreen({
   notice: string | null;
   returnHref: string | null;
 }) {
+  const t = useTranslations("Practice");
   return (
     <main className="grid min-h-screen place-items-center px-5 py-12">
       <section className="w-full max-w-xl rounded-[1.25rem] border border-[#285f86]/18 bg-white/70 p-8 text-center shadow-[0_20px_70px_rgba(15,58,105,0.08)]">
@@ -4109,19 +4168,17 @@ function FocusCompletionScreen({
           ✓
         </span>
         <p className="mt-5 font-mono text-xs font-bold tracking-[0.14em] text-[#285f86] uppercase">
-          Phiên ôn tập trọng tâm đã hoàn tất
+          {t("focus.completed")}
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#172033]">
-          Đã đánh giá {completedCount} câu
+          {t("focus.completedCount", { count: completedCount })}
         </h1>
         <p className="mt-3 text-sm leading-6 text-[#526276]">
-          Mỗi mức đánh giá đã được xếp lịch và cập nhật bằng chứng sẵn sàng như
-          một buổi luyện tập bình thường.
+          {t("focus.completedDescription")}
         </p>
         {staleDroppedCount > 0 ? (
           <p className="mt-3 rounded-xl bg-[#fff4df] px-4 py-3 text-xs font-semibold text-[#8a5a20]">
-            {staleDroppedCount} câu không còn hợp lệ đã bị bỏ, không được tự
-            thay bằng nội dung mới.
+            {t("focus.staleDropped", { count: staleDroppedCount })}
           </p>
         ) : null}
         {notice ? (
@@ -4135,22 +4192,22 @@ function FocusCompletionScreen({
             className="rounded-xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#16865a]"
           >
             {returnHref
-              ? "Tiếp tục bước kế tiếp trong nhiệm vụ"
-              : "Về luyện tập"}
+              ? t("focus.continueMission")
+              : t("focus.back")}
           </Link>
           {returnHref ? (
             <Link
               href="/practice"
               className="rounded-xl border border-[#0f3a69]/18 bg-white px-5 py-3 text-sm font-bold text-[#285f86]"
             >
-              Về luyện tập
+              {t("focus.back")}
             </Link>
           ) : null}
           <Link
             href="/"
             className="rounded-xl border border-[#0f3a69]/18 bg-white px-5 py-3 text-sm font-bold text-[#285f86]"
           >
-            Tiếp tục luyện tập
+            {t("focus.continuePractice")}
           </Link>
         </div>
       </section>
@@ -4171,6 +4228,7 @@ function CompletionScreen({
   hasRandomQuestion: boolean;
   onRandomQuestion: () => void;
 }) {
+  const t = useTranslations("Practice");
   return (
     <section className="grid min-h-[72vh] place-items-center py-12">
       <div className="max-w-xl text-center">
@@ -4178,15 +4236,16 @@ function CompletionScreen({
           ✓
         </span>
         <p className="mt-7 font-mono text-xs font-bold tracking-[0.16em] text-[#285f86] uppercase">
-          {today} · hoàn thành
+          {t("completion.eyebrow", { date: today })}
         </p>
         <h1 className="mt-3 text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
-          Xong buổi ôn hôm nay.
+          {t("completion.title")}
         </h1>
         <p className="mt-5 text-lg leading-8 text-[#526276]">
-          {completedToday} câu đã tự chấm. Chuỗi học hiện tại là {streak} ngày
-          — ngày mai quay lại, hệ thống sẽ chọn câu mới và đưa các câu đến hạn
-          lên trước.
+          {t("completion.description", {
+            completed: completedToday,
+            streak,
+          })}
         </p>
         {hasRandomQuestion ? (
           <button
@@ -4194,7 +4253,7 @@ function CompletionScreen({
             onClick={onRandomQuestion}
             className="mt-7 rounded-2xl bg-[#0f3a69] px-6 py-3 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#16865a] focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
           >
-            ↻ Luyện thêm câu ngẫu nhiên
+            {t("completion.random")}
           </button>
         ) : null}
       </div>
@@ -4213,6 +4272,7 @@ function CustomStudyPanel({
   onStart: (filters: CustomStudyFilters) => void;
   onStop: () => void;
 }) {
+  const t = useTranslations("Practice");
   const [learningState, setLearningState] = useState<
     CustomStudyFilters["learningState"]
   >("all");
@@ -4221,30 +4281,32 @@ function CustomStudyPanel({
   return (
     <details className="mt-5 rounded-2xl border border-[#0f3a69]/15 bg-white/55 px-4 py-3 open:bg-white/70">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-bold text-[#285f86]">
-        <span>Phiên học tự chọn · ôn theo trạng thái hoặc thẻ</span>
+        <span>{t("customStudy.summary")}</span>
         <span className="font-mono text-xs">
-          {activeCount ? `${activeCount} câu còn lại` : "Mở bộ lọc ↓"}
+          {activeCount
+            ? t("customStudy.remaining", { count: activeCount })
+            : t("customStudy.openFilters")}
         </span>
       </summary>
       <div className="mt-4 grid gap-3 border-t border-[#0f3a69]/10 pt-4 sm:grid-cols-2">
         <StudySelect
-          label="Trạng thái"
+          label={t("customStudy.state")}
           value={learningState}
           onChange={(value) =>
             setLearningState(value as CustomStudyFilters["learningState"])
           }
           options={[
-            ["all", "Tất cả"],
-            ["new", "Mới"],
-            ["learning", "Đang học"],
-            ["review", "Ôn tập"],
-            ["relearning", "Học lại"],
-            ["due", "Đến hạn"],
-            ["leech", "Câu khó nhớ"],
+            ["all", t("learningState.all")],
+            ["new", t("learningState.new")],
+            ["learning", t("learningState.learning")],
+            ["review", t("learningState.review")],
+            ["relearning", t("learningState.relearning")],
+            ["due", t("learningState.due")],
+            ["leech", t("learningState.leech")],
           ]}
         />
         <label className="text-xs font-bold text-[#43546a]">
-          Số câu
+          {t("customStudy.questionCount")}
           <input
             type="number"
             min={1}
@@ -4270,7 +4332,7 @@ function CustomStudyPanel({
           }
           className="rounded-xl bg-[#0f3a69] px-4 py-2.5 text-xs font-bold text-white"
         >
-          Bắt đầu phiên học
+          {t("customStudy.start")}
         </button>
         {activeCount ? (
           <button
@@ -4278,14 +4340,13 @@ function CustomStudyPanel({
             onClick={onStop}
             className="rounded-xl border border-[#a65c0e]/25 bg-white px-4 py-2.5 text-xs font-bold text-[#c43d3d]"
           >
-            Dừng phiên
+            {t("customStudy.stop")}
           </button>
         ) : null}
         {notice ? <p className="text-xs text-[#526276]">{notice}</p> : null}
       </div>
       <p className="mt-3 text-[11px] text-[#64748b]">
-        Mức đánh giá trong phiên học tự chọn vẫn cập nhật lịch ôn ngắt quãng
-        của câu hỏi.
+        {t("customStudy.scheduleNote")}
       </p>
     </details>
   );
@@ -4338,6 +4399,7 @@ function DeckEmptyState({
   deck: PracticeDeckId;
   pendingCount: number;
 }) {
+  const t = useTranslations("Practice");
   const config = PRACTICE_DECKS[deck];
   return (
     <section className="grid min-h-[64vh] place-items-center py-12">
@@ -4346,18 +4408,18 @@ function DeckEmptyState({
           {config.badge}
         </span>
         <h1 className="mt-6 text-3xl font-semibold tracking-tight">
-          Chưa có câu đã duyệt trong {config.label}.
+          {t("emptyDeck.title", { deck: t("workspaceTagline") })}
         </h1>
         <p className="mt-4 leading-7 text-[#526276]">
           {pendingCount
-            ? `${pendingCount} câu đang nằm trong danh sách chờ duyệt. Hãy duyệt để bắt đầu luyện.`
-            : "Thêm hoặc duyệt câu hỏi C++ trong trang Quản trị để bắt đầu luyện."}
+            ? t("emptyDeck.pending", { count: pendingCount })
+            : t("emptyDeck.description")}
         </p>
         <Link
           href="/admin"
           className="mt-7 inline-flex rounded-2xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white"
         >
-          Mở trang Quản trị
+          {t("emptyDeck.admin")}
         </Link>
       </div>
     </section>
@@ -4373,22 +4435,26 @@ function ProgressSummaryControl({
   streak: number;
   value: string;
 }) {
+  const t = useTranslations("Practice");
   return (
     <details className="group relative">
       <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] px-3 py-2 text-xs font-bold text-[color:var(--pine)] transition hover:border-[#285f86]/35 hover:bg-white focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none">
         <span aria-hidden="true" className="text-[#a65c0e]">{icon}</span>
-        <span className="hidden sm:inline">Tiến độ</span>
+        <span className="hidden sm:inline">{t("header.progress")}</span>
         <span className="font-mono text-xs">{value}</span>
         <ChevronIcon />
       </summary>
       <div className="absolute right-0 z-30 mt-2 grid min-w-56 gap-2 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] p-3 shadow-[var(--shadow-lift)]">
-        <p className="ui-eyebrow text-[#285f86]">Tiến độ hôm nay</p>
+        <p className="ui-eyebrow text-[#285f86]">{t("header.todayProgress")}</p>
         <div className="grid grid-cols-2 gap-2">
-          <ProgressSummaryMetric label="Đã học" value={value} />
-          <ProgressSummaryMetric label="Chuỗi ngày" value={`${streak} ngày`} />
+          <ProgressSummaryMetric label={t("header.studied")} value={value} />
+          <ProgressSummaryMetric
+            label={t("header.dayStreak")}
+            value={t("header.days", { count: streak })}
+          />
         </div>
         <Link href="/stats" className="mt-1 text-xs font-bold text-[#285f86] underline decoration-[#285f86]/35 underline-offset-4 hover:text-[#0f3a69]">
-          Xem tiến độ chi tiết
+          {t("header.details")}
         </Link>
       </div>
     </details>
@@ -4413,20 +4479,30 @@ function ChevronIcon() {
 }
 
 function AiBudgetPill({ budget }: { budget: AiDailyBudgetSnapshot }) {
+  const t = useTranslations("Practice");
   const low = budget.remainingPercent <= 20;
   const usedUsd = budget.actualUsdMicros / 1_000_000;
   const billingLabel = budget.billingSyncedAt
-    ? `Chi phí toàn dự án OpenAI: $${((budget.billingUsdMicros ?? 0) / 1_000_000).toFixed(4)} · chỉ chi phí trang web bên dưới mới trừ hạn mức`
-    : "Hạn mức trang web được tính từ số token của các lượt gọi tương tác";
+    ? t("aiBudget.billing", {
+        cost: ((budget.billingUsdMicros ?? 0) / 1_000_000).toFixed(4),
+      })
+    : t("aiBudget.tokenBased");
   return (
     <div
       className="min-w-32 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] px-3 py-2"
-      title={`${billingLabel} · trang web đã dùng $${usedUsd.toFixed(5)} · ${budget.requestCount} lượt gọi · ${budget.inputTokens + budget.outputTokens} token · mô hình cuối: ${budget.lastModel ?? "chưa có"} · hạn mức trang web/ngày $${(budget.limitUsdMicros / 1_000_000).toFixed(3)} · đặt lại lúc 00:00 giờ Việt Nam`}
+      title={t("aiBudget.tooltip", {
+        billing: billingLabel,
+        used: usedUsd.toFixed(5),
+        requests: budget.requestCount,
+        tokens: budget.inputTokens + budget.outputTokens,
+        model: budget.lastModel ?? t("aiBudget.unknownModel"),
+        limit: (budget.limitUsdMicros / 1_000_000).toFixed(3),
+      })}
     >
       <div className="flex items-center justify-between gap-2 font-mono text-[11px] font-bold uppercase">
-        <span>OpenAI hôm nay</span>
+        <span>{t("aiBudget.today")}</span>
         <span className={low ? "text-[#a65c0e]" : "text-[#16865a]"}>
-          {budget.remainingPercent}% còn lại
+          {t("aiBudget.remaining", { percent: budget.remainingPercent })}
         </span>
       </div>
       <div className="mt-1 h-1 overflow-hidden rounded-full bg-[#0f3a69]/15">
@@ -4454,6 +4530,7 @@ function TodayWorkspace({
   hasCurrentQuestion: boolean;
   onPrimaryAction: () => void;
 }) {
+  const t = useTranslations("Practice");
   const progress = dailyTotal ? Math.round((completedToday / dailyTotal) * 100) : 100;
 
   return (
@@ -4461,29 +4538,29 @@ function TodayWorkspace({
       <div className="grid gap-7 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-end lg:p-10">
         <div>
           <p className="ui-panel-label text-[color:var(--accent)]">
-            Không gian học hôm nay
+            {t("today.eyebrow")}
           </p>
           <h1 className="mt-3 max-w-xl text-balance text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
             {hasCurrentQuestion
-              ? "Sẵn sàng cho câu tiếp theo?"
-              : "Bạn đã hoàn tất lịch học hôm nay."}
+              ? t("today.ready")
+              : t("today.complete")}
           </h1>
           <p className="text-on-dark-muted mt-3 max-w-2xl text-sm leading-6 sm:text-base">
             {hasCurrentQuestion
-              ? `${remainingCount} câu còn lại trong lịch. Tập trung trả lời trước, phản hồi và gợi ý sẽ chỉ xuất hiện sau đó.`
-              : "Bạn có thể dừng tại đây, xem lại ghi chú đã lưu, hoặc luyện thêm một câu ngẫu nhiên ngoài lịch."}
+              ? t("today.remaining", { count: remainingCount })
+              : t("today.completeDescription")}
           </p>
           <button
             type="button"
             onClick={onPrimaryAction}
             className="mt-7 inline-flex min-h-12 items-center rounded-xl bg-[color:var(--accent)] px-5 py-3 text-sm font-bold text-[color:var(--pine-strong)] transition hover:-translate-y-0.5 hover:bg-[#e1ffac] focus:ring-4 focus:ring-white/25 focus:outline-none"
           >
-            {hasCurrentQuestion ? "Tiếp tục học →" : "Luyện thêm một câu →"}
+            {hasCurrentQuestion ? t("today.continue") : t("today.practiceMore")}
           </button>
         </div>
         <div className="border-l border-white/15 pl-5 sm:pl-6">
           <div className="flex items-center justify-between font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-white/72">
-            <span>Tiến độ hôm nay</span>
+            <span>{t("today.progress")}</span>
             <span className="text-[#65e6d2]">{progress}%</span>
           </div>
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/15">
@@ -4493,9 +4570,9 @@ function TodayWorkspace({
             />
           </div>
           <div className="mt-5 grid grid-cols-3 gap-2 text-center">
-            <TodayMetric label="Đã học" value={completedToday} />
-            <TodayMetric label="Còn lại" value={remainingCount} />
-            <TodayMetric label="Chuỗi" value={`${streak}d`} />
+            <TodayMetric label={t("today.studied")} value={completedToday} />
+            <TodayMetric label={t("today.remainingMetric")} value={remainingCount} />
+            <TodayMetric label={t("today.streak")} value={`${streak}d`} />
           </div>
         </div>
       </div>
@@ -4508,17 +4585,22 @@ function PublicAiQuotaPill({
 }: {
   quota: PublicAiQuotaSnapshot | null;
 }) {
-  const { limit, exhausted, label, progressPercent } =
+  const t = useTranslations("Practice");
+  const locale = useLocale() as Locale;
+  const { limit, remaining, exhausted, progressPercent } =
     publicAiQuotaPresentation(quota);
-  const reset = quota?.resetsAt ? formatPublicAiReset(quota.resetsAt) : null;
+  const label = remaining === null
+    ? t("aiQuota.checking")
+    : t("aiQuota.remaining", { remaining, limit });
+  const reset = quota?.resetsAt ? formatPublicAiReset(quota.resetsAt, locale) : null;
 
   return (
     <div
       className="min-w-32 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] px-3 py-2"
       title={
         reset
-          ? `AI Luna dùng tối đa ${limit} lượt mỗi 24 giờ. Hạn mức hiện tại mở lại ${reset}.`
-          : `AI Luna dùng tối đa ${limit} lượt mỗi 24 giờ theo thiết bị và mạng.`
+          ? t("aiQuota.reset", { limit, reset })
+          : t("aiQuota.device", { limit })
       }
     >
       <div className="flex items-center justify-between gap-2 font-mono text-[10px] font-bold uppercase">
@@ -4539,34 +4621,55 @@ function PublicAiQuotaPill({
   );
 }
 
-function publicAiCoachErrorMessage(payload: CoachApiPayload) {
+type PracticeAiQuotaTranslator = (
+  key:
+    | "aiQuota.usedUpReset"
+    | "aiQuota.usedUp"
+    | "aiQuota.requestUnavailable"
+    | "aiQuota.disabled"
+    | "aiQuota.identityUnavailable"
+    | "aiQuota.dailyBudget"
+    | "aiQuota.monthlyBudget"
+    | "aiQuota.notReady",
+  values?: Record<string, string | number>,
+) => string;
+
+function publicAiCoachErrorMessage(
+  payload: CoachApiPayload,
+  locale: Locale,
+  t: PracticeAiQuotaTranslator,
+) {
   switch (payload.code) {
     case "public_ai_quota_exceeded":
       return payload.resetsAt
-        ? `Bạn đã dùng hết lượt AI. Hạn mức sẽ mở lại ${formatPublicAiReset(payload.resetsAt)}.`
-        : "Bạn đã dùng hết lượt AI trong 24 giờ qua. Vui lòng quay lại sau.";
+        ? t("aiQuota.usedUpReset", {
+            reset: formatPublicAiReset(payload.resetsAt, locale),
+          })
+        : t("aiQuota.usedUp");
     case "public_ai_request_unavailable":
-      return "Lượt AI này đang được xử lý hoặc đã hoàn tất. Hãy chỉnh nội dung trước khi gửi lại.";
+      return t("aiQuota.requestUnavailable");
     case "public_ai_disabled":
-      return "AI Luna đang tạm thời chưa mở. Vui lòng thử lại sau.";
+      return t("aiQuota.disabled");
     case "public_ai_identity_unavailable":
-      return "Không xác minh được thiết bị để áp dụng giới hạn AI an toàn. Vui lòng thử lại.";
+      return t("aiQuota.identityUnavailable");
     case "public_ai_daily_budget_exceeded":
-      return "AI Luna hôm nay đã đạt ngân sách an toàn. Vui lòng quay lại ngày mai.";
+      return t("aiQuota.dailyBudget");
     case "public_ai_monthly_budget_exceeded":
-      return "AI Luna đã đạt ngân sách tháng này. Vui lòng quay lại sau.";
+      return t("aiQuota.monthlyBudget");
     case "public_ai_not_configured":
     case "public_ai_budget_not_configured":
-      return "AI Luna chưa sẵn sàng. Vui lòng thử lại sau.";
+      return t("aiQuota.notReady");
     default:
       return null;
   }
 }
 
-function formatPublicAiReset(value: string) {
+function formatPublicAiReset(value: string, locale: Locale) {
   const timestamp = Date.parse(value);
-  if (Number.isNaN(timestamp)) return "sau";
-  return new Intl.DateTimeFormat("vi-VN", {
+  if (Number.isNaN(timestamp)) {
+    return locale === "en" ? "later" : "sau";
+  }
+  return new Intl.DateTimeFormat(locale === "en" ? "en-US" : "vi-VN", {
     hour: "2-digit",
     minute: "2-digit",
     day: "2-digit",
@@ -4628,11 +4731,12 @@ function HeaderNavLink({
 }
 
 function HeaderNavPending() {
+  const t = useTranslations("Practice");
   const { pending } = useLinkStatus();
   return pending ? (
     <span
       className="size-2 animate-spin rounded-full border border-[#285f86]/35 border-t-[#285f86]"
-      aria-label="Đang chuyển trang"
+      aria-label={t("header.pageLoading")}
     />
   ) : null;
 }
@@ -4652,15 +4756,16 @@ function AccountControl({
   syncStatus: SyncStatus;
   selectedDeck: PracticeDeckId;
 }) {
+  const t = useTranslations("Practice");
   if (account) {
     return (
       <div className="flex items-center gap-2">
         {canManageQuestionBank ? (
-          <HeaderNavLink href="/admin">Quản trị</HeaderNavLink>
+          <HeaderNavLink href="/admin">{t("header.admin")}</HeaderNavLink>
         ) : null}
         <Link
           href="/profile"
-          title="Mở trang cá nhân"
+          title={t("header.profile")}
           className="flex items-center gap-2 rounded-full border border-[#0f3a69]/15 bg-white/65 px-2.5 py-1.5 transition hover:border-[#285f86]/40"
         >
             <span className="grid size-7 place-items-center rounded-full bg-[#0f3a69] text-xs font-bold text-[#65e6d2]">
@@ -4674,8 +4779,8 @@ function AccountControl({
         <form action="/auth/logout" method="post">
           <button
             type="submit"
-            title="Đăng xuất"
-            aria-label="Đăng xuất"
+            title={t("header.signOut")}
+            aria-label={t("header.signOut")}
             className="grid size-9 place-items-center rounded-full border border-[#0f3a69]/15 bg-white/65 text-sm font-bold transition hover:border-[#a65c0e]/40 hover:text-[#a65c0e]"
           >
             ↪
@@ -4688,7 +4793,7 @@ function AccountControl({
   if (guestMode && !account) {
     return (
       <span className="rounded-full border border-[#0f3a69]/12 bg-[#e7e3d8] px-3 py-2 font-mono text-[10px] font-semibold text-[#526276]">
-        luyện trên thiết bị
+        {t("header.guestDevice")}
       </span>
     );
   }
@@ -4699,24 +4804,25 @@ function AccountControl({
         href={`/auth?next=${encodeURIComponent(`/practice?deck=${selectedDeck}`)}`}
         className="rounded-full bg-[#0f3a69] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#16865a] focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
       >
-        Đăng nhập
+        {t("header.signIn")}
       </Link>
     );
   }
 
   return (
     <span className="rounded-full border border-[#0f3a69]/12 bg-[#e7e3d8] px-3 py-2 font-mono text-[10px] font-semibold text-[#526276]">
-      chỉ lưu trên thiết bị
+      {t("header.localOnly")}
     </span>
   );
 }
 
 function SyncDot({ status }: { status: SyncStatus }) {
+  const t = useTranslations("Practice");
   const labels: Record<SyncStatus, string> = {
-    local: "Chỉ lưu trên thiết bị",
-    syncing: "Đang đồng bộ",
-    synced: "Đã đồng bộ",
-    error: "Lỗi đồng bộ",
+    local: t("header.syncLocal"),
+    syncing: t("header.syncing"),
+    synced: t("header.synced"),
+    error: t("header.syncError"),
   };
 
   return (
@@ -4752,8 +4858,10 @@ function ScenarioCodeEditor({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const t = useTranslations("Practice");
+  const locale = useLocale() as Locale;
   const [expanded, setExpanded] = useState(false);
-  const editor = scenarioEditorConfig(language);
+  const editor = scenarioEditorConfig(language, locale);
 
   return (
     <section
@@ -4775,7 +4883,7 @@ function ScenarioCodeEditor({
               {editor.fileName}
             </span>
             <span className="rounded-full bg-white/8 px-2 py-0.5 font-mono text-[10px] text-white/55">
-              Thiết kế {editor.languageLabel}
+              {t("codeEditor.design", { language: editor.languageLabel })}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -4787,7 +4895,7 @@ function ScenarioCodeEditor({
                 }
                 className="rounded-lg px-2.5 py-1.5 font-mono text-[10px] font-bold text-white/65 transition hover:bg-white/10 hover:text-white"
               >
-                Chèn khung {editor.languageLabel}
+                {t("codeEditor.insert", { language: editor.languageLabel })}
               </button>
             ) : null}
             <button
@@ -4795,7 +4903,7 @@ function ScenarioCodeEditor({
               onClick={() => setExpanded((current) => !current)}
               className="rounded-lg border border-white/10 px-2.5 py-1.5 font-mono text-[10px] font-bold text-white/70 transition hover:bg-white/10 hover:text-white"
             >
-              {expanded ? "Thu nhỏ" : "Mở toàn màn hình"}
+              {expanded ? t("codeEditor.collapse") : t("codeEditor.fullscreen")}
             </button>
           </div>
         </div>
@@ -4810,8 +4918,8 @@ function ScenarioCodeEditor({
           />
         </div>
         <div className="flex items-center justify-between border-t border-white/8 bg-[#092c51] px-4 py-2 font-mono text-[10px] text-white/40">
-          <span>Monaco · Ctrl+F tìm kiếm · Alt+↑↓ chuyển dòng · Ctrl+S tự lưu</span>
-          <span>{value.length} ký tự</span>
+          <span>{t("codeEditor.shortcuts")}</span>
+          <span>{t("codeEditor.characters", { count: value.length })}</span>
         </div>
       </div>
     </section>
@@ -4898,6 +5006,7 @@ function RichText({ text, inverted = false }: { text: string; inverted?: boolean
 }
 
 function CodeBlock({ code, language }: { code: string; language: string }) {
+  const t = useTranslations("Practice");
   const [copied, setCopied] = useState(false);
 
   async function copyCode() {
@@ -4920,9 +5029,9 @@ function CodeBlock({ code, language }: { code: string; language: string }) {
           type="button"
           onClick={copyCode}
           className="rounded-md px-2 py-1 font-mono text-[10px] font-semibold text-[#65e6d2] transition hover:bg-white/10"
-          aria-label="Sao chép đoạn mã"
+          aria-label={t("codeEditor.copyAria")}
         >
-          {copied ? "Đã sao chép ✓" : "Sao chép"}
+          {copied ? t("codeEditor.copied") : t("codeEditor.copy")}
         </button>
       </div>
       <pre className="max-w-full overflow-x-auto p-4 text-left font-mono text-[12px] leading-6 [tab-size:2] sm:text-[13px]">
@@ -4964,24 +5073,15 @@ function RubricList({
   );
 }
 
-const verdictLabels: Record<CoachFeedback["verdict"], string> = {
-  needs_work: "Cần ôn lại",
-  partial: "Đúng một phần",
-  solid: "Nắm khá chắc",
-  strong: "Trả lời rất tốt",
-};
-
-const coverageLabels: Record<CoachFeedback["coverage"][number]["status"], string> = {
-  missed: "Thiếu",
-  partial: "Một phần",
-  met: "Đạt",
-};
-
-function formatCoachFeedback(feedback: CoachFeedback) {
+function formatCoachFeedback(
+  feedback: CoachFeedback,
+  verdictLabel: string,
+  correctionsLabel: string,
+) {
   const corrections = feedback.corrections.length
-    ? `\n\nCần sửa:\n${feedback.corrections.map((item) => `- ${item}`).join("\n")}`
+    ? `\n\n${correctionsLabel}\n${feedback.corrections.map((item) => `- ${item}`).join("\n")}`
     : "";
-  return `${feedback.score}/100 · ${verdictLabels[feedback.verdict]}\n\n${feedback.summary}\n\n${feedback.explanation}${corrections}`;
+  return `${feedback.score}/100 · ${verdictLabel}\n\n${feedback.summary}\n\n${feedback.explanation}${corrections}`;
 }
 
 function RescueRetryOutcomePanel({
@@ -4995,18 +5095,19 @@ function RescueRetryOutcomePanel({
   onRetry: () => void;
   onContinue?: () => void;
 }) {
+  const t = useTranslations("Practice");
   if (state.phase === "retrying") return null;
 
   const passed = state.phase === "passed";
   const needsRepair = state.phase === "needs_repair";
   const outcomeLabel = passed
     ? state.reviewRating === "easy"
-      ? "Dễ"
-      : "Ổn"
+      ? t("rating.easy")
+      : t("rating.good")
     : needsRepair
       ? state.repairRating === "again"
-        ? "Chưa nhớ"
-        : "Khó"
+        ? t("rating.again")
+        : t("rating.hard")
       : null;
 
   return (
@@ -5023,22 +5124,22 @@ function RescueRetryOutcomePanel({
     >
       <p className="font-mono text-[11px] font-bold tracking-[0.14em] text-[#285f86] uppercase">
         {state.phase === "rescue"
-          ? "Trợ giúp AI · đọc lời giải trước"
-          : `Làm lại · lượt ${state.attempts}`}
+          ? t("rescue.helpEyebrow")
+          : t("rescue.retryEyebrow", { count: state.attempts })}
       </p>
       <h2 className="mt-2 text-xl font-semibold tracking-tight text-[#0f3a69]">
         {state.phase === "rescue"
-          ? "Đã có lời giải — giờ đến lượt bạn tự làm lại"
+          ? t("rescue.helpTitle")
           : passed
-            ? `Đạt ${score}/100`
-            : `Chưa đạt ${score}/100`}
+            ? t("rescue.passed", { score })
+            : t("rescue.failed", { score })}
       </h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-[#43546a]">
         {state.phase === "rescue"
-          ? "Đọc phần giải thích phía trên để hiểu, rồi đóng lời giải và trả lời lại bằng trí nhớ. Mức đánh giá đang khóa cho tới khi AI chấm lần làm lại."
+          ? t("rescue.helpDescription")
           : passed
-            ? `Lần làm lại đã đạt ngưỡng phỏng vấn. Hệ thống sẽ ghi mức ${outcomeLabel} và chuyển sang câu tiếp theo.`
-            : `Lần làm lại vẫn còn điểm cần cải thiện. Hệ thống sẽ ghi mức ${outcomeLabel}, chuyển sang câu tiếp theo và đưa câu này vào Ôn lại điểm yếu sau vài thẻ.`}
+            ? t("rescue.passedDescription", { rating: outcomeLabel ?? "" })
+            : t("rescue.failedDescription", { rating: outcomeLabel ?? "" })}
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
         {state.phase === "rescue" ? (
@@ -5047,7 +5148,7 @@ function RescueRetryOutcomePanel({
             onClick={onRetry}
             className="rounded-xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#16865a] focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
           >
-            Tự làm lại không nhìn lời giải
+            {t("rescue.retryWithoutSolution")}
           </button>
         ) : (
           <>
@@ -5057,15 +5158,15 @@ function RescueRetryOutcomePanel({
               className="rounded-xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#16865a] focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
             >
               {passed
-                ? "Đạt · sang câu tiếp"
-                : "Ôn lại điểm yếu sau · sang câu tiếp"}
+                ? t("rescue.passContinue")
+                : t("rescue.repairContinue")}
             </button>
             <button
               type="button"
               onClick={onRetry}
               className="rounded-xl border border-[#285f86]/25 bg-white/70 px-5 py-3 text-sm font-bold text-[#16865a] transition hover:-translate-y-0.5 hover:bg-white focus:ring-4 focus:ring-[#65e6d2]/60 focus:outline-none"
             >
-              {passed ? "Làm lại lần nữa" : "Thử lại ngay"}
+              {passed ? t("rescue.retryAgain") : t("rescue.retryNow")}
             </button>
           </>
         )}
@@ -5097,6 +5198,8 @@ function CoachFeedbackPanel({
   onExpandNextStep: () => void;
   onExploreInterviewerQuestion: () => void;
 }) {
+  const t = useTranslations("Practice");
+  const ratingOptions = useRatingOptions();
   const suggestedRating = ratingOptions.find(
     (option) => option.value === feedback.suggestedRating,
   );
@@ -5123,13 +5226,13 @@ function CoachFeedbackPanel({
               {rescueMode ? "AI" : feedback.score}
             </span>
             <span className="font-mono text-[9px] tracking-[0.1em] text-white/55 uppercase">
-              {rescueMode ? "trợ giúp" : "/ 100"}
+              {rescueMode ? t("coach.helpScore") : "/ 100"}
             </span>
           </div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <p className="ui-panel-label text-[color:var(--accent)]">
-                {rescueMode ? "Trợ giúp AI" : "Phản hồi AI"}
+                {rescueMode ? t("coach.help") : t("coach.feedback")}
               </p>
               <span className="rounded-md bg-white/10 px-2 py-1 font-mono text-[10px] text-white/60">
                 {model || "OpenAI"}
@@ -5137,8 +5240,8 @@ function CoachFeedbackPanel({
             </div>
             <h2 className="mt-2 text-balance text-xl font-semibold tracking-[-0.025em] sm:text-2xl">
               {rescueMode
-                ? "Hiểu lời giải trước, rồi tự nói lại"
-                : verdictLabels[feedback.verdict]}
+                ? t("coach.understandThenRetry")
+                : t(`coach.verdict.${feedback.verdict}`)}
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-white/72">
               {feedback.summary}
@@ -5150,14 +5253,14 @@ function CoachFeedbackPanel({
           onClick={onToggleSaveFeedback}
           className="min-h-10 rounded-lg border border-white/15 bg-white/10 px-3 text-xs font-bold text-white/80 transition hover:bg-white/20 focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none"
         >
-          {feedbackSaved ? "★ Đã lưu" : "☆ Lưu phản hồi"}
+          {feedbackSaved ? t("coach.saved") : t("coach.saveFeedback")}
         </button>
       </header>
 
       <div className="space-y-5 p-5 sm:p-6">
         <div className="grid gap-px overflow-hidden rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--border-subtle)] lg:grid-cols-3">
           <section className="bg-[color:var(--surface-raised)] p-5">
-            <p className="ui-panel-label text-[#285f86]">01 · Bạn đã làm được</p>
+            <p className="ui-panel-label text-[#285f86]">{t("coach.strengths")}</p>
             {strengths.length ? (
               <ul className="mt-3 space-y-2 text-sm leading-6 text-[#526276]">
                 {strengths.slice(0, 3).map((strength) => (
@@ -5169,14 +5272,13 @@ function CoachFeedbackPanel({
               </ul>
             ) : (
               <p className="mt-3 text-sm leading-6 text-[#526276]">
-                AI chưa thấy phần nào đủ rõ để ghi nhận. Hãy dùng phần cần cải thiện
-                bên cạnh làm trọng tâm cho lần trả lời sau.
+                {t("coach.noStrength")}
               </p>
             )}
           </section>
 
           <section className="bg-[#fff8f2] p-5">
-            <p className="ui-panel-label text-[#a34d30]">02 · Cần cải thiện</p>
+            <p className="ui-panel-label text-[#a34d30]">{t("coach.improvements")}</p>
             {improvements.length ? (
               <ul className="mt-3 space-y-2 text-sm leading-6 text-[#9f2f2f]">
                 {improvements.map((item) => (
@@ -5188,20 +5290,19 @@ function CoachFeedbackPanel({
               </ul>
             ) : (
               <p className="mt-3 text-sm leading-6 text-[#9f2f2f]">
-                Chưa có lỗi cụ thể cần sửa ngay. Hãy kiểm tra phần giải thích để củng cố.
+                {t("coach.noImprovement")}
               </p>
             )}
           </section>
 
           <section className="flex flex-col bg-[#edffd0] p-5">
-            <p className="ui-panel-label text-[#285f86]">03 · Làm tiếp ngay</p>
+            <p className="ui-panel-label text-[#285f86]">{t("coach.next")}</p>
             <p className="mt-3 text-sm leading-6 font-semibold text-[#285f86]">
               <InlineCode text={feedback.nextStep} />
             </p>
             {rescueMode ? (
               <p className="mt-4 text-xs leading-5 text-[#43546a]">
-                Đọc để hiểu rồi chọn <strong>Tự làm lại không nhìn lời giải</strong>
-                ở phần bên dưới.
+                {t("coach.rescueNext")}
               </p>
             ) : (
               <div className="mt-auto flex flex-wrap gap-2 pt-4">
@@ -5211,14 +5312,18 @@ function CoachFeedbackPanel({
                   disabled={learningActionLoading || learningActionDisabled}
                   className="min-h-10 rounded-lg border border-[#285f86]/20 bg-white/75 px-3 text-xs font-bold text-[#16865a] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-45 focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none"
                 >
-                  {learningActionLoading ? "AI đang mở rộng…" : "Học tiếp →"}
+                  {learningActionLoading
+                    ? t("coach.expanding")
+                    : t("coach.learnMore")}
                 </button>
                 <button
                   type="button"
                   onClick={onExploreInterviewerQuestion}
                   className="min-h-10 rounded-lg bg-[color:var(--pine)] px-3 text-xs font-bold text-white transition hover:bg-[color:var(--pine-strong)] focus-visible:ring-4 focus-visible:ring-white/70 focus-visible:outline-none"
                 >
-                  {deepDiveOpen ? "Ẩn câu mở rộng" : "Tự trả lời tiếp →"}
+                  {deepDiveOpen
+                    ? t("coach.hideExtended")
+                    : t("coach.answerExtended")}
                 </button>
               </div>
             )}
@@ -5227,24 +5332,29 @@ function CoachFeedbackPanel({
 
         {!rescueMode ? (
           <p className="rounded-lg border border-[#285f86]/16 bg-white/65 px-4 py-3 text-sm text-[#43546a]">
-            AI gợi ý mức đánh giá: <strong className="text-[#16865a]">{suggestedRating?.label}</strong>.
-            Hãy tự quyết định sau khi đối chiếu đáp án nguồn.
+            {t("coach.suggestedRating", {
+              rating: suggestedRating?.label ?? "",
+            })}
           </p>
         ) : null}
 
         <details className="rounded-xl border border-[color:var(--border-subtle)] bg-white/65 p-4 open:bg-white">
           <summary className="cursor-pointer text-sm font-bold text-[#16865a] marker:text-[#285f86]">
-            Xem lý do AI đánh giá như vậy và rubric đầy đủ
+            {t("coach.fullReason")}
           </summary>
           <div className="mt-5 space-y-6 border-t border-[color:var(--border-subtle)] pt-5">
             <div>
-              <p className="text-sm font-bold text-[#16865a]">Giải thích</p>
+              <p className="text-sm font-bold text-[#16865a]">
+                {t("coach.explanation")}
+              </p>
               <div className="mt-2 leading-7 text-[#43546a]">
                 <RichText text={feedback.explanation} />
               </div>
             </div>
             <div>
-              <p className="text-sm font-bold text-[#16865a]">Rubric đầy đủ</p>
+              <p className="text-sm font-bold text-[#16865a]">
+                {t("coach.fullRubric")}
+              </p>
               <div className="mt-3 divide-y divide-[#0f3a69]/10 rounded-xl border border-[#0f3a69]/12 bg-white px-4">
                 {feedback.coverage.map((item) => (
                   <div key={item.criterion} className="grid gap-2 py-4 sm:grid-cols-[5rem_1fr]">
@@ -5252,7 +5362,7 @@ function CoachFeedbackPanel({
                       data-status={item.status}
                       className="coverage-status h-fit w-fit rounded-full px-2.5 py-1 text-[11px] font-bold"
                     >
-                      {coverageLabels[item.status]}
+                      {t(`coach.coverage.${item.status}`)}
                     </span>
                     <div>
                       <p className="text-sm font-semibold leading-6">
@@ -5298,6 +5408,7 @@ function DeepDivePracticePanel({
   onSubmit: () => void;
   onToggleSaveFeedback: () => void;
 }) {
+  const t = useTranslations("Practice");
   const sourceById = new Map(
     question.sourceSections.map((section) => [section.id, section]),
   );
@@ -5308,14 +5419,13 @@ function DeepDivePracticePanel({
   return (
     <section className="mt-5 rounded-[1.25rem] border border-[#138f8c]/30 bg-[#e6f8f5] p-5 shadow-[0_12px_35px_rgba(15,58,105,0.05)] sm:p-6">
       <p className="font-mono text-xs font-bold tracking-[0.14em] text-[#285f86] uppercase">
-        Câu phỏng vấn mở rộng
+        {t("deepDive.eyebrow")}
       </p>
       <h3 className="mt-3 text-xl leading-8 font-semibold text-[#172033]">
         <InlineCode text={prompt} />
       </h3>
       <p className="mt-2 text-sm leading-6 text-[#526276]">
-        Tự trả lời như một câu phỏng vấn mới, hoặc để trống nếu chưa biết để AI
-        dạy từ đầu.
+        {t("deepDive.description")}
       </p>
 
       <form
@@ -5326,7 +5436,7 @@ function DeepDivePracticePanel({
         }}
       >
         <label htmlFor={`deep-dive-${question.id}`} className="text-sm font-bold text-[#285f86]">
-          Câu trả lời của bạn
+          {t("deepDive.answer")}
         </label>
         <textarea
           id={`deep-dive-${question.id}`}
@@ -5334,12 +5444,12 @@ function DeepDivePracticePanel({
           onChange={(event) => onAnswer(event.target.value)}
           rows={5}
           disabled={loading}
-          placeholder="Trả lời câu mở rộng trước khi xem nhận xét của AI…"
+          placeholder={t("deepDive.placeholder")}
           className="mt-2 w-full resize-y rounded-2xl border border-[#285f86]/20 bg-white/80 px-4 py-3 leading-7 outline-none transition focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/55 disabled:bg-[#eaf2f8]"
         />
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
           <span className="font-mono text-[11px] text-[#64748b]">
-            ● tự lưu · không có đáp án mẫu
+            {t("deepDive.autosave")}
           </span>
           <button
             type="submit"
@@ -5347,10 +5457,10 @@ function DeepDivePracticePanel({
             className="rounded-xl bg-[#0f3a69] px-5 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
           >
             {loading
-              ? "AI đang giúp…"
+              ? t("question.aiHelping")
               : answer.trim()
-                ? "Nhờ AI chấm câu mở rộng"
-                : "Nhờ AI giải câu mở rộng"}
+                ? t("deepDive.grading")
+                : t("deepDive.explaining")}
           </button>
         </div>
       </form>
@@ -5366,7 +5476,7 @@ function DeepDivePracticePanel({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-sm font-bold text-[#16865a]">
-                Nhận xét của người phỏng vấn AI
+                {t("deepDive.feedback")}
               </p>
               {model ? (
                 <span className="rounded-full bg-[#eaf2f8] px-2 py-0.5 font-mono text-[10px] text-[#285f86]">
@@ -5379,7 +5489,7 @@ function DeepDivePracticePanel({
               onClick={onToggleSaveFeedback}
               className="rounded-lg border border-[#285f86]/15 px-2.5 py-1.5 text-[11px] font-bold text-[#285f86]"
             >
-              {feedbackSaved ? "★ Đã lưu" : "☆ Lưu nhận xét"}
+              {feedbackSaved ? t("deepDive.saved") : t("deepDive.save")}
             </button>
           </div>
           <div className="mt-3 text-sm leading-7 text-[#526276]">
@@ -5389,7 +5499,7 @@ function DeepDivePracticePanel({
             <div className="mt-4 flex flex-wrap gap-2 border-t border-[#0f3a69]/10 pt-3">
               {citedSections.map((section) => (
                 <span key={section.id} className="rounded-full bg-[#eaf2f8] px-2.5 py-1 text-[11px] font-semibold text-[#285f86]">
-                  Nguồn: {section.heading}
+                  {t("deepDive.source", { heading: section.heading })}
                 </span>
               ))}
             </div>
@@ -5421,6 +5531,7 @@ function CoachFollowUpPanel({
   onInput: (value: string) => void;
   onSubmit: () => void;
 }) {
+  const t = useTranslations("Practice");
   const limitReached = messages.length >= 8;
   const sourceById = new Map(
     question.sourceSections.map((section) => [section.id, section]),
@@ -5431,14 +5542,14 @@ function CoachFollowUpPanel({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-mono text-xs font-bold tracking-[0.14em] text-[#285f86] uppercase">
-            Chưa hiểu? Hỏi tiếp AI
+            {t("followUp.eyebrow")}
           </p>
           <p className="mt-2 text-sm leading-6 text-[#526276]">
-            AI sẽ giải thích lại dựa trên câu này, phản hồi vừa chấm và ghi chú nguồn.
+            {t("followUp.description")}
           </p>
         </div>
         <span className="rounded-full bg-[#eaf2f8] px-3 py-1 font-mono text-[11px] text-[#43546a]">
-          {Math.floor(messages.length / 2)}/4 lượt
+          {t("followUp.turns", { count: Math.floor(messages.length / 2) })}
         </span>
       </div>
 
@@ -5474,14 +5585,14 @@ function CoachFollowUpPanel({
                         title={`#${section.id}`}
                         className="rounded-full bg-[#eaf2f8] px-2.5 py-1 text-[11px] font-semibold text-[#285f86]"
                       >
-                        Nguồn: {section.heading}
+                        {t("followUp.source", { heading: section.heading })}
                       </span>
                     ))}
                   </div>
                 ) : null}
                 {message.checkQuestion ? (
                   <p className="mt-3 rounded-xl bg-[#65e6d2]/45 px-3 py-2 text-xs font-semibold text-[#285f86]">
-                    Tự kiểm tra: <InlineCode text={message.checkQuestion} />
+                    {t("followUp.selfCheck")} <InlineCode text={message.checkQuestion} />
                   </p>
                 ) : null}
                 {message.role === "assistant" ? (
@@ -5490,7 +5601,9 @@ function CoachFollowUpPanel({
                     onClick={() => onToggleSaveMessage(index, message)}
                     className="mt-3 rounded-lg border border-[#285f86]/15 bg-white/60 px-2.5 py-1.5 text-[11px] font-bold text-[#285f86] transition hover:bg-white"
                   >
-                    {isMessageSaved(index) ? "★ Đã lưu" : "☆ Lưu câu trả lời AI"}
+                    {isMessageSaved(index)
+                      ? t("followUp.saved")
+                      : t("followUp.save")}
                   </button>
                 ) : null}
               </div>
@@ -5507,7 +5620,7 @@ function CoachFollowUpPanel({
         }}
       >
         <label htmlFor={`follow-up-${question.id}`} className="sr-only">
-          Câu hỏi bổ sung cho trợ lý AI
+          {t("followUp.label")}
         </label>
         <textarea
           id={`follow-up-${question.id}`}
@@ -5516,21 +5629,21 @@ function CoachFollowUpPanel({
           maxLength={2000}
           rows={3}
           disabled={loading || limitReached}
-          placeholder="Ví dụ: Tại sao chỗ này lại là hành vi không xác định (undefined behavior)? Có thể giải thích bằng ví dụ nhỏ không?"
+          placeholder={t("followUp.placeholder")}
           className="w-full resize-y rounded-2xl border border-[#0f3a69]/18 bg-white px-4 py-3 text-sm leading-6 text-[#172033] outline-none transition placeholder:text-[#718096] focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/45 disabled:bg-[#eaf2f8]"
         />
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-[#718096]">
             {limitReached
-              ? "Đã đủ 4 lượt. Chấm lại để bắt đầu hội thoại mới."
-              : "Enter để xuống dòng · tối đa 2.000 ký tự"}
+              ? t("followUp.limit")
+              : t("followUp.helper")}
           </p>
           <button
             type="submit"
             disabled={!input.trim() || loading || limitReached}
             className="rounded-xl bg-[#0f3a69] px-5 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
           >
-            {loading ? "AI đang giải thích…" : "Hỏi tiếp AI"}
+            {loading ? t("followUp.loading") : t("followUp.submit")}
           </button>
         </div>
         {error ? (
@@ -5569,6 +5682,7 @@ function SavedItemsControl({
   onRemove: (itemId: string) => void;
   onOpenQuestion: (questionId: string) => void;
 }) {
+  const t = useTranslations("Practice");
   const [open, setOpen] = useState(false);
 
   return (
@@ -5578,7 +5692,7 @@ function SavedItemsControl({
         onClick={() => setOpen(true)}
         className="rounded-full border border-[#0f3a69]/15 bg-white/55 px-3 py-2 text-xs font-bold transition hover:bg-white"
       >
-        ☆ Đã lưu {items.length ? `(${items.length})` : ""}
+        {t("saved.button", { count: items.length })}
       </button>
       {open ? (
         <SavedLibrary
@@ -5606,28 +5720,29 @@ function SavedLibrary({
   onRemove: (itemId: string) => void;
   onOpenQuestion: (questionId: string) => void;
 }) {
+  const t = useTranslations("Practice");
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-[#092c51]/35 p-3 backdrop-blur-sm sm:p-5" role="presentation">
       <aside
         role="dialog"
         aria-modal="true"
-        aria-label="Nội dung đã lưu"
+        aria-label={t("saved.dialog")}
         className="flex h-full w-full max-w-xl flex-col overflow-hidden rounded-[1.25rem] border border-white/35 bg-[#f8fafc] shadow-2xl"
       >
         <header className="flex items-start justify-between gap-4 border-b border-[#0f3a69]/12 p-5 sm:p-7">
           <div>
             <p className="font-mono text-xs font-bold tracking-[0.15em] text-[#a65c0e] uppercase">
-              Nội dung đã lưu
+              {t("saved.eyebrow")}
             </p>
-            <h2 className="mt-2 text-2xl font-semibold">Nội dung đáng xem lại</h2>
+            <h2 className="mt-2 text-2xl font-semibold">{t("saved.title")}</h2>
             <p className="mt-2 text-sm text-[#526276]">
-              {items.length} mục · lưu trên trình duyệt này
+              {t("saved.count", { count: items.length })}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Đóng danh sách đã lưu"
+            aria-label={t("saved.close")}
             className="grid size-10 shrink-0 place-items-center rounded-full border border-[#0f3a69]/15 bg-white text-lg font-bold"
           >
             ×
@@ -5645,8 +5760,7 @@ function SavedLibrary({
           ))}
           {!items.length ? (
             <div className="rounded-2xl border border-dashed border-[#0f3a69]/20 px-5 py-12 text-center text-sm leading-6 text-[#526276]">
-              Chưa lưu gì. Dùng nút ☆ ở câu hỏi hoặc phản hồi AI mà bạn thấy
-              đáng xem lại.
+              {t("saved.empty")}
             </div>
           ) : null}
         </div>
@@ -5664,16 +5778,18 @@ function SavedLibraryItem({
   onOpenQuestion: (questionId: string) => void;
   onRemove: (itemId: string) => void;
 }) {
+  const t = useTranslations("Practice");
+  const locale = useLocale() as Locale;
   const [expanded, setExpanded] = useState(false);
 
   return (
     <article className="rounded-2xl border border-[#0f3a69]/12 bg-white/75 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className={`rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase ${item.kind === "question" ? "bg-[#65e6d2] text-[#285f86]" : "bg-[#e3ddff] text-[#55468c]"}`}>
-          {item.kind === "question" ? "Câu hỏi" : "AI trả lời"}
+          {item.kind === "question" ? t("saved.question") : t("saved.aiAnswer")}
         </span>
         <time className="font-mono text-[10px] text-[#718096]">
-          {new Date(item.savedAt).toLocaleDateString("vi-VN")}
+          {new Date(item.savedAt).toLocaleDateString(locale === "en" ? "en-US" : "vi-VN")}
         </time>
       </div>
       <h3 className="mt-3 font-semibold">{item.title}</h3>
@@ -5687,8 +5803,8 @@ function SavedLibraryItem({
         onToggle={(event) => setExpanded(event.currentTarget.open)}
       >
         <summary className="cursor-pointer list-none text-xs font-bold text-[#285f86]">
-          <span className="group-open:hidden">Xem nội dung ↓</span>
-          <span className="hidden group-open:inline">Thu gọn ↑</span>
+          <span className="group-open:hidden">{t("saved.view")}</span>
+          <span className="hidden group-open:inline">{t("saved.collapse")}</span>
         </summary>
         {expanded ? (
           <div className="mt-3 text-sm leading-6 text-[#526276]">
@@ -5702,14 +5818,14 @@ function SavedLibraryItem({
           onClick={() => onOpenQuestion(item.questionId)}
           className="rounded-lg border border-[#285f86]/18 bg-white px-3 py-2 text-xs font-bold text-[#285f86]"
         >
-          Mở câu gốc
+          {t("saved.openOriginal")}
         </button>
         <button
           type="button"
           onClick={() => onRemove(item.id)}
           className="rounded-lg px-3 py-2 text-xs font-bold text-[#a0442d] hover:bg-[#fff1f1]"
         >
-          Bỏ lưu
+          {t("saved.remove")}
         </button>
       </div>
     </article>

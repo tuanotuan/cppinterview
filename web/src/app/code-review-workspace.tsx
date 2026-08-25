@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import {
@@ -16,6 +17,7 @@ export function CodeReviewWorkspace({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const t = useTranslations("Practice");
   const comments = useMemo(() => parseCodeReviewComments(value), [value]);
   const [selectedLine, setSelectedLine] = useState<number | null>(null);
   const [draft, setDraft] = useState("");
@@ -40,19 +42,19 @@ export function CodeReviewWorkspace({
     <section id="practice-answer-area" className="mt-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-[#43546a]">Bản review của bạn</p>
+          <p className="text-sm font-semibold text-[#43546a]">{t("codeReview.title")}</p>
           <p className="mt-1 text-xs leading-5 text-[#526276]">
-            Chọn một dòng, nêu vấn đề, tác động và cách sửa. Nhận xét tự lưu như câu trả lời của bạn.
+            {t("codeReview.description")}
           </p>
         </div>
         <span className="rounded-full bg-[#eaf2f8] px-3 py-1 font-mono text-[11px] font-semibold text-[#285f86]">
-          {comments.length} nhận xét
+          {t("codeReview.comments", { count: comments.length })}
         </span>
       </div>
 
       <div className="mt-4 overflow-hidden rounded-2xl border border-[#0f3a69]/16 bg-[#092c51] shadow-[0_18px_55px_rgba(7,27,22,0.16)]">
         <div className="border-b border-white/10 bg-[#092c51] px-4 py-3 font-mono text-[11px] font-bold tracking-wide text-[#65e6d2] uppercase">
-          Mã cần review
+          {t("codeReview.code")}
         </div>
         <ol className="max-h-[34rem] overflow-auto py-3 font-mono text-[13px] leading-6 sm:text-sm">
           {lines.map((line, index) => {
@@ -76,7 +78,7 @@ export function CodeReviewWorkspace({
                     setSelectedLine(lineNumber);
                     setDraft(commentsByLine.get(lineNumber)?.comment ?? "");
                   }}
-                  aria-label={`Nhận xét dòng ${lineNumber}`}
+                  aria-label={t("codeReview.lineAria", { line: lineNumber })}
                   className={`relative border-r border-white/8 px-3 text-right text-xs transition ${
                     selected ? "text-[#65e6d2]" : "text-white/35 hover:text-white/75"
                   }`}
@@ -95,7 +97,9 @@ export function CodeReviewWorkspace({
 
       <div className="mt-4 rounded-2xl border border-[#0f3a69]/14 bg-[#f8fafc] p-4">
         <label htmlFor="code-review-comment" className="text-sm font-bold text-[#285f86]">
-          {selectedLine ? `Nhận xét dòng ${selectedLine}` : "Chọn một dòng để bắt đầu"}
+          {selectedLine
+            ? t("codeReview.selectedLine", { line: selectedLine })
+            : t("codeReview.selectLine")}
         </label>
         <textarea
           id="code-review-comment"
@@ -103,7 +107,7 @@ export function CodeReviewWorkspace({
           onChange={(event) => setDraft(event.target.value)}
           disabled={!selectedLine}
           rows={4}
-          placeholder="Ví dụ: dereference ở đây có thể không hợp lệ khi…"
+          placeholder={t("codeReview.placeholder")}
           className="mt-2 w-full resize-y rounded-xl border border-[#0f3a69]/18 bg-white px-3 py-2.5 text-sm leading-6 outline-none transition placeholder:text-[#718096] focus:border-[#285f86] focus:ring-4 focus:ring-[#65e6d2]/45 disabled:cursor-not-allowed disabled:bg-[#eaf2f8]"
         />
         <div className="mt-3 flex justify-end">
@@ -113,7 +117,7 @@ export function CodeReviewWorkspace({
             disabled={!selectedLine || !draft.trim()}
             className="rounded-xl bg-[#0f3a69] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#16865a] disabled:cursor-not-allowed disabled:opacity-45"
           >
-            Lưu nhận xét
+            {t("codeReview.save")}
           </button>
         </div>
       </div>
@@ -123,7 +127,9 @@ export function CodeReviewWorkspace({
           {comments.map((item) => (
             <article key={item.line} className="flex items-start justify-between gap-3 rounded-xl border border-[#0f3a69]/12 bg-white/65 px-4 py-3">
               <div>
-                <p className="font-mono text-[11px] font-bold text-[#285f86]">DÒNG {item.line}</p>
+                <p className="font-mono text-[11px] font-bold text-[#285f86]">
+                  {t("codeReview.line", { line: item.line })}
+                </p>
                 <p className="mt-1 whitespace-pre-line text-sm leading-6 text-[#526276]">{item.comment}</p>
               </div>
               <button
@@ -131,7 +137,7 @@ export function CodeReviewWorkspace({
                 onClick={() => removeComment(item.line)}
                 className="shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-bold text-[#a0442d] transition hover:bg-[#fff1f1]"
               >
-                Xóa
+                {t("codeReview.delete")}
               </button>
             </article>
           ))}

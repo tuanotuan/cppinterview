@@ -51,6 +51,8 @@ export function ConfirmationDialog({
   confirmLabel,
   tone = "danger",
   busy = false,
+  cancelLabel = "Hủy",
+  busyLabel = "Đang xử lý…",
   onCancel,
   onConfirm,
 }: {
@@ -59,6 +61,8 @@ export function ConfirmationDialog({
   confirmLabel: string;
   tone?: "danger" | "primary";
   busy?: boolean;
+  cancelLabel?: string;
+  busyLabel?: string;
   onCancel: () => void;
   onConfirm: () => void;
 }) {
@@ -113,7 +117,7 @@ export function ConfirmationDialog({
             disabled={busy}
             className="rounded-xl border border-[#0f3a69]/15 bg-white px-4 py-2.5 text-sm font-bold text-[#285f86] transition hover:border-[#285f86]/35 disabled:opacity-50"
           >
-            Hủy
+            {cancelLabel}
           </button>
           <button
             type="button"
@@ -121,7 +125,7 @@ export function ConfirmationDialog({
             disabled={busy}
             className={`rounded-xl px-4 py-2.5 text-sm font-bold transition focus:ring-4 focus:outline-none disabled:cursor-wait disabled:opacity-50 ${confirmClass}`}
           >
-            {busy ? "Đang xử lý…" : confirmLabel}
+            {busy ? busyLabel : confirmLabel}
           </button>
         </div>
       </section>

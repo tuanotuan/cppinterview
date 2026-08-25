@@ -6,6 +6,9 @@ import type { Locale } from "@/i18n/routing";
 
 import type { ContentManifest } from "./schema";
 
+type ManifestLesson = ContentManifest["lessons"][number];
+type ManifestQuestion = ContentManifest["questions"][number];
+
 const sourceHashSchema = z.string().regex(/^[a-f0-9]{64}$/);
 
 const lessonTranslationSchema = z.object({
@@ -53,6 +56,31 @@ const catalogs: Record<Locale, ContentTranslationCatalog> = {
   en: contentTranslationCatalogSchema.parse(englishCatalogJson),
   vi: contentTranslationCatalogSchema.parse(vietnameseCatalogJson),
 };
+
+export function hasExactLessonTranslation(
+  lesson: ManifestLesson,
+  locale: Locale,
+) {
+  const translation = catalogs[locale].lessons.find(
+    (item) => item.lessonId === lesson.id,
+  );
+  if (!translation || translation.sourceHash !== lesson.sourceHash) {
+    return false;
+  }
+  return lesson.sections.map((section) => section.id).join("\u001f") ===
+    translation.sections.map((section) => section.id).join("\u001f");
+}
+
+export function hasExactQuestionTranslation(
+  question: ManifestQuestion,
+  locale: Locale,
+) {
+  const translation = catalogs[locale].questions.find(
+    (item) => item.questionId === question.id,
+  );
+  return translation?.questionVersion === question.version &&
+    translation.sourceHash === question.sourceHash;
+}
 
 /**
  * Applies only translations tied to the exact canonical revision. Stable IDs,
