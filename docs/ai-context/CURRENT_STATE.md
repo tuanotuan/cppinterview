@@ -279,12 +279,15 @@ trạng thái từ tên nhánh.
   điều kiện bất biến duy nhất cho quyền Admin. Cảnh báo retry tác vụ AI vẫn được
   kiểm thử như một contract vì người dùng phải thấy rõ khả năng phát sinh chi
   phí; toàn bộ client không còn gọi `window.alert`/`confirm`/`prompt`.
-- Format bài phỏng vấn và code-review workspace đạt `content:check`,
-  `context:check`, ESLint, TypeScript, 111 file/676 Vitest test và Next.js
-  production build 64 route. Mười câu C++ mẫu mới vẫn là `draft`, nên phải duyệt
+- Format bài phỏng vấn, code-review workspace và lớp song ngữ đạt `content:check`,
+  `context:check`, ESLint, TypeScript, 105 file/632 Vitest test và Next.js
+  production build tạo 113 static page. Mười câu C++ mẫu mới vẫn là `draft`, nên phải duyệt
   trong Admin trước khi xuất hiện trong lịch học hay coverage verified.
 - `npm audit --omit=dev --audit-level=moderate` hiện báo 0 lỗ hổng production sau
-  khi thêm dependency `next-intl` được khóa ở 4.13.7.
+  khi thêm dependency `next-intl` được khóa ở 4.13.7. Lockfile được chuẩn hóa
+  bằng npm 10 của GitHub Actions và clean `npm ci` đã xác nhận dependency peer
+  `@swc/helpers` của SWC được cài đầy đủ. Source guard đa dòng chuẩn hóa CRLF/LF
+  để cùng một test chạy nhất quán trên Windows và Linux.
 - Lần smoke production gần nhất dùng Chrome 1440×1200 và mobile CDP 390×844:
   Practice, WorldQuant, guide tick và Full Round không tràn ngang ở cấp
   trang. Đây không phải bằng chứng deployment hiện tại đang hoạt động.
