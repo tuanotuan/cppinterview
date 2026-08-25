@@ -1,14 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
-const items = [
-  { href: "/practice", label: "Học hôm nay", icon: HomeIcon },
-  { href: "/mock-interview", label: "Phỏng vấn", icon: InterviewIcon },
-  { href: "/learn", label: "Thư viện", icon: LibraryIcon },
-  { href: "/profile", label: "Hồ sơ", icon: ProfileIcon },
-];
+import { Link, usePathname } from "@/i18n/navigation";
 
 function isCurrent(pathname: string, href: string) {
   if (href === "/practice") return pathname === "/practice";
@@ -17,6 +11,13 @@ function isCurrent(pathname: string, href: string) {
 
 export function RecallMobileNav() {
   const pathname = usePathname();
+  const t = useTranslations("Common");
+  const items = [
+    { href: "/practice", label: t("nav.practice"), icon: HomeIcon },
+    { href: "/mock-interview", label: t("nav.interview"), icon: InterviewIcon },
+    { href: "/learn", label: t("nav.library"), icon: LibraryIcon },
+    { href: "/profile", label: t("nav.profile"), icon: ProfileIcon },
+  ];
 
   if (
     pathname === "/" ||
@@ -30,7 +31,7 @@ export function RecallMobileNav() {
 
   return (
     <nav
-      aria-label="Điều hướng chính"
+      aria-label={t("nav.primaryAria")}
       className="recall-mobile-nav fixed inset-x-3 bottom-3 z-40 mx-auto grid max-w-md grid-cols-4 items-center rounded-2xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] px-2 py-2 shadow-[0_10px_30px_rgb(15_58_105_/_16%)] lg:hidden"
     >
       {items.map((item) => {

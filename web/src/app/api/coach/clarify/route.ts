@@ -133,6 +133,7 @@ export async function POST(request: Request) {
             question,
             lesson,
             safetyIdentifier: safetyIdentifier(`${user.id}:${question.id}:clarify`),
+            responseLocale: parsed.data.responseLocale,
           }),
       },
     );

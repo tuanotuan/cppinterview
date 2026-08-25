@@ -214,6 +214,7 @@ export async function POST(request: Request) {
     candidateAnswer: parsed.data.candidateAnswer,
     feedback: parsed.data.feedback,
     messages: parsed.data.messages,
+    responseLocale: parsed.data.responseLocale,
   };
   let followUpReservation: CoachFollowUpReservation | null = null;
   let followUpFingerprint: string | null = null;
@@ -376,6 +377,7 @@ export async function POST(request: Request) {
                 feedback: parsed.data.feedback,
                 messages: parsed.data.messages,
                 safetyIdentifier: safetyIdentifier(publicAdmission.reservationId),
+                responseLocale: parsed.data.responseLocale,
               }),
           },
         );
@@ -393,6 +395,7 @@ export async function POST(request: Request) {
                 feedback: parsed.data.feedback,
                 messages: parsed.data.messages,
                 safetyIdentifier: safetyIdentifier(user?.id || clientKey),
+                responseLocale: parsed.data.responseLocale,
               }),
           },
         );
@@ -409,6 +412,7 @@ export async function POST(request: Request) {
           candidateAnswer: parsed.data.candidateAnswer,
           feedback: parsed.data.feedback,
           messages: parsed.data.messages,
+          responseLocale: parsed.data.responseLocale,
         });
       });
       provider = "gemini";

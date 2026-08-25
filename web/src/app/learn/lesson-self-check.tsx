@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export function LessonSelfCheck({ items }: { items: string[] }) {
+  const t = useTranslations("Learn.selfCheck");
   const [checked, setChecked] = useState<Set<number>>(() => new Set());
   if (!items.length) {
     return (
       <p className="rounded-2xl border border-dashed border-[#0f3a69]/20 p-5 text-sm text-[#526276]">
-        Bài này chưa có danh sách tự kiểm tra trong nguồn.
+        {t("missing")}
       </p>
     );
   }
@@ -38,7 +40,7 @@ export function LessonSelfCheck({ items }: { items: string[] }) {
         ))}
       </div>
       <p className="mt-4 font-mono text-xs text-[#526276]">
-        Đã tự kiểm tra {checked.size}/{Math.min(8, items.length)} mục
+        {t("progress", { checked: checked.size, total: Math.min(8, items.length) })}
       </p>
     </div>
   );

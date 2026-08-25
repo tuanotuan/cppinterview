@@ -61,11 +61,25 @@ rồi refresh context.
 
 ## Ngôn ngữ sản phẩm
 
-Nội dung người dùng nhìn thấy, thông báo lỗi từ API và lời nhắc tạo phản hồi AI
-phải dùng “bạn” hoặc câu trung tính. Ưu tiên tiếng Việt tự nhiên; chỉ giữ tên
-riêng, mã nguồn và thuật ngữ kỹ thuật phổ biến hoặc không có cách dịch chính xác.
-Không dịch route, khóa lưu trữ, trường schema hay giá trị enum. Quy ước chi tiết
-nằm trong `web/AGENTS.md`.
+Learner UI hỗ trợ `vi` và `en` bằng `next-intl`; mọi route learner có prefix
+locale bắt buộc. Chuỗi UI nằm trong `src/messages/{vi,en}.json`, còn nội dung
+question/lesson dịch qua `src/lib/content/translations.ts` và catalog
+`src/content-translations/`. Bản dịch phải bind exact ID + version + source hash
+(lesson bind content hash), giữ nguyên code, nguồn, taxonomy, schema và enum.
+Không dùng machine translation ở runtime. Thiếu bản dịch thì dùng canonical
+content; không được trình bày fallback như một bản dịch đã được review.
+
+Nội dung tiếng Việt người dùng nhìn thấy, thông báo lỗi từ API và lời nhắc tạo
+phản hồi AI phải dùng “bạn” hoặc câu trung tính. Chỉ giữ tên riêng, mã nguồn và
+thuật ngữ kỹ thuật phổ biến hoặc không có cách dịch chính xác. WorldQuant drill
+được thiết kế bằng tiếng Anh vẫn giữ tiếng Anh. Quy ước chi tiết nằm trong
+`web/AGENTS.md`.
+
+AI Coach nhận `responseLocale` trong request/idempotency và lưu
+`coach_attempts.response_locale`. Mock đóng băng locale khi tạo session; report
+và artifact history mới giữ locale đó. Khi thêm locale mới, cập nhật routing,
+message catalog, contract AI/Mock, overlay content và test identity/coverage cùng
+một thay đổi.
 
 `src/lib/content/user-facing-language.test.ts` quét giao diện, lời nhắc và học
 liệu để ngăn cách xưng hô “mày/tao”; riêng danh sách nhãn sản phẩm cũ được quét
@@ -153,8 +167,10 @@ không xóa revision DB.
 
 Xem danh sách chuẩn trong `web/.env.example`.
 
-- Public duy nhất: `NEXT_PUBLIC_SUPABASE_URL`,
-  `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+- Public: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` và
+  `NEXT_PUBLIC_SITE_URL`. Production phải đặt `NEXT_PUBLIC_SITE_URL` thành origin
+  canonical HTTPS để metadata canonical/hreflang không dùng localhost; Vercel có
+  thể fallback qua `VERCEL_PROJECT_PRODUCTION_URL`.
 - Server app: OpenAI/Gemini keys, admin billing key, project ID, code-runner
   config.
 - GitHub Actions only: `SUPABASE_SERVICE_ROLE_KEY` cho content sync/generation.

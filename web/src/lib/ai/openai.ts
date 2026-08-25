@@ -15,6 +15,7 @@ import {
 } from "../mock-interview/contracts";
 
 import {
+  type AiResponseLocale,
   coachFeedbackSchema,
   coachFollowUpResponseSchema,
   normalizeCoachFeedback,
@@ -47,19 +48,21 @@ export async function evaluateWithOpenAI({
   lesson,
   candidateAnswer,
   safetyIdentifier,
+  responseLocale = "vi",
 }: {
   question: Question;
   lesson: GeneratedLesson;
   candidateAnswer: string;
   safetyIdentifier: string;
+  responseLocale?: AiResponseLocale;
 }): Promise<OpenAIStructuredResult<CoachFeedback>> {
   const model = openAIModel("luna");
   const response = await openAIClient().responses.parse({
     model,
     store: false,
     safety_identifier: safetyIdentifier,
-    instructions: buildCoachSystemInstruction(lesson, "evaluate"),
-    input: buildCoachPrompt({ question, lesson, candidateAnswer }),
+    instructions: buildCoachSystemInstruction(lesson, "evaluate", responseLocale),
+    input: buildCoachPrompt({ question, lesson, candidateAnswer, responseLocale }),
     reasoning: { effort: "low" },
     max_output_tokens: 3000,
     text: {
@@ -83,6 +86,7 @@ export async function answerCoachFollowUpWithOpenAI({
   feedback,
   messages,
   safetyIdentifier,
+  responseLocale = "vi",
 }: {
   question: Question;
   lesson: GeneratedLesson;
@@ -90,19 +94,21 @@ export async function answerCoachFollowUpWithOpenAI({
   feedback: CoachFeedback;
   messages: CoachFollowUpMessage[];
   safetyIdentifier: string;
+  responseLocale?: AiResponseLocale;
 }): Promise<OpenAIStructuredResult<CoachFollowUpResponse>> {
   const model = openAIModel("luna");
   const response = await openAIClient().responses.parse({
     model,
     store: false,
     safety_identifier: safetyIdentifier,
-    instructions: buildCoachSystemInstruction(lesson, "follow-up"),
+    instructions: buildCoachSystemInstruction(lesson, "follow-up", responseLocale),
     input: buildCoachFollowUpPrompt({
       question,
       lesson,
       candidateAnswer,
       feedback,
       messages,
+      responseLocale,
     }),
     reasoning: { effort: "medium" },
     max_output_tokens: 2400,
@@ -130,18 +136,20 @@ export async function clarifyQuestionWithOpenAI({
   question,
   lesson,
   safetyIdentifier,
+  responseLocale = "vi",
 }: {
   question: Question;
   lesson: GeneratedLesson;
   safetyIdentifier: string;
+  responseLocale?: AiResponseLocale;
 }): Promise<OpenAIStructuredResult<QuestionClarification>> {
   const model = openAIModel("luna");
   const response = await openAIClient().responses.parse({
     model,
     store: false,
     safety_identifier: safetyIdentifier,
-    instructions: buildCoachSystemInstruction(lesson, "clarify"),
-    input: buildQuestionClarificationPrompt({ question, lesson }),
+    instructions: buildCoachSystemInstruction(lesson, "clarify", responseLocale),
+    input: buildQuestionClarificationPrompt({ question, lesson, responseLocale }),
     reasoning: { effort: "low" },
     max_output_tokens: 1400,
     text: {

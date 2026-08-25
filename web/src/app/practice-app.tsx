@@ -1,8 +1,9 @@
 "use client";
 
-import Link, { useLinkStatus } from "next/link";
+import { useLinkStatus } from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 import {
   useCallback,
   useEffect,
@@ -11,6 +12,10 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+
+import { Link } from "@/i18n/navigation";
+import type { Locale } from "@/i18n/routing";
+import { LanguageSwitcher } from "@/app/language-switcher";
 
 import type {
   CoachFeedback,
@@ -330,6 +335,7 @@ export function PracticeApp({
   initialCustomStudyFilters,
   focusReturnHref,
   mistakeQuestionIds,
+  locale,
 }: {
   questions: PracticeQuestion[];
   reviewQueue: PracticeQuestion[];
@@ -350,7 +356,10 @@ export function PracticeApp({
   initialCustomStudyFilters: CustomStudyFilters | null;
   focusReturnHref: string | null;
   mistakeQuestionIds: string[];
+  locale: Locale;
 }) {
+  const common = useTranslations("Common");
+  const practiceT = useTranslations("Practice");
   const accountId = account?.id ?? null;
   const usesPublicAi = !canManageQuestionBank;
   const studySessionKey = useMemo(
@@ -2345,6 +2354,7 @@ export function PracticeApp({
         questionVersion: current.version,
         sourceRevision,
         candidateAnswer: answer,
+        responseLocale: locale,
       });
       setCoachIdempotencyKeys((keys) => ({
         ...keys,
@@ -2357,6 +2367,7 @@ export function PracticeApp({
           questionId,
           answer,
           idempotencyKey,
+          responseLocale: locale,
         }),
       });
       const payload = (await response.json()) as CoachApiPayload & {
@@ -2482,7 +2493,7 @@ export function PracticeApp({
       const response = await fetch("/api/coach/clarify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ questionId }),
+        body: JSON.stringify({ questionId, responseLocale: locale }),
       });
       const payload = (await response.json()) as CoachApiPayload & {
         clarification?: QuestionClarification;
@@ -2572,6 +2583,7 @@ export function PracticeApp({
         candidateAnswer: coachAnswers[questionId] ?? "",
         feedback: coachFeedback[questionId],
         messages: requestMessages,
+        responseLocale: locale,
       });
       const response = await fetch("/api/coach/follow-up", {
         method: "POST",
@@ -2582,6 +2594,7 @@ export function PracticeApp({
           feedback: coachFeedback[questionId],
           messages: requestMessages,
           idempotencyKey,
+          responseLocale: locale,
         }),
       });
       const payload = (await response.json()) as CoachApiPayload & {
@@ -2659,8 +2672,12 @@ export function PracticeApp({
     const answer = deepDiveAnswers[questionId]?.trim() ?? "";
     const followUpQuestion = coachFeedback[questionId].followUpQuestion;
     const answerContext = answer
-      ? `Câu trả lời tôi tự làm: ${answer}\n\nHãy nhận xét câu trả lời như người phỏng vấn: chỉ ra phần đúng, phần thiếu hoặc sai, rồi mới giải thích để tôi hiểu sâu hơn.`
-      : "Tôi để trống vì chưa biết cách trả lời. Hãy dạy tôi từ đầu, giải thích từng ý và đưa ra một câu trả lời phỏng vấn mẫu dễ học.";
+      ? locale === "en"
+        ? `My answer: ${answer}\n\nReview it as an interviewer: identify what is correct, missing, or wrong, then explain the topic more deeply.`
+        : `Câu trả lời tôi tự làm: ${answer}\n\nHãy nhận xét câu trả lời như người phỏng vấn: chỉ ra phần đúng, phần thiếu hoặc sai, rồi mới giải thích để tôi hiểu sâu hơn.`
+      : locale === "en"
+        ? "I left this blank because I do not know how to answer yet. Teach it from first principles and give me a concise interview-ready example answer."
+        : "Tôi để trống vì chưa biết cách trả lời. Hãy dạy tôi từ đầu, giải thích từng ý và đưa ra một câu trả lời phỏng vấn mẫu dễ học.";
 
     setDeepDiveLoading(questionId);
     setDeepDiveErrors((errors) => ({ ...errors, [questionId]: "" }));
@@ -2668,7 +2685,9 @@ export function PracticeApp({
       const requestMessages = [
         {
           role: "user" as const,
-          content: `Đây là câu hỏi phỏng vấn mở rộng: ${followUpQuestion}\n\n${answerContext}`,
+          content: locale === "en"
+            ? `This is the extended interview question: ${followUpQuestion}\n\n${answerContext}`
+            : `Đây là câu hỏi phỏng vấn mở rộng: ${followUpQuestion}\n\n${answerContext}`,
         },
       ];
       const idempotencyKey = await coachFollowUpIdempotencyKey({
@@ -2678,6 +2697,7 @@ export function PracticeApp({
         candidateAnswer: coachAnswers[questionId] ?? "",
         feedback: coachFeedback[questionId],
         messages: requestMessages,
+        responseLocale: locale,
       });
       const response = await fetch("/api/coach/follow-up", {
         method: "POST",
@@ -2688,6 +2708,7 @@ export function PracticeApp({
           feedback: coachFeedback[questionId],
           messages: requestMessages,
           idempotencyKey,
+          responseLocale: locale,
         }),
       });
       const payload = (await response.json()) as CoachApiPayload & {
@@ -2954,8 +2975,8 @@ export function PracticeApp({
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              aria-label="Về trang chủ cppinterview"
-              title="Về trang chủ cppinterview"
+              aria-label={common("homeAria")}
+              title={common("homeAria")}
               className="size-10 overflow-hidden rounded-xl focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none"
             >
               <Image
@@ -2971,7 +2992,7 @@ export function PracticeApp({
             <div>
               <p className="font-semibold tracking-[-0.025em]">cppinterview</p>
               <p className="hidden text-xs text-[color:var(--ink-muted)] sm:block">
-                Luyện phỏng vấn C++ · {deckQuestions.length} câu đã duyệt
+                {practiceT("workspaceTagline")} · {practiceT("approvedCards", { count: deckQuestions.length })}
               </p>
             </div>
             {isFocusActive ? (
@@ -2982,6 +3003,7 @@ export function PracticeApp({
           </div>
 
           <div className="flex items-center justify-end gap-2 text-sm">
+            <LanguageSwitcher compact />
             <ProgressSummaryControl
               icon="✓"
               streak={streak}
@@ -3026,18 +3048,18 @@ export function PracticeApp({
           </div>
           </div>
           <nav
-            aria-label="Điều hướng học tập"
+            aria-label={common("nav.primaryAria")}
             className="mt-4 hidden items-center gap-1 border-t border-[color:var(--border-subtle)] pt-3 lg:flex"
           >
             <WorkspaceNavLink href="/practice" active>
-              Học hôm nay
+              {common("nav.practice")}
             </WorkspaceNavLink>
             <WorkspaceNavLink href="/mock-interview">
-              Phỏng vấn thử
+              {common("nav.interview")}
             </WorkspaceNavLink>
-            <WorkspaceNavLink href="/learn">Thư viện</WorkspaceNavLink>
+            <WorkspaceNavLink href="/learn">{common("nav.library")}</WorkspaceNavLink>
             <WorkspaceNavLink href={`/stats?deck=${requestedDeck}`}>
-              Tiến độ
+              {practiceT("stats")}
             </WorkspaceNavLink>
           </nav>
         </header>

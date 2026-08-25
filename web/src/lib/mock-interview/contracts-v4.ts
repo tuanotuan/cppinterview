@@ -40,6 +40,7 @@ const answerItemSchema = z
 export const mockInterviewReportRequestV4Schema = z
   .object({
     schemaVersion: z.literal(4),
+    responseLocale: z.enum(["vi", "en"]).optional(),
     idempotencyKey: z.string().uuid(),
     sessionId: z.string().uuid(),
     profileId: targetedMockPlanSchema.shape.profileId,
@@ -154,6 +155,7 @@ export const mockCodeRunRequestV4Schema = z
 export const mockInterviewCompletedArtifactV4Schema = z
   .object({
     schemaVersion: z.literal(4),
+    responseLocale: z.enum(["vi", "en"]).optional(),
     sessionId: z.string().uuid(),
     profileId: targetedMockPlanSchema.shape.profileId,
     profileVersion: roleProfileVersionSchema,

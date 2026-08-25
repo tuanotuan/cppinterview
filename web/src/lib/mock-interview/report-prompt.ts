@@ -34,8 +34,14 @@ export type MockEvaluationItem = {
   >;
 };
 
-export function buildMockInterviewSystemInstruction(roleLabel?: string) {
-  return worldQuantSystemInstruction(roleLabel);
+export function buildMockInterviewSystemInstruction(
+  roleLabel?: string,
+  responseLocale: "vi" | "en" = "vi",
+) {
+  const instruction = worldQuantSystemInstruction(roleLabel);
+  return responseLocale === "en"
+    ? `${instruction}\n\nCRITICAL OUTPUT LANGUAGE: Write every user-facing report field in clear English. Preserve C++ code, identifiers, evidence IDs, enum values, and common technical terms.`
+    : instruction;
 }
 
 export function buildMockInterviewReportPrompt({
@@ -45,6 +51,7 @@ export function buildMockInterviewReportPrompt({
   roleLabel,
   evidenceScope,
   evidenceCatalog,
+  responseLocale = "vi",
 }: {
   durationMinutes: number;
   elapsedSeconds: number;
@@ -52,11 +59,12 @@ export function buildMockInterviewReportPrompt({
   roleLabel?: string;
   evidenceScope?: "balanced" | "targeted";
   evidenceCatalog: readonly MockReportEvidence[];
+  responseLocale?: "vi" | "en";
 }) {
   const assessedCompetencies = new Set(items.map((item) => item.competency));
   const questionIds = items.map((item) => item.questionId);
 
-  return `Tạo báo cáo cuối buổi phỏng vấn thử bằng tiếng Việt.
+  return `${responseLocale === "en" ? "Create the final mock-interview report in clear English. Every user-facing field must be English; preserve code, identifiers, enum values, and evidence IDs." : "Tạo báo cáo cuối buổi phỏng vấn thử bằng tiếng Việt."}
 
 THÔNG TIN BUỔI:
 ${roleLabel ? `- Hồ sơ vị trí: ${roleLabel}\n` : ""}${evidenceScope ? `- Phạm vi đánh giá: ${evidenceScope}\n` : ""}- Thời lượng đã chọn: ${durationMinutes} phút

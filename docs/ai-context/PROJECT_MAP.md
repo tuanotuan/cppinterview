@@ -9,8 +9,9 @@ Tài liệu ổn định để tìm đúng vùng code. Xác minh lại nếu sou
 | `cpp98_foundation/`, `cpp11/`, `cpp20/` | Lesson C++; mỗi thư mục bài có `knowledge.md`, thường có `main.cpp` |
 | `python/` | Ghi chú cá nhân giữ nguyên trong repo; web không quét, đồng bộ hoặc hiển thị |
 | `web/` | App cppinterview: Next.js App Router, React, TypeScript |
-| `web/src/proxy.ts` | Entry point refresh cookie/session Supabase qua `lib/supabase/proxy.ts` |
-| `web/src/app/layout.tsx`, `web/src/app/site-footer.tsx` | Root shell và footer dùng chung cho mọi route; mobile navigation/tracker cũng được gắn ở root layout |
+| `web/src/proxy.ts`, `web/src/i18n/` | Entry point kết hợp refresh cookie/session Supabase với định tuyến locale `vi`/`en`; API, Admin và WorldQuant được bỏ qua khỏi locale middleware |
+| `web/src/app/[locale]/layout.tsx`, `web/src/app/site-footer.tsx` | Shell learner theo locale, `html lang`, message provider, footer và mobile navigation/tracker dùng chung; Admin/WorldQuant có document layout riêng không prefix locale |
+| `web/src/messages/`, `web/src/content-translations/` | Chuỗi UI theo namespace và overlay bản dịch nội dung bind exact revision; ID/version/hash/taxonomy/code/source không bị dịch |
 | `web/src/app/recall-mobile-nav.tsx` | Điều hướng mobile dùng chung: Học hôm nay, Nhiệm vụ, Trung tâm chuẩn bị, Thư viện, Hồ sơ; tự ẩn ở mock/full-round để giữ không gian phỏng vấn |
 | `web/content/` | Registry lesson và question YAML do Git quản lý |
 | `web/src/generated/content-manifest.json` | Manifest deterministic, không sửa tay |
@@ -56,13 +57,18 @@ retired Python/CMake database content while preserving revision history.
 
 ## Runtime và entry points
 
+Mọi route learner trong bảng được phục vụ dưới prefix bắt buộc `/vi` hoặc `/en`;
+URL không prefix được middleware chuyển sang locale cookie/browser, mặc định là
+`vi`. Language switcher giữ nguyên pathname, query và hash. `/admin`,
+`/worldquant`, API và callback kỹ thuật của Auth vẫn không prefix.
+
 | URL/vùng | Entry point | Chức năng |
 |---|---|---|
-| `/` | `web/src/app/page.tsx`, `recall-landing-page.tsx` | Landing public của cppinterview: giới thiệu luồng học, thư viện, AI coach, mock interview và đăng nhập/đăng ký; account đã đăng nhập được chuyển sang `/practice` (trừ khi route mang thông báo auth); CTA thử luyện mở guest mode |
-| `/practice` | `practice/page.tsx`, `practice-app.tsx`, `code-review-workspace.tsx`, `question-editor-dialog.tsx`, `confirmation-dialog.tsx` | Today workspace: CTA tiếp tục/luyện thêm, tiến độ và chỉ số ngày trước card; guest mode `?guest=1` giữ tiến độ local và mở Luna với giới hạn public 3 lượt/24 giờ, còn vùng trả lời không lặp cảnh báo trial cho tài khoản đã đăng nhập; Daily/custom study và Focus Sprint exact queue; mỗi thẻ chỉ hiện hai nhãn phân loại Dễ/Trung bình/Khó và Text/Code, còn taxonomy nội bộ không lộ ra hoặc lọc ở UI; `code_review` thay textarea bằng workspace chọn dòng, lưu annotation vào candidate answer để tồn tại qua F5 và gửi nguyên vẹn cho Coach, không lộ rubric/comment mẫu; answer không giới hạn sản phẩm, blank = chưa biết và vẫn gọi được AI, rating, scheduler, cloud sync, saved state, owner-only edit/archive thẻ và return về Guided Mission; thao tác phá hủy dùng confirmation sheet của cppinterview thay vì hộp thoại trình duyệt |
+| `/` | `[locale]/page.tsx`, `recall-landing-page.tsx` | Landing public của cppinterview: giới thiệu luồng học, thư viện, AI coach, mock interview và đăng nhập/đăng ký; account đã đăng nhập được chuyển sang Practice cùng locale (trừ khi route mang thông báo auth); CTA thử luyện mở guest mode |
+| `/practice` | `[locale]/practice/page.tsx`, `practice-app.tsx`, `code-review-workspace.tsx`, `question-editor-dialog.tsx`, `confirmation-dialog.tsx` | Today workspace: CTA tiếp tục/luyện thêm, tiến độ và chỉ số ngày trước card; guest mode `?guest=1` giữ tiến độ local và mở Luna với giới hạn public 3 lượt/24 giờ, còn vùng trả lời không lặp cảnh báo trial cho tài khoản đã đăng nhập; Daily/custom study và Focus Sprint exact queue; mỗi thẻ chỉ hiện hai nhãn phân loại Dễ/Trung bình/Khó và Text/Code, còn taxonomy nội bộ không lộ ra hoặc lọc ở UI; question overlay và AI Coach dùng locale phiên hiện tại; `code_review` thay textarea bằng workspace chọn dòng, lưu annotation vào candidate answer để tồn tại qua F5 và gửi nguyên vẹn cho Coach, không lộ rubric/comment mẫu; answer không giới hạn sản phẩm, blank = chưa biết và vẫn gọi được AI, rating, scheduler, cloud sync, saved state, owner-only edit/archive thẻ và return về Guided Mission; thao tác phá hủy dùng confirmation sheet của cppinterview thay vì hộp thoại trình duyệt |
 | `/worldquant/*` | `worldquant/layout.tsx` và các module lịch sử | Workspace chuẩn bị theo một công ty cũ chỉ còn truy cập được bởi admin GitHub `tuanotuan`; người học thường bị chuyển về `/practice`. Không có entry point công khai tới vùng này. |
-| `/learn` | `learn/page.tsx`, `learn/[lessonId]/page.tsx` | Thư viện lesson từ manifest với tổng quan bài/thẻ đã duyệt/bài có mã, tìm kiếm và chip lọc lộ trình, Markdown an toàn, tự kiểm tra và mở phiên ôn tập trọng tâm |
-| `/mock-interview` | `mock-interview/page.tsx`, `mock-interview-app.tsx` | Phỏng vấn thử v4 toàn diện/trọng tâm 30/45/60 phút. Targeted Mock v2 có hai scenario rõ nghĩa (tích hợp feed mới; chuyển đổi & sự cố), exact server-rebuilt plan và lịch sử v1 vẫn chỉ đọc; báo cáo tám tiêu chí có evidence server-canonical, deterministic gate C++/market-data/migration và không đưa ra phán quyết role-ready. Lịch sử và kế hoạch ôn tiếp vẫn tạo đúng ba việc luyện tiếp để capture vào Mistake Inbox sau durable history; desktop session rail chỉ lộ thứ tự/trạng thái trả lời, còn thanh chuyển câu/nộp bài sticky; nộp sớm, reset, thay Focus hoặc xóa history đều xác nhận trong UI |
+| `/learn` | `[locale]/learn/page.tsx`, `[locale]/learn/[lessonId]/page.tsx` | Thư viện lesson từ manifest với UI theo locale, tổng quan bài/thẻ đã duyệt/bài có mã, tìm kiếm và chip lọc lộ trình, Markdown an toàn, tự kiểm tra và mở phiên ôn tập trọng tâm |
+| `/mock-interview` | `[locale]/mock-interview/page.tsx`, `mock-interview-app.tsx` | Phỏng vấn thử v4 toàn diện/trọng tâm 30/45/60 phút. Locale được đóng băng khi bắt đầu phiên để báo cáo và history không đổi ngôn ngữ giữa chừng. Targeted Mock v2 có hai scenario rõ nghĩa (tích hợp feed mới; chuyển đổi & sự cố), exact server-rebuilt plan và lịch sử v1 vẫn chỉ đọc; báo cáo tám tiêu chí có evidence server-canonical, deterministic gate C++/market-data/migration và không đưa ra phán quyết role-ready. Lịch sử và kế hoạch ôn tiếp vẫn tạo đúng ba việc luyện tiếp để capture vào Mistake Inbox sau durable history; desktop session rail chỉ lộ thứ tự/trạng thái trả lời, còn thanh chuyển câu/nộp bài sticky; nộp sớm, reset, thay Focus hoặc xóa history đều xác nhận trong UI |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx`, `lib/learn/tick-data-guide.ts` | Guide tick data/order book |
 | `/stats` | `stats/page.tsx`, `fsrs-shadow-panel.tsx` | Analytics học tập và FSRS-6 shadow comparison |
 | `/profile` | `profile/page.tsx`, `lib/profile/{contribution-activity,mobile-usage,profile-activity.server}.ts` | Trang cá nhân và contribution graph 53 tuần từ lượt ôn, AI coach và phỏng vấn thử đã hoàn tất; riêng admin `tuanotuan` còn có tổng thời gian cppinterview hoạt động trên điện thoại hôm nay/7/30 ngày |
@@ -90,7 +96,7 @@ API quan trọng:
 
 | Domain | File đầu mối | Trách nhiệm |
 |---|---|---|
-| `content` | `loader.ts`, `schema.ts`, `automation.ts` | Parse note, schema Zod, discover lesson, sinh manifest |
+| `content` | `loader.ts`, `schema.ts`, `automation.ts`, `translations.ts` | Parse note, schema Zod, discover lesson, sinh manifest và áp overlay dịch đúng exact revision mà không đổi identity/source/code |
 | `content` | `question-store-server.ts` | Chọn `repo`/`shadow`/`db`, parity, apply override |
 | `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts`, `progress-sync.ts`, `study-session.ts` | Queue Anki, rating nguyên tử, due date, streak, browser/cloud progress và draft/phase Trợ giúp → Làm lại |
 | `practice` | `repair-queue.ts`, `rescue-retry.ts`, `fsrs-shadow.ts`, `browser-storage-lock.ts` | Blank-answer Rescue → Retry, same-session repair exact identity, cross-tab mutation lock và FSRS-6 chỉ quan sát |

@@ -1,7 +1,10 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
+
+import { LanguageSwitcher } from "@/app/language-switcher";
 
 import {
   lessonTrackLabel,
@@ -9,18 +12,20 @@ import {
 } from "@/lib/learn/lesson-library";
 import type { ContentTrack } from "@/lib/content/schema";
 
-const tracks: Array<["all" | ContentTrack, string]> = [
-  ["all", "Tất cả"],
-  ["cpp98", "C++98"],
-  ["cpp11", "C++11/14/17"],
-  ["cpp20", "C++20/23"],
-];
-
 export function LessonLibraryApp({
   lessons,
 }: {
   lessons: LessonLibraryItem[];
 }) {
+  const t = useTranslations("Learn");
+  const common = useTranslations("Common");
+  const locale = useLocale();
+  const tracks: Array<["all" | ContentTrack, string]> = [
+    ["all", t("all")],
+    ["cpp98", "C++98"],
+    ["cpp11", "C++11/14/17"],
+    ["cpp20", "C++20/23"],
+  ];
   const [query, setQuery] = useState("");
   const [track, setTrack] = useState<"all" | ContentTrack>("all");
   const verifiedQuestionCount = lessons.reduce(
@@ -29,7 +34,7 @@ export function LessonLibraryApp({
   );
   const codeLessonCount = lessons.filter((lesson) => lesson.hasCode).length;
   const visibleLessons = useMemo(() => {
-    const normalized = query.trim().toLocaleLowerCase("vi");
+    const normalized = query.trim().toLocaleLowerCase(locale);
     return lessons.filter(
       (lesson) =>
         (track === "all" || lesson.track === track) &&
@@ -41,10 +46,10 @@ export function LessonLibraryApp({
             ...lesson.tags,
           ]
             .join(" ")
-            .toLocaleLowerCase("vi")
+            .toLocaleLowerCase(locale)
             .includes(normalized)),
     );
-  }, [lessons, query, track]);
+  }, [lessons, locale, query, track]);
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
@@ -52,64 +57,64 @@ export function LessonLibraryApp({
         <header className="ui-app-header flex flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-5">
           <Link
             href="/"
-            aria-label="Về trang chủ cppinterview"
-            title="Về trang chủ cppinterview"
+            aria-label={common("homeAria")}
+            title={common("homeAria")}
             className="flex items-center gap-3"
           >
             <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
               L
             </span>
             <span>
-              <span className="block font-bold">Thư viện cppinterview</span>
+              <span className="block font-bold">{t("brand")}</span>
               <span className="block text-xs text-[#526276]">
-                Học trước, nhớ lâu sau
+                {t("brandTagline")}
               </span>
             </span>
           </Link>
-          <nav aria-label="Điều hướng thư viện" className="flex flex-wrap gap-2 text-sm font-bold">
+          <nav aria-label={t("navAria")} className="flex flex-wrap items-center gap-2 text-sm font-bold">
+            <LanguageSwitcher compact />
             <Link className="rounded-xl px-4 py-2 hover:bg-white/60" href="/mock-interview">
-              Phỏng vấn thử
+              {t("mock")}
             </Link>
             <Link className="rounded-xl px-4 py-2 hover:bg-white/60" href="/">
-              Luyện thẻ
+              {t("practiceCards")}
             </Link>
           </nav>
         </header>
 
         <section className="mt-7 rounded-[1.25rem] bg-[#0f3a69] p-6 text-white shadow-[0_24px_90px_rgb(15_58_105_/_16%)] sm:p-10">
           <p className="ui-eyebrow text-[#65e6d2]">
-            Thư viện học tập
+            {t("eyebrow")}
           </p>
           <h1 className="mt-4 max-w-4xl text-balance text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-            Đọc kiến thức, xem mã, rồi luyện đúng thẻ của bài.
+            {t("title")}
           </h1>
           <p className="mt-5 max-w-3xl leading-7 text-on-dark-muted">
-            Bài học được lấy trực tiếp từ các tệp nguồn đã đăng ký. Câu hỏi
-            nháp không xuất hiện như nội dung đã kiểm chứng.
+            {t("description")}
           </p>
           <div className="mt-7 grid max-w-2xl grid-cols-3 gap-2">
-            <LibraryMetric label="Bài học" value={lessons.length} />
-            <LibraryMetric label="Thẻ đã duyệt" value={verifiedQuestionCount} />
-            <LibraryMetric label="Bài có mã" value={codeLessonCount} />
+            <LibraryMetric label={t("metrics.lessons")} value={lessons.length} />
+            <LibraryMetric label={t("metrics.approvedCards")} value={verifiedQuestionCount} />
+            <LibraryMetric label={t("metrics.withCode")} value={codeLessonCount} />
           </div>
         </section>
 
         <section className="mt-6 rounded-2xl border border-[#0f3a69]/12 bg-white/65 p-4 sm:p-5">
           <label className="text-xs font-bold text-[#43546a]">
-            Tìm bài học
+            {t("searchLabel")}
             <input
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Ví dụ: lambda, pointer, ownership…"
+              placeholder={t("searchPlaceholder")}
               className="mt-2 min-h-12 w-full rounded-xl border border-[#0f3a69]/15 bg-white px-4 py-3 text-sm font-normal focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             />
           </label>
           <div className="mt-4 border-t border-[#0f3a69]/10 pt-4">
-            <p className="text-xs font-bold text-[#43546a]">Lọc theo lộ trình</p>
+            <p className="text-xs font-bold text-[#43546a]">{t("filterLabel")}</p>
             <div
               role="group"
-              aria-label="Lọc theo lộ trình"
+              aria-label={t("filterLabel")}
               className="mt-2 flex flex-wrap gap-2"
             >
               {tracks.map(([value, label]) => {
@@ -137,10 +142,10 @@ export function LessonLibraryApp({
         <section aria-live="polite" className="py-7">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-2xl font-semibold tracking-tight">
-              Danh sách bài học
+              {t("listTitle")}
             </h2>
             <span className="font-mono text-xs text-[#526276]">
-              {visibleLessons.length} kết quả
+              {t("results", { count: visibleLessons.length })}
             </span>
           </div>
           {visibleLessons.length ? (
@@ -156,28 +161,28 @@ export function LessonLibraryApp({
                       {lessonTrackLabel(lesson.track)}
                     </span>
                     <span className="font-mono text-[10px] text-[#526276]">
-                      Bài {lesson.order}
+                      {t("lessonNumber", { number: lesson.order })}
                     </span>
                   </div>
                   <h3 className="mt-4 text-xl font-semibold tracking-tight group-hover:text-[#16865a]">
                     {lesson.title}
                   </h3>
                   <div className="mt-5 flex flex-wrap gap-2 text-[10px] font-semibold text-[#526276]">
-                    <span>{lesson.sectionCount} phần</span>
+                    <span>{t("sections", { count: lesson.sectionCount })}</span>
                     <span>•</span>
-                    <span>{lesson.hasCode ? "Có mã mẫu" : "Chỉ ghi chú"}</span>
+                    <span>{lesson.hasCode ? t("hasCode") : t("notesOnly")}</span>
                     <span>•</span>
                     <span>
-                      {lesson.verifiedQuestionCount} câu đã kiểm chứng
+                      {t("verifiedQuestions", { count: lesson.verifiedQuestionCount })}
                     </span>
                   </div>
                   {lesson.prerequisiteIds.length ? (
                     <p className="mt-4 text-xs leading-5 text-[#526276]">
-                      Cần học trước: {lesson.prerequisiteIds.join(", ")}
+                      {t("prerequisites", { items: lesson.prerequisiteIds.join(", ") })}
                     </p>
                   ) : (
                     <p className="mt-4 text-xs text-[#285f86]">
-                      Có thể bắt đầu ngay
+                      {t("startNow")}
                     </p>
                   )}
                 </Link>
@@ -185,7 +190,7 @@ export function LessonLibraryApp({
             </div>
           ) : (
             <p className="rounded-2xl border border-dashed border-[#0f3a69]/20 p-8 text-center text-sm text-[#526276]">
-              Không có bài nào khớp bộ lọc hiện tại.
+              {t("empty")}
             </p>
           )}
         </section>

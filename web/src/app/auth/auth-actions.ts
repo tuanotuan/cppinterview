@@ -1,59 +1,66 @@
 "use server";
 
 import { cookies, headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 
+import {
+  defaultLocale,
+  isLocale,
+  localeFromPathname,
+  localizeHref,
+  type Locale,
+} from "@/i18n/routing";
 import {
   parseEmailPasswordCredentials,
   parsePasswordUpdate,
   parseRecoveryCode,
   parseRecoveryEmail,
-  passwordRecoveryRequestErrorMessage,
+  passwordRecoveryRequestErrorCode,
   parseSignUpCredentials,
   safeAuthNext,
-  signInErrorMessage,
+  signInErrorCode,
 } from "@/lib/supabase/email-password";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-import type { AuthFormState } from "./auth-form-state";
+import type { AuthActionCode, AuthFormState } from "./auth-form-state";
 
 const passwordRecoveryEmailCookie = "cppinterview_recovery_email";
-const passwordRecoveryCookiePath = "/auth/reset-password";
+const passwordRecoveryCookiePath = "/";
 
 export async function signInWithEmailPassword(
   _previous: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
+  const locale = actionLocale(formData);
   const parsed = parseEmailPasswordCredentials({
     email: formData.get("email"),
     password: formData.get("password"),
   });
-  if (!parsed.ok) return { status: "error", message: parsed.message };
+  if (!parsed.ok) return localizedState(locale, "error", parsed.code);
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.credentials);
   if (error) {
-    return {
-      status: "error",
-      message: signInErrorMessage(error?.code),
-    };
+    return localizedState(locale, "error", signInErrorCode(error?.code));
   }
 
-  redirect(safeAuthNext(formData.get("next")));
+  redirect(safeAuthNext(formData.get("next"), locale));
 }
 
 export async function signUpWithEmailPassword(
   _previous: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
+  const locale = actionLocale(formData);
   const parsed = parseSignUpCredentials({
     email: formData.get("email"),
     password: formData.get("password"),
     passwordConfirmation: formData.get("passwordConfirmation"),
   });
-  if (!parsed.ok) return { status: "error", message: parsed.message };
+  if (!parsed.ok) return localizedState(locale, "error", parsed.code);
 
-  const next = safeAuthNext(formData.get("next"));
+  const next = safeAuthNext(formData.get("next"), locale);
   const supabase = await createSupabaseServerClient();
   const origin = await requestOrigin();
   const { data, error } = await supabase.auth.signUp({
@@ -63,40 +70,36 @@ export async function signUpWithEmailPassword(
       : undefined,
   });
   if (error || !data.user) {
-    return {
-      status: "error",
-      message: "Chưa thể tạo tài khoản. Hãy kiểm tra lại thông tin và thử lại sau.",
-    };
+    return localizedState(locale, "error", "signUpFailed");
   }
   if (data.session) redirect(next);
 
-  return {
-    status: "success",
-    message: "Hãy mở email để xác minh tài khoản, rồi quay lại đăng nhập.",
-  };
+  return localizedState(locale, "success", "verificationSent");
 }
 
 export async function requestPasswordReset(
   _previous: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
+  const locale = actionLocale(formData);
   const parsed = parseRecoveryEmail(formData.get("email"));
-  if (!parsed.ok) return { status: "error", message: parsed.message };
+  if (!parsed.ok) return localizedState(locale, "error", parsed.code);
 
   const origin = await requestOrigin();
   if (!origin) {
-    return {
-      status: "error",
-      message: "Chưa thể chuẩn bị liên kết khôi phục. Hãy thử lại sau.",
-    };
+    return localizedState(locale, "error", "recoveryPrepareFailed");
   }
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.email, {
-    redirectTo: `${origin}/auth/confirm?next=${encodeURIComponent("/auth/reset-password?stage=update")}`,
+    redirectTo: `${origin}/auth/confirm?next=${encodeURIComponent(localizeHref("/auth/reset-password?stage=update", locale))}`,
   });
   if (error) {
-    return { status: "error", message: passwordRecoveryRequestErrorMessage(error.code) };
+    return localizedState(
+      locale,
+      "error",
+      passwordRecoveryRequestErrorCode(error.code),
+    );
   }
 
   const cookieStore = await cookies();
@@ -108,23 +111,21 @@ export async function requestPasswordReset(
     secure: process.env.NODE_ENV === "production",
   });
 
-  redirect("/auth/reset-password?stage=verify");
+  redirect(localizeHref("/auth/reset-password?stage=verify", locale));
 }
 
 export async function verifyPasswordRecoveryCode(
   _previous: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
+  const locale = actionLocale(formData);
   const parsed = parseRecoveryCode(formData.get("code"));
-  if (!parsed.ok) return { status: "error", message: parsed.message };
+  if (!parsed.ok) return localizedState(locale, "error", parsed.code);
 
   const cookieStore = await cookies();
   const email = cookieStore.get(passwordRecoveryEmailCookie)?.value;
   if (!email) {
-    return {
-      status: "error",
-      message: "Phiên khôi phục đã hết hạn. Hãy yêu cầu gửi mã mới.",
-    };
+    return localizedState(locale, "error", "recoveryExpired");
   }
 
   const supabase = await createSupabaseServerClient();
@@ -134,10 +135,7 @@ export async function verifyPasswordRecoveryCode(
     type: "recovery",
   });
   if (error) {
-    return {
-      status: "error",
-      message: "Mã không đúng hoặc đã hết hạn. Hãy kiểm tra lại email hoặc yêu cầu mã mới.",
-    };
+    return localizedState(locale, "error", "recoveryOtpInvalid");
   }
 
   cookieStore.set(passwordRecoveryEmailCookie, "", {
@@ -148,38 +146,33 @@ export async function verifyPasswordRecoveryCode(
     secure: process.env.NODE_ENV === "production",
   });
 
-  redirect("/auth/reset-password?stage=update");
+  redirect(localizeHref("/auth/reset-password?stage=update", locale));
 }
 
 export async function updatePasswordFromRecovery(
   _previous: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
+  const locale = actionLocale(formData);
   const parsed = parsePasswordUpdate({
     password: formData.get("password"),
     passwordConfirmation: formData.get("passwordConfirmation"),
   });
-  if (!parsed.ok) return { status: "error", message: parsed.message };
+  if (!parsed.ok) return localizedState(locale, "error", parsed.code);
 
   const supabase = await createSupabaseServerClient();
   const { data: authData, error: authError } = await supabase.auth.getUser();
   if (authError || !authData.user) {
-    return {
-      status: "error",
-      message: "Liên kết khôi phục không còn hợp lệ. Hãy yêu cầu một email khôi phục mới.",
-    };
+    return localizedState(locale, "error", "recoveryLinkInvalid");
   }
 
   const { error } = await supabase.auth.updateUser({ password: parsed.password });
   if (error) {
-    return {
-      status: "error",
-      message: "Chưa thể đổi mật khẩu. Liên kết có thể đã hết hạn; hãy yêu cầu email khôi phục mới.",
-    };
+    return localizedState(locale, "error", "passwordUpdateFailed");
   }
 
   await supabase.auth.signOut();
-  redirect("/auth?auth=password-updated");
+  redirect(localizeHref("/auth?auth=password-updated", locale));
 }
 
 /**
@@ -191,30 +184,44 @@ export async function setPasswordForSignedInUser(
   _previous: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
+  const locale = actionLocale(formData);
   const parsed = parsePasswordUpdate({
     password: formData.get("password"),
     passwordConfirmation: formData.get("passwordConfirmation"),
   });
-  if (!parsed.ok) return { status: "error", message: parsed.message };
+  if (!parsed.ok) return localizedState(locale, "error", parsed.code);
 
   const supabase = await createSupabaseServerClient();
   const { data: authData, error: authError } = await supabase.auth.getUser();
   if (authError || !authData.user) {
-    return {
-      status: "error",
-      message: "Hãy đăng nhập bằng Google hoặc GitHub trước khi đặt mật khẩu.",
-    };
+    return localizedState(locale, "error", "providerSignInRequired");
   }
 
   const { error } = await supabase.auth.updateUser({ password: parsed.password });
   if (error) {
-    return {
-      status: "error",
-      message: "Chưa thể lưu mật khẩu. Hãy đăng nhập lại rồi thử lại sau.",
-    };
+    return localizedState(locale, "error", "passwordSaveFailed");
   }
 
-  redirect("/auth?auth=password-updated");
+  redirect(localizeHref("/auth?auth=password-updated", locale));
+}
+
+function actionLocale(formData: FormData): Locale {
+  const requested = formData.get("locale");
+  if (typeof requested === "string" && isLocale(requested)) return requested;
+  const next = formData.get("next");
+  if (typeof next === "string") {
+    return localeFromPathname(next) ?? defaultLocale;
+  }
+  return defaultLocale;
+}
+
+async function localizedState(
+  locale: Locale,
+  status: "error" | "success",
+  code: AuthActionCode,
+): Promise<AuthFormState> {
+  const t = await getTranslations({ locale, namespace: "Auth.actions" });
+  return { status, code, message: t(code) };
 }
 
 async function requestOrigin() {

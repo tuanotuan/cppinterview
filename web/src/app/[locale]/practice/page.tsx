@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { getTranslations } from "next-intl/server";
 
 import { readPublicAiAdmissionStatus } from "@/lib/ai/public-ai-admission.server";
 import { isQuestionApproved } from "@/lib/practice/approvals";
@@ -7,14 +9,33 @@ import { parsePracticeDeck } from "@/lib/content/decks";
 import { parseCustomStudyLaunch } from "@/lib/practice/custom-study";
 import { parseFocusSessionId } from "@/lib/practice/focus-session";
 import { parseWorldQuantMissionReturn } from "@/lib/worldquant/guided-mode";
+import { localizeContentManifest } from "@/lib/content/translations";
+import { localizedAlternates } from "@/i18n/metadata";
+import type { Locale } from "@/i18n/routing";
 
-import { PracticeApp, type PracticeQuestion } from "../practice-app";
+import { PracticeApp, type PracticeQuestion } from "../../practice-app";
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Practice" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: localizedAlternates("/practice", locale),
+  };
+}
+
 export default async function PracticePage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: Locale }>;
   searchParams: Promise<{
     auth?: string | string[];
     deck?: string | string[];
@@ -38,24 +59,26 @@ export default async function PracticePage({
   const initialPublicAiQuotaPromise = accountPromise.then(({ account, canManageQuestionBank }) =>
     canManageQuestionBank ? null : loadInitialPublicAiQuota(account?.id ?? null),
   );
-  const [cloud, initialPublicAiQuota, params] = await Promise.all([
+  const [cloud, initialPublicAiQuota, query, { locale }, t] = await Promise.all([
     cloudPromise,
     initialPublicAiQuotaPromise,
     searchParams,
+    params,
+    getTranslations("Practice"),
   ]);
-  const manifest = cloud.manifest;
-  const authCode = single(params.auth);
-  const guestMode = single(params.guest) === "1";
-  const deckParam = single(params.deck);
-  const focusParam = single(params.focus);
+  const manifest = localizeContentManifest(cloud.manifest, locale);
+  const authCode = single(query.auth);
+  const guestMode = single(query.guest) === "1";
+  const deckParam = single(query.deck);
+  const focusParam = single(query.focus);
   const requestedFocusId = parseFocusSessionId(focusParam);
   const invalidFocusRequest =
     focusParam !== undefined && requestedFocusId === null;
   const initialCustomStudyFilters = parseCustomStudyLaunch({
-    study: single(params.study),
-    topic: single(params.topic),
-    lesson: single(params.lesson),
-    limit: single(params.limit),
+    study: single(query.study),
+    topic: single(query.topic),
+    lesson: single(query.lesson),
+    limit: single(query.limit),
   });
   const customStudyLaunchKey = initialCustomStudyFilters
     ? [
@@ -68,9 +91,9 @@ export default async function PracticePage({
       ].join(":")
     : "daily";
   const focusReturnHref = parseWorldQuantMissionReturn({
-    returnTo: single(params.returnTo),
-    role: single(params.returnRole),
-    minutes: single(params.returnMinutes),
+    returnTo: single(query.returnTo),
+    role: single(query.returnRole),
+    minutes: single(query.returnMinutes),
   });
   const lessons = new Map(manifest.lessons.map((lesson) => [lesson.id, lesson]));
 
@@ -135,13 +158,14 @@ export default async function PracticePage({
       cloudSetupError={cloud.error}
       initialAiDailyBudget={cloud.aiDailyBudget}
       initialPublicAiQuota={initialPublicAiQuota}
-      authNotice={authNotice(authCode)}
+      authNotice={authNotice(authCode, t)}
       initialDeck={parsePracticeDeck(deckParam)}
       requestedFocusId={requestedFocusId}
       invalidFocusRequest={invalidFocusRequest}
       initialCustomStudyFilters={initialCustomStudyFilters}
       focusReturnHref={focusReturnHref}
       mistakeQuestionIds={cloud.mistakeQuestionIds}
+      locale={locale}
     />
   );
 }
@@ -167,10 +191,13 @@ function single(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function authNotice(code?: string): string | null {
-  if (code === "not-configured") return "Supabase chưa được cấu hình.";
+function authNotice(
+  code: string | undefined,
+  t: (key: "authNotConfigured" | "authError") => string,
+): string | null {
+  if (code === "not-configured") return t("authNotConfigured");
   if (code === "login-error" || code === "callback-error") {
-    return "Đăng nhập chưa thành công. Hãy kiểm tra cấu hình rồi thử lại.";
+    return t("authError");
   }
   return null;
 }

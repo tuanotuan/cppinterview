@@ -61,10 +61,20 @@ describe("email/password credentials", () => {
   });
 
   it("only accepts an internal destination after authentication", () => {
-    expect(safeAuthNext("/practice?deck=cpp")).toBe("/practice?deck=cpp");
-    expect(safeAuthNext("https://example.com")).toBe("/practice");
-    expect(safeAuthNext("//example.com")).toBe("/practice");
-    expect(safeAuthNext("/\\\\example.com")).toBe("/practice");
+    expect(safeAuthNext("/practice?deck=cpp")).toBe("/vi/practice?deck=cpp");
+    expect(safeAuthNext("/practice?deck=cpp", "en")).toBe(
+      "/en/practice?deck=cpp",
+    );
+    expect(safeAuthNext("/en/practice?deck=cpp", "vi")).toBe(
+      "/en/practice?deck=cpp",
+    );
+    expect(safeAuthNext("https://example.com")).toBe("/vi/practice");
+    expect(safeAuthNext("//example.com")).toBe("/vi/practice");
+    expect(safeAuthNext("/\\\\example.com")).toBe("/vi/practice");
+    expect(safeAuthNext("/en/\\\\example.com")).toBe("/vi/practice");
+    expect(safeAuthNext("/en/practice\nLocation: //example.com")).toBe(
+      "/vi/practice",
+    );
   });
 
   it("uses precise safe guidance from Supabase auth codes", () => {

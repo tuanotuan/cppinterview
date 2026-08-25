@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
+import { LanguageSwitcher } from "@/app/language-switcher";
+import { localizedAlternates } from "@/i18n/metadata";
+import type { Locale } from "@/i18n/routing";
 
 import {
   ENABLED_PRACTICE_DECK_IDS,
@@ -14,15 +18,23 @@ import { loadCloudContext } from "@/lib/practice/cloud-server";
 import { buildLearningStates } from "@/lib/practice/learning-state";
 import { buildCustomStudyLaunchHref } from "@/lib/practice/custom-study";
 import type { Rating } from "@/lib/practice/scheduler";
-import { FsrsShadowPanel } from "./fsrs-shadow-panel";
+import { FsrsShadowPanel } from "../../stats/fsrs-shadow-panel";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Thống kê học tập — cppinterview",
-  description:
-    "Theo dõi khả năng ghi nhớ, lịch sử ôn và dự báo lịch ôn ngắt quãng.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Stats" });
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: localizedAlternates("/stats", locale),
+  };
+}
 
 const ratingLabels: Record<Rating, string> = {
   again: "Chưa nhớ",
@@ -116,6 +128,7 @@ export default async function StatsPage({
             </div>
           </div>
           <nav aria-label="Điều hướng thống kê" className="flex flex-wrap items-center gap-2">
+            <LanguageSwitcher compact />
             <StatsDeckSwitcher selected={selectedDeck} />
             <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/worldquant">
               Trung tâm chuẩn bị

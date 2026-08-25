@@ -29,6 +29,7 @@ describe("coachEvaluationIdempotencyKey", () => {
     ["questionVersion", 3],
     ["sourceRevision", "b".repeat(64)],
     ["candidateAnswer", "Một câu trả lời khác"],
+    ["responseLocale", "en"],
   ] as const)("changes when %s changes", async (field, value) => {
     await expect(
       coachEvaluationIdempotencyKey({
@@ -111,6 +112,7 @@ describe("coachFollowUpIdempotencyKey", () => {
       "messages",
       [{ role: "user" as const, content: "Một câu hỏi khác." }],
     ],
+    ["responseLocale", "en"],
   ] as const)("changes when %s changes", async (field, value) => {
     await expect(
       coachFollowUpIdempotencyKey({
@@ -125,6 +127,6 @@ describe("coachFollowUpIdempotencyKey", () => {
   it("canonicalizes every contract field in a fixed order", () => {
     expect(
       JSON.parse(coachFollowUpCanonicalRequest(followUpIdentity)),
-    ).toEqual(followUpIdentity);
+    ).toEqual({ ...followUpIdentity, responseLocale: "vi" });
   });
 });
