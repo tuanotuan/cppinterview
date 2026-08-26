@@ -28,9 +28,11 @@ const localeOptions = [
 export function LanguageSwitcher({
   compact = false,
   hideOnMock = true,
+  tone = "light",
 }: {
   compact?: boolean;
   hideOnMock?: boolean;
+  tone?: "light" | "dark";
 }) {
   const locale = useLocale() as Locale;
   const pathname = usePathname();
@@ -48,6 +50,7 @@ export function LanguageSwitcher({
   const currentOption = localeOptions[currentIndex] ?? localeOptions[0];
   const currentLabel = t(currentOption.locale);
   const focusTarget = compact ? "compact" : "full";
+  const onDark = tone === "dark";
 
   useEffect(() => {
     if (isPending) return;
@@ -161,7 +164,13 @@ export function LanguageSwitcher({
       className={`relative inline-flex items-center ${compact ? "" : "gap-2"}`}
     >
       {!compact ? (
-        <span className="text-xs font-bold text-[color:var(--ink-muted)]">
+        <span
+          className={`text-xs font-bold ${
+            onDark
+              ? "text-[color:var(--footer-muted)]"
+              : "text-[color:var(--ink-muted)]"
+          }`}
+        >
           {t("label")}
         </span>
       ) : null}
@@ -176,7 +185,11 @@ export function LanguageSwitcher({
         disabled={isPending}
         onClick={() => (open ? closeMenu() : openMenu())}
         onKeyDown={handleTriggerKeyDown}
-        className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] px-3 text-sm font-bold whitespace-nowrap text-[color:var(--pine)] shadow-sm transition hover:border-[#285f86]/35 hover:bg-white focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none disabled:cursor-wait disabled:opacity-60"
+        className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border px-3 text-sm font-bold whitespace-nowrap shadow-sm transition focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none disabled:cursor-wait disabled:opacity-60 ${
+          onDark
+            ? "border-[color:var(--footer-border)] bg-[color:var(--footer-surface)] text-[color:var(--footer-text)] hover:border-[color:var(--footer-accent)]/60 hover:bg-[color:var(--footer-surface-hover)]"
+            : "border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] text-[color:var(--pine)] hover:border-[#285f86]/35 hover:bg-white"
+        }`}
       >
         <LocaleFlag locale={currentOption.locale} />
         {compact ? (

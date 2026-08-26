@@ -28,9 +28,12 @@ App phải ở `web/`; content tooling dựa vào vị trí này để tìm repo
 
 Root layout cung cấp skip link, footer và mobile navigation dùng chung. `globals.css`
 chứa token semantic cho light theme navy + turquoise, bề mặt workspace phẳng,
-action, app-header trắng và thang bo góc 12/16/20 px dùng chung. Gradient chỉ nằm
-ở landing; navigation active dùng nền turquoise nhạt, chữ navy và indicator thay
-vì pill tối. Landing, Practice, thư viện, Mock, Stats và Profile dùng cùng
+action, app-header trắng và thang bo góc 12/16/20 px dùng chung. Footer learner
+dùng surface midnight full-bleed với token text/link/border riêng, còn nội dung
+giữ cùng `ui-page-width`; khoảng reserve dưới mobile navigation cũng dùng nền
+footer để không tạo dải sáng. Gradient chỉ nằm ở landing; navigation active dùng
+nền turquoise nhạt, chữ navy và indicator thay vì pill tối. Landing, Practice,
+thư viện, Mock, Stats và Profile dùng cùng
 header/card/CTA và `ui-page-width` trên desktop lẫn mobile. Practice chỉ có một bộ
 câu C++ nên header hiển thị số câu đã duyệt như metadata, không dựng control đổi
 bộ câu không có lựa chọn thực.
