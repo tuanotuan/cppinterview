@@ -28,12 +28,46 @@ const trackOrder: ContentTrack[] = [
 
 const trackLabels: Record<ContentTrack, string> = {
   cpp98: "C++98",
-  cpp11: "C++11/14/17",
-  cpp20: "C++20/23",
+  cpp11: "C++11",
+  cpp20: "C++20",
 };
+
+export const lessonStandardFilters = [
+  { value: "cpp98", label: "C++98", track: "cpp98" },
+  { value: "cpp11", label: "C++11", track: "cpp11" },
+  { value: "cpp14", label: "C++14", track: null },
+  { value: "cpp17", label: "C++17", track: null },
+  { value: "cpp20", label: "C++20", track: "cpp20" },
+  { value: "cpp23", label: "C++23", track: null },
+] as const;
+
+export type LessonStandardFilter =
+  | "all"
+  | (typeof lessonStandardFilters)[number]["value"];
 
 export function lessonTrackLabel(track: ContentTrack) {
   return trackLabels[track];
+}
+
+export function lessonMatchesStandard(
+  track: ContentTrack,
+  filter: LessonStandardFilter,
+) {
+  if (filter === "all") return true;
+  return (
+    lessonStandardFilters.find((option) => option.value === filter)?.track ===
+    track
+  );
+}
+
+export function lessonStandardIsAvailable(
+  lessons: readonly Pick<LessonLibraryItem, "track">[],
+  filter: LessonStandardFilter,
+) {
+  return (
+    filter === "all" ||
+    lessons.some((lesson) => lessonMatchesStandard(lesson.track, filter))
+  );
 }
 
 export function practiceDeckForLesson(

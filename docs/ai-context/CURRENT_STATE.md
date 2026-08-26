@@ -8,6 +8,10 @@ trạng thái từ tên nhánh.
 
 ## Handoff hiện tại
 
+- Bộ lọc thư viện `/learn` hiển thị riêng C++98, C++11, C++14, C++17, C++20
+  và C++23, không còn gộp nhiều chuẩn trong một chip. Catalog hiện chỉ có lesson
+  C++98/C++11/C++20 nên ba chuẩn còn lại xuất hiện ở trạng thái disabled; chip
+  tự xuống dòng và giữ vùng bấm tối thiểu 44 px trên màn hình hẹp.
 - Learner app hỗ trợ song ngữ Việt/Anh qua prefix bắt buộc `/vi` và `/en`; route
   không prefix tự chuyển theo cookie/browser với mặc định `vi`. Switcher giữ
   pathname, query và hash; `html lang`, metadata canonical/hreflang, navigation,
@@ -251,18 +255,13 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Bản sửa English Practice và menu đổi ngôn ngữ bằng cờ SVG đạt
-  `content:check`, `context:check`, ESLint, TypeScript, 107 file/639 Vitest test
-  và Next.js production build 113 static params/routes. Browser smoke tại
-  `/en/practice?guest=1#answer` ở 375px/1440px xác nhận header mobile dùng cờ +
-  `EN`/`VI`, desktop/footer dùng tên đầy đủ, menu không tràn ngang và footer mở
-  lên. Arrow/Home/End/Escape, focus restoration, query/hash và vùng cuộn đều
-  được giữ khi chuyển `en` sang `vi`. Test hồi quy vẫn khóa parity namespace
-  Practice, scaffold code theo locale và bộ lọc exact-revision để question chưa
-  dịch không quay lại hàng học tiếng Anh. Security review trước đó xác nhận auth
-  next-path chặn URL ngoài, backslash/control character; translation tables bật
-  RLS, authenticated chỉ được đọc bản `verified`, view dùng `security_invoker`,
-  và question translation có composite FK bind cả source hash.
+- Bản hợp nhất bộ lọc chuẩn C++ riêng và menu đổi ngôn ngữ bằng cờ SVG đạt
+  `content:check`, `context:check`, ESLint, TypeScript, 107 file/641 Vitest test
+  và Next.js production build 113 static params/routes. Test hồi quy xác nhận đủ
+  sáu nhãn C++98/11/14/17/20/23, nhãn lesson không còn gộp chuẩn và chỉ bật
+  filter có lesson trong catalog. Browser smoke trước đó tại
+  `/en/practice?guest=1#answer` ở 375px/1440px xác nhận menu ngôn ngữ không tràn,
+  hỗ trợ bàn phím và giữ query/hash/vùng cuộn khi chuyển locale.
 - Google OAuth ở `/auth` dùng cùng callback PKCE của Supabase như GitHub; trước
   khi nút hoạt động cần bật provider, điền Google Client ID/Secret và đăng ký
   callback/origin theo `web/supabase/README.md`. Thay đổi UI/route đã đạt
