@@ -59,7 +59,9 @@ retired Python/CMake database content while preserving revision history.
 
 Mọi route learner trong bảng được phục vụ dưới prefix bắt buộc `/vi` hoặc `/en`;
 URL không prefix được middleware chuyển sang locale cookie/browser, mặc định là
-`vi`. Language switcher giữ nguyên pathname, query và hash. `/admin`,
+`vi`. Language switcher dùng menu cờ SVG Việt Nam/Vương quốc Anh, tên đầy đủ trên
+desktop/footer và mã `VI`/`EN` ở header mobile; menu hỗ trợ bàn phím, trả focus,
+giữ nguyên pathname, query, hash và vị trí cuộn khi đổi locale. `/admin`,
 `/worldquant`, API và callback kỹ thuật của Auth vẫn không prefix.
 
 | URL/vùng | Entry point | Chức năng |

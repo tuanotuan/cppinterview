@@ -255,10 +255,13 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Bộ lọc chuẩn C++ riêng của thư viện đạt `content:check`, `context:check`, ESLint,
-  TypeScript, 106 file/639 Vitest test và Next.js production build 113 static
-  params/routes. Test hồi quy xác nhận đủ sáu nhãn C++98/11/14/17/20/23,
-  nhãn lesson không còn gộp chuẩn và chỉ bật filter có lesson trong catalog.
+- Bản hợp nhất bộ lọc chuẩn C++ riêng và menu đổi ngôn ngữ bằng cờ SVG đạt
+  `content:check`, `context:check`, ESLint, TypeScript, 107 file/641 Vitest test
+  và Next.js production build 113 static params/routes. Test hồi quy xác nhận đủ
+  sáu nhãn C++98/11/14/17/20/23, nhãn lesson không còn gộp chuẩn và chỉ bật
+  filter có lesson trong catalog. Browser smoke trước đó tại
+  `/en/practice?guest=1#answer` ở 375px/1440px xác nhận menu ngôn ngữ không tràn,
+  hỗ trợ bàn phím và giữ query/hash/vùng cuộn khi chuyển locale.
 - Google OAuth ở `/auth` dùng cùng callback PKCE của Supabase như GitHub; trước
   khi nút hoạt động cần bật provider, điền Google Client ID/Secret và đăng ký
   callback/origin theo `web/supabase/README.md`. Thay đổi UI/route đã đạt
