@@ -7,10 +7,13 @@ import { useMemo, useState } from "react";
 import { LanguageSwitcher } from "@/app/language-switcher";
 
 import {
+  lessonMatchesStandard,
+  lessonStandardFilters,
+  lessonStandardIsAvailable,
   lessonTrackLabel,
+  type LessonStandardFilter,
   type LessonLibraryItem,
 } from "@/lib/learn/lesson-library";
-import type { ContentTrack } from "@/lib/content/schema";
 
 export function LessonLibraryApp({
   lessons,
@@ -20,14 +23,12 @@ export function LessonLibraryApp({
   const t = useTranslations("Learn");
   const common = useTranslations("Common");
   const locale = useLocale();
-  const tracks: Array<["all" | ContentTrack, string]> = [
-    ["all", t("all")],
-    ["cpp98", "C++98"],
-    ["cpp11", "C++11/14/17"],
-    ["cpp20", "C++20/23"],
+  const standardFilters: Array<{ value: LessonStandardFilter; label: string }> = [
+    { value: "all", label: t("all") },
+    ...lessonStandardFilters,
   ];
   const [query, setQuery] = useState("");
-  const [track, setTrack] = useState<"all" | ContentTrack>("all");
+  const [standard, setStandard] = useState<LessonStandardFilter>("all");
   const verifiedQuestionCount = lessons.reduce(
     (total, lesson) => total + lesson.verifiedQuestionCount,
     0,
@@ -37,7 +38,7 @@ export function LessonLibraryApp({
     const normalized = query.trim().toLocaleLowerCase(locale);
     return lessons.filter(
       (lesson) =>
-        (track === "all" || lesson.track === track) &&
+        lessonMatchesStandard(lesson.track, standard) &&
         (!normalized ||
           [
             lesson.title,
@@ -49,7 +50,7 @@ export function LessonLibraryApp({
             .toLocaleLowerCase(locale)
             .includes(normalized)),
     );
-  }, [lessons, locale, query, track]);
+  }, [lessons, locale, query, standard]);
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
@@ -117,18 +118,22 @@ export function LessonLibraryApp({
               aria-label={t("filterLabel")}
               className="mt-2 flex flex-wrap gap-2"
             >
-              {tracks.map(([value, label]) => {
-                const active = track === value;
+              {standardFilters.map(({ value, label }) => {
+                const active = standard === value;
+                const available = lessonStandardIsAvailable(lessons, value);
                 return (
                   <button
                     key={value}
                     type="button"
                     aria-pressed={active}
-                    onClick={() => setTrack(value)}
-                    className={`rounded-full px-3 py-2 text-xs font-bold transition ${
+                    disabled={!available}
+                    onClick={() => setStandard(value)}
+                    className={`min-h-11 whitespace-nowrap rounded-full px-4 py-2 text-xs font-bold transition focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none ${
                       active
                         ? "border border-[#65e6d2] bg-[#e6f8f5] text-[#0f3a69] shadow-[inset_0_-2px_0_#65e6d2]"
-                        : "border border-[#0f3a69]/15 bg-white text-[#43546a] hover:border-[#285f86]/35 hover:text-[#0f3a69]"
+                        : available
+                          ? "border border-[#0f3a69]/15 bg-white text-[#43546a] hover:border-[#285f86]/35 hover:text-[#0f3a69]"
+                          : "cursor-not-allowed border border-[#0f3a69]/10 bg-[#f6f8fa] text-[#526276]/45"
                     }`}
                   >
                     {label}

@@ -6,7 +6,11 @@ import { parseCustomStudyLaunch } from "../practice/custom-study";
 import {
   buildLessonLibrary,
   findLesson,
+  lessonMatchesStandard,
   lessonPracticeHref,
+  lessonStandardFilters,
+  lessonStandardIsAvailable,
+  lessonTrackLabel,
   unresolvedLessonPrerequisites,
 } from "./lesson-library";
 
@@ -55,5 +59,30 @@ describe("lesson library", () => {
       topic: "all",
       limit: 20,
     });
+  });
+
+  it("presents every C++ standard as a separate filter", () => {
+    expect(lessonStandardFilters.map(({ label }) => label)).toEqual([
+      "C++98",
+      "C++11",
+      "C++14",
+      "C++17",
+      "C++20",
+      "C++23",
+    ]);
+    expect(lessonTrackLabel("cpp11")).toBe("C++11");
+    expect(lessonTrackLabel("cpp20")).toBe("C++20");
+  });
+
+  it("only enables standards backed by catalog content", () => {
+    const lessons = buildLessonLibrary(manifest);
+
+    expect(lessonStandardIsAvailable(lessons, "cpp98")).toBe(true);
+    expect(lessonStandardIsAvailable(lessons, "cpp11")).toBe(true);
+    expect(lessonStandardIsAvailable(lessons, "cpp14")).toBe(false);
+    expect(lessonStandardIsAvailable(lessons, "cpp17")).toBe(false);
+    expect(lessonStandardIsAvailable(lessons, "cpp20")).toBe(true);
+    expect(lessonStandardIsAvailable(lessons, "cpp23")).toBe(false);
+    expect(lessonMatchesStandard("cpp11", "cpp14")).toBe(false);
   });
 });

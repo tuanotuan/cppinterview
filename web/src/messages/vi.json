@@ -190,7 +190,7 @@
     "metrics": {"lessons": "Bài học", "approvedCards": "Thẻ đã duyệt", "withCode": "Bài có mã"},
     "searchLabel": "Tìm bài học",
     "searchPlaceholder": "Ví dụ: lambda, pointer, ownership…",
-    "filterLabel": "Lọc theo lộ trình",
+    "filterLabel": "Lọc theo chuẩn C++",
     "all": "Tất cả",
     "listTitle": "Danh sách bài học",
     "results": "{count} kết quả",
