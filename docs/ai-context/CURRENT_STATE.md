@@ -202,8 +202,10 @@ trạng thái từ tên nhánh.
   `/auth/confirm`.
 - Landing công khai chỉ giới thiệu ngân hàng câu hỏi đã duyệt và trải nghiệm học/luyện
   của người dùng. Thao tác nguồn kiến thức, bản nháp AI, queue duyệt và quản lý ngân hàng
-  là workspace riêng của admin GitHub `tuanotuan`; footer công khai liên kết các đường học,
-  tài khoản, GitHub repository và Facebook công khai của chủ repo.
+  là workspace riêng của admin GitHub `tuanotuan`. Footer learner là surface midnight
+  full-width riêng biệt: có điều hướng nhanh tới các route học thật, CTA guest, trust
+  points, tài khoản, GitHub/Facebook và bộ đổi ngôn ngữ dark-tone mở lên; footer không
+  đọc auth/Supabase và không thêm asset hay dependency mạng.
 - cppinterview phục vụ việc luyện C++ cho nhiều công ty: tên và entry point WorldQuant
   đã được gỡ khỏi landing, Practice, Thư viện và Mock. Workspace `/worldquant/*` cũ
   vẫn được giữ trong source nhưng layout chỉ cho admin `tuanotuan` vào; người học thường
@@ -255,13 +257,13 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Bản hợp nhất bộ lọc chuẩn C++ riêng và menu đổi ngôn ngữ bằng cờ SVG đạt
-  `content:check`, `context:check`, ESLint, TypeScript, 107 file/641 Vitest test
-  và Next.js production build 113 static params/routes. Test hồi quy xác nhận đủ
-  sáu nhãn C++98/11/14/17/20/23, nhãn lesson không còn gộp chuẩn và chỉ bật
-  filter có lesson trong catalog. Browser smoke trước đó tại
-  `/en/practice?guest=1#answer` ở 375px/1440px xác nhận menu ngôn ngữ không tràn,
-  hỗ trợ bàn phím và giữ query/hash/vùng cuộn khi chuyển locale.
+- Footer learner midnight đạt `content:check`, `context:check`, ESLint,
+  TypeScript, 108 file/644 Vitest test và Next.js production build 113 static
+  params/routes. Browser/CDP smoke tại 375/768/1440px xác nhận Việt/Anh không
+  tràn ngang, mọi link/button cao ít nhất 44px, dropdown ngôn ngữ mở lên trong
+  viewport và body reserve dưới mobile nav giữ cùng nền footer. Các cặp chữ/nền
+  footer đạt contrast 10.26–17.75:1; test hồi quy khóa thứ tự route nội bộ và URL
+  HTTPS của liên kết ngoài.
 - Google OAuth ở `/auth` dùng cùng callback PKCE của Supabase như GitHub; trước
   khi nút hoạt động cần bật provider, điền Google Client ID/Secret và đăng ký
   callback/origin theo `web/supabase/README.md`. Thay đổi UI/route đã đạt

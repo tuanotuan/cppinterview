@@ -60,12 +60,16 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
       </head>
-      <body className="min-h-full pb-22 lg:pb-0">
+      <body className="site-shell-body min-h-full pb-22 lg:pb-0">
         <NextIntlClientProvider messages={messages}>
           <a className="skip-link" href="#main-content">
             {t("skipToContent")}
           </a>
-          <div id="main-content" tabIndex={-1}>
+          <div
+            id="main-content"
+            tabIndex={-1}
+            className="bg-[color:var(--background)]"
+          >
             {children}
           </div>
           <SiteFooter />
