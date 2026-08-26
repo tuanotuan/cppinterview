@@ -22,4 +22,3 @@ export const footerExternalLinks = [
     labelKey: "footer.facebook",
   },
 ] as const;
-

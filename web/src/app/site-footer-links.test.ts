@@ -37,4 +37,3 @@ describe("site footer links", () => {
     }
   });
 });
-
