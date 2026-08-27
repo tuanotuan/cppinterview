@@ -4,7 +4,11 @@ import path from "node:path";
 import fg from "fast-glob";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 
-import { loadContentManifest, sectionIdFromHeading } from "./loader";
+import {
+  loadContentManifest,
+  loadEnglishLessonTranslationCatalog,
+  sectionIdFromHeading,
+} from "./loader";
 import type {
   ContentManifest,
   LessonRegistry,
@@ -188,7 +192,21 @@ export async function writeContentManifest(
 ): Promise<ContentManifest> {
   const manifest = await loadContentManifest(repoRoot, webRoot);
   const outputPath = path.join(webRoot, "src", "generated", "content-manifest.json");
+  const translationOutputPath = path.join(
+    webRoot,
+    "src",
+    "generated",
+    "lesson-translations-en.json",
+  );
+  const translations = await loadEnglishLessonTranslationCatalog(
+    repoRoot,
+    manifest,
+  );
   await writeFile(outputPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  await writeFile(
+    translationOutputPath,
+    `${JSON.stringify(translations, null, 2)}\n`,
+  );
   return manifest;
 }
 

@@ -6,17 +6,17 @@
 ## Content
 
 - Manifest schema: 1
-- Source revision: `e2718f63345e462cfa327b5e923ab791aa81b22114fa8b066b19c374c1a3c9cc`
+- Source revision: `885eafd96acf89fbc7abaff1b8f44f108ef505ae7aa8c2478b66dba7be3ef793`
 - Lessons: 8 (cpp11: 2, cpp20: 1, cpp98: 5)
-- Questions: 15 (draft: 11, verified: 4)
-- Question decks: cpp-interview: 15
+- Questions: 18 (draft: 14, verified: 4)
+- Question decks: cpp-interview: 18
 
 ## Application inventory
 
 - App pages: 21 (/[locale], /[locale]/auth, /[locale]/auth/reset-password, /[locale]/auth/set-password, /[locale]/learn, /[locale]/learn/[lessonId], /[locale]/learn/roadmap/cpp11, /[locale]/learn/tick-data-order-book, /[locale]/mock-interview, /[locale]/practice, /[locale]/profile, /[locale]/stats, /admin, /admin/coverage, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/legacy-modern-capstone, /worldquant/mission, /worldquant/tick-replay-lab)
 - API routes: 26 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/admin/questions/manual, /api/coach/clarify, /api/coach/evaluate, /api/coach/follow-up, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/profile/mobile-usage, /api/progress/sync, /api/questions/approve, /api/worldquant/mission-snapshot, /api/worldquant/training-state, /auth/callback, /auth/confirm, /auth/login, /auth/logout)
 - TypeScript source files excluding tests: 214
-- Colocated test files: 109
+- Colocated test files: 110
 - Supabase migrations: 46
 - Latest migration filename: `20260825073227_add_content_translations.sql`
 
@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `352e1e4f663410ae42ad9cf74ce0a1f323114e5c2f0534e2234ac3ff9bef0d1b`
-- Fingerprinted files: 418
+- Project input fingerprint: `c328d8f88320534aee1b38601ec57535a0191a41991d7469477c3df8380cd56c`
+- Fingerprinted files: 421
 
 The fingerprint covers registered lesson sources, content files, application
 source/tests, scripts, package metadata, environment template, workflows, and

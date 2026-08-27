@@ -272,6 +272,7 @@ export const lessonSectionSchema = z.object({
 export const generatedLessonSchema = normalizedLessonRegistryEntrySchema.extend({
   title: z.string().min(1),
   knowledgePath: z.string().min(1),
+  translationPaths: z.array(z.string().min(1)).min(1).optional(),
   codePath: z.string().min(1).nullable(),
   sourceHash: z.string().regex(/^[a-f0-9]{64}$/),
   sections: z.array(lessonSectionSchema).min(1),

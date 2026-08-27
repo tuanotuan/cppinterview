@@ -4,6 +4,82 @@
   "lessons": [],
   "questions": [
     {
+      "questionId": "cpp11-toolchain-001",
+      "questionVersion": 1,
+      "sourceHash": "0ae7bb9ef780cb6ebc1e37ae2861bae1c5363e7a24f42c99f1727fa6ca359e58",
+      "prompt": "What problem do a toolchain and compiler flags solve, and which part of the minimal build command activates C++11 mode?",
+      "hint": "Distinguish the language-standard flag from flags that only enable more warnings.",
+      "answer": {
+        "short": "A toolchain turns source code into a runnable program; `-std=c++11` selects the C++11 language rules for the build.",
+        "detailed": "The compiler and linker in the toolchain translate and then link source code into an executable. In the sample command, `-std=c++11` selects C++11 language mode. `-Wall`, `-Wextra`, and `-Wpedantic` increase diagnostics but do not replace the language-standard flag."
+      },
+      "rubric": {
+        "required": [
+          "States that the toolchain turns source code into a runnable program.",
+          "Identifies `-std=c++11` as the C++11 language-mode flag.",
+          "Distinguishes the standard flag from warning flags."
+        ],
+        "bonus": [
+          "Mentions compilation and linking as separate stages."
+        ],
+        "misconceptions": [
+          "Claims that `-Wall` activates C++11.",
+          "Claims that every compiler always uses the same default standard."
+        ]
+      }
+    },
+    {
+      "questionId": "cpp11-toolchain-002",
+      "questionVersion": 1,
+      "sourceHash": "0ae7bb9ef780cb6ebc1e37ae2861bae1c5363e7a24f42c99f1727fa6ca359e58",
+      "prompt": "When the code below is compiled with `-std=c++11`, what does it print, and which rule produces each result?",
+      "hint": "Determine the standard value of `__cplusplus` in C++11 mode, then evaluate the integer multiplication.",
+      "answer": {
+        "short": "With a conforming C++11 compiler, it prints `cplusplus=201103` and then `total=42` on separate lines.",
+        "detailed": "The `-std=c++11` flag makes the standard `__cplusplus` macro equal to `201103L`; streaming the number does not print the `L` type suffix, so the first line is `cplusplus=201103`. The integer constants are 7 and 6, producing `total=42`. The program does not depend on runtime input."
+      },
+      "rubric": {
+        "required": [
+          "Gives both output lines in the correct order.",
+          "Connects `201103` to `__cplusplus` in C++11 mode.",
+          "Explains that `42` is produced by `7 * 6`."
+        ],
+        "bonus": [
+          "Notes that the `L` suffix describes the macro value's type and is not printed by the stream."
+        ],
+        "misconceptions": [
+          "Claims that `__cplusplus` prints the string `C++11`.",
+          "Claims that `const` makes the multiplication result nondeterministic."
+        ]
+      }
+    },
+    {
+      "questionId": "cpp11-toolchain-003",
+      "questionVersion": 1,
+      "sourceHash": "0ae7bb9ef780cb6ebc1e37ae2861bae1c5363e7a24f42c99f1727fa6ca359e58",
+      "prompt": "A project does not declare a C++ standard, so a development machine accepts newer features while CI rejects or interprets them differently. What is wrong with the build design, and what is the smallest safe correction for a C++11 codebase?",
+      "hint": "The language standard and compiler version are build inputs, not defaults that can safely be ignored.",
+      "answer": {
+        "short": "The build depends on each compiler's default language mode. The smallest fix is to add `-std=c++11` consistently to every relevant build command.",
+        "detailed": "Without a pinned language mode, different compilers or compiler versions can choose different defaults, so identical source may compile on one machine and fail on another. Put `-std=c++11` in the shared build configuration used locally and in CI, and enable appropriate warnings. For stronger production reproducibility, CI should also record or pin the compiler and toolchain version, although that goes beyond the smallest correction."
+      },
+      "rubric": {
+        "required": [
+          "Identifies dependence on the compiler's default language mode as the cause.",
+          "Adds `-std=c++11` to shared build configuration.",
+          "States that local and CI builds must use the same build contract."
+        ],
+        "bonus": [
+          "Suggests recording or pinning the compiler and toolchain version.",
+          "Mentions warnings without confusing them with language mode."
+        ],
+        "misconceptions": [
+          "Only changes source code to satisfy the current compiler.",
+          "Claims that every compiler uses the same default standard."
+        ]
+      }
+    },
+    {
       "questionId": "cpp20-designated-initializers-001",
       "questionVersion": 1,
       "sourceHash": "77220c505e8b03b2f6646e03eee9a3e31bbcdfa6b1b0bf0cd6db45d2a56c7f24",

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sourceRevision": "e2718f63345e462cfa327b5e923ab791aa81b22114fa8b066b19c374c1a3c9cc",
+  "sourceRevision": "885eafd96acf89fbc7abaff1b8f44f108ef505ae7aa8c2478b66dba7be3ef793",
   "lessons": [
     {
       "id": "cpp98-object-variable-memory",
@@ -513,80 +513,77 @@
       "language": "cpp",
       "track": "cpp11",
       "standard": "cpp11",
-      "title": "Day 01 — Toolchain, Compiler Flags, and C++11 Mode",
+      "title": "Ngày 1 — Toolchain, cờ biên dịch và chế độ C++11",
       "knowledgePath": "cpp11/01_toolchain/knowledge.md",
+      "translationPaths": [
+        "cpp11/01_toolchain/en.md"
+      ],
       "codePath": "cpp11/01_toolchain/main.cpp",
-      "sourceHash": "d55f5f6cdc240e095083cb56ec2f36e8c1ca86b63fa23e717e8e74c475483361",
+      "sourceHash": "0ae7bb9ef780cb6ebc1e37ae2861bae1c5363e7a24f42c99f1727fa6ca359e58",
       "sections": [
         {
-          "id": "problem-it-solves",
-          "heading": "1. Problem It Solves",
-          "bodyMarkdown": "C++ source code is plain text. A toolchain turns that source into a runnable\r\nprogram and reports many mistakes before the program reaches production.\r\n\r\nFor this lesson, the compiler must use C++11 mode. Warning flags are enabled so\r\nsuspicious code is visible even when it is technically valid C++.",
-          "bodyText": "C++ source code is plain text. A toolchain turns that source into a runnable\r\nprogram and reports many mistakes before the program reaches production.For this lesson, the compiler must use C++11 mode. Warning flags are enabled so\r\nsuspicious code is visible even when it is technically valid C++."
+          "id": "van-de-no-giai-quyet",
+          "heading": "1. Vấn đề nó giải quyết",
+          "bodyMarkdown": "Toolchain biến mã nguồn thành chương trình chạy được; các cờ biên dịch chọn bộ quy tắc ngôn ngữ và mức cảnh báo cho lần build đó. Nó làm ràng buộc quan trọng hiện rõ thay vì bắt người đọc đoán. Bài chỉ giữ phần cốt lõi C++11 vừa đủ cho một ngày tập trung.",
+          "bodyText": "Toolchain biến mã nguồn thành chương trình chạy được; các cờ biên dịch chọn bộ quy tắc ngôn ngữ và mức cảnh báo cho lần build đó. Nó làm ràng buộc quan trọng hiện rõ thay vì bắt người đọc đoán. Bài chỉ giữ phần cốt lõi C++11 vừa đủ cho một ngày tập trung."
         },
         {
-          "id": "prerequisites",
-          "heading": "2. Prerequisites",
-          "bodyMarkdown": "No previous C++ lesson is required. You only need to know how to open a terminal,\r\nmove to a directory, and identify a file ending in `.cpp`.",
-          "bodyText": "No previous C++ lesson is required. You only need to know how to open a terminal,\r\nmove to a directory, and identify a file ending in .cpp."
+          "id": "kien-thuc-can-co",
+          "heading": "2. Kiến thức cần có",
+          "bodyMarkdown": "- Biết mở terminal, dùng trình soạn thảo và chạy một lệnh cơ bản.",
+          "bodyText": "Biết mở terminal, dùng trình soạn thảo và chạy một lệnh cơ bản."
         },
         {
-          "id": "core-idea",
-          "heading": "3. Core Idea",
-          "bodyMarkdown": "A simple native build has four conceptual stages:\r\n\r\n1. The preprocessor expands directives such as `#include`.\r\n2. The compiler checks C++ grammar and types, then produces object code.\r\n3. The linker combines object files with required library code.\r\n4. The operating system loads and starts the executable at `main()`.\r\n\r\nThe executable is a separate file from the source code. A failed build does not\r\nreplace an older executable, so running the command again after a failure may\r\naccidentally run stale code.",
-          "bodyText": "A simple native build has four conceptual stages:The preprocessor expands directives such as #include.The compiler checks C++ grammar and types, then produces object code.The linker combines object files with required library code.The operating system loads and starts the executable at main().The executable is a separate file from the source code. A failed build does not\r\nreplace an older executable, so running the command again after a failure may\r\naccidentally run stale code."
+          "id": "y-tuong-cot-loi",
+          "heading": "3. Ý tưởng cốt lõi",
+          "bodyMarkdown": "Mental model: Toolchain biến mã nguồn thành chương trình chạy được; các cờ biên dịch chọn bộ quy tắc ngôn ngữ và mức cảnh báo cho lần build đó. Hãy xác định giá trị hoặc trạng thái liên quan, ai sở hữu nó và quy tắc tác động lúc compile hay lúc chạy.",
+          "bodyText": "Mental model: Toolchain biến mã nguồn thành chương trình chạy được; các cờ biên dịch chọn bộ quy tắc ngôn ngữ và mức cảnh báo cho lần build đó. Hãy xác định giá trị hoặc trạng thái liên quan, ai sở hữu nó và quy tắc tác động lúc compile hay lúc chạy."
         },
         {
-          "id": "minimal-commands",
-          "heading": "4. Minimal Commands",
-          "bodyMarkdown": "Compile with GCC:\r\n\r\n```text\r\ng++ -std=c++11 -Wall -Wextra -Wpedantic source.cpp -o program\r\n```\r\n\r\nRun on Linux or macOS:\r\n\r\n```text\r\n./program\r\n```\r\n\r\nRun on Windows PowerShell:\r\n\r\n```text\r\n.\\program.exe\r\n```\r\n\r\nImportant options:\r\n\r\n- `-std=c++11` selects the C++11 language rules.\r\n- `-Wall` enables many common diagnostics.\r\n- `-Wextra` enables additional useful diagnostics.\r\n- `-Wpedantic` reports extensions outside the selected standard.\r\n- `-o program` chooses the executable name.\r\n\r\nUse `g++`, not `gcc`, for the final C++ link command. `g++` automatically links\r\nthe C++ standard library.",
-          "bodyText": "Compile with GCC:g++ -std=c++11 -Wall -Wextra -Wpedantic source.cpp -o programRun on Linux or macOS:./programRun on Windows PowerShell:.\\program.exeImportant options:-std=c++11 selects the C++11 language rules.-Wall enables many common diagnostics.-Wextra enables additional useful diagnostics.-Wpedantic reports extensions outside the selected standard.-o program chooses the executable name.Use g++, not gcc, for the final C++ link command. g++ automatically links\r\nthe C++ standard library."
+          "id": "cu-phap-toi-thieu",
+          "heading": "4. Cú pháp tối thiểu",
+          "bodyMarkdown": "```cpp\r\ng++ -std=c++11 -Wall -Wextra -Wpedantic main.cpp -o main\r\n```",
+          "bodyText": "g++ -std=c++11 -Wall -Wextra -Wpedantic main.cpp -o main"
         },
         {
-          "id": "compile-and-link-separately",
-          "heading": "5. Compile and Link Separately",
-          "bodyMarkdown": "A multi-file build can compile each source file first:\r\n\r\n```text\r\ng++ -std=c++11 -Wall -Wextra -Wpedantic -c feed.cpp -o feed.o\r\ng++ -std=c++11 -Wall -Wextra -Wpedantic -c main.cpp -o main.o\r\n```\r\n\r\nThen link the object files:\r\n\r\n```text\r\ng++ feed.o main.o -o feed-check\r\n```\r\n\r\nThis separation matters because changing one source file should not require\r\nrecompiling every other source file. Build systems such as CMake model these\r\ndependencies and issue the necessary compiler and linker commands.",
-          "bodyText": "A multi-file build can compile each source file first:g++ -std=c++11 -Wall -Wextra -Wpedantic -c feed.cpp -o feed.o\r\ng++ -std=c++11 -Wall -Wextra -Wpedantic -c main.cpp -o main.oThen link the object files:g++ feed.o main.o -o feed-checkThis separation matters because changing one source file should not require\r\nrecompiling every other source file. Build systems such as CMake model these\r\ndependencies and issue the necessary compiler and linker commands."
+          "id": "cach-no-hoat-dong",
+          "heading": "5. Cách nó hoạt động",
+          "bodyMarkdown": "1. Ví dụ tạo dữ liệu nhỏ, cố định và không cần nhập bàn phím.\r\n1. C++11 hoặc contract thư viện chuẩn áp dụng quy tắc hôm nay.\r\n1. Chương trình in kết quả quan trọng để đối chiếu với mã nguồn.",
+          "bodyText": "Ví dụ tạo dữ liệu nhỏ, cố định và không cần nhập bàn phím.C++11 hoặc contract thư viện chuẩn áp dụng quy tắc hôm nay.Chương trình in kết quả quan trọng để đối chiếu với mã nguồn."
         },
         {
-          "id": "debug-and-release-options",
-          "heading": "6. Debug and Release Options",
-          "bodyMarkdown": "A useful local debug build commonly adds:\r\n\r\n```text\r\n-O0 -g\r\n```\r\n\r\n`-O0` keeps optimization low, while `-g` emits debugging information. A release\r\nbuild commonly uses an optimization level such as `-O2`. Optimization affects\r\nperformance and generated code; it is not a substitute for correctness checks,\r\ntests, or warnings.\r\n\r\nThe exact compiler version and options are build inputs. CI and production\r\nshould record them so a failure can be reproduced.",
-          "bodyText": "A useful local debug build commonly adds:-O0 -g-O0 keeps optimization low, while -g emits debugging information. A release\r\nbuild commonly uses an optimization level such as -O2. Optimization affects\r\nperformance and generated code; it is not a substitute for correctness checks,\r\ntests, or warnings.The exact compiler version and options are build inputs. CI and production\r\nshould record them so a failure can be reproduced."
+          "id": "loi-thuong-gap",
+          "heading": "6. Lỗi thường gặp",
+          "bodyMarkdown": "- Không ghi rõ chuẩn có thể khiến máy này nhận tính năng mới nhưng máy khác lại từ chối, làm kết quả build thiếu ổn định.",
+          "bodyText": "Không ghi rõ chuẩn có thể khiến máy này nhận tính năng mới nhưng máy khác lại từ chối, làm kết quả build thiếu ổn định."
         },
         {
-          "id": "exit-status",
-          "heading": "7. Exit Status",
-          "bodyMarkdown": "A return value of `0` from `main()` means success. A non-zero value normally\r\nsignals an error:\r\n\r\n```cpp\r\nif (bid_price > ask_price) {\r\n    std::cerr << \"Invalid quote\\n\";\r\n    return 1;\r\n}\r\n```\r\n\r\nShell scripts and CI jobs use this exit status to decide whether a step passed.",
-          "bodyText": "A return value of 0 from main() means success. A non-zero value normally\r\nsignals an error:if (bid_price > ask_price) {\r\n    std::cerr << \"Invalid quote\\n\";\r\n    return 1;\r\n}Shell scripts and CI jobs use this exit status to decide whether a step passed."
+          "id": "khi-nao-nen-dung",
+          "heading": "7. Khi nào nên dùng",
+          "bodyMarkdown": "- Nên dùng khi cần một quy trình build C++11 lặp lại được và có cảnh báo hữu ích.\r\n- Tránh dùng khi nó che ownership, lifetime, kiểu, thứ tự hoặc chi phí.",
+          "bodyText": "Nên dùng khi cần một quy trình build C++11 lặp lại được và có cảnh báo hữu ích.Tránh dùng khi nó che ownership, lifetime, kiểu, thứ tự hoặc chi phí."
         },
         {
-          "id": "common-mistakes",
-          "heading": "8. Common Mistakes",
-          "bodyMarkdown": "- Forgetting `-std=c++11`, so the compiler default varies between machines.\r\n- Ignoring warnings because the program still builds.\r\n- Using `gcc` instead of `g++` for the final C++ link command.\r\n- Running an old executable after compilation failed.\r\n- Assuming successful compilation proves the program is correct.\r\n- Mixing incompatible compiler, standard-library, or ABI settings.\r\n- Applying `-Werror` blindly to third-party headers and turning external\r\n  warnings into local build failures.",
-          "bodyText": "Forgetting -std=c++11, so the compiler default varies between machines.Ignoring warnings because the program still builds.Using gcc instead of g++ for the final C++ link command.Running an old executable after compilation failed.Assuming successful compilation proves the program is correct.Mixing incompatible compiler, standard-library, or ABI settings.Applying -Werror blindly to third-party headers and turning external\r\nwarnings into local build failures."
+          "id": "vi-du-don-gian",
+          "heading": "8. Ví dụ đơn giản",
+          "bodyMarkdown": "Chương trình in `__cplusplus`; khi dùng `-std=c++11`, giá trị này cho biết chế độ ngôn ngữ đã chọn rồi in thêm một phép tính cố định. File `.cpp` dùng dữ liệu cố định và không thêm abstraction ngoài chủ đề.",
+          "bodyText": "Chương trình in __cplusplus; khi dùng -std=c++11, giá trị này cho biết chế độ ngôn ngữ đã chọn rồi in thêm một phép tính cố định. File .cpp dùng dữ liệu cố định và không thêm abstraction ngoài chủ đề."
         },
         {
-          "id": "trading-system-relevance",
-          "heading": "9. Trading-System Relevance",
-          "bodyMarkdown": "A tick-data program may validate a quote where the bid price must not exceed the\r\nask price. The same source should behave consistently on a developer laptop, a\r\ntest server, and a production machine. An explicit standard mode, strict\r\nwarnings, repeatable compiler versions, and a failing exit status reduce\r\nenvironment-dependent surprises.",
-          "bodyText": "A tick-data program may validate a quote where the bid price must not exceed the\r\nask price. The same source should behave consistently on a developer laptop, a\r\ntest server, and a production machine. An explicit standard mode, strict\r\nwarnings, repeatable compiler versions, and a failing exit status reduce\r\nenvironment-dependent surprises."
+          "id": "dieu-can-nho",
+          "heading": "9. Điều cần nhớ",
+          "bodyMarkdown": "- Tính năng nằm trong phạm vi C++11 của lộ trình này.\r\n- Hiểu hệ quả về lifetime, ownership, kiểu và thứ tự trước khi dùng.\r\n- Compile với cảnh báo và ưu tiên cách viết nhỏ nhất làm quy tắc hiện rõ.",
+          "bodyText": "Tính năng nằm trong phạm vi C++11 của lộ trình này.Hiểu hệ quả về lifetime, ownership, kiểu và thứ tự trước khi dùng.Compile với cảnh báo và ưu tiên cách viết nhỏ nhất làm quy tắc hiện rõ."
         },
         {
-          "id": "key-takeaways",
-          "heading": "10. Key Takeaways",
-          "bodyMarkdown": "- Select the C++ version explicitly.\r\n- Compile with warnings and investigate them.\r\n- Treat compilation and linking as distinct build stages.\r\n- Do not confuse a successful build with a correct program.\r\n- Make toolchain versions and options reproducible.",
-          "bodyText": "Select the C++ version explicitly.Compile with warnings and investigate them.Treat compilation and linking as distinct build stages.Do not confuse a successful build with a correct program.Make toolchain versions and options reproducible."
-        },
-        {
-          "id": "self-check-questions",
-          "heading": "11. Self-Check Questions",
-          "bodyMarkdown": "1. What does `-std=c++11` control?\r\n2. Why should warnings be fixed even when compilation succeeds?\r\n3. What is the difference between a `.cpp` file, an object file, and an\r\n   executable?\r\n4. Why can running a command after a failed build execute stale code?\r\n5. Why should CI preserve the compiler version and build options?",
-          "bodyText": "What does -std=c++11 control?Why should warnings be fixed even when compilation succeeds?What is the difference between a .cpp file, an object file, and an\r\nexecutable?Why can running a command after a failed build execute stale code?Why should CI preserve the compiler version and build options?"
+          "id": "cau-hoi-tu-kiem-tra",
+          "heading": "10. Câu hỏi tự kiểm tra",
+          "bodyMarkdown": "1. Dễ — Chủ đề hôm nay giải quyết vấn đề gì, và token hoặc khai báo nào trong cú pháp tối thiểu kích hoạt nó?\r\n1. Trung bình — Đọc ví dụ nhỏ ở trên. Chương trình sẽ in giá trị hoặc trạng thái nào, và quy tắc nào tạo ra kết quả đó?\r\n1. Khó — Tìm và giải thích lỗi tinh tế trong tình huống sau: Không ghi rõ chuẩn có thể khiến máy này nhận tính năng mới nhưng máy khác lại từ chối, làm kết quả build thiếu ổn định. Cách sửa nhỏ nhất nhưng an toàn trong C++11 là gì?",
+          "bodyText": "Dễ — Chủ đề hôm nay giải quyết vấn đề gì, và token hoặc khai báo nào trong cú pháp tối thiểu kích hoạt nó?Trung bình — Đọc ví dụ nhỏ ở trên. Chương trình sẽ in giá trị hoặc trạng thái nào, và quy tắc nào tạo ra kết quả đó?Khó — Tìm và giải thích lỗi tinh tế trong tình huống sau: Không ghi rõ chuẩn có thể khiến máy này nhận tính năng mới nhưng máy khác lại từ chối, làm kết quả build thiếu ổn định. Cách sửa nhỏ nhất nhưng an toàn trong C++11 là gì?"
         }
       ],
       "checklistItems": [],
-      "code": "#include <iostream>\r\n\r\nint main() {\r\n    // Fixed market data so the output is easy to verify.\r\n    const char* symbol = \"AAPL\";\r\n    const double bid_price = 189.10;\r\n    const double ask_price = 189.14;\r\n    const int bid_volume = 500;\r\n    const int ask_volume = 400;\r\n\r\n    // A simple validity check for one quote snapshot.\r\n    const bool price_order_is_valid = bid_price <= ask_price;\r\n    const double spread = ask_price - bid_price;\r\n\r\n    std::cout << \"C++11 quote check\\n\";\r\n    std::cout << \"Symbol: \" << symbol << '\\n';\r\n    std::cout << \"Bid: \" << bid_price\r\n              << \" x \" << bid_volume << '\\n';\r\n    std::cout << \"Ask: \" << ask_price\r\n              << \" x \" << ask_volume << '\\n';\r\n    std::cout << \"Spread: \" << spread << '\\n';\r\n\r\n    if (!price_order_is_valid) {\r\n        std::cerr << \"Error: bid price is greater than ask price.\\n\";\r\n        return 1; // Non-zero means the program detected an error.\r\n    }\r\n\r\n    std::cout << \"Quote is valid.\\n\";\r\n    return 0; // Zero means successful execution.\r\n}"
+      "code": "#include <iostream>\r\n\r\nint main() {\r\n    // __cplusplus reports the selected language mode.\r\n    std::cout << \"cplusplus=\" << __cplusplus << '\\n';\r\n\r\n    const int price = 7;\r\n    const int quantity = 6;\r\n    std::cout << \"total=\" << price * quantity << '\\n';\r\n}\r\n"
     },
     {
       "id": "cpp11-const-pointer-lvalue-reference",
@@ -1469,6 +1466,227 @@
           "code-review",
           "ownership",
           "pointer-safety"
+        ]
+      }
+    },
+    {
+      "id": "cpp11-toolchain-001",
+      "lessonId": "cpp11-toolchain",
+      "type": "recall",
+      "responseMode": "text",
+      "difficulty": "beginner",
+      "interviewCategory": "language_knowledge",
+      "interviewFormat": "concept_explanation",
+      "assessmentSkills": [
+        "toolchain",
+        "compiler-flags",
+        "language-standard"
+      ],
+      "estimatedMinutes": 2,
+      "prompt": "Toolchain và các cờ biên dịch giải quyết vấn đề gì, và thành phần nào trong lệnh build tối thiểu kích hoạt chế độ C++11?",
+      "hint": "Phân biệt cờ chọn chuẩn ngôn ngữ với các cờ chỉ bật thêm cảnh báo.",
+      "answer": {
+        "short": "Toolchain biến mã nguồn thành chương trình chạy được; cờ `-std=c++11` chọn bộ quy tắc ngôn ngữ C++11 cho lần build.",
+        "detailed": "Compiler và linker trong toolchain lần lượt dịch rồi liên kết mã nguồn thành executable. Trong lệnh mẫu, `-std=c++11` mới là thành phần chọn chế độ ngôn ngữ C++11. Các cờ `-Wall`, `-Wextra` và `-Wpedantic` tăng mức chẩn đoán nhưng không thay thế cờ chọn chuẩn."
+      },
+      "rubric": {
+        "required": [
+          "Nêu toolchain biến mã nguồn thành chương trình chạy được.",
+          "Chỉ đúng `-std=c++11` là cờ chọn chế độ C++11.",
+          "Phân biệt cờ chọn chuẩn với cờ cảnh báo."
+        ],
+        "bonus": [
+          "Nhắc compiler và linker là các giai đoạn khác nhau."
+        ],
+        "misconceptions": [
+          "Cho rằng `-Wall` kích hoạt C++11.",
+          "Cho rằng không cần ghi chuẩn vì mọi compiler luôn dùng cùng mặc định."
+        ]
+      },
+      "sources": [
+        {
+          "sectionId": "van-de-no-giai-quyet"
+        },
+        {
+          "sectionId": "cu-phap-toi-thieu"
+        }
+      ],
+      "sourceHash": "0ae7bb9ef780cb6ebc1e37ae2861bae1c5363e7a24f42c99f1727fa6ca359e58",
+      "status": "draft",
+      "version": 1,
+      "taxonomy": {
+        "deckId": "cpp-interview",
+        "standard": "cpp11",
+        "topics": [
+          "toolchain"
+        ],
+        "skill": "recall",
+        "difficulty": "beginner",
+        "responseMode": "text",
+        "sourceLessonId": "cpp11-toolchain",
+        "tags": [
+          "deck::cpp-interview",
+          "standard::cpp11",
+          "topic::toolchain",
+          "skill::recall",
+          "difficulty::beginner",
+          "response::text",
+          "source::cpp11-toolchain"
+        ],
+        "interviewCategory": "language_knowledge",
+        "interviewFormat": "concept_explanation",
+        "assessmentSkills": [
+          "compiler-flags",
+          "language-standard",
+          "toolchain"
+        ]
+      }
+    },
+    {
+      "id": "cpp11-toolchain-002",
+      "lessonId": "cpp11-toolchain",
+      "type": "code_reasoning",
+      "responseMode": "text",
+      "difficulty": "intermediate",
+      "interviewCategory": "language_knowledge",
+      "interviewFormat": "concept_explanation",
+      "assessmentSkills": [
+        "code-reading",
+        "language-standard",
+        "deterministic-output"
+      ],
+      "estimatedMinutes": 4,
+      "prompt": "Khi biên dịch đoạn mã dưới đây bằng `-std=c++11`, chương trình in gì và quy tắc nào tạo ra từng kết quả?",
+      "code": "#include <iostream>\n\nint main() {\n    std::cout << \"cplusplus=\" << __cplusplus << '\\n';\n\n    const int price = 7;\n    const int quantity = 6;\n    std::cout << \"total=\" << price * quantity << '\\n';\n}",
+      "hint": "Xác định giá trị chuẩn của macro `__cplusplus` trong C++11 rồi tính phép nhân số nguyên.",
+      "answer": {
+        "short": "Với compiler tuân thủ C++11, chương trình in `cplusplus=201103` rồi `total=42` trên hai dòng.",
+        "detailed": "Cờ `-std=c++11` làm macro chuẩn `__cplusplus` có giá trị `201103L`; khi đưa vào stream, hậu tố kiểu `L` không được in nên dòng đầu là `cplusplus=201103`. Hai hằng số nguyên có giá trị 7 và 6, vì vậy phép nhân tạo dòng `total=42`. Chương trình không phụ thuộc input runtime."
+      },
+      "rubric": {
+        "required": [
+          "Nêu đúng hai dòng kết quả theo đúng thứ tự.",
+          "Liên hệ `201103` với macro `__cplusplus` trong chế độ C++11.",
+          "Giải thích `42` là kết quả của `7 * 6`."
+        ],
+        "bonus": [
+          "Nêu hậu tố `L` thuộc literal/macro value và không xuất hiện khi stream số."
+        ],
+        "misconceptions": [
+          "Cho rằng `__cplusplus` in chuỗi `C++11`.",
+          "Cho rằng `const` làm phép nhân xảy ra ở runtime theo cách không xác định."
+        ]
+      },
+      "sources": [
+        {
+          "sectionId": "cach-no-hoat-dong"
+        },
+        {
+          "sectionId": "vi-du-don-gian"
+        }
+      ],
+      "sourceHash": "0ae7bb9ef780cb6ebc1e37ae2861bae1c5363e7a24f42c99f1727fa6ca359e58",
+      "status": "draft",
+      "version": 1,
+      "taxonomy": {
+        "deckId": "cpp-interview",
+        "standard": "cpp11",
+        "topics": [
+          "toolchain"
+        ],
+        "skill": "code_reasoning",
+        "difficulty": "intermediate",
+        "responseMode": "text",
+        "sourceLessonId": "cpp11-toolchain",
+        "tags": [
+          "deck::cpp-interview",
+          "standard::cpp11",
+          "topic::toolchain",
+          "skill::code-reasoning",
+          "difficulty::intermediate",
+          "response::text",
+          "source::cpp11-toolchain"
+        ],
+        "interviewCategory": "language_knowledge",
+        "interviewFormat": "concept_explanation",
+        "assessmentSkills": [
+          "code-reading",
+          "deterministic-output",
+          "language-standard"
+        ]
+      }
+    },
+    {
+      "id": "cpp11-toolchain-003",
+      "lessonId": "cpp11-toolchain",
+      "type": "pitfall",
+      "responseMode": "text",
+      "difficulty": "advanced",
+      "interviewCategory": "code_review_debug",
+      "interviewFormat": "bug_hunt",
+      "assessmentSkills": [
+        "build-reproducibility",
+        "failure-analysis",
+        "compiler-flags"
+      ],
+      "estimatedMinutes": 5,
+      "prompt": "Một project không ghi rõ chuẩn C++, nên máy phát triển chấp nhận tính năng mới nhưng máy CI lại từ chối hoặc diễn giải khác. Lỗi thiết kế build nằm ở đâu, và bản sửa nhỏ nhất nhưng an toàn cho phạm vi C++11 là gì?",
+      "hint": "Chuẩn ngôn ngữ và compiler version đều là build input, không phải mặc định có thể bỏ qua.",
+      "answer": {
+        "short": "Build đang phụ thuộc vào chuẩn mặc định của từng compiler. Bản sửa tối thiểu là thêm `-std=c++11` nhất quán vào mọi lệnh build liên quan.",
+        "detailed": "Khi không pin language mode, mỗi compiler hoặc phiên bản compiler có thể chọn mặc định khác nhau, làm cùng source được chấp nhận ở máy này nhưng thất bại ở máy khác. Cần đặt `-std=c++11` trong cấu hình build dùng chung cho local và CI; đồng thời bật các cảnh báo phù hợp. Để tái lập production tốt hơn, CI cũng nên ghi hoặc pin compiler/toolchain version, nhưng đó là bước bổ sung ngoài bản sửa nhỏ nhất."
+      },
+      "rubric": {
+        "required": [
+          "Chỉ ra sự phụ thuộc vào language mode mặc định là nguyên nhân.",
+          "Đề xuất `-std=c++11` trong cấu hình build dùng chung.",
+          "Nêu local và CI phải dùng cùng contract build."
+        ],
+        "bonus": [
+          "Đề xuất pin hoặc ghi lại compiler/toolchain version.",
+          "Nhắc bật warning nhưng không nhầm warning với language mode."
+        ],
+        "misconceptions": [
+          "Chỉ sửa source để chiều theo compiler hiện tại.",
+          "Cho rằng mọi compiler có cùng chuẩn mặc định."
+        ]
+      },
+      "sources": [
+        {
+          "sectionId": "loi-thuong-gap"
+        },
+        {
+          "sectionId": "khi-nao-nen-dung"
+        }
+      ],
+      "sourceHash": "0ae7bb9ef780cb6ebc1e37ae2861bae1c5363e7a24f42c99f1727fa6ca359e58",
+      "status": "draft",
+      "version": 1,
+      "taxonomy": {
+        "deckId": "cpp-interview",
+        "standard": "cpp11",
+        "topics": [
+          "toolchain"
+        ],
+        "skill": "pitfall",
+        "difficulty": "advanced",
+        "responseMode": "text",
+        "sourceLessonId": "cpp11-toolchain",
+        "tags": [
+          "deck::cpp-interview",
+          "standard::cpp11",
+          "topic::toolchain",
+          "skill::pitfall",
+          "difficulty::advanced",
+          "response::text",
+          "source::cpp11-toolchain"
+        ],
+        "interviewCategory": "code_review_debug",
+        "interviewFormat": "bug_hunt",
+        "assessmentSkills": [
+          "build-reproducibility",
+          "compiler-flags",
+          "failure-analysis"
         ]
       }
     },

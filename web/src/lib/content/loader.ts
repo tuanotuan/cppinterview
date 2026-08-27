@@ -22,9 +22,23 @@ import {
 import { buildQuestionTaxonomy } from "./taxonomy";
 
 const KNOWLEDGE_FILE = "knowledge.md";
+const ENGLISH_LESSON_FILE = "en.md";
 const CODE_FILE_BY_LANGUAGE = {
   cpp: "main.cpp",
 } as const;
+
+export type EnglishLessonTranslationCatalog = {
+  schemaVersion: 1;
+  locale: "en";
+  lessons: Array<{
+    lessonId: string;
+    sourceHash: string;
+    title: string;
+    sections: GeneratedLesson["sections"];
+    checklistItems: string[];
+  }>;
+  questions: [];
+};
 
 export function codeFileNameForLanguage(
   language: keyof typeof CODE_FILE_BY_LANGUAGE,
@@ -48,6 +62,8 @@ export function sectionIdFromHeading(heading: string) {
     .replace(/&/g, "")
     .toLowerCase()
     .normalize("NFKD")
+    .replace(/\p{M}+/gu, "")
+    .replace(/đ/g, "d")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
@@ -225,6 +241,7 @@ export async function loadContentManifest(
     assertInsideRepo(repoRoot, sourceDirectory);
 
     const knowledgeFile = path.join(sourceDirectory, KNOWLEDGE_FILE);
+    const englishLessonFile = path.join(sourceDirectory, ENGLISH_LESSON_FILE);
     const codeFile = path.join(
       sourceDirectory,
       codeFileNameForLanguage(entry.language),
@@ -234,6 +251,7 @@ export async function loadContentManifest(
     }
 
     const markdown = normalizeSourceText(await readFile(knowledgeFile, "utf8"));
+    const hasEnglishLesson = await exists(englishLessonFile);
     const code = (await exists(codeFile))
       ? normalizeSourceText(await readFile(codeFile, "utf8"))
       : null;
@@ -243,6 +261,13 @@ export async function loadContentManifest(
       ...entry,
       title: parsed.title,
       knowledgePath: toPosix(path.relative(repoRoot, knowledgeFile)),
+      ...(hasEnglishLesson
+        ? {
+            translationPaths: [
+              toPosix(path.relative(repoRoot, englishLessonFile)),
+            ],
+          }
+        : {}),
       codePath: code ? toPosix(path.relative(repoRoot, codeFile)) : null,
       sourceHash: sha256(markdown, code ?? ""),
       sections: parsed.sections,
@@ -317,4 +342,48 @@ export async function loadContentManifest(
     lessons,
     questions: questionsWithReviewStatus,
   });
+}
+
+export async function loadEnglishLessonTranslationCatalog(
+  repoRoot: string,
+  manifest: ContentManifest,
+): Promise<EnglishLessonTranslationCatalog> {
+  const lessons: EnglishLessonTranslationCatalog["lessons"] = [];
+
+  for (const lesson of manifest.lessons) {
+    const translationPath = lesson.translationPaths?.find(
+      (candidate) => path.posix.basename(candidate) === ENGLISH_LESSON_FILE,
+    );
+    if (!translationPath) continue;
+
+    const absolutePath = path.resolve(repoRoot, translationPath);
+    assertInsideRepo(repoRoot, absolutePath);
+    const markdown = normalizeSourceText(await readFile(absolutePath, "utf8"));
+    const parsed = parseSections(markdown);
+
+    if (parsed.sections.length !== lesson.sections.length) {
+      throw new Error(
+        `English lesson ${lesson.id} has ${parsed.sections.length} sections; ` +
+          `expected ${lesson.sections.length} to match the canonical lesson`,
+      );
+    }
+
+    lessons.push({
+      lessonId: lesson.id,
+      sourceHash: lesson.sourceHash,
+      title: parsed.title,
+      sections: parsed.sections.map((section, index) => ({
+        ...section,
+        id: lesson.sections[index].id,
+      })),
+      checklistItems: extractChecklistItems(parsed.sections),
+    });
+  }
+
+  return {
+    schemaVersion: 1,
+    locale: "en",
+    lessons,
+    questions: [],
+  };
 }

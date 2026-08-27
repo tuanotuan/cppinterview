@@ -88,6 +88,7 @@ const taxonomyTopicLabels: Record<string, string> = {
   templates: "Mẫu",
   "tick-data": "Dữ liệu tick",
   timestamps: "Dấu thời gian",
+  toolchain: "Bộ công cụ biên dịch",
   "type-deduction": "Suy luận kiểu",
   "type-safety": "An toàn kiểu",
 };

@@ -16,7 +16,9 @@ trạng thái từ tên nhánh.
 - Roadmap C++11 có 53 ngày trong 8 chặng, giữ thứ tự riêng với `lesson.order` và
   link tới lesson C++11 đã xuất bản. Catalog C++11 hiện chỉ còn Toolchain và
   Const/Pointer/Lvalue Reference, được đánh số lại từ `01`; roadmap có 2 ngày đủ
-  học liệu, 1 ngày một phần và 50 ngày planned. Các nhãn này chỉ là coverage nội
+  học liệu, 1 ngày một phần và 50 ngày planned. Toolchain dùng `knowledge.md`
+  canonical tiếng Việt cùng companion `en.md`; pipeline sinh overlay lesson
+  exact-revision và giữ section ID canonical khi đổi locale. Các nhãn này chỉ là coverage nội
   dung, không phải tiến độ cá nhân. Trang dùng YAML Git-owned song ngữ; sơ đồ compact dùng node/connector
   ba cột ziczac trên desktop và một trục dọc trên tablet/mobile. Node có học liệu
   mở lesson chính (`lessonIds[0]`) theo locale trong tab mới; node chưa có lesson giữ vị
@@ -29,9 +31,10 @@ trạng thái từ tên nhánh.
   và callback Auth kỹ thuật vẫn không prefix. Các lối tắt Admin trong Practice,
   Stats và guide tick dùng `next/link` trực tiếp nên luôn mở `/admin`, không bị
   navigation theo locale đổi thành route 404 `/vi/admin` hoặc `/en/admin`.
-- Catalog hiện có 15 question Git-owned: 4 verified và 11 draft. Cả 4 question
-  verified có overlay tiếng Anh bind exact revision; `/en/practice` chỉ xếp đúng
-  các question này vào hàng học. Question được duyệt
+- Catalog hiện có 18 question Git-owned: 4 verified và 14 draft. Ba draft mới
+  của Toolchain lần lượt mang độ khó beginner/intermediate/advanced, taxonomy
+  `standard::cpp11` và overlay tiếng Anh exact-revision. Cả 4 question verified
+  cũng có overlay tiếng Anh; `/en/practice` chỉ xếp question đã duyệt vào hàng học. Question được duyệt
   nhưng chưa dịch không còn fallback sang tiếng Việt, còn source excerpt/title
   lesson chưa dịch được ẩn hoặc thay bằng nhãn chủ đề trung tính. Stable identity,
   version, source hash, taxonomy, source và code không thay đổi. Toàn bộ control,
@@ -129,8 +132,8 @@ trạng thái từ tên nhánh.
 
 ## Giới hạn và trạng thái chưa xác minh
 
-- Catalog tiếng Anh hiện bao phủ 4 question tại revision hiện hành; 11 question
-  còn lại và toàn bộ lesson chưa có overlay tiếng Anh nên chưa xuất hiện trong
+- Catalog tiếng Anh hiện bao phủ 7 question tại revision hiện hành, trong đó 4
+  question đã verified; 11 question còn lại và 7 lesson chưa có overlay tiếng Anh nên chưa xuất hiện trong
   `/en/practice`. Đây là backlog học liệu, không được lấp bằng nội dung tiếng Việt.
   Migration `20260825073227_add_content_translations.sql` đã được áp dụng trên
   Supabase project liên kết và `supabase migration list` khớp local/remote đến

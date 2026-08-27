@@ -1,5 +1,130 @@
 schemaVersion: 1
 questions:
+  - id: cpp11-toolchain-001
+    lessonId: cpp11-toolchain
+    type: recall
+    responseMode: text
+    difficulty: beginner
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    assessmentSkills:
+      - toolchain
+      - compiler-flags
+      - language-standard
+    estimatedMinutes: 2
+    prompt: Toolchain và các cờ biên dịch giải quyết vấn đề gì, và thành phần nào trong lệnh build tối
+      thiểu kích hoạt chế độ C++11?
+    hint: Phân biệt cờ chọn chuẩn ngôn ngữ với các cờ chỉ bật thêm cảnh báo.
+    answer:
+      short: Toolchain biến mã nguồn thành chương trình chạy được; cờ `-std=c++11` chọn bộ quy tắc
+        ngôn ngữ C++11 cho lần build.
+      detailed: Compiler và linker trong toolchain lần lượt dịch rồi liên kết mã nguồn thành executable.
+        Trong lệnh mẫu, `-std=c++11` mới là thành phần chọn chế độ ngôn ngữ C++11. Các cờ `-Wall`,
+        `-Wextra` và `-Wpedantic` tăng mức chẩn đoán nhưng không thay thế cờ chọn chuẩn.
+    rubric:
+      required:
+        - Nêu toolchain biến mã nguồn thành chương trình chạy được.
+        - Chỉ đúng `-std=c++11` là cờ chọn chế độ C++11.
+        - Phân biệt cờ chọn chuẩn với cờ cảnh báo.
+      bonus:
+        - Nhắc compiler và linker là các giai đoạn khác nhau.
+      misconceptions:
+        - Cho rằng `-Wall` kích hoạt C++11.
+        - Cho rằng không cần ghi chuẩn vì mọi compiler luôn dùng cùng mặc định.
+    sources:
+      - sectionId: van-de-no-giai-quyet
+      - sectionId: cu-phap-toi-thieu
+    sourceHash: 0ae7bb9ef780cb6ebc1e37ae2861bae1c5363e7a24f42c99f1727fa6ca359e58
+    status: draft
+    version: 1
+  - id: cpp11-toolchain-002
+    lessonId: cpp11-toolchain
+    type: code_reasoning
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    assessmentSkills:
+      - code-reading
+      - language-standard
+      - deterministic-output
+    estimatedMinutes: 4
+    prompt: Khi biên dịch đoạn mã dưới đây bằng `-std=c++11`, chương trình in gì và quy tắc nào tạo ra
+      từng kết quả?
+    code: |-
+      #include <iostream>
+
+      int main() {
+          std::cout << "cplusplus=" << __cplusplus << '\n';
+
+          const int price = 7;
+          const int quantity = 6;
+          std::cout << "total=" << price * quantity << '\n';
+      }
+    hint: Xác định giá trị chuẩn của macro `__cplusplus` trong C++11 rồi tính phép nhân số nguyên.
+    answer:
+      short: Với compiler tuân thủ C++11, chương trình in `cplusplus=201103` rồi `total=42` trên hai
+        dòng.
+      detailed: Cờ `-std=c++11` làm macro chuẩn `__cplusplus` có giá trị `201103L`; khi đưa vào stream,
+        hậu tố kiểu `L` không được in nên dòng đầu là `cplusplus=201103`. Hai hằng số nguyên có giá
+        trị 7 và 6, vì vậy phép nhân tạo dòng `total=42`. Chương trình không phụ thuộc input runtime.
+    rubric:
+      required:
+        - Nêu đúng hai dòng kết quả theo đúng thứ tự.
+        - Liên hệ `201103` với macro `__cplusplus` trong chế độ C++11.
+        - Giải thích `42` là kết quả của `7 * 6`.
+      bonus:
+        - Nêu hậu tố `L` thuộc literal/macro value và không xuất hiện khi stream số.
+      misconceptions:
+        - Cho rằng `__cplusplus` in chuỗi `C++11`.
+        - Cho rằng `const` làm phép nhân xảy ra ở runtime theo cách không xác định.
+    sources:
+      - sectionId: cach-no-hoat-dong
+      - sectionId: vi-du-don-gian
+    sourceHash: 0ae7bb9ef780cb6ebc1e37ae2861bae1c5363e7a24f42c99f1727fa6ca359e58
+    status: draft
+    version: 1
+  - id: cpp11-toolchain-003
+    lessonId: cpp11-toolchain
+    type: pitfall
+    responseMode: text
+    difficulty: advanced
+    interviewCategory: code_review_debug
+    interviewFormat: bug_hunt
+    assessmentSkills:
+      - build-reproducibility
+      - failure-analysis
+      - compiler-flags
+    estimatedMinutes: 5
+    prompt: Một project không ghi rõ chuẩn C++, nên máy phát triển chấp nhận tính năng mới nhưng máy CI
+      lại từ chối hoặc diễn giải khác. Lỗi thiết kế build nằm ở đâu, và bản sửa nhỏ nhất nhưng an
+      toàn cho phạm vi C++11 là gì?
+    hint: Chuẩn ngôn ngữ và compiler version đều là build input, không phải mặc định có thể bỏ qua.
+    answer:
+      short: Build đang phụ thuộc vào chuẩn mặc định của từng compiler. Bản sửa tối thiểu là thêm
+        `-std=c++11` nhất quán vào mọi lệnh build liên quan.
+      detailed: Khi không pin language mode, mỗi compiler hoặc phiên bản compiler có thể chọn mặc định
+        khác nhau, làm cùng source được chấp nhận ở máy này nhưng thất bại ở máy khác. Cần đặt
+        `-std=c++11` trong cấu hình build dùng chung cho local và CI; đồng thời bật các cảnh báo phù
+        hợp. Để tái lập production tốt hơn, CI cũng nên ghi hoặc pin compiler/toolchain version,
+        nhưng đó là bước bổ sung ngoài bản sửa nhỏ nhất.
+    rubric:
+      required:
+        - Chỉ ra sự phụ thuộc vào language mode mặc định là nguyên nhân.
+        - Đề xuất `-std=c++11` trong cấu hình build dùng chung.
+        - Nêu local và CI phải dùng cùng contract build.
+      bonus:
+        - Đề xuất pin hoặc ghi lại compiler/toolchain version.
+        - Nhắc bật warning nhưng không nhầm warning với language mode.
+      misconceptions:
+        - Chỉ sửa source để chiều theo compiler hiện tại.
+        - Cho rằng mọi compiler có cùng chuẩn mặc định.
+    sources:
+      - sectionId: loi-thuong-gap
+      - sectionId: khi-nao-nen-dung
+    sourceHash: 0ae7bb9ef780cb6ebc1e37ae2861bae1c5363e7a24f42c99f1727fa6ca359e58
+    status: draft
+    version: 1
   - id: cpp20-designated-initializers-001
     lessonId: cpp20-designated-initializers
     type: code_reasoning

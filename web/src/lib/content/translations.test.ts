@@ -47,7 +47,26 @@ describe("content translations", () => {
       manifest,
       "en",
     );
-    expect(coverage.questions).toBe(4);
+    expect(coverage).toEqual({
+      lessons: 1,
+      questions: 7,
+    });
+  });
+
+  it("localizes a bilingual lesson from its generated English companion", () => {
+    const sourceLesson = manifest.lessons.find(
+      (lesson) => lesson.id === "cpp11-toolchain",
+    )!;
+    const localizedLesson = localizeContentManifest(manifest, "en").lessons.find(
+      (lesson) => lesson.id === sourceLesson.id,
+    )!;
+
+    expect(sourceLesson.title).toContain("Ngày 1");
+    expect(localizedLesson.title).toContain("Day 1");
+    expect(localizedLesson.sections.map((section) => section.id)).toEqual(
+      sourceLesson.sections.map((section) => section.id),
+    );
+    expect(hasExactLessonTranslation(sourceLesson, "en")).toBe(true);
   });
 
   it("distinguishes translated questions from canonical-language fallbacks", () => {

@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import englishCatalogJson from "@/content-translations/en.json";
 import vietnameseCatalogJson from "@/content-translations/vi.json";
+import generatedEnglishLessonCatalogJson from "@/generated/lesson-translations-en.json";
 import type { Locale } from "@/i18n/routing";
 
 import type { ContentManifest } from "./schema";
@@ -52,10 +53,59 @@ export type ContentTranslationCatalog = z.infer<
   typeof contentTranslationCatalogSchema
 >;
 
+const curatedEnglishCatalog = contentTranslationCatalogSchema.parse(
+  englishCatalogJson,
+);
+const generatedEnglishLessonCatalog = contentTranslationCatalogSchema.parse(
+  generatedEnglishLessonCatalogJson,
+);
+
 const catalogs: Record<Locale, ContentTranslationCatalog> = {
-  en: contentTranslationCatalogSchema.parse(englishCatalogJson),
+  en: mergeTranslationCatalogs(
+    curatedEnglishCatalog,
+    generatedEnglishLessonCatalog,
+  ),
   vi: contentTranslationCatalogSchema.parse(vietnameseCatalogJson),
 };
+
+function mergeTranslationCatalogs(
+  ...sources: ContentTranslationCatalog[]
+): ContentTranslationCatalog {
+  const locale = sources[0]?.locale;
+  if (!locale || sources.some((source) => source.locale !== locale)) {
+    throw new Error("Translation catalogs must use the same locale");
+  }
+
+  const lessons = sources.flatMap((source) => source.lessons);
+  const questions = sources.flatMap((source) => source.questions);
+  assertUniqueTranslationIds(
+    lessons.map((lesson) => lesson.lessonId),
+    `${locale} lesson translations`,
+  );
+  assertUniqueTranslationIds(
+    questions.map((question) => question.questionId),
+    `${locale} question translations`,
+  );
+
+  return contentTranslationCatalogSchema.parse({
+    schemaVersion: 1,
+    locale,
+    lessons,
+    questions,
+  });
+}
+
+function assertUniqueTranslationIds(ids: string[], label: string) {
+  const seen = new Set<string>();
+  const duplicates = new Set<string>();
+  for (const id of ids) {
+    if (seen.has(id)) duplicates.add(id);
+    seen.add(id);
+  }
+  if (duplicates.size) {
+    throw new Error(`Duplicate ${label}: ${[...duplicates].join(", ")}`);
+  }
+}
 
 export function hasExactLessonTranslation(
   lesson: ManifestLesson,
