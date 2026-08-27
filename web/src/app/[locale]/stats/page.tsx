@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import NextLink from "next/link";
 import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { LanguageSwitcher } from "@/app/language-switcher";
@@ -142,9 +143,12 @@ export default async function StatsPage({
             <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/mock-interview">
               Phỏng vấn thử
             </Link>
-            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/admin">
+            <NextLink
+              className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
+              href="/admin"
+            >
               Quản trị
-            </Link>
+            </NextLink>
             <Link
               href="/profile"
               className="rounded-full border border-[#0f3a69]/15 bg-white/65 px-4 py-2 text-xs font-semibold transition hover:border-[#285f86]/40"

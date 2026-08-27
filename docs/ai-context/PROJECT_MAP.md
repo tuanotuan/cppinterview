@@ -65,7 +65,10 @@ URL không prefix được middleware chuyển sang locale cookie/browser, mặc
 `vi`. Language switcher dùng menu cờ SVG Việt Nam/Vương quốc Anh, tên đầy đủ trên
 desktop/footer và mã `VI`/`EN` ở header mobile; menu hỗ trợ bàn phím, trả focus,
 giữ nguyên pathname, query, hash và vị trí cuộn khi đổi locale. `/admin`,
-`/worldquant`, API và callback kỹ thuật của Auth vẫn không prefix.
+`/worldquant`, API và callback kỹ thuật của Auth vẫn không prefix. Link từ bề
+mặt learner đã locale hóa tới `/admin` phải dùng `next/link` trực tiếp, không
+dùng navigation wrapper của `next-intl`, để không sinh nhầm `/vi/admin` hoặc
+`/en/admin`.
 
 | URL/vùng | Entry point | Chức năng |
 |---|---|---|

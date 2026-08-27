@@ -20,7 +20,34 @@ describe("admin workspace access", () => {
       "canManageQuestionBank={canManageQuestionBank}",
     );
     expect(practiceApp.replaceAll("\r\n", "\n")).toContain(
-      "{canManageQuestionBank ? (\n          <HeaderNavLink href=\"/admin\">",
+      "{canManageQuestionBank ? (\n          <AdminHeaderLink>",
     );
+  });
+
+  it("keeps links to the unlocalized admin workspace outside locale routing", async () => {
+    const [practiceApp, ...localizedAdminSources] = await Promise.all([
+      readFile(path.join(appRoot, "practice-app.tsx"), "utf8"),
+      readFile(path.join(appRoot, "[locale]", "stats", "page.tsx"), "utf8"),
+      readFile(
+        path.join(
+          appRoot,
+          "[locale]",
+          "learn",
+          "tick-data-order-book",
+          "page.tsx",
+        ),
+        "utf8",
+      ),
+    ]);
+
+    expect(practiceApp).toMatch(
+      /function AdminHeaderLink[\s\S]*?<NextLink\s+href="\/admin"/,
+    );
+
+    for (const source of [practiceApp, ...localizedAdminSources]) {
+      expect(source).not.toMatch(
+        /<(?!NextLink\b)[A-Za-z][A-Za-z0-9]*\b[^>]*href="\/admin/,
+      );
+    }
   });
 });
