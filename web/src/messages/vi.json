@@ -263,7 +263,7 @@
     },
     "phaseLabel": "Chặng {number}",
     "dayLabel": "Ngày {day}",
-    "openLesson": "Mở bài học ngày {day}: {title}",
+    "openLesson": "Mở bài học ngày {day} trong tab mới: {title}",
     "lessonUnavailable": "Ngày {day}: {title}. Bài học chưa được biên soạn.",
     "backToTop": "Về đầu roadmap"
   },
