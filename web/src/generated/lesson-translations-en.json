@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "locale": "en",
+  "lessons": [
+    {
+      "lessonId": "cpp11-toolchain",
+      "sourceHash": "0ae7bb9ef780cb6ebc1e37ae2861bae1c5363e7a24f42c99f1727fa6ca359e58",
+      "title": "Day 1 — Toolchain, Compiler Flags, and C++11 Mode",
+      "sections": [
+        {
+          "id": "van-de-no-giai-quyet",
+          "heading": "1. Problem It Solves",
+          "bodyMarkdown": "A toolchain turns source text into an executable, while compiler flags select the language rules and diagnostics used for that build. It makes an important constraint visible instead of leaving readers to guess. This lesson keeps only the C++11 core that fits one focused day.",
+          "bodyText": "A toolchain turns source text into an executable, while compiler flags select the language rules and diagnostics used for that build. It makes an important constraint visible instead of leaving readers to guess. This lesson keeps only the C++11 core that fits one focused day."
+        },
+        {
+          "id": "kien-thuc-can-co",
+          "heading": "2. Prerequisites",
+          "bodyMarkdown": "- A text editor, a terminal, and basic command-line navigation.",
+          "bodyText": "A text editor, a terminal, and basic command-line navigation."
+        },
+        {
+          "id": "y-tuong-cot-loi",
+          "heading": "3. Core Idea",
+          "bodyMarkdown": "Mental model: A toolchain turns source text into an executable, while compiler flags select the language rules and diagnostics used for that build. Identify the relevant value or state, who owns it, and whether the rule acts during compilation or execution.",
+          "bodyText": "Mental model: A toolchain turns source text into an executable, while compiler flags select the language rules and diagnostics used for that build. Identify the relevant value or state, who owns it, and whether the rule acts during compilation or execution."
+        },
+        {
+          "id": "cu-phap-toi-thieu",
+          "heading": "4. Minimal Syntax",
+          "bodyMarkdown": "```cpp\r\ng++ -std=c++11 -Wall -Wextra -Wpedantic main.cpp -o main\r\n```",
+          "bodyText": "g++ -std=c++11 -Wall -Wextra -Wpedantic main.cpp -o main"
+        },
+        {
+          "id": "cach-no-hoat-dong",
+          "heading": "5. How It Works",
+          "bodyMarkdown": "1. The example creates a tiny fixed state with no keyboard input.\r\n1. C++11 or the standard-library contract applies today's rule.\r\n1. The program prints the important result so it can be checked against the source.",
+          "bodyText": "The example creates a tiny fixed state with no keyboard input.C++11 or the standard-library contract applies today's rule.The program prints the important result so it can be checked against the source."
+        },
+        {
+          "id": "loi-thuong-gap",
+          "heading": "6. Common Mistakes",
+          "bodyMarkdown": "- Compiling without an explicit standard can silently accept newer features or reject valid C++11 differently on another machine.",
+          "bodyText": "Compiling without an explicit standard can silently accept newer features or reject valid C++11 differently on another machine."
+        },
+        {
+          "id": "khi-nao-nen-dung",
+          "heading": "7. When to Use It",
+          "bodyMarkdown": "- Use it when you need a repeatable C++11 build with useful warnings.\r\n- Avoid it when it hides ownership, lifetime, type, ordering, or cost.",
+          "bodyText": "Use it when you need a repeatable C++11 build with useful warnings.Avoid it when it hides ownership, lifetime, type, ordering, or cost."
+        },
+        {
+          "id": "vi-du-don-gian",
+          "heading": "8. Simple Example",
+          "bodyMarkdown": "The program prints the value of `__cplusplus`; under `-std=c++11` it identifies the selected language mode and then prints a fixed calculation. The `.cpp` keeps the data fixed and avoids unrelated abstraction.",
+          "bodyText": "The program prints the value of __cplusplus; under -std=c++11 it identifies the selected language mode and then prints a fixed calculation. The .cpp keeps the data fixed and avoids unrelated abstraction."
+        },
+        {
+          "id": "dieu-can-nho",
+          "heading": "9. Key Takeaways",
+          "bodyMarkdown": "- The feature is part of the C++11 scope used in this course.\r\n- Understand its lifetime, ownership, type, and ordering consequences.\r\n- Compile with warnings and prefer the smallest form that makes the rule obvious.",
+          "bodyText": "The feature is part of the C++11 scope used in this course.Understand its lifetime, ownership, type, and ordering consequences.Compile with warnings and prefer the smallest form that makes the rule obvious."
+        },
+        {
+          "id": "cau-hoi-tu-kiem-tra",
+          "heading": "10. Self-Check Questions",
+          "bodyMarkdown": "1. Easy — What problem does today's feature solve, and which token or declaration in the minimal syntax activates it?\r\n1. Medium — Read the small example described above. What value or state should it print, and which rule produces that result?\r\n1. Hard — Find and explain the subtle bug in this situation: Compiling without an explicit standard can silently accept newer features or reject valid C++11 differently on another machine. What is the smallest C++11-safe correction?",
+          "bodyText": "Easy — What problem does today's feature solve, and which token or declaration in the minimal syntax activates it?Medium — Read the small example described above. What value or state should it print, and which rule produces that result?Hard — Find and explain the subtle bug in this situation: Compiling without an explicit standard can silently accept newer features or reject valid C++11 differently on another machine. What is the smallest C++11-safe correction?"
+        }
+      ],
+      "checklistItems": []
+    }
+  ],
+  "questions": []
+}

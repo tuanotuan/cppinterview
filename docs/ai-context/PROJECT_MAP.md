@@ -6,7 +6,7 @@ Tài liệu ổn định để tìm đúng vùng code. Xác minh lại nếu sou
 
 | Path | Vai trò |
 |---|---|
-| `cpp98_foundation/`, `cpp11/`, `cpp20/` | Lesson C++; mỗi thư mục bài có `knowledge.md`, thường có `main.cpp` |
+| `cpp98_foundation/`, `cpp11/`, `cpp20/` | Lesson C++; mỗi thư mục bài có canonical `knowledge.md`, có thể thêm `en.md` song ngữ và thường có `main.cpp` |
 | `python/` | Ghi chú cá nhân giữ nguyên trong repo; web không quét, đồng bộ hoặc hiển thị |
 | `web/` | App cppinterview: Next.js App Router, React, TypeScript |
 | `web/src/proxy.ts`, `web/src/i18n/` | Entry point kết hợp refresh cookie/session Supabase với định tuyến locale `vi`/`en`; API, Admin và WorldQuant được bỏ qua khỏi locale middleware |
@@ -14,7 +14,7 @@ Tài liệu ổn định để tìm đúng vùng code. Xác minh lại nếu sou
 | `web/src/messages/`, `web/src/content-translations/` | Chuỗi UI theo namespace và overlay bản dịch nội dung bind exact revision; ID/version/hash/taxonomy/code/source không bị dịch |
 | `web/src/app/recall-mobile-nav.tsx` | Điều hướng mobile dùng chung: Học hôm nay, Nhiệm vụ, Trung tâm chuẩn bị, Thư viện, Hồ sơ; tự ẩn ở mock/full-round để giữ không gian phỏng vấn |
 | `web/content/` | Registry lesson, question và roadmap YAML do Git quản lý; roadmap chỉ tổ chức đường học, không tạo lesson giả |
-| `web/src/generated/content-manifest.json` | Manifest deterministic, không sửa tay |
+| `web/src/generated/content-manifest.json`, `web/src/generated/lesson-translations-en.json` | Manifest và overlay lesson tiếng Anh deterministic, không sửa tay |
 | `web/supabase/migrations/` | Schema/RPC/RLS theo thứ tự timestamp |
 | `.github/workflows/web-validate.yml` | CI validate, refresh/sync/generate content |
 | `.agents/skills/`, `update-skills.ps1` | Project-local skills for coding agents; script refreshes the bundled skills from their upstream sources |
@@ -105,7 +105,7 @@ API quan trọng:
 
 | Domain | File đầu mối | Trách nhiệm |
 |---|---|---|
-| `content` | `loader.ts`, `schema.ts`, `automation.ts`, `translations.ts` | Parse note, schema Zod, discover lesson, sinh manifest và áp overlay dịch đúng exact revision mà không đổi identity/source/code |
+| `content` | `loader.ts`, `schema.ts`, `automation.ts`, `translations.ts` | Parse canonical `knowledge.md`, kiểm tra companion `en.md` cùng topology, sinh manifest/overlay và áp bản dịch exact revision mà không đổi identity/source/code |
 | `content` | `question-store-server.ts` | Chọn `repo`/`shadow`/`db`, parity, apply override |
 | `learn` | `lesson-library.ts`, `cpp11-roadmap.ts` | Dựng catalog lesson và validate/localize registry roadmap riêng; node roadmap chỉ link lesson C++11 đã xuất bản, không tham gia discovery hay question sync |
 | `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts`, `progress-sync.ts`, `study-session.ts` | Queue Anki, rating nguyên tử, due date, streak, browser/cloud progress và draft/phase Trợ giúp → Làm lại |
@@ -137,8 +137,8 @@ tên trước khi thêm test mới.
 
 ### Lesson đến practice
 
-`knowledge.md`/code mẫu → `content/lesson-registry.yaml` →
-`content:refresh`/loader → generated manifest → question store
+`knowledge.md` + optional `en.md`/code mẫu → `content/lesson-registry.yaml` →
+`content:refresh`/loader → generated manifest + lesson translation overlay → question store
 (`repo`, `shadow`, hoặc `db`) → private overrides + approvals → practice deck.
 
 Quy tắc:

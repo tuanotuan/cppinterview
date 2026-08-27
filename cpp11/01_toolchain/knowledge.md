@@ -1,143 +1,50 @@
-# Day 01 — Toolchain, Compiler Flags, and C++11 Mode
+# Ngày 1 — Toolchain, cờ biên dịch và chế độ C++11
 
-## 1. Problem It Solves
+## 1. Vấn đề nó giải quyết
 
-C++ source code is plain text. A toolchain turns that source into a runnable
-program and reports many mistakes before the program reaches production.
+Toolchain biến mã nguồn thành chương trình chạy được; các cờ biên dịch chọn bộ quy tắc ngôn ngữ và mức cảnh báo cho lần build đó. Nó làm ràng buộc quan trọng hiện rõ thay vì bắt người đọc đoán. Bài chỉ giữ phần cốt lõi C++11 vừa đủ cho một ngày tập trung.
 
-For this lesson, the compiler must use C++11 mode. Warning flags are enabled so
-suspicious code is visible even when it is technically valid C++.
+## 2. Kiến thức cần có
 
-## 2. Prerequisites
+- Biết mở terminal, dùng trình soạn thảo và chạy một lệnh cơ bản.
 
-No previous C++ lesson is required. You only need to know how to open a terminal,
-move to a directory, and identify a file ending in `.cpp`.
+## 3. Ý tưởng cốt lõi
 
-## 3. Core Idea
+Mental model: Toolchain biến mã nguồn thành chương trình chạy được; các cờ biên dịch chọn bộ quy tắc ngôn ngữ và mức cảnh báo cho lần build đó. Hãy xác định giá trị hoặc trạng thái liên quan, ai sở hữu nó và quy tắc tác động lúc compile hay lúc chạy.
 
-A simple native build has four conceptual stages:
-
-1. The preprocessor expands directives such as `#include`.
-2. The compiler checks C++ grammar and types, then produces object code.
-3. The linker combines object files with required library code.
-4. The operating system loads and starts the executable at `main()`.
-
-The executable is a separate file from the source code. A failed build does not
-replace an older executable, so running the command again after a failure may
-accidentally run stale code.
-
-## 4. Minimal Commands
-
-Compile with GCC:
-
-```text
-g++ -std=c++11 -Wall -Wextra -Wpedantic source.cpp -o program
-```
-
-Run on Linux or macOS:
-
-```text
-./program
-```
-
-Run on Windows PowerShell:
-
-```text
-.\program.exe
-```
-
-Important options:
-
-- `-std=c++11` selects the C++11 language rules.
-- `-Wall` enables many common diagnostics.
-- `-Wextra` enables additional useful diagnostics.
-- `-Wpedantic` reports extensions outside the selected standard.
-- `-o program` chooses the executable name.
-
-Use `g++`, not `gcc`, for the final C++ link command. `g++` automatically links
-the C++ standard library.
-
-## 5. Compile and Link Separately
-
-A multi-file build can compile each source file first:
-
-```text
-g++ -std=c++11 -Wall -Wextra -Wpedantic -c feed.cpp -o feed.o
-g++ -std=c++11 -Wall -Wextra -Wpedantic -c main.cpp -o main.o
-```
-
-Then link the object files:
-
-```text
-g++ feed.o main.o -o feed-check
-```
-
-This separation matters because changing one source file should not require
-recompiling every other source file. Build systems such as CMake model these
-dependencies and issue the necessary compiler and linker commands.
-
-## 6. Debug and Release Options
-
-A useful local debug build commonly adds:
-
-```text
--O0 -g
-```
-
-`-O0` keeps optimization low, while `-g` emits debugging information. A release
-build commonly uses an optimization level such as `-O2`. Optimization affects
-performance and generated code; it is not a substitute for correctness checks,
-tests, or warnings.
-
-The exact compiler version and options are build inputs. CI and production
-should record them so a failure can be reproduced.
-
-## 7. Exit Status
-
-A return value of `0` from `main()` means success. A non-zero value normally
-signals an error:
+## 4. Cú pháp tối thiểu
 
 ```cpp
-if (bid_price > ask_price) {
-    std::cerr << "Invalid quote\n";
-    return 1;
-}
+g++ -std=c++11 -Wall -Wextra -Wpedantic main.cpp -o main
 ```
 
-Shell scripts and CI jobs use this exit status to decide whether a step passed.
+## 5. Cách nó hoạt động
 
-## 8. Common Mistakes
+1. Ví dụ tạo dữ liệu nhỏ, cố định và không cần nhập bàn phím.
+1. C++11 hoặc contract thư viện chuẩn áp dụng quy tắc hôm nay.
+1. Chương trình in kết quả quan trọng để đối chiếu với mã nguồn.
 
-- Forgetting `-std=c++11`, so the compiler default varies between machines.
-- Ignoring warnings because the program still builds.
-- Using `gcc` instead of `g++` for the final C++ link command.
-- Running an old executable after compilation failed.
-- Assuming successful compilation proves the program is correct.
-- Mixing incompatible compiler, standard-library, or ABI settings.
-- Applying `-Werror` blindly to third-party headers and turning external
-  warnings into local build failures.
+## 6. Lỗi thường gặp
 
-## 9. Trading-System Relevance
+- Không ghi rõ chuẩn có thể khiến máy này nhận tính năng mới nhưng máy khác lại từ chối, làm kết quả build thiếu ổn định.
 
-A tick-data program may validate a quote where the bid price must not exceed the
-ask price. The same source should behave consistently on a developer laptop, a
-test server, and a production machine. An explicit standard mode, strict
-warnings, repeatable compiler versions, and a failing exit status reduce
-environment-dependent surprises.
+## 7. Khi nào nên dùng
 
-## 10. Key Takeaways
+- Nên dùng khi cần một quy trình build C++11 lặp lại được và có cảnh báo hữu ích.
+- Tránh dùng khi nó che ownership, lifetime, kiểu, thứ tự hoặc chi phí.
 
-- Select the C++ version explicitly.
-- Compile with warnings and investigate them.
-- Treat compilation and linking as distinct build stages.
-- Do not confuse a successful build with a correct program.
-- Make toolchain versions and options reproducible.
+## 8. Ví dụ đơn giản
 
-## 11. Self-Check Questions
+Chương trình in `__cplusplus`; khi dùng `-std=c++11`, giá trị này cho biết chế độ ngôn ngữ đã chọn rồi in thêm một phép tính cố định. File `.cpp` dùng dữ liệu cố định và không thêm abstraction ngoài chủ đề.
 
-1. What does `-std=c++11` control?
-2. Why should warnings be fixed even when compilation succeeds?
-3. What is the difference between a `.cpp` file, an object file, and an
-   executable?
-4. Why can running a command after a failed build execute stale code?
-5. Why should CI preserve the compiler version and build options?
+## 9. Điều cần nhớ
+
+- Tính năng nằm trong phạm vi C++11 của lộ trình này.
+- Hiểu hệ quả về lifetime, ownership, kiểu và thứ tự trước khi dùng.
+- Compile với cảnh báo và ưu tiên cách viết nhỏ nhất làm quy tắc hiện rõ.
+
+## 10. Câu hỏi tự kiểm tra
+
+1. Dễ — Chủ đề hôm nay giải quyết vấn đề gì, và token hoặc khai báo nào trong cú pháp tối thiểu kích hoạt nó?
+1. Trung bình — Đọc ví dụ nhỏ ở trên. Chương trình sẽ in giá trị hoặc trạng thái nào, và quy tắc nào tạo ra kết quả đó?
+1. Khó — Tìm và giải thích lỗi tinh tế trong tình huống sau: Không ghi rõ chuẩn có thể khiến máy này nhận tính năng mới nhưng máy khác lại từ chối, làm kết quả build thiếu ổn định. Cách sửa nhỏ nhất nhưng an toàn trong C++11 là gì?

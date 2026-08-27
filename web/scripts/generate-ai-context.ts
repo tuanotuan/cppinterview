@@ -14,6 +14,7 @@ type Manifest = {
   lessons: Array<{
     track: string;
     knowledgePath: string;
+    translationPaths?: string[];
     codePath?: string | null;
   }>;
   questions: Array<{
@@ -79,6 +80,9 @@ async function main() {
       collectExistingFiles(
         manifest.lessons.flatMap((lesson) => [
           path.join(repoRoot, lesson.knowledgePath),
+          ...(lesson.translationPaths ?? []).map((translationPath) =>
+            path.join(repoRoot, translationPath)
+          ),
           ...(lesson.codePath
             ? [path.join(repoRoot, lesson.codePath)]
             : []),

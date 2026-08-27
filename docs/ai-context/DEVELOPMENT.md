@@ -38,7 +38,8 @@ npm run validate        # toàn bộ gate theo thứ tự trên
 skill từ upstream, nên chỉ chạy khi thật sự muốn cập nhật dependency tooling; sau
 đó kiểm tra diff, refresh context và commit toàn bộ thay đổi liên quan.
 
-`content:refresh` có ghi registry/manifest. `content:check`, test, lint,
+`content:refresh` có ghi registry/manifest và overlay lesson tiếng Anh sinh từ
+file `en.md` đi cùng bài. `content:check`, test, lint,
 typecheck và `context:check` là read-only. `content:refresh` cũng refresh
 `docs/ai-context/GENERATED_SNAPSHOT.md`. `content:sync`,
 `content:generate:db`, migration và deploy có tác động external; không chạy chỉ
@@ -100,12 +101,15 @@ xuống với contract H1/H2 bắt buộc. Đưa hai tệp đó vào source less
 và vẫn phải làm theo recipe dưới đây.
 
 1. Tạo hoặc sửa `<source-root>/<lesson>/knowledge.md`; cần một `#` title và ít
-   nhất một `##` section.
+   nhất một `##` section. Với lesson song ngữ, `knowledge.md` là bản canonical
+   và thêm `en.md` có cùng số/thứ tự section; pipeline giữ ID section canonical
+   rồi sinh overlay tiếng Anh exact-revision.
 2. Thêm code mẫu đúng ngôn ngữ nếu cần: `main.cpp`, `main.py`, hoặc
    `CMakeLists.txt`.
 3. Chạy `npm run content:refresh`, rồi `npm run content:status`.
-4. Review diff trong `web/content/lesson-registry.yaml` và
-   `web/src/generated/content-manifest.json`.
+4. Review diff trong `web/content/lesson-registry.yaml`,
+   `web/src/generated/content-manifest.json` và
+   `web/src/generated/lesson-translations-en.json`.
 5. Chạy `npm run validate`.
 
 Source roots được discovery: `cpp98_foundation`, `cpp11`, `cpp20`. ID mới được
