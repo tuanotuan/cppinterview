@@ -251,7 +251,7 @@
       "available": "Ngày có học liệu"
     },
     "overviewTitle": "Bản đồ học C++11",
-    "overviewDescription": "Đi theo đường nối từ trái sang phải rồi vòng xuống hàng kế tiếp. Chọn một node để xem mục tiêu và mở bài học liên quan.",
+    "overviewDescription": "Đi theo đường nối từ trái sang phải rồi vòng xuống hàng kế tiếp. Chọn node có học liệu để mở thẳng bài học tương ứng trong thư viện.",
     "legendAria": "Chú giải trạng thái học liệu",
     "mapAria": "Bản đồ 53 ngày học C++11",
     "start": "Bắt đầu tại đây",
@@ -263,16 +263,8 @@
     },
     "phaseLabel": "Chặng {number}",
     "dayLabel": "Ngày {day}",
-    "openDay": "Mở chi tiết ngày {day}: {title}",
-    "closeDetails": "Đóng chi tiết ngày học",
-    "detailsSummary": "Xem mục tiêu và học liệu",
-    "dependsOn": "Nên học sau: {days}",
-    "relatedLessons": "Bài học đang có",
-    "openLesson": "Mở bài {title}",
-    "readyNote": "Học liệu chính cho ngày này đã có trong thư viện.",
-    "partialNote": "Thư viện đã có một phần nội dung; các phần còn thiếu sẽ được bổ sung sau.",
-    "plannedNote": "Nội dung ngày này đang được biên soạn. Node vẫn được giữ để bạn thấy toàn bộ lộ trình.",
-    "shareDay": "Liên kết đến ngày {day}",
+    "openLesson": "Mở bài học ngày {day}: {title}",
+    "lessonUnavailable": "Ngày {day}: {title}. Bài học chưa được biên soạn.",
     "backToTop": "Về đầu roadmap"
   },
   "Practice": {

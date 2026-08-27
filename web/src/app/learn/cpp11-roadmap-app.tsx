@@ -36,23 +36,17 @@ export async function Cpp11RoadmapApp({ roadmap }: { roadmap: Cpp11Roadmap }) {
         {
           dayLabel: t("dayLabel", { day: entry.day }),
           coverageLabel: t(`coverage.${entry.coverage}`),
-          dependsOn: entry.dependsOn.length
-            ? t("dependsOn", {
-                days: entry.dependsOn
-                  .map((day) => t("dayLabel", { day }))
-                  .join(", "),
-              })
-            : null,
-          note: t(`${entry.coverage}Note`),
-          openAria: t("openDay", {
+          openAria: t("openLesson", {
+            day: entry.day,
+            title: entry.lessons[0]?.title ?? entry.title,
+          }),
+          unavailableAria: t("lessonUnavailable", {
             day: entry.day,
             title: entry.title,
           }),
         },
       ]),
     ),
-    relatedLessons: t("relatedLessons"),
-    closeDetails: t("closeDetails"),
   };
 
   return (

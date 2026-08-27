@@ -125,6 +125,9 @@ Supabase, rồi enqueue/generate DB-native drafts. Không dùng `content:auto` h
   `lessonIds`; `ready`/`partial` chỉ được trỏ tới lesson track `cpp11` đã có thật.
 - Title/objective/phase phải có cả `vi` và `en`. Chuỗi khung giao diện vẫn nằm
   trong `src/messages/{vi,en}.json`.
+- Thứ tự `lessonIds` có ý nghĩa: `lessonIds[0]` là lesson chính mà node roadmap
+  mở trực tiếp; các ID còn lại là học liệu liên quan. Ngày chưa có học liệu giữ
+  mảng rỗng để UI render placeholder disabled, không dùng URL giả hoặc URL rỗng.
 - Chạy targeted test `npx vitest run src/lib/learn/cpp11-roadmap.test.ts`, sau
   đó chạy `npm run validate`. Thay đổi roadmap không chạy migration, không sync
   Supabase và không biểu diễn trạng thái hoàn thành của người học.

@@ -251,7 +251,7 @@
       "available": "Days with material"
     },
     "overviewTitle": "C++11 learning map",
-    "overviewDescription": "Follow the connectors from left to right, then continue on the next row. Select a node to view its objective and related lessons.",
+    "overviewDescription": "Follow the connectors from left to right, then continue on the next row. Select a node with material to open its matching library lesson.",
     "legendAria": "Learning-material status legend",
     "mapAria": "The 53-day C++11 learning map",
     "start": "Start here",
@@ -263,16 +263,8 @@
     },
     "phaseLabel": "Phase {number}",
     "dayLabel": "Day {day}",
-    "openDay": "Open day {day}: {title}",
-    "closeDetails": "Close study-day details",
-    "detailsSummary": "View objective and material",
-    "dependsOn": "Suggested after: {days}",
-    "relatedLessons": "Available lessons",
-    "openLesson": "Open {title}",
-    "readyNote": "The core learning material for this day is available in the library.",
-    "partialNote": "Part of this topic is available; missing sections will be added later.",
-    "plannedNote": "This day's material is being prepared. The node remains visible so you can see the complete path.",
-    "shareDay": "Link to day {day}",
+    "openLesson": "Open day {day} lesson: {title}",
+    "lessonUnavailable": "Day {day}: {title}. This lesson has not been published yet.",
     "backToTop": "Back to roadmap top"
   },
   "Practice": {
