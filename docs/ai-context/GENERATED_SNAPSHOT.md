@@ -6,10 +6,10 @@
 ## Content
 
 - Manifest schema: 1
-- Source revision: `7309e64c059d9042edbf375bd0435ef142cf283dba05e858b2627b2a2fdeb04a`
-- Lessons: 32 (cpp11: 26, cpp20: 1, cpp98: 5)
-- Questions: 58 (draft: 48, verified: 10)
-- Question decks: cpp-interview: 58
+- Source revision: `e2718f63345e462cfa327b5e923ab791aa81b22114fa8b066b19c374c1a3c9cc`
+- Lessons: 8 (cpp11: 2, cpp20: 1, cpp98: 5)
+- Questions: 15 (draft: 11, verified: 4)
+- Question decks: cpp-interview: 15
 
 ## Application inventory
 
@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `7ac940a98f613cb1d8861d708007b4e7eecb11d754527395705f1223fc098c7f`
-- Fingerprinted files: 465
+- Project input fingerprint: `352e1e4f663410ae42ad9cf74ce0a1f323114e5c2f0534e2234ac3ff9bef0d1b`
+- Fingerprinted files: 418
 
 The fingerprint covers registered lesson sources, content files, application
 source/tests, scripts, package metadata, environment template, workflows, and

@@ -4,102 +4,6 @@
   "lessons": [],
   "questions": [
     {
-      "questionId": "cpp11-auto-001",
-      "questionVersion": 1,
-      "sourceHash": "d883070d939f311c2aed28298b494d8a3d9c03861c39a2e872fcbc546eaa2d89",
-      "prompt": "What is the difference between `auto`, `auto&`, and `const auto&`?",
-      "hint": "Think about copying, whether the original object can be modified, and copy cost.",
-      "answer": {
-        "short": "`auto` creates a new value through type deduction, `auto&` binds to and can modify the original object, while `const auto&` binds read-only and avoids a copy.",
-        "detailed": "When initialized from an ordinary lvalue, `auto` drops the reference and top-level const, so the new variable holds a separate value. `auto&` preserves a reference to the original object. `const auto&` also avoids copying but does not allow the object to be modified through that reference; it is a common choice when reading large objects in a container."
-      },
-      "rubric": {
-        "required": ["States that `auto` normally creates a separate value.", "States that `auto&` refers to and can modify the original object.", "States that `const auto&` is read-only and avoids copying."],
-        "bonus": ["Mentions that `auto` deduction drops top-level const and references."],
-        "misconceptions": ["`auto` is a dynamic type like Python.", "`const auto&` always creates a const copy."]
-      }
-    },
-    {
-      "questionId": "cpp11-auto-002",
-      "questionVersion": 1,
-      "sourceHash": "d883070d939f311c2aed28298b494d8a3d9c03861c39a2e872fcbc546eaa2d89",
-      "prompt": "Does this loop modify the elements in `names`? Explain why, and fix it if the goal is to append `!` to every element.",
-      "hint": "Is the type of `name` a reference?",
-      "answer": {
-        "short": "No. `name` is a copy. Use `for (auto& name : names)` to modify each original element.",
-        "detailed": "A range-based for loop with `auto name` copies each `std::string` into the loop variable. Modifying that variable does not affect the container and also performs an unnecessary copy. `auto& name` binds directly to the element; use `const auto& name` when the loop only reads it."
-      },
-      "rubric": {
-        "required": ["Concludes that `names` is unchanged.", "Explains that `name` is a copy.", "Changes the declaration to `auto&`."],
-        "bonus": ["Mentions `const auto&` for read-only iteration."],
-        "misconceptions": ["A range-based for loop always yields a reference."]
-      }
-    },
-    {
-      "questionId": "cpp11-nullptr-001",
-      "questionVersion": 1,
-      "sourceHash": "65a5be159d9eb8779f5807aaedfeb383d1decfe9047e63817955e3aa66be51e5",
-      "prompt": "Why is `nullptr` safer than `NULL` or `0` when a program has overloads that accept both integers and pointers?",
-      "hint": "Compare the types of the three expressions and how overload resolution sees them.",
-      "answer": {
-        "short": "`nullptr` has its own type, `std::nullptr_t`, and converts to pointer types, so it expresses null-pointer intent. `NULL` is commonly an integer macro and `0` is an integer literal, so they can choose the wrong overload or make the call ambiguous.",
-        "detailed": "C++11 introduced `nullptr` so overload resolution can clearly distinguish a null pointer from an integer. `NULL` is implementation-defined and commonly has an integral constant form, so overload selection may not express pointer intent. Use `nullptr` when you mean that no valid object is present."
-      },
-      "rubric": {
-        "required": ["Names the distinct `std::nullptr_t` type.", "Explains that `NULL` or `0` has integer characteristics.", "Connects the distinction to overload resolution and type safety."],
-        "bonus": ["Avoids claiming that every implementation defines `NULL` identically."],
-        "misconceptions": ["`nullptr` is only another spelling of integer `0`."]
-      }
-    },
-    {
-      "questionId": "cpp11-lambda-reference-001",
-      "questionVersion": 1,
-      "sourceHash": "186fb6fb811d886dea845b29557cd0f71ccff6dee6bca7c0db525c850498969c",
-      "prompt": "What is the main risk of returning or storing a lambda that captures a local variable by reference?",
-      "hint": "Compare the lifetime of the lambda with the lifetime of the local variable.",
-      "answer": {
-        "short": "The lambda can retain a reference after the local variable's lifetime ends, creating a dangling reference; using it then causes undefined behavior.",
-        "detailed": "A reference capture neither owns nor extends the lifetime of the captured object. If the callback runs after the creating scope has ended, its reference no longer designates a live object. Ensure the lifetimes line up, capture an appropriate value, or redesign ownership."
-      },
-      "rubric": {
-        "required": ["Identifies a dangling reference.", "Explains that the local lifetime can end before the lambda's lifetime.", "States that using the reference then causes undefined behavior."],
-        "bonus": ["Suggests capture by value or an explicit ownership/lifetime design."],
-        "misconceptions": ["A lambda automatically extends the lifetime of every reference capture."]
-      }
-    },
-    {
-      "questionId": "cpp11-constexpr-001",
-      "questionVersion": 1,
-      "sourceHash": "616889384744c8e3aa8a42f820102f2677cfd819cba85a54a57115ccff84bada",
-      "prompt": "Distinguish `const` from `constexpr`. Is a `const` value always a compile-time constant?",
-      "hint": "Immutability and eligibility for constant evaluation are different concepts.",
-      "answer": {
-        "short": "`const` primarily says an object cannot be modified through that name; it may still receive a runtime value. `constexpr` requires a value that is eligible for constant evaluation. Therefore, not every `const` value is a compile-time constant.",
-        "detailed": "A `const` variable can be initialized from runtime input and only guarantees immutability after initialization. A `constexpr` variable needs an initializer valid for a constant expression. A `constexpr` function can produce a compile-time result with compile-time inputs, but can also run at runtime when the context permits it."
-      },
-      "rubric": {
-        "required": ["Associates `const` with immutability.", "Associates `constexpr` with constant evaluation.", "Clearly states that not every `const` is a compile-time constant."],
-        "bonus": ["Notes that a `constexpr` function can be called in a runtime context."],
-        "misconceptions": ["Every `const` variable is evaluated at compile time."]
-      }
-    },
-    {
-      "questionId": "cpp11-deleted-functions-001",
-      "questionVersion": 1,
-      "sourceHash": "a75201d0283a6c61873928e453e28672027ae45fa72c14091c3f5da01bd053be",
-      "prompt": "A class exclusively owns a resource and must not be copied. How does `= delete` help design that interface?",
-      "hint": "Think about the copy constructor, copy assignment, and when the error is detected.",
-      "answer": {
-        "short": "Declare the copy constructor and copy-assignment operator with `= delete` so the compiler rejects every copy attempt and the interface explicitly says that copying is forbidden.",
-        "detailed": "A deleted function still participates in overload resolution, but if selected the program is ill-formed and fails at compile time. For exclusive resource ownership, deleting copy operations prevents accidental sharing or double ownership. It does not destroy an object or free memory."
-      },
-      "rubric": {
-        "required": ["States that the copy constructor and copy-assignment operator can be deleted.", "States that attempts fail at compile time.", "Explains that this protects ownership and makes the interface explicit."],
-        "bonus": ["Distinguishes a deleted function from deleting memory."],
-        "misconceptions": ["`= delete` runs at runtime to destroy an object."]
-      }
-    },
-    {
       "questionId": "cpp20-designated-initializers-001",
       "questionVersion": 1,
       "sourceHash": "77220c505e8b03b2f6646e03eee9a3e31bbcdfa6b1b0bf0cd6db45d2a56c7f24",
@@ -110,9 +14,17 @@
         "detailed": "`RiskConfig` is a suitable aggregate, but `maxLoss` is designated before `maxPosition`, contrary to declaration order. Write `.maxPosition` before `.maxLoss`. Designated initializers initialize aggregate members by name; they do not add named parameters to constructors or functions."
       },
       "rubric": {
-        "required": ["Concludes that the code is invalid.", "Identifies the member-order error.", "Names the aggregate-type constraint."],
-        "bonus": ["Distinguishes the feature from named parameters."],
-        "misconceptions": ["C++ designators may appear in any order, as in C."]
+        "required": [
+          "Concludes that the code is invalid.",
+          "Identifies the member-order error.",
+          "Names the aggregate-type constraint."
+        ],
+        "bonus": [
+          "Distinguishes the feature from named parameters."
+        ],
+        "misconceptions": [
+          "C++ designators may appear in any order, as in C."
+        ]
       }
     },
     {
@@ -126,9 +38,17 @@
         "detailed": "The `&object` operator obtains an object's address. A pointer such as `int* ptr` can store a compatible address. `ptr` itself is the address value, while `*ptr` is an lvalue designating the object at that address. Dereference only when the pointer identifies a valid, live object."
       },
       "rubric": {
-        "required": ["Distinguishes an address from an object.", "States that a pointer stores an address.", "States that dereferencing accesses the object."],
-        "bonus": ["Mentions that the pointer must be valid and the object still alive."],
-        "misconceptions": ["A pointer is the object it points to."]
+        "required": [
+          "Distinguishes an address from an object.",
+          "States that a pointer stores an address.",
+          "States that dereferencing accesses the object."
+        ],
+        "bonus": [
+          "Mentions that the pointer must be valid and the object still alive."
+        ],
+        "misconceptions": [
+          "A pointer is the object it points to."
+        ]
       }
     },
     {
@@ -142,9 +62,17 @@
         "detailed": "A null check only rules out a null pointer; it does not prove that an address still belongs to a valid object. A pointer can dangle after a local scope ends, a resource is freed, or an owner moves. Manage lifetime and ownership instead of relying only on `ptr != nullptr`."
       },
       "rubric": {
-        "required": ["Defines a pointer to an object whose lifetime has ended.", "States that the pointer may still be non-null.", "States that dereferencing it is undefined behavior."],
-        "bonus": ["Connects safety to ownership rather than only null checks."],
-        "misconceptions": ["Every non-null pointer is safe to dereference."]
+        "required": [
+          "Defines a pointer to an object whose lifetime has ended.",
+          "States that the pointer may still be non-null.",
+          "States that dereferencing it is undefined behavior."
+        ],
+        "bonus": [
+          "Connects safety to ownership rather than only null checks."
+        ],
+        "misconceptions": [
+          "Every non-null pointer is safe to dereference."
+        ]
       }
     },
     {
@@ -158,9 +86,19 @@
         "detailed": "Each member usually starts at an offset suitable for its type's alignment, and the whole struct also has alignment so array elements are positioned correctly. This can create internal and tail padding. Reordering members may reduce padding and improve cache density, but measure on the target ABI and consider semantic readability instead of assuming an absolute layout."
       },
       "rubric": {
-        "required": ["States that padding serves alignment.", "States that gaps can appear between members or after the last member.", "States that field order can affect size."],
-        "bonus": ["Notes that concrete layout and size depend on the implementation or ABI.", "Connects layout to cache density."],
-        "misconceptions": ["`sizeof(struct)` always equals the sum of the field sizes.", "Reordering always produces the same result on every platform."]
+        "required": [
+          "States that padding serves alignment.",
+          "States that gaps can appear between members or after the last member.",
+          "States that field order can affect size."
+        ],
+        "bonus": [
+          "Notes that concrete layout and size depend on the implementation or ABI.",
+          "Connects layout to cache density."
+        ],
+        "misconceptions": [
+          "`sizeof(struct)` always equals the sum of the field sizes.",
+          "Reordering always produces the same result on every platform."
+        ]
       }
     }
   ]

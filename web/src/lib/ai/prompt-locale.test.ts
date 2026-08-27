@@ -7,7 +7,7 @@ import { buildCoachPrompt, buildCoachSystemInstruction } from "./prompt";
 
 const manifest = contentManifestSchema.parse(manifestJson);
 const question = manifest.questions.find(
-  (item) => item.id === "cpp11-auto-001",
+  (item) => item.id === "cpp20-designated-initializers-001",
 )!;
 const lesson = manifest.lessons.find(
   (item) => item.id === question.lessonId,

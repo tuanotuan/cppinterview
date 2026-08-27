@@ -43,7 +43,7 @@ describe("lesson library", () => {
 
   it("builds an exact lesson practice link that round-trips safely", () => {
     const lesson = manifest.lessons.find(
-      (item) => item.id === "cpp11-auto",
+      (item) => item.id === "cpp11-const-pointer-lvalue-reference",
     )!;
     const href = lessonPracticeHref(lesson);
     const query = new URL(href, "https://recall.local").searchParams;

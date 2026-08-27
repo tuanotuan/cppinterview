@@ -1,4 +1,4 @@
-# Day 31 — `const`, Pointers, and Lvalue References
+# Day 02 — `const`, Pointers, and Lvalue References
 
 ## 1. Problem It Solves
 

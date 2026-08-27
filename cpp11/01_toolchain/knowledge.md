@@ -1,4 +1,4 @@
-# Day 30 — Toolchain, Compiler Flags, and C++11 Mode
+# Day 01 — Toolchain, Compiler Flags, and C++11 Mode
 
 ## 1. Problem It Solves
 
