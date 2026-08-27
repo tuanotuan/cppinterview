@@ -11,7 +11,14 @@ trạng thái từ tên nhánh.
 - Bộ lọc thư viện `/learn` hiển thị riêng C++98, C++11, C++14, C++17, C++20
   và C++23, không còn gộp nhiều chuẩn trong một chip. Catalog hiện chỉ có lesson
   C++98/C++11/C++20 nên ba chuẩn còn lại xuất hiện ở trạng thái disabled; chip
-  tự xuống dòng và giữ vùng bấm tối thiểu 44 px trên màn hình hẹp.
+  tự xuống dòng và giữ vùng bấm tối thiểu 44 px trên màn hình hẹp. Điều hướng
+  cùng khu vực chuyển trực tiếp giữa danh sách và `/learn/roadmap/cpp11`.
+- Roadmap C++11 có 53 ngày trong 8 chặng, giữ thứ tự riêng với `lesson.order` và
+  link tới lesson C++11 đã xuất bản. Hiện có 8 ngày đủ học liệu, 12 ngày một phần
+  và 33 ngày planned; các nhãn này chỉ là coverage nội dung, không phải tiến độ
+  cá nhân. Trang dùng YAML Git-owned song ngữ, disclosure native, deep link
+  `#day-N`, timeline mobile một cột/desktop xen kẽ và không đọc Supabase,
+  localStorage hay scheduler.
 - Learner app hỗ trợ song ngữ Việt/Anh qua prefix bắt buộc `/vi` và `/en`; route
   không prefix tự chuyển theo cookie/browser với mặc định `vi`. Switcher giữ
   pathname, query và hash; `html lang`, metadata canonical/hreflang, navigation,
@@ -259,11 +266,11 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Sửa điều hướng Admin không prefix đạt `content:check`, `context:check`, ESLint,
-  TypeScript, 108 file/645 Vitest test và Next.js production build 113 static
-  params/routes. Test hồi quy quét Practice, Stats và guide tick để cấm dùng
-  navigation wrapper có locale cho `href="/admin..."`; route table build xác nhận
-  chỉ có `/admin` và `/admin/coverage`, không có `[locale]/admin`.
+- Roadmap C++11 đạt toàn bộ `npm run validate`: content/context check, ESLint,
+  TypeScript, 109 file/650 Vitest test và Next.js production build sinh 115 page
+  params, gồm route `/[locale]/learn/roadmap/cpp11`. Smoke HTML VI/EN xác nhận
+  đủ 53 anchor, lesson link giữ locale, bản English không lẫn title roadmap tiếng
+  Việt và response không có payload Supabase.
 - Google OAuth ở `/auth` dùng cùng callback PKCE của Supabase như GitHub; trước
   khi nút hoạt động cần bật provider, điền Google Client ID/Secret và đăng ký
   callback/origin theo `web/supabase/README.md`. Thay đổi UI/route đã đạt

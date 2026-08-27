@@ -208,6 +208,11 @@
     "prerequisites": "Cần học trước: {items}",
     "startNow": "Có thể bắt đầu ngay",
     "empty": "Không có bài nào khớp bộ lọc hiện tại.",
+    "views": {
+      "navAria": "Chọn cách xem thư viện",
+      "list": "Danh sách bài học",
+      "roadmap": "Roadmap C++11"
+    },
     "reader": {
       "allLessons": "Tất cả bài học",
       "lesson": "Bài {number}",
@@ -231,6 +236,39 @@
       "missing": "Bài này chưa có danh sách tự kiểm tra trong nguồn.",
       "progress": "Đã tự kiểm tra {checked}/{total} mục"
     }
+  },
+  "Cpp11Roadmap": {
+    "metaTitle": "Roadmap C++11 — cppinterview",
+    "metaDescription": "Lộ trình C++11 gồm 53 ngày, từ toolchain và object model đến concurrency và tối ưu hiệu năng.",
+    "brandTagline": "53 ngày · C++11 cốt lõi",
+    "eyebrow": "Lộ trình C++11",
+    "title": "Đi từ nền tảng đến hiệu năng theo một đường học rõ ràng.",
+    "description": "53 ngày được chia thành 8 chặng có thứ tự. Mở từng ngày để xem mục tiêu, kiến thức cần học trước và các bài đã có trong thư viện.",
+    "contentNote": "Trạng thái bên dưới phản ánh mức độ học liệu hiện có, không phải tiến độ học tập của bạn.",
+    "metrics": {
+      "days": "Ngày học",
+      "phases": "Chặng",
+      "available": "Ngày có học liệu"
+    },
+    "overviewTitle": "Bản đồ 8 chặng",
+    "overviewDescription": "Mỗi node là một ngày học. Các đường nối thể hiện thứ tự đề xuất, không khóa quyền truy cập bài học.",
+    "legendAria": "Chú giải trạng thái học liệu",
+    "coverage": {
+      "ready": "Có bài học",
+      "partial": "Một phần",
+      "planned": "Sắp có"
+    },
+    "phaseLabel": "Chặng {number}",
+    "dayLabel": "Ngày {day}",
+    "detailsSummary": "Xem mục tiêu và học liệu",
+    "dependsOn": "Nên học sau: {days}",
+    "relatedLessons": "Bài học đang có",
+    "openLesson": "Mở bài {title}",
+    "readyNote": "Học liệu chính cho ngày này đã có trong thư viện.",
+    "partialNote": "Thư viện đã có một phần nội dung; các phần còn thiếu sẽ được bổ sung sau.",
+    "plannedNote": "Nội dung ngày này đang được biên soạn. Node vẫn được giữ để bạn thấy toàn bộ lộ trình.",
+    "shareDay": "Liên kết đến ngày {day}",
+    "backToTop": "Về đầu roadmap"
   },
   "Practice": {
     "metaTitle": "Học hôm nay — cppinterview",

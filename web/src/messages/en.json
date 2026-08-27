@@ -208,6 +208,11 @@
     "prerequisites": "Prerequisites: {items}",
     "startNow": "Ready to start",
     "empty": "No lessons match the current filters.",
+    "views": {
+      "navAria": "Choose a library view",
+      "list": "Lesson list",
+      "roadmap": "C++11 roadmap"
+    },
     "reader": {
       "allLessons": "All lessons",
       "lesson": "Lesson {number}",
@@ -231,6 +236,39 @@
       "missing": "This lesson does not include a self-check list in its source yet.",
       "progress": "Checked {checked}/{total} items"
     }
+  },
+  "Cpp11Roadmap": {
+    "metaTitle": "C++11 roadmap — cppinterview",
+    "metaDescription": "A 53-day C++11 roadmap from the toolchain and object model through concurrency and performance optimization.",
+    "brandTagline": "53 days · core C++11",
+    "eyebrow": "C++11 roadmap",
+    "title": "Follow one clear path from foundations to performance.",
+    "description": "The 53 days are organized into 8 ordered phases. Open any day to see its objective, suggested prerequisites, and lessons already available in the library.",
+    "contentNote": "The statuses below describe available learning material, not your personal learning progress.",
+    "metrics": {
+      "days": "Days",
+      "phases": "Phases",
+      "available": "Days with material"
+    },
+    "overviewTitle": "Eight-phase map",
+    "overviewDescription": "Each node is one study day. Connectors show the suggested sequence without locking lesson access.",
+    "legendAria": "Learning-material status legend",
+    "coverage": {
+      "ready": "Lesson ready",
+      "partial": "Partially covered",
+      "planned": "Coming soon"
+    },
+    "phaseLabel": "Phase {number}",
+    "dayLabel": "Day {day}",
+    "detailsSummary": "View objective and material",
+    "dependsOn": "Suggested after: {days}",
+    "relatedLessons": "Available lessons",
+    "openLesson": "Open {title}",
+    "readyNote": "The core learning material for this day is available in the library.",
+    "partialNote": "Part of this topic is available; missing sections will be added later.",
+    "plannedNote": "This day's material is being prepared. The node remains visible so you can see the complete path.",
+    "shareDay": "Link to day {day}",
+    "backToTop": "Back to roadmap top"
   },
   "Practice": {
     "metaTitle": "Today's practice — cppinterview",

@@ -23,3 +23,16 @@ present.
 The root `python/` directory is intentionally outside this pipeline. It is
 kept in the repository as personal study material and is neither discovered,
 synced, nor displayed by the web product.
+
+## Roadmaps
+
+Roadmaps are navigation metadata, not published lessons. The C++11 path lives
+in `roadmaps/cpp11.yaml`; it owns the bilingual phase/day titles, objectives,
+prerequisite-day graph, content-coverage status, and links to existing lesson
+IDs. A `planned` day must not link a lesson. `ready` and `partial` days may only
+link lessons that already exist in `lesson-registry.yaml` under the `cpp11`
+track.
+
+Do not add placeholder lessons or fake `knowledge.md` files to make a roadmap
+node look available. Add the real lesson source first, refresh the content
+manifest, then update that node's links and coverage in the roadmap registry.
