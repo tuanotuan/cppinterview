@@ -17,8 +17,9 @@ trạng thái từ tên nhánh.
   link tới lesson C++11 đã xuất bản. Hiện có 8 ngày đủ học liệu, 12 ngày một phần
   và 33 ngày planned; các nhãn này chỉ là coverage nội dung, không phải tiến độ
   cá nhân. Trang dùng YAML Git-owned song ngữ; sơ đồ compact dùng node/connector
-  ba cột ziczac trên desktop, một trục dọc trên tablet/mobile và dialog accessible
-  khi chọn node. Deep link `#day-N` mở đúng chi tiết ngày và trang không đọc Supabase,
+  ba cột ziczac trên desktop và một trục dọc trên tablet/mobile. Node có học liệu
+  mở thẳng lesson chính (`lessonIds[0]`) theo locale; node chưa có lesson giữ vị
+  trí nhưng disabled và không tạo điều hướng rỗng. Trang không đọc Supabase,
   localStorage hay scheduler.
 - Learner app hỗ trợ song ngữ Việt/Anh qua prefix bắt buộc `/vi` và `/en`; route
   không prefix tự chuyển theo cookie/browser với mặc định `vi`. Switcher giữ
@@ -272,7 +273,9 @@ trạng thái từ tên nhánh.
   production build sinh 115 page params, gồm route
   `/[locale]/learn/roadmap/cpp11`. Visual smoke 1440 px xác nhận đường ziczac ba
   cột; 768 px chuyển đúng sang trục dọc không tràn ngang. Smoke VI/EN xác nhận
-  đủ 53 ngày, lesson link giữ locale và response không có payload Supabase.
+  node có học liệu sinh đúng route locale tới lesson chính, node chưa có bài
+  không sinh `href` rỗng, popup cũ không còn trong HTML và response không có
+  payload Supabase.
 - Google OAuth ở `/auth` dùng cùng callback PKCE của Supabase như GitHub; trước
   khi nút hoạt động cần bật provider, điền Google Client ID/Secret và đăng ký
   callback/origin theo `web/supabase/README.md`. Thay đổi UI/route đã đạt
