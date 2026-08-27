@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { LanguageSwitcher } from "@/app/language-switcher";
+import { LearnViewNav } from "@/app/learn/learn-view-nav";
 
 import {
   lessonMatchesStandard,
@@ -144,11 +145,12 @@ export function LessonLibraryApp({
           </div>
         </section>
 
-        <section aria-live="polite" className="py-7">
+        <section aria-live="polite" aria-labelledby="lesson-list-title" className="py-7">
+          <h2 id="lesson-list-title" className="sr-only">
+            {t("listTitle")}
+          </h2>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-2xl font-semibold tracking-tight">
-              {t("listTitle")}
-            </h2>
+            <LearnViewNav current="list" />
             <span className="font-mono text-xs text-[#526276]">
               {t("results", { count: visibleLessons.length })}
             </span>

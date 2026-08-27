@@ -116,6 +116,19 @@ Trên `main`, CI refresh deterministic files, commit nếu cần, sync snapshot 
 Supabase, rồi enqueue/generate DB-native drafts. Không dùng `content:auto` hay
 `content:draft` cho production flow bình thường.
 
+## Recipe: sửa roadmap C++11
+
+- Registry riêng nằm tại `web/content/roadmaps/cpp11.yaml`; không dùng
+  `lesson.order` làm số ngày và không thêm placeholder vào
+  `content/lesson-registry.yaml`.
+- Giữ đúng 53 ngày và dependency chỉ trỏ về ngày trước đó. `planned` không có
+  `lessonIds`; `ready`/`partial` chỉ được trỏ tới lesson track `cpp11` đã có thật.
+- Title/objective/phase phải có cả `vi` và `en`. Chuỗi khung giao diện vẫn nằm
+  trong `src/messages/{vi,en}.json`.
+- Chạy targeted test `npx vitest run src/lib/learn/cpp11-roadmap.test.ts`, sau
+  đó chạy `npm run validate`. Thay đổi roadmap không chạy migration, không sync
+  Supabase và không biểu diễn trạng thái hoàn thành của người học.
+
 ## Recipe: sửa question
 
 - Contract đầy đủ: `web/content/README.md`.

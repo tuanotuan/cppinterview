@@ -13,7 +13,7 @@ Tài liệu ổn định để tìm đúng vùng code. Xác minh lại nếu sou
 | `web/src/app/[locale]/layout.tsx`, `web/src/app/site-footer.tsx` | Shell learner theo locale, `html lang`, message provider, footer và mobile navigation/tracker dùng chung; Admin/WorldQuant có document layout riêng không prefix locale |
 | `web/src/messages/`, `web/src/content-translations/` | Chuỗi UI theo namespace và overlay bản dịch nội dung bind exact revision; ID/version/hash/taxonomy/code/source không bị dịch |
 | `web/src/app/recall-mobile-nav.tsx` | Điều hướng mobile dùng chung: Học hôm nay, Nhiệm vụ, Trung tâm chuẩn bị, Thư viện, Hồ sơ; tự ẩn ở mock/full-round để giữ không gian phỏng vấn |
-| `web/content/` | Registry lesson và question YAML do Git quản lý |
+| `web/content/` | Registry lesson, question và roadmap YAML do Git quản lý; roadmap chỉ tổ chức đường học, không tạo lesson giả |
 | `web/src/generated/content-manifest.json` | Manifest deterministic, không sửa tay |
 | `web/supabase/migrations/` | Schema/RPC/RLS theo thứ tự timestamp |
 | `.github/workflows/web-validate.yml` | CI validate, refresh/sync/generate content |
@@ -76,6 +76,7 @@ dùng navigation wrapper của `next-intl`, để không sinh nhầm `/vi/admin`
 | `/practice` | `[locale]/practice/page.tsx`, `practice-app.tsx`, `code-review-workspace.tsx`, `question-editor-dialog.tsx`, `confirmation-dialog.tsx` | Today workspace: CTA tiếp tục/luyện thêm, tiến độ và chỉ số ngày trước card; guest mode `?guest=1` giữ tiến độ local và mở Luna với giới hạn public 3 lượt/24 giờ, còn vùng trả lời không lặp cảnh báo trial cho tài khoản đã đăng nhập; Daily/custom study và Focus Sprint exact queue; `/en/practice` chỉ nhận question có overlay đúng revision, đồng thời ẩn source excerpt/title lesson chưa có overlay để không fallback sang tiếng Việt; mỗi thẻ chỉ hiện hai nhãn phân loại độ khó và Text/Code theo locale, còn taxonomy nội bộ không lộ ra hoặc lọc ở UI; question overlay, toàn bộ control/modal và AI Coach dùng locale phiên hiện tại; `code_review` thay textarea bằng workspace chọn dòng, lưu annotation vào candidate answer để tồn tại qua F5 và gửi nguyên vẹn cho Coach, không lộ rubric/comment mẫu; answer không giới hạn sản phẩm, blank = chưa biết và vẫn gọi được AI, rating, scheduler, cloud sync, saved state, owner-only edit/archive thẻ và return về Guided Mission; thao tác phá hủy dùng confirmation sheet của cppinterview thay vì hộp thoại trình duyệt |
 | `/worldquant/*` | `worldquant/layout.tsx` và các module lịch sử | Workspace chuẩn bị theo một công ty cũ chỉ còn truy cập được bởi admin GitHub `tuanotuan`; người học thường bị chuyển về `/practice`. Không có entry point công khai tới vùng này. |
 | `/learn` | `[locale]/learn/page.tsx`, `[locale]/learn/[lessonId]/page.tsx` | Thư viện lesson từ manifest với UI theo locale, tổng quan bài/thẻ đã duyệt/bài có mã, tìm kiếm và chip riêng cho từng chuẩn C++98/11/14/17/20/23; chuẩn chưa có lesson bị khóa thay vì trả danh sách rỗng; Markdown an toàn, tự kiểm tra và mở phiên ôn tập trọng tâm |
+| `/learn/roadmap/cpp11` | `[locale]/learn/roadmap/cpp11/page.tsx`, `app/learn/cpp11-roadmap-app.tsx`, `lib/learn/cpp11-roadmap.ts` | Roadmap C++11 song ngữ gồm 53 ngày/8 chặng, timeline một cột trên mobile và xen kẽ quanh trục giữa trên desktop; trạng thái chỉ phản ánh học liệu `ready`/`partial`/`planned`, không đọc hay giả lập tiến độ người học |
 | `/mock-interview` | `[locale]/mock-interview/page.tsx`, `mock-interview-app.tsx` | Phỏng vấn thử v4 toàn diện/trọng tâm 30/45/60 phút. Locale được đóng băng khi bắt đầu phiên để báo cáo và history không đổi ngôn ngữ giữa chừng. Targeted Mock v2 có hai scenario rõ nghĩa (tích hợp feed mới; chuyển đổi & sự cố), exact server-rebuilt plan và lịch sử v1 vẫn chỉ đọc; báo cáo tám tiêu chí có evidence server-canonical, deterministic gate C++/market-data/migration và không đưa ra phán quyết role-ready. Lịch sử và kế hoạch ôn tiếp vẫn tạo đúng ba việc luyện tiếp để capture vào Mistake Inbox sau durable history; desktop session rail chỉ lộ thứ tự/trạng thái trả lời, còn thanh chuyển câu/nộp bài sticky; nộp sớm, reset, thay Focus hoặc xóa history đều xác nhận trong UI |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx`, `lib/learn/tick-data-guide.ts` | Guide tick data/order book |
 | `/stats` | `stats/page.tsx`, `fsrs-shadow-panel.tsx` | Analytics học tập và FSRS-6 shadow comparison |
@@ -106,6 +107,7 @@ API quan trọng:
 |---|---|---|
 | `content` | `loader.ts`, `schema.ts`, `automation.ts`, `translations.ts` | Parse note, schema Zod, discover lesson, sinh manifest và áp overlay dịch đúng exact revision mà không đổi identity/source/code |
 | `content` | `question-store-server.ts` | Chọn `repo`/`shadow`/`db`, parity, apply override |
+| `learn` | `lesson-library.ts`, `cpp11-roadmap.ts` | Dựng catalog lesson và validate/localize registry roadmap riêng; node roadmap chỉ link lesson C++11 đã xuất bản, không tham gia discovery hay question sync |
 | `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts`, `progress-sync.ts`, `study-session.ts` | Queue Anki, rating nguyên tử, due date, streak, browser/cloud progress và draft/phase Trợ giúp → Làm lại |
 | `practice` | `repair-queue.ts`, `rescue-retry.ts`, `fsrs-shadow.ts`, `browser-storage-lock.ts` | Blank-answer Rescue → Retry, same-session repair exact identity, cross-tab mutation lock và FSRS-6 chỉ quan sát |
 | `practice` | `focus-session.ts`, `focus-eligibility.ts` | Session Focus Sprint identity-only, resume/reconcile/completion và lọc exact approved refs |
@@ -148,6 +150,14 @@ Quy tắc:
 - Archive giữ history, không hard-delete question.
 - Câu hỏi đã archive có lesson bị gỡ không vào manifest; câu hỏi còn hoạt động mà
   mất lesson làm loader fail closed thay vì âm thầm tạo orphan.
+
+### Roadmap đến lesson
+
+`content/roadmaps/cpp11.yaml` → `lib/learn/cpp11-roadmap.ts` validate 53 ngày,
+phase, dependency và lesson ID → route locale `/learn/roadmap/cpp11` → link tới
+lesson reader hiện có. Thứ tự roadmap độc lập với `lesson.order`; node planned
+không được tạo placeholder trong lesson registry. Coverage roadmap là trạng thái
+học liệu, không đọc localStorage, Supabase hay scheduler.
 - Review được key theo question ID; queue/analytics tách theo deck.
 
 Nhánh DB-native chạy `content:sync` rồi enqueue exact
