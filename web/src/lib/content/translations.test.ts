@@ -17,13 +17,13 @@ describe("content translations", () => {
     const source = manifest;
     const localized = localizeContentManifest(source, "en");
     const sourceQuestion = source.questions.find(
-      (question) => question.id === "cpp11-auto-001",
+      (question) => question.id === "cpp20-designated-initializers-001",
     )!;
     const translatedQuestion = localized.questions.find(
       (question) => question.id === sourceQuestion.id,
     )!;
 
-    expect(translatedQuestion.prompt).toContain("difference");
+    expect(translatedQuestion.prompt).toContain("valid");
     expect(translatedQuestion.prompt).not.toBe(sourceQuestion.prompt);
     expect({
       id: translatedQuestion.id,
@@ -47,15 +47,15 @@ describe("content translations", () => {
       manifest,
       "en",
     );
-    expect(coverage.questions).toBe(10);
+    expect(coverage.questions).toBe(4);
   });
 
   it("distinguishes translated questions from canonical-language fallbacks", () => {
     const translated = manifest.questions.find(
-      (question) => question.id === "cpp11-auto-001",
+      (question) => question.id === "cpp20-designated-initializers-001",
     )!;
     const untranslated = manifest.questions.find(
-      (question) => question.id === "cpp11-range-based-for-001",
+      (question) => question.id === "cpp98-object-variable-memory-001",
     )!;
     const untranslatedLesson = manifest.lessons.find(
       (lesson) => lesson.id === untranslated.lessonId,
