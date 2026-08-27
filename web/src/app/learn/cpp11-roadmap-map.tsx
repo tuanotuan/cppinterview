@@ -186,6 +186,8 @@ function RoadmapNode({
       {primaryLesson ? (
         <Link
           href={`/learn/${primaryLesson.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
           aria-label={copy.openAria}
           className={`${nodeClassName} cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:ring-offset-2 ${coverageNodeStyles[entry.coverage]}`}
         >
@@ -239,7 +241,7 @@ function RoadmapNodeContent({
         >
           <svg viewBox="0 0 20 20" className="size-4" fill="none">
             <path
-              d="M4 10h11m-4-4 4 4-4 4"
+              d="M11 4h5v5m0-5-7 7M8 6H5.5A1.5 1.5 0 0 0 4 7.5v7A1.5 1.5 0 0 0 5.5 16h7a1.5 1.5 0 0 0 1.5-1.5V12"
               stroke="currentColor"
               strokeWidth="1.8"
               strokeLinecap="round"

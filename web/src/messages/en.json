@@ -263,7 +263,7 @@
     },
     "phaseLabel": "Phase {number}",
     "dayLabel": "Day {day}",
-    "openLesson": "Open day {day} lesson: {title}",
+    "openLesson": "Open day {day} lesson in a new tab: {title}",
     "lessonUnavailable": "Day {day}: {title}. This lesson has not been published yet.",
     "backToTop": "Back to roadmap top"
   },

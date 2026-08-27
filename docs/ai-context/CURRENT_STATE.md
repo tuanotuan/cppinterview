@@ -18,7 +18,7 @@ trạng thái từ tên nhánh.
   và 33 ngày planned; các nhãn này chỉ là coverage nội dung, không phải tiến độ
   cá nhân. Trang dùng YAML Git-owned song ngữ; sơ đồ compact dùng node/connector
   ba cột ziczac trên desktop và một trục dọc trên tablet/mobile. Node có học liệu
-  mở thẳng lesson chính (`lessonIds[0]`) theo locale; node chưa có lesson giữ vị
+  mở lesson chính (`lessonIds[0]`) theo locale trong tab mới; node chưa có lesson giữ vị
   trí nhưng disabled và không tạo điều hướng rỗng. Trang không đọc Supabase,
   localStorage hay scheduler.
 - Learner app hỗ trợ song ngữ Việt/Anh qua prefix bắt buộc `/vi` và `/en`; route
@@ -273,9 +273,9 @@ trạng thái từ tên nhánh.
   production build sinh 115 page params, gồm route
   `/[locale]/learn/roadmap/cpp11`. Visual smoke 1440 px xác nhận đường ziczac ba
   cột; 768 px chuyển đúng sang trục dọc không tràn ngang. Smoke VI/EN xác nhận
-  node có học liệu sinh đúng route locale tới lesson chính, node chưa có bài
-  không sinh `href` rỗng, popup cũ không còn trong HTML và response không có
-  payload Supabase.
+  node có học liệu sinh đúng route locale tới lesson chính với `target="_blank"`
+  và `rel="noopener noreferrer"`; node chưa có bài không sinh `href` rỗng,
+  popup cũ không còn trong HTML và response không có payload Supabase.
 - Google OAuth ở `/auth` dùng cùng callback PKCE của Supabase như GitHub; trước
   khi nút hoạt động cần bật provider, điền Google Client ID/Secret và đăng ký
   callback/origin theo `web/supabase/README.md`. Thay đổi UI/route đã đạt
