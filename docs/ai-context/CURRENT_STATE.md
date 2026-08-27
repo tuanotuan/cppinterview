@@ -16,7 +16,9 @@ trạng thái từ tên nhánh.
   không prefix tự chuyển theo cookie/browser với mặc định `vi`. Switcher giữ
   pathname, query và hash; `html lang`, metadata canonical/hreflang, navigation,
   footer, landing, Auth và thư viện dùng locale hiện tại. Admin, WorldQuant, API
-  và callback Auth kỹ thuật vẫn không prefix.
+  và callback Auth kỹ thuật vẫn không prefix. Các lối tắt Admin trong Practice,
+  Stats và guide tick dùng `next/link` trực tiếp nên luôn mở `/admin`, không bị
+  navigation theo locale đổi thành route 404 `/vi/admin` hoặc `/en/admin`.
 - Catalog hiện có 10 question với overlay tiếng Anh bind exact revision. Route
   `/en/practice` chỉ xếp đúng các question này vào hàng học; question được duyệt
   nhưng chưa dịch không còn fallback sang tiếng Việt, còn source excerpt/title
@@ -257,13 +259,11 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Footer learner midnight đạt `content:check`, `context:check`, ESLint,
-  TypeScript, 108 file/644 Vitest test và Next.js production build 113 static
-  params/routes. Browser/CDP smoke tại 375/768/1440px xác nhận Việt/Anh không
-  tràn ngang, mọi link/button cao ít nhất 44px, dropdown ngôn ngữ mở lên trong
-  viewport và body reserve dưới mobile nav giữ cùng nền footer. Các cặp chữ/nền
-  footer đạt contrast 10.26–17.75:1; test hồi quy khóa thứ tự route nội bộ và URL
-  HTTPS của liên kết ngoài.
+- Sửa điều hướng Admin không prefix đạt `content:check`, `context:check`, ESLint,
+  TypeScript, 108 file/645 Vitest test và Next.js production build 113 static
+  params/routes. Test hồi quy quét Practice, Stats và guide tick để cấm dùng
+  navigation wrapper có locale cho `href="/admin..."`; route table build xác nhận
+  chỉ có `/admin` và `/admin/coverage`, không có `[locale]/admin`.
 - Google OAuth ở `/auth` dùng cùng callback PKCE của Supabase như GitHub; trước
   khi nút hoạt động cần bật provider, điền Google Client ID/Secret và đăng ký
   callback/origin theo `web/supabase/README.md`. Thay đổi UI/route đã đạt

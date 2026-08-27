@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import NextLink from "next/link";
 import { Link } from "@/i18n/navigation";
 
 import {
@@ -700,12 +701,12 @@ std::visit(EventRouter{book, tape, session}, event);`}</code>
                     chấm.
                   </p>
                 </div>
-                <Link
+                <NextLink
                   href="/admin#review-queue"
                   className="mt-5 inline-flex shrink-0 rounded-2xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white sm:mt-0"
                 >
                   Tới danh sách chờ duyệt →
-                </Link>
+                </NextLink>
               </div>
             </GuideSection>
 
@@ -786,12 +787,12 @@ function GuideHeader() {
         >
           Phỏng vấn thử
         </Link>
-        <Link
+        <NextLink
           href="/admin"
           className="rounded-xl border border-[#0f3a69]/15 bg-white/65 px-4 py-2 font-bold transition hover:border-[#285f86]/35"
         >
           Quản trị
-        </Link>
+        </NextLink>
       </nav>
     </header>
   );

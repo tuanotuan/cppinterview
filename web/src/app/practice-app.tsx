@@ -1,6 +1,6 @@
 "use client";
 
-import { useLinkStatus } from "next/link";
+import NextLink, { useLinkStatus } from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
@@ -3101,9 +3101,12 @@ export function PracticeApp({
             className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#285f86]/25 bg-[#e6f8f5] px-4 py-3 text-sm text-[#16865a]"
           >
             <span>{mistakeNotice}</span>
-            <Link href="/admin#mistake-inbox" className="font-bold underline">
+            <NextLink
+              href="/admin#mistake-inbox"
+              className="font-bold underline"
+            >
               {practiceT("notice.openMistakes")}
-            </Link>
+            </NextLink>
           </div>
         ) : null}
 
@@ -4415,12 +4418,12 @@ function DeckEmptyState({
             ? t("emptyDeck.pending", { count: pendingCount })
             : t("emptyDeck.description")}
         </p>
-        <Link
+        <NextLink
           href="/admin"
           className="mt-7 inline-flex rounded-2xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white"
         >
           {t("emptyDeck.admin")}
-        </Link>
+        </NextLink>
       </div>
     </section>
   );
@@ -4712,21 +4715,15 @@ function WorkspaceNavLink({
   );
 }
 
-function HeaderNavLink({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
+function AdminHeaderLink({ children }: { children: React.ReactNode }) {
   return (
-    <Link
-      href={href}
+    <NextLink
+      href="/admin"
       className="relative inline-flex items-center gap-1.5 rounded-full border border-[#0f3a69]/15 bg-white/65 px-3 py-2 font-mono text-[10px] font-bold uppercase transition hover:border-[#285f86]/40"
     >
       <span>{children}</span>
       <HeaderNavPending />
-    </Link>
+    </NextLink>
   );
 }
 
@@ -4761,7 +4758,7 @@ function AccountControl({
     return (
       <div className="flex items-center gap-2">
         {canManageQuestionBank ? (
-          <HeaderNavLink href="/admin">{t("header.admin")}</HeaderNavLink>
+          <AdminHeaderLink>{t("header.admin")}</AdminHeaderLink>
         ) : null}
         <Link
           href="/profile"
