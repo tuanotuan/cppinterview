@@ -11,8 +11,10 @@ trạng thái từ tên nhánh.
 - Bộ lọc thư viện `/learn` hiển thị riêng C++98, C++11, C++14, C++17, C++20
   và C++23, không còn gộp nhiều chuẩn trong một chip. Catalog hiện chỉ có lesson
   C++98/C++11/C++20 nên ba chuẩn còn lại xuất hiện ở trạng thái disabled; chip
-  tự xuống dòng và giữ vùng bấm tối thiểu 44 px trên màn hình hẹp. Điều hướng
-  cùng khu vực chuyển trực tiếp giữa danh sách và `/learn/roadmap/cpp11`.
+  tự xuống dòng và giữ vùng bấm tối thiểu 44 px trên màn hình hẹp. Nhãn điều
+  hướng roadmap bám theo chuẩn đang lọc; ở `Tất cả` chỉ hiện `Roadmap`. C++11
+  mở route đã triển khai, còn chuẩn chưa có roadmap mở bộ chọn phiên bản và
+  được đánh dấu `Sắp có` thay vì bị chuyển nhầm sang C++11.
 - Roadmap C++11 có 53 ngày trong 8 chặng, giữ thứ tự riêng với `lesson.order` và
   link tới lesson C++11 đã xuất bản. Catalog C++11 hiện chỉ còn Toolchain và
   Const/Pointer/Lvalue Reference, được đánh số lại từ `01`; roadmap có 2 ngày đủ
@@ -305,9 +307,9 @@ trạng thái từ tên nhánh.
   ESLint, TypeScript, 111 file/656 Vitest test và Next.js production build 67
   page. Regression test giữ question revision cũ trong hàng `needs_review` nhưng
   không resolve section ID cũ vào lesson revision hiện hành.
-- Roadmap C++11 dạng node/connector đạt toàn bộ `npm run validate`:
-  content/context check, ESLint, TypeScript, 109 file/650 Vitest test và Next.js
-  production build sinh 115 page params, gồm route
+- Roadmap C++11 cùng điều hướng bám theo bộ lọc chuẩn đạt toàn bộ
+  `npm run validate`: content/context check, ESLint, TypeScript, 116 file/690
+  Vitest test và Next.js production build, gồm route
   `/[locale]/learn/roadmap/cpp11`. Visual smoke 1440 px xác nhận đường ziczac ba
   cột; 768 px chuyển đúng sang trục dọc không tràn ngang. Smoke VI/EN xác nhận
   node có học liệu sinh đúng route locale tới lesson chính với `target="_blank"`

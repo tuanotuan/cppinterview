@@ -211,7 +211,11 @@
     "views": {
       "navAria": "Chọn cách xem thư viện",
       "list": "Danh sách bài học",
-      "roadmap": "Roadmap C++11"
+      "roadmap": "Roadmap",
+      "roadmapFor": "Roadmap {standard}",
+      "chooseRoadmap": "Chọn phiên bản roadmap",
+      "openRoadmap": "Mở roadmap",
+      "roadmapComingSoon": "Sắp có"
     },
     "reader": {
       "allLessons": "Tất cả bài học",
