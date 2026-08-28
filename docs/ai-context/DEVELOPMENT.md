@@ -190,6 +190,10 @@ Supabase, rồi enqueue/generate DB-native drafts. Không dùng `content:auto` h
   trước: reader coi schema chưa có là chưa có tombstone, còn mutation fail closed
   cho tới khi migration được áp dụng. Không chạy migration remote từ coding task
   nếu chưa được người dùng cho phép rõ ràng.
+- Bộ 53 bài C++11 chỉ giữ ba canonical question cho mỗi bài. Migration
+  `20260828223000_retire_pre_curriculum_questions.sql` tombstone đúng danh sách
+  90 question ID legacy đã xác định, kể cả câu từng được duyệt, đồng thời gỡ liên
+  kết remediation nhưng không xóa revision, approval hay lịch sử học tập.
 - Duyệt question translation cần migration
   `20260828093103_approve_question_translations.sql`. Migration chỉ cấp
   insert/update qua RLS cho content admin, bind actor và exact current

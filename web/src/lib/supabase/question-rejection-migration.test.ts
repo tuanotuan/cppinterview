@@ -10,6 +10,13 @@ const migrationPath = path.resolve(
   "20260828064241_permanently_reject_queued_questions.sql",
 );
 
+const legacyCleanupMigrationPath = path.resolve(
+  process.cwd(),
+  "supabase",
+  "migrations",
+  "20260828223000_retire_pre_curriculum_questions.sql",
+);
+
 describe("permanent queued-question rejection migration", () => {
   it("uses an admin-only tombstone and preserves append-only content history", async () => {
     const sql = (await readFile(migrationPath, "utf8")).replaceAll(
@@ -47,6 +54,25 @@ describe("permanent queued-question rejection migration", () => {
     expect(sql).toMatch(
       /grant execute on function public\.reject_queued_content_question\([\s\S]*?\) to authenticated, service_role;/,
     );
+    expect(sql).not.toMatch(/delete from public\.content_question_(?:revisions|events)/);
+    expect(sql).not.toContain("delete from public.content_questions");
+  });
+
+  it("retires only the enumerated pre-curriculum IDs without deleting history", async () => {
+    const sql = (await readFile(legacyCleanupMigrationPath, "utf8")).replaceAll(
+      "\r\n",
+      "\n",
+    );
+    const ids = Array.from(
+      sql.matchAll(/^\s*\('([a-z0-9]+(?:-[a-z0-9]+)*)'\)[,;]$/gm),
+      (match) => match[1],
+    );
+
+    expect(ids).toHaveLength(90);
+    expect(new Set(ids).size).toBe(90);
+    expect(sql).toContain("on conflict (question_id) do nothing");
+    expect(sql).toContain("order by admin.created_at, admin.user_id");
+    expect(sql).toContain("set\n  status = 'dismissed'");
     expect(sql).not.toMatch(/delete from public\.content_question_(?:revisions|events)/);
     expect(sql).not.toContain("delete from public.content_questions");
   });

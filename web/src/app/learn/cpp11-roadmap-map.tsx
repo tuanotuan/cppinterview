@@ -7,7 +7,6 @@ import type {
 
 type DayCopy = {
   dayLabel: string;
-  coverageLabel: string;
   openAria: string;
   unavailableAria: string;
 };
@@ -26,12 +25,6 @@ const coverageNodeStyles: Record<RoadmapCoverage, string> = {
   partial:
     "border-[#c17922] bg-[#fff1dc] text-[#0f3a69] hover:bg-[#ffe8c5]",
   planned: "border-[#9cabb9] bg-white text-[#526276]",
-};
-
-const coverageDotStyles: Record<RoadmapCoverage, string> = {
-  ready: "bg-[#16865a]",
-  partial: "bg-[#c17922]",
-  planned: "border border-[#7c8c9d] bg-white",
 };
 
 const nodeClassName =
@@ -219,17 +212,8 @@ function RoadmapNodeContent({
 }) {
   return (
     <>
-      <span className="flex w-full items-center justify-between gap-2">
-        <span className="font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
-          {copy.dayLabel}
-        </span>
-        <span className="inline-flex min-w-0 items-center gap-1.5 text-[9px] font-bold text-[#43546a]">
-          <span
-            aria-hidden="true"
-            className={`size-2 shrink-0 rounded-full ${coverageDotStyles[entry.coverage]}`}
-          />
-          <span className="truncate">{copy.coverageLabel}</span>
-        </span>
+      <span className="font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
+        {copy.dayLabel}
       </span>
       <span className="mt-1.5 line-clamp-2 text-sm font-bold leading-[1.25rem]">
         {entry.title}
