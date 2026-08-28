@@ -155,9 +155,11 @@ trạng thái từ tên nhánh.
   Migration `20260825073227_add_content_translations.sql` đã được áp dụng trên
   Supabase project liên kết. Migration
   `20260828110000_localize_coach_evaluation_fingerprints.sql` đang chờ áp dụng;
-  trước migration này, AI Coach account/admin fail closed vì fingerprint phía
-  app đã gồm locale nhưng RPC vẫn kiểm tra hợp đồng cũ. Loader hiện vẫn đọc
-  catalog Git, chưa đọc view translation DB.
+  trước migration này, evaluation tiếng Việt của AI Coach account/admin chỉ
+  retry đúng lỗi fingerprint mismatch bằng cặp fingerprint/UUIDv8 legacy rồi
+  tiếp tục với identity RPC trả về. Evaluation tiếng Anh vẫn fail closed để
+  không dùng chung cache khác locale; follow-up không bị ảnh hưởng. Loader hiện
+  vẫn đọc catalog Git, chưa đọc view translation DB.
 
 - Kho câu hỏi đã duyệt chưa bao phủ đều tick data, Linux/mạng, hệ
   thống phân tán và kỹ năng chịu trách nhiệm đầu cuối. Giao diện phải gọi đây là
@@ -293,11 +295,12 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Luồng từ chối vĩnh viễn câu hỏi trong hàng đợi và lesson-check hiện đạt toàn
-  bộ `npm run validate`: content/context check, ESLint, TypeScript, 115 file/671
-  Vitest test và Next.js production build 68 page. Targeted test khóa admin auth,
-  exact version/source hash, tombstone filtering, migration/RLS contract và thứ
-  tự lock; `npm audit --omit=dev --audit-level=moderate` báo 0 lỗ hổng.
+- Compatibility rollout AI Coach tiếng Việt với RPC fingerprint cũ đạt toàn bộ
+  `npm run validate`: content/context check, ESLint, TypeScript, 115 file/677
+  Vitest test và Next.js production build 68 page. Targeted test khóa đúng luồng
+  lesson-check answer rỗng, cặp fingerprint/UUIDv8 legacy, canonical identity RPC
+  trả về, cùng fail-closed cho tiếng Anh và lỗi DB khác; `npm audit --omit=dev
+  --audit-level=moderate` báo 0 lỗ hổng.
 - Hotfix Practice cho question DB stale đạt `content:check`, `context:check`,
   ESLint, TypeScript, 111 file/656 Vitest test và Next.js production build 67
   page. Regression test giữ question revision cũ trong hàng `needs_review` nhưng

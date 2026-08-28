@@ -394,7 +394,11 @@ Các nhóm schema hiện có:
   canonical idempotency key và lease sau migration `20260730130000`; migration
   `20260828110000` đồng bộ fingerprint với `responseLocale`, chỉ nhận fingerprint
   legacy như tiếng Việt và persist locale đó trên attempt. Xóa attempt cũng xóa
-  cache reservation liên quan.
+  cache reservation liên quan. Trong rollout trước migration, app chỉ fallback
+  khi evaluation tiếng Việt nhận đúng `P0001` fingerprint mismatch từ RPC cũ;
+  fallback phải dùng cùng lúc fingerprint và UUIDv8 legacy, rồi dispatch/complete
+  bằng identity RPC trả về. Không ghép key locale-aware với fingerprint legacy
+  vì row đó sẽ conflict sau migration; tiếng Anh phải tiếp tục fail closed.
 - Migration `20260730140000` dùng retry protocol v3 cho Mistake: lease hết hạn
   trước marker provider được thu hồi và claim lại, còn lease đã marker hoặc kết
   quả provider/completion không xác định chuyển `dead_letter`. Trigger chặn

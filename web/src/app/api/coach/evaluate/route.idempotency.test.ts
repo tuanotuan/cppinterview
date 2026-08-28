@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -190,6 +192,18 @@ const identity = {
   candidateAnswer: "Câu trả lời thử nghiệm",
 };
 const fingerprint = coachEvaluationRequestFingerprint(identity);
+const lessonCheckIdentity = {
+  ...identity,
+  candidateAnswer: "",
+  responseLocale: "vi" as const,
+};
+const lessonCheckFingerprint =
+  coachEvaluationRequestFingerprint(lessonCheckIdentity);
+const lessonCheckLegacyFingerprint = legacyFingerprintFor(
+  lessonCheckIdentity,
+);
+const lessonCheckLegacyIdempotencyKey =
+  "22222222-2222-8222-8222-222222222222";
 const feedback = {
   score: 70,
   verdict: "solid" as const,
@@ -413,6 +427,38 @@ describe("POST /api/coach/evaluate idempotency", () => {
     expect(mocks.releaseCoachEvaluation).not.toHaveBeenCalled();
   });
 
+  it("completes a lesson-check request with its persisted legacy identity", async () => {
+    mocks.reserveCoachEvaluation.mockResolvedValueOnce({
+      ...runningReservation,
+      idempotencyKey: lessonCheckLegacyIdempotencyKey,
+      requestFingerprint: lessonCheckLegacyFingerprint,
+    });
+
+    const response = await sendRequest({
+      answer: "",
+      responseLocale: "vi",
+    });
+
+    expect(response.status).toBe(200);
+    expect(mocks.evaluateWithOpenAI).toHaveBeenCalledTimes(1);
+    expect(mocks.reserveCoachEvaluation).toHaveBeenCalledWith(
+      supabase,
+      {
+        idempotencyKey,
+        requestFingerprint: lessonCheckFingerprint,
+        identity: lessonCheckIdentity,
+      },
+    );
+    expect(mocks.completeCoachEvaluation).toHaveBeenCalledWith(
+      supabase,
+      expect.objectContaining({
+        idempotencyKey: lessonCheckLegacyIdempotencyKey,
+        requestFingerprint: lessonCheckLegacyFingerprint,
+        leaseToken,
+      }),
+    );
+  });
+
   it("does not call a provider when dispatch cannot be confirmed", async () => {
     mocks.markCoachEvaluationDispatched.mockRejectedValueOnce(
       new Error("dispatch unavailable"),
@@ -556,7 +602,13 @@ describe("POST /api/coach/evaluate idempotency", () => {
   });
 });
 
-function sendRequest(options: { omitIdempotencyKey?: boolean } = {}) {
+function sendRequest(
+  options: {
+    answer?: string;
+    omitIdempotencyKey?: boolean;
+    responseLocale?: "vi" | "en";
+  } = {},
+) {
   return POST(
     new Request("http://localhost/api/coach/evaluate", {
       method: "POST",
@@ -566,9 +618,26 @@ function sendRequest(options: { omitIdempotencyKey?: boolean } = {}) {
       },
       body: JSON.stringify({
         questionId: identity.questionId,
-        answer: identity.candidateAnswer,
+        answer: options.answer ?? identity.candidateAnswer,
         ...(options.omitIdempotencyKey ? {} : { idempotencyKey }),
+        ...(options.responseLocale
+          ? { responseLocale: options.responseLocale }
+          : {}),
       }),
     }),
   );
+}
+
+function legacyFingerprintFor(identityValue: typeof lessonCheckIdentity) {
+  return createHash("sha256")
+    .update(
+      [
+        identityValue.questionId,
+        String(identityValue.questionVersion),
+        identityValue.sourceRevision,
+        identityValue.candidateAnswer,
+      ].join("\u001f"),
+      "utf8",
+    )
+    .digest("hex");
 }

@@ -224,6 +224,7 @@ export async function POST(request: Request) {
         requestFingerprint: evaluationFingerprint,
         identity: evaluationIdentity,
       });
+      evaluationFingerprint = reservation.requestFingerprint;
       if (reservation.status === "completed") {
         if (!reservation.feedback || !reservation.model) {
           throw new CoachEvaluationConfigurationError(

@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
@@ -24,6 +26,7 @@ const identity = {
   candidateAnswer: "Một câu trả lời",
 };
 const fingerprint = coachEvaluationRequestFingerprint(identity);
+const legacyFingerprint = legacyFingerprintFor(identity);
 const feedback = {
   score: 70,
   verdict: "solid" as const,
@@ -229,6 +232,116 @@ describe("coach evaluation reservation RPCs", () => {
     });
   });
 
+  it("falls back to the legacy fingerprint for Vietnamese during rollout", async () => {
+    const blankIdentity = { ...identity, candidateAnswer: "" };
+    const blankFingerprint =
+      coachEvaluationRequestFingerprint(blankIdentity);
+    const blankLegacyFingerprint =
+      "4d3b2ca12589a00782f1e6ad8a265cbe773e8db13c4b90832cf36526458b4812";
+    const blankLegacyIdempotencyKey =
+      "4d3b2ca1-2589-8007-82f1-e6ad8a265cbe";
+    expect(legacyFingerprintFor(blankIdentity)).toBe(
+      blankLegacyFingerprint,
+    );
+    const rpc = vi
+      .fn()
+      .mockResolvedValueOnce({
+        data: null,
+        error: {
+          code: "P0001",
+          message: "Coach evaluation fingerprint mismatch",
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          ...running,
+          idempotency_key: blankLegacyIdempotencyKey,
+          request_fingerprint: blankLegacyFingerprint,
+        },
+        error: null,
+      });
+    const client = { rpc } as unknown as Parameters<
+      typeof reserveCoachEvaluation
+    >[0];
+
+    await expect(
+      reserveCoachEvaluation(client, {
+        idempotencyKey,
+        requestFingerprint: blankFingerprint,
+        identity: blankIdentity,
+      }),
+    ).resolves.toMatchObject({
+      status: "running",
+      idempotencyKey: blankLegacyIdempotencyKey,
+      requestFingerprint: blankLegacyFingerprint,
+    });
+
+    expect(rpc).toHaveBeenCalledTimes(2);
+    expect(rpc).toHaveBeenNthCalledWith(
+      1,
+      "reserve_coach_evaluation",
+      expect.objectContaining({
+        p_idempotency_key: idempotencyKey,
+        p_request_fingerprint: blankFingerprint,
+      }),
+    );
+    expect(rpc).toHaveBeenNthCalledWith(
+      2,
+      "reserve_coach_evaluation",
+      expect.objectContaining({
+        p_candidate_answer: "",
+        p_idempotency_key: blankLegacyIdempotencyKey,
+        p_request_fingerprint: blankLegacyFingerprint,
+      }),
+    );
+  });
+
+  it("does not use the legacy fingerprint for English", async () => {
+    const englishIdentity = { ...identity, responseLocale: "en" as const };
+    const rpc = vi.fn().mockResolvedValue({
+      data: null,
+      error: {
+        code: "P0001",
+        message: "Coach evaluation fingerprint mismatch",
+      },
+    });
+    const client = { rpc } as unknown as Parameters<
+      typeof reserveCoachEvaluation
+    >[0];
+
+    await expect(
+      reserveCoachEvaluation(client, {
+        idempotencyKey,
+        requestFingerprint:
+          coachEvaluationRequestFingerprint(englishIdentity),
+        identity: englishIdentity,
+      }),
+    ).rejects.toBeInstanceOf(CoachEvaluationConfigurationError);
+    expect(rpc).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not retry unrelated database exceptions", async () => {
+    const rpc = vi.fn().mockResolvedValue({
+      data: null,
+      error: {
+        code: "P0001",
+        message: "Authentication required",
+      },
+    });
+    const client = { rpc } as unknown as Parameters<
+      typeof reserveCoachEvaluation
+    >[0];
+
+    await expect(
+      reserveCoachEvaluation(client, {
+        idempotencyKey,
+        requestFingerprint: fingerprint,
+        identity,
+      }),
+    ).rejects.toBeInstanceOf(CoachEvaluationConfigurationError);
+    expect(rpc).toHaveBeenCalledTimes(1);
+  });
+
   it("rejects a fingerprint forged for another request", async () => {
     const rpc = vi.fn();
     const client = { rpc } as unknown as Parameters<
@@ -280,6 +393,60 @@ describe("coach evaluation reservation RPCs", () => {
         p_feedback: feedback,
       }),
     );
+  });
+
+  it("completes a Vietnamese lease reserved with the legacy fingerprint", async () => {
+    const rpc = vi.fn().mockResolvedValue({
+      data: {
+        ...running,
+        status: "completed",
+        request_fingerprint: legacyFingerprint,
+        attempt_id: 42,
+        feedback,
+        model: "gpt-5.6-luna",
+        lease_token: null,
+        lease_expires_at: null,
+      },
+      error: null,
+    });
+    const client = { rpc } as unknown as Parameters<
+      typeof completeCoachEvaluation
+    >[0];
+
+    await completeCoachEvaluation(client, {
+      idempotencyKey,
+      requestFingerprint: legacyFingerprint,
+      leaseToken,
+      identity,
+      feedback,
+      model: "gpt-5.6-luna",
+    });
+
+    expect(rpc).toHaveBeenCalledWith(
+      "complete_coach_evaluation",
+      expect.objectContaining({
+        p_request_fingerprint: legacyFingerprint,
+      }),
+    );
+  });
+
+  it("rejects a legacy fingerprint for an English completion", async () => {
+    const rpc = vi.fn();
+    const client = { rpc } as unknown as Parameters<
+      typeof completeCoachEvaluation
+    >[0];
+
+    await expect(
+      completeCoachEvaluation(client, {
+        idempotencyKey,
+        requestFingerprint: legacyFingerprint,
+        leaseToken,
+        identity: { ...identity, responseLocale: "en" },
+        feedback,
+        model: "gpt-5.6-luna",
+      }),
+    ).rejects.toBeInstanceOf(CoachEvaluationConfigurationError);
+    expect(rpc).not.toHaveBeenCalled();
   });
 
   it("marks the matching lease dispatched before provider work", async () => {
@@ -351,3 +518,17 @@ describe("coach evaluation reservation RPCs", () => {
     );
   });
 });
+
+function legacyFingerprintFor(identityValue: typeof identity) {
+  return createHash("sha256")
+    .update(
+      [
+        identityValue.questionId,
+        String(identityValue.questionVersion),
+        identityValue.sourceRevision,
+        identityValue.candidateAnswer,
+      ].join("\u001f"),
+      "utf8",
+    )
+    .digest("hex");
+}
