@@ -10,8 +10,7 @@ import { LearnViewNav } from "@/app/learn/learn-view-nav";
 import { Link } from "@/i18n/navigation";
 import type { Cpp11Roadmap, RoadmapCoverage } from "@/lib/learn/cpp11-roadmap";
 
-const coverageStyles: Record<RoadmapCoverage, string> = {
-  ready: "border-[#16865a]/22 bg-[#e2f5ec] text-[#116b49]",
+const coverageStyles: Record<Exclude<RoadmapCoverage, "ready">, string> = {
   partial: "border-[#c17922]/24 bg-[#fff1dc] text-[#8a4a08]",
   planned: "border-[#526276]/16 bg-white text-[#43546a]",
 };
@@ -21,6 +20,9 @@ export async function Cpp11RoadmapApp({ roadmap }: { roadmap: Cpp11Roadmap }) {
   const learn = await getTranslations("Learn");
   const common = await getTranslations("Common");
   const availableDays = roadmap.coverageCounts.ready + roadmap.coverageCounts.partial;
+  const exceptionalCoverages = (["partial", "planned"] as const).filter(
+    (coverage) => roadmap.coverageCounts[coverage] > 0,
+  );
   const mapCopy: Cpp11RoadmapMapCopy = {
     mapAria: t("mapAria"),
     start: t("start"),
@@ -36,7 +38,6 @@ export async function Cpp11RoadmapApp({ roadmap }: { roadmap: Cpp11Roadmap }) {
         entry.day,
         {
           dayLabel: t("dayLabel", { day: entry.day }),
-          coverageLabel: t(`coverage.${entry.coverage}`),
           openAria: t("openLesson", {
             day: entry.day,
             title: entry.lessons[0]?.title ?? entry.title,
@@ -119,21 +120,23 @@ export async function Cpp11RoadmapApp({ roadmap }: { roadmap: Cpp11Roadmap }) {
                 {t("overviewDescription")}
               </p>
             </div>
-            <div
-              role="list"
-              aria-label={t("legendAria")}
-              className="flex flex-wrap gap-2"
-            >
-              {(["ready", "partial", "planned"] as const).map((coverage) => (
-                <span
-                  key={coverage}
-                  role="listitem"
-                  className={`rounded-full border px-3 py-1.5 text-xs font-bold ${coverageStyles[coverage]}`}
-                >
-                  {t(`coverage.${coverage}`)} · {roadmap.coverageCounts[coverage]}
-                </span>
-              ))}
-            </div>
+            {exceptionalCoverages.length ? (
+              <div
+                role="list"
+                aria-label={t("legendAria")}
+                className="flex flex-wrap gap-2"
+              >
+                {exceptionalCoverages.map((coverage) => (
+                  <span
+                    key={coverage}
+                    role="listitem"
+                    className={`rounded-full border px-3 py-1.5 text-xs font-bold ${coverageStyles[coverage]}`}
+                  >
+                    {t(`coverage.${coverage}`)} · {roadmap.coverageCounts[coverage]}
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </div>
 
           <div className="mt-7 sm:mt-8">

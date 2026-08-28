@@ -19,8 +19,10 @@ trạng thái từ tên nhánh.
   đủ 53 lesson `ready` được đánh số `01`–`53`. Mỗi lesson có canonical `vi.md`,
   companion `en.md` và `main.cpp` theo cùng cấu trúc 10 phần như Toolchain;
   loader vẫn nhận `knowledge.md` cho lesson cũ, pipeline sinh overlay lesson
-  exact-revision và giữ section ID canonical khi đổi locale. Các nhãn này chỉ là coverage nội
-  dung, không phải tiến độ cá nhân. Trang dùng YAML Git-owned song ngữ; sơ đồ compact dùng node/connector
+  exact-revision và giữ section ID canonical khi đổi locale. Coverage `ready` không lặp
+  nhãn trên từng node hay trong legend; legend chỉ xuất hiện khi thật sự có ngày
+  `partial`/`planned`, và các trạng thái chỉ là coverage nội dung, không phải tiến độ cá
+  nhân. Trang dùng YAML Git-owned song ngữ; sơ đồ compact dùng node/connector
   ba cột ziczac trên desktop và một trục dọc trên tablet/mobile. Node có học liệu
   mở lesson chính (`lessonIds[0]`) theo locale trong tab mới; node chưa có lesson giữ vị
   trí nhưng disabled và không tạo điều hướng rỗng. Trang không đọc Supabase,
@@ -309,12 +311,13 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Bộ học liệu C++11 ngày 01–53 và hàng duyệt song ngữ đạt toàn bộ
-  `npm run validate`: content/context check, ESLint, TypeScript, 117 file/709
+- Bộ học liệu C++11 ngày 01–53, hàng duyệt song ngữ và UI roadmap đạt toàn bộ
+  `npm run validate`: content/context check, ESLint, TypeScript, 118 file/711
   Vitest test và Next.js production build 171 static page. Regression test khóa
   đúng ba mức khó/tag C++11 cho từng lesson, exact 156 câu Việt + 156 English
-  copy của ngày 02–53, canonical identity dùng chung và toàn bộ roadmap ở trạng
-  thái `ready`. `npm audit --omit=dev --audit-level=moderate` báo 0 lỗ hổng.
+  copy của ngày 02–53, canonical identity dùng chung, toàn bộ roadmap ở trạng
+  thái `ready` và không lặp nhãn `ready` trên node/legend. `npm audit
+  --omit=dev --audit-level=moderate` báo 0 lỗ hổng.
 - Hotfix Practice cho question DB stale đạt `content:check`, `context:check`,
   ESLint, TypeScript, 111 file/656 Vitest test và Next.js production build 67
   page. Regression test giữ question revision cũ trong hàng `needs_review` nhưng
