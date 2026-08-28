@@ -161,6 +161,9 @@ Supabase, rồi enqueue/generate DB-native drafts. Không dùng `content:auto` h
 - Có thể thêm tranche Git-owned đã viết/review nguồn thủ công, nhưng vẫn phải để
   `draft`; không dùng cách này để giả lập production AI generation.
 - Approval phải bind đúng `version` và `sourceHash`.
+- Luồng “Luyện thẻ của bài này” là lesson check một lần, không phải custom study:
+  chỉ lấy question đã qua publication/approval filter của exact lesson, không
+  ghi review, không hỏi interval và không cập nhật scheduler.
 - Sửa nội dung làm tăng version và vô hiệu approval cũ.
 - “Delete” ở Admin là archive overlay, không xóa history.
 - Điều khiển sửa/xóa trên thẻ đang học chỉ hiện với GitHub provider identity

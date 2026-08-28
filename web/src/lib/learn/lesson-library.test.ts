@@ -2,7 +2,7 @@ import manifestJson from "../../generated/content-manifest.json";
 import { describe, expect, it } from "vitest";
 
 import { contentManifestSchema } from "../content/schema";
-import { parseCustomStudyLaunch } from "../practice/custom-study";
+import { parseLessonCheckLaunch } from "../practice/lesson-check";
 import {
   buildLessonLibrary,
   findLesson,
@@ -49,15 +49,12 @@ describe("lesson library", () => {
     const query = new URL(href, "https://recall.local").searchParams;
 
     expect(
-      parseCustomStudyLaunch({
+      parseLessonCheckLaunch({
         study: query.get("study") ?? undefined,
         lesson: query.get("lesson") ?? undefined,
-        limit: query.get("limit") ?? undefined,
       }),
-    ).toMatchObject({
+    ).toEqual({
       lessonId: lesson.id,
-      topic: "all",
-      limit: 20,
     });
   });
 

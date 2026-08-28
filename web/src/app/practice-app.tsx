@@ -58,6 +58,7 @@ import {
   buildCustomStudyQueue,
   type CustomStudyFilters,
 } from "@/lib/practice/custom-study";
+import { completeLessonCheckQuestion } from "@/lib/practice/lesson-check";
 import { focusEligibleQuestionIdentities } from "@/lib/practice/focus-eligibility";
 import {
   compareAndSetFocusSessionSnapshotLocked,
@@ -331,6 +332,7 @@ export function PracticeApp({
   requestedFocusId,
   invalidFocusRequest,
   initialCustomStudyFilters,
+  initialLessonCheck,
   focusReturnHref,
   mistakeQuestionIds,
   locale,
@@ -352,6 +354,11 @@ export function PracticeApp({
   requestedFocusId: string | null;
   invalidFocusRequest: boolean;
   initialCustomStudyFilters: CustomStudyFilters | null;
+  initialLessonCheck: {
+    lessonId: string;
+    lessonTitle: string;
+    questionIds: string[];
+  } | null;
   focusReturnHref: string | null;
   mistakeQuestionIds: string[];
   locale: Locale;
@@ -366,10 +373,16 @@ export function PracticeApp({
     relearning: practiceT("learningState.relearning"),
   } as const;
   const accountId = account?.id ?? null;
+  const isLessonCheck = initialLessonCheck !== null;
   const usesPublicAi = !canManageQuestionBank;
   const studySessionKey = useMemo(
-    () => studySessionStorageKey(accountId),
-    [accountId],
+    () => {
+      const baseKey = studySessionStorageKey(accountId);
+      return initialLessonCheck
+        ? `${baseKey}:lesson-check:${initialLessonCheck.lessonId}`
+        : baseKey;
+    },
+    [accountId, initialLessonCheck],
   );
   const savedItemsKey = useMemo(
     () => savedItemsStorageKey(accountId),
@@ -465,6 +478,9 @@ export function PracticeApp({
   const [distractionFreeMode, setDistractionFreeMode] = useState(false);
   const [customStudyIds, setCustomStudyIds] = useState<string[] | null>(null);
   const [customStudyNotice, setCustomStudyNotice] = useState<string | null>(null);
+  const [lessonCheckCompletedIds, setLessonCheckCompletedIds] = useState<
+    string[]
+  >([]);
   const [mistakeNotice, setMistakeNotice] = useState<string | null>(null);
   const [focusSession, setFocusSession] = useState<FocusSession | null>(null);
   const [focusHydrationStatus, setFocusHydrationStatus] =
@@ -1513,6 +1529,23 @@ export function PracticeApp({
     today,
   ]);
 
+  const lessonCheckIds = useMemo(
+    () =>
+      initialLessonCheck
+        ? initialLessonCheck.questionIds.filter((questionId) =>
+            allQuestionById.has(questionId),
+          )
+        : [],
+    [allQuestionById, initialLessonCheck],
+  );
+  const lessonCheckCompleted = useMemo(
+    () => new Set(lessonCheckCompletedIds),
+    [lessonCheckCompletedIds],
+  );
+  const lessonCheckRemainingIds = lessonCheckIds.filter(
+    (questionId) => !lessonCheckCompleted.has(questionId),
+  );
+
   useEffect(() => {
     if (
       customStudyLaunchStarted.current ||
@@ -1578,7 +1611,10 @@ export function PracticeApp({
       : customStudyIds
         ? questionById.get(customRemainingIds[0])
         : questionById.get(remainingIds[0]);
-  const repairItem = isFocusActive
+  const lessonCheckCurrent = allQuestionById.get(
+    lessonCheckRemainingIds[0],
+  );
+  const repairItem = isFocusActive || isLessonCheck
     ? null
     : nextRecallRepair(
         repairQueue,
@@ -1588,9 +1624,11 @@ export function PracticeApp({
   const repairQuestion = repairItem
     ? allQuestionById.get(repairItem.questionId)
     : undefined;
-  const current = isFocusActive
-    ? focusQuestion
-    : repairQuestion ?? normalCurrent;
+  const current = isLessonCheck
+    ? lessonCheckCurrent
+    : isFocusActive
+      ? focusQuestion
+      : repairQuestion ?? normalCurrent;
 
   const isRepairActive = Boolean(
     repairItem && current?.id === repairItem.questionId,
@@ -1604,11 +1642,14 @@ export function PracticeApp({
       )
     : "";
   const currentLearningState = current
-    ? isFocusActive || isRepairActive
+    ? isLessonCheck
+      ? undefined
+      : isFocusActive || isRepairActive
       ? allLearningStates.get(current.id)
       : learningStates.get(current.id)
     : undefined;
   const isRandomQuestion = Boolean(
+    !isLessonCheck &&
     !isFocusActive &&
       !isRepairActive &&
       current &&
@@ -1616,10 +1657,14 @@ export function PracticeApp({
       !remainingIds.includes(current.id),
   );
   const isCustomStudyQuestion = Boolean(
+    !isLessonCheck &&
     !isFocusActive &&
       !isRepairActive &&
       current &&
       customStudyIds?.includes(current.id),
+  );
+  const isLessonCheckQuestion = Boolean(
+    isLessonCheck && current && lessonCheckIds.includes(current.id),
   );
   const randomCandidates = deckQuestions.filter(
     (question) =>
@@ -2021,6 +2066,18 @@ export function PracticeApp({
     }
   }
 
+  function advanceLessonCheck() {
+    if (!current || !isLessonCheckQuestion || !hasAnswered) return;
+    const completedQuestionId = current.id;
+    setLessonCheckCompletedIds((completedIds) =>
+      completeLessonCheckQuestion(completedIds, completedQuestionId),
+    );
+    setSelectedQuestionId(null);
+    clearRecordedAttemptEvidence(completedQuestionId);
+    clearStudySessionState();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   function startCustomStudy(filters: CustomStudyFilters) {
     const ids = buildCustomStudyQueue(
       deckQuestions,
@@ -2411,11 +2468,13 @@ export function PracticeApp({
         );
       }
 
-      const nextRescueRetry = resolveRescueRetryAfterCoach({
-        previous: rescueRetryBeforeRequest,
-        candidateAnswer: answer,
-        score: payload.feedback.score,
-      });
+      const nextRescueRetry = isLessonCheck
+        ? undefined
+        : resolveRescueRetryAfterCoach({
+            previous: rescueRetryBeforeRequest,
+            candidateAnswer: answer,
+            score: payload.feedback.score,
+          });
       scrollToRatingWhenAvailable.current = !nextRescueRetry;
       scrollToCoachFeedbackWhenAvailable.current =
         Boolean(nextRescueRetry);
@@ -2960,6 +3019,33 @@ export function PracticeApp({
     );
   }
 
+  if (isLessonCheck && !sessionHydrated) {
+    return <LoadingScreen />;
+  }
+
+  if (initialLessonCheck && lessonCheckIds.length === 0) {
+    return (
+      <LessonCheckEmptyScreen
+        lessonId={initialLessonCheck.lessonId}
+        lessonTitle={initialLessonCheck.lessonTitle}
+      />
+    );
+  }
+
+  if (
+    initialLessonCheck &&
+    lessonCheckIds.length > 0 &&
+    lessonCheckRemainingIds.length === 0
+  ) {
+    return (
+      <LessonCheckCompletionScreen
+        completedCount={lessonCheckIds.length}
+        lessonId={initialLessonCheck.lessonId}
+        lessonTitle={initialLessonCheck.lessonTitle}
+      />
+    );
+  }
+
   return (
     <main
       data-practice-focus-mode={distractionFreeMode ? "true" : undefined}
@@ -2969,13 +3055,15 @@ export function PracticeApp({
         {distractionFreeMode && current ? (
           <PracticeFocusBar
             questionPosition={
-              isFocusActive
-                ? `${focusPosition}/${focusQueueTotal}`
-                : isCustomStudyQuestion && customStudyIds
-                  ? `${customStudyIds.length - customRemainingIds.length + 1}/${customStudyIds.length}`
-                  : isRandomQuestion
-                    ? practiceT("question.outsideSchedule")
-                    : `${completedToday + 1}/${dailyTotal || 1}`
+              isLessonCheck
+                ? `${lessonCheckIds.length - lessonCheckRemainingIds.length + 1}/${lessonCheckIds.length}`
+                : isFocusActive
+                  ? `${focusPosition}/${focusQueueTotal}`
+                  : isCustomStudyQuestion && customStudyIds
+                    ? `${customStudyIds.length - customRemainingIds.length + 1}/${customStudyIds.length}`
+                    : isRandomQuestion
+                      ? practiceT("question.outsideSchedule")
+                      : `${completedToday + 1}/${dailyTotal || 1}`
             }
             answerRevealed={revealed.has(current.id)}
             onExit={() => setDistractionFreeMode(false)}
@@ -3004,7 +3092,9 @@ export function PracticeApp({
             <div>
               <p className="font-semibold tracking-[-0.025em]">cppinterview</p>
               <p className="hidden text-xs text-[color:var(--ink-muted)] sm:block">
-                {practiceT("workspaceTagline")} · {practiceT("approvedCards", { count: deckQuestions.length })}
+                {isLessonCheck && initialLessonCheck
+                  ? initialLessonCheck.lessonTitle
+                  : `${practiceT("workspaceTagline")} · ${practiceT("approvedCards", { count: deckQuestions.length })}`}
               </p>
             </div>
             {isFocusActive ? (
@@ -3016,18 +3106,25 @@ export function PracticeApp({
 
           <div className="flex items-center justify-end gap-2 text-sm">
             <LanguageSwitcher compact />
-            <ProgressSummaryControl
-              icon="✓"
-              streak={streak}
-              value={`${completedToday}/${dailyTotal || 1}`}
-            />
+            {isLessonCheck ? (
+              <span className="rounded-xl border border-[#0f3a69]/15 bg-white/65 px-3 py-2 font-mono text-xs font-bold text-[#285f86]">
+                {lessonCheckIds.length - lessonCheckRemainingIds.length}/
+                {lessonCheckIds.length}
+              </span>
+            ) : (
+              <ProgressSummaryControl
+                icon="✓"
+                streak={streak}
+                value={`${completedToday}/${dailyTotal || 1}`}
+              />
+            )}
             <div className="hidden items-center gap-2 sm:flex">
               {account && aiBudgetCacheHydrated && aiDailyBudget ? (
                 <AiBudgetPill budget={aiDailyBudget} />
               ) : usesPublicAi ? (
                 <PublicAiQuotaPill quota={publicAiQuota} />
               ) : null}
-              {!isFocusActive ? (
+              {!isFocusActive && !isLessonCheck ? (
                 <SavedItemsControl
                   items={savedItems}
                   onRemove={deleteSavedItem}
@@ -3110,7 +3207,7 @@ export function PracticeApp({
           </div>
         ) : null}
 
-        {!isFocusActive && !distractionFreeMode ? (
+        {!isFocusActive && !isLessonCheck && !distractionFreeMode ? (
           <TodayWorkspace
             completedToday={completedToday}
             dailyTotal={dailyTotal}
@@ -3127,6 +3224,22 @@ export function PracticeApp({
               showRandomQuestion();
             }}
           />
+        ) : null}
+
+        {isLessonCheck && initialLessonCheck && !distractionFreeMode ? (
+          <section className="mt-6 rounded-[1.25rem] border border-[#285f86]/20 bg-[#e6f8f5] p-5 shadow-sm sm:p-6">
+            <p className="font-mono text-xs font-bold tracking-[0.14em] text-[#285f86] uppercase">
+              {practiceT("lessonCheck.eyebrow")}
+            </p>
+            <h1 className="mt-2 text-xl font-semibold tracking-tight text-[#0f3a69] sm:text-2xl">
+              {initialLessonCheck.lessonTitle}
+            </h1>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#526276]">
+              {practiceT("lessonCheck.description", {
+                count: lessonCheckIds.length,
+              })}
+            </p>
+          </section>
         ) : null}
 
         {!distractionFreeMode && isFocusActive && focusSession ? (
@@ -3181,7 +3294,7 @@ export function PracticeApp({
               </p>
             ) : null}
           </section>
-        ) : !distractionFreeMode ? (
+        ) : !distractionFreeMode && !isLessonCheck ? (
           <CustomStudyPanel
             key={selectedDeck}
             activeCount={customRemainingIds.length}
@@ -3194,7 +3307,7 @@ export function PracticeApp({
           />
         ) : null}
 
-        {!isFocusActive && !distractionFreeMode && !current && selectedPendingReview.length ? (
+        {!isFocusActive && !isLessonCheck && !distractionFreeMode && !current && selectedPendingReview.length ? (
           <section className="mt-7 rounded-[1.25rem] border border-[#a65c0e]/25 bg-[#fff4df] p-6 sm:p-8">
             <p className="font-mono text-xs tracking-[0.15em] text-[#a65c0e] uppercase">
               {practiceT("reviewQueue.eyebrow")}
@@ -3232,7 +3345,7 @@ export function PracticeApp({
         {current ? (
           <div
             className={
-              distractionFreeMode
+              distractionFreeMode || isLessonCheck
                 ? "mx-auto max-w-4xl py-4 sm:py-6"
                 : "grid gap-6 py-7 lg:grid-cols-[minmax(0,1fr)_18rem] lg:py-10"
             }
@@ -3241,7 +3354,9 @@ export function PracticeApp({
               <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <span className="rounded-full bg-[#65e6d2] px-3 py-1 font-mono text-xs font-bold text-[#0f3a69]">
-                    {isFocusActive
+                    {isLessonCheck
+                      ? practiceT("lessonCheck.questionBadge")
+                      : isFocusActive
                       ? practiceT("question.focusSession")
                       : isCustomStudyQuestion
                       ? practiceT("question.customSession")
@@ -3252,7 +3367,9 @@ export function PracticeApp({
                         : practiceT("question.due")}
                   </span>
                   <span className="font-mono text-xs text-[#64748b]">
-                    {isFocusActive
+                    {isLessonCheck
+                      ? `${lessonCheckIds.length - lessonCheckRemainingIds.length + 1}/${lessonCheckIds.length}`
+                      : isFocusActive
                       ? `${focusPosition}/${focusQueueTotal}`
                       : isCustomStudyQuestion && customStudyIds
                       ? `${customStudyIds.length - customRemainingIds.length + 1}/${customStudyIds.length}`
@@ -3296,7 +3413,7 @@ export function PracticeApp({
                       ? practiceT("question.saved")
                       : practiceT("question.save")}
                   </button>
-                  {canManageQuestionBank && !isFocusActive && !isRepairActive ? (
+                  {canManageQuestionBank && !isLessonCheck && !isFocusActive && !isRepairActive ? (
                     <>
                       <button
                         type="button"
@@ -3318,7 +3435,7 @@ export function PracticeApp({
                       </button>
                     </>
                   ) : null}
-                  {!isFocusActive && !isRepairActive ? (
+                  {!isLessonCheck && !isFocusActive && !isRepairActive ? (
                     <button
                       type="button"
                       onClick={showRandomQuestion}
@@ -3328,7 +3445,11 @@ export function PracticeApp({
                       {practiceT("question.anotherRandom")}
                     </button>
                   ) : null}
-                  <span className="font-mono text-xs text-[#64748b]">{today}</span>
+                  {!isLessonCheck ? (
+                    <span className="font-mono text-xs text-[#64748b]">
+                      {today}
+                    </span>
+                  ) : null}
                 </div>
               </div>
 
@@ -3599,7 +3720,33 @@ export function PracticeApp({
                     </p>
                   ) : null}
 
-                  {canRateCurrent && !rescueOutcomeRating ? (
+                  {isLessonCheck && hasAnswered ? (
+                    <div
+                      ref={handleRatingSectionRef}
+                      className="sticky bottom-24 z-20 mt-5 flex scroll-m-4 flex-wrap items-center justify-between gap-3 rounded-[1.25rem] border-2 border-[#285f86]/35 bg-white/95 p-4 shadow-[0_16px_45px_rgba(15,58,105,0.18)] backdrop-blur-md sm:p-5 lg:bottom-3"
+                      role="status"
+                    >
+                      <div>
+                        <p className="text-sm font-bold text-[#0f3a69]">
+                          {practiceT("lessonCheck.reviewed")}
+                        </p>
+                        <p className="mt-0.5 text-xs text-[#5c6e65]">
+                          {practiceT("lessonCheck.notScheduled")}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={advanceLessonCheck}
+                        className="min-h-12 rounded-xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#16865a] focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
+                      >
+                        {lessonCheckRemainingIds.length === 1
+                          ? practiceT("lessonCheck.finish")
+                          : practiceT("lessonCheck.next")}
+                      </button>
+                    </div>
+                  ) : null}
+
+                  {!isLessonCheck && canRateCurrent && !rescueOutcomeRating ? (
                     <div
                       ref={handleRatingSectionRef}
                       className="sticky bottom-24 z-20 mt-5 scroll-m-4 rounded-[1.25rem] border-2 border-[#285f86]/35 bg-[#ffffff]/95 p-4 shadow-[0_16px_45px_rgba(15,58,105,0.18)] backdrop-blur-md sm:p-5 lg:bottom-3"
@@ -3837,7 +3984,7 @@ export function PracticeApp({
               </article>
             </section>
 
-            {!distractionFreeMode ? (
+            {!distractionFreeMode && !isLessonCheck ? (
             <aside className="space-y-4 lg:pt-12">
               {!isFocusActive && selectedPendingReview.length ? (
                 <div className="rounded-[1.25rem] border border-[#a65c0e]/25 bg-[#fff4df] p-6">
@@ -4038,9 +4185,11 @@ export function PracticeApp({
         {!distractionFreeMode ? (
           <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[#0f3a69]/12 py-5 font-mono text-[11px] text-[#78857f]">
             <span>
-              {account
-                ? practiceT("footer.synced", { name: account.displayName })
-                : practiceT("footer.local")}
+              {isLessonCheck
+                ? practiceT("lessonCheck.notScheduled")
+                : account
+                  ? practiceT("footer.synced", { name: account.displayName })
+                  : practiceT("footer.local")}
             </span>
             <span>
               {practiceT("footer.source", {
@@ -4145,6 +4294,87 @@ function FocusUnavailableScreen({
             className="rounded-xl border border-[#0f3a69]/18 bg-white px-5 py-3 text-sm font-bold text-[#285f86]"
           >
             {t("focus.normal")}
+          </Link>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function LessonCheckEmptyScreen({
+  lessonId,
+  lessonTitle,
+}: {
+  lessonId: string;
+  lessonTitle: string;
+}) {
+  const t = useTranslations("Practice");
+  return (
+    <main className="grid min-h-screen place-items-center px-5 py-12">
+      <section className="w-full max-w-xl rounded-[1.25rem] border border-[#a65c0e]/20 bg-white/70 p-8 text-center shadow-[0_20px_70px_rgba(15,58,105,0.08)]">
+        <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-[#fff1f1] font-mono font-bold text-[#a65c0e]">
+          !
+        </span>
+        <p className="mt-5 font-mono text-xs font-bold tracking-[0.14em] text-[#a65c0e] uppercase">
+          {t("lessonCheck.eyebrow")}
+        </p>
+        <h1 className="mt-3 text-2xl font-semibold tracking-tight text-[#172033]">
+          {lessonTitle}
+        </h1>
+        <p className="mt-3 text-sm leading-6 text-[#526276]">
+          {t("lessonCheck.empty")}
+        </p>
+        <Link
+          href={`/learn/${lessonId}`}
+          className="mt-7 inline-flex min-h-12 items-center rounded-xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#16865a] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
+        >
+          {t("lessonCheck.backToLesson")}
+        </Link>
+      </section>
+    </main>
+  );
+}
+
+function LessonCheckCompletionScreen({
+  completedCount,
+  lessonId,
+  lessonTitle,
+}: {
+  completedCount: number;
+  lessonId: string;
+  lessonTitle: string;
+}) {
+  const t = useTranslations("Practice");
+  return (
+    <main className="grid min-h-screen place-items-center px-5 py-12">
+      <section
+        className="w-full max-w-xl rounded-[1.25rem] border border-[#285f86]/18 bg-white/70 p-8 text-center shadow-[0_20px_70px_rgba(15,58,105,0.08)]"
+        aria-live="polite"
+      >
+        <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-[#0f3a69] font-mono font-bold text-[#65e6d2]">
+          ✓
+        </span>
+        <p className="mt-5 font-mono text-xs font-bold tracking-[0.14em] text-[#285f86] uppercase">
+          {t("lessonCheck.completedEyebrow")}
+        </p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#172033]">
+          {t("lessonCheck.completedTitle", { count: completedCount })}
+        </h1>
+        <p className="mt-3 text-sm leading-6 text-[#526276]">
+          {t("lessonCheck.completedDescription", { title: lessonTitle })}
+        </p>
+        <div className="mt-7 flex flex-wrap justify-center gap-3">
+          <Link
+            href={`/learn/${lessonId}`}
+            className="inline-flex min-h-12 items-center rounded-xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#16865a] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
+          >
+            {t("lessonCheck.backToLesson")}
+          </Link>
+          <Link
+            href="/practice"
+            className="inline-flex min-h-12 items-center rounded-xl border border-[#0f3a69]/18 bg-white px-5 py-3 text-sm font-bold text-[#285f86] transition hover:bg-[#eaf2f8] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
+          >
+            {t("lessonCheck.practiceNormally")}
           </Link>
         </div>
       </section>

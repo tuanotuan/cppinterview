@@ -41,6 +41,12 @@ trạng thái từ tên nhánh.
   trạng thái, modal quản trị trong Practice và AI Coach dùng locale request. Mock
   đóng băng locale khi bắt đầu session và lưu locale trong report artifact/history
   mới để chuyển URL giữa phiên không làm đổi ngôn ngữ báo cáo.
+- Reader lesson mở các câu đã duyệt của exact lesson bằng lesson-check riêng;
+  Toolchain hiện có ba question tương ứng. Mode này luôn đi hết tập câu đã duyệt
+  dù đã ôn trong ngày, chỉ giữ trạng thái cho
+  lần kiểm tra hiện tại, không hiện lựa chọn interval và không ghi review/scheduler;
+  hết câu sẽ báo hoàn thành. Reader có cùng CTA ở đầu/cuối bài, không còn CTA
+  “Xem mã mẫu”, ghi chú tình trạng kho hay checklist “Tự kiểm tra · không chấm điểm”.
 - Question DB-owned của revision bài học cũ vẫn được giữ làm `needs_review` để
   audit. Practice chỉ resolve source excerpt khi `question.sourceHash` khớp
   revision lesson hiện hành; section ID cũ không còn làm sập workspace của tài
@@ -277,6 +283,10 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
+- Lesson-check và reader cleanup đạt toàn bộ `npm run validate`: content/context
+  check, ESLint, TypeScript, 112 file/660 Vitest test và Next.js production build
+  67 page. Targeted test khóa URL an toàn, exact lesson queue và completion không
+  trùng; `npm audit --omit=dev` báo 0 lỗ hổng.
 - Hotfix Practice cho question DB stale đạt `content:check`, `context:check`,
   ESLint, TypeScript, 111 file/656 Vitest test và Next.js production build 67
   page. Regression test giữ question revision cũ trong hàng `needs_review` nhưng

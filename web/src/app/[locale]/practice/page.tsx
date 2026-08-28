@@ -9,6 +9,10 @@ import { parsePracticeDeck } from "@/lib/content/decks";
 import { currentQuestionSourceSections } from "@/lib/content/question-source-sections";
 import { parseCustomStudyLaunch } from "@/lib/practice/custom-study";
 import { parseFocusSessionId } from "@/lib/practice/focus-session";
+import {
+  lessonCheckQuestionIds,
+  parseLessonCheckLaunch,
+} from "@/lib/practice/lesson-check";
 import { parseWorldQuantMissionReturn } from "@/lib/worldquant/guided-mode";
 import {
   hasExactLessonTranslation,
@@ -85,6 +89,10 @@ export default async function PracticePage({
     lesson: single(query.lesson),
     limit: single(query.limit),
   });
+  const lessonCheckLaunch = parseLessonCheckLaunch({
+    study: single(query.study),
+    lesson: single(query.lesson),
+  });
   const customStudyLaunchKey = initialCustomStudyFilters
     ? [
         initialCustomStudyFilters.learningState,
@@ -101,6 +109,9 @@ export default async function PracticePage({
     minutes: single(query.returnMinutes),
   });
   const lessons = new Map(manifest.lessons.map((lesson) => [lesson.id, lesson]));
+  const lessonCheckLesson = lessonCheckLaunch
+    ? lessons.get(lessonCheckLaunch.lessonId)
+    : null;
 
   const mappedQuestions: PracticeQuestion[] = manifest.questions
     .filter(
@@ -134,6 +145,17 @@ export default async function PracticePage({
       question.status === "verified" ||
       isQuestionApproved(question, cloud.approvals),
   );
+  const initialLessonCheck =
+    lessonCheckLesson && !requestedFocusId && !invalidFocusRequest
+      ? {
+          lessonId: lessonCheckLesson.id,
+          lessonTitle: lessonCheckLesson.title,
+          questionIds: lessonCheckQuestionIds(
+            questions,
+            lessonCheckLesson.id,
+          ),
+        }
+      : null;
   const reviewQueue = cloud.account
     ? mappedQuestions.filter(
         (question) =>
@@ -144,6 +166,7 @@ export default async function PracticePage({
   const practiceKey = [
     cloud.account?.id ?? "local",
     requestedFocusId ?? (invalidFocusRequest ? "invalid-focus" : "normal-practice"),
+    initialLessonCheck?.lessonId ?? "no-lesson-check",
     customStudyLaunchKey,
   ].join(":");
 
@@ -167,6 +190,7 @@ export default async function PracticePage({
       requestedFocusId={requestedFocusId}
       invalidFocusRequest={invalidFocusRequest}
       initialCustomStudyFilters={initialCustomStudyFilters}
+      initialLessonCheck={initialLessonCheck}
       focusReturnHref={focusReturnHref}
       mistakeQuestionIds={cloud.mistakeQuestionIds}
       locale={locale}
