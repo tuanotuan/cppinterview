@@ -14,6 +14,29 @@ const migrationRoot = path.resolve(
 const webRoot = path.resolve(migrationRoot, "..", "..");
 
 describe("database hardening migrations", () => {
+  it("keeps Coach evaluation idempotency locale-bound", async () => {
+    const sql = await readMigration(
+      "20260828110000_localize_coach_evaluation_fingerprints.sql",
+    );
+
+    expect(sql).toContain(
+      "create or replace function public.coach_evaluation_response_locale(",
+    );
+    expect(sql).toContain("array['vi', 'en']");
+    expect(sql).toContain("return 'vi';");
+    expect(sql).toContain("v_response_locale = 'vi'");
+    expect(sql).toContain("request_fingerprint = v_legacy_fingerprint");
+    expect(sql).toContain("and response_locale = v_response_locale");
+    expect(sql).toContain("response_locale = excluded.response_locale");
+    expect(sql).toContain(
+      "or v_attempt.response_locale is distinct from v_response_locale",
+    );
+    expect(sql).toMatch(
+      /revoke all on function public\.coach_evaluation_response_locale\([\s\S]*?\) from public, anon, authenticated;/,
+    );
+    expect(sql).toContain("notify pgrst, 'reload schema';");
+  });
+
   it("keeps content translations revision-bound, verified, and read-only", async () => {
     const sql = await readMigration(
       "20260825073227_add_content_translations.sql",

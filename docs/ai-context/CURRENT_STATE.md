@@ -146,8 +146,11 @@ trạng thái từ tên nhánh.
   question đã verified; 11 question còn lại và 7 lesson chưa có overlay tiếng Anh nên chưa xuất hiện trong
   `/en/practice`. Đây là backlog học liệu, không được lấp bằng nội dung tiếng Việt.
   Migration `20260825073227_add_content_translations.sql` đã được áp dụng trên
-  Supabase project liên kết và `supabase migration list` khớp local/remote đến
-  revision này. Loader hiện vẫn đọc catalog Git, chưa đọc view translation DB.
+  Supabase project liên kết. Migration
+  `20260828110000_localize_coach_evaluation_fingerprints.sql` đang chờ áp dụng;
+  trước migration này, AI Coach account/admin fail closed vì fingerprint phía
+  app đã gồm locale nhưng RPC vẫn kiểm tra hợp đồng cũ. Loader hiện vẫn đọc
+  catalog Git, chưa đọc view translation DB.
 
 - Kho câu hỏi đã duyệt chưa bao phủ đều tick data, Linux/mạng, hệ
   thống phân tán và kỹ năng chịu trách nhiệm đầu cuối. Giao diện phải gọi đây là

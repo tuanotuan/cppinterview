@@ -383,8 +383,10 @@ Các nhóm schema hiện có:
 - coach attempt cho phép `candidate_answer` rỗng (nghĩa là chưa biết) và không có
   product-level character limit sau migration `20260730120000`.
 - Coach evaluation có reservation account-scoped theo request fingerprint,
-  canonical idempotency key và lease sau migration `20260730130000`; xóa attempt
-  cũng xóa cache reservation liên quan.
+  canonical idempotency key và lease sau migration `20260730130000`; migration
+  `20260828110000` đồng bộ fingerprint với `responseLocale`, chỉ nhận fingerprint
+  legacy như tiếng Việt và persist locale đó trên attempt. Xóa attempt cũng xóa
+  cache reservation liên quan.
 - Migration `20260730140000` dùng retry protocol v3 cho Mistake: lease hết hạn
   trước marker provider được thu hồi và claim lại, còn lease đã marker hoặc kết
   quả provider/completion không xác định chuyển `dead_letter`. Trigger chặn
