@@ -6,6 +6,7 @@ type LessonCheckQuestion = Pick<ContentQuestion, "id" | "taxonomy">;
 
 export type LessonCheckLaunch = {
   lessonId: string;
+  restart: boolean;
 };
 
 export function buildLessonCheckLaunchHref(
@@ -16,6 +17,7 @@ export function buildLessonCheckLaunchHref(
     deck,
     study: "lesson-check",
     lesson: lessonId,
+    restart: "1",
   });
   return `/practice?${params.toString()}`;
 }
@@ -23,17 +25,22 @@ export function buildLessonCheckLaunchHref(
 export function parseLessonCheckLaunch(params: {
   study?: string;
   lesson?: string;
+  restart?: string;
 }): LessonCheckLaunch | null {
   if (
     params.study !== "lesson-check" ||
     params.lesson === undefined ||
     params.lesson.length > 120 ||
-    !lessonIdPattern.test(params.lesson)
+    !lessonIdPattern.test(params.lesson) ||
+    (params.restart !== undefined && params.restart !== "1")
   ) {
     return null;
   }
 
-  return { lessonId: params.lesson };
+  return {
+    lessonId: params.lesson,
+    restart: params.restart === "1",
+  };
 }
 
 export function lessonCheckQuestionIds(

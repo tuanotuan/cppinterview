@@ -52,10 +52,13 @@ trạng thái từ tên nhánh.
   khi merge/deploy app; migration chưa được áp dụng lên Supabase remote trong task này.
 - Reader lesson mở các câu đã duyệt của exact lesson bằng lesson-check riêng;
   Toolchain hiện có ba question tương ứng. Mode này luôn đi hết tập câu đã duyệt
-  dù đã ôn trong ngày, chỉ giữ trạng thái cho
-  lần kiểm tra hiện tại, không hiện lựa chọn interval và không ghi review/scheduler;
-  hết câu sẽ báo hoàn thành. Reader có cùng CTA ở đầu/cuối bài, không còn CTA
+  dù đã ôn trong ngày. Mỗi lần bấm CTA sẽ xóa snapshot đúng bài/tài khoản để bắt
+  đầu lượt mới; marker restart được bỏ sau khi hydrate nên F5 vẫn tiếp tục lượt
+  hiện tại. Mode không hiện lựa chọn interval và không ghi review/scheduler; hết
+  câu sẽ báo hoàn thành. Reader có cùng CTA ở đầu/cuối bài, không còn CTA
   “Xem mã mẫu”, ghi chú tình trạng kho hay checklist “Tự kiểm tra · không chấm điểm”.
+  Reset lượt mới đạt full `npm run validate`: content/context check, ESLint,
+  TypeScript, 116 file/693 Vitest test, production build và audit production 0 lỗ hổng.
 - Question DB-owned của revision bài học cũ vẫn được giữ làm `needs_review` để
   audit. Practice chỉ resolve source excerpt khi `question.sourceHash` khớp
   revision lesson hiện hành; section ID cũ không còn làm sập workspace của tài

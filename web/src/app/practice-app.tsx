@@ -78,7 +78,7 @@ import {
   type SavedItem,
 } from "@/lib/practice/saved-items";
 import {
-  parseStudySession,
+  hydrateStudySession,
   serializeStudySession,
   studySessionStorageKey,
   type QuestionStudySession,
@@ -357,6 +357,7 @@ export function PracticeApp({
   initialLessonCheck: {
     lessonId: string;
     lessonTitle: string;
+    restart: boolean;
     questionIds: string[];
   } | null;
   focusReturnHref: string | null;
@@ -374,6 +375,7 @@ export function PracticeApp({
   } as const;
   const accountId = account?.id ?? null;
   const isLessonCheck = initialLessonCheck !== null;
+  const shouldRestartLessonCheck = initialLessonCheck?.restart === true;
   const usesPublicAi = !canManageQuestionBank;
   const studySessionKey = useMemo(
     () => {
@@ -388,6 +390,9 @@ export function PracticeApp({
     () => savedItemsStorageKey(accountId),
     [accountId],
   );
+  const studySessionHydrationKey = `${studySessionKey}:${
+    shouldRestartLessonCheck ? "restart" : "resume"
+  }`;
   const subscribeToScopedProgress = useMemo(
     () => (callback: () => void) =>
       subscribeToProgress(accountId, callback),
@@ -527,7 +532,7 @@ export function PracticeApp({
   const [hydratedStudySessionKey, setHydratedStudySessionKey] =
     useState<string | null>(null);
   const sessionHydrated =
-    hydratedStudySessionKey === studySessionKey;
+    hydratedStudySessionKey === studySessionHydrationKey;
   const applyPublicAiQuota = useCallback(
     (payload: CoachApiPayload) => {
       if (!usesPublicAi) return;
@@ -668,12 +673,14 @@ export function PracticeApp({
   }, [accountId, aiBudgetCacheHydrated, aiDailyBudget]);
 
   useEffect(() => {
-    if (sessionHydrationStarted.current === studySessionKey) return;
-    sessionHydrationStarted.current = studySessionKey;
+    if (sessionHydrationStarted.current === studySessionHydrationKey) return;
+    sessionHydrationStarted.current = studySessionHydrationKey;
 
-    const session = parseStudySession(
-      window.localStorage.getItem(studySessionKey),
+    const session = hydrateStudySession(
+      window.localStorage,
+      studySessionKey,
       sessionQuestions,
+      { reset: shouldRestartLessonCheck },
     );
     const restoredAnswers: Record<string, string> = {};
     const restoredCodeAnswers: Record<string, string> = {};
@@ -772,8 +779,22 @@ export function PracticeApp({
     setDeepDiveFeedback(restoredDeepDiveFeedback);
     setDeepDiveModels(restoredDeepDiveModels);
     setSelectedQuestionId(session.activeQuestionId ?? null);
-    setHydratedStudySessionKey(studySessionKey);
-  }, [sessionQuestions, studySessionKey]);
+    if (shouldRestartLessonCheck) {
+      setLessonCheckCompletedIds([]);
+    }
+    setHydratedStudySessionKey(studySessionHydrationKey);
+
+    if (shouldRestartLessonCheck) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("restart");
+      window.history.replaceState(null, "", url);
+    }
+  }, [
+    sessionQuestions,
+    shouldRestartLessonCheck,
+    studySessionHydrationKey,
+    studySessionKey,
+  ]);
 
   useEffect(() => {
     setSavedItems(parseSavedItems(window.localStorage.getItem(savedItemsKey)));

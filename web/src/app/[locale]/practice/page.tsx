@@ -55,6 +55,7 @@ export default async function PracticePage({
     returnTo?: string | string[];
     returnRole?: string | string[];
     returnMinutes?: string | string[];
+    restart?: string | string[];
     study?: string | string[];
     topic?: string | string[];
   }>;
@@ -92,6 +93,7 @@ export default async function PracticePage({
   const lessonCheckLaunch = parseLessonCheckLaunch({
     study: single(query.study),
     lesson: single(query.lesson),
+    restart: single(query.restart),
   });
   const customStudyLaunchKey = initialCustomStudyFilters
     ? [
@@ -146,10 +148,14 @@ export default async function PracticePage({
       isQuestionApproved(question, cloud.approvals),
   );
   const initialLessonCheck =
-    lessonCheckLesson && !requestedFocusId && !invalidFocusRequest
+    lessonCheckLaunch &&
+    lessonCheckLesson &&
+    !requestedFocusId &&
+    !invalidFocusRequest
       ? {
           lessonId: lessonCheckLesson.id,
           lessonTitle: lessonCheckLesson.title,
+          restart: lessonCheckLaunch.restart,
           questionIds: lessonCheckQuestionIds(
             questions,
             lessonCheckLesson.id,
@@ -167,6 +173,7 @@ export default async function PracticePage({
     cloud.account?.id ?? "local",
     requestedFocusId ?? (invalidFocusRequest ? "invalid-focus" : "normal-practice"),
     initialLessonCheck?.lessonId ?? "no-lesson-check",
+    initialLessonCheck?.restart ? "restart" : "resume",
     customStudyLaunchKey,
   ].join(":");
 

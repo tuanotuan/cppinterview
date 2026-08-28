@@ -1,6 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { parseStudySession, serializeStudySession } from "./study-session";
+import {
+  hydrateStudySession,
+  parseStudySession,
+  serializeStudySession,
+} from "./study-session";
 
 const identity = {
   id: "cpp20-designated-initializers-001",
@@ -9,6 +13,58 @@ const identity = {
 };
 
 describe("study session persistence", () => {
+  it("starts a requested fresh run without restoring its previous attempt", () => {
+    const previousAttempt = serializeStudySession(
+      {
+        [identity.id]: {
+          questionVersion: identity.version,
+          sourceHash: identity.sourceHash,
+          answer: "Answer from the previous run",
+          revealed: true,
+          hintUsed: true,
+          coachIdempotencyKey: "22222222-2222-8222-8222-222222222222",
+          deepDiveOpen: true,
+          deepDiveAnswer: "Previous follow-up answer",
+        },
+      },
+      identity.id,
+    );
+    const storage = {
+      getItem: vi.fn(() => previousAttempt),
+      removeItem: vi.fn(),
+    };
+
+    expect(
+      hydrateStudySession(storage, "lesson-check-key", [identity], {
+        reset: true,
+      }),
+    ).toEqual({ version: 1, questions: {} });
+    expect(storage.removeItem).toHaveBeenCalledWith("lesson-check-key");
+    expect(storage.getItem).not.toHaveBeenCalled();
+  });
+
+  it("keeps resuming ordinary study sessions", () => {
+    const previousAttempt = serializeStudySession({
+      [identity.id]: {
+        questionVersion: identity.version,
+        sourceHash: identity.sourceHash,
+        answer: "Resume this answer",
+      },
+    });
+    const storage = {
+      getItem: vi.fn(() => previousAttempt),
+      removeItem: vi.fn(),
+    };
+
+    expect(
+      hydrateStudySession(storage, "ordinary-session-key", [identity], {
+        reset: false,
+      }).questions[identity.id]?.answer,
+    ).toBe("Resume this answer");
+    expect(storage.getItem).toHaveBeenCalledWith("ordinary-session-key");
+    expect(storage.removeItem).not.toHaveBeenCalled();
+  });
+
   it("restores a valid session for the exact question source", () => {
     const raw = serializeStudySession(
       {

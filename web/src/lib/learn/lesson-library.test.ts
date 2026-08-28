@@ -52,9 +52,11 @@ describe("lesson library", () => {
       parseLessonCheckLaunch({
         study: query.get("study") ?? undefined,
         lesson: query.get("lesson") ?? undefined,
+        restart: query.get("restart") ?? undefined,
       }),
     ).toEqual({
       lessonId: lesson.id,
+      restart: true,
     });
   });
 

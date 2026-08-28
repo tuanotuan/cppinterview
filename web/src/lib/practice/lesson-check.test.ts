@@ -36,14 +36,24 @@ describe("lesson check", () => {
     const query = new URL(href, "https://cppinterview.test").searchParams;
 
     expect(href).toBe(
-      "/practice?deck=cpp-interview&study=lesson-check&lesson=cpp11-toolchain",
+      "/practice?deck=cpp-interview&study=lesson-check&lesson=cpp11-toolchain&restart=1",
     );
     expect(
       parseLessonCheckLaunch({
         study: query.get("study") ?? undefined,
         lesson: query.get("lesson") ?? undefined,
+        restart: query.get("restart") ?? undefined,
       }),
-    ).toEqual({ lessonId: "cpp11-toolchain" });
+    ).toEqual({ lessonId: "cpp11-toolchain", restart: true });
+  });
+
+  it("resumes a direct lesson-check URL after its restart marker is consumed", () => {
+    expect(
+      parseLessonCheckLaunch({
+        study: "lesson-check",
+        lesson: "cpp11-toolchain",
+      }),
+    ).toEqual({ lessonId: "cpp11-toolchain", restart: false });
   });
 
   it("rejects unknown modes and unsafe lesson identifiers", () => {
@@ -57,6 +67,13 @@ describe("lesson check", () => {
       parseLessonCheckLaunch({
         study: "lesson-check",
         lesson: "../cpp11-toolchain",
+      }),
+    ).toBeNull();
+    expect(
+      parseLessonCheckLaunch({
+        study: "lesson-check",
+        lesson: "cpp11-toolchain",
+        restart: "yes",
       }),
     ).toBeNull();
   });
