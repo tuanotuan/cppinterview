@@ -14,6 +14,8 @@ describe("C++11 toolchain review drafts", () => {
   );
 
   it("keeps one draft at each supported difficulty", () => {
+    expect(lesson.knowledgePath).toBe("cpp11/01_toolchain/vi.md");
+    expect(lesson.translationPaths).toEqual(["cpp11/01_toolchain/en.md"]);
     expect(
       questions.map((question) => ({
         id: question.id,

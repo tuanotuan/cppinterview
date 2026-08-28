@@ -514,7 +514,7 @@
       "track": "cpp11",
       "standard": "cpp11",
       "title": "Ngày 1 — Toolchain, cờ biên dịch và chế độ C++11",
-      "knowledgePath": "cpp11/01_toolchain/knowledge.md",
+      "knowledgePath": "cpp11/01_toolchain/vi.md",
       "translationPaths": [
         "cpp11/01_toolchain/en.md"
       ],

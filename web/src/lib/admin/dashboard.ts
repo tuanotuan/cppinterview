@@ -4,6 +4,10 @@ import type {
   GeneratedLesson,
 } from "../content/schema";
 import type { QuestionOverride } from "../content/question-overrides";
+import {
+  questionTranslationReviewCandidates,
+  type QuestionTranslationPublication,
+} from "../content/translations";
 import { isStandaloneManualQuestionLesson } from "../content/standalone-manual-question";
 import {
   isQuestionApproved,
@@ -29,6 +33,12 @@ export type AdminQuestion = ContentQuestion & {
   archivedByOwner: boolean;
 };
 
+export type AdminQuestionTranslationReview = {
+  reviewKey: string;
+  locale: "en";
+  question: AdminQuestion;
+};
+
 export type AdminLessonCoverage = {
   id: string;
   title: string;
@@ -47,6 +57,7 @@ export type AdminDashboardSnapshot = {
     questions: number;
     activeQuestions: number;
     pendingQuestions: number;
+    pendingTranslations: number;
     staleQuestions: number;
     uncoveredLessons: number;
     totalReviews: number;
@@ -55,6 +66,7 @@ export type AdminDashboardSnapshot = {
   };
   ratingCounts: Record<"again" | "hard" | "good" | "easy", number>;
   questions: AdminQuestion[];
+  translationReviews: AdminQuestionTranslationReview[];
   lessons: AdminLessonCoverage[];
 };
 
@@ -65,6 +77,7 @@ export function buildAdminDashboardSnapshot(
   cloudStates: QuestionLearningState[],
   today: string,
   overrides: QuestionOverride[] = [],
+  questionTranslations: QuestionTranslationPublication[] = [],
 ): AdminDashboardSnapshot {
   const lessonById = new Map(manifest.lessons.map((lesson) => [lesson.id, lesson]));
   const learningStates = buildLearningStates(
@@ -129,6 +142,29 @@ export function buildAdminDashboardSnapshot(
     };
     });
 
+  const adminQuestionById = new Map(
+    questions.map((question) => [question.id, question]),
+  );
+  const translationReviews = questionTranslationReviewCandidates(
+    manifest,
+    "en",
+    questionTranslations,
+  ).flatMap((candidate): AdminQuestionTranslationReview[] => {
+    const adminQuestion = adminQuestionById.get(candidate.question.id);
+    if (!adminQuestion) return [];
+    return [{
+      reviewKey: `translation:${candidate.locale}:${candidate.question.id}`,
+      locale: "en",
+      question: {
+        ...adminQuestion,
+        prompt: candidate.question.prompt,
+        hint: candidate.question.hint,
+        answer: candidate.question.answer,
+        rubric: candidate.question.rubric,
+      },
+    }];
+  });
+
   const activeIds = new Set(
     questions
       .filter((question) => question.adminStatus === "active")
@@ -149,6 +185,7 @@ export function buildAdminDashboardSnapshot(
         .length,
       pendingQuestions: questions.filter((question) => question.adminStatus === "pending")
         .length,
+      pendingTranslations: translationReviews.length,
       staleQuestions: questions.filter((question) => question.adminStatus === "stale")
         .length,
       uncoveredLessons: lessons.filter((lesson) => lesson.currentQuestions === 0).length,
@@ -165,6 +202,7 @@ export function buildAdminDashboardSnapshot(
     },
     ratingCounts,
     questions,
+    translationReviews,
     lessons,
   };
 }

@@ -76,7 +76,11 @@ export default async function PracticePage({
     params,
     getTranslations("Practice"),
   ]);
-  const manifest = localizeContentManifest(cloud.manifest, locale);
+  const manifest = localizeContentManifest(
+    cloud.manifest,
+    locale,
+    cloud.questionTranslations,
+  );
   const authCode = single(query.auth);
   const guestMode = single(query.guest) === "1";
   const deckParam = single(query.deck);
@@ -118,7 +122,11 @@ export default async function PracticePage({
   const mappedQuestions: PracticeQuestion[] = manifest.questions
     .filter(
       (question) =>
-        locale === "vi" || hasExactQuestionTranslation(question, locale),
+        locale === "vi" || hasExactQuestionTranslation(
+          question,
+          locale,
+          cloud.questionTranslations,
+        ),
     )
     .filter((question) => question.status !== "archived")
     .map((question) => {

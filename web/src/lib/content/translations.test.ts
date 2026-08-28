@@ -8,6 +8,9 @@ import {
   hasExactLessonTranslation,
   hasExactQuestionTranslation,
   localizeContentManifest,
+  questionTranslationReviewCandidates,
+  type QuestionTranslationPublication,
+  type QuestionTranslationReviewCandidate,
 } from "./translations";
 
 describe("content translations", () => {
@@ -84,4 +87,91 @@ describe("content translations", () => {
     expect(hasExactQuestionTranslation(untranslated, "en")).toBe(false);
     expect(hasExactLessonTranslation(untranslatedLesson, "en")).toBe(false);
   });
+
+  it("queues the three Toolchain English drafts with canonical filter tags", () => {
+    const reviews = questionTranslationReviewCandidates(manifest, "en");
+
+    expect(reviews.map((review) => review.question.id)).toEqual([
+      "cpp11-toolchain-001",
+      "cpp11-toolchain-002",
+      "cpp11-toolchain-003",
+    ]);
+    expect(reviews.map((review) => review.question.difficulty)).toEqual([
+      "beginner",
+      "intermediate",
+      "advanced",
+    ]);
+    for (const review of reviews) {
+      expect(review.question.taxonomy.standard).toBe("cpp11");
+      expect(review.question.taxonomy.tags).toContain("standard::cpp11");
+      expect(review.question.taxonomy.tags).toContain(
+        `difficulty::${review.question.difficulty}`,
+      );
+      expect(hasExactQuestionTranslation(review.question, "en")).toBe(false);
+    }
+  });
+
+  it("publishes only the exact English copy approved for the same question", () => {
+    const review = questionTranslationReviewCandidates(manifest, "en")[0];
+    const publication = publicationFor(review);
+    const sourceQuestion = manifest.questions.find(
+      (question) => question.id === review.question.id,
+    )!;
+
+    const databaseOrderedPublication = {
+      ...publication,
+      answer: {
+        detailed: publication.answer.detailed,
+        short: publication.answer.short,
+      },
+      rubric: {
+        bonus: publication.rubric.bonus,
+        misconceptions: publication.rubric.misconceptions,
+        required: publication.rubric.required,
+      },
+    };
+    expect(
+      hasExactQuestionTranslation(sourceQuestion, "en", [
+        databaseOrderedPublication,
+      ]),
+    ).toBe(true);
+    expect(
+      localizeContentManifest(manifest, "en", [publication]).questions.find(
+        (question) => question.id === sourceQuestion.id,
+      )?.prompt,
+    ).toBe(review.question.prompt);
+    expect(
+      questionTranslationReviewCandidates(manifest, "en", [publication]).map(
+        (candidate) => candidate.question.id,
+      ),
+    ).not.toContain(sourceQuestion.id);
+
+    const stalePublication = {
+      ...publication,
+      prompt: `${publication.prompt} stale`,
+    };
+    expect(
+      hasExactQuestionTranslation(sourceQuestion, "en", [stalePublication]),
+    ).toBe(false);
+    expect(
+      questionTranslationReviewCandidates(manifest, "en", [stalePublication]).map(
+        (candidate) => candidate.question.id,
+      ),
+    ).toContain(sourceQuestion.id);
+  });
 });
+
+function publicationFor(
+  review: QuestionTranslationReviewCandidate,
+): QuestionTranslationPublication {
+  return {
+    questionId: review.translation.questionId,
+    questionVersion: review.translation.questionVersion,
+    sourceHash: review.translation.sourceHash,
+    locale: review.locale,
+    prompt: review.translation.prompt,
+    hint: review.translation.hint,
+    answer: review.translation.answer,
+    rubric: review.translation.rubric,
+  };
+}

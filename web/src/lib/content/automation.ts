@@ -25,11 +25,14 @@ const SOURCE_ROOTS = {
 
 export async function discoverKnowledgeDirectories(repoRoot: string) {
   const files = await fg(
-    Object.keys(SOURCE_ROOTS).map((root) => `${root}/**/knowledge.md`),
+    Object.keys(SOURCE_ROOTS).flatMap((root) => [
+      `${root}/**/knowledge.md`,
+      `${root}/**/vi.md`,
+    ]),
     { cwd: repoRoot, onlyFiles: true },
   );
 
-  return files.map((file) => path.posix.dirname(file)).sort();
+  return [...new Set(files.map((file) => path.posix.dirname(file)))].sort();
 }
 
 export function mergeDiscoveredLessons(

@@ -18,9 +18,9 @@ trạng thái từ tên nhánh.
 - Roadmap C++11 có 53 ngày trong 8 chặng, giữ thứ tự riêng với `lesson.order` và
   link tới lesson C++11 đã xuất bản. Catalog C++11 hiện chỉ còn Toolchain và
   Const/Pointer/Lvalue Reference, được đánh số lại từ `01`; roadmap có 2 ngày đủ
-  học liệu, 1 ngày một phần và 50 ngày planned. Toolchain dùng `knowledge.md`
-  canonical tiếng Việt cùng companion `en.md`; pipeline sinh overlay lesson
-  exact-revision và giữ section ID canonical khi đổi locale. Các nhãn này chỉ là coverage nội
+  học liệu, 1 ngày một phần và 50 ngày planned. Toolchain dùng `vi.md` canonical
+  tiếng Việt cùng companion `en.md`; loader vẫn nhận `knowledge.md` cho lesson
+  cũ, pipeline sinh overlay lesson exact-revision và giữ section ID canonical khi đổi locale. Các nhãn này chỉ là coverage nội
   dung, không phải tiến độ cá nhân. Trang dùng YAML Git-owned song ngữ; sơ đồ compact dùng node/connector
   ba cột ziczac trên desktop và một trục dọc trên tablet/mobile. Node có học liệu
   mở lesson chính (`lessonIds[0]`) theo locale trong tab mới; node chưa có lesson giữ vị
@@ -33,10 +33,11 @@ trạng thái từ tên nhánh.
   và callback Auth kỹ thuật vẫn không prefix. Các lối tắt Admin trong Practice,
   Stats và guide tick dùng `next/link` trực tiếp nên luôn mở `/admin`, không bị
   navigation theo locale đổi thành route 404 `/vi/admin` hoặc `/en/admin`.
-- Catalog hiện có 18 question Git-owned: 4 verified và 14 draft. Ba draft mới
-  của Toolchain lần lượt mang độ khó beginner/intermediate/advanced, taxonomy
-  `standard::cpp11` và overlay tiếng Anh exact-revision. Cả 4 question verified
-  cũng có overlay tiếng Anh; `/en/practice` chỉ xếp question đã duyệt vào hàng học. Question được duyệt
+- Catalog hiện có 18 question Git-owned: 4 verified và 14 draft. Ba draft
+  Toolchain lần lượt mang độ khó beginner/intermediate/advanced và taxonomy
+  `standard::cpp11`; ba English copy tương ứng xuất hiện thành mục duyệt riêng
+  trong Admin nhưng giữ nguyên canonical ID/version/hash/taxonomy. Cả 4 question verified
+  cũng có overlay tiếng Anh; `/en/practice` chỉ xếp question và English copy đã duyệt vào hàng học. Question được duyệt
   nhưng chưa dịch không còn fallback sang tiếng Việt, còn source excerpt/title
   lesson chưa dịch được ẩn hoặc thay bằng nhãn chủ đề trung tính. Stable identity,
   version, source hash, taxonomy, source và code không thay đổi. Toàn bộ control,
@@ -50,6 +51,9 @@ trạng thái từ tên nhánh.
   sống lại; revision/source append-only vẫn được giữ tối thiểu cho audit. Cần áp
   dụng migration `20260828064241_permanently_reject_queued_questions.sql` sau
   khi merge/deploy app; migration chưa được áp dụng lên Supabase remote trong task này.
+- Hàng đợi cũng có card “Bản dịch · English” và duyệt hàng loạt chung với câu
+  gốc. Approval translation chỉ ghi copy catalog server cho exact revision;
+  publication không tạo question/history mới và tự hết hiệu lực khi copy đổi.
 - Reader lesson mở các câu đã duyệt của exact lesson bằng lesson-check riêng;
   Toolchain hiện có ba question tương ứng. Mode này luôn đi hết tập câu đã duyệt
   dù đã ôn trong ngày. Mỗi lần bấm CTA sẽ xóa snapshot đúng bài/tài khoản để bắt
@@ -57,8 +61,6 @@ trạng thái từ tên nhánh.
   hiện tại. Mode không hiện lựa chọn interval và không ghi review/scheduler; hết
   câu sẽ báo hoàn thành. Reader có cùng CTA ở đầu/cuối bài, không còn CTA
   “Xem mã mẫu”, ghi chú tình trạng kho hay checklist “Tự kiểm tra · không chấm điểm”.
-  Reset lượt mới đạt full `npm run validate`: content/context check, ESLint,
-  TypeScript, 116 file/693 Vitest test, production build và audit production 0 lỗ hổng.
 - Question DB-owned của revision bài học cũ vẫn được giữ làm `needs_review` để
   audit. Practice chỉ resolve source excerpt khi `question.sourceHash` khớp
   revision lesson hiện hành; section ID cũ không còn làm sập workspace của tài
@@ -154,11 +156,14 @@ trạng thái từ tên nhánh.
 
 ## Giới hạn và trạng thái chưa xác minh
 
-- Catalog tiếng Anh hiện bao phủ 7 question tại revision hiện hành, trong đó 4
-  question đã verified; 11 question còn lại và 7 lesson chưa có overlay tiếng Anh nên chưa xuất hiện trong
+- Catalog tiếng Anh hiện bao phủ 7 question tại revision hiện hành: 4 overlay
+  verified trong Git và 3 Toolchain draft đang chờ duyệt riêng; 11 question còn lại và 7 lesson chưa có overlay tiếng Anh nên chưa xuất hiện trong
   `/en/practice`. Đây là backlog học liệu, không được lấp bằng nội dung tiếng Việt.
   Migration `20260825073227_add_content_translations.sql` đã được áp dụng trên
   Supabase project liên kết. Migration
+  `20260828093103_approve_question_translations.sql` đang chờ áp dụng để Admin
+  có thể ghi publication qua RLS; chưa áp migration thì mutation fail closed.
+  Migration
   `20260828110000_localize_coach_evaluation_fingerprints.sql` đang chờ áp dụng;
   trước migration này, evaluation account/admin retry đúng lỗi fingerprint
   mismatch bằng cặp fingerprint/UUIDv8 legacy. Tiếng Anh dùng thêm source
@@ -167,8 +172,8 @@ trạng thái từ tên nhánh.
   Sau migration app tự dùng fingerprint locale-aware chuẩn. Các route Coach
   evaluate/follow-up/clarify và Mock report localize manifest theo
   `responseLocale`; English chỉ nhận question có overlay exact-revision và mọi
-  provider đều có output contract tiếng Anh. Loader hiện vẫn đọc catalog Git,
-  chưa đọc view translation DB.
+  provider đều có output contract tiếng Anh. Practice và các route AI/Mock đọc
+  verified publication từ view translation DB rồi đối chiếu exact copy Git.
 
 - Kho câu hỏi đã duyệt chưa bao phủ đều tick data, Linux/mạng, hệ
   thống phân tán và kỹ năng chịu trách nhiệm đầu cuối. Giao diện phải gọi đây là
@@ -304,12 +309,12 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- AI locale và compatibility rollout với RPC fingerprint cũ đạt toàn bộ
-  `npm run validate`: content/context check, ESLint, TypeScript, 116 file/697
-  Vitest test và Next.js production build 68 page. Regression test khóa luồng
-  lesson-check English qua identity transport tách locale, exact manifest tiếng
-  Anh, cùng locale xuyên suốt reserve/provider/complete; lỗi DB không liên quan
-  vẫn fail closed. `npm audit --omit=dev --audit-level=moderate` báo 0 lỗ hổng.
+- Hàng duyệt English copy của Toolchain và publication gating đạt toàn bộ
+  `npm run validate`: content/context check, ESLint, TypeScript, 117 file/706
+  Vitest test và Next.js production build 69 page. Regression test khóa ba mức
+  khó/tag C++11, exact translated copy, quyền admin/RLS, Practice/Coach/Mock
+  localization và canonical identity dùng chung. `npm audit --omit=dev
+  --audit-level=moderate` báo 0 lỗ hổng.
 - Hotfix Practice cho question DB stale đạt `content:check`, `context:check`,
   ESLint, TypeScript, 111 file/656 Vitest test và Next.js production build 67
   page. Regression test giữ question revision cũ trong hàng `needs_review` nhưng

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import repositoryManifestJson from "@/generated/content-manifest.json";
+
 import type { ContentManifest } from "../content/schema";
+import { contentManifestSchema } from "../content/schema";
 
 import { buildAdminDashboardSnapshot } from "./dashboard";
 
@@ -124,5 +127,58 @@ describe("admin dashboard snapshot", () => {
     expect(snapshot.lessons[0].sourceSections).toEqual([
       { id: "overview", heading: "Overview" },
     ]);
+  });
+
+  it("lists Toolchain English copy as three independent translation reviews", () => {
+    const repositoryManifest = contentManifestSchema.parse(repositoryManifestJson);
+    const snapshot = buildAdminDashboardSnapshot(
+      repositoryManifest,
+      [],
+      { version: 1, reviews: [] },
+      [],
+      "2026-08-28",
+    );
+
+    expect(snapshot.metrics.pendingTranslations).toBe(3);
+    expect(snapshot.translationReviews.map((review) => review.question.id)).toEqual([
+      "cpp11-toolchain-001",
+      "cpp11-toolchain-002",
+      "cpp11-toolchain-003",
+    ]);
+    expect(
+      snapshot.translationReviews.map((review) => review.question.difficulty),
+    ).toEqual(["beginner", "intermediate", "advanced"]);
+    for (const review of snapshot.translationReviews) {
+      expect(review.locale).toBe("en");
+      expect(review.question.taxonomy.standard).toBe("cpp11");
+      expect(review.question.taxonomy.tags).toContain("standard::cpp11");
+      expect(review.question.taxonomy.tags).toContain(
+        `difficulty::${review.question.difficulty}`,
+      );
+    }
+
+    const approved = snapshot.translationReviews[0];
+    const refreshed = buildAdminDashboardSnapshot(
+      repositoryManifest,
+      [],
+      { version: 1, reviews: [] },
+      [],
+      "2026-08-28",
+      [],
+      [{
+        questionId: approved.question.id,
+        questionVersion: approved.question.version,
+        sourceHash: approved.question.sourceHash,
+        locale: approved.locale,
+        prompt: approved.question.prompt,
+        hint: approved.question.hint,
+        answer: approved.question.answer,
+        rubric: approved.question.rubric,
+      }],
+    );
+
+    expect(refreshed.metrics.pendingTranslations).toBe(2);
+    expect(refreshed.translationReviews.map((review) => review.question.id)).not
+      .toContain(approved.question.id);
   });
 });

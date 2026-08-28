@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import manifestJson from "@/generated/content-manifest.json";
 import { contentManifestSchema } from "@/lib/content/schema";
-import { localizeContentManifest } from "@/lib/content/translations";
+import {
+  localizeContentManifest,
+  questionTranslationReviewCandidates,
+} from "@/lib/content/translations";
 
 import {
   buildCoachFollowUpPrompt,
@@ -12,10 +15,24 @@ import {
 } from "./prompt";
 
 const manifest = contentManifestSchema.parse(manifestJson);
-const englishManifest = localizeContentManifest(manifest, "en");
 const canonicalQuestion = manifest.questions.find(
   (item) => item.id === "cpp11-toolchain-001",
 )!;
+const englishReview = questionTranslationReviewCandidates(manifest, "en").find(
+  (item) => item.question.id === canonicalQuestion.id,
+)!;
+const englishManifest = localizeContentManifest(manifest, "en", [
+  {
+    questionId: englishReview.translation.questionId,
+    questionVersion: englishReview.translation.questionVersion,
+    sourceHash: englishReview.translation.sourceHash,
+    locale: englishReview.locale,
+    prompt: englishReview.translation.prompt,
+    hint: englishReview.translation.hint,
+    answer: englishReview.translation.answer,
+    rubric: englishReview.translation.rubric,
+  },
+]);
 const question = englishManifest.questions.find(
   (item) => item.id === canonicalQuestion.id,
 )!;

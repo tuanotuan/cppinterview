@@ -7,6 +7,7 @@
       "questionId": "cpp11-toolchain-001",
       "questionVersion": 1,
       "sourceHash": "0ae7bb9ef780cb6ebc1e37ae2861bae1c5363e7a24f42c99f1727fa6ca359e58",
+      "status": "draft",
       "prompt": "What problem do a toolchain and compiler flags solve, and which part of the minimal build command activates C++11 mode?",
       "hint": "Distinguish the language-standard flag from flags that only enable more warnings.",
       "answer": {
@@ -32,6 +33,7 @@
       "questionId": "cpp11-toolchain-002",
       "questionVersion": 1,
       "sourceHash": "0ae7bb9ef780cb6ebc1e37ae2861bae1c5363e7a24f42c99f1727fa6ca359e58",
+      "status": "draft",
       "prompt": "When the code below is compiled with `-std=c++11`, what does it print, and which rule produces each result?",
       "hint": "Determine the standard value of `__cplusplus` in C++11 mode, then evaluate the integer multiplication.",
       "answer": {
@@ -57,6 +59,7 @@
       "questionId": "cpp11-toolchain-003",
       "questionVersion": 1,
       "sourceHash": "0ae7bb9ef780cb6ebc1e37ae2861bae1c5363e7a24f42c99f1727fa6ca359e58",
+      "status": "draft",
       "prompt": "A project does not declare a C++ standard, so a development machine accepts newer features while CI rejects or interprets them differently. What is wrong with the build design, and what is the smallest safe correction for a C++11 codebase?",
       "hint": "The language standard and compiler version are build inputs, not defaults that can safely be ignored.",
       "answer": {
@@ -83,6 +86,7 @@
       "questionId": "cpp20-designated-initializers-001",
       "questionVersion": 1,
       "sourceHash": "77220c505e8b03b2f6646e03eee9a3e31bbcdfa6b1b0bf0cd6db45d2a56c7f24",
+      "status": "verified",
       "prompt": "Is the C++20 code below valid? Name two important constraints of designated initializers.",
       "hint": "Check the kind of object and the declaration order of its members.",
       "answer": {
@@ -107,6 +111,7 @@
       "questionId": "cpp98-address-pointer-001",
       "questionVersion": 1,
       "sourceHash": "aa153e754d77a72d89eff13c9d2c517e950c1d947061bca1289f9ea3a40c045c",
+      "status": "verified",
       "prompt": "Distinguish an object, an address, a pointer, and the dereference operation.",
       "hint": "`ptr` and `*ptr` represent two different things.",
       "answer": {
@@ -131,6 +136,7 @@
       "questionId": "cpp98-address-pointer-002",
       "questionVersion": 1,
       "sourceHash": "aa153e754d77a72d89eff13c9d2c517e950c1d947061bca1289f9ea3a40c045c",
+      "status": "verified",
       "prompt": "What is a dangling pointer, and why is being non-null not enough to make dereferencing safe?",
       "hint": "A pointer can retain an address after the object's lifetime ends.",
       "answer": {
@@ -155,6 +161,7 @@
       "questionId": "cpp98-struct-padding-001",
       "questionVersion": 1,
       "sourceHash": "d87a0674a56e2699438c3775f1bead1dfb83a0d32716b8434d0a1e92e4f7398a",
+      "status": "verified",
       "prompt": "Why can `sizeof(struct)` be larger than the sum of the fields' `sizeof` values, and how can reordering fields help?",
       "hint": "CPU alignment can create unused space between members or after the last member.",
       "answer": {

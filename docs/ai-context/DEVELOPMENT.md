@@ -67,6 +67,10 @@ locale bắt buộc. Chuỗi UI nằm trong `src/messages/{vi,en}.json`, còn n�
 question/lesson dịch qua `src/lib/content/translations.ts` và catalog
 `src/content-translations/`. Bản dịch phải bind exact ID + version + source hash
 (lesson bind content hash), giữ nguyên code, nguồn, taxonomy, schema và enum.
+Question translation có `draft` phải được duyệt riêng trong Admin. API chỉ lấy
+copy từ catalog server và ghi publication verified; Practice, Coach và Mock chỉ
+áp publication khớp nguyên văn bản catalog hiện tại, nên sửa bản dịch sẽ tự đưa
+nó về hàng chờ mà không tạo ID hay lịch học mới.
 Không dùng machine translation ở runtime. Thiếu bản dịch thì dùng canonical
 content ở các bề mặt cho phép fallback; không được trình bày fallback như một
 bản dịch đã được review. Riêng `/en/practice` chỉ đưa question có overlay bind
@@ -100,10 +104,11 @@ vào GPT Web để tra nguồn trong Google Drive và nhận đúng hai tệp b�
 xuống với contract H1/H2 bắt buộc. Đưa hai tệp đó vào source lesson là bước riêng
 và vẫn phải làm theo recipe dưới đây.
 
-1. Tạo hoặc sửa `<source-root>/<lesson>/knowledge.md`; cần một `#` title và ít
-   nhất một `##` section. Với lesson song ngữ, `knowledge.md` là bản canonical
-   và thêm `en.md` có cùng số/thứ tự section; pipeline giữ ID section canonical
-   rồi sinh overlay tiếng Anh exact-revision.
+1. Lesson đơn ngữ dùng `<source-root>/<lesson>/knowledge.md`; lesson song ngữ
+   dùng canonical tiếng Việt `vi.md` và companion `en.md`. Mỗi file cần một `#`
+   title và ít nhất một `##` section; hai bản song ngữ phải có cùng số/thứ tự
+   section để pipeline giữ ID canonical và sinh overlay exact-revision. Nếu cả
+   `vi.md` và legacy `knowledge.md` cùng tồn tại, loader dùng `vi.md`.
 2. Thêm code mẫu đúng ngôn ngữ nếu cần: `main.cpp`, `main.py`, hoặc
    `CMakeLists.txt`.
 3. Chạy `npm run content:refresh`, rồi `npm run content:status`.
@@ -185,6 +190,11 @@ Supabase, rồi enqueue/generate DB-native drafts. Không dùng `content:auto` h
   trước: reader coi schema chưa có là chưa có tombstone, còn mutation fail closed
   cho tới khi migration được áp dụng. Không chạy migration remote từ coding task
   nếu chưa được người dùng cho phép rõ ràng.
+- Duyệt question translation cần migration
+  `20260828093103_approve_question_translations.sql`. Migration chỉ cấp
+  insert/update qua RLS cho content admin, bind actor và exact current
+  question/version/source hash; không cấp delete. Deploy app tương thích trước,
+  sau đó mới áp migration remote khi được cho phép.
 
 ## Content store modes
 

@@ -106,6 +106,13 @@ vi.mock("@/lib/content/question-store-server", () => ({
   loadQuestionStoreManifest: vi.fn().mockResolvedValue(mocks.manifest),
 }));
 
+vi.mock("@/lib/content/question-translations.server", () => ({
+  loadQuestionTranslationPublications: vi.fn().mockResolvedValue({
+    publications: [],
+    error: false,
+  }),
+}));
+
 vi.mock("@/lib/content/translations", () => ({
   hasExactQuestionTranslation: () => true,
   localizeContentManifest: mocks.localizeContentManifest,
@@ -387,6 +394,7 @@ describe("POST /api/coach/follow-up idempotency", () => {
     expect(mocks.localizeContentManifest).toHaveBeenCalledWith(
       mocks.manifest,
       "en",
+      [],
     );
     expect(mocks.reserveCoachFollowUp).toHaveBeenCalledWith(
       supabase,

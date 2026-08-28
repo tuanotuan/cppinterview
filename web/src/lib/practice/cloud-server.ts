@@ -11,6 +11,8 @@ import {
   loadQuestionStoreManifest,
 } from "@/lib/content/question-store-server";
 import type { ContentManifest } from "@/lib/content/schema";
+import { loadQuestionTranslationPublications } from "@/lib/content/question-translations.server";
+import type { QuestionTranslationPublication } from "@/lib/content/translations";
 import {
   readAccountCoachEvidenceArtifacts,
   type AccountCoachEvidenceRead,
@@ -70,6 +72,7 @@ export type CloudContext = {
   progress: PracticeProgress;
   questionStates: QuestionLearningState[];
   approvals: QuestionApproval[];
+  questionTranslations: QuestionTranslationPublication[];
   questionOverrides: QuestionOverride[];
   manifest: ContentManifest;
   aiUsage: AiUsageSummary | null;
@@ -198,6 +201,7 @@ export async function loadCloudContext(
       progress: EMPTY_PROGRESS,
       questionStates: [],
       approvals: [],
+      questionTranslations: [],
       questionOverrides: [],
       manifest: getRepoContentManifest(),
       aiUsage: null,
@@ -219,6 +223,7 @@ export async function loadCloudContext(
       progress: EMPTY_PROGRESS,
       questionStates: [],
       approvals: [],
+      questionTranslations: [],
       questionOverrides: [],
       manifest: getRepoContentManifest(),
       aiUsage: null,
@@ -282,12 +287,15 @@ export async function loadCloudContext(
   // read here prevents it from adding another round trip after the deliberate
   // review -> state ordering below.
   const baseManifestPromise = loadQuestionStoreManifest({ supabase });
+  const questionTranslationsPromise =
+    loadQuestionTranslationPublications(supabase);
   // Keep the generation-bearing state read after the review pages so a reset
   // between the two snapshots can only remove older-generation rows.
   const reviewsResult = await readAllPracticeReviewRows(supabase);
   const statesResult = await readQuestionLearningStateRows(supabase);
   const [
     approvalsResult,
+    questionTranslationsResult,
     overridesResult,
     monthlyUsageResult,
     dailyUsageResult,
@@ -301,6 +309,7 @@ export async function loadCloudContext(
       supabase
         .from("question_approvals")
         .select("question_id, question_version, source_hash"),
+      questionTranslationsPromise,
       supabase
         .from("question_overrides")
         .select(questionOverrideSelect),
@@ -364,6 +373,9 @@ export async function loadCloudContext(
     approvals: approvalError
       ? []
       : rowsToApprovals((approvalRows ?? []) as QuestionApprovalRow[]),
+    questionTranslations: questionTranslationsResult.error
+      ? []
+      : questionTranslationsResult.publications,
     questionOverrides,
     manifest,
     aiUsage: usageRow
@@ -438,6 +450,7 @@ export async function loadCloudContext(
       error ||
         statesError ||
         approvalError ||
+        questionTranslationsResult.error ||
         overridesError ||
         usageError ||
         dailyUsageError ||
