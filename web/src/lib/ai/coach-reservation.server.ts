@@ -12,6 +12,8 @@ import {
 
 export const COACH_EVALUATION_LEASE_SECONDS = 600;
 const COACH_EVALUATION_MINIMUM_RUNWAY_SECONDS = 240;
+const LEGACY_ENGLISH_SOURCE_REVISION_DOMAIN =
+  "coach-evaluation-legacy-english-source-v1";
 
 export type CoachEvaluationRequestIdentity = {
   questionId: string;
@@ -107,6 +109,35 @@ function legacyCoachEvaluationIdempotencyKey(fingerprint: string) {
   ].join("-");
 }
 
+function legacyCoachEvaluationCompatibility(
+  identity: CoachEvaluationRequestIdentity,
+) {
+  const responseLocale = identity.responseLocale ?? "vi";
+  const rpcIdentity = responseLocale === "en"
+    ? {
+        ...identity,
+        // The pre-locale RPC deduplicates solely by the remaining identity
+        // fields. Domain-separate English reservations through a derived
+        // source revision so they can never reuse Vietnamese cached feedback.
+        // This value is server-derived and is used only while the database
+        // migration is rolling out; the provider still receives the canonical
+        // source and candidate answer.
+        sourceRevision: hashCoachEvaluationIdentity([
+          LEGACY_ENGLISH_SOURCE_REVISION_DOMAIN,
+          identity.sourceRevision,
+        ]),
+      }
+    : identity;
+  const requestFingerprint =
+    legacyCoachEvaluationRequestFingerprint(rpcIdentity);
+  return {
+    rpcIdentity,
+    requestFingerprint,
+    idempotencyKey:
+      legacyCoachEvaluationIdempotencyKey(requestFingerprint),
+  };
+}
+
 function coachEvaluationIdentityFields(
   identity: CoachEvaluationRequestIdentity,
 ) {
@@ -161,23 +192,25 @@ export async function reserveCoachEvaluation(
     "reserve_coach_evaluation",
     rpcInput,
   );
-  if (error && isLegacyVietnameseFingerprintMismatch(error, input.identity)) {
-    const legacyFingerprint = legacyCoachEvaluationRequestFingerprint(
+  if (error && isLegacyFingerprintMismatch(error)) {
+    const compatibility = legacyCoachEvaluationCompatibility(
       input.identity,
     );
-    // Keep both legacy identifiers paired. Reusing the locale-aware key with
-    // a legacy fingerprint would turn this row into a conflict after rollout.
+    // Keep the compatibility identifiers and transport identity paired.
+    // Reusing the locale-aware key with a legacy fingerprint would turn this
+    // row into a conflict after rollout.
     ({ data, error } = await client.rpc("reserve_coach_evaluation", {
       ...rpcInput,
-      p_idempotency_key:
-        legacyCoachEvaluationIdempotencyKey(legacyFingerprint),
-      p_request_fingerprint: legacyFingerprint,
+      p_idempotency_key: compatibility.idempotencyKey,
+      p_request_fingerprint: compatibility.requestFingerprint,
+      p_source_revision: compatibility.rpcIdentity.sourceRevision,
     }));
   }
   if (error) throw mapCoachEvaluationRpcError(error);
   const reservation = parseCoachEvaluationReservation(data);
-  assertPersistedRequestFingerprint(
+  persistedCoachEvaluationRpcIdentity(
     reservation.requestFingerprint,
+    reservation.idempotencyKey,
     input.identity,
   );
   return reservation;
@@ -197,8 +230,9 @@ export async function completeCoachEvaluation(
   assertUuid(input.idempotencyKey, "idempotency");
   assertUuid(input.leaseToken, "lease");
   assertIdentity(input.identity);
-  assertPersistedRequestFingerprint(
+  const rpcIdentity = persistedCoachEvaluationRpcIdentity(
     input.requestFingerprint,
+    input.idempotencyKey,
     input.identity,
   );
   const parsedFeedback = coachFeedbackSchema.safeParse(input.feedback);
@@ -216,16 +250,16 @@ export async function completeCoachEvaluation(
   }
 
   const { data, error } = await client.rpc("complete_coach_evaluation", {
-    p_candidate_answer: input.identity.candidateAnswer,
+    p_candidate_answer: rpcIdentity.candidateAnswer,
     p_feedback: feedback,
     p_idempotency_key: input.idempotencyKey,
     p_lease_token: input.leaseToken,
     p_model: model,
-    p_question_id: input.identity.questionId,
-    p_question_version: input.identity.questionVersion,
+    p_question_id: rpcIdentity.questionId,
+    p_question_version: rpcIdentity.questionVersion,
     p_request_fingerprint: input.requestFingerprint,
     p_score: feedback.score,
-    p_source_revision: input.identity.sourceRevision,
+    p_source_revision: rpcIdentity.sourceRevision,
     p_suggested_rating: feedback.suggestedRating,
     p_verdict: feedback.verdict,
   });
@@ -504,29 +538,48 @@ function assertRequestFingerprint(
   }
 }
 
-function assertPersistedRequestFingerprint(
+function persistedCoachEvaluationRpcIdentity(
   value: string,
+  idempotencyKey: string,
   identity: CoachEvaluationRequestIdentity,
 ) {
-  const isVietnamese = (identity.responseLocale ?? "vi") === "vi";
-  if (
-    !sha256(value) ||
-    (value !== coachEvaluationRequestFingerprint(identity) &&
-      (!isVietnamese ||
-        value !== legacyCoachEvaluationRequestFingerprint(identity)))
-  ) {
-    throw new CoachEvaluationConfigurationError(
-      "Coach evaluation fingerprint does not match its request",
-    );
+  if (!sha256(value)) {
+    throwCoachEvaluationFingerprintMismatch();
   }
+  if (value === coachEvaluationRequestFingerprint(identity)) {
+    return identity;
+  }
+
+  const responseLocale = identity.responseLocale ?? "vi";
+  if (
+    responseLocale === "vi" &&
+    value === legacyCoachEvaluationRequestFingerprint(identity)
+  ) {
+    return identity;
+  }
+
+  const compatibility = legacyCoachEvaluationCompatibility(identity);
+  if (
+    responseLocale === "en" &&
+    value === compatibility.requestFingerprint &&
+    idempotencyKey === compatibility.idempotencyKey
+  ) {
+    return compatibility.rpcIdentity;
+  }
+
+  throwCoachEvaluationFingerprintMismatch();
 }
 
-function isLegacyVietnameseFingerprintMismatch(
+function throwCoachEvaluationFingerprintMismatch(): never {
+  throw new CoachEvaluationConfigurationError(
+    "Coach evaluation fingerprint does not match its request",
+  );
+}
+
+function isLegacyFingerprintMismatch(
   error: RpcErrorLike,
-  identity: CoachEvaluationRequestIdentity,
 ) {
   return (
-    (identity.responseLocale ?? "vi") === "vi" &&
     error.code?.trim() === "P0001" &&
     error.message?.trim() === "Coach evaluation fingerprint mismatch"
   );

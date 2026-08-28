@@ -346,6 +346,10 @@ tham gia monthly accounting/hard-spend backstop. Khi daily/hard quota OpenAI
 hết, Gemini có thể fallback nếu config và owner toggle cho phép. Timeout, mất
 mạng hoặc 5xx terminalize request và quyết toán bảo thủ, không tự gọi provider
 lần hai. Múi giờ budget là `Asia/Ho_Chi_Minh`.
+Coach evaluate/follow-up/clarify và Mock report localize exact manifest theo
+`responseLocale` trước khi dựng prompt. English chỉ dùng question overlay đúng
+revision và prompt buộc mọi field người học nhìn thấy trả về bằng tiếng Anh;
+OpenAI và Gemini nhận cùng contract locale.
 Candidate answer là field bắt buộc nhưng được phép rỗng; prompt đánh dấu rõ blank
 là “chưa biết” để trả feedback dạy từ nền tảng.
 
