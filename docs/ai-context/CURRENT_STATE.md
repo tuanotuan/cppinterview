@@ -49,9 +49,7 @@ trạng thái từ tên nhánh.
   hành động không thể hoàn tác, API kiểm tra lại exact GitHub admin cùng
   version/source hash, rồi RPC ghi tombstone toàn cục theo question ID. Loader
   loại tombstone khỏi cả store Git, shadow và DB nên content sync không làm câu
-  sống lại; revision/source append-only vẫn được giữ tối thiểu cho audit. Cần áp
-  dụng migration `20260828064241_permanently_reject_queued_questions.sql` sau
-  khi merge/deploy app; migration chưa được áp dụng lên Supabase remote trong task này.
+  sống lại; revision/source append-only vẫn được giữ tối thiểu cho audit.
 - Hàng đợi cũng có card “Bản dịch · English” và duyệt hàng loạt chung với câu
   gốc. Approval translation chỉ ghi copy catalog server cho exact revision;
   publication không tạo question/history mới và tự hết hiệu lực khi copy đổi.
@@ -157,18 +155,13 @@ trạng thái từ tên nhánh.
 
 ## Giới hạn và trạng thái chưa xác minh
 
-- Catalog tiếng Anh hiện bao phủ 163 question tại revision hiện hành: 4 overlay
-  verified trong Git và 159 draft C++11 đang chờ duyệt riêng; 10 question còn lại
-  và 6 lesson ngoài lộ trình C++11 chưa có overlay tiếng Anh nên chưa xuất hiện trong
-  `/en/practice`. Đây là backlog học liệu, không được lấp bằng nội dung tiếng Việt.
-  Migration `20260825073227_add_content_translations.sql` đã được áp dụng trên
-  Supabase project liên kết. Migration
-  `20260828093103_approve_question_translations.sql` đang chờ áp dụng để Admin
-  có thể ghi publication qua RLS; chưa áp migration thì mutation fail closed.
-  Migration
-  `20260828110000_localize_coach_evaluation_fingerprints.sql` đang chờ áp dụng;
-  trước migration này, evaluation account/admin retry đúng lỗi fingerprint
-  mismatch bằng cặp fingerprint/UUIDv8 legacy. Tiếng Anh dùng thêm source
+- Phạm vi review hiện hành là đúng 159 canonical question C++11 và 159 English
+  draft khớp exact revision, tương ứng ba câu mỗi ngôn ngữ cho từng bài trong 53
+  bài. Bốn English overlay ngoài lộ trình vẫn có trong catalog lịch sử nhưng bị
+  tombstone theo canonical ID; migration
+  `20260828223000_retire_pre_curriculum_questions.sql` mã hóa đúng 90 ID legacy
+  cần loại khỏi cả vùng đã duyệt và chưa duyệt mà không xóa audit history.
+  Tiếng Anh dùng thêm source
   revision transport do server sinh để tách hẳn fingerprint/cache khỏi tiếng
   Việt, còn provider vẫn nhận source revision và candidate answer canonical.
   Sau migration app tự dùng fingerprint locale-aware chuẩn. Các route Coach
@@ -311,8 +304,9 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Bộ học liệu C++11 ngày 01–53, hàng duyệt song ngữ và UI roadmap đạt toàn bộ
-  `npm run validate`: content/context check, ESLint, TypeScript, 118 file/711
+- Bộ học liệu C++11 ngày 01–53, hàng duyệt song ngữ, cleanup 90 question ID
+  legacy và UI roadmap đạt toàn bộ `npm run validate`: content/context check,
+  ESLint, TypeScript, 118 file/712
   Vitest test và Next.js production build 171 static page. Regression test khóa
   đúng ba mức khó/tag C++11 cho từng lesson, exact 156 câu Việt + 156 English
   copy của ngày 02–53, canonical identity dùng chung, toàn bộ roadmap ở trạng
