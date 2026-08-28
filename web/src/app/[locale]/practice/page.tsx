@@ -6,6 +6,7 @@ import { readPublicAiAdmissionStatus } from "@/lib/ai/public-ai-admission.server
 import { isQuestionApproved } from "@/lib/practice/approvals";
 import { loadCloudAccount, loadCloudContext } from "@/lib/practice/cloud-server";
 import { parsePracticeDeck } from "@/lib/content/decks";
+import { currentQuestionSourceSections } from "@/lib/content/question-source-sections";
 import { parseCustomStudyLaunch } from "@/lib/practice/custom-study";
 import { parseFocusSessionId } from "@/lib/practice/focus-session";
 import { parseWorldQuantMissionReturn } from "@/lib/worldquant/guided-mode";
@@ -123,17 +124,9 @@ export default async function PracticePage({
         track: lesson.track,
         standard: lesson.standard,
         sourcePath: lesson.knowledgePath,
-        sourceSections: lessonIsLocalized ? question.sources.map(({ sectionId }) => {
-          const section = lesson.sections.find((item) => item.id === sectionId);
-          if (!section) {
-            throw new Error("Missing section " + question.lessonId + "#" + sectionId);
-          }
-          return {
-            id: section.id,
-            heading: section.heading,
-            excerpt: section.bodyText.slice(0, 900),
-          };
-        }) : [],
+        sourceSections: lessonIsLocalized
+          ? currentQuestionSourceSections(question, lesson)
+          : [],
       };
     });
   const questions = mappedQuestions.filter(
