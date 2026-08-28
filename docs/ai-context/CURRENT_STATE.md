@@ -41,6 +41,13 @@ trạng thái từ tên nhánh.
   trạng thái, modal quản trị trong Practice và AI Coach dùng locale request. Mock
   đóng băng locale khi bắt đầu session và lưu locale trong report artifact/history
   mới để chuyển URL giữa phiên không làm đổi ngôn ngữ báo cáo.
+- Hàng đợi Admin có nút “Từ chối” tách biệt với “Duyệt”: modal cảnh báo đây là
+  hành động không thể hoàn tác, API kiểm tra lại exact GitHub admin cùng
+  version/source hash, rồi RPC ghi tombstone toàn cục theo question ID. Loader
+  loại tombstone khỏi cả store Git, shadow và DB nên content sync không làm câu
+  sống lại; revision/source append-only vẫn được giữ tối thiểu cho audit. Cần áp
+  dụng migration `20260828064241_permanently_reject_queued_questions.sql` sau
+  khi merge/deploy app; migration chưa được áp dụng lên Supabase remote trong task này.
 - Reader lesson mở các câu đã duyệt của exact lesson bằng lesson-check riêng;
   Toolchain hiện có ba question tương ứng. Mode này luôn đi hết tập câu đã duyệt
   dù đã ôn trong ngày, chỉ giữ trạng thái cho
@@ -148,9 +155,11 @@ trạng thái từ tên nhánh.
   Migration `20260825073227_add_content_translations.sql` đã được áp dụng trên
   Supabase project liên kết. Migration
   `20260828110000_localize_coach_evaluation_fingerprints.sql` đang chờ áp dụng;
-  trước migration này, AI Coach account/admin fail closed vì fingerprint phía
-  app đã gồm locale nhưng RPC vẫn kiểm tra hợp đồng cũ. Loader hiện vẫn đọc
-  catalog Git, chưa đọc view translation DB.
+  trước migration này, evaluation tiếng Việt của AI Coach account/admin chỉ
+  retry đúng lỗi fingerprint mismatch bằng cặp fingerprint/UUIDv8 legacy rồi
+  tiếp tục với identity RPC trả về. Evaluation tiếng Anh vẫn fail closed để
+  không dùng chung cache khác locale; follow-up không bị ảnh hưởng. Loader hiện
+  vẫn đọc catalog Git, chưa đọc view translation DB.
 
 - Kho câu hỏi đã duyệt chưa bao phủ đều tick data, Linux/mạng, hệ
   thống phân tán và kỹ năng chịu trách nhiệm đầu cuối. Giao diện phải gọi đây là
@@ -286,10 +295,12 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Lesson-check và reader cleanup đạt toàn bộ `npm run validate`: content/context
-  check, ESLint, TypeScript, 112 file/660 Vitest test và Next.js production build
-  67 page. Targeted test khóa URL an toàn, exact lesson queue và completion không
-  trùng; `npm audit --omit=dev` báo 0 lỗ hổng.
+- Compatibility rollout AI Coach tiếng Việt với RPC fingerprint cũ đạt toàn bộ
+  `npm run validate`: content/context check, ESLint, TypeScript, 115 file/677
+  Vitest test và Next.js production build 68 page. Targeted test khóa đúng luồng
+  lesson-check answer rỗng, cặp fingerprint/UUIDv8 legacy, canonical identity RPC
+  trả về, cùng fail-closed cho tiếng Anh và lỗi DB khác; `npm audit --omit=dev
+  --audit-level=moderate` báo 0 lỗ hổng.
 - Hotfix Practice cho question DB stale đạt `content:check`, `context:check`,
   ESLint, TypeScript, 111 file/656 Vitest test và Next.js production build 67
   page. Regression test giữ question revision cũ trong hàng `needs_review` nhưng

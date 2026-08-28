@@ -143,6 +143,14 @@ question manifest. Editing increments the effective question version and
 requires a new approval; archiving hides the question without deleting review or
 coach history. RLS keeps the overlay private to the authenticated owner.
 
+`20260828064241_permanently_reject_queued_questions.sql` adds the separate,
+irreversible Admin rejection path. It stores only an ID/version/source-hash
+tombstone plus the rejecting account for audit, exposes only rejected IDs to
+authenticated readers, and keeps source/revision history append-only. Deploy the
+compatible app first; until the migration exists, reads behave as if there are no
+tombstones and rejection attempts fail closed. Apply the migration only through
+the normal authorized deployment flow.
+
 ## Hybrid content bank foundation
 
 `20260723090000_create_content_question_bank.sql` adds the Phase A database

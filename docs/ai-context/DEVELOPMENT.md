@@ -165,7 +165,10 @@ Supabase, rồi enqueue/generate DB-native drafts. Không dùng `content:auto` h
   chỉ lấy question đã qua publication/approval filter của exact lesson, không
   ghi review, không hỏi interval và không cập nhật scheduler.
 - Sửa nội dung làm tăng version và vô hiệu approval cũ.
-- “Delete” ở Admin là archive overlay, không xóa history.
+- “Lưu trữ” ở Admin là archive overlay có thể khôi phục và không xóa history.
+  Riêng “Từ chối” trong hàng đợi ghi tombstone vĩnh viễn theo question ID qua
+  `reject_queued_content_question`; API và RPC đều bắt buộc admin, bind exact
+  version/source hash và chỉ chấp nhận question còn ở trạng thái chờ duyệt.
 - Điều khiển sửa/xóa trên thẻ đang học chỉ hiện với GitHub provider identity
   `tuanotuan`; API question mutation phải kiểm tra lại identity này ở server.
   Sau khi sửa, revision cũ phải rời phiên học và bản mới trở về hàng chờ duyệt.
@@ -177,6 +180,11 @@ Supabase, rồi enqueue/generate DB-native drafts. Không dùng `content:auto` h
   workflow sync trước rồi worker mới claim job để lịch sử generation không lẫn
   category contract cũ/mới.
 - Admin `tuanotuan` có thể tạo câu hỏi DB-native thủ công tại `/admin` khi `QUESTION_STORE=db`: chỉ nhập đề bài và đáp án tham khảo rồi tạo draft chờ duyệt. Câu được gắn vào lesson nội bộ `admin-manual-questions` (không có file `.md` hay nguồn hiển thị), có revision/audit riêng và được trigger bảo vệ khỏi repository sync archive. Cần deploy app mới trước, rồi chạy migration `20260809100000_create_standalone_admin_manual_questions.sql`.
+- Từ chối vĩnh viễn câu hỏi trong hàng đợi cần migration
+  `20260828064241_permanently_reject_queued_questions.sql`. Có thể deploy app
+  trước: reader coi schema chưa có là chưa có tombstone, còn mutation fail closed
+  cho tới khi migration được áp dụng. Không chạy migration remote từ coding task
+  nếu chưa được người dùng cho phép rõ ràng.
 
 ## Content store modes
 
@@ -386,7 +394,11 @@ Các nhóm schema hiện có:
   canonical idempotency key và lease sau migration `20260730130000`; migration
   `20260828110000` đồng bộ fingerprint với `responseLocale`, chỉ nhận fingerprint
   legacy như tiếng Việt và persist locale đó trên attempt. Xóa attempt cũng xóa
-  cache reservation liên quan.
+  cache reservation liên quan. Trong rollout trước migration, app chỉ fallback
+  khi evaluation tiếng Việt nhận đúng `P0001` fingerprint mismatch từ RPC cũ;
+  fallback phải dùng cùng lúc fingerprint và UUIDv8 legacy, rồi dispatch/complete
+  bằng identity RPC trả về. Không ghép key locale-aware với fingerprint legacy
+  vì row đó sẽ conflict sau migration; tiếng Anh phải tiếp tục fail closed.
 - Migration `20260730140000` dùng retry protocol v3 cho Mistake: lease hết hạn
   trước marker provider được thu hồi và claim lại, còn lease đã marker hoặc kết
   quả provider/completion không xác định chuyển `dead_letter`. Trigger chặn

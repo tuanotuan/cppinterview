@@ -37,6 +37,7 @@ export type CoachEvaluationReservation = {
 
 type RpcErrorLike = {
   code?: string | null;
+  message?: string | null;
 };
 
 export class CoachEvaluationConfigurationError extends Error {
@@ -76,17 +77,50 @@ export class CoachEvaluationLeaseInvalidError extends Error {
 export function coachEvaluationRequestFingerprint(
   identity: CoachEvaluationRequestIdentity,
 ) {
+  return hashCoachEvaluationIdentity([
+    ...coachEvaluationIdentityFields(identity),
+    identity.responseLocale ?? "vi",
+  ]);
+}
+
+function legacyCoachEvaluationRequestFingerprint(
+  identity: CoachEvaluationRequestIdentity,
+) {
+  return hashCoachEvaluationIdentity(
+    coachEvaluationIdentityFields(identity),
+  );
+}
+
+function legacyCoachEvaluationIdempotencyKey(fingerprint: string) {
+  const payload = fingerprint.slice(0, 32);
+  const variant = (
+    (Number.parseInt(payload.slice(16, 17), 16) & 0x3) |
+    0x8
+  ).toString(16);
+  const hex = `${payload.slice(0, 12)}8${payload.slice(13, 16)}${variant}${payload.slice(17)}`;
+  return [
+    hex.slice(0, 8),
+    hex.slice(8, 12),
+    hex.slice(12, 16),
+    hex.slice(16, 20),
+    hex.slice(20),
+  ].join("-");
+}
+
+function coachEvaluationIdentityFields(
+  identity: CoachEvaluationRequestIdentity,
+) {
+  return [
+    identity.questionId,
+    String(identity.questionVersion),
+    identity.sourceRevision,
+    identity.candidateAnswer,
+  ];
+}
+
+function hashCoachEvaluationIdentity(fields: string[]) {
   return createHash("sha256")
-    .update(
-      [
-        identity.questionId,
-        String(identity.questionVersion),
-        identity.sourceRevision,
-        identity.candidateAnswer,
-        identity.responseLocale ?? "vi",
-      ].join("\u001f"),
-      "utf8",
-    )
+    .update(fields.join("\u001f"), "utf8")
     .digest("hex");
 }
 
@@ -114,7 +148,7 @@ export async function reserveCoachEvaluation(
     );
   }
 
-  const { data, error } = await client.rpc("reserve_coach_evaluation", {
+  const rpcInput = {
     p_candidate_answer: input.identity.candidateAnswer,
     p_idempotency_key: input.idempotencyKey,
     p_lease_seconds: leaseSeconds,
@@ -122,9 +156,31 @@ export async function reserveCoachEvaluation(
     p_question_version: input.identity.questionVersion,
     p_request_fingerprint: input.requestFingerprint,
     p_source_revision: input.identity.sourceRevision,
-  });
+  };
+  let { data, error } = await client.rpc(
+    "reserve_coach_evaluation",
+    rpcInput,
+  );
+  if (error && isLegacyVietnameseFingerprintMismatch(error, input.identity)) {
+    const legacyFingerprint = legacyCoachEvaluationRequestFingerprint(
+      input.identity,
+    );
+    // Keep both legacy identifiers paired. Reusing the locale-aware key with
+    // a legacy fingerprint would turn this row into a conflict after rollout.
+    ({ data, error } = await client.rpc("reserve_coach_evaluation", {
+      ...rpcInput,
+      p_idempotency_key:
+        legacyCoachEvaluationIdempotencyKey(legacyFingerprint),
+      p_request_fingerprint: legacyFingerprint,
+    }));
+  }
   if (error) throw mapCoachEvaluationRpcError(error);
-  return parseCoachEvaluationReservation(data);
+  const reservation = parseCoachEvaluationReservation(data);
+  assertPersistedRequestFingerprint(
+    reservation.requestFingerprint,
+    input.identity,
+  );
+  return reservation;
 }
 
 export async function completeCoachEvaluation(
@@ -141,7 +197,10 @@ export async function completeCoachEvaluation(
   assertUuid(input.idempotencyKey, "idempotency");
   assertUuid(input.leaseToken, "lease");
   assertIdentity(input.identity);
-  assertRequestFingerprint(input.requestFingerprint, input.identity);
+  assertPersistedRequestFingerprint(
+    input.requestFingerprint,
+    input.identity,
+  );
   const parsedFeedback = coachFeedbackSchema.safeParse(input.feedback);
   if (!parsedFeedback.success) {
     throw new CoachEvaluationConfigurationError(
@@ -443,6 +502,34 @@ function assertRequestFingerprint(
       "Coach evaluation fingerprint does not match its request",
     );
   }
+}
+
+function assertPersistedRequestFingerprint(
+  value: string,
+  identity: CoachEvaluationRequestIdentity,
+) {
+  const isVietnamese = (identity.responseLocale ?? "vi") === "vi";
+  if (
+    !sha256(value) ||
+    (value !== coachEvaluationRequestFingerprint(identity) &&
+      (!isVietnamese ||
+        value !== legacyCoachEvaluationRequestFingerprint(identity)))
+  ) {
+    throw new CoachEvaluationConfigurationError(
+      "Coach evaluation fingerprint does not match its request",
+    );
+  }
+}
+
+function isLegacyVietnameseFingerprintMismatch(
+  error: RpcErrorLike,
+  identity: CoachEvaluationRequestIdentity,
+) {
+  return (
+    (identity.responseLocale ?? "vi") === "vi" &&
+    error.code?.trim() === "P0001" &&
+    error.message?.trim() === "Coach evaluation fingerprint mismatch"
+  );
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

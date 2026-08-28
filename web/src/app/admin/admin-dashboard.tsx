@@ -484,6 +484,56 @@ function mistakeErrorMessage(code: string) {
     }
   }
 
+  function requestQuestionRejection(question: AdminQuestion) {
+    requestConfirmation({
+      title: "Từ chối câu hỏi này?",
+      description: `Câu ${question.id} sẽ bị xóa vĩnh viễn khỏi hàng đợi và ngân hàng câu hỏi. Lần đồng bộ nội dung sau cũng không khôi phục câu này. Hành động này không thể hoàn tác.`,
+      confirmLabel: "Từ chối và xóa vĩnh viễn",
+      tone: "danger",
+      onConfirm: () => rejectQuestion(question),
+    });
+  }
+
+  async function rejectQuestion(question: AdminQuestion) {
+    setSavingIds(new Set([question.id]));
+    setNotice(null);
+    try {
+      const response = await fetch("/api/admin/questions/reject", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questionId: question.id,
+          questionVersion: question.version,
+          sourceHash: question.sourceHash,
+        }),
+      });
+      const payload = (await response.json()) as {
+        status?: "rejected" | "already_rejected";
+        questionId?: string;
+        error?: string;
+      };
+      if (
+        !response.ok ||
+        !payload.questionId ||
+        !new Set(["rejected", "already_rejected"]).has(payload.status ?? "")
+      ) {
+        throw new Error(payload.error || "Không từ chối được câu hỏi.");
+      }
+      setQuestions((current) =>
+        current.filter((item) => item.id !== payload.questionId),
+      );
+      setNotice(`Đã từ chối và xóa vĩnh viễn câu ${question.id} khỏi ngân hàng.`);
+    } catch (error) {
+      setNotice(
+        error instanceof Error
+          ? error.message
+          : "Không từ chối được câu hỏi. Hãy thử lại sau.",
+      );
+    } finally {
+      setSavingIds(new Set());
+    }
+  }
+
   async function toggleGeminiFallback() {
     const nextValue = !geminiFallbackEnabled;
     setGeminiSettingSaving(true);
@@ -864,7 +914,11 @@ function mistakeErrorMessage(code: string) {
             </div>
           </div>
           {notice ? (
-            <p className="mt-4 rounded-2xl border border-[#0f3a69]/15 bg-white/65 px-4 py-3 text-sm font-semibold">
+            <p
+              role="status"
+              aria-live="polite"
+              className="mt-4 rounded-2xl border border-[#0f3a69]/15 bg-white/65 px-4 py-3 text-sm font-semibold"
+            >
               {notice}
             </p>
           ) : null}
@@ -1183,6 +1237,10 @@ function mistakeErrorMessage(code: string) {
                   Mở từng câu để đối chiếu đáp án, tiêu chí chấm và nguồn trước
                   khi đưa vào lịch luyện.
                 </p>
+                <p className="mt-2 text-xs leading-5 text-[#7c2d12]">
+                  “Từ chối” sẽ xóa câu hỏi vĩnh viễn khỏi ngân hàng và không thể
+                  hoàn tác.
+                </p>
                 <Link
                   href="/learn/tick-data-order-book"
                   className="mt-2 inline-flex text-xs font-bold text-[#285f86] underline decoration-[#138f8c]/60 underline-offset-4"
@@ -1197,7 +1255,7 @@ function mistakeErrorMessage(code: string) {
                   disabled={savingIds.size > 0}
                   className="rounded-xl border border-[#a65c0e]/35 bg-white/70 px-4 py-2.5 text-xs font-bold text-[#c43d3d] transition hover:bg-white disabled:cursor-wait disabled:opacity-60"
                 >
-                  {savingIds.size ? "Đang duyệt…" : `Duyệt tất cả (${reviewQueue.length})`}
+                  {savingIds.size ? "Đang xử lý…" : `Duyệt tất cả (${reviewQueue.length})`}
                 </button>
               ) : null}
             </div>
@@ -1209,6 +1267,7 @@ function mistakeErrorMessage(code: string) {
                   question={question}
                   saving={savingIds.has(question.id)}
                   onApprove={() => void approve([question.id])}
+                  onReject={() => requestQuestionRejection(question)}
                 />
               ))}
               {!reviewQueue.length ? (
@@ -1365,7 +1424,17 @@ function mistakeErrorMessage(code: string) {
   );
 }
 
-function QueueReviewCard({ question, saving, onApprove }: { question: AdminQuestion; saving: boolean; onApprove: () => void }) {
+function QueueReviewCard({
+  question,
+  saving,
+  onApprove,
+  onReject,
+}: {
+  question: AdminQuestion;
+  saving: boolean;
+  onApprove: () => void;
+  onReject: () => void;
+}) {
   return (
     <article className="rounded-2xl border border-[#0f3a69]/12 bg-white/80 p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -1373,14 +1442,24 @@ function QueueReviewCard({ question, saving, onApprove }: { question: AdminQuest
           <StatusBadge status={question.adminStatus} />
           <QuestionClassificationBadges question={question} />
         </div>
-        <button
-          type="button"
-          disabled={saving}
-          onClick={onApprove}
-          className="rounded-xl bg-[#a65c0e] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#c43d3d] disabled:cursor-wait disabled:opacity-60"
-        >
-          {saving ? "Đang duyệt…" : "Duyệt câu này"}
-        </button>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <button
+            type="button"
+            disabled={saving}
+            onClick={onApprove}
+            className="min-h-11 rounded-xl bg-[#a65c0e] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#c43d3d] disabled:cursor-wait disabled:opacity-60"
+          >
+            {saving ? "Đang xử lý…" : "Duyệt câu này"}
+          </button>
+          <button
+            type="button"
+            disabled={saving}
+            onClick={onReject}
+            className="min-h-11 rounded-xl border border-[#b42318]/30 bg-white px-4 py-2 text-xs font-bold text-[#b42318] transition hover:border-[#b42318]/55 hover:bg-[#fff1f1] focus:ring-4 focus:ring-[#f8d1bc] focus:outline-none disabled:cursor-wait disabled:opacity-60"
+          >
+            Từ chối
+          </button>
+        </div>
       </div>
       <h3 className="mt-4 font-semibold leading-6">
         {displayQuestionPrompt(question)}

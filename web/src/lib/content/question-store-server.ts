@@ -11,6 +11,10 @@ import { createSupabaseServerClient } from "../supabase/server";
 
 import { questionRevisionChecksum } from "./backfill";
 import { applyQuestionOverrides, type QuestionOverride } from "./question-overrides";
+import {
+  isMissingQuestionRejectionMigration,
+  withoutRejectedQuestions,
+} from "./question-rejection";
 import { getQuestionStoreMode } from "./question-store-config";
 import { isStandaloneManualQuestionLesson } from "./standalone-manual-question";
 import {
@@ -128,7 +132,12 @@ export async function loadQuestionStoreManifest({
 } = {}): Promise<ContentManifest> {
   const mode = getQuestionStoreMode();
   const repository = getRepoContentManifest();
-  if (mode === "repo") return applyQuestionOverrides(repository, overrides);
+  if (mode === "repo") {
+    return applyQuestionOverrides(
+      await filterRejectedQuestions(repository, supabase),
+      overrides,
+    );
+  }
 
   if (!isSupabaseConfigured() && !supabase) {
     if (mode === "shadow") return applyQuestionOverrides(repository, overrides);
@@ -141,18 +150,58 @@ export async function loadQuestionStoreManifest({
     if (mode === "shadow") {
       const parity = compareContentManifests(repository, database);
       if (!parity.ok) console.warn("Content question-bank shadow mismatch", parity);
-      return applyQuestionOverrides(repository, overrides);
+      return applyQuestionOverrides(
+        await filterRejectedQuestions(repository, client),
+        overrides,
+      );
     }
-    return applyQuestionOverrides(database, overrides);
+    return applyQuestionOverrides(
+      await filterRejectedQuestions(database, client),
+      overrides,
+    );
   } catch (error) {
+    if (error instanceof ContentQuestionRejectionReadError) throw error;
     if (mode === "shadow") {
       console.warn("Content question-bank shadow read failed", {
         name: error instanceof Error ? error.name : "UnknownError",
       });
-      return applyQuestionOverrides(repository, overrides);
+      return applyQuestionOverrides(
+        await filterRejectedQuestions(repository, client),
+        overrides,
+      );
     }
     throw error;
   }
+}
+
+async function filterRejectedQuestions(
+  manifest: ContentManifest,
+  supabase?: SupabaseClient,
+): Promise<ContentManifest> {
+  if (!supabase) return manifest;
+
+  const rejectedQuestionIds = new Set<string>();
+  for (let from = 0; ;) {
+    const { data, error } = await supabase
+      .rpc("list_rejected_content_question_ids")
+      .order("question_id", { ascending: true })
+      .range(from, from + PAGE_SIZE - 1);
+    if (error) {
+      // App-first rollout: no rejection can exist before its table exists.
+      if (isMissingQuestionRejectionMigration(error)) return manifest;
+      throw new ContentQuestionRejectionReadError(
+        `content_question_rejections: ${error.code ?? "unknown"}`,
+      );
+    }
+    const page = (data ?? []) as Array<{ question_id: string }>;
+    page.forEach((row) => rejectedQuestionIds.add(String(row.question_id)));
+    if (page.length === 0) break;
+    from += page.length;
+  }
+  return withoutRejectedQuestions(
+    manifest,
+    rejectedQuestionIds,
+  );
 }
 
 export async function loadSupabaseContentManifest(
@@ -414,3 +463,5 @@ function sha256(...values: string[]): string {
 }
 
 export class ContentQuestionStoreError extends Error {}
+
+class ContentQuestionRejectionReadError extends ContentQuestionStoreError {}
