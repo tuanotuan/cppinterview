@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { BrandMark } from "@/app/brand-mark";
 import {
   appliedActivityProgressStorageKey,
   EMPTY_APPLIED_ACTIVITY_PROGRESS,
@@ -133,9 +134,7 @@ export function TickReplayLab({
             title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
-              TR
-            </span>
+            <BrandMark />
             <span>
               <span className="block font-bold">Tick Replay Lab</span>
               <span className="block text-xs text-[#526276]">

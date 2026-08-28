@@ -1,8 +1,8 @@
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
 
+import { BrandMark } from "./brand-mark";
 import { LanguageSwitcher } from "./language-switcher";
 import {
   footerAccountLinks,
@@ -48,14 +48,9 @@ export async function SiteFooter() {
               className="inline-flex min-h-12 items-center gap-3 rounded-2xl pr-3 focus-visible:ring-2 focus-visible:ring-[color:var(--footer-accent)] focus-visible:outline-none"
               aria-label={t("homeAria")}
             >
-              <Image
-                src="/icon.svg"
-                alt=""
-                aria-hidden="true"
-                width={48}
-                height={48}
-                unoptimized
-                className="size-12 rounded-2xl ring-1 ring-white/20 shadow-[0_10px_30px_rgb(0_0_0_/_24%)]"
+              <BrandMark
+                size="lg"
+                className="ring-1 ring-white/20 shadow-[0_10px_30px_rgb(0_0_0_/_24%)]"
               />
               <span>
                 <span className="block text-lg font-bold tracking-tight">

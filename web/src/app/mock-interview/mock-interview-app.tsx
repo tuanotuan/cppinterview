@@ -2,6 +2,7 @@
 
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
+import { BrandMark } from "@/app/brand-mark";
 import { LanguageSwitcher } from "@/app/language-switcher";
 import { useTranslations } from "next-intl";
 import {
@@ -1369,9 +1370,9 @@ export function MockInterviewApp({
               href="/"
               aria-label={locale === "en" ? "Go to the cppinterview home page" : "Về trang chủ cppinterview"}
               title={locale === "en" ? "Go to the cppinterview home page" : "Về trang chủ cppinterview"}
-              className="grid size-10 place-items-center rounded-xl bg-[#0f3a69] font-mono text-xs font-bold text-[#65e6d2] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
+              className="shrink-0 rounded-xl focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
-              CI
+              <BrandMark size="sm" />
             </Link>
             <div>
               <p className="font-semibold">Phỏng vấn thử</p>
@@ -1764,9 +1765,9 @@ function MockSetup({
               href="/"
               aria-label={locale === "en" ? "Go to the cppinterview home page" : "Về trang chủ cppinterview"}
               title={locale === "en" ? "Go to the cppinterview home page" : "Về trang chủ cppinterview"}
-              className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
+              className="shrink-0 rounded-2xl focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
-              WQ
+              <BrandMark />
             </Link>
             <div>
               <p className="font-bold">{mockT("setupTitle")}</p>
@@ -2242,9 +2243,9 @@ function MockReport({
               href="/"
               aria-label="Về trang chủ cppinterview"
               title="Về trang chủ cppinterview"
-              className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
+              className="shrink-0 rounded-2xl focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
-              WQ
+              <BrandMark />
             </Link>
             <div>
               <p className="font-bold">Báo cáo phỏng vấn thử</p>

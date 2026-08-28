@@ -1,8 +1,8 @@
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
 
+import { BrandMark } from "./brand-mark";
 import { LanguageSwitcher } from "./language-switcher";
 
 type LandingPageProps = {
@@ -33,15 +33,7 @@ export async function RecallLandingPage({
             title={common("homeAria")}
             className="flex items-center gap-3"
           >
-            <Image
-              src="/icon.svg"
-              alt=""
-              aria-hidden="true"
-              width={40}
-              height={40}
-              unoptimized
-              className="size-10 rounded-xl"
-            />
+            <BrandMark size="sm" />
             <span>
               <span className="block text-base font-bold tracking-[-0.025em] sm:text-lg">cppinterview</span>
               <span className="block text-xs text-[color:var(--ink-muted)]">

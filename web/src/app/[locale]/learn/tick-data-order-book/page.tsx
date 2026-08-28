@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import NextLink from "next/link";
 import { Link } from "@/i18n/navigation";
 
+import { BrandMark } from "@/app/brand-mark";
 import {
   TICK_DATA_GUIDE_CHAPTERS,
   TICK_DATA_GUIDE_SOURCES,
@@ -760,9 +761,7 @@ function GuideHeader() {
         title="Về trang chủ cppinterview"
         className="flex items-center gap-3"
       >
-        <span className="grid size-10 place-items-center rounded-xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
-          C++
-        </span>
+        <BrandMark size="sm" />
         <span>
           <span className="block font-semibold tracking-[-0.02em]">cppinterview</span>
           <span className="block text-xs text-[#526276]">Hướng dẫn học</span>
