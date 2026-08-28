@@ -41,6 +41,10 @@ trạng thái từ tên nhánh.
   trạng thái, modal quản trị trong Practice và AI Coach dùng locale request. Mock
   đóng băng locale khi bắt đầu session và lưu locale trong report artifact/history
   mới để chuyển URL giữa phiên không làm đổi ngôn ngữ báo cáo.
+- Question DB-owned của revision bài học cũ vẫn được giữ làm `needs_review` để
+  audit. Practice chỉ resolve source excerpt khi `question.sourceHash` khớp
+  revision lesson hiện hành; section ID cũ không còn làm sập workspace của tài
+  khoản đã đăng nhập và cũng không bị gắn nhầm vào nội dung mới.
 
 - Nền tảng UI đã được chuẩn hóa: có skip link, ring focus dùng chung, modal
   keyboard-safe (focus trap/Escape/trả focus), token semantic cho surface và
@@ -273,6 +277,10 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
+- Hotfix Practice cho question DB stale đạt `content:check`, `context:check`,
+  ESLint, TypeScript, 111 file/656 Vitest test và Next.js production build 67
+  page. Regression test giữ question revision cũ trong hàng `needs_review` nhưng
+  không resolve section ID cũ vào lesson revision hiện hành.
 - Roadmap C++11 dạng node/connector đạt toàn bộ `npm run validate`:
   content/context check, ESLint, TypeScript, 109 file/650 Vitest test và Next.js
   production build sinh 115 page params, gồm route
