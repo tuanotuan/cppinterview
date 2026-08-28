@@ -15,7 +15,6 @@ import {
 } from "@/lib/learn/lesson-library";
 
 import { LessonMarkdown } from "../../../learn/lesson-markdown";
-import { LessonSelfCheck } from "../../../learn/lesson-self-check";
 
 export const dynamicParams = false;
 
@@ -58,9 +57,9 @@ export default async function LessonReaderPage({
 
   const library = buildLessonLibrary(manifest);
   const itemIndex = library.findIndex((item) => item.id === lesson.id);
-  const libraryItem = library[itemIndex];
   const previous = itemIndex > 0 ? library[itemIndex - 1] : null;
   const next = itemIndex < library.length - 1 ? library[itemIndex + 1] : null;
+  const practiceHref = lessonPracticeHref(lesson);
   const titleById = new Map(
     manifest.lessons.map((item) => [item.id, item.title]),
   );
@@ -112,27 +111,12 @@ export default async function LessonReaderPage({
           </h1>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
-              href={lessonPracticeHref(lesson)}
-              className="inline-flex min-h-12 items-center rounded-xl bg-[#65e6d2] px-5 py-3 text-sm font-bold text-[#0f3a69]"
+              href={practiceHref}
+              className="inline-flex min-h-12 items-center rounded-xl bg-[#65e6d2] px-5 py-3 text-sm font-bold text-[#0f3a69] transition hover:-translate-y-0.5 hover:bg-[#7cebd9] focus-visible:ring-4 focus-visible:ring-[#65e6d2]/55 focus-visible:outline-none"
             >
               {t("reader.practice")}
             </Link>
-            {lesson.code ? (
-              <a
-                href="#code-sample"
-                className="inline-flex min-h-12 items-center rounded-xl border border-white/20 px-5 py-3 text-sm font-bold text-white"
-              >
-                {t("reader.viewCode")}
-              </a>
-            ) : null}
           </div>
-          <p className="mt-4 text-xs leading-5 text-white/55">
-            {libraryItem.verifiedQuestionCount
-              ? t("reader.verifiedAvailable", {
-                  count: libraryItem.verifiedQuestionCount,
-                })
-              : t("reader.noVerified")}
-          </p>
         </section>
 
         <div className="mt-7 grid items-start gap-7 xl:grid-cols-[260px_minmax(0,1fr)]">
@@ -158,12 +142,6 @@ export default async function LessonReaderPage({
                   {t("reader.sampleCode")}
                 </a>
               ) : null}
-              <a
-                href="#self-check"
-                className="block rounded-xl px-3 py-2 text-xs font-semibold text-[#43546a] hover:bg-white hover:text-[#16865a]"
-              >
-                {t("reader.selfCheck")}
-              </a>
             </nav>
 
             <div className="mt-5 border-t border-[#0f3a69]/10 pt-4">
@@ -229,18 +207,14 @@ export default async function LessonReaderPage({
               </section>
             ) : null}
 
-            <section
-              id="self-check"
-              className="scroll-mt-5 rounded-[1.25rem] border border-[#285f86]/18 bg-[#e6f8f5] p-5 sm:p-8"
-            >
-              <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#285f86] uppercase">
-                {t("reader.selfCheckEyebrow")}
-              </p>
-              <h2 className="mt-2 mb-5 text-2xl font-semibold tracking-tight">
-                {t("reader.selfCheckTitle")}
-              </h2>
-              <LessonSelfCheck items={lesson.checklistItems} />
-            </section>
+            <div className="flex justify-center py-3 sm:justify-start">
+              <Link
+                href={practiceHref}
+                className="inline-flex min-h-12 items-center rounded-xl bg-[#65e6d2] px-5 py-3 text-sm font-bold text-[#0f3a69] transition hover:-translate-y-0.5 hover:bg-[#7cebd9] focus-visible:ring-4 focus-visible:ring-[#65e6d2]/55 focus-visible:outline-none"
+              >
+                {t("reader.practice")}
+              </Link>
+            </div>
 
             <nav className="grid gap-3 sm:grid-cols-2" aria-label={t("reader.adjacentAria")}>
               {previous ? (

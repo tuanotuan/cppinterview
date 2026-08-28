@@ -4,7 +4,7 @@ import type {
   GeneratedLesson,
   PracticeDeckId,
 } from "../content/schema";
-import { buildCustomStudyLaunchHref } from "../practice/custom-study";
+import { buildLessonCheckLaunchHref } from "../practice/lesson-check";
 
 export type LessonLibraryItem = {
   id: string;
@@ -80,11 +80,10 @@ export function practiceDeckForLesson(
 export function lessonPracticeHref(
   lesson: Pick<GeneratedLesson, "id" | "language">,
 ) {
-  return buildCustomStudyLaunchHref(practiceDeckForLesson(lesson), {
-    kind: "lesson",
-    lessonId: lesson.id,
-    limit: 20,
-  });
+  return buildLessonCheckLaunchHref(
+    practiceDeckForLesson(lesson),
+    lesson.id,
+  );
 }
 
 export function buildLessonLibrary(

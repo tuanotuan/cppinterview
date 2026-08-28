@@ -217,24 +217,14 @@
       "allLessons": "Tất cả bài học",
       "lesson": "Bài {number}",
       "practice": "Luyện thẻ của bài này",
-      "viewCode": "Xem mã mẫu",
-      "verifiedAvailable": "{count} câu hỏi trong repo đã được kiểm chứng cho bài này.",
-      "noVerified": "Kho hiện chưa có câu kiểm tra đã duyệt cho bài này; đây là giới hạn học liệu, không phải kết quả học của bạn.",
       "contents": "Nội dung bài",
       "sampleCode": "Mã mẫu",
-      "selfCheck": "Tự kiểm tra",
       "prerequisites": "Cần học trước",
       "noPrerequisites": "Không có bài bắt buộc.",
       "section": "Phần {number}",
       "completeCode": "Mã mẫu hoàn chỉnh",
-      "selfCheckEyebrow": "Tự kiểm tra · không chấm điểm",
-      "selfCheckTitle": "Bạn đã hiểu những điểm nào?",
       "adjacentAria": "Bài học liền kề",
       "metaDescription": "Bài học {track} với mã mẫu và thẻ ghi nhớ liên quan."
-    },
-    "selfCheck": {
-      "missing": "Bài này chưa có danh sách tự kiểm tra trong nguồn.",
-      "progress": "Đã tự kiểm tra {checked}/{total} mục"
     }
   },
   "Cpp11Roadmap": {
@@ -325,6 +315,21 @@
       "completed": "Đã hoàn thành phiên học tự chọn.",
       "empty": "Không có câu nào khớp bộ lọc của phiên học tự chọn.",
       "created": "Đã tạo phiên học tự chọn gồm {count} câu."
+    },
+    "lessonCheck": {
+      "eyebrow": "Kiểm tra nhanh theo bài",
+      "description": "Làm {count} câu hỏi đã duyệt của bài này. Kết quả chỉ dùng trong lần kiểm tra hiện tại và không cập nhật lịch ôn.",
+      "questionBadge": "KIỂM TRA BÀI HỌC",
+      "reviewed": "Đã kiểm tra câu này",
+      "notScheduled": "Không cập nhật lịch ôn hoặc thời gian lặp lại.",
+      "next": "Câu tiếp theo →",
+      "finish": "Hoàn thành",
+      "completedEyebrow": "Hoàn thành bài kiểm tra",
+      "completedTitle": "Bạn đã hoàn thành {count} câu",
+      "completedDescription": "Bạn đã kiểm tra xong các câu đã duyệt của bài “{title}”.",
+      "backToLesson": "Quay lại bài học",
+      "practiceNormally": "Luyện thẻ theo lịch",
+      "empty": "Bài này hiện không có câu hỏi đã duyệt để kiểm tra."
     },
     "header": {
       "progress": "Tiến độ",

@@ -217,24 +217,14 @@
       "allLessons": "All lessons",
       "lesson": "Lesson {number}",
       "practice": "Practice this lesson's cards",
-      "viewCode": "View sample code",
-      "verifiedAvailable": "{count, plural, one {# repository question has been verified for this lesson.} other {# repository questions have been verified for this lesson.}}",
-      "noVerified": "There are no approved assessment questions for this lesson yet. This is a content limitation, not a result about your learning.",
       "contents": "Lesson contents",
       "sampleCode": "Sample code",
-      "selfCheck": "Self-check",
       "prerequisites": "Prerequisites",
       "noPrerequisites": "No required prerequisites.",
       "section": "Section {number}",
       "completeCode": "Complete sample code",
-      "selfCheckEyebrow": "Self-check · not graded",
-      "selfCheckTitle": "Which ideas do you understand?",
       "adjacentAria": "Adjacent lessons",
       "metaDescription": "A {track} lesson with sample code and related review cards."
-    },
-    "selfCheck": {
-      "missing": "This lesson does not include a self-check list in its source yet.",
-      "progress": "Checked {checked}/{total} items"
     }
   },
   "Cpp11Roadmap": {
@@ -325,6 +315,21 @@
       "completed": "Custom session completed.",
       "empty": "No questions match the custom-session filters.",
       "created": "Created a custom session with {count, plural, one {# question} other {# questions}}."
+    },
+    "lessonCheck": {
+      "eyebrow": "Quick lesson check",
+      "description": "Answer the {count} approved questions for this lesson. Results apply only to this check and do not update your review schedule.",
+      "questionBadge": "LESSON CHECK",
+      "reviewed": "This question has been checked",
+      "notScheduled": "Your review schedule and repeat intervals are not updated.",
+      "next": "Next question →",
+      "finish": "Complete",
+      "completedEyebrow": "Lesson check complete",
+      "completedTitle": "You completed {count} questions",
+      "completedDescription": "You finished the approved questions for “{title}”.",
+      "backToLesson": "Back to the lesson",
+      "practiceNormally": "Practice scheduled cards",
+      "empty": "This lesson currently has no approved questions to check."
     },
     "header": {
       "progress": "Progress",
