@@ -16,11 +16,10 @@ trạng thái từ tên nhánh.
   mở route đã triển khai, còn chuẩn chưa có roadmap mở bộ chọn phiên bản và
   được đánh dấu `Sắp có` thay vì bị chuyển nhầm sang C++11.
 - Roadmap C++11 có 53 ngày trong 8 chặng, giữ thứ tự riêng với `lesson.order` và
-  link tới lesson C++11 đã xuất bản. Catalog C++11 hiện chỉ còn Toolchain và
-  Const/Pointer/Lvalue Reference, được đánh số lại từ `01`; roadmap có 2 ngày đủ
-  học liệu, 1 ngày một phần và 50 ngày planned. Toolchain dùng `vi.md` canonical
-  tiếng Việt cùng companion `en.md`; loader vẫn nhận `knowledge.md` cho lesson
-  cũ, pipeline sinh overlay lesson exact-revision và giữ section ID canonical khi đổi locale. Các nhãn này chỉ là coverage nội
+  đủ 53 lesson `ready` được đánh số `01`–`53`. Mỗi lesson có canonical `vi.md`,
+  companion `en.md` và `main.cpp` theo cùng cấu trúc 10 phần như Toolchain;
+  loader vẫn nhận `knowledge.md` cho lesson cũ, pipeline sinh overlay lesson
+  exact-revision và giữ section ID canonical khi đổi locale. Các nhãn này chỉ là coverage nội
   dung, không phải tiến độ cá nhân. Trang dùng YAML Git-owned song ngữ; sơ đồ compact dùng node/connector
   ba cột ziczac trên desktop và một trục dọc trên tablet/mobile. Node có học liệu
   mở lesson chính (`lessonIds[0]`) theo locale trong tab mới; node chưa có lesson giữ vị
@@ -33,9 +32,9 @@ trạng thái từ tên nhánh.
   và callback Auth kỹ thuật vẫn không prefix. Các lối tắt Admin trong Practice,
   Stats và guide tick dùng `next/link` trực tiếp nên luôn mở `/admin`, không bị
   navigation theo locale đổi thành route 404 `/vi/admin` hoặc `/en/admin`.
-- Catalog hiện có 18 question Git-owned: 4 verified và 14 draft. Ba draft
-  Toolchain lần lượt mang độ khó beginner/intermediate/advanced và taxonomy
-  `standard::cpp11`; ba English copy tương ứng xuất hiện thành mục duyệt riêng
+- Catalog hiện có 173 question Git-owned: 4 verified và 169 draft. Mỗi lesson
+  C++11 có ba draft beginner/intermediate/advanced với taxonomy
+  `standard::cpp11`; 159 English copy tương ứng xuất hiện thành mục duyệt riêng
   trong Admin nhưng giữ nguyên canonical ID/version/hash/taxonomy. Cả 4 question verified
   cũng có overlay tiếng Anh; `/en/practice` chỉ xếp question và English copy đã duyệt vào hàng học. Question được duyệt
   nhưng chưa dịch không còn fallback sang tiếng Việt, còn source excerpt/title
@@ -156,8 +155,9 @@ trạng thái từ tên nhánh.
 
 ## Giới hạn và trạng thái chưa xác minh
 
-- Catalog tiếng Anh hiện bao phủ 7 question tại revision hiện hành: 4 overlay
-  verified trong Git và 3 Toolchain draft đang chờ duyệt riêng; 11 question còn lại và 7 lesson chưa có overlay tiếng Anh nên chưa xuất hiện trong
+- Catalog tiếng Anh hiện bao phủ 163 question tại revision hiện hành: 4 overlay
+  verified trong Git và 159 draft C++11 đang chờ duyệt riêng; 10 question còn lại
+  và 6 lesson ngoài lộ trình C++11 chưa có overlay tiếng Anh nên chưa xuất hiện trong
   `/en/practice`. Đây là backlog học liệu, không được lấp bằng nội dung tiếng Việt.
   Migration `20260825073227_add_content_translations.sql` đã được áp dụng trên
   Supabase project liên kết. Migration
@@ -309,12 +309,12 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Hàng duyệt English copy của Toolchain và publication gating đạt toàn bộ
-  `npm run validate`: content/context check, ESLint, TypeScript, 117 file/706
-  Vitest test và Next.js production build 69 page. Regression test khóa ba mức
-  khó/tag C++11, exact translated copy, quyền admin/RLS, Practice/Coach/Mock
-  localization và canonical identity dùng chung. `npm audit --omit=dev
-  --audit-level=moderate` báo 0 lỗ hổng.
+- Bộ học liệu C++11 ngày 01–53 và hàng duyệt song ngữ đạt toàn bộ
+  `npm run validate`: content/context check, ESLint, TypeScript, 117 file/709
+  Vitest test và Next.js production build 171 static page. Regression test khóa
+  đúng ba mức khó/tag C++11 cho từng lesson, exact 156 câu Việt + 156 English
+  copy của ngày 02–53, canonical identity dùng chung và toàn bộ roadmap ở trạng
+  thái `ready`. `npm audit --omit=dev --audit-level=moderate` báo 0 lỗ hổng.
 - Hotfix Practice cho question DB stale đạt `content:check`, `context:check`,
   ESLint, TypeScript, 111 file/656 Vitest test và Next.js production build 67
   page. Regression test giữ question revision cũ trong hàng `needs_review` nhưng

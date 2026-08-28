@@ -154,59 +154,6 @@ questions:
     sourceHash: d87a0674a56e2699438c3775f1bead1dfb83a0d32716b8434d0a1e92e4f7398a
     status: draft
     version: 1
-  - id: cpp11-const-pointer-lvalue-reference-interview-ownership-001
-    lessonId: cpp11-const-pointer-lvalue-reference
-    type: scenario
-    responseMode: text
-    difficulty: advanced
-    interviewCategory: design_performance
-    interviewFormat: ownership_lifetime_design
-    assessmentSkills:
-      - ownership
-      - lifetime
-      - const-correctness
-    estimatedMinutes: 9
-    prompt: Thiết kế API cho một consumer chỉ mượn `Book` trong lúc xử lý event, không sở hữu và không
-      được giữ lại sau callback. Hãy chọn reference hay pointer cho tham số, nêu cách biểu đạt
-      nullability, constness và lifetime contract. Không cần viết implementation hoàn chỉnh.
-    code: |-
-      struct Book {
-          int best_bid;
-      };
-
-      class Consumer {
-      public:
-          void on_book(/* chọn kiểu tham số */);
-      };
-    hint: "Tách bốn câu hỏi: có thể null không, có mutate không, ai sở hữu và reference/pointer có được
-      giữ lại không."
-    answer:
-      short: Nếu callback yêu cầu Book luôn tồn tại và chỉ đọc, dùng `const Book&` và ghi rõ không được
-        lưu reference sau callback. Dùng pointer chỉ khi null là một trạng thái có nghĩa hoặc
-        contract cần biểu đạt optional.
-      detailed: Reference không biểu đạt ownership; nó chỉ là alias và thường hợp với đối số bắt buộc
-        không-null. `const Book&` thể hiện Consumer không mutate Book và tránh copy. Caller vẫn sở
-        hữu Book và phải giữ nó sống trong toàn bộ callback; Consumer không được cache
-        reference/pointer sau callback trừ khi có contract lifetime khác. Nếu không có Book là trạng
-        thái hợp lệ, `const Book*` giúp biểu đạt optional và buộc caller/consumer xử lý null trước
-        dereference. Không dùng raw pointer để ngầm chuyển ownership.
-    rubric:
-      required:
-        - Phân biệt borrowing với ownership.
-        - Chọn `const Book&` cho non-null read-only callback hoặc giải thích pointer optional.
-        - Nêu giới hạn lifetime và cấm giữ alias sau callback.
-      bonus:
-        - Nêu cách document/assert contract ở ranh giới API.
-      misconceptions:
-        - Cho rằng reference sở hữu object.
-        - Dùng pointer để biểu đạt ownership mơ hồ.
-    sources:
-      - sectionId: how-references-and-pointers-work
-      - sectionId: lifetime-and-validity
-      - sectionId: trading-use-case
-    sourceHash: 15ab8c14dabca12bcef1a2d1c78999481d755ccd70fdd56ff98c4d3278dd6f54
-    status: draft
-    version: 1
   - id: cpp98-address-pointer-interview-code-review-001
     lessonId: cpp98-address-pointer
     type: code_reasoning

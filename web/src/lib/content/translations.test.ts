@@ -51,8 +51,8 @@ describe("content translations", () => {
       "en",
     );
     expect(coverage).toEqual({
-      lessons: 1,
-      questions: 7,
+      lessons: 53,
+      questions: 163,
     });
   });
 
@@ -88,26 +88,30 @@ describe("content translations", () => {
     expect(hasExactLessonTranslation(untranslatedLesson, "en")).toBe(false);
   });
 
-  it("queues the three Toolchain English drafts with canonical filter tags", () => {
+  it("queues three English drafts for every C++11 lesson with canonical filter tags", () => {
     const reviews = questionTranslationReviewCandidates(manifest, "en");
+    const cpp11Lessons = manifest.lessons
+      .filter((lesson) => lesson.track === "cpp11")
+      .sort((left, right) => left.order - right.order);
 
-    expect(reviews.map((review) => review.question.id)).toEqual([
-      "cpp11-toolchain-001",
-      "cpp11-toolchain-002",
-      "cpp11-toolchain-003",
-    ]);
-    expect(reviews.map((review) => review.question.difficulty)).toEqual([
-      "beginner",
-      "intermediate",
-      "advanced",
-    ]);
-    for (const review of reviews) {
-      expect(review.question.taxonomy.standard).toBe("cpp11");
-      expect(review.question.taxonomy.tags).toContain("standard::cpp11");
-      expect(review.question.taxonomy.tags).toContain(
-        `difficulty::${review.question.difficulty}`,
+    expect(reviews).toHaveLength(53 * 3);
+    for (const lesson of cpp11Lessons) {
+      const lessonReviews = reviews.filter(
+        (review) => review.question.lessonId === lesson.id,
       );
-      expect(hasExactQuestionTranslation(review.question, "en")).toBe(false);
+      expect(lessonReviews.map((review) => review.question.difficulty)).toEqual([
+        "beginner",
+        "intermediate",
+        "advanced",
+      ]);
+      for (const review of lessonReviews) {
+        expect(review.question.taxonomy.standard).toBe("cpp11");
+        expect(review.question.taxonomy.tags).toContain("standard::cpp11");
+        expect(review.question.taxonomy.tags).toContain(
+          `difficulty::${review.question.difficulty}`,
+        );
+        expect(hasExactQuestionTranslation(review.question, "en")).toBe(false);
+      }
     }
   });
 

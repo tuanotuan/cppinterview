@@ -79,8 +79,10 @@ describe("C++11 roadmap", () => {
     );
 
     expect(total).toBe(53);
-    expect(roadmap.coverageCounts.ready).toBeGreaterThan(0);
-    expect(roadmap.coverageCounts.partial).toBeGreaterThan(0);
-    expect(roadmap.coverageCounts.planned).toBeGreaterThan(0);
+    expect(roadmap.coverageCounts).toEqual({
+      ready: 53,
+      partial: 0,
+      planned: 0,
+    });
   });
 });
