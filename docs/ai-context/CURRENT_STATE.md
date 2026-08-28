@@ -160,11 +160,15 @@ trạng thái từ tên nhánh.
   Migration `20260825073227_add_content_translations.sql` đã được áp dụng trên
   Supabase project liên kết. Migration
   `20260828110000_localize_coach_evaluation_fingerprints.sql` đang chờ áp dụng;
-  trước migration này, evaluation tiếng Việt của AI Coach account/admin chỉ
-  retry đúng lỗi fingerprint mismatch bằng cặp fingerprint/UUIDv8 legacy rồi
-  tiếp tục với identity RPC trả về. Evaluation tiếng Anh vẫn fail closed để
-  không dùng chung cache khác locale; follow-up không bị ảnh hưởng. Loader hiện
-  vẫn đọc catalog Git, chưa đọc view translation DB.
+  trước migration này, evaluation account/admin retry đúng lỗi fingerprint
+  mismatch bằng cặp fingerprint/UUIDv8 legacy. Tiếng Anh dùng thêm source
+  revision transport do server sinh để tách hẳn fingerprint/cache khỏi tiếng
+  Việt, còn provider vẫn nhận source revision và candidate answer canonical.
+  Sau migration app tự dùng fingerprint locale-aware chuẩn. Các route Coach
+  evaluate/follow-up/clarify và Mock report localize manifest theo
+  `responseLocale`; English chỉ nhận question có overlay exact-revision và mọi
+  provider đều có output contract tiếng Anh. Loader hiện vẫn đọc catalog Git,
+  chưa đọc view translation DB.
 
 - Kho câu hỏi đã duyệt chưa bao phủ đều tick data, Linux/mạng, hệ
   thống phân tán và kỹ năng chịu trách nhiệm đầu cuối. Giao diện phải gọi đây là
@@ -300,12 +304,12 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Compatibility rollout AI Coach tiếng Việt với RPC fingerprint cũ đạt toàn bộ
-  `npm run validate`: content/context check, ESLint, TypeScript, 115 file/677
-  Vitest test và Next.js production build 68 page. Targeted test khóa đúng luồng
-  lesson-check answer rỗng, cặp fingerprint/UUIDv8 legacy, canonical identity RPC
-  trả về, cùng fail-closed cho tiếng Anh và lỗi DB khác; `npm audit --omit=dev
-  --audit-level=moderate` báo 0 lỗ hổng.
+- AI locale và compatibility rollout với RPC fingerprint cũ đạt toàn bộ
+  `npm run validate`: content/context check, ESLint, TypeScript, 116 file/697
+  Vitest test và Next.js production build 68 page. Regression test khóa luồng
+  lesson-check English qua identity transport tách locale, exact manifest tiếng
+  Anh, cùng locale xuyên suốt reserve/provider/complete; lỗi DB không liên quan
+  vẫn fail closed. `npm audit --omit=dev --audit-level=moderate` báo 0 lỗ hổng.
 - Hotfix Practice cho question DB stale đạt `content:check`, `context:check`,
   ESLint, TypeScript, 111 file/656 Vitest test và Next.js production build 67
   page. Regression test giữ question revision cũ trong hàng `needs_review` nhưng

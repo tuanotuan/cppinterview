@@ -4,6 +4,7 @@ vi.mock("server-only", () => ({}));
 
 import {
   buildMockInterviewReportPrompt,
+  buildMockInterviewSystemInstruction,
   type MockEvaluationItem,
 } from "./report-prompt";
 
@@ -68,6 +69,23 @@ describe("mock interview report prompt execution evidence", () => {
     expect(prompt).toContain("DANH MỤC BẰNG CHỨNG HỢP LỆ");
     expect(prompt).toContain(evidenceCatalog[0]!.id);
     expect(prompt).toContain("nextPracticeActions phải chứa đúng ba việc");
+  });
+
+  it("requires English across every user-facing report field", () => {
+    expect(buildMockInterviewSystemInstruction(undefined, "en")).toContain(
+      "every user-facing report field in clear English",
+    );
+    expect(
+      buildMockInterviewReportPrompt({
+        durationMinutes: 30,
+        elapsedSeconds: 60,
+        items: [baseItem],
+        evidenceCatalog,
+        responseLocale: "en",
+      }),
+    ).toContain(
+      "Every natural-language, user-facing report field must be English",
+    );
   });
 
   it("omits the execution block for non-runnable questions", () => {

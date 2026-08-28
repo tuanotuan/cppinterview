@@ -29,6 +29,7 @@ const mocks = vi.hoisted(() => ({
   completePublicAiAdmission: vi.fn(),
   isAdmin: vi.fn(),
   isPublicAiEnabled: vi.fn(),
+  localizeContentManifest: vi.fn((manifest: unknown) => manifest),
   withAiBudget: vi.fn(),
   withPublicAiSiteBudget: vi.fn(),
 }));
@@ -132,6 +133,11 @@ vi.mock("@/lib/content/question-overrides-server", () => ({
 vi.mock("@/lib/content/question-store-server", () => ({
   getRepoContentManifest: () => mocks.manifest,
   loadQuestionStoreManifest: vi.fn().mockResolvedValue(mocks.manifest),
+}));
+
+vi.mock("@/lib/content/translations", () => ({
+  hasExactQuestionTranslation: () => true,
+  localizeContentManifest: mocks.localizeContentManifest,
 }));
 
 vi.mock("@/lib/supabase/authorization", () => ({
@@ -455,6 +461,45 @@ describe("POST /api/coach/evaluate idempotency", () => {
         idempotencyKey: lessonCheckLegacyIdempotencyKey,
         requestFingerprint: lessonCheckLegacyFingerprint,
         leaseToken,
+      }),
+    );
+  });
+
+  it("keeps English bound through content localization, reservation, provider, and completion", async () => {
+    const englishIdentity = {
+      ...identity,
+      responseLocale: "en" as const,
+    };
+    const englishFingerprint =
+      coachEvaluationRequestFingerprint(englishIdentity);
+    mocks.reserveCoachEvaluation.mockResolvedValueOnce({
+      ...runningReservation,
+      requestFingerprint: englishFingerprint,
+    });
+
+    const response = await sendRequest({ responseLocale: "en" });
+
+    expect(response.status).toBe(200);
+    expect(mocks.localizeContentManifest).toHaveBeenCalledWith(
+      mocks.manifest,
+      "en",
+    );
+    expect(mocks.reserveCoachEvaluation).toHaveBeenCalledWith(
+      supabase,
+      {
+        idempotencyKey,
+        requestFingerprint: englishFingerprint,
+        identity: englishIdentity,
+      },
+    );
+    expect(mocks.evaluateWithOpenAI).toHaveBeenCalledWith(
+      expect.objectContaining({ responseLocale: "en" }),
+    );
+    expect(mocks.completeCoachEvaluation).toHaveBeenCalledWith(
+      supabase,
+      expect.objectContaining({
+        identity: englishIdentity,
+        requestFingerprint: englishFingerprint,
       }),
     );
   });

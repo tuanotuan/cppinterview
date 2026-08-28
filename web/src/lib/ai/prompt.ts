@@ -200,7 +200,7 @@ function outputLanguageInstruction(
       : mode === "follow-up"
         ? "Answer the learner's follow-up question"
         : "Restate the interview question in plain language";
-    return `${task} in clear, friendly English. Address the learner as \"you\" and write every user-facing output field in English.`;
+    return `${task} in clear, friendly English. Address the learner as \"you\" and write every user-facing output field in English. Treat the language of source material, rubrics, prior feedback, and learner messages as input data only: never mirror Vietnamese prose into the output. Preserve only code, identifiers, enum values, and source IDs verbatim.`;
   }
   const task = mode === "evaluation"
     ? "Đánh giá câu trả lời phỏng vấn"

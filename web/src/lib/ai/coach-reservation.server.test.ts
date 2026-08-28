@@ -296,15 +296,26 @@ describe("coach evaluation reservation RPCs", () => {
     );
   });
 
-  it("does not use the legacy fingerprint for English", async () => {
+  it("uses a locale-isolated legacy identity for English during rollout", async () => {
     const englishIdentity = { ...identity, responseLocale: "en" as const };
-    const rpc = vi.fn().mockResolvedValue({
-      data: null,
-      error: {
-        code: "P0001",
-        message: "Coach evaluation fingerprint mismatch",
-      },
-    });
+    const compatibility = legacyEnglishCompatibilityFor(englishIdentity);
+    const rpc = vi
+      .fn()
+      .mockResolvedValueOnce({
+        data: null,
+        error: {
+          code: "P0001",
+          message: "Coach evaluation fingerprint mismatch",
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          ...running,
+          idempotency_key: compatibility.idempotencyKey,
+          request_fingerprint: compatibility.requestFingerprint,
+        },
+        error: null,
+      });
     const client = { rpc } as unknown as Parameters<
       typeof reserveCoachEvaluation
     >[0];
@@ -316,8 +327,26 @@ describe("coach evaluation reservation RPCs", () => {
           coachEvaluationRequestFingerprint(englishIdentity),
         identity: englishIdentity,
       }),
-    ).rejects.toBeInstanceOf(CoachEvaluationConfigurationError);
-    expect(rpc).toHaveBeenCalledTimes(1);
+    ).resolves.toMatchObject({
+      status: "running",
+      idempotencyKey: compatibility.idempotencyKey,
+      requestFingerprint: compatibility.requestFingerprint,
+    });
+    expect(rpc).toHaveBeenCalledTimes(2);
+    expect(rpc).toHaveBeenNthCalledWith(
+      2,
+      "reserve_coach_evaluation",
+      expect.objectContaining({
+        p_candidate_answer: identity.candidateAnswer,
+        p_idempotency_key: compatibility.idempotencyKey,
+        p_request_fingerprint: compatibility.requestFingerprint,
+        p_source_revision: compatibility.sourceRevision,
+      }),
+    );
+    expect(compatibility.sourceRevision).not.toBe(identity.sourceRevision);
+    expect(compatibility.requestFingerprint).not.toBe(
+      legacyFingerprintFor(englishIdentity),
+    );
   });
 
   it("does not retry unrelated database exceptions", async () => {
@@ -430,7 +459,48 @@ describe("coach evaluation reservation RPCs", () => {
     );
   });
 
-  it("rejects a legacy fingerprint for an English completion", async () => {
+  it("completes an English compatibility lease with its isolated transport identity", async () => {
+    const englishIdentity = { ...identity, responseLocale: "en" as const };
+    const compatibility = legacyEnglishCompatibilityFor(englishIdentity);
+    const rpc = vi.fn().mockResolvedValue({
+      data: {
+        ...running,
+        status: "completed",
+        idempotency_key: compatibility.idempotencyKey,
+        request_fingerprint: compatibility.requestFingerprint,
+        attempt_id: 42,
+        feedback,
+        model: "gpt-5.6-luna",
+        lease_token: null,
+        lease_expires_at: null,
+      },
+      error: null,
+    });
+    const client = { rpc } as unknown as Parameters<
+      typeof completeCoachEvaluation
+    >[0];
+
+    await completeCoachEvaluation(client, {
+      idempotencyKey: compatibility.idempotencyKey,
+      requestFingerprint: compatibility.requestFingerprint,
+      leaseToken,
+      identity: englishIdentity,
+      feedback,
+      model: "gpt-5.6-luna",
+    });
+
+    expect(rpc).toHaveBeenCalledWith(
+      "complete_coach_evaluation",
+      expect.objectContaining({
+        p_candidate_answer: identity.candidateAnswer,
+        p_idempotency_key: compatibility.idempotencyKey,
+        p_request_fingerprint: compatibility.requestFingerprint,
+        p_source_revision: compatibility.sourceRevision,
+      }),
+    );
+  });
+
+  it("rejects an unscoped legacy fingerprint for an English completion", async () => {
     const rpc = vi.fn();
     const client = { rpc } as unknown as Parameters<
       typeof completeCoachEvaluation
@@ -531,4 +601,43 @@ function legacyFingerprintFor(identityValue: typeof identity) {
       "utf8",
     )
     .digest("hex");
+}
+
+function legacyEnglishCompatibilityFor(
+  identityValue: typeof identity & { responseLocale: "en" },
+) {
+  const sourceRevision = createHash("sha256")
+    .update(
+      [
+        "coach-evaluation-legacy-english-source-v1",
+        identityValue.sourceRevision,
+      ].join("\u001f"),
+      "utf8",
+    )
+    .digest("hex");
+  const requestFingerprint = legacyFingerprintFor({
+    ...identityValue,
+    sourceRevision,
+  });
+  return {
+    sourceRevision,
+    requestFingerprint,
+    idempotencyKey: legacyIdempotencyKeyFor(requestFingerprint),
+  };
+}
+
+function legacyIdempotencyKeyFor(requestFingerprint: string) {
+  const payload = requestFingerprint.slice(0, 32);
+  const variant = (
+    (Number.parseInt(payload.slice(16, 17), 16) & 0x3) |
+    0x8
+  ).toString(16);
+  const hex = `${payload.slice(0, 12)}8${payload.slice(13, 16)}${variant}${payload.slice(17)}`;
+  return [
+    hex.slice(0, 8),
+    hex.slice(8, 12),
+    hex.slice(12, 16),
+    hex.slice(16, 20),
+    hex.slice(20),
+  ].join("-");
 }

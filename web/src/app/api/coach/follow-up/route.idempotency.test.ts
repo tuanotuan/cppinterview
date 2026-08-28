@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   isUnmeteredLocalAiEnabled: vi.fn(),
   markCoachFollowUpDispatched: vi.fn(),
   markCoachFollowUpOutcomeUnknown: vi.fn(),
+  localizeContentManifest: vi.fn((manifest: unknown) => manifest),
   releaseCoachFollowUp: vi.fn(),
   reserveCoachFollowUp: vi.fn(),
   runGeminiBudgetFallback: vi.fn(),
@@ -103,6 +104,11 @@ vi.mock("@/lib/content/question-overrides-server", () => ({
 vi.mock("@/lib/content/question-store-server", () => ({
   getRepoContentManifest: () => mocks.manifest,
   loadQuestionStoreManifest: vi.fn().mockResolvedValue(mocks.manifest),
+}));
+
+vi.mock("@/lib/content/translations", () => ({
+  hasExactQuestionTranslation: () => true,
+  localizeContentManifest: mocks.localizeContentManifest,
 }));
 
 vi.mock("@/lib/supabase/authorization", () => ({
@@ -363,6 +369,37 @@ describe("POST /api/coach/follow-up idempotency", () => {
     );
   });
 
+  it("keeps English bound through content localization, reservation, and provider", async () => {
+    const englishIdentity = {
+      ...identity,
+      responseLocale: "en" as const,
+    };
+    const englishFingerprint =
+      coachFollowUpRequestFingerprint(englishIdentity);
+    mocks.reserveCoachFollowUp.mockResolvedValueOnce({
+      ...runningReservation,
+      requestFingerprint: englishFingerprint,
+    });
+
+    const response = await sendRequest({ responseLocale: "en" });
+
+    expect(response.status).toBe(200);
+    expect(mocks.localizeContentManifest).toHaveBeenCalledWith(
+      mocks.manifest,
+      "en",
+    );
+    expect(mocks.reserveCoachFollowUp).toHaveBeenCalledWith(
+      supabase,
+      expect.objectContaining({
+        requestFingerprint: englishFingerprint,
+        identity: englishIdentity,
+      }),
+    );
+    expect(mocks.answerCoachFollowUpWithOpenAI).toHaveBeenCalledWith(
+      expect.objectContaining({ responseLocale: "en" }),
+    );
+  });
+
   it("does not call a provider when dispatch cannot be confirmed", async () => {
     mocks.markCoachFollowUpDispatched.mockRejectedValueOnce(
       new Error("dispatch unavailable"),
@@ -497,7 +534,12 @@ describe("POST /api/coach/follow-up idempotency", () => {
   });
 });
 
-function sendRequest(options: { omitIdempotencyKey?: boolean } = {}) {
+function sendRequest(
+  options: {
+    omitIdempotencyKey?: boolean;
+    responseLocale?: "vi" | "en";
+  } = {},
+) {
   return POST(
     new Request("http://localhost/api/coach/follow-up", {
       method: "POST",
@@ -510,6 +552,9 @@ function sendRequest(options: { omitIdempotencyKey?: boolean } = {}) {
         candidateAnswer: identity.candidateAnswer,
         feedback,
         messages,
+        ...(options.responseLocale
+          ? { responseLocale: options.responseLocale }
+          : {}),
         ...(options.omitIdempotencyKey ? {} : { idempotencyKey }),
       }),
     }),

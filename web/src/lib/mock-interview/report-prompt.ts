@@ -107,7 +107,9 @@ ${evidenceCatalog
   .join("\n")}
 
 CÂU HỎI:
-${items.map(formatEvaluationItem).join("\n\n---\n\n")}`;
+${items.map(formatEvaluationItem).join("\n\n---\n\n")}
+
+${responseLocale === "en" ? "FINAL OUTPUT CHECK: Every natural-language, user-facing report field must be English even when source material or candidate answers use another language. Preserve only code, identifiers, evidence IDs, enum values, and common technical terms verbatim." : ""}`;
 }
 
 function formatEvaluationItem(item: MockEvaluationItem, index: number) {

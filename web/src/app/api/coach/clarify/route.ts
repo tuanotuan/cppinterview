@@ -16,6 +16,10 @@ import { COACH_RESERVATION_USD_MICROS } from "@/lib/ai/usage";
 import { loadQuestionOverrides } from "@/lib/content/question-overrides-server";
 import { loadQuestionStoreManifest } from "@/lib/content/question-store-server";
 import {
+  hasExactQuestionTranslation,
+  localizeContentManifest,
+} from "@/lib/content/translations";
+import {
   isQuestionApproved,
   rowsToApprovals,
   type QuestionApprovalRow,
@@ -95,16 +99,21 @@ export async function POST(request: Request) {
     );
   }
 
-  const manifest = await loadQuestionStoreManifest({
-    supabase,
-    overrides: overridesResult.overrides,
-  });
+  const manifest = localizeContentManifest(
+    await loadQuestionStoreManifest({
+      supabase,
+      overrides: overridesResult.overrides,
+    }),
+    parsed.data.responseLocale,
+  );
   const approvals = rowsToApprovals(
     (approvalsResult.data ?? []) as QuestionApprovalRow[],
   );
   const question = manifest.questions.find(
     (item) =>
       item.id === parsed.data.questionId &&
+      (parsed.data.responseLocale !== "en" ||
+        hasExactQuestionTranslation(item, "en")) &&
       item.status !== "archived" &&
       (item.status === "verified" || isQuestionApproved(item, approvals)),
   );

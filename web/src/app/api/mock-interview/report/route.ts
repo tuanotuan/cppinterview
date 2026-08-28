@@ -48,6 +48,7 @@ import {
   getRepoContentManifest,
   loadQuestionStoreManifest,
 } from "@/lib/content/question-store-server";
+import { localizeContentManifest } from "@/lib/content/translations";
 import {
   isQuestionApproved,
   rowsToApprovals,
@@ -293,6 +294,10 @@ export async function POST(request: Request) {
       overrides: overridesResult.overrides,
     });
   }
+  manifest = localizeContentManifest(
+    manifest,
+    reportRequest.responseLocale,
+  );
 
   let resolvedV4Questions:
     | ReturnType<typeof resolveTargetedMockPlan>
@@ -766,7 +771,9 @@ export async function POST(request: Request) {
     });
     const modelLabel =
       provider === "gemini"
-        ? `Gemini dự phòng · ${result.model}`
+        ? reportRequest.responseLocale === "en"
+          ? `Gemini fallback · ${result.model}`
+          : `Gemini dự phòng · ${result.model}`
         : result.model;
     const executionResults = hiddenExecutionResults.flatMap(
       (execution, index) => {

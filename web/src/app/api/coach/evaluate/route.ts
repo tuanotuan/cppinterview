@@ -65,6 +65,10 @@ import {
   loadQuestionStoreManifest,
 } from "@/lib/content/question-store-server";
 import {
+  hasExactQuestionTranslation,
+  localizeContentManifest,
+} from "@/lib/content/translations";
+import {
   isQuestionApproved,
   rowsToApprovals,
   type QuestionApproval,
@@ -181,9 +185,19 @@ export async function POST(request: Request) {
       overrides: overridesResult.overrides,
     });
   }
+  manifest = localizeContentManifest(
+    manifest,
+    parsed.data.responseLocale,
+  );
 
   const question = manifest.questions.find((item) => {
     if (item.id !== parsed.data.questionId) return false;
+    if (
+      parsed.data.responseLocale === "en" &&
+      !hasExactQuestionTranslation(item, "en")
+    ) {
+      return false;
+    }
     return (
       item.status !== "archived" &&
       (item.status === "verified" || isQuestionApproved(item, approvals))
@@ -429,7 +443,11 @@ export async function POST(request: Request) {
     }
     const { data: feedback, model } = result;
     const modelLabel =
-      provider === "gemini" ? `Gemini dự phòng · ${model}` : model;
+      provider === "gemini"
+        ? parsed.data.responseLocale === "en"
+          ? `Gemini fallback · ${model}`
+          : `Gemini dự phòng · ${model}`
+        : model;
 
     let attemptId: number | null = null;
     let responseFeedback = feedback;
