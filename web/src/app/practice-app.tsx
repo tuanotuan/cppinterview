@@ -1,7 +1,6 @@
 "use client";
 
 import NextLink, { useLinkStatus } from "next/link";
-import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import {
@@ -15,6 +14,7 @@ import {
 
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
+import { BrandMark } from "@/app/brand-mark";
 import { LanguageSwitcher } from "@/app/language-switcher";
 
 import type {
@@ -3079,15 +3079,7 @@ export function PracticeApp({
               title={common("homeAria")}
               className="size-10 overflow-hidden rounded-xl focus-visible:ring-4 focus-visible:ring-[color:var(--accent)] focus-visible:outline-none"
             >
-              <Image
-                src="/icon.svg"
-                alt=""
-                aria-hidden="true"
-                width={40}
-                height={40}
-                unoptimized
-                className="size-full"
-              />
+              <BrandMark size="sm" />
             </Link>
             <div>
               <p className="font-semibold tracking-[-0.025em]">cppinterview</p>
@@ -4250,9 +4242,10 @@ function LoadingScreen() {
   return (
     <main className="grid min-h-screen place-items-center px-5">
       <div className="text-center">
-        <span className="mx-auto grid size-12 animate-pulse place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
-          R
-        </span>
+        <BrandMark
+          size="lg"
+          className="mx-auto animate-pulse motion-reduce:animate-none"
+        />
         <p className="mt-4 text-sm text-[#526276]">{t("focus.loading")}</p>
       </div>
     </main>

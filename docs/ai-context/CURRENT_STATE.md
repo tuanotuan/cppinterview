@@ -220,9 +220,9 @@ trạng thái từ tên nhánh.
   không chạm scheduler, AI admission hay dữ liệu học.
 - UI dùng chung có reduced-motion fallback; skeleton loading có thông báo cho
   screen reader và thanh điều hướng mobile giữ vùng chạm/focus rõ ràng.
-- Biểu tượng thương hiệu ở góc trái của các header luôn mở trang chủ `/`, để
-  người học có một đường quay lại nhất quán từ Practice, thư viện, WorldQuant,
-  Mock, Stats và Admin.
+- Header, footer, trạng thái tải và cổng truy cập dùng chung logo C++ SVG thay cho
+  badge chữ theo từng màn hình. Biểu tượng ở góc trái luôn mở trang chủ `/`; reader
+  lesson còn đặt bộ đổi VI/EN ngay trước các link điều hướng để đổi ngôn ngữ tại bài.
 - Trang chủ `/` là landing giới thiệu cppinterview cho khách; account đã đăng nhập được
   chuyển sang `/practice` trừ khi URL mang thông báo auth. `/auth` hỗ trợ email/mật khẩu
   cùng Google và GitHub OAuth, còn workspace Today nằm ở `/practice` cho cả local practice

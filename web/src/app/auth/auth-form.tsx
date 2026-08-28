@@ -5,6 +5,7 @@ import { useActionState, useState, type ReactNode } from "react";
 
 import { Link } from "@/i18n/navigation";
 
+import { BrandMark } from "../brand-mark";
 import { LanguageSwitcher } from "../language-switcher";
 import { signInWithEmailPassword, signUpWithEmailPassword } from "./auth-actions";
 import { initialAuthFormState } from "./auth-form-state";
@@ -49,9 +50,7 @@ export function AuthForm({
             title={common("homeAria")}
             className="inline-flex items-center gap-3"
           >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
-              CI
-            </span>
+            <BrandMark />
             <span>
               <span className="block text-lg font-bold tracking-tight">cppinterview</span>
               <span className="block text-xs text-[#526276]">{common("tagline")}</span>

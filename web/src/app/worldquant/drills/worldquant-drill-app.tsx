@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { BrandMark } from "@/app/brand-mark";
 import type { WorldQuantConceptId } from "@/lib/worldquant/curriculum";
 import {
   completeDrillAndReconcileGap,
@@ -317,9 +318,7 @@ export function WorldQuantDrillApp({
             title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
-              WQ
-            </span>
+            <BrandMark />
             <span>
               <span className="block font-bold">Phòng luyện tình huống</span>
               <span className="block text-xs text-[#526276]">

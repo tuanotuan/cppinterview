@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { BrandMark } from "@/app/brand-mark";
 import { buildAdminDashboardSnapshot } from "@/lib/admin/dashboard";
 import { QUESTION_GENERATOR_PROMPT_VERSION } from "@/lib/content/drafts";
 import { loadCloudContext } from "@/lib/practice/cloud-server";
@@ -62,9 +63,7 @@ function AdminGate({ mode }: { mode: "login" | "not-configured" | "restricted" }
   return (
     <main className="grid min-h-screen place-items-center px-5 py-12">
       <section className="w-full max-w-lg rounded-[1.25rem] border border-[#0f3a69]/15 bg-white/70 p-8 shadow-[0_24px_80px_rgb(15_58_105_/_10%)] backdrop-blur sm:p-10">
-        <div className="grid size-12 place-items-center rounded-2xl bg-[#0f3a69] font-mono font-bold text-[#65e6d2]">
-          R
-        </div>
+        <BrandMark size="lg" />
         <p className="mt-8 font-mono text-xs font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
           Khu vực quản trị
         </p>

@@ -9,6 +9,7 @@ import {
   useSyncExternalStore,
 } from "react";
 
+import { BrandMark } from "@/app/brand-mark";
 import {
   analyzeRecordedEnglishVoice,
   buildWorldQuantFullRound,
@@ -539,9 +540,7 @@ export function WorldQuantFullRoundApp({
             title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
-              WQ
-            </span>
+            <BrandMark />
             <span>
               <span className="block font-bold">
                 Buổi mô phỏng phỏng vấn đầy đủ

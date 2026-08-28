@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { BrandMark } from "@/app/brand-mark";
 import type {
   AdminDashboardSnapshot,
   AdminQuestion,
@@ -798,9 +799,9 @@ function mistakeErrorMessage(code: string) {
               href="/"
               aria-label="Về trang chủ cppinterview"
               title="Về trang chủ cppinterview"
-              className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
+              className="shrink-0 rounded-2xl focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
-              R
+              <BrandMark />
             </Link>
             <div>
               <p className="text-lg font-bold">Quản trị cppinterview</p>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { BrandMark } from "@/app/brand-mark";
 import { loadCloudContext } from "@/lib/practice/cloud-server";
 import {
   interviewQuestionCategoryLabels,
@@ -81,9 +82,7 @@ export default async function CoverageStudioPage() {
             title="Về trang chủ cppinterview"
             className="flex items-center gap-3"
           >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono font-bold text-[#65e6d2]">
-              R
-            </span>
+            <BrandMark />
             <span>
               <span className="block font-bold">Mức bao phủ nội dung</span>
               <span className="block text-xs text-[#526276]">

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 
+import { BrandMark } from "@/app/brand-mark";
 import { isCodeRunnerConfigured } from "@/lib/code-runner/config.server";
 import { isQuestionApproved } from "@/lib/practice/approvals";
 import { loadCloudAccount, loadCloudContext } from "@/lib/practice/cloud-server";
@@ -266,9 +267,7 @@ async function MockInterviewGate({
   return (
     <main className="grid min-h-screen place-items-center px-5 py-12">
       <section className="w-full max-w-lg rounded-[1.25rem] border border-[#0f3a69]/15 bg-white/70 p-8 shadow-[0_24px_80px_rgb(15_58_105_/_10%)] sm:p-10">
-        <div className="grid size-12 place-items-center rounded-2xl bg-[#0f3a69] font-mono font-bold text-[#65e6d2]">
-          CI
-        </div>
+        <BrandMark size="lg" />
         <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
           <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
             {t("eyebrow")}

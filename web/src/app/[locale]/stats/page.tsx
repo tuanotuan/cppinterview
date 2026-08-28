@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import NextLink from "next/link";
 import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
+import { BrandMark } from "@/app/brand-mark";
 import { LanguageSwitcher } from "@/app/language-switcher";
 import { localizedAlternates } from "@/i18n/metadata";
 import type { Locale } from "@/i18n/routing";
@@ -73,7 +74,6 @@ export default async function StatsPage({
   }
   if (!cloud.account) return <StatsGate mode="login" deck={selectedDeck} />;
 
-  const activeDeck = PRACTICE_DECKS[selectedDeck];
   const manifest = cloud.manifest;
   const questions = manifest.questions.filter(
     (question) =>
@@ -117,9 +117,9 @@ export default async function StatsPage({
               href="/"
               aria-label="Về trang chủ cppinterview"
               title="Về trang chủ cppinterview"
-              className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
+              className="shrink-0 rounded-2xl focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
-              {activeDeck.badge}
+              <BrandMark />
             </Link>
             <div>
               <p className="text-lg font-bold">Thống kê cppinterview</p>
@@ -459,7 +459,7 @@ function StatsGate({
   return (
     <main className="grid min-h-screen place-items-center px-5 py-12">
       <section className="w-full max-w-lg rounded-[1.25rem] border border-[#0f3a69]/15 bg-white/70 p-8 shadow-[0_24px_80px_rgb(15_58_105_/_10%)] sm:p-10">
-        <div className="grid size-12 place-items-center rounded-2xl bg-[#0f3a69] font-mono font-bold text-[#65e6d2]">R</div>
+        <BrandMark size="lg" />
         <p className="mt-8 font-mono text-xs font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
           Phân tích học tập
         </p>

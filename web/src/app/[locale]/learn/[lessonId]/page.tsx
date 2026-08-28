@@ -3,6 +3,8 @@ import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
+import { BrandMark } from "@/app/brand-mark";
+import { LanguageSwitcher } from "@/app/language-switcher";
 import { localizedAlternates } from "@/i18n/metadata";
 import type { Locale } from "@/i18n/routing";
 import { localizeContentManifest } from "@/lib/content/translations";
@@ -74,9 +76,7 @@ export default async function LessonReaderPage({
             title={common("homeAria")}
             className="flex items-center gap-3"
           >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
-              L
-            </span>
+            <BrandMark />
             <span>
               <span className="block font-bold">{t("brand")}</span>
               <span className="block text-xs text-[#526276]">
@@ -84,7 +84,11 @@ export default async function LessonReaderPage({
               </span>
             </span>
           </Link>
-          <nav aria-label={t("navAria")} className="flex flex-wrap gap-2 text-sm font-bold">
+          <nav
+            aria-label={t("navAria")}
+            className="flex flex-wrap items-center gap-2 text-sm font-bold"
+          >
+            <LanguageSwitcher compact />
             <Link className="rounded-xl px-4 py-2 hover:bg-white/60" href="/learn">
               {t("reader.allLessons")}
             </Link>

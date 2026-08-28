@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 
 import { Link } from "@/i18n/navigation";
+import { BrandMark } from "@/app/brand-mark";
 import { localizeHref, type Locale } from "@/i18n/routing";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -52,7 +53,7 @@ async function RecoveryShell({ children }: { children: React.ReactNode }) {
       <div className="mx-auto w-full max-w-md">
         <div className="flex items-center justify-between gap-3">
           <Link href="/" className="inline-flex items-center gap-3" aria-label={common("homeAria")}>
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">CI</span>
+            <BrandMark />
             <span><span className="block text-lg font-bold tracking-tight">cppinterview</span><span className="block text-xs text-[#526276]">{common("tagline")}</span></span>
           </Link>
           <LanguageSwitcher compact />

@@ -8,6 +8,7 @@ import {
   useSyncExternalStore,
 } from "react";
 
+import { BrandMark } from "@/app/brand-mark";
 import type { EvidenceProjection } from "@/lib/evidence/engine";
 import type { QuestionLearningState } from "@/lib/practice/learning-state";
 import {
@@ -481,9 +482,7 @@ export function WorldQuantMissionApp({
             title="Về trang chủ cppinterview"
             className="flex min-w-0 items-center gap-3"
           >
-            <span className="grid size-11 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-sm font-bold text-[#65e6d2]">
-              WQ
-            </span>
+            <BrandMark />
             <span>
               <span className="block font-bold">
                 Nhiệm vụ hôm nay
