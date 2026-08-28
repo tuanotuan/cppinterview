@@ -38,6 +38,7 @@ export default async function AdminPage() {
     cloud.questionStates,
     vietnamDateKey(),
     cloud.questionOverrides,
+    cloud.questionTranslations,
   );
   const mistakes = await loadMistakeCandidates(
     await createSupabaseServerClient(),

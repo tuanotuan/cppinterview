@@ -8,6 +8,7 @@ import type {
   AdminDashboardSnapshot,
   AdminQuestion,
   AdminQuestionStatus,
+  AdminQuestionTranslationReview,
 } from "@/lib/admin/dashboard";
 import {
   categoryForInterviewFormat,
@@ -153,6 +154,9 @@ export function AdminDashboard({
   mistakeQueueAvailable: boolean;
 }) {
   const [questions, setQuestions] = useState(initialSnapshot.questions);
+  const [translationReviews, setTranslationReviews] = useState(
+    initialSnapshot.translationReviews,
+  );
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("current");
   const [learningFilter, setLearningFilter] = useState("all");
@@ -213,10 +217,11 @@ export function AdminDashboard({
     });
   }, [initialSnapshot.today, learningFilter, query, questions, status]);
 
-  const reviewQueue = questions.filter(
+  const questionReviewQueue = questions.filter(
     (question) =>
       (question.adminStatus === "pending" || question.adminStatus === "stale"),
   );
+  const reviewQueueCount = questionReviewQueue.length + translationReviews.length;
   const activeCount = questions.filter(
     (question) => question.adminStatus === "active",
   ).length;
@@ -445,7 +450,7 @@ function mistakeErrorMessage(code: string) {
     setNotice("Đã bổ sung nguồn. Lỗi này đã sẵn sàng để tạo thẻ ghi nhớ.");
   }
 
-  async function approve(questionIds: string[]) {
+  async function approveQuestions(questionIds: string[]) {
     const selected = questions.filter(
       (question) =>
         questionIds.includes(question.id) &&
@@ -477,6 +482,121 @@ function mistakeErrorMessage(code: string) {
         ),
       );
       setNotice(`Đã duyệt ${selected.length} câu hỏi.`);
+    } catch {
+      setNotice("Chưa duyệt được. Tải lại trang và kiểm tra kết nối Supabase.");
+    } finally {
+      setSavingIds(new Set());
+    }
+  }
+
+  async function approveTranslations(reviewKeys: string[]) {
+    const selected = translationReviews.filter((review) =>
+      reviewKeys.includes(review.reviewKey),
+    );
+    if (!selected.length) return;
+
+    setSavingIds(new Set(selected.map((review) => review.reviewKey)));
+    setNotice(null);
+    try {
+      const response = await fetch(
+        "/api/admin/questions/approve-translation",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            translations: selected.map((review) => ({
+              questionId: review.question.id,
+              questionVersion: review.question.version,
+              sourceHash: review.question.sourceHash,
+              locale: review.locale,
+            })),
+          }),
+        },
+      );
+      if (!response.ok) throw new Error("translation approval failed");
+      const selectedKeys = new Set(selected.map((review) => review.reviewKey));
+      setTranslationReviews((current) =>
+        current.filter((review) => !selectedKeys.has(review.reviewKey)),
+      );
+      setNotice(`Đã duyệt ${selected.length} bản dịch tiếng Anh.`);
+    } catch {
+      setNotice(
+        "Chưa duyệt được bản dịch. Tải lại trang và kiểm tra kết nối Supabase.",
+      );
+    } finally {
+      setSavingIds(new Set());
+    }
+  }
+
+  async function approveAllPending() {
+    if (!reviewQueueCount) return;
+
+    const savingKeys = [
+      ...questionReviewQueue.map((question) => question.id),
+      ...translationReviews.map((review) => review.reviewKey),
+    ];
+    setSavingIds(new Set(savingKeys));
+    setNotice(null);
+
+    const questionRequest = questionReviewQueue.length
+      ? fetch("/api/questions/approve", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            questions: questionReviewQueue.map((question) => ({
+              questionId: question.id,
+              questionVersion: question.version,
+              sourceHash: question.sourceHash,
+            })),
+          }),
+        })
+      : Promise.resolve(null);
+    const translationRequest = translationReviews.length
+      ? fetch("/api/admin/questions/approve-translation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            translations: translationReviews.map((review) => ({
+              questionId: review.question.id,
+              questionVersion: review.question.version,
+              sourceHash: review.question.sourceHash,
+              locale: review.locale,
+            })),
+          }),
+        })
+      : Promise.resolve(null);
+
+    try {
+      const [questionResponse, translationResponse] = await Promise.all([
+        questionRequest,
+        translationRequest,
+      ]);
+      const questionsApproved = questionResponse?.ok ?? true;
+      const translationsApproved = translationResponse?.ok ?? true;
+
+      if (questionsApproved && questionReviewQueue.length) {
+        const selectedIds = new Set(
+          questionReviewQueue.map((question) => question.id),
+        );
+        setQuestions((current) =>
+          current.map((question) =>
+            selectedIds.has(question.id)
+              ? { ...question, approved: true, adminStatus: "active" }
+              : question,
+          ),
+        );
+      }
+      if (translationsApproved && translationReviews.length) {
+        setTranslationReviews([]);
+      }
+
+      if (!questionsApproved || !translationsApproved) {
+        setNotice(
+          "Một phần danh sách chưa duyệt được. Các mục đã lưu vẫn được giữ; hãy tải lại và thử phần còn lại.",
+        );
+        return;
+      }
+      setNotice(`Đã duyệt ${reviewQueueCount} mục.`);
     } catch {
       setNotice("Chưa duyệt được. Tải lại trang và kiểm tra kết nối Supabase.");
     } finally {
@@ -521,6 +641,11 @@ function mistakeErrorMessage(code: string) {
       }
       setQuestions((current) =>
         current.filter((item) => item.id !== payload.questionId),
+      );
+      setTranslationReviews((current) =>
+        current.filter(
+          (review) => review.question.id !== payload.questionId,
+        ),
       );
       setNotice(`Đã từ chối và xóa vĩnh viễn câu ${question.id} khỏi ngân hàng.`);
     } catch (error) {
@@ -788,6 +913,11 @@ function mistakeErrorMessage(code: string) {
             : item,
         ),
       );
+      if (changedVersion || action === "archive") {
+        setTranslationReviews((current) =>
+          current.filter((review) => review.question.id !== question.id),
+        );
+      }
       const actionLabel = {
         edit: "Đã lưu bản sửa; câu hỏi được đưa lại vào danh sách chờ duyệt.",
         archive:
@@ -927,7 +1057,12 @@ function mistakeErrorMessage(code: string) {
         <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
           <MetricCard label="Nguồn tri thức" value={initialSnapshot.metrics.lessons} detail={`${uncovered.length} bài chưa có câu hiện tại`} tone="dark" />
           <MetricCard label="Ngân hàng câu hỏi" value={questions.filter((item) => item.status !== "archived").length} detail={`${activeCount} câu đang dùng`} />
-          <MetricCard label="Danh sách chờ duyệt" value={reviewQueue.length} detail={`${staleCount} câu cần rà lại nguồn`} tone={reviewQueue.length ? "warning" : "default"} />
+          <MetricCard
+            label="Danh sách chờ duyệt"
+            value={reviewQueueCount}
+            detail={`${staleCount} câu cần rà nguồn · ${translationReviews.length} bản dịch`}
+            tone={reviewQueueCount ? "warning" : "default"}
+          />
           <MetricCard label="Lượt ôn đã lưu" value={totalReviewCount} detail={`${practicedCount} câu đã từng luyện`} />
           <MetricCard
             label="AI trên trang web tháng này"
@@ -1213,7 +1348,7 @@ function mistakeErrorMessage(code: string) {
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 sm:px-7 sm:py-6">
             <div className="flex min-w-0 items-center gap-4">
               <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#ffe0a8] font-mono text-sm font-bold text-[#c43d3d]">
-                {reviewQueue.length}
+                {reviewQueueCount}
               </span>
               <div className="min-w-0">
                 <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#a65c0e] uppercase">
@@ -1234,8 +1369,8 @@ function mistakeErrorMessage(code: string) {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="max-w-2xl">
                 <p className="text-sm text-[#526276]">
-                  Mở từng câu để đối chiếu đáp án, tiêu chí chấm và nguồn trước
-                  khi đưa vào lịch luyện.
+                  Câu gốc và bản dịch được duyệt riêng. Bản dịch giữ nguyên ID,
+                  phiên bản C++ và độ khó nên không tạo thêm lịch học.
                 </p>
                 <p className="mt-2 text-xs leading-5 text-[#7c2d12]">
                   “Từ chối” sẽ xóa câu hỏi vĩnh viễn khỏi ngân hàng và không thể
@@ -1248,29 +1383,41 @@ function mistakeErrorMessage(code: string) {
                   Chưa có nền tảng về dữ liệu tick? Đọc bài nhập môn trước →
                 </Link>
               </div>
-              {reviewQueue.length ? (
+              {reviewQueueCount ? (
                 <button
                   type="button"
-                  onClick={() => void approve(reviewQueue.map((question) => question.id))}
+                  onClick={() => void approveAllPending()}
                   disabled={savingIds.size > 0}
                   className="rounded-xl border border-[#a65c0e]/35 bg-white/70 px-4 py-2.5 text-xs font-bold text-[#c43d3d] transition hover:bg-white disabled:cursor-wait disabled:opacity-60"
                 >
-                  {savingIds.size ? "Đang xử lý…" : `Duyệt tất cả (${reviewQueue.length})`}
+                  {savingIds.size
+                    ? "Đang xử lý…"
+                    : `Duyệt tất cả (${reviewQueueCount})`}
                 </button>
               ) : null}
             </div>
 
             <div className="mt-6 grid gap-4 lg:grid-cols-2">
-              {reviewQueue.map((question) => (
+              {questionReviewQueue.map((question) => (
                 <QueueReviewCard
                   key={question.id}
                   question={question}
                   saving={savingIds.has(question.id)}
-                  onApprove={() => void approve([question.id])}
+                  onApprove={() => void approveQuestions([question.id])}
                   onReject={() => requestQuestionRejection(question)}
                 />
               ))}
-              {!reviewQueue.length ? (
+              {translationReviews.map((review) => (
+                <QueueTranslationReviewCard
+                  key={review.reviewKey}
+                  review={review}
+                  saving={savingIds.has(review.reviewKey)}
+                  onApprove={() =>
+                    void approveTranslations([review.reviewKey])
+                  }
+                />
+              ))}
+              {!reviewQueueCount ? (
                 <div className="rounded-2xl border border-dashed border-[#285f86]/25 bg-white/45 px-5 py-10 text-center text-sm text-[#43546a] lg:col-span-2">
                   Danh sách đã trống — không có câu nào cần duyệt.
                 </div>
@@ -1321,7 +1468,7 @@ function mistakeErrorMessage(code: string) {
                   question={question}
                   saving={savingIds.has(question.id)}
                   today={initialSnapshot.today}
-                  onApprove={() => void approve([question.id])}
+                  onApprove={() => void approveQuestions([question.id])}
                   onManage={(action, dueOn) =>
                     void manageSchedule(question, action, dueOn)
                   }
@@ -1476,6 +1623,65 @@ function QueueReviewCard({
         </summary>
         <div className="mt-4">
           <QuestionDetails question={question} />
+        </div>
+      </details>
+    </article>
+  );
+}
+
+function QueueTranslationReviewCard({
+  review,
+  saving,
+  onApprove,
+}: {
+  review: AdminQuestionTranslationReview;
+  saving: boolean;
+  onApprove: () => void;
+}) {
+  const { question } = review;
+  return (
+    <article className="rounded-2xl border border-[#138f8c]/25 bg-[#f3fffc] p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
+          <span className="rounded-full bg-[#65e6d2] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-[#0f3a69]">
+            Bản dịch
+          </span>
+          <span className="rounded-full bg-[#0f3a69] px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-white">
+            English
+          </span>
+          <span className="rounded-full bg-[#eaf2f8] px-2.5 py-1 font-mono text-[10px] font-bold uppercase">
+            {standardLabels[question.taxonomy.standard]}
+          </span>
+          <QuestionClassificationBadges question={question} />
+        </div>
+        <button
+          type="button"
+          disabled={saving}
+          onClick={onApprove}
+          className="min-h-11 rounded-xl bg-[#0f3a69] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#138f8c] disabled:cursor-wait disabled:opacity-60"
+        >
+          {saving ? "Đang xử lý…" : "Duyệt bản dịch"}
+        </button>
+      </div>
+      <h3 lang="en" className="mt-4 font-semibold leading-6">
+        {displayQuestionPrompt(question)}
+      </h3>
+      <p className="mt-2 font-mono text-[11px] text-[#64748b]">
+        {question.id} · {question.lessonTitle}
+      </p>
+      <p className="mt-2 text-xs leading-5 text-[#526276]">
+        Dùng chung ID với câu tiếng Việt; chỉ nội dung tiếng Anh được xuất bản
+        sau khi duyệt.
+      </p>
+      <details className="group mt-4 border-t border-[#0f3a69]/10 pt-4">
+        <summary className="cursor-pointer list-none text-xs font-bold text-[#285f86]">
+          <span className="group-open:hidden">
+            Xem đáp án và tiêu chí tiếng Anh ↓
+          </span>
+          <span className="hidden group-open:inline">Thu gọn ↑</span>
+        </summary>
+        <div lang="en" className="mt-4">
+          <QuestionDetails question={question} showLearning={false} />
         </div>
       </details>
     </article>
@@ -1839,7 +2045,13 @@ function clientAdminStatus(
   return "pending";
 }
 
-function QuestionDetails({ question }: { question: AdminQuestion }) {
+function QuestionDetails({
+  question,
+  showLearning = true,
+}: {
+  question: AdminQuestion;
+  showLearning?: boolean;
+}) {
   const category = resolveInterviewQuestionCategory(question);
   const verificationGaps = questionVerificationGaps(question);
   const assessmentSkills = questionAssessmentSkills(question);
@@ -1888,7 +2100,8 @@ function QuestionDetails({ question }: { question: AdminQuestion }) {
           Nguồn: {question.sourceHeadings.join(" · ")}
         </p>
       ) : null}
-      <div className="mt-4 rounded-xl border border-[#0f3a69]/10 bg-white/70 p-4">
+      {showLearning ? (
+        <div className="mt-4 rounded-xl border border-[#0f3a69]/10 bg-white/70 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="font-mono text-[10px] font-bold tracking-wide text-[#285f86] uppercase">
@@ -1934,7 +2147,8 @@ function QuestionDetails({ question }: { question: AdminQuestion }) {
             <p className="mt-3 text-xs text-[#526276]">Chưa có lần ôn nào.</p>
           )}
         </details>
-      </div>
+        </div>
+      ) : null}
     </>
   );
 }

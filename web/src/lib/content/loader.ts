@@ -21,7 +21,8 @@ import {
 } from "./schema";
 import { buildQuestionTaxonomy } from "./taxonomy";
 
-const KNOWLEDGE_FILE = "knowledge.md";
+const LEGACY_KNOWLEDGE_FILE = "knowledge.md";
+const VIETNAMESE_LESSON_FILE = "vi.md";
 const ENGLISH_LESSON_FILE = "en.md";
 const CODE_FILE_BY_LANGUAGE = {
   cpp: "main.cpp",
@@ -123,7 +124,7 @@ function parseSections(markdown: string) {
     (node): node is Heading => node.type === "heading" && node.depth === 1,
   );
 
-  if (!titleNode) throw new Error("knowledge.md is missing an H1 title");
+  if (!titleNode) throw new Error("Lesson markdown is missing an H1 title");
 
   const sectionIndexes = tree.children
     .map((node, index) => ({ node, index }))
@@ -240,14 +241,26 @@ export async function loadContentManifest(
     const sourceDirectory = path.resolve(repoRoot, entry.sourcePath);
     assertInsideRepo(repoRoot, sourceDirectory);
 
-    const knowledgeFile = path.join(sourceDirectory, KNOWLEDGE_FILE);
+    const vietnameseLessonFile = path.join(
+      sourceDirectory,
+      VIETNAMESE_LESSON_FILE,
+    );
+    const legacyKnowledgeFile = path.join(
+      sourceDirectory,
+      LEGACY_KNOWLEDGE_FILE,
+    );
+    const knowledgeFile = (await exists(vietnameseLessonFile))
+      ? vietnameseLessonFile
+      : legacyKnowledgeFile;
     const englishLessonFile = path.join(sourceDirectory, ENGLISH_LESSON_FILE);
     const codeFile = path.join(
       sourceDirectory,
       codeFileNameForLanguage(entry.language),
     );
     if (!(await exists(knowledgeFile))) {
-      throw new Error(`Missing ${KNOWLEDGE_FILE} for ${entry.id}`);
+      throw new Error(
+        `Missing ${VIETNAMESE_LESSON_FILE} or ${LEGACY_KNOWLEDGE_FILE} for ${entry.id}`,
+      );
     }
 
     const markdown = normalizeSourceText(await readFile(knowledgeFile, "utf8"));

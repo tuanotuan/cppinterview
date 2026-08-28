@@ -97,8 +97,8 @@ days:
       vi: Phân biệt phạm vi tên, thời gian lưu trữ và lifetime để tránh dangling reference hoặc pointer.
       en: Separate name scope, storage duration, and lifetime to prevent dangling references and pointers.
     dependsOn: [2]
-    lessonIds: [cpp11-const-pointer-lvalue-reference]
-    coverage: partial
+    lessonIds: [cpp11-scope-storage-duration-object-lifetime]
+    coverage: ready
   - day: 4
     phase: foundations
     title:
@@ -108,8 +108,8 @@ days:
       vi: Dùng null pointer có kiểu để tránh mơ hồ overload và lỗi chuyển đổi số nguyên.
       en: Use typed null pointers to avoid overload ambiguity and accidental integer conversions.
     dependsOn: [3]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-nullptr-std-nullptr-t]
+    coverage: ready
   - day: 5
     phase: foundations
     title:
@@ -119,8 +119,8 @@ days:
       vi: Dự đoán kiểu được suy luận, kể cả const và reference, trước khi dùng auto.
       en: Predict the deduced type, including const and reference behavior, before using auto.
     dependsOn: [4]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-auto-type-deduction]
+    coverage: ready
   - day: 6
     phase: foundations
     title:
@@ -130,8 +130,8 @@ days:
       vi: Suy ra kiểu từ biểu thức mà vẫn bảo toàn đúng value category và viết kiểu trả về phụ thuộc tham số.
       en: Derive types from expressions while preserving value categories and express parameter-dependent return types.
     dependsOn: [5]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-decltype-trailing-return-type]
+    coverage: ready
   - day: 7
     phase: foundations
     title:
@@ -141,8 +141,8 @@ days:
       vi: Tạo tên kiểu dễ đọc, enum có phạm vi và cú pháp template lồng nhau chính xác.
       en: Create readable type names, scoped enums, and correct nested-template syntax.
     dependsOn: [6]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-type-aliases-enum-class-nested-templates]
+    coverage: ready
   - day: 8
     phase: expressive-code
     title:
@@ -152,8 +152,8 @@ days:
       vi: Chọn cú pháp khởi tạo nhất quán và phát hiện các chuyển đổi làm mất dữ liệu tại compile time.
       en: Choose consistent initialization syntax and catch data-losing conversions at compile time.
     dependsOn: [7]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-uniform-initialization-narrowing]
+    coverage: ready
   - day: 9
     phase: expressive-code
     title:
@@ -163,8 +163,8 @@ days:
       vi: Giải thích vì sao initializer_list được ưu tiên và tránh overload gây bất ngờ với dấu ngoặc nhọn.
       en: Explain initializer-list preference and avoid surprising overloads with brace initialization.
     dependsOn: [8]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-initializer-list-overload-resolution]
+    coverage: ready
   - day: 10
     phase: expressive-code
     title:
@@ -174,8 +174,8 @@ days:
       vi: Duyệt array và vector an toàn, chọn copy hoặc reference cho biến vòng lặp và dùng API iterator thống nhất.
       en: Traverse arrays and vectors safely, choose copy or reference loop variables, and use a uniform iterator API.
     dependsOn: [9]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-array-vector-range-for-begin-end]
+    coverage: ready
   - day: 11
     phase: expressive-code
     title:
@@ -185,8 +185,8 @@ days:
       vi: Viết lambda có capture tối thiểu, mutation có chủ đích và lifetime không tạo dangling reference.
       en: Write lambdas with minimal captures, intentional mutation, and lifetimes that avoid dangling references.
     dependsOn: [10]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-lambda-capture-mutable-lifetime]
+    coverage: ready
   - day: 12
     phase: object-model
     title:
@@ -196,8 +196,8 @@ days:
       vi: Thiết lập invariant của object ngay khi khởi tạo và phân biệt initialization với assignment.
       en: Establish object invariants during construction and distinguish initialization from assignment.
     dependsOn: [11]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-classes-constructors-member-initializer-list]
+    coverage: ready
   - day: 13
     phase: object-model
     title:
@@ -207,8 +207,8 @@ days:
       vi: Gắn vòng đời tài nguyên với object để cleanup tự động và an toàn khi có exception.
       en: Bind resource lifetimes to objects for automatic cleanup and exception safety.
     dependsOn: [12]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-destructors-raii]
+    coverage: ready
   - day: 14
     phase: object-model
     title:
@@ -218,8 +218,8 @@ days:
       vi: Nhận diện lúc copy constructor chạy và triển khai deep copy khi class sở hữu tài nguyên.
       en: Recognize copy construction and implement deep copies for resource-owning classes.
     dependsOn: [13]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-copy-constructor]
+    coverage: ready
   - day: 15
     phase: object-model
     title:
@@ -229,8 +229,8 @@ days:
       vi: Viết copy assignment chống self-assignment và áp dụng Rule of Three cho ownership thủ công.
       en: Write self-assignment-safe copy assignment and apply the Rule of Three to manual ownership.
     dependsOn: [14]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-copy-assignment-rule-of-three]
+    coverage: ready
   - day: 16
     phase: object-model
     title:
@@ -240,8 +240,8 @@ days:
       vi: Phân loại biểu thức theo identity và khả năng di chuyển để dự đoán overload resolution.
       en: Classify expressions by identity and movability to predict overload resolution.
     dependsOn: [15]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-value-categories-lvalue-rvalue-xvalue]
+    coverage: ready
   - day: 17
     phase: object-model
     title:
@@ -251,8 +251,8 @@ days:
       vi: Dùng T&& đúng ngữ cảnh và nhớ rằng một rvalue reference có tên vẫn là lvalue expression.
       en: Use T&& in the right context and remember that a named rvalue reference is still an lvalue expression.
     dependsOn: [16]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-rvalue-references]
+    coverage: ready
   - day: 18
     phase: object-model
     title:
@@ -262,8 +262,8 @@ days:
       vi: Hiểu std::move chỉ là cast và giữ object moved-from ở trạng thái hợp lệ nhưng không xác định giá trị.
       en: Understand that std::move is a cast and keep moved-from objects valid with unspecified values.
     dependsOn: [17]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-std-move-moved-from-state]
+    coverage: ready
   - day: 19
     phase: object-model
     title:
@@ -273,8 +273,8 @@ days:
       vi: Chuyển giao tài nguyên mà không copy và để cả object nguồn lẫn đích luôn hợp lệ.
       en: Transfer resources without copying while keeping both source and destination valid.
     dependsOn: [18]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-move-constructor-move-assignment]
+    coverage: ready
   - day: 20
     phase: object-model
     title:
@@ -284,8 +284,8 @@ days:
       vi: Ưu tiên Rule of Zero và đánh dấu move noexcept khi contract thực sự cho phép.
       en: Prefer the Rule of Zero and mark moves noexcept only when the contract truly permits it.
     dependsOn: [19]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-rule-of-five-zero-noexcept-move]
+    coverage: ready
   - day: 21
     phase: object-model
     title:
@@ -295,8 +295,8 @@ days:
       vi: Công khai ý định class bằng = default và chặn thao tác không hợp lệ bằng = delete.
       en: State class intent with = default and reject invalid operations with = delete.
     dependsOn: [20]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-defaulted-deleted-functions]
+    coverage: ready
   - day: 22
     phase: object-model
     title:
@@ -306,8 +306,8 @@ days:
       vi: Loại bỏ logic khởi tạo lặp lại mà vẫn duy trì một đường thiết lập invariant rõ ràng.
       en: Remove duplicated initialization logic while preserving one clear invariant-establishing path.
     dependsOn: [21]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-delegating-constructors-non-static-member-initializers]
+    coverage: ready
   - day: 23
     phase: object-model
     title:
@@ -317,8 +317,8 @@ days:
       vi: Kiểm soát chuyển đổi ngầm để API tiện dụng nhưng không tạo object ngoài ý muốn.
       en: Control implicit conversions so APIs remain convenient without creating unintended objects.
     dependsOn: [22]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-converting-constructors-explicit-conversion]
+    coverage: ready
   - day: 24
     phase: ownership
     title:
@@ -328,8 +328,8 @@ days:
       vi: Biểu diễn một chủ sở hữu duy nhất, chuyển ownership rõ ràng và loại bỏ delete thủ công.
       en: Model single ownership, transfer it explicitly, and eliminate manual delete calls.
     dependsOn: [23]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-unique-ptr-unique-ownership]
+    coverage: ready
   - day: 25
     phase: ownership
     title:
@@ -339,8 +339,8 @@ days:
       vi: Chỉ dùng shared ownership khi cần, phá chu kỳ bằng weak_ptr và hiểu chi phí control block.
       en: Use shared ownership only when needed, break cycles with weak_ptr, and understand control-block costs.
     dependsOn: [24]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-shared-ptr-weak-ptr-make-shared]
+    coverage: ready
   - day: 26
     phase: ownership
     title:
@@ -350,8 +350,8 @@ days:
       vi: Xác định basic, strong hoặc no-throw guarantee và bảo toàn invariant khi thao tác thất bại.
       en: Define basic, strong, or no-throw guarantees and preserve invariants when operations fail.
     dependsOn: [25]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-exception-safety-noexcept]
+    coverage: ready
   - day: 27
     phase: ownership
     title:
@@ -361,8 +361,8 @@ days:
       vi: Thiết kế hierarchy có destructor an toàn và để compiler kiểm tra override hoặc cấm mở rộng.
       en: Design hierarchies with safe destruction and compiler-checked overrides or extension limits.
     dependsOn: [26]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-inheritance-virtual-destructor-override-final]
+    coverage: ready
   - day: 28
     phase: ownership
     title:
@@ -372,8 +372,8 @@ days:
       vi: Phân biệt API gọi trên lvalue/rvalue object và tổ chức version namespace mà không phá tên công khai.
       en: Distinguish APIs invoked on lvalue or rvalue objects and version namespaces without breaking public names.
     dependsOn: [27]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-ref-qualified-members-inline-namespaces]
+    coverage: ready
   - day: 29
     phase: generic-programming
     title:
@@ -383,8 +383,8 @@ days:
       vi: Viết abstraction theo kiểu với interface nhỏ, lỗi compile dễ hiểu và không nhân bản logic.
       en: Write type-generic abstractions with small interfaces, understandable diagnostics, and no duplicated logic.
     dependsOn: [28]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-function-class-templates]
+    coverage: ready
   - day: 30
     phase: generic-programming
     title:
@@ -394,8 +394,8 @@ days:
       vi: Theo dõi deduction, conversion và ranking để biết chính xác overload nào được chọn.
       en: Trace deduction, conversions, and ranking to determine exactly which overload is selected.
     dependsOn: [29]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-template-deduction-overload-resolution]
+    coverage: ready
   - day: 31
     phase: generic-programming
     title:
@@ -405,8 +405,8 @@ days:
       vi: Đặt tên cho kiểu phụ thuộc template và truy vấn hoặc biến đổi đặc tính kiểu tại compile time.
       en: Name template-dependent types and query or transform type properties at compile time.
     dependsOn: [30]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-alias-templates-type-traits]
+    coverage: ready
   - day: 32
     phase: generic-programming
     title:
@@ -416,8 +416,8 @@ days:
       vi: Tính toán hằng tại compile time và biến giả định thiết kế thành lỗi biên dịch rõ ràng.
       en: Compute constants at compile time and turn design assumptions into clear compilation failures.
     dependsOn: [31]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-constexpr-static-assert]
+    coverage: ready
   - day: 33
     phase: generic-programming
     title:
@@ -427,8 +427,8 @@ days:
       vi: Loại candidate template không phù hợp khỏi overload set mà không gây hard compile error.
       en: Remove unsuitable template candidates from an overload set without a hard compilation error.
     dependsOn: [32]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-sfinae-enable-if]
+    coverage: ready
   - day: 34
     phase: generic-programming
     title:
@@ -438,8 +438,8 @@ days:
       vi: Nhận diện T&& phụ thuộc deduction và tính reference cuối cùng theo quy tắc collapsing.
       en: Recognize deduction-dependent T&& and compute final reference types using collapsing rules.
     dependsOn: [33]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-forwarding-references-reference-collapsing]
+    coverage: ready
   - day: 35
     phase: generic-programming
     title:
@@ -449,8 +449,8 @@ days:
       vi: Chuyển tiếp tham số mà vẫn bảo toàn value category và tránh move ngoài ý muốn.
       en: Forward arguments while preserving value categories and avoiding unintended moves.
     dependsOn: [34]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-std-forward-perfect-forwarding]
+    coverage: ready
   - day: 36
     phase: generic-programming
     title:
@@ -460,8 +460,8 @@ days:
       vi: Mở rộng parameter pack có kiểm soát để xây API generic chấp nhận nhiều đối số.
       en: Expand parameter packs deliberately to build generic APIs that accept varied arguments.
     dependsOn: [35]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-variadic-templates-parameter-packs]
+    coverage: ready
   - day: 37
     phase: generic-programming
     title:
@@ -471,8 +471,8 @@ days:
       vi: So sánh các dạng callable theo ownership, type erasure, allocation và khả năng inline.
       en: Compare callable forms by ownership, type erasure, allocation, and inlining potential.
     dependsOn: [36]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-function-pointer-functor-std-function-bind-ref]
+    coverage: ready
   - day: 38
     phase: generic-programming
     title:
@@ -482,8 +482,8 @@ days:
       vi: Nhận diện và dùng đúng các tiện ích ngôn ngữ C++11 ít gặp nhưng quan trọng trong code hệ thống.
       en: Recognize and correctly apply less common C++11 language facilities used in systems code.
     dependsOn: [37]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-literals-raw-strings-unicode-attributes-alignment-thread-local]
+    coverage: ready
   - day: 39
     phase: standard-library
     title:
@@ -493,8 +493,8 @@ days:
       vi: Chọn sequence container theo access pattern và hiểu object được copy, move hoặc tạo tại chỗ.
       en: Choose sequence containers by access pattern and understand whether objects are copied, moved, or constructed in place.
     dependsOn: [38]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-sequence-containers-emplace-ownership]
+    coverage: ready
   - day: 40
     phase: standard-library
     title:
@@ -504,8 +504,8 @@ days:
       vi: Khớp algorithm với năng lực iterator và tránh dùng iterator sau thao tác làm mất hiệu lực.
       en: Match algorithms to iterator capabilities and avoid using iterators after invalidating operations.
     dependsOn: [39]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-iterator-categories-invalidation]
+    coverage: ready
   - day: 41
     phase: standard-library
     title:
@@ -515,8 +515,8 @@ days:
       vi: Diễn đạt phép biến đổi bằng algorithm chuẩn và lambda thay vì vòng lặp thủ công khó kiểm tra.
       en: Express transformations with standard algorithms and lambdas instead of hard-to-review manual loops.
     dependsOn: [40]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-stl-numeric-algorithms-lambda]
+    coverage: ready
   - day: 42
     phase: standard-library
     title:
@@ -526,8 +526,8 @@ days:
       vi: Chọn cấu trúc theo ordering, độ phức tạp, locality và chất lượng hash cần thiết.
       en: Choose structures by ordering, complexity, locality, and required hash quality.
     dependsOn: [41]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-ordered-unordered-containers-hashing]
+    coverage: ready
   - day: 43
     phase: standard-library
     title:
@@ -537,8 +537,8 @@ days:
       vi: Ánh xạ yêu cầu truy cập dữ liệu sang adapter hoặc ring buffer với invariant rõ ràng.
       en: Map data-access requirements to adapters or ring buffers with explicit invariants.
     dependsOn: [42]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-stack-queue-priority-queue-ring-buffer]
+    coverage: ready
   - day: 44
     phase: standard-library
     title:
@@ -548,8 +548,8 @@ days:
       vi: Dùng utility type, thời gian có đơn vị và chuyển đổi chuỗi mà không làm mất ý nghĩa dữ liệu.
       en: Use utility types, unit-safe time, and string conversion without losing data meaning.
     dependsOn: [43]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-pair-tuple-tie-chrono-to-string]
+    coverage: ready
   - day: 45
     phase: concurrency
     title:
@@ -559,8 +559,8 @@ days:
       vi: Quản lý join hoặc detach có chủ đích và không để dữ liệu bị truy cập sau lifetime.
       en: Manage join or detach deliberately and prevent data access beyond its lifetime.
     dependsOn: [44]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-std-thread-lifetime]
+    coverage: ready
   - day: 46
     phase: concurrency
     title:
@@ -570,8 +570,8 @@ days:
       vi: Bảo vệ invariant bằng RAII lock và chờ predicate đúng cách trước spurious wakeup.
       en: Protect invariants with RAII locks and wait on predicates correctly despite spurious wakeups.
     dependsOn: [45]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-mutex-locks-condition-variable]
+    coverage: ready
   - day: 47
     phase: concurrency
     title:
@@ -581,8 +581,8 @@ days:
       vi: Truyền kết quả hoặc exception giữa các luồng và hiểu policy thực thi của async.
       en: Transfer results or exceptions across threads and understand async launch policies.
     dependsOn: [46]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-future-promise-async]
+    coverage: ready
   - day: 48
     phase: concurrency
     title:
@@ -592,8 +592,8 @@ days:
       vi: Thực hiện cập nhật không khóa và viết vòng lặp CAS xử lý đúng thất bại giả.
       en: Perform lock-free updates and write CAS loops that handle spurious failure correctly.
     dependsOn: [47]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-atomic-compare-and-swap]
+    coverage: ready
   - day: 49
     phase: concurrency
     title:
@@ -603,8 +603,8 @@ days:
       vi: Lập luận bằng happens-before và chọn ordering yếu nhất vẫn bảo đảm correctness.
       en: Reason with happens-before and choose the weakest ordering that still guarantees correctness.
     dependsOn: [48]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-memory-model-memory-ordering]
+    coverage: ready
   - day: 50
     phase: concurrency
     title:
@@ -614,8 +614,8 @@ days:
       vi: Phân biệt lỗi correctness với lỗi scalability và dùng công cụ để xác nhận nguyên nhân.
       en: Distinguish correctness bugs from scalability bugs and use tools to confirm the cause.
     dependsOn: [49]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-data-race-deadlock-false-sharing]
+    coverage: ready
   - day: 51
     phase: concurrency
     title:
@@ -625,8 +625,8 @@ days:
       vi: Thiết kế queue một producer, một consumer với index atomic, ordering và padding hợp lý.
       en: Design a single-producer single-consumer queue with correct atomic indices, ordering, and padding.
     dependsOn: [50]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-lock-free-spsc-queue]
+    coverage: ready
   - day: 52
     phase: performance
     title:
@@ -636,8 +636,8 @@ days:
       vi: Tổ chức dữ liệu theo access pattern để giảm cache miss và pointer chasing.
       en: Organize data around access patterns to reduce cache misses and pointer chasing.
     dependsOn: [51]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-cache-locality-data-oriented-design]
+    coverage: ready
   - day: 53
     phase: performance
     title:
@@ -647,5 +647,5 @@ days:
       vi: Đo allocation cost, xây pool có giới hạn rõ ràng và xác minh tối ưu bằng benchmark lẫn profiler.
       en: Measure allocation costs, build bounded pools, and verify optimizations with benchmarks and profilers.
     dependsOn: [52]
-    lessonIds: []
-    coverage: planned
+    lessonIds: [cpp11-memory-pool-custom-allocator-benchmark-profiling]
+    coverage: ready

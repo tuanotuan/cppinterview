@@ -1,52 +1,125 @@
+import { readFile, readdir } from "node:fs/promises";
+import path from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import manifestJson from "@/generated/content-manifest.json";
 
 import { contentManifestSchema } from "./schema";
+import { questionTranslationReviewCandidates } from "./translations";
 
-describe("C++11 toolchain review drafts", () => {
+describe("C++11 53-day curriculum", () => {
   const manifest = contentManifestSchema.parse(manifestJson);
-  const lesson = manifest.lessons.find(
-    (candidate) => candidate.id === "cpp11-toolchain",
-  )!;
-  const questions = manifest.questions.filter(
-    (question) => question.lessonId === lesson.id,
-  );
+  const lessons = manifest.lessons
+    .filter((lesson) => lesson.track === "cpp11")
+    .sort((left, right) => left.order - right.order);
 
-  it("keeps one draft at each supported difficulty", () => {
-    expect(
-      questions.map((question) => ({
-        id: question.id,
-        status: question.status,
-        difficulty: question.difficulty,
-      })),
-    ).toEqual([
-      {
-        id: "cpp11-toolchain-001",
-        status: "draft",
-        difficulty: "beginner",
-      },
-      {
-        id: "cpp11-toolchain-002",
-        status: "draft",
-        difficulty: "intermediate",
-      },
-      {
-        id: "cpp11-toolchain-003",
-        status: "draft",
-        difficulty: "advanced",
-      },
-    ]);
+  it("loads all 53 bilingual lessons with the same source shape", () => {
+    expect(lessons).toHaveLength(53);
+    expect(lessons.map((lesson) => lesson.order)).toEqual(
+      Array.from({ length: 53 }, (_, index) => index + 1),
+    );
+    for (const lesson of lessons) {
+      expect(lesson.knowledgePath).toBe(`${lesson.sourcePath}/vi.md`);
+      expect(lesson.translationPaths).toEqual([`${lesson.sourcePath}/en.md`]);
+      expect(lesson.codePath).toBe(`${lesson.sourcePath}/main.cpp`);
+      expect(lesson.sections).toHaveLength(10);
+      expect(lesson.code).not.toBeNull();
+    }
   });
 
-  it("derives stable C++11 and difficulty tags for filtering", () => {
-    for (const question of questions) {
-      expect(question.sourceHash).toBe(lesson.sourceHash);
-      expect(question.taxonomy.standard).toBe("cpp11");
-      expect(question.taxonomy.tags).toContain("standard::cpp11");
-      expect(question.taxonomy.tags).toContain(
-        `difficulty::${question.difficulty}`,
+  it("keeps only vi.md, en.md, and main.cpp in every lesson directory", async () => {
+    const repoRoot = path.resolve(process.cwd(), "..");
+    for (const lesson of lessons) {
+      const files = await readdir(path.join(repoRoot, lesson.sourcePath));
+      expect(files.sort()).toEqual(["en.md", "main.cpp", "vi.md"]);
+    }
+  });
+
+  it("keeps three canonical drafts per lesson with stable filter tags", () => {
+    for (const lesson of lessons) {
+      const questions = manifest.questions
+        .filter((question) => question.lessonId === lesson.id)
+        .sort((left, right) => left.id.localeCompare(right.id));
+      expect(
+        questions.map((question) => ({
+          id: question.id,
+          status: question.status,
+          difficulty: question.difficulty,
+        })),
+      ).toEqual([
+        {
+          id: `${lesson.id}-001`,
+          status: "draft",
+          difficulty: "beginner",
+        },
+        {
+          id: `${lesson.id}-002`,
+          status: "draft",
+          difficulty: "intermediate",
+        },
+        {
+          id: `${lesson.id}-003`,
+          status: "draft",
+          difficulty: "advanced",
+        },
+      ]);
+      for (const question of questions) {
+        expect(question.sourceHash).toBe(lesson.sourceHash);
+        expect(question.taxonomy.standard).toBe("cpp11");
+        expect(question.taxonomy.tags).toContain("standard::cpp11");
+        expect(question.taxonomy.tags).toContain(
+          `difficulty::${question.difficulty}`,
+        );
+      }
+    }
+  });
+
+  it("does not retain the superseded day-2 interview draft", () => {
+    expect(
+      manifest.questions.some(
+        (question) =>
+          question.id ===
+          "cpp11-const-pointer-lvalue-reference-interview-ownership-001",
+      ),
+    ).toBe(false);
+  });
+
+  it("copies the six self-check prompts from each day 2-53 source pair", async () => {
+    const repoRoot = path.resolve(process.cwd(), "..");
+    const englishReviews = new Map(
+      questionTranslationReviewCandidates(manifest, "en").map((review) => [
+        review.question.id,
+        review.question.prompt,
+      ]),
+    );
+
+    for (const lesson of lessons.filter((candidate) => candidate.order >= 2)) {
+      const translationPath = lesson.translationPaths![0]!;
+      const [vietnameseMarkdown, englishMarkdown] = await Promise.all([
+        readFile(path.join(repoRoot, lesson.knowledgePath), "utf8"),
+        readFile(path.join(repoRoot, translationPath), "utf8"),
+      ]);
+      const questions = manifest.questions
+        .filter((question) => question.lessonId === lesson.id)
+        .sort((left, right) => left.id.localeCompare(right.id));
+
+      expect(questions.map((question) => question.prompt)).toEqual(
+        selfCheckPrompts(vietnameseMarkdown, /^(?:Dễ|Trung bình|Khó)$/u),
+      );
+      expect(questions.map((question) => englishReviews.get(question.id))).toEqual(
+        selfCheckPrompts(englishMarkdown, /^(?:Easy|Medium|Hard)$/u),
       );
     }
   });
 });
+
+function selfCheckPrompts(markdown: string, difficulty: RegExp) {
+  return markdown
+    .replace(/\r\n?/gu, "\n")
+    .split("\n")
+    .flatMap((line) => {
+      const match = /^1\. ([^—]+) — (.+)$/u.exec(line.trim());
+      return match && difficulty.test(match[1]!.trim()) ? [match[2]!.trim()] : [];
+    });
+}

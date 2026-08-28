@@ -30,6 +30,7 @@ const mocks = vi.hoisted(() => ({
   isAdmin: vi.fn(),
   isPublicAiEnabled: vi.fn(),
   localizeContentManifest: vi.fn((manifest: unknown) => manifest),
+  loadQuestionTranslationPublications: vi.fn(),
   withAiBudget: vi.fn(),
   withPublicAiSiteBudget: vi.fn(),
 }));
@@ -133,6 +134,11 @@ vi.mock("@/lib/content/question-overrides-server", () => ({
 vi.mock("@/lib/content/question-store-server", () => ({
   getRepoContentManifest: () => mocks.manifest,
   loadQuestionStoreManifest: vi.fn().mockResolvedValue(mocks.manifest),
+}));
+
+vi.mock("@/lib/content/question-translations.server", () => ({
+  loadQuestionTranslationPublications:
+    mocks.loadQuestionTranslationPublications,
 }));
 
 vi.mock("@/lib/content/translations", () => ({
@@ -254,6 +260,10 @@ beforeEach(() => {
   });
   mocks.isAdmin.mockReturnValue(true);
   mocks.isPublicAiEnabled.mockReturnValue(true);
+  mocks.loadQuestionTranslationPublications.mockResolvedValue({
+    publications: [],
+    error: false,
+  });
   supabase.from.mockImplementation((table: string) => {
     if (table === "question_approvals") {
       return {
@@ -483,6 +493,7 @@ describe("POST /api/coach/evaluate idempotency", () => {
     expect(mocks.localizeContentManifest).toHaveBeenCalledWith(
       mocks.manifest,
       "en",
+      [],
     );
     expect(mocks.reserveCoachEvaluation).toHaveBeenCalledWith(
       supabase,
@@ -501,6 +512,45 @@ describe("POST /api/coach/evaluate idempotency", () => {
         identity: englishIdentity,
         requestFingerprint: englishFingerprint,
       }),
+    );
+  });
+
+  it("loads approved English copy for an authenticated non-admin request", async () => {
+    const publication = {
+      questionId: "cpp11-auto-001",
+      questionVersion: 1,
+      sourceHash: "b".repeat(64),
+      locale: "en",
+    };
+    mocks.isAdmin.mockReturnValue(false);
+    mocks.loadQuestionTranslationPublications.mockResolvedValueOnce({
+      publications: [publication],
+      error: false,
+    });
+    const insertedAttempt = {
+      select: vi.fn(),
+      single: vi.fn().mockResolvedValue({ data: { id: 43 }, error: null }),
+    };
+    insertedAttempt.select.mockReturnValue(insertedAttempt);
+    supabase.from.mockImplementation((table: string) => {
+      if (table === "coach_attempts") {
+        return {
+          insert: vi.fn(() => insertedAttempt),
+        } as never;
+      }
+      throw new Error(`Unexpected table: ${table}`);
+    });
+
+    const response = await sendRequest({ responseLocale: "en" });
+
+    expect(response.status).toBe(200);
+    expect(mocks.loadQuestionTranslationPublications).toHaveBeenCalledWith(
+      supabase,
+    );
+    expect(mocks.localizeContentManifest).toHaveBeenCalledWith(
+      mocks.manifest,
+      "en",
+      [publication],
     );
   });
 

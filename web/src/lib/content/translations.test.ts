@@ -8,6 +8,9 @@ import {
   hasExactLessonTranslation,
   hasExactQuestionTranslation,
   localizeContentManifest,
+  questionTranslationReviewCandidates,
+  type QuestionTranslationPublication,
+  type QuestionTranslationReviewCandidate,
 } from "./translations";
 
 describe("content translations", () => {
@@ -48,8 +51,8 @@ describe("content translations", () => {
       "en",
     );
     expect(coverage).toEqual({
-      lessons: 1,
-      questions: 7,
+      lessons: 53,
+      questions: 163,
     });
   });
 
@@ -84,4 +87,95 @@ describe("content translations", () => {
     expect(hasExactQuestionTranslation(untranslated, "en")).toBe(false);
     expect(hasExactLessonTranslation(untranslatedLesson, "en")).toBe(false);
   });
+
+  it("queues three English drafts for every C++11 lesson with canonical filter tags", () => {
+    const reviews = questionTranslationReviewCandidates(manifest, "en");
+    const cpp11Lessons = manifest.lessons
+      .filter((lesson) => lesson.track === "cpp11")
+      .sort((left, right) => left.order - right.order);
+
+    expect(reviews).toHaveLength(53 * 3);
+    for (const lesson of cpp11Lessons) {
+      const lessonReviews = reviews.filter(
+        (review) => review.question.lessonId === lesson.id,
+      );
+      expect(lessonReviews.map((review) => review.question.difficulty)).toEqual([
+        "beginner",
+        "intermediate",
+        "advanced",
+      ]);
+      for (const review of lessonReviews) {
+        expect(review.question.taxonomy.standard).toBe("cpp11");
+        expect(review.question.taxonomy.tags).toContain("standard::cpp11");
+        expect(review.question.taxonomy.tags).toContain(
+          `difficulty::${review.question.difficulty}`,
+        );
+        expect(hasExactQuestionTranslation(review.question, "en")).toBe(false);
+      }
+    }
+  });
+
+  it("publishes only the exact English copy approved for the same question", () => {
+    const review = questionTranslationReviewCandidates(manifest, "en")[0];
+    const publication = publicationFor(review);
+    const sourceQuestion = manifest.questions.find(
+      (question) => question.id === review.question.id,
+    )!;
+
+    const databaseOrderedPublication = {
+      ...publication,
+      answer: {
+        detailed: publication.answer.detailed,
+        short: publication.answer.short,
+      },
+      rubric: {
+        bonus: publication.rubric.bonus,
+        misconceptions: publication.rubric.misconceptions,
+        required: publication.rubric.required,
+      },
+    };
+    expect(
+      hasExactQuestionTranslation(sourceQuestion, "en", [
+        databaseOrderedPublication,
+      ]),
+    ).toBe(true);
+    expect(
+      localizeContentManifest(manifest, "en", [publication]).questions.find(
+        (question) => question.id === sourceQuestion.id,
+      )?.prompt,
+    ).toBe(review.question.prompt);
+    expect(
+      questionTranslationReviewCandidates(manifest, "en", [publication]).map(
+        (candidate) => candidate.question.id,
+      ),
+    ).not.toContain(sourceQuestion.id);
+
+    const stalePublication = {
+      ...publication,
+      prompt: `${publication.prompt} stale`,
+    };
+    expect(
+      hasExactQuestionTranslation(sourceQuestion, "en", [stalePublication]),
+    ).toBe(false);
+    expect(
+      questionTranslationReviewCandidates(manifest, "en", [stalePublication]).map(
+        (candidate) => candidate.question.id,
+      ),
+    ).toContain(sourceQuestion.id);
+  });
 });
+
+function publicationFor(
+  review: QuestionTranslationReviewCandidate,
+): QuestionTranslationPublication {
+  return {
+    questionId: review.translation.questionId,
+    questionVersion: review.translation.questionVersion,
+    sourceHash: review.translation.sourceHash,
+    locale: review.locale,
+    prompt: review.translation.prompt,
+    hint: review.translation.hint,
+    answer: review.translation.answer,
+    rubric: review.translation.rubric,
+  };
+}

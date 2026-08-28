@@ -48,7 +48,12 @@ import {
   getRepoContentManifest,
   loadQuestionStoreManifest,
 } from "@/lib/content/question-store-server";
-import { localizeContentManifest } from "@/lib/content/translations";
+import { loadQuestionTranslationPublications } from "@/lib/content/question-translations.server";
+import {
+  hasExactQuestionTranslation,
+  localizeContentManifest,
+  type QuestionTranslationPublication,
+} from "@/lib/content/translations";
 import {
   isQuestionApproved,
   rowsToApprovals,
@@ -269,15 +274,21 @@ export async function POST(request: Request) {
   }
 
   let approvals: QuestionApproval[] = [];
+  let questionTranslations: QuestionTranslationPublication[] = [];
   let manifest = getRepoContentManifest();
   {
-    const [approvalsResult, overridesResult] = await Promise.all([
+    const [approvalsResult, translationsResult, overridesResult] = await Promise.all([
       supabase
         .from("question_approvals")
         .select("question_id, question_version, source_hash"),
+      loadQuestionTranslationPublications(supabase),
       loadQuestionOverrides(supabase),
     ]);
-    if (approvalsResult.error || overridesResult.error) {
+    if (
+      approvalsResult.error ||
+      translationsResult.error ||
+      overridesResult.error
+    ) {
       return Response.json(
         {
           error: "Không đọc được ngân hàng câu hỏi.",
@@ -289,14 +300,24 @@ export async function POST(request: Request) {
     approvals = rowsToApprovals(
       (approvalsResult.data ?? []) as QuestionApprovalRow[],
     );
+    questionTranslations = translationsResult.publications;
     manifest = await loadQuestionStoreManifest({
       supabase,
       overrides: overridesResult.overrides,
     });
   }
+  if (reportRequest.responseLocale === "en") {
+    manifest = {
+      ...manifest,
+      questions: manifest.questions.filter((question) =>
+        hasExactQuestionTranslation(question, "en", questionTranslations)
+      ),
+    };
+  }
   manifest = localizeContentManifest(
     manifest,
     reportRequest.responseLocale,
+    questionTranslations,
   );
 
   let resolvedV4Questions:

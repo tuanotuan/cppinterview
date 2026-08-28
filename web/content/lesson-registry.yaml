@@ -73,7 +73,7 @@ lessons:
     language: cpp
     track: cpp11
   - id: cpp11-const-pointer-lvalue-reference
-    sourcePath: cpp11/02_const pointer lvalue reference
+    sourcePath: cpp11/02_const_pointer_lvalue_reference
     order: 2
     tags:
       - const
@@ -81,7 +81,564 @@ lessons:
       - lvalue
       - reference
     prerequisites:
-      - cpp98-address-pointer
       - cpp11-toolchain
+    language: cpp
+    track: cpp11
+  - id: cpp11-scope-storage-duration-object-lifetime
+    sourcePath: cpp11/03_scope_storage_duration_object_lifetime
+    order: 3
+    tags:
+      - scope
+      - lifetime
+      - object-model
+    prerequisites:
+      - cpp11-const-pointer-lvalue-reference
+    language: cpp
+    track: cpp11
+  - id: cpp11-nullptr-std-nullptr-t
+    sourcePath: cpp11/04_nullptr_std_nullptr_t
+    order: 4
+    tags:
+      - pointer
+      - type-safety
+      - overload
+    prerequisites:
+      - cpp11-scope-storage-duration-object-lifetime
+    language: cpp
+    track: cpp11
+  - id: cpp11-auto-type-deduction
+    sourcePath: cpp11/05_auto_type_deduction
+    order: 5
+    tags:
+      - type-deduction
+      - type-safety
+    prerequisites:
+      - cpp11-nullptr-std-nullptr-t
+    language: cpp
+    track: cpp11
+  - id: cpp11-decltype-trailing-return-type
+    sourcePath: cpp11/06_decltype_trailing_return_type
+    order: 6
+    tags:
+      - type-deduction
+      - lvalue
+    prerequisites:
+      - cpp11-auto-type-deduction
+    language: cpp
+    track: cpp11
+  - id: cpp11-type-aliases-enum-class-nested-templates
+    sourcePath: cpp11/07_type_aliases_enum_class_nested_templates
+    order: 7
+    tags:
+      - alias
+      - enum
+      - templates
+    prerequisites:
+      - cpp11-decltype-trailing-return-type
+    language: cpp
+    track: cpp11
+  - id: cpp11-uniform-initialization-narrowing
+    sourcePath: cpp11/08_uniform_initialization_narrowing
+    order: 8
+    tags:
+      - initialization
+      - narrowing
+      - type-safety
+    prerequisites:
+      - cpp11-type-aliases-enum-class-nested-templates
+    language: cpp
+    track: cpp11
+  - id: cpp11-initializer-list-overload-resolution
+    sourcePath: cpp11/09_initializer_list_overload_resolution
+    order: 9
+    tags:
+      - initialization
+      - overload
+    prerequisites:
+      - cpp11-uniform-initialization-narrowing
+    language: cpp
+    track: cpp11
+  - id: cpp11-array-vector-range-for-begin-end
+    sourcePath: cpp11/10_array_vector_range_for_begin_end
+    order: 10
+    tags:
+      - array
+      - container
+      - for-each
+      - iteration
+    prerequisites:
+      - cpp11-initializer-list-overload-resolution
+    language: cpp
+    track: cpp11
+  - id: cpp11-lambda-capture-mutable-lifetime
+    sourcePath: cpp11/11_lambda_capture_mutable_lifetime
+    order: 11
+    tags:
+      - lambda
+      - capture
+      - mutable
+      - lifetime
+    prerequisites:
+      - cpp11-array-vector-range-for-begin-end
+    language: cpp
+    track: cpp11
+  - id: cpp11-classes-constructors-member-initializer-list
+    sourcePath: cpp11/12_classes_constructors_member_initializer_list
+    order: 12
+    tags:
+      - class-design
+      - constructor
+      - initialization
+    prerequisites:
+      - cpp11-lambda-capture-mutable-lifetime
+    language: cpp
+    track: cpp11
+  - id: cpp11-destructors-raii
+    sourcePath: cpp11/13_destructors_raii
+    order: 13
+    tags:
+      - lifecycle
+      - lifetime
+      - ownership
+    prerequisites:
+      - cpp11-classes-constructors-member-initializer-list
+    language: cpp
+    track: cpp11
+  - id: cpp11-copy-constructor
+    sourcePath: cpp11/14_copy_constructor
+    order: 14
+    tags:
+      - copy
+      - constructor
+      - ownership
+    prerequisites:
+      - cpp11-destructors-raii
+    language: cpp
+    track: cpp11
+  - id: cpp11-copy-assignment-rule-of-three
+    sourcePath: cpp11/15_copy_assignment_rule_of_three
+    order: 15
+    tags:
+      - assignment
+      - copy
+      - special-member-function
+    prerequisites:
+      - cpp11-copy-constructor
+    language: cpp
+    track: cpp11
+  - id: cpp11-value-categories-lvalue-rvalue-xvalue
+    sourcePath: cpp11/16_value_categories_lvalue_rvalue_xvalue
+    order: 16
+    tags:
+      - object-model
+      - lvalue
+    prerequisites:
+      - cpp11-copy-assignment-rule-of-three
+    language: cpp
+    track: cpp11
+  - id: cpp11-rvalue-references
+    sourcePath: cpp11/17_rvalue_references
+    order: 17
+    tags:
+      - reference
+      - lvalue
+      - object-model
+    prerequisites:
+      - cpp11-value-categories-lvalue-rvalue-xvalue
+    language: cpp
+    track: cpp11
+  - id: cpp11-std-move-moved-from-state
+    sourcePath: cpp11/18_std_move_moved_from_state
+    order: 18
+    tags:
+      - ownership
+      - lifetime
+      - object-model
+    prerequisites:
+      - cpp11-rvalue-references
+    language: cpp
+    track: cpp11
+  - id: cpp11-move-constructor-move-assignment
+    sourcePath: cpp11/19_move_constructor_move_assignment
+    order: 19
+    tags:
+      - special-member-function
+      - ownership
+      - lifetime
+    prerequisites:
+      - cpp11-std-move-moved-from-state
+    language: cpp
+    track: cpp11
+  - id: cpp11-rule-of-five-zero-noexcept-move
+    sourcePath: cpp11/20_rule_of_five_zero_noexcept_move
+    order: 20
+    tags:
+      - special-member-function
+      - ownership
+      - performance
+    prerequisites:
+      - cpp11-move-constructor-move-assignment
+    language: cpp
+    track: cpp11
+  - id: cpp11-defaulted-deleted-functions
+    sourcePath: cpp11/21_defaulted_deleted_functions
+    order: 21
+    tags:
+      - special-member-function
+      - class-design
+      - type-safety
+    prerequisites:
+      - cpp11-rule-of-five-zero-noexcept-move
+    language: cpp
+    track: cpp11
+  - id: cpp11-delegating-constructors-non-static-member-initializers
+    sourcePath: cpp11/22_delegating_constructors_non_static_member_initializers
+    order: 22
+    tags:
+      - constructor
+      - initialization
+      - class-design
+    prerequisites:
+      - cpp11-defaulted-deleted-functions
+    language: cpp
+    track: cpp11
+  - id: cpp11-converting-constructors-explicit-conversion
+    sourcePath: cpp11/23_converting_constructors_explicit_conversion
+    order: 23
+    tags:
+      - constructor
+      - type-safety
+      - class-design
+    prerequisites:
+      - cpp11-delegating-constructors-non-static-member-initializers
+    language: cpp
+    track: cpp11
+  - id: cpp11-unique-ptr-unique-ownership
+    sourcePath: cpp11/24_unique_ptr_unique_ownership
+    order: 24
+    tags:
+      - ownership
+      - pointer
+      - lifetime
+    prerequisites:
+      - cpp11-converting-constructors-explicit-conversion
+    language: cpp
+    track: cpp11
+  - id: cpp11-shared-ptr-weak-ptr-make-shared
+    sourcePath: cpp11/25_shared_ptr_weak_ptr_make_shared
+    order: 25
+    tags:
+      - ownership
+      - pointer
+      - lifetime
+    prerequisites:
+      - cpp11-unique-ptr-unique-ownership
+    language: cpp
+    track: cpp11
+  - id: cpp11-exception-safety-noexcept
+    sourcePath: cpp11/26_exception_safety_noexcept
+    order: 26
+    tags:
+      - invariants
+      - recovery
+      - ownership
+    prerequisites:
+      - cpp11-shared-ptr-weak-ptr-make-shared
+    language: cpp
+    track: cpp11
+  - id: cpp11-inheritance-virtual-destructor-override-final
+    sourcePath: cpp11/27_inheritance_virtual_destructor_override_final
+    order: 27
+    tags:
+      - class-design
+      - override
+      - final
+      - lifetime
+    prerequisites:
+      - cpp11-exception-safety-noexcept
+    language: cpp
+    track: cpp11
+  - id: cpp11-ref-qualified-members-inline-namespaces
+    sourcePath: cpp11/28_ref_qualified_members_inline_namespaces
+    order: 28
+    tags:
+      - class-design
+      - lvalue
+      - alias
+    prerequisites:
+      - cpp11-inheritance-virtual-destructor-override-final
+    language: cpp
+    track: cpp11
+  - id: cpp11-function-class-templates
+    sourcePath: cpp11/29_function_class_templates
+    order: 29
+    tags:
+      - templates
+      - type-safety
+    prerequisites:
+      - cpp11-ref-qualified-members-inline-namespaces
+    language: cpp
+    track: cpp11
+  - id: cpp11-template-deduction-overload-resolution
+    sourcePath: cpp11/30_template_deduction_overload_resolution
+    order: 30
+    tags:
+      - templates
+      - overload
+      - type-deduction
+    prerequisites:
+      - cpp11-function-class-templates
+    language: cpp
+    track: cpp11
+  - id: cpp11-alias-templates-type-traits
+    sourcePath: cpp11/31_alias_templates_type_traits
+    order: 31
+    tags:
+      - templates
+      - type-deduction
+      - compile-time
+    prerequisites:
+      - cpp11-template-deduction-overload-resolution
+    language: cpp
+    track: cpp11
+  - id: cpp11-constexpr-static-assert
+    sourcePath: cpp11/32_constexpr_static_assert
+    order: 32
+    tags:
+      - compile-time
+      - assertion
+      - constant
+    prerequisites:
+      - cpp11-alias-templates-type-traits
+    language: cpp
+    track: cpp11
+  - id: cpp11-sfinae-enable-if
+    sourcePath: cpp11/33_sfinae_enable_if
+    order: 33
+    tags:
+      - templates
+      - constraint
+      - overload
+    prerequisites:
+      - cpp11-constexpr-static-assert
+    language: cpp
+    track: cpp11
+  - id: cpp11-forwarding-references-reference-collapsing
+    sourcePath: cpp11/34_forwarding_references_reference_collapsing
+    order: 34
+    tags:
+      - templates
+      - reference
+      - type-deduction
+    prerequisites:
+      - cpp11-sfinae-enable-if
+    language: cpp
+    track: cpp11
+  - id: cpp11-std-forward-perfect-forwarding
+    sourcePath: cpp11/35_std_forward_perfect_forwarding
+    order: 35
+    tags:
+      - templates
+      - reference
+      - ownership
+    prerequisites:
+      - cpp11-forwarding-references-reference-collapsing
+    language: cpp
+    track: cpp11
+  - id: cpp11-variadic-templates-parameter-packs
+    sourcePath: cpp11/36_variadic_templates_parameter_packs
+    order: 36
+    tags:
+      - templates
+      - callable
+    prerequisites:
+      - cpp11-std-forward-perfect-forwarding
+    language: cpp
+    track: cpp11
+  - id: cpp11-function-pointer-functor-std-function-bind-ref
+    sourcePath: cpp11/37_function_pointer_functor_std_function_bind_ref
+    order: 37
+    tags:
+      - callable
+      - aliasing
+      - performance
+    prerequisites:
+      - cpp11-variadic-templates-parameter-packs
+    language: cpp
+    track: cpp11
+  - id: cpp11-literals-raw-strings-unicode-attributes-alignment-thread-local
+    sourcePath: cpp11/38_literals_raw_strings_unicode_attributes_alignment_thread_local
+    order: 38
+    tags:
+      - constant
+      - alignment
+      - memory
+      - type-safety
+    prerequisites:
+      - cpp11-function-pointer-functor-std-function-bind-ref
+    language: cpp
+    track: cpp11
+  - id: cpp11-sequence-containers-emplace-ownership
+    sourcePath: cpp11/39_sequence_containers_emplace_ownership
+    order: 39
+    tags:
+      - container
+      - ownership
+      - performance
+    prerequisites:
+      - cpp11-literals-raw-strings-unicode-attributes-alignment-thread-local
+    language: cpp
+    track: cpp11
+  - id: cpp11-iterator-categories-invalidation
+    sourcePath: cpp11/40_iterator_categories_invalidation
+    order: 40
+    tags:
+      - iteration
+      - container
+      - lifetime
+    prerequisites:
+      - cpp11-sequence-containers-emplace-ownership
+    language: cpp
+    track: cpp11
+  - id: cpp11-stl-numeric-algorithms-lambda
+    sourcePath: cpp11/41_stl_numeric_algorithms_lambda
+    order: 41
+    tags:
+      - algorithm
+      - lambda
+      - iteration
+    prerequisites:
+      - cpp11-iterator-categories-invalidation
+    language: cpp
+    track: cpp11
+  - id: cpp11-ordered-unordered-containers-hashing
+    sourcePath: cpp11/42_ordered_unordered_containers_hashing
+    order: 42
+    tags:
+      - container
+      - sort
+      - performance
+    prerequisites:
+      - cpp11-stl-numeric-algorithms-lambda
+    language: cpp
+    track: cpp11
+  - id: cpp11-stack-queue-priority-queue-ring-buffer
+    sourcePath: cpp11/43_stack_queue_priority_queue_ring_buffer
+    order: 43
+    tags:
+      - container
+      - priority
+      - bounds
+    prerequisites:
+      - cpp11-ordered-unordered-containers-hashing
+    language: cpp
+    track: cpp11
+  - id: cpp11-pair-tuple-tie-chrono-to-string
+    sourcePath: cpp11/44_pair_tuple_tie_chrono_to_string
+    order: 44
+    tags:
+      - timestamps
+      - alias
+      - type-safety
+    prerequisites:
+      - cpp11-stack-queue-priority-queue-ring-buffer
+    language: cpp
+    track: cpp11
+  - id: cpp11-std-thread-lifetime
+    sourcePath: cpp11/45_std_thread_lifetime
+    order: 45
+    tags:
+      - lifecycle
+      - lifetime
+      - ownership
+    prerequisites:
+      - cpp11-pair-tuple-tie-chrono-to-string
+    language: cpp
+    track: cpp11
+  - id: cpp11-mutex-locks-condition-variable
+    sourcePath: cpp11/46_mutex_locks_condition_variable
+    order: 46
+    tags:
+      - invariants
+      - lifetime
+      - sequencing
+    prerequisites:
+      - cpp11-std-thread-lifetime
+    language: cpp
+    track: cpp11
+  - id: cpp11-future-promise-async
+    sourcePath: cpp11/47_future_promise_async
+    order: 47
+    tags:
+      - lifecycle
+      - recovery
+      - ownership
+    prerequisites:
+      - cpp11-mutex-locks-condition-variable
+    language: cpp
+    track: cpp11
+  - id: cpp11-atomic-compare-and-swap
+    sourcePath: cpp11/48_atomic_compare_and_swap
+    order: 48
+    tags:
+      - mutation
+      - sequencing
+      - performance
+    prerequisites:
+      - cpp11-future-promise-async
+    language: cpp
+    track: cpp11
+  - id: cpp11-memory-model-memory-ordering
+    sourcePath: cpp11/49_memory_model_memory_ordering
+    order: 49
+    tags:
+      - sequencing
+      - memory
+      - invariants
+    prerequisites:
+      - cpp11-atomic-compare-and-swap
+    language: cpp
+    track: cpp11
+  - id: cpp11-data-race-deadlock-false-sharing
+    sourcePath: cpp11/50_data_race_deadlock_false_sharing
+    order: 50
+    tags:
+      - invariants
+      - performance
+      - memory
+    prerequisites:
+      - cpp11-memory-model-memory-ordering
+    language: cpp
+    track: cpp11
+  - id: cpp11-lock-free-spsc-queue
+    sourcePath: cpp11/51_lock_free_spsc_queue
+    order: 51
+    tags:
+      - container
+      - sequencing
+      - performance
+    prerequisites:
+      - cpp11-data-race-deadlock-false-sharing
+    language: cpp
+    track: cpp11
+  - id: cpp11-cache-locality-data-oriented-design
+    sourcePath: cpp11/52_cache_locality_data_oriented_design
+    order: 52
+    tags:
+      - performance
+      - memory
+    prerequisites:
+      - cpp11-lock-free-spsc-queue
+    language: cpp
+    track: cpp11
+  - id: cpp11-memory-pool-custom-allocator-benchmark-profiling
+    sourcePath: cpp11/53_memory_pool_custom_allocator_benchmark_profiling
+    order: 53
+    tags:
+      - memory
+      - performance
+      - ownership
+    prerequisites:
+      - cpp11-cache-locality-data-oriented-design
     language: cpp
     track: cpp11

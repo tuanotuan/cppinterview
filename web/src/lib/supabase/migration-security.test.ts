@@ -65,6 +65,35 @@ describe("database hardening migrations", () => {
     expect(sql).toContain("coach_attempts_response_locale_check");
   });
 
+  it("lets content admins publish only exact English question translations", async () => {
+    const sql = await readMigration(
+      "20260828093103_approve_question_translations.sql",
+    );
+
+    expect(sql).toContain("approved_by uuid");
+    expect(sql).toContain("references auth.users(id) on delete set null");
+    expect(sql).toContain("for insert");
+    expect(sql).toContain("for update");
+    expect(sql).toContain("(select public.is_content_admin())");
+    expect(sql).toContain("approved_by = (select auth.uid())");
+    expect(sql).toContain("translation_status = 'verified'");
+    expect(sql).toContain("locale = 'en'");
+    expect(sql).toContain(
+      "question.current_version =\n        content_question_translations.question_version",
+    );
+    expect(sql).toContain(
+      "revision.source_hash =\n        content_question_translations.source_hash",
+    );
+    expect(sql).toContain("question.lifecycle_status <> 'archived'");
+    expect(sql).toMatch(
+      /grant insert, update on table public\.content_question_translations\s+to authenticated;/,
+    );
+    expect(sql).not.toMatch(
+      /grant[^;]*delete[^;]*content_question_translations/i,
+    );
+    expect(sql).toContain("notify pgrst, 'reload schema';");
+  });
+
   it("refreshes the exact server-only public AI quota RPC contract", async () => {
     const sql = await readMigration(
       "20260809110000_refresh_public_ai_quota_rpc_contract.sql",

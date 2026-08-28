@@ -25,21 +25,37 @@ const lessonTranslationSchema = z.object({
   checklistItems: z.array(z.string().trim().min(1)),
 });
 
+const translatedAnswerSchema = z.object({
+  short: z.string().trim().min(10),
+  detailed: z.string().trim().min(20),
+});
+
+const translatedRubricSchema = z.object({
+  required: z.array(z.string().trim().min(3)).min(1),
+  bonus: z.array(z.string().trim().min(3)),
+  misconceptions: z.array(z.string().trim().min(3)),
+});
+
 const questionTranslationSchema = z.object({
   questionId: z.string().min(1),
   questionVersion: z.number().int().positive(),
   sourceHash: sourceHashSchema,
+  status: z.enum(["draft", "verified", "archived"]),
   prompt: z.string().trim().min(10),
   hint: z.string().trim().min(5),
-  answer: z.object({
-    short: z.string().trim().min(10),
-    detailed: z.string().trim().min(20),
-  }),
-  rubric: z.object({
-    required: z.array(z.string().trim().min(3)).min(1),
-    bonus: z.array(z.string().trim().min(3)),
-    misconceptions: z.array(z.string().trim().min(3)),
-  }),
+  answer: translatedAnswerSchema,
+  rubric: translatedRubricSchema,
+});
+
+const questionTranslationPublicationRowSchema = z.object({
+  question_id: z.string().min(1),
+  question_version: z.coerce.number().int().positive(),
+  source_hash: sourceHashSchema,
+  locale: z.enum(["vi", "en"]),
+  prompt: z.string().trim().min(10),
+  hint: z.string().trim().min(5),
+  answer: translatedAnswerSchema,
+  rubric: translatedRubricSchema,
 });
 
 export const contentTranslationCatalogSchema = z.object({
@@ -52,6 +68,26 @@ export const contentTranslationCatalogSchema = z.object({
 export type ContentTranslationCatalog = z.infer<
   typeof contentTranslationCatalogSchema
 >;
+export type QuestionTranslation = z.infer<typeof questionTranslationSchema>;
+export type QuestionTranslationPublication = {
+  questionId: string;
+  questionVersion: number;
+  sourceHash: string;
+  locale: Locale;
+  prompt: string;
+  hint: string;
+  answer: QuestionTranslation["answer"];
+  rubric: QuestionTranslation["rubric"];
+};
+
+export type QuestionTranslationReviewCandidate = {
+  locale: Locale;
+  translation: QuestionTranslation;
+  question: ManifestQuestion;
+};
+
+export const questionTranslationPublicationSelect =
+  "question_id, question_version, source_hash, locale, prompt, hint, answer, rubric";
 
 const curatedEnglishCatalog = contentTranslationCatalogSchema.parse(
   englishCatalogJson,
@@ -124,12 +160,79 @@ export function hasExactLessonTranslation(
 export function hasExactQuestionTranslation(
   question: ManifestQuestion,
   locale: Locale,
+  publications: readonly QuestionTranslationPublication[] = [],
 ) {
+  const translation = findExactQuestionTranslation(question, locale);
+  return translation !== null && isQuestionTranslationPublished(
+    translation,
+    locale,
+    publications,
+  );
+}
+
+export function findExactQuestionTranslation(
+  question: ManifestQuestion,
+  locale: Locale,
+): QuestionTranslation | null {
   const translation = catalogs[locale].questions.find(
     (item) => item.questionId === question.id,
   );
   return translation?.questionVersion === question.version &&
-    translation.sourceHash === question.sourceHash;
+      translation.sourceHash === question.sourceHash
+    ? translation
+    : null;
+}
+
+export function rowsToQuestionTranslationPublications(
+  rows: readonly unknown[],
+): QuestionTranslationPublication[] {
+  return rows.map((row) => {
+    const parsed = questionTranslationPublicationRowSchema.parse(row);
+    return {
+      questionId: parsed.question_id,
+      questionVersion: parsed.question_version,
+      sourceHash: parsed.source_hash,
+      locale: parsed.locale,
+      prompt: parsed.prompt,
+      hint: parsed.hint,
+      answer: parsed.answer,
+      rubric: parsed.rubric,
+    };
+  });
+}
+
+export function questionTranslationReviewCandidates(
+  manifest: ContentManifest,
+  locale: Locale,
+  publications: readonly QuestionTranslationPublication[] = [],
+): QuestionTranslationReviewCandidate[] {
+  const questions = new Map(
+    manifest.questions.map((question) => [question.id, question]),
+  );
+  return catalogs[locale].questions.flatMap((translation) => {
+    const question = questions.get(translation.questionId);
+    if (
+      !question ||
+      question.status === "archived" ||
+      translation.status !== "draft" ||
+      translation.questionVersion !== question.version ||
+      translation.sourceHash !== question.sourceHash ||
+      isQuestionTranslationPublished(translation, locale, publications)
+    ) {
+      return [];
+    }
+    return [{
+      locale,
+      translation,
+      question: {
+        ...question,
+        prompt: translation.prompt,
+        hint: translation.hint,
+        answer: translation.answer,
+        rubric: translation.rubric,
+      },
+    }];
+  });
 }
 
 /**
@@ -140,6 +243,7 @@ export function hasExactQuestionTranslation(
 export function localizeContentManifest(
   manifest: ContentManifest,
   locale: Locale,
+  publications: readonly QuestionTranslationPublication[] = [],
 ): ContentManifest {
   const catalog = catalogs[locale];
   const lessonTranslations = new Map(
@@ -175,7 +279,8 @@ export function localizeContentManifest(
       if (
         !translation ||
         translation.questionVersion !== question.version ||
-        translation.sourceHash !== question.sourceHash
+        translation.sourceHash !== question.sourceHash ||
+        !isQuestionTranslationPublished(translation, locale, publications)
       ) {
         return question;
       }
@@ -188,6 +293,40 @@ export function localizeContentManifest(
       };
     }),
   };
+}
+
+function isQuestionTranslationPublished(
+  translation: QuestionTranslation,
+  locale: Locale,
+  publications: readonly QuestionTranslationPublication[],
+) {
+  if (translation.status === "verified") return true;
+  if (translation.status === "archived") return false;
+  return publications.some(
+    (publication) =>
+      publication.locale === locale &&
+      publication.questionId === translation.questionId &&
+      publication.questionVersion === translation.questionVersion &&
+      publication.sourceHash === translation.sourceHash &&
+      publication.prompt === translation.prompt &&
+      publication.hint === translation.hint &&
+      publication.answer.short === translation.answer.short &&
+      publication.answer.detailed === translation.answer.detailed &&
+      equalStrings(
+        publication.rubric.required,
+        translation.rubric.required,
+      ) &&
+      equalStrings(publication.rubric.bonus, translation.rubric.bonus) &&
+      equalStrings(
+        publication.rubric.misconceptions,
+        translation.rubric.misconceptions,
+      ),
+  );
+}
+
+function equalStrings(left: readonly string[], right: readonly string[]) {
+  return left.length === right.length &&
+    left.every((value, index) => value === right[index]);
 }
 
 export function contentTranslationCoverage(

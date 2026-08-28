@@ -15,6 +15,7 @@ import { consumeCoachRequest } from "@/lib/ai/rate-limit";
 import { COACH_RESERVATION_USD_MICROS } from "@/lib/ai/usage";
 import { loadQuestionOverrides } from "@/lib/content/question-overrides-server";
 import { loadQuestionStoreManifest } from "@/lib/content/question-store-server";
+import { loadQuestionTranslationPublications } from "@/lib/content/question-translations.server";
 import {
   hasExactQuestionTranslation,
   localizeContentManifest,
@@ -86,13 +87,18 @@ export async function POST(request: Request) {
     );
   }
 
-  const [approvalsResult, overridesResult] = await Promise.all([
+  const [approvalsResult, translationsResult, overridesResult] = await Promise.all([
     supabase
       .from("question_approvals")
       .select("question_id, question_version, source_hash"),
+    loadQuestionTranslationPublications(supabase),
     loadQuestionOverrides(supabase),
   ]);
-  if (approvalsResult.error || overridesResult.error) {
+  if (
+    approvalsResult.error ||
+    translationsResult.error ||
+    overridesResult.error
+  ) {
     return Response.json(
       { error: "Không đọc được ngân hàng câu hỏi.", code: "question_lookup_failed" },
       { status: 502 },
@@ -105,6 +111,7 @@ export async function POST(request: Request) {
       overrides: overridesResult.overrides,
     }),
     parsed.data.responseLocale,
+    translationsResult.publications,
   );
   const approvals = rowsToApprovals(
     (approvalsResult.data ?? []) as QuestionApprovalRow[],
@@ -113,7 +120,11 @@ export async function POST(request: Request) {
     (item) =>
       item.id === parsed.data.questionId &&
       (parsed.data.responseLocale !== "en" ||
-        hasExactQuestionTranslation(item, "en")) &&
+        hasExactQuestionTranslation(
+          item,
+          "en",
+          translationsResult.publications,
+        )) &&
       item.status !== "archived" &&
       (item.status === "verified" || isQuestionApproved(item, approvals)),
   );

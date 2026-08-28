@@ -28,7 +28,10 @@ import {
 import { parseWorldQuantMissionReturn } from "@/lib/worldquant/guided-mode";
 
 import { MockInterviewApp } from "../../mock-interview/mock-interview-app";
-import { localizeContentManifest } from "@/lib/content/translations";
+import {
+  hasExactQuestionTranslation,
+  localizeContentManifest,
+} from "@/lib/content/translations";
 import type { Locale } from "@/i18n/routing";
 import { localizedAlternates } from "@/i18n/metadata";
 import { LanguageSwitcher } from "@/app/language-switcher";
@@ -83,7 +86,23 @@ export default async function MockInterviewPage({
   if (!cloud.enabled) return <MockInterviewGate mode="not-configured" />;
   if (!cloud.account) return <MockInterviewGate mode="login" />;
 
-  const manifest = localizeContentManifest(cloud.manifest, locale);
+  const localeManifest = locale === "en"
+    ? {
+        ...cloud.manifest,
+        questions: cloud.manifest.questions.filter((question) =>
+          hasExactQuestionTranslation(
+            question,
+            locale,
+            cloud.questionTranslations,
+          )
+        ),
+      }
+    : cloud.manifest;
+  const manifest = localizeContentManifest(
+    localeManifest,
+    locale,
+    cloud.questionTranslations,
+  );
   const bankQuestions = buildWorldQuantBankCatalog({
     manifest,
     approvals: cloud.approvals,

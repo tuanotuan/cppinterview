@@ -64,9 +64,11 @@ import {
   getRepoContentManifest,
   loadQuestionStoreManifest,
 } from "@/lib/content/question-store-server";
+import { loadQuestionTranslationPublications } from "@/lib/content/question-translations.server";
 import {
   hasExactQuestionTranslation,
   localizeContentManifest,
+  type QuestionTranslationPublication,
 } from "@/lib/content/translations";
 import {
   isQuestionApproved,
@@ -160,15 +162,24 @@ export async function POST(request: Request) {
   }
 
   let approvals: QuestionApproval[] = [];
+  let questionTranslations: QuestionTranslationPublication[] = [];
   let manifest = getRepoContentManifest();
+  const questionTranslationsPromise = supabase && user
+    ? loadQuestionTranslationPublications(supabase)
+    : Promise.resolve({ publications: [], error: false });
   if (supabase && isAdmin) {
-    const [approvalsResult, overridesResult] = await Promise.all([
+    const [approvalsResult, translationsResult, overridesResult] = await Promise.all([
       supabase
         .from("question_approvals")
         .select("question_id, question_version, source_hash"),
+      questionTranslationsPromise,
       loadQuestionOverrides(supabase),
     ]);
-    if (approvalsResult.error || overridesResult.error) {
+    if (
+      approvalsResult.error ||
+      translationsResult.error ||
+      overridesResult.error
+    ) {
       return Response.json(
         {
           error: "Không đọc được ngân hàng câu hỏi.",
@@ -180,21 +191,35 @@ export async function POST(request: Request) {
     approvals = rowsToApprovals(
       (approvalsResult.data ?? []) as QuestionApprovalRow[],
     );
+    questionTranslations = translationsResult.publications;
     manifest = await loadQuestionStoreManifest({
       supabase,
       overrides: overridesResult.overrides,
     });
+  } else if (supabase && user) {
+    const translationsResult = await questionTranslationsPromise;
+    if (translationsResult.error) {
+      return Response.json(
+        {
+          error: "Không đọc được ngân hàng câu hỏi.",
+          code: "approval_lookup_failed",
+        },
+        { status: 502 },
+      );
+    }
+    questionTranslations = translationsResult.publications;
   }
   manifest = localizeContentManifest(
     manifest,
     parsed.data.responseLocale,
+    questionTranslations,
   );
 
   const question = manifest.questions.find((item) => {
     if (item.id !== parsed.data.questionId) return false;
     if (
       parsed.data.responseLocale === "en" &&
-      !hasExactQuestionTranslation(item, "en")
+      !hasExactQuestionTranslation(item, "en", questionTranslations)
     ) {
       return false;
     }

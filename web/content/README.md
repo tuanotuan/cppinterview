@@ -3,15 +3,16 @@
 cppinterview is a C++-only interview-practice site. The web content pipeline
 discovers and serves lessons only from these repository roots:
 
-- `cpp98_foundation/<lesson>/knowledge.md`
-- `cpp11/<lesson>/knowledge.md`
-- `cpp20/<lesson>/knowledge.md`
+- `cpp98_foundation/<lesson>/knowledge.md` or `vi.md`
+- `cpp11/<lesson>/knowledge.md` or `vi.md`
+- `cpp20/<lesson>/knowledge.md` or `vi.md`
 
-Each lesson must be registered in `lesson-registry.yaml`. `knowledge.md` is the
-canonical lesson source. A bilingual lesson can add a sibling `en.md`; the
-content pipeline validates that it has the same section topology and generates
-an exact-revision English overlay. A sibling `main.cpp` is optional and is shown
-as supporting source material when present.
+Each lesson must be registered in `lesson-registry.yaml`. A monolingual lesson
+uses `knowledge.md`. A bilingual lesson uses canonical Vietnamese `vi.md` plus
+a sibling `en.md`; when both `vi.md` and legacy `knowledge.md` exist, `vi.md` is
+authoritative. The content pipeline validates matching section topology and
+generates an exact-revision English overlay. A sibling `main.cpp` is optional
+and is shown as supporting source material when present.
 
 ## Adding a lesson
 

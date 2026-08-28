@@ -11,7 +11,7 @@ Tài liệu ổn định để tìm đúng vùng code. Xác minh lại nếu sou
 | `web/` | App cppinterview: Next.js App Router, React, TypeScript |
 | `web/src/proxy.ts`, `web/src/i18n/` | Entry point kết hợp refresh cookie/session Supabase với định tuyến locale `vi`/`en`; API, Admin và WorldQuant được bỏ qua khỏi locale middleware |
 | `web/src/app/[locale]/layout.tsx`, `web/src/app/site-footer.tsx` | Shell learner theo locale, `html lang`, message provider, footer và mobile navigation/tracker dùng chung; Admin/WorldQuant có document layout riêng không prefix locale |
-| `web/src/messages/`, `web/src/content-translations/` | Chuỗi UI theo namespace và overlay bản dịch nội dung bind exact revision; ID/version/hash/taxonomy/code/source không bị dịch |
+| `web/src/messages/`, `web/src/content-translations/`, `web/src/lib/content/question-translations.server.ts` | Chuỗi UI theo namespace, overlay bản dịch bind exact revision và publication đã duyệt từ Supabase; ID/version/hash/taxonomy/code/source không bị dịch |
 | `web/src/app/recall-mobile-nav.tsx` | Điều hướng mobile dùng chung: Học hôm nay, Nhiệm vụ, Trung tâm chuẩn bị, Thư viện, Hồ sơ; tự ẩn ở mock/full-round để giữ không gian phỏng vấn |
 | `web/content/` | Registry lesson, question và roadmap YAML do Git quản lý; roadmap chỉ tổ chức đường học, không tạo lesson giả |
 | `web/src/generated/content-manifest.json`, `web/src/generated/lesson-translations-en.json` | Manifest và overlay lesson tiếng Anh deterministic, không sửa tay |
@@ -78,12 +78,12 @@ dùng navigation wrapper của `next-intl`, để không sinh nhầm `/vi/admin`
 | `/practice` | `[locale]/practice/page.tsx`, `practice-app.tsx`, `code-review-workspace.tsx`, `question-editor-dialog.tsx`, `confirmation-dialog.tsx` | Today workspace: CTA tiếp tục/luyện thêm, tiến độ và chỉ số ngày trước card; guest mode `?guest=1` giữ tiến độ local và mở Luna với giới hạn public 3 lượt/24 giờ, còn vùng trả lời không lặp cảnh báo trial cho tài khoản đã đăng nhập; Daily/custom study và Focus Sprint exact queue; `study=lesson-check` là kiểm tra một lần cho exact lesson, chỉ nhận ID question đã qua publication/approval filter và không rating, ghi review hay cập nhật scheduler; `/en/practice` chỉ nhận question có overlay đúng revision, đồng thời ẩn source excerpt/title lesson chưa có overlay để không fallback sang tiếng Việt; mỗi thẻ chỉ hiện hai nhãn phân loại độ khó và Text/Code theo locale, còn taxonomy nội bộ không lộ ra hoặc lọc ở UI; question overlay, toàn bộ control/modal và AI Coach dùng locale phiên hiện tại; `code_review` thay textarea bằng workspace chọn dòng, lưu annotation vào candidate answer để tồn tại qua F5 và gửi nguyên vẹn cho Coach, không lộ rubric/comment mẫu; answer không giới hạn sản phẩm, blank = chưa biết và vẫn gọi được AI, rating, scheduler, cloud sync, saved state, owner-only edit/archive thẻ và return về Guided Mission; thao tác phá hủy dùng confirmation sheet của cppinterview thay vì hộp thoại trình duyệt |
 | `/worldquant/*` | `worldquant/layout.tsx` và các module lịch sử | Workspace chuẩn bị theo một công ty cũ chỉ còn truy cập được bởi admin GitHub `tuanotuan`; người học thường bị chuyển về `/practice`. Không có entry point công khai tới vùng này. |
 | `/learn` | `[locale]/learn/page.tsx`, `[locale]/learn/[lessonId]/page.tsx` | Thư viện lesson từ manifest với UI theo locale, tổng quan bài/thẻ đã duyệt/bài có mã, tìm kiếm và chip riêng cho từng chuẩn C++98/11/14/17/20/23; chuẩn chưa có lesson bị khóa thay vì trả danh sách rỗng; reader render Markdown/code mẫu, cho đổi locale ngay tại header và đặt CTA kiểm tra câu hỏi đã duyệt ở đầu lẫn cuối bài, không còn checklist tự đánh dấu |
-| `/learn/roadmap/cpp11` | `[locale]/learn/roadmap/cpp11/page.tsx`, `app/learn/cpp11-roadmap-app.tsx`, `app/learn/cpp11-roadmap-map.tsx`, `lib/learn/cpp11-roadmap.ts` | Roadmap C++11 song ngữ gồm 53 ngày/8 chặng, render server-side thành sơ đồ node/connector ba cột ziczac trên desktop và một trục dọc trên tablet/mobile. Node có học liệu là link locale-aware mở lesson chính trong tab mới; node chưa có lesson giữ placeholder disabled. Trạng thái chỉ phản ánh học liệu `ready`/`partial`/`planned`, không đọc hay giả lập tiến độ người học |
+| `/learn/roadmap/cpp11` | `[locale]/learn/roadmap/cpp11/page.tsx`, `app/learn/cpp11-roadmap-app.tsx`, `app/learn/cpp11-roadmap-map.tsx`, `lib/learn/cpp11-roadmap.ts` | Roadmap C++11 song ngữ gồm 53 ngày/8 chặng và hiện đủ 53 lesson `ready`, render server-side thành sơ đồ node/connector ba cột ziczac trên desktop và một trục dọc trên tablet/mobile. Mỗi node là link locale-aware mở lesson chính trong tab mới. Trạng thái chỉ phản ánh coverage học liệu, không đọc hay giả lập tiến độ người học |
 | `/mock-interview` | `[locale]/mock-interview/page.tsx`, `mock-interview-app.tsx` | Phỏng vấn thử v4 toàn diện/trọng tâm 30/45/60 phút. Locale được đóng băng khi bắt đầu phiên để báo cáo và history không đổi ngôn ngữ giữa chừng. Targeted Mock v2 có hai scenario rõ nghĩa (tích hợp feed mới; chuyển đổi & sự cố), exact server-rebuilt plan và lịch sử v1 vẫn chỉ đọc; báo cáo tám tiêu chí có evidence server-canonical, deterministic gate C++/market-data/migration và không đưa ra phán quyết role-ready. Lịch sử và kế hoạch ôn tiếp vẫn tạo đúng ba việc luyện tiếp để capture vào Mistake Inbox sau durable history; desktop session rail chỉ lộ thứ tự/trạng thái trả lời, còn thanh chuyển câu/nộp bài sticky; nộp sớm, reset, thay Focus hoặc xóa history đều xác nhận trong UI |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx`, `lib/learn/tick-data-guide.ts` | Guide tick data/order book |
 | `/stats` | `stats/page.tsx`, `fsrs-shadow-panel.tsx` | Analytics học tập và FSRS-6 shadow comparison |
 | `/profile` | `profile/page.tsx`, `lib/profile/{contribution-activity,mobile-usage,profile-activity.server}.ts` | Trang cá nhân và contribution graph 53 tuần từ lượt ôn, AI coach và phỏng vấn thử đã hoàn tất; riêng admin `tuanotuan` còn có tổng thời gian cppinterview hoạt động trên điện thoại hôm nay/7/30 ngày |
-| `/admin` | `admin/page.tsx`, `admin-dashboard.tsx`, `manual-question-dialog.tsx`, `input-dialog.tsx` | Review/edit/archive question, schedule, AI/job settings và thêm câu hỏi thủ công. Ngân hàng câu hỏi chỉ tìm kiếm và lọc theo trạng thái vận hành/học; mỗi card chỉ hiện Dễ/Trung bình/Khó và Text/Code, còn taxonomy/loại câu vẫn là metadata nội bộ. Editor Admin quản lý thêm dạng đánh giá; chi tiết chỉ ở Admin mới nêu kỹ năng đo, standard, thời lượng và điều kiện test. Câu thủ công là DB-native draft có revision/audit, chỉ cần đề bài và đáp án tham khảo, không gắn lesson hay file `.md`, rồi chờ duyệt; header ưu tiên Luyện hôm nay, Thư viện, Mức bao phủ và chuẩn bị phỏng vấn; xác nhận/ràng buộc nguồn của mistake card dùng sheet/form trong UI thay vì API dialog của trình duyệt |
+| `/admin` | `admin/page.tsx`, `admin-dashboard.tsx`, `manual-question-dialog.tsx`, `input-dialog.tsx` | Review/edit/archive question, duyệt riêng bản dịch English cùng canonical ID/taxonomy, schedule, AI/job settings và thêm câu hỏi thủ công. Ngân hàng câu hỏi chỉ tìm kiếm và lọc theo trạng thái vận hành/học; mỗi card chỉ hiện Dễ/Trung bình/Khó và Text/Code, còn taxonomy/loại câu vẫn là metadata nội bộ. Editor Admin quản lý thêm dạng đánh giá; chi tiết chỉ ở Admin mới nêu kỹ năng đo, standard, thời lượng và điều kiện test. Câu thủ công là DB-native draft có revision/audit, chỉ cần đề bài và đáp án tham khảo, không gắn lesson hay file `.md`, rồi chờ duyệt; header ưu tiên Luyện hôm nay, Thư viện, Mức bao phủ và chuẩn bị phỏng vấn; xác nhận/ràng buộc nguồn của mistake card dùng sheet/form trong UI thay vì API dialog của trình duyệt |
 | `/admin/coverage` | `admin/coverage/page.tsx`, `lib/content/interview-bank.ts` | Mức bao phủ ngân hàng câu hỏi và bảng mục tiêu 300 câu C++ đã xác minh theo sáu dạng đánh giá; draft hay owner approval không được tính là verified |
 | `/auth` và `/auth/*` | `auth/page.tsx`, `auth-form.tsx`, `auth-actions.ts`, `auth/{login,callback,confirm,logout,reset-password,set-password}` | Đăng ký/đăng nhập email-mật khẩu với xác nhận email, khôi phục OTP cho email identity, cùng Google và GitHub OAuth; OAuth-only account đặt thêm mật khẩu sau khi đăng nhập tại `/auth/set-password`; mọi Supabase account đã xác thực dùng cppinterview, chỉ admin giữ GitHub identity `tuanotuan` |
 
@@ -99,6 +99,8 @@ API quan trọng:
 - `api/mistakes/{generate,preferences,resolve,ground,backfill}`: Mistake Inbox
   owner-private, grounded card generation và recovery từ Mock v4.
 - `api/questions/approve`: duyệt đúng question version + source hash.
+- `api/admin/questions/approve-translation`: admin xuất bản đúng English copy ở
+  catalog server cho exact question version/hash; không tạo question ID mới.
 - `api/admin/{questions,question-state,ai-settings,generation-jobs}`: mutation
   owner-only; `api/admin/questions/manual` tạo DB-native draft thủ công từ đề bài và đáp án tham khảo, có audit revision nhưng không cần nguồn lesson.
 - `api/admin/content-parity`: so Git manifest với DB trước cutover.
@@ -107,7 +109,7 @@ API quan trọng:
 
 | Domain | File đầu mối | Trách nhiệm |
 |---|---|---|
-| `content` | `loader.ts`, `schema.ts`, `automation.ts`, `translations.ts` | Parse canonical `knowledge.md`, kiểm tra companion `en.md` cùng topology, sinh manifest/overlay và áp bản dịch exact revision mà không đổi identity/source/code |
+| `content` | `loader.ts`, `schema.ts`, `automation.ts`, `translations.ts` | Parse canonical `vi.md` của lesson song ngữ hoặc legacy `knowledge.md`, kiểm tra companion `en.md` cùng topology, sinh manifest/overlay và chỉ áp question translation đã publication exact copy mà không đổi identity/source/code |
 | `content` | `question-store-server.ts` | Chọn `repo`/`shadow`/`db`, parity, apply override |
 | `learn` | `lesson-library.ts`, `cpp11-roadmap.ts` | Dựng catalog lesson và validate/localize registry roadmap riêng; node roadmap chỉ link lesson C++11 đã xuất bản, không tham gia discovery hay question sync |
 | `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts`, `progress-sync.ts`, `study-session.ts` | Queue Anki, rating nguyên tử, due date, streak, browser/cloud progress và draft/phase Trợ giúp → Làm lại |
@@ -140,9 +142,10 @@ tên trước khi thêm test mới.
 
 ### Lesson đến practice
 
-`knowledge.md` + optional `en.md`/code mẫu → `content/lesson-registry.yaml` →
+`knowledge.md` hoặc `vi.md` + optional `en.md`/code mẫu → `content/lesson-registry.yaml` →
 `content:refresh`/loader → generated manifest + lesson translation overlay → question store
-(`repo`, `shadow`, hoặc `db`) → private overrides + approvals → practice deck.
+(`repo`, `shadow`, hoặc `db`) → private overrides + question/translation
+approvals → practice deck.
 
 Quy tắc:
 
@@ -150,6 +153,9 @@ Quy tắc:
 - Source hash đổi thì approval cũ mất hiệu lực và question thành
   `needs_review`.
 - AI chỉ tạo `draft`; con người mới duyệt.
+- English question draft là một mục review riêng nhưng giữ canonical question
+  ID/version/hash/taxonomy. Chỉ DB publication khớp nguyên văn catalog hiện tại
+  mới mở bản dịch trong Practice, Coach và Mock; sửa copy đưa nó về chờ duyệt.
 - CTA luyện ở lesson dùng `study=lesson-check`: server lọc publication/approval
   trước khi truyền exact question ID; marker restart một lần xóa snapshot client
   đúng account/lesson khi mở lượt mới nhưng được bỏ khỏi URL để F5 có thể resume.

@@ -39,8 +39,11 @@ describe("Practice localization", () => {
       path.resolve(import.meta.dirname, "[locale]", "practice", "page.tsx"),
       "utf8",
     );
-    expect(pageSource).toContain(
-      'locale === "vi" || hasExactQuestionTranslation(question, locale)',
+    expect(pageSource).toMatch(
+      /hasExactQuestionTranslation\(\s*question,\s*locale,\s*cloud\.questionTranslations,/,
+    );
+    expect(pageSource).toMatch(
+      /localizeContentManifest\(\s*cloud\.manifest,\s*locale,\s*cloud\.questionTranslations,/,
     );
   });
 
