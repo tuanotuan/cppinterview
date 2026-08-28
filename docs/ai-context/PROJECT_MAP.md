@@ -151,8 +151,9 @@ Quy tắc:
   `needs_review`.
 - AI chỉ tạo `draft`; con người mới duyệt.
 - CTA luyện ở lesson dùng `study=lesson-check`: server lọc publication/approval
-  trước khi truyền exact question ID, còn client chỉ kiểm tra lần hiện tại và
-  không gọi rating, ghi review hay scheduler.
+  trước khi truyền exact question ID; marker restart một lần xóa snapshot client
+  đúng account/lesson khi mở lượt mới nhưng được bỏ khỏi URL để F5 có thể resume.
+  Client không gọi rating, ghi review hay scheduler.
 - Archive vẫn giữ question và history để có thể khôi phục. “Từ chối” trong hàng
   đợi là quyết định vĩnh viễn theo question ID: RPC admin ghi tombstone toàn cục,
   question store loại ID đó khỏi ngân hàng sau mọi lần sync, còn source/revision

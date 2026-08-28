@@ -62,9 +62,33 @@ export type StudySessionQuestionIdentity = {
   sourceHash: string;
 };
 
+type StudySessionStorage = Pick<Storage, "getItem" | "removeItem">;
+
+export function hydrateStudySession(
+  storage: StudySessionStorage,
+  storageKey: string,
+  identities: readonly StudySessionQuestionIdentity[],
+  options: { reset: boolean },
+): StudySession {
+  if (options.reset) {
+    try {
+      storage.removeItem(storageKey);
+    } catch {
+      // The fresh run still starts empty when browser storage is unavailable.
+    }
+    return emptyStudySession();
+  }
+
+  try {
+    return parseStudySession(storage.getItem(storageKey), identities);
+  } catch {
+    return emptyStudySession();
+  }
+}
+
 export function parseStudySession(
   raw: string | null,
-  identities: StudySessionQuestionIdentity[],
+  identities: readonly StudySessionQuestionIdentity[],
 ): StudySession {
   if (!raw) return emptyStudySession();
 
