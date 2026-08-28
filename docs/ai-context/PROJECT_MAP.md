@@ -153,7 +153,10 @@ Quy tắc:
 - CTA luyện ở lesson dùng `study=lesson-check`: server lọc publication/approval
   trước khi truyền exact question ID, còn client chỉ kiểm tra lần hiện tại và
   không gọi rating, ghi review hay scheduler.
-- Archive giữ history, không hard-delete question.
+- Archive vẫn giữ question và history để có thể khôi phục. “Từ chối” trong hàng
+  đợi là quyết định vĩnh viễn theo question ID: RPC admin ghi tombstone toàn cục,
+  question store loại ID đó khỏi ngân hàng sau mọi lần sync, còn source/revision
+  append-only chỉ được giữ làm audit và không có luồng khôi phục trên web.
 - Câu hỏi đã archive có lesson bị gỡ không vào manifest; câu hỏi còn hoạt động mà
   mất lesson làm loader fail closed thay vì âm thầm tạo orphan.
 
