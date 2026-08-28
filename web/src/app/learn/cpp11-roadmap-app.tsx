@@ -100,7 +100,7 @@ export async function Cpp11RoadmapApp({ roadmap }: { roadmap: Cpp11Roadmap }) {
         </section>
 
         <section className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#0f3a69]/12 bg-white/75 p-4 sm:p-5">
-          <LearnViewNav current="roadmap" />
+          <LearnViewNav current="roadmap" selectedStandard="cpp11" />
           <p className="max-w-2xl text-sm leading-6 text-[#526276]">
             {t("contentNote")}
           </p>

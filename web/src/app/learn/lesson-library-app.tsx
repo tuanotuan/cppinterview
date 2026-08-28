@@ -149,7 +149,7 @@ export function LessonLibraryApp({
             {t("listTitle")}
           </h2>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <LearnViewNav current="list" />
+            <LearnViewNav current="list" selectedStandard={standard} />
             <span className="font-mono text-xs text-[#526276]">
               {t("results", { count: visibleLessons.length })}
             </span>

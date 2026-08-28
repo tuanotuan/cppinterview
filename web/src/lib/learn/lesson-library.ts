@@ -33,12 +33,17 @@ const trackLabels: Record<ContentTrack, string> = {
 };
 
 export const lessonStandardFilters = [
-  { value: "cpp98", label: "C++98", track: "cpp98" },
-  { value: "cpp11", label: "C++11", track: "cpp11" },
-  { value: "cpp14", label: "C++14", track: null },
-  { value: "cpp17", label: "C++17", track: null },
-  { value: "cpp20", label: "C++20", track: "cpp20" },
-  { value: "cpp23", label: "C++23", track: null },
+  { value: "cpp98", label: "C++98", track: "cpp98", roadmapHref: null },
+  {
+    value: "cpp11",
+    label: "C++11",
+    track: "cpp11",
+    roadmapHref: "/learn/roadmap/cpp11",
+  },
+  { value: "cpp14", label: "C++14", track: null, roadmapHref: null },
+  { value: "cpp17", label: "C++17", track: null, roadmapHref: null },
+  { value: "cpp20", label: "C++20", track: "cpp20", roadmapHref: null },
+  { value: "cpp23", label: "C++23", track: null, roadmapHref: null },
 ] as const;
 
 export type LessonStandardFilter =

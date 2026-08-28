@@ -71,6 +71,22 @@ describe("lesson library", () => {
     expect(lessonTrackLabel("cpp20")).toBe("C++20");
   });
 
+  it("exposes only implemented roadmap routes", () => {
+    expect(
+      lessonStandardFilters.map(({ value, roadmapHref }) => ({
+        value,
+        roadmapHref,
+      })),
+    ).toEqual([
+      { value: "cpp98", roadmapHref: null },
+      { value: "cpp11", roadmapHref: "/learn/roadmap/cpp11" },
+      { value: "cpp14", roadmapHref: null },
+      { value: "cpp17", roadmapHref: null },
+      { value: "cpp20", roadmapHref: null },
+      { value: "cpp23", roadmapHref: null },
+    ]);
+  });
+
   it("only enables standards backed by catalog content", () => {
     const lessons = buildLessonLibrary(manifest);
 

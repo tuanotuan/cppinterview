@@ -211,7 +211,11 @@
     "views": {
       "navAria": "Choose a library view",
       "list": "Lesson list",
-      "roadmap": "C++11 roadmap"
+      "roadmap": "Roadmap",
+      "roadmapFor": "{standard} roadmap",
+      "chooseRoadmap": "Choose a roadmap version",
+      "openRoadmap": "Open roadmap",
+      "roadmapComingSoon": "Coming soon"
     },
     "reader": {
       "allLessons": "All lessons",
