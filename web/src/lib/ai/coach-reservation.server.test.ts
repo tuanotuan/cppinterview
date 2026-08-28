@@ -195,6 +195,12 @@ describe("coach evaluation request fingerprint", () => {
         candidateAnswer: "Câu trả lời khác",
       }),
     ).not.toBe(first);
+    expect(
+      coachEvaluationRequestFingerprint({
+        ...identity,
+        responseLocale: "en",
+      }),
+    ).not.toBe(first);
     expect(first).toMatch(/^[a-f0-9]{64}$/);
   });
 });

@@ -446,6 +446,13 @@ keys. Each lease is marked immediately before a provider call: expired
 undispatched work is removed for a safe retry, while dispatched ambiguous work
 becomes terminal `outcome_unknown`.
 
+For the bilingual Coach contract, also apply
+`20260828110000_localize_coach_evaluation_fingerprints.sql`. It keeps the
+evaluation fingerprint locale-bound, persists the inferred locale on
+`coach_attempts`, and treats pre-localization fingerprints as Vietnamese only.
+The function signatures remain unchanged, so this migration is compatible with
+both sides of a rolling app deployment.
+
 ## Public AI Coach access
 
 Apply `20260805100000_create_public_ai_quota_admission.sql` and
