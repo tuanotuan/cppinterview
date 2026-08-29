@@ -202,11 +202,6 @@
     "results": "{count, plural, one {# result} other {# results}}",
     "lessonNumber": "Lesson {number}",
     "sections": "{count, plural, one {# section} other {# sections}}",
-    "hasCode": "Sample code",
-    "notesOnly": "Notes only",
-    "verifiedQuestions": "{count, plural, one {# verified question} other {# verified questions}}",
-    "prerequisites": "Prerequisites: {items}",
-    "startNow": "Ready to start",
     "empty": "No lessons match the current filters.",
     "views": {
       "navAria": "Choose a library view",

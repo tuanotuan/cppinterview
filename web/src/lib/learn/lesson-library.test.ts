@@ -31,6 +31,14 @@ describe("lesson library", () => {
       ),
     ).toBe(verifiedCount);
     expect(items.some((lesson) => lesson.hasCode)).toBe(true);
+    expect(
+      items.every(
+        (lesson) =>
+          !("prerequisiteIds" in lesson) &&
+          !("sectionCount" in lesson) &&
+          !("checklistCount" in lesson),
+      ),
+    ).toBe(true);
   });
 
   it("resolves every registered prerequisite", () => {

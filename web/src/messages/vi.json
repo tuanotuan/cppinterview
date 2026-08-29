@@ -202,11 +202,6 @@
     "results": "{count} kết quả",
     "lessonNumber": "Bài {number}",
     "sections": "{count} phần",
-    "hasCode": "Có mã mẫu",
-    "notesOnly": "Chỉ ghi chú",
-    "verifiedQuestions": "{count} câu đã kiểm chứng",
-    "prerequisites": "Cần học trước: {items}",
-    "startNow": "Có thể bắt đầu ngay",
     "empty": "Không có bài nào khớp bộ lọc hiện tại.",
     "views": {
       "navAria": "Chọn cách xem thư viện",
