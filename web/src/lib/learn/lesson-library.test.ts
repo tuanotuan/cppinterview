@@ -8,6 +8,7 @@ import {
   findLesson,
   lessonMatchesStandard,
   lessonPracticeHref,
+  lessonSectionLabel,
   lessonStandardFilters,
   lessonStandardIsAvailable,
   lessonTrackLabel,
@@ -47,6 +48,18 @@ describe("lesson library", () => {
 
   it("returns null for an unknown lesson", () => {
     expect(findLesson(manifest, "missing-lesson")).toBeNull();
+  });
+
+  it("renders every section heading with exactly one ordinal", () => {
+    expect(lessonSectionLabel("1. Vấn đề nó giải quyết", 1)).toBe(
+      "1. Vấn đề nó giải quyết",
+    );
+    expect(lessonSectionLabel("2. 2. Kiến thức cần có", 2)).toBe(
+      "2. Kiến thức cần có",
+    );
+    expect(lessonSectionLabel("Scope and lifetime", 3)).toBe(
+      "3. Scope and lifetime",
+    );
   });
 
   it("builds an exact lesson practice link that round-trips safely", () => {

@@ -65,6 +65,14 @@ export function lessonTrackLabel(track: ContentTrack) {
   return trackLabels[track];
 }
 
+export function lessonSectionLabel(heading: string, number: number) {
+  const title = heading
+    .replace(/^(?:\s*\d+[.)]\s*)+/u, "")
+    .trim();
+
+  return title ? `${number}. ${title}` : `${number}.`;
+}
+
 export function lessonMatchesStandard(
   track: ContentTrack,
   filter: LessonStandardFilter,

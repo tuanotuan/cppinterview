@@ -13,6 +13,7 @@ import {
   buildLessonLibrary,
   findLesson,
   lessonPracticeHref,
+  lessonSectionLabel,
   lessonTrackLabel,
 } from "@/lib/learn/lesson-library";
 
@@ -135,7 +136,7 @@ export default async function LessonReaderPage({
                   href={`#${section.id}`}
                   className="block rounded-xl px-3 py-2 text-xs font-semibold text-[#43546a] hover:bg-white hover:text-[#16865a]"
                 >
-                  {index + 1}. {section.heading}
+                  {lessonSectionLabel(section.heading, index + 1)}
                 </a>
               ))}
               {lesson.code ? (
@@ -181,7 +182,7 @@ export default async function LessonReaderPage({
                   {t("reader.section", { number: index + 1 })}
                 </p>
                 <h2 className="mt-2 mb-5 text-2xl font-semibold tracking-tight sm:text-3xl">
-                  {section.heading}
+                  {lessonSectionLabel(section.heading, index + 1)}
                 </h2>
                 <LessonMarkdown markdown={section.bodyMarkdown} />
               </section>

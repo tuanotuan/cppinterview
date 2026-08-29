@@ -311,15 +311,11 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Bộ học liệu song ngữ C++11 ngày 01–53, C++14 ngày 01–50 và C++17 ngày 01–50
-  đạt toàn bộ `npm run validate`: content/context check, ESLint, TypeScript,
-  124 file/744 Vitest test và Next.js production build sinh 375 static page.
-  Build có đủ ba route `/[locale]/learn/roadmap/{cpp11,cpp14,cpp17}`. Regression
-  test khóa đúng ba mức khó/tag chuẩn cho mỗi lesson, exact 459 câu canonical +
-  459 English draft dùng chung ID/version/hash và toàn bộ 153 node roadmap ở
-  trạng thái `ready`. Cả 50 sample C++17 qua `g++ -std=c++17 -Wall -Wextra
-  -Wpedantic -pthread -fsyntax-only`; 150 file import khớp SHA-256 với nguồn
-  người dùng.
+- Reader lesson chuẩn hóa số thứ tự ở mục lục và tiêu đề phần từ source Markdown,
+  nên nhãn đã có số hoặc vô tình lặp vẫn chỉ hiển thị đúng một số. Thay đổi đạt
+  toàn bộ `npm run validate`: content/context check, ESLint, TypeScript, 124
+  file/745 Vitest test và Next.js production build sinh đủ 375 static page;
+  smoke production Toolchain trả HTTP 200 và không còn ordinal lặp trong HTML.
 - Hotfix Practice cho question DB stale đạt `content:check`, `context:check`,
   ESLint, TypeScript, 111 file/656 Vitest test và Next.js production build 67
   page. Regression test giữ question revision cũ trong hàng `needs_review` nhưng
