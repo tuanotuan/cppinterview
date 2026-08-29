@@ -642,3 +642,518 @@ lessons:
       - cpp11-cache-locality-data-oriented-design
     language: cpp
     track: cpp11
+  - id: cpp14-toolchain-compiler-flags-cpp14
+    sourcePath: cpp14/01_toolchain_compiler_flags_cpp14
+    language: cpp
+    track: cpp14
+    order: 1
+    tags:
+      - toolchain
+    prerequisites: []
+  - id: cpp14-auto-decltype-type-deduction-review
+    sourcePath: cpp14/02_auto_decltype_type_deduction_review
+    language: cpp
+    track: cpp14
+    order: 2
+    tags:
+      - type-deduction
+      - type-safety
+    prerequisites:
+      - cpp14-toolchain-compiler-flags-cpp14
+  - id: cpp14-value-categories-move-semantics-ownership-review
+    sourcePath: cpp14/03_value_categories_move_semantics_ownership_review
+    language: cpp
+    track: cpp14
+    order: 3
+    tags:
+      - ownership
+      - lifetime
+    prerequisites:
+      - cpp14-auto-decltype-type-deduction-review
+  - id: cpp14-lambda-capture-cpp11-review
+    sourcePath: cpp14/04_lambda_capture_cpp11_review
+    language: cpp
+    track: cpp14
+    order: 4
+    tags:
+      - lambda
+      - capture
+    prerequisites:
+      - cpp14-value-categories-move-semantics-ownership-review
+  - id: cpp14-templates-parameter-packs-type-traits-constexpr-review
+    sourcePath: cpp14/05_templates_parameter_packs_type_traits_constexpr_review
+    language: cpp
+    track: cpp14
+    order: 5
+    tags:
+      - templates
+      - compile-time
+    prerequisites:
+      - cpp14-lambda-capture-cpp11-review
+  - id: cpp14-stl-containers-iterators-algorithms-chrono-review
+    sourcePath: cpp14/06_stl_containers_iterators_algorithms_chrono_review
+    language: cpp
+    track: cpp14
+    order: 6
+    tags:
+      - container
+      - iteration
+      - algorithm
+      - timestamps
+    prerequisites:
+      - cpp14-templates-parameter-packs-type-traits-constexpr-review
+  - id: cpp14-thread-mutex-atomic-memory-model-review
+    sourcePath: cpp14/07_thread_mutex_atomic_memory_model_review
+    language: cpp
+    track: cpp14
+    order: 7
+    tags:
+      - memory
+      - sequencing
+    prerequisites:
+      - cpp14-stl-containers-iterators-algorithms-chrono-review
+  - id: cpp14-binary-literals-digit-separators
+    sourcePath: cpp14/08_binary_literals_digit_separators
+    language: cpp
+    track: cpp14
+    order: 8
+    tags:
+      - readability
+      - constant
+    prerequisites:
+      - cpp14-thread-mutex-atomic-memory-model-review
+  - id: cpp14-generic-lambda
+    sourcePath: cpp14/09_generic_lambda
+    language: cpp
+    track: cpp14
+    order: 9
+    tags:
+      - lambda
+      - templates
+    prerequisites:
+      - cpp14-binary-literals-digit-separators
+  - id: cpp14-lambda-init-capture
+    sourcePath: cpp14/10_lambda_init_capture
+    language: cpp
+    track: cpp14
+    order: 10
+    tags:
+      - lambda
+      - capture
+      - initialization
+    prerequisites:
+      - cpp14-generic-lambda
+  - id: cpp14-move-only-lambda-capture-lifetime
+    sourcePath: cpp14/11_move_only_lambda_capture_lifetime
+    language: cpp
+    track: cpp14
+    order: 11
+    tags:
+      - lambda
+      - capture
+      - ownership
+      - lifetime
+    prerequisites:
+      - cpp14-lambda-init-capture
+  - id: cpp14-function-return-type-deduction-auto
+    sourcePath: cpp14/12_function_return_type_deduction_auto
+    language: cpp
+    track: cpp14
+    order: 12
+    tags:
+      - type-deduction
+    prerequisites:
+      - cpp14-move-only-lambda-capture-lifetime
+  - id: cpp14-decltype-auto-preserve-reference
+    sourcePath: cpp14/13_decltype_auto_preserve_reference
+    language: cpp
+    track: cpp14
+    order: 13
+    tags:
+      - type-deduction
+      - reference
+    prerequisites:
+      - cpp14-function-return-type-deduction-auto
+  - id: cpp14-relaxed-constexpr-cpp14
+    sourcePath: cpp14/14_relaxed_constexpr_cpp14
+    language: cpp
+    track: cpp14
+    order: 14
+    tags:
+      - compile-time
+      - constant
+    prerequisites:
+      - cpp14-decltype-auto-preserve-reference
+  - id: cpp14-variable-templates
+    sourcePath: cpp14/15_variable_templates
+    language: cpp
+    track: cpp14
+    order: 15
+    tags:
+      - templates
+      - constant
+    prerequisites:
+      - cpp14-relaxed-constexpr-cpp14
+  - id: cpp14-deprecated-api-lifecycle
+    sourcePath: cpp14/16_deprecated_api_lifecycle
+    language: cpp
+    track: cpp14
+    order: 16
+    tags:
+      - lifecycle
+      - readability
+    prerequisites:
+      - cpp14-variable-templates
+  - id: cpp14-standard-user-defined-literals
+    sourcePath: cpp14/17_standard_user_defined_literals
+    language: cpp
+    track: cpp14
+    order: 17
+    tags:
+      - initialization
+      - type-safety
+    prerequisites:
+      - cpp14-deprecated-api-lifecycle
+  - id: cpp14-make-unique-ownership-factory
+    sourcePath: cpp14/18_make_unique_ownership_factory
+    language: cpp
+    track: cpp14
+    order: 18
+    tags:
+      - ownership
+      - initialization
+    prerequisites:
+      - cpp14-standard-user-defined-literals
+  - id: cpp14-std-exchange-move-state-transition
+    sourcePath: cpp14/19_std_exchange_move_state_transition
+    language: cpp
+    track: cpp14
+    order: 19
+    tags:
+      - mutation
+      - ownership
+    prerequisites:
+      - cpp14-make-unique-ownership-factory
+  - id: cpp14-cpp11-to-cpp14-migration-compatibility
+    sourcePath: cpp14/20_cpp11_to_cpp14_migration_compatibility
+    language: cpp
+    track: cpp14
+    order: 20
+    tags:
+      - toolchain
+      - lifecycle
+    prerequisites:
+      - cpp14-std-exchange-move-state-transition
+  - id: cpp14-object-lifetime-raii-rule-of-five-zero
+    sourcePath: cpp14/21_object_lifetime_raii_rule_of_five_zero
+    language: cpp
+    track: cpp14
+    order: 21
+    tags:
+      - lifetime
+      - ownership
+      - special-member-function
+    prerequisites:
+      - cpp14-cpp11-to-cpp14-migration-compatibility
+  - id: cpp14-api-value-reference-pointer-ownership
+    sourcePath: cpp14/22_api_value_reference_pointer_ownership
+    language: cpp
+    track: cpp14
+    order: 22
+    tags:
+      - ownership
+      - reference
+      - pointer
+    prerequisites:
+      - cpp14-object-lifetime-raii-rule-of-five-zero
+  - id: cpp14-exception-safety-noexcept
+    sourcePath: cpp14/23_exception_safety_noexcept
+    language: cpp
+    track: cpp14
+    order: 23
+    tags:
+      - invariants
+      - lifetime
+    prerequisites:
+      - cpp14-api-value-reference-pointer-ownership
+  - id: cpp14-memory-layout-alignment-padding-sized-deallocation
+    sourcePath: cpp14/24_memory_layout_alignment_padding_sized_deallocation
+    language: cpp
+    track: cpp14
+    order: 24
+    tags:
+      - memory
+      - alignment
+    prerequisites:
+      - cpp14-exception-safety-noexcept
+  - id: cpp14-sequence-containers-emplace-contiguous-memory
+    sourcePath: cpp14/25_sequence_containers_emplace_contiguous_memory
+    language: cpp
+    track: cpp14
+    order: 25
+    tags:
+      - container
+      - initialization
+      - memory
+    prerequisites:
+      - cpp14-memory-layout-alignment-padding-sized-deallocation
+  - id: cpp14-iterator-categories-invalidation-reverse-iterators
+    sourcePath: cpp14/26_iterator_categories_invalidation_reverse_iterators
+    language: cpp
+    track: cpp14
+    order: 26
+    tags:
+      - iteration
+      - container
+      - lifetime
+    prerequisites:
+      - cpp14-sequence-containers-emplace-contiguous-memory
+  - id: cpp14-stl-algorithms-generic-lambda
+    sourcePath: cpp14/27_stl_algorithms_generic_lambda
+    language: cpp
+    track: cpp14
+    order: 27
+    tags:
+      - algorithm
+      - lambda
+      - iteration
+    prerequisites:
+      - cpp14-iterator-categories-invalidation-reverse-iterators
+  - id: cpp14-numeric-algorithms-basic-statistics
+    sourcePath: cpp14/28_numeric_algorithms_basic_statistics
+    language: cpp
+    track: cpp14
+    order: 28
+    tags:
+      - algorithm
+      - performance
+    prerequisites:
+      - cpp14-stl-algorithms-generic-lambda
+  - id: cpp14-ordered-containers-transparent-comparator
+    sourcePath: cpp14/29_ordered_containers_transparent_comparator
+    language: cpp
+    track: cpp14
+    order: 29
+    tags:
+      - container
+      - sort
+    prerequisites:
+      - cpp14-numeric-algorithms-basic-statistics
+  - id: cpp14-heterogeneous-lookup
+    sourcePath: cpp14/30_heterogeneous_lookup
+    language: cpp
+    track: cpp14
+    order: 30
+    tags:
+      - container
+      - performance
+    prerequisites:
+      - cpp14-ordered-containers-transparent-comparator
+  - id: cpp14-unordered-containers-hashing-reserve-load-factor
+    sourcePath: cpp14/31_unordered_containers_hashing_reserve_load_factor
+    language: cpp
+    track: cpp14
+    order: 31
+    tags:
+      - container
+      - performance
+    prerequisites:
+      - cpp14-heterogeneous-lookup
+  - id: cpp14-queue-priority-queue-ring-buffer
+    sourcePath: cpp14/32_queue_priority_queue_ring_buffer
+    language: cpp
+    track: cpp14
+    order: 32
+    tags:
+      - container
+      - priority
+      - bounds
+    prerequisites:
+      - cpp14-unordered-containers-hashing-reserve-load-factor
+  - id: cpp14-pair-tuple-tie-get-by-type
+    sourcePath: cpp14/33_pair_tuple_tie_get_by_type
+    language: cpp
+    track: cpp14
+    order: 33
+    tags:
+      - alias
+      - type-safety
+    prerequisites:
+      - cpp14-queue-priority-queue-ring-buffer
+  - id: cpp14-function-class-template-design
+    sourcePath: cpp14/34_function_class_template_design
+    language: cpp
+    track: cpp14
+    order: 34
+    tags:
+      - templates
+      - class-design
+    prerequisites:
+      - cpp14-pair-tuple-tie-get-by-type
+  - id: cpp14-type-trait-aliases-sfinae-enable-if
+    sourcePath: cpp14/35_type_trait_aliases_sfinae_enable_if
+    language: cpp
+    track: cpp14
+    order: 35
+    tags:
+      - templates
+      - constraint
+      - type-safety
+    prerequisites:
+      - cpp14-function-class-template-design
+  - id: cpp14-variadic-templates-parameter-packs
+    sourcePath: cpp14/36_variadic_templates_parameter_packs
+    language: cpp
+    track: cpp14
+    order: 36
+    tags:
+      - templates
+      - compile-time
+    prerequisites:
+      - cpp14-type-trait-aliases-sfinae-enable-if
+  - id: cpp14-integer-sequence-index-sequence
+    sourcePath: cpp14/37_integer_sequence_index_sequence
+    language: cpp
+    track: cpp14
+    order: 37
+    tags:
+      - templates
+      - iteration
+      - compile-time
+    prerequisites:
+      - cpp14-variadic-templates-parameter-packs
+  - id: cpp14-compile-time-tables-constexpr-variable-templates
+    sourcePath: cpp14/38_compile_time_tables_constexpr_variable_templates
+    language: cpp
+    track: cpp14
+    order: 38
+    tags:
+      - compile-time
+      - constant
+    prerequisites:
+      - cpp14-integer-sequence-index-sequence
+  - id: cpp14-function-pointer-functor-generic-lambda-std-function
+    sourcePath: cpp14/39_function_pointer_functor_generic_lambda_std_function
+    language: cpp
+    track: cpp14
+    order: 39
+    tags:
+      - callable
+      - lambda
+      - performance
+    prerequisites:
+      - cpp14-compile-time-tables-constexpr-variable-templates
+  - id: cpp14-crtp-static-virtual-polymorphism
+    sourcePath: cpp14/40_crtp_static_virtual_polymorphism
+    language: cpp
+    track: cpp14
+    order: 40
+    tags:
+      - class-design
+      - templates
+      - overload
+    prerequisites:
+      - cpp14-function-pointer-functor-generic-lambda-std-function
+  - id: cpp14-thread-async-future-promise
+    sourcePath: cpp14/41_thread_async_future_promise
+    language: cpp
+    track: cpp14
+    order: 41
+    tags:
+      - callable
+      - sequencing
+    prerequisites:
+      - cpp14-crtp-static-virtual-polymorphism
+  - id: cpp14-mutex-condition-variable-shared-timed-mutex
+    sourcePath: cpp14/42_mutex_condition_variable_shared_timed_mutex
+    language: cpp
+    track: cpp14
+    order: 42
+    tags:
+      - sequencing
+      - invariants
+    prerequisites:
+      - cpp14-thread-async-future-promise
+  - id: cpp14-atomic-operations-compare-and-swap
+    sourcePath: cpp14/43_atomic_operations_compare_and_swap
+    language: cpp
+    track: cpp14
+    order: 43
+    tags:
+      - sequencing
+      - mutation
+    prerequisites:
+      - cpp14-mutex-condition-variable-shared-timed-mutex
+  - id: cpp14-cpp-memory-model-memory-ordering
+    sourcePath: cpp14/44_cpp_memory_model_memory_ordering
+    language: cpp
+    track: cpp14
+    order: 44
+    tags:
+      - sequencing
+      - memory
+    prerequisites:
+      - cpp14-atomic-operations-compare-and-swap
+  - id: cpp14-data-race-deadlock-false-sharing
+    sourcePath: cpp14/45_data_race_deadlock_false_sharing
+    language: cpp
+    track: cpp14
+    order: 45
+    tags:
+      - sequencing
+      - performance
+    prerequisites:
+      - cpp14-cpp-memory-model-memory-ordering
+  - id: cpp14-lock-free-spsc-queue
+    sourcePath: cpp14/46_lock_free_spsc_queue
+    language: cpp
+    track: cpp14
+    order: 46
+    tags:
+      - container
+      - sequencing
+      - bounds
+    prerequisites:
+      - cpp14-data-race-deadlock-false-sharing
+  - id: cpp14-cache-locality-data-oriented-design
+    sourcePath: cpp14/47_cache_locality_data_oriented_design
+    language: cpp
+    track: cpp14
+    order: 47
+    tags:
+      - memory
+      - performance
+    prerequisites:
+      - cpp14-lock-free-spsc-queue
+  - id: cpp14-memory-pool-custom-allocator-reduce-allocation
+    sourcePath: cpp14/48_memory_pool_custom_allocator_reduce_allocation
+    language: cpp
+    track: cpp14
+    order: 48
+    tags:
+      - memory
+      - performance
+      - ownership
+    prerequisites:
+      - cpp14-cache-locality-data-oriented-design
+  - id: cpp14-benchmarking-profiling-compiler-optimization
+    sourcePath: cpp14/49_benchmarking_profiling_compiler_optimization
+    language: cpp
+    track: cpp14
+    order: 49
+    tags:
+      - performance
+      - toolchain
+    prerequisites:
+      - cpp14-memory-pool-custom-allocator-reduce-allocation
+  - id: cpp14-fixed-width-binary-parsing-endianness
+    sourcePath: cpp14/50_fixed_width_binary_parsing_endianness
+    language: cpp
+    track: cpp14
+    order: 50
+    tags:
+      - binary-parsing
+      - type-safety
+      - bounds
+    prerequisites:
+      - cpp14-benchmarking-profiling-compiler-optimization

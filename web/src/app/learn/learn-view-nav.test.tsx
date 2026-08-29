@@ -63,7 +63,7 @@ describe("LearnViewNav", () => {
 
     expect(html).toContain(">Roadmap<svg");
     expect(html).toContain("Chọn phiên bản roadmap");
-    expect(roadmapLinkCount(html)).toBe(1);
+    expect(roadmapLinkCount(html)).toBe(2);
     expect(html).toContain("C++98");
     expect(html).toContain("C++23");
     expect(html).toContain('aria-disabled="true"');
@@ -76,18 +76,24 @@ describe("LearnViewNav", () => {
 
     expect(html).toContain(">Roadmap C++20<svg");
     expect(html).toContain("Sắp có");
-    expect(roadmapLinkCount(html)).toBe(1);
+    expect(roadmapLinkCount(html)).toBe(2);
   });
 
-  it("links directly to the roadmap for the selected supported standard", () => {
+  it.each([
+    ["cpp11", "/learn/roadmap/cpp11", "Roadmap C++11"],
+    ["cpp14", "/learn/roadmap/cpp14", "Roadmap C++14"],
+  ] as const)(
+    "links directly to the roadmap for the selected supported standard %s",
+    (standard, href, label) => {
     const html = renderToStaticMarkup(
-      <LearnViewNav current="list" selectedStandard="cpp11" />,
+      <LearnViewNav current="list" selectedStandard={standard} />,
     );
 
-    expect(html).toContain(">Roadmap C++11</a>");
-    expect(html).toContain('href="/learn/roadmap/cpp11"');
+    expect(html).toContain(`>${label}</a>`);
+    expect(html).toContain(`href="${href}"`);
     expect(html).not.toContain("<details");
-  });
+    },
+  );
 
   it("marks the roadmap view as the current page", () => {
     const html = renderToStaticMarkup(
@@ -106,9 +112,12 @@ describe("LearnViewNav", () => {
     expect(vietnameseMessages.Learn.views.roadmapFor).toBe(
       "Roadmap {standard}",
     );
+    expect(Object.keys(englishMessages.Cpp14Roadmap).sort()).toEqual(
+      Object.keys(vietnameseMessages.Cpp14Roadmap).sort(),
+    );
   });
 });
 
 function roadmapLinkCount(html: string) {
-  return html.match(/href="\/learn\/roadmap\/cpp11"/g)?.length ?? 0;
+  return html.match(/href="\/learn\/roadmap\/(?:cpp11|cpp14)"/g)?.length ?? 0;
 }

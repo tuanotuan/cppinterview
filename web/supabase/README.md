@@ -333,6 +333,17 @@ Apply it before deploying the matching app code. The migration is transactional;
 an error rolls the whole change back. CMake discovery and the visible deck remain
 disabled in this phase.
 
+## C++14 content track
+
+`20260829100000_add_cpp14_content_track.sql` widens the four current lesson
+standard/track check constraints to accept `cpp14`. It adds and validates the
+replacement checks before removing the old names, and does not change rows,
+generated columns, views, RLS, grants, or RPCs.
+
+Apply it before the first `content:sync` that contains the C++14 curriculum;
+otherwise the existing database checks reject the new lesson revisions. The
+migration does not publish or approve any lesson or question by itself.
+
 ## Isolated mock-interview code runner
 
 `20260729100000_create_code_execution_admission.sql` adds the atomic admission,

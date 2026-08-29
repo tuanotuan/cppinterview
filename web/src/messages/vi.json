@@ -256,6 +256,36 @@
     "lessonUnavailable": "Ngày {day}: {title}. Bài học chưa được biên soạn.",
     "backToTop": "Về đầu roadmap"
   },
+  "Cpp14Roadmap": {
+    "metaTitle": "Roadmap C++14 — cppinterview",
+    "metaDescription": "Lộ trình C++14 gồm 50 ngày, từ ôn nền tảng C++11 đến tính năng ngôn ngữ, STL, concurrency và tối ưu hiệu năng.",
+    "brandTagline": "50 ngày · C++14 thực chiến",
+    "eyebrow": "Lộ trình C++14",
+    "title": "Roadmap C++14 trong 50 ngày",
+    "description": "Đi theo đường học trực quan từ phần ôn C++11 và các bổ sung C++14 đến generic programming, concurrency, cache locality và binary parsing.",
+    "contentNote": "Trạng thái bên dưới phản ánh mức độ học liệu hiện có, không phải tiến độ học tập của bạn.",
+    "metrics": {
+      "days": "Ngày học",
+      "phases": "Chặng",
+      "available": "Ngày có học liệu"
+    },
+    "overviewTitle": "Bản đồ học C++14",
+    "overviewDescription": "Đi theo đường nối từ trái sang phải rồi vòng xuống hàng kế tiếp. Chọn node để mở thẳng bài học tương ứng trong thư viện.",
+    "legendAria": "Chú giải trạng thái học liệu",
+    "mapAria": "Bản đồ 50 ngày học C++14",
+    "start": "Bắt đầu tại đây",
+    "finish": "Hoàn thành lộ trình",
+    "coverage": {
+      "ready": "Có bài học",
+      "partial": "Một phần",
+      "planned": "Sắp có"
+    },
+    "phaseLabel": "Chặng {number}",
+    "dayLabel": "Ngày {day}",
+    "openLesson": "Mở bài học ngày {day} trong tab mới: {title}",
+    "lessonUnavailable": "Ngày {day}: {title}. Bài học chưa được biên soạn.",
+    "backToTop": "Về đầu roadmap"
+  },
   "Practice": {
     "metaTitle": "Học hôm nay — cppinterview",
     "metaDescription": "Luyện thẻ C++ theo lịch ôn, nhận phản hồi AI và lưu tiến độ học tập.",

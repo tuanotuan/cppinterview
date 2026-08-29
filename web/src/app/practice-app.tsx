@@ -198,7 +198,7 @@ const ratingOptionDefinitions: Array<{
   { value: "easy", labelKey: "easy", intervalKey: "sevenDays", tone: "lime" },
 ];
 
-type PracticeStandard = "cpp98" | "cpp11" | "cpp20";
+type PracticeStandard = "cpp98" | "cpp11" | "cpp14" | "cpp20";
 
 function useRatingOptions() {
   const t = useTranslations("Practice");

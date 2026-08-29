@@ -38,6 +38,7 @@ const storedContentLanguageSchema = z.enum(["cpp", "python", "cmake"]);
 const storedContentTrackSchema = z.enum([
   "cpp98",
   "cpp11",
+  "cpp14",
   "cpp20",
   "python3",
   "cmake",

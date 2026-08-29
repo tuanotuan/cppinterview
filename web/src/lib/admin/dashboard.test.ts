@@ -129,7 +129,7 @@ describe("admin dashboard snapshot", () => {
     ]);
   });
 
-  it("lists every C++11 English copy as an independent translation review", () => {
+  it("lists every C++11 and C++14 English copy as an independent translation review", () => {
     const repositoryManifest = contentManifestSchema.parse(repositoryManifestJson);
     const snapshot = buildAdminDashboardSnapshot(
       repositoryManifest,
@@ -139,7 +139,7 @@ describe("admin dashboard snapshot", () => {
       "2026-08-28",
     );
 
-    expect(snapshot.metrics.pendingTranslations).toBe(53 * 3);
+    expect(snapshot.metrics.pendingTranslations).toBe((53 + 50) * 3);
     const toolchainReviews = snapshot.translationReviews.filter(
       (review) => review.question.lessonId === "cpp11-toolchain",
     );
@@ -155,6 +155,19 @@ describe("admin dashboard snapshot", () => {
       expect(review.locale).toBe("en");
       expect(review.question.taxonomy.standard).toBe("cpp11");
       expect(review.question.taxonomy.tags).toContain("standard::cpp11");
+      expect(review.question.taxonomy.tags).toContain(
+        `difficulty::${review.question.difficulty}`,
+      );
+    }
+
+    const cpp14ToolchainReviews = snapshot.translationReviews.filter(
+      (review) =>
+        review.question.lessonId === "cpp14-toolchain-compiler-flags-cpp14",
+    );
+    expect(cpp14ToolchainReviews).toHaveLength(3);
+    for (const review of cpp14ToolchainReviews) {
+      expect(review.question.taxonomy.standard).toBe("cpp14");
+      expect(review.question.taxonomy.tags).toContain("standard::cpp14");
       expect(review.question.taxonomy.tags).toContain(
         `difficulty::${review.question.difficulty}`,
       );
@@ -180,7 +193,7 @@ describe("admin dashboard snapshot", () => {
       }],
     );
 
-    expect(refreshed.metrics.pendingTranslations).toBe(53 * 3 - 1);
+    expect(refreshed.metrics.pendingTranslations).toBe((53 + 50) * 3 - 1);
     expect(refreshed.translationReviews.map((review) => review.question.id)).not
       .toContain(approved.question.id);
   });

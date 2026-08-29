@@ -12,7 +12,12 @@ describe("C++-only product boundary", () => {
     expect(contentLanguageSchema.safeParse("cpp").success).toBe(true);
     expect(contentLanguageSchema.safeParse("python").success).toBe(false);
     expect(contentLanguageSchema.safeParse("cmake").success).toBe(false);
-    expect(contentTrackSchema.options).toEqual(["cpp98", "cpp11", "cpp20"]);
+    expect(contentTrackSchema.options).toEqual([
+      "cpp98",
+      "cpp11",
+      "cpp14",
+      "cpp20",
+    ]);
   });
 
   it("always selects the single C++ practice deck", () => {

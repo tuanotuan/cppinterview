@@ -3,9 +3,9 @@ import { getTranslations } from "next-intl/server";
 import { BrandMark } from "@/app/brand-mark";
 import { LanguageSwitcher } from "@/app/language-switcher";
 import {
-  Cpp11RoadmapMap,
-  type Cpp11RoadmapMapCopy,
-} from "@/app/learn/cpp11-roadmap-map";
+  CppRoadmapMap,
+  type CppRoadmapMapCopy,
+} from "@/app/learn/cpp-roadmap-map";
 import { LearnViewNav } from "@/app/learn/learn-view-nav";
 import { Link } from "@/i18n/navigation";
 import type { Cpp11Roadmap, RoadmapCoverage } from "@/lib/learn/cpp11-roadmap";
@@ -23,7 +23,7 @@ export async function Cpp11RoadmapApp({ roadmap }: { roadmap: Cpp11Roadmap }) {
   const exceptionalCoverages = (["partial", "planned"] as const).filter(
     (coverage) => roadmap.coverageCounts[coverage] > 0,
   );
-  const mapCopy: Cpp11RoadmapMapCopy = {
+  const mapCopy: CppRoadmapMapCopy = {
     mapAria: t("mapAria"),
     start: t("start"),
     finish: t("finish"),
@@ -140,7 +140,7 @@ export async function Cpp11RoadmapApp({ roadmap }: { roadmap: Cpp11Roadmap }) {
           </div>
 
           <div className="mt-7 sm:mt-8">
-            <Cpp11RoadmapMap roadmap={roadmap} copy={mapCopy} />
+            <CppRoadmapMap roadmap={roadmap} copy={mapCopy} />
           </div>
 
           <div className="mt-10 text-center">

@@ -256,6 +256,36 @@
     "lessonUnavailable": "Day {day}: {title}. This lesson has not been published yet.",
     "backToTop": "Back to roadmap top"
   },
+  "Cpp14Roadmap": {
+    "metaTitle": "C++14 roadmap — cppinterview",
+    "metaDescription": "A 50-day C++14 roadmap from a C++11 foundations review through language features, the STL, concurrency, and performance optimization.",
+    "brandTagline": "50 days · practical C++14",
+    "eyebrow": "C++14 roadmap",
+    "title": "The 50-day C++14 roadmap",
+    "description": "Follow a visual path from the C++11 review and C++14 additions through generic programming, concurrency, cache locality, and binary parsing.",
+    "contentNote": "The statuses below describe available learning material, not your personal learning progress.",
+    "metrics": {
+      "days": "Days",
+      "phases": "Phases",
+      "available": "Days with material"
+    },
+    "overviewTitle": "C++14 learning map",
+    "overviewDescription": "Follow the connectors from left to right, then continue on the next row. Select a node to open its matching library lesson.",
+    "legendAria": "Learning-material status legend",
+    "mapAria": "The 50-day C++14 learning map",
+    "start": "Start here",
+    "finish": "Roadmap complete",
+    "coverage": {
+      "ready": "Lesson ready",
+      "partial": "Partially covered",
+      "planned": "Coming soon"
+    },
+    "phaseLabel": "Phase {number}",
+    "dayLabel": "Day {day}",
+    "openLesson": "Open day {day} lesson in a new tab: {title}",
+    "lessonUnavailable": "Day {day}: {title}. This lesson has not been published yet.",
+    "backToTop": "Back to roadmap top"
+  },
   "Practice": {
     "metaTitle": "Today's practice — cppinterview",
     "metaDescription": "Practice C++ cards on schedule, get AI feedback, and keep your learning progress.",
