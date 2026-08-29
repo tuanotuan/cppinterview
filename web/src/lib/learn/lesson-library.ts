@@ -13,9 +13,6 @@ export type LessonLibraryItem = {
   track: ContentTrack;
   order: number;
   tags: string[];
-  prerequisiteIds: string[];
-  sectionCount: number;
-  checklistCount: number;
   hasCode: boolean;
   verifiedQuestionCount: number;
 };
@@ -111,9 +108,6 @@ export function buildLessonLibrary(
       track: lesson.track,
       order: lesson.order,
       tags: [...lesson.tags],
-      prerequisiteIds: [...lesson.prerequisites],
-      sectionCount: lesson.sections.length,
-      checklistCount: lesson.checklistItems.length,
       hasCode: lesson.code !== null,
       verifiedQuestionCount: verifiedCounts.get(lesson.id) ?? 0,
     }))

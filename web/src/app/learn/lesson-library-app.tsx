@@ -173,24 +173,6 @@ export function LessonLibraryApp({
                   <h3 className="mt-4 text-xl font-semibold tracking-tight group-hover:text-[#16865a]">
                     {lesson.title}
                   </h3>
-                  <div className="mt-5 flex flex-wrap gap-2 text-[10px] font-semibold text-[#526276]">
-                    <span>{t("sections", { count: lesson.sectionCount })}</span>
-                    <span>•</span>
-                    <span>{lesson.hasCode ? t("hasCode") : t("notesOnly")}</span>
-                    <span>•</span>
-                    <span>
-                      {t("verifiedQuestions", { count: lesson.verifiedQuestionCount })}
-                    </span>
-                  </div>
-                  {lesson.prerequisiteIds.length ? (
-                    <p className="mt-4 text-xs leading-5 text-[#526276]">
-                      {t("prerequisites", { items: lesson.prerequisiteIds.join(", ") })}
-                    </p>
-                  ) : (
-                    <p className="mt-4 text-xs text-[#285f86]">
-                      {t("startNow")}
-                    </p>
-                  )}
                 </Link>
               ))}
             </div>

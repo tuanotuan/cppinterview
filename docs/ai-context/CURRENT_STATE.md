@@ -305,7 +305,7 @@ trạng thái từ tên nhánh.
 ## Validation gần nhất
 
 - Bộ học liệu C++11 ngày 01–53, hàng duyệt song ngữ, cleanup 90 question ID
-  legacy và UI roadmap đạt toàn bộ `npm run validate`: content/context check,
+  legacy, card thư viện tối giản và UI roadmap đạt toàn bộ `npm run validate`: content/context check,
   ESLint, TypeScript, 118 file/712
   Vitest test và Next.js production build 171 static page. Regression test khóa
   đúng ba mức khó/tag C++11 cho từng lesson, exact 156 câu Việt + 156 English
