@@ -6,6 +6,7 @@ discovers and serves lessons only from these repository roots:
 - `cpp98_foundation/<lesson>/knowledge.md` or `vi.md`
 - `cpp11/<lesson>/knowledge.md` or `vi.md`
 - `cpp14/<lesson>/knowledge.md` or `vi.md`
+- `cpp17/<lesson>/knowledge.md` or `vi.md`
 - `cpp20/<lesson>/knowledge.md` or `vi.md`
 
 Each lesson must be registered in `lesson-registry.yaml`. A monolingual lesson
@@ -31,8 +32,9 @@ synced, nor displayed by the web product.
 
 ## Roadmaps
 
-Roadmaps are navigation metadata, not published lessons. The C++11 and C++14
-paths live in `roadmaps/cpp11.yaml` and `roadmaps/cpp14.yaml`; each owns its
+Roadmaps are navigation metadata, not published lessons. The C++11, C++14, and
+C++17 paths live in `roadmaps/cpp11.yaml`, `roadmaps/cpp14.yaml`, and
+`roadmaps/cpp17.yaml`; each owns its
 bilingual phase/day titles, objectives, prerequisite-day graph,
 content-coverage status, and links to existing lesson IDs. A `planned` day must
 not link a lesson. `ready` and `partial` days may only link lessons that already

@@ -16,6 +16,7 @@ describe("C++-only product boundary", () => {
       "cpp98",
       "cpp11",
       "cpp14",
+      "cpp17",
       "cpp20",
     ]);
   });

@@ -6,7 +6,7 @@ Tài liệu ổn định để tìm đúng vùng code. Xác minh lại nếu sou
 
 | Path | Vai trò |
 |---|---|
-| `cpp98_foundation/`, `cpp11/`, `cpp14/`, `cpp20/` | Lesson C++; mỗi thư mục bài có canonical `knowledge.md` hoặc `vi.md`, có thể thêm `en.md` song ngữ và thường có `main.cpp` |
+| `cpp98_foundation/`, `cpp11/`, `cpp14/`, `cpp17/`, `cpp20/` | Lesson C++; mỗi thư mục bài có canonical `knowledge.md` hoặc `vi.md`, có thể thêm `en.md` song ngữ và thường có `main.cpp` |
 | `python/` | Ghi chú cá nhân giữ nguyên trong repo; web không quét, đồng bộ hoặc hiển thị |
 | `web/` | App cppinterview: Next.js App Router, React, TypeScript |
 | `web/src/proxy.ts`, `web/src/i18n/` | Entry point kết hợp refresh cookie/session Supabase với định tuyến locale `vi`/`en`; API, Admin và WorldQuant được bỏ qua khỏi locale middleware |
@@ -57,7 +57,7 @@ nhật file context tương ứng theo root `AGENTS.md`.
 
 cppinterview only serves C++ lessons, questions, code exercises, and mock
 interviews. Discovery is limited to `cpp98_foundation/`, `cpp11/`, `cpp14/`,
-and `cpp20/`. Migration `20260818110000_archive_non_cpp_content.sql` archives
+`cpp17/`, and `cpp20/`. Migration `20260818110000_archive_non_cpp_content.sql` archives
 retired Python/CMake database content while preserving revision history.
 
 ## Runtime và entry points
@@ -78,7 +78,7 @@ dùng navigation wrapper của `next-intl`, để không sinh nhầm `/vi/admin`
 | `/practice` | `[locale]/practice/page.tsx`, `practice-app.tsx`, `code-review-workspace.tsx`, `question-editor-dialog.tsx`, `confirmation-dialog.tsx` | Today workspace: CTA tiếp tục/luyện thêm, tiến độ và chỉ số ngày trước card; guest mode `?guest=1` giữ tiến độ local và mở Luna với giới hạn public 3 lượt/24 giờ, còn vùng trả lời không lặp cảnh báo trial cho tài khoản đã đăng nhập; Daily/custom study và Focus Sprint exact queue; `study=lesson-check` là kiểm tra một lần cho exact lesson, chỉ nhận ID question đã qua publication/approval filter và không rating, ghi review hay cập nhật scheduler; `/en/practice` chỉ nhận question có overlay đúng revision, đồng thời ẩn source excerpt/title lesson chưa có overlay để không fallback sang tiếng Việt; mỗi thẻ chỉ hiện hai nhãn phân loại độ khó và Text/Code theo locale, còn taxonomy nội bộ không lộ ra hoặc lọc ở UI; question overlay, toàn bộ control/modal và AI Coach dùng locale phiên hiện tại; `code_review` thay textarea bằng workspace chọn dòng, lưu annotation vào candidate answer để tồn tại qua F5 và gửi nguyên vẹn cho Coach, không lộ rubric/comment mẫu; answer không giới hạn sản phẩm, blank = chưa biết và vẫn gọi được AI, rating, scheduler, cloud sync, saved state, owner-only edit/archive thẻ và return về Guided Mission; thao tác phá hủy dùng confirmation sheet của cppinterview thay vì hộp thoại trình duyệt |
 | `/worldquant/*` | `worldquant/layout.tsx` và các module lịch sử | Workspace chuẩn bị theo một công ty cũ chỉ còn truy cập được bởi admin GitHub `tuanotuan`; người học thường bị chuyển về `/practice`. Không có entry point công khai tới vùng này. |
 | `/learn` | `[locale]/learn/page.tsx`, `[locale]/learn/[lessonId]/page.tsx` | Thư viện lesson từ manifest với UI theo locale, tổng quan bài/thẻ đã duyệt/bài có mã, tìm kiếm và chip riêng cho từng chuẩn C++98/11/14/17/20/23; chuẩn chưa có lesson bị khóa thay vì trả danh sách rỗng; card danh sách chỉ giữ chuẩn C++, số bài và tiêu đề, không lặp số phần/mã mẫu/số câu hay prerequisite; reader render Markdown/code mẫu, cho đổi locale ngay tại header và đặt CTA kiểm tra câu hỏi đã duyệt ở đầu lẫn cuối bài, không còn checklist tự đánh dấu |
-| `/learn/roadmap/cpp11`, `/learn/roadmap/cpp14` | Route locale theo chuẩn, `app/learn/{cpp11,cpp14}-roadmap-app.tsx`, `app/learn/cpp-roadmap-map.tsx`, `lib/learn/{cpp11,cpp14}-roadmap.ts` | Roadmap song ngữ: C++11 có 53 ngày/8 chặng và C++14 có 50 ngày/7 chặng; cả hai chỉ link lesson `ready` đúng track và dùng chung sơ đồ node/connector ba cột ziczac trên desktop, một trục dọc trên tablet/mobile. Node mở lesson chính trong tab mới; coverage không phải tiến độ người học |
+| `/learn/roadmap/cpp11`, `/learn/roadmap/cpp14`, `/learn/roadmap/cpp17` | Route locale theo chuẩn, `app/learn/{cpp11,cpp14,cpp17}-roadmap-app.tsx`, `app/learn/cpp-roadmap-map.tsx`, `lib/learn/{cpp11,cpp14,cpp17}-roadmap.ts` | Roadmap song ngữ: C++11 có 53 ngày/8 chặng; C++14 và C++17 đều có 50 ngày/7 chặng. Cả ba chỉ link lesson `ready` đúng track và dùng chung sơ đồ node/connector ba cột ziczac trên desktop, một trục dọc trên tablet/mobile. Node mở lesson chính trong tab mới; coverage không phải tiến độ người học |
 | `/mock-interview` | `[locale]/mock-interview/page.tsx`, `mock-interview-app.tsx` | Phỏng vấn thử v4 toàn diện/trọng tâm 30/45/60 phút. Locale được đóng băng khi bắt đầu phiên để báo cáo và history không đổi ngôn ngữ giữa chừng. Targeted Mock v2 có hai scenario rõ nghĩa (tích hợp feed mới; chuyển đổi & sự cố), exact server-rebuilt plan và lịch sử v1 vẫn chỉ đọc; báo cáo tám tiêu chí có evidence server-canonical, deterministic gate C++/market-data/migration và không đưa ra phán quyết role-ready. Lịch sử và kế hoạch ôn tiếp vẫn tạo đúng ba việc luyện tiếp để capture vào Mistake Inbox sau durable history; desktop session rail chỉ lộ thứ tự/trạng thái trả lời, còn thanh chuyển câu/nộp bài sticky; nộp sớm, reset, thay Focus hoặc xóa history đều xác nhận trong UI |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx`, `lib/learn/tick-data-guide.ts` | Guide tick data/order book |
 | `/stats` | `stats/page.tsx`, `fsrs-shadow-panel.tsx` | Analytics học tập và FSRS-6 shadow comparison |
@@ -111,7 +111,7 @@ API quan trọng:
 |---|---|---|
 | `content` | `loader.ts`, `schema.ts`, `automation.ts`, `translations.ts` | Parse canonical `vi.md` của lesson song ngữ hoặc legacy `knowledge.md`, kiểm tra companion `en.md` cùng topology, sinh manifest/overlay và chỉ áp question translation đã publication exact copy mà không đổi identity/source/code |
 | `content` | `question-store-server.ts` | Chọn `repo`/`shadow`/`db`, parity, apply override |
-| `learn` | `lesson-library.ts`, `{cpp11,cpp14}-roadmap.ts` | Dựng catalog lesson và validate/localize registry roadmap riêng; node roadmap chỉ link lesson đúng track đã xuất bản, không tham gia discovery hay question sync |
+| `learn` | `lesson-library.ts`, `{cpp11,cpp14,cpp17}-roadmap.ts` | Dựng catalog lesson và validate/localize registry roadmap riêng; node roadmap chỉ link lesson đúng track đã xuất bản, không tham gia discovery hay question sync |
 | `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts`, `progress-sync.ts`, `study-session.ts` | Queue Anki, rating nguyên tử, due date, streak, browser/cloud progress và draft/phase Trợ giúp → Làm lại |
 | `practice` | `lesson-check.ts` | Validate/build link kiểm tra theo lesson, giữ đúng tập question ID đã được server publication/approval filter và completion cục bộ không tham gia lịch ôn |
 | `practice` | `repair-queue.ts`, `rescue-retry.ts`, `fsrs-shadow.ts`, `browser-storage-lock.ts` | Blank-answer Rescue → Retry, same-session repair exact identity, cross-tab mutation lock và FSRS-6 chỉ quan sát |
@@ -169,9 +169,9 @@ Quy tắc:
 
 ### Roadmap đến lesson
 
-`content/roadmaps/{cpp11,cpp14}.yaml` → validator tương ứng trong `lib/learn/`
+`content/roadmaps/{cpp11,cpp14,cpp17}.yaml` → validator tương ứng trong `lib/learn/`
 khóa số ngày, phase, dependency và lesson ID đúng track → route locale
-`/learn/roadmap/{cpp11,cpp14}` → link tới lesson reader hiện có. Thứ tự roadmap
+`/learn/roadmap/{cpp11,cpp14,cpp17}` → link tới lesson reader hiện có. Thứ tự roadmap
 độc lập với `lesson.order`; node planned không được tạo placeholder trong lesson
 registry. Coverage roadmap là trạng thái học liệu, không đọc localStorage,
 Supabase hay scheduler.

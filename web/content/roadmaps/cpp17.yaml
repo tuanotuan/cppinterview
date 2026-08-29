@@ -1,0 +1,886 @@
+schemaVersion: 1
+track: cpp17
+phases:
+  - id: cpp14-review
+    order: 1
+    title:
+      vi: Ôn nền tảng C++14
+      en: C++14 foundations review
+    summary:
+      vi: Củng cố toolchain, lifetime, deduction, template, STL và concurrency trước khi đi vào phần mở
+        rộng C++17.
+      en: Reinforce toolchains, lifetimes, deduction, templates, the STL, and concurrency before the C++17
+        additions.
+  - id: language-foundations
+    order: 2
+    title:
+      vi: Nền tảng ngôn ngữ C++17
+      en: C++17 language foundations
+    summary:
+      vi: Làm chủ initialization, structured binding, initializer trong điều kiện, namespace, inline
+        variable và attributes.
+      en: Master initialization, structured bindings, condition initializers, namespaces, inline
+        variables, and attributes.
+  - id: generic-compile-time
+    order: 3
+    title:
+      vi: Generic và compile time
+      en: Generic and compile-time programming
+    summary:
+      vi: Dùng deduction, fold, traits, if constexpr và lambda để biểu đạt generic code có contract rõ.
+      en: Use deduction, folds, traits, if constexpr, and lambdas to express generic code with explicit
+        contracts.
+  - id: object-model-migration
+    order: 4
+    title:
+      vi: Object model và migration
+      en: Object model and migration
+    summary:
+      vi: Hiểu copy elision, evaluation order, thay đổi aggregate và chiến lược chuyển từ C++14 sang
+        C++17.
+      en: Understand copy elision, evaluation order, aggregate changes, and migration from C++14 to C++17.
+  - id: standard-library
+    order: 5
+    title:
+      vi: Thư viện chuẩn C++17
+      en: The C++17 standard library
+    summary:
+      vi: Áp dụng vocabulary types, view, conversion, filesystem, chrono, node handle và các tiện ích
+        thuật toán mới.
+      en: Apply vocabulary types, views, conversion, filesystem, chrono, node handles, and new algorithm
+        utilities.
+  - id: algorithms-memory-concurrency
+    order: 6
+    title:
+      vi: Algorithm, memory và concurrency
+      en: Algorithms, memory, and concurrency
+    summary:
+      vi: Kết hợp numeric algorithm, execution policy, PMR và primitive đồng bộ với ordering có thể kiểm
+        chứng.
+      en: Combine numeric algorithms, execution policies, PMR, and synchronization primitives with
+        verifiable ordering.
+  - id: systems-performance
+    order: 7
+    title:
+      vi: Systems và hiệu năng
+      en: Systems and performance
+    summary:
+      vi: Xây dựng queue, layout dữ liệu, allocation hot path, benchmark và binary parser an toàn, đo
+        được.
+      en: Build queues, data layouts, allocation-free hot paths, benchmarks, and safe measurable binary
+        parsers.
+days:
+  - day: 1
+    phase: cpp14-review
+    title:
+      vi: Toolchain, compiler flags và chế độ C++17
+      en: Toolchain, Compiler Flags, and C++17 Mode
+    objective:
+      vi: Chỉ source code không tự chọn chuẩn ngôn ngữ, warning policy, optimizer hay input cho linker.
+        Lệnh build rõ ràng giúp mọi bài có thể lặp lại và chứng minh cú pháp C++17 thực sự được chấp
+        nhận.
+      en: Source code alone does not select a language standard, warning policy, optimizer, or linker
+        inputs. An explicit build command makes every exercise reproducible and proves that C++17
+        syntax is really accepted.
+    dependsOn: []
+    lessonIds:
+      - cpp17-toolchain-compiler-flags-cpp17
+    coverage: ready
+  - day: 2
+    phase: cpp14-review
+    title:
+      vi: Ôn object lifetime, RAII, move semantics và Rule of Zero
+      en: Reviewing Object Lifetime, RAII, Move Semantics, and Rule of Zero
+    objective:
+      vi: Đường cleanup thủ công tăng nhanh khi hàm return sớm hoặc throw. RAII gắn việc giải phóng với
+        object lifetime, còn kiểu Rule of Zero giao ownership cho member chuẩn đã cài đúng copy,
+        move và destruction.
+      en: Manual cleanup paths multiply when functions return early or throw. RAII binds release to object
+        lifetime, while Rule of Zero types delegate ownership to standard members that already
+        implement copying, moving, and destruction correctly.
+    dependsOn:
+      - 1
+    lessonIds:
+      - cpp17-object-lifetime-raii-move-rule-of-zero-review
+    coverage: ready
+  - day: 3
+    phase: cpp14-review
+    title:
+      vi: Ôn auto, decltype, generic lambda và type deduction
+      en: Reviewing auto, decltype, Generic Lambdas, and Type Deduction
+    objective:
+      vi: Kiểu phụ thuộc dài làm mờ ý định, nhưng deduction bất cẩn có thể âm thầm copy hoặc bỏ qualifier.
+        Công cụ suy luận kiểu giảm lặp chữ nhưng vẫn đòi hỏi hiểu chính xác reference và expression
+        category.
+      en: Verbose dependent types obscure intent, but careless deduction can silently copy a value or
+        discard qualifiers. C++ deduction tools remove repetition while requiring precise reasoning
+        about references and expression categories.
+    dependsOn:
+      - 2
+    lessonIds:
+      - cpp17-auto-decltype-generic-lambda-type-deduction-review
+    coverage: ready
+  - day: 4
+    phase: cpp14-review
+    title:
+      vi: Ôn templates, parameter packs, type traits và constexpr
+      en: Reviewing Templates, Parameter Packs, Type Traits, and constexpr
+    objective:
+      vi: Code tái sử dụng cần nhận nhiều kiểu mà không mất validation hay lặp thuật toán. Template mô tả
+        họ kiểu, pack biểu diễn số đối số thay đổi, trait cung cấp fact compile time và `constexpr`
+        cho phép constant evaluation.
+      en: Reusable code must accept families of types without losing validation or duplicating algorithms.
+        Templates describe the family, packs represent variable arity, traits expose compile-time
+        facts, and `constexpr` permits constant evaluation.
+    dependsOn:
+      - 3
+    lessonIds:
+      - cpp17-templates-packs-traits-constexpr-review
+    coverage: ready
+  - day: 5
+    phase: cpp14-review
+    title:
+      vi: Ôn STL containers, iterators, algorithms và callables
+      en: Reviewing STL Containers, Iterators, Algorithms, and Callables
+    objective:
+      vi: "Loop viết tay thường trộn storage, traversal, selection và transformation. STL tách trách
+        nhiệm: container sở hữu value, iterator giới hạn range, algorithm thực hiện thao tác và
+        callable tùy biến policy."
+      en: Hand-written loops repeatedly mix storage, traversal, selection, and transformation logic. The
+        STL separates these responsibilities so containers own values, iterators delimit ranges,
+        algorithms operate, and callables customize policy.
+    dependsOn:
+      - 4
+    lessonIds:
+      - cpp17-stl-containers-iterators-algorithms-callables-review
+    coverage: ready
+  - day: 6
+    phase: cpp14-review
+    title:
+      vi: Ôn thread, atomic và C++ memory model
+      en: Reviewing Threads, Atomics, and the C++ Memory Model
+    objective:
+      vi: Hai thread truy cập shared state mà không có ordering có thể tạo data race và undefined
+        behavior. Atomic cung cấp thao tác không chia cắt cùng quan hệ memory order để publish dữ
+        liệu thường an toàn.
+      en: Two threads accessing shared state without ordering can create a data race and undefined
+        behavior. Atomics provide indivisible operations and memory-order relationships that can
+        publish ordinary data safely.
+    dependsOn:
+      - 5
+    lessonIds:
+      - cpp17-thread-atomic-memory-model-review
+    coverage: ready
+  - day: 7
+    phase: language-foundations
+    title:
+      vi: Quy tắc mới của auto với braced initialization
+      en: New auto Rules with Braced Initialization
+    objective:
+      vi: Dấu brace có thể là direct-list initialization hoặc `std::initializer_list`, còn quy tắc cũ
+        khiến khác biệt dễ bất ngờ. C++17 phân biệt direct-list và copy-list nhất quán hơn.
+      en: Braces can mean direct-list initialization or an `std::initializer_list`, and older deduction
+        rules made the difference surprising. C++17 distinguishes direct-list and copy-list forms
+        more consistently.
+    dependsOn:
+      - 6
+    lessonIds:
+      - cpp17-auto-braced-initialization-rules
+    coverage: ready
+  - day: 8
+    phase: language-foundations
+    title:
+      vi: Structured bindings
+      en: Structured Bindings
+    objective:
+      vi: Truy cập kết quả tuple-like bằng nhiều lời gọi `std::get` làm mờ ý nghĩa từng thành phần.
+        Structured binding tạo tên cục bộ cho phần tử array, tuple-like hoặc aggregate phù hợp.
+      en: Accessing tuple-like results through repeated `std::get` calls hides the meaning of each
+        component. Structured bindings introduce local names for array, tuple-like, or eligible
+        aggregate elements.
+    dependsOn:
+      - 7
+    lessonIds:
+      - cpp17-structured-bindings
+    coverage: ready
+  - day: 9
+    phase: language-foundations
+    title:
+      vi: if và switch với initializer
+      en: if and switch with an Initializer
+    objective:
+      vi: Kết quả lookup hoặc parsed state thường chỉ cần tên trong một quyết định rẽ nhánh. Khai báo sớm
+        làm tên rò ra scope rộng hơn và tách initialization khỏi test.
+      en: A lookup result or parsed state often needs a name only inside one branch decision. Declaring it
+        earlier leaks that name into a wider scope and separates initialization from its test.
+    dependsOn:
+      - 8
+    lessonIds:
+      - cpp17-if-switch-with-initializer
+    coverage: ready
+  - day: 10
+    phase: language-foundations
+    title:
+      vi: Nested namespaces
+      en: Nested Namespaces
+    objective:
+      vi: Namespace hierarchy sâu trước đây cần nhiều block lồng nhau và closing brace. Boilerplate đó làm
+        boundary khó đọc và dễ tạo comment đóng scope sai.
+      en: Deep namespace hierarchies previously required repeated nested blocks with many closing braces.
+        That boilerplate made boundaries harder to scan and invited mismatched comments.
+    dependsOn:
+      - 9
+    lessonIds:
+      - cpp17-nested-namespaces
+    coverage: ready
+  - day: 11
+    phase: language-foundations
+    title:
+      vi: Inline variables và One Definition Rule
+      en: Inline Variables and the One Definition Rule
+    objective:
+      vi: Global hoặc static data định nghĩa trong header trước đây cần out-of-class definition hoặc dễ
+        gặp multiple-definition linker error. Inline variable cho phép một logical variable có
+        definition giống nhau ở nhiều translation unit.
+      en: Header-defined global or static data traditionally required an out-of-class definition or risked
+        multiple-definition linker errors. Inline variables let one logical variable be defined
+        identically in several translation units.
+    dependsOn:
+      - 10
+    lessonIds:
+      - cpp17-inline-variables-odr
+    coverage: ready
+  - day: 12
+    phase: language-foundations
+    title:
+      vi: "[[nodiscard]], [[maybe_unused]], [[fallthrough]] và __has_include"
+      en: nodiscard, maybe_unused, fallthrough, and __has_include
+    objective:
+      vi: API cần cách portable để báo ignored result, intentional non-use, switch fallthrough có chủ đích
+        và khả năng có optional header cho compiler lẫn người đọc.
+      en: APIs need portable ways to communicate ignored results, intentional non-use, deliberate switch
+        fallthrough, and optional header availability to compilers and readers.
+    dependsOn:
+      - 11
+    lessonIds:
+      - cpp17-attributes-has-include
+    coverage: ready
+  - day: 13
+    phase: generic-compile-time
+    title:
+      vi: Class template argument deduction
+      en: Class Template Argument Deduction
+    objective:
+      vi: Dựng class template thường lặp type information đã rõ từ constructor argument. Class template
+        argument deduction, hay CTAD, cho compiler suy ra template argument tại variable
+        declaration.
+      en: Constructing a class template often repeats type information already visible in constructor
+        arguments. Class template argument deduction, or CTAD, lets the compiler infer template
+        arguments at variable declarations.
+    dependsOn:
+      - 12
+    lessonIds:
+      - cpp17-class-template-argument-deduction
+    coverage: ready
+  - day: 14
+    phase: generic-compile-time
+    title:
+      vi: Deduction guides
+      en: Deduction Guides
+    objective:
+      vi: Parameter type của constructor không phải lúc nào cũng biểu diễn class-template argument mong
+        muốn. Deduction guide cung cấp mapping rõ từ initialization argument sang specialization.
+      en: A constructor's parameter types do not always express the desired class-template arguments. A
+        deduction guide supplies an explicit mapping from initialization arguments to a
+        specialization.
+    dependsOn:
+      - 13
+    lessonIds:
+      - cpp17-deduction-guides
+    coverage: ready
+  - day: 15
+    phase: generic-compile-time
+    title:
+      vi: Non-type template parameters với auto
+      en: Non-Type Template Parameters with auto
+    objective:
+      vi: Non-type template parameter trước đây yêu cầu ghi type cụ thể dù value đã làm type rõ. C++17 cho
+        phép `auto` để một template nhận nhiều constant-value type được hỗ trợ.
+      en: Non-type template parameters previously required spelling a specific parameter type, even when
+        the value itself made that type clear. C++17 permits `auto` so one template can accept
+        several supported constant-value types.
+    dependsOn:
+      - 14
+    lessonIds:
+      - cpp17-auto-non-type-template-parameters
+    coverage: ready
+  - day: 16
+    phase: generic-compile-time
+    title:
+      vi: Fold expressions
+      en: Fold Expressions
+    objective:
+      vi: Áp dụng một operator cho mọi phần tử parameter pack trước đây cần overload đệ quy và base case.
+        Fold expression biểu diễn reduction trực tiếp và thường tạo diagnostic ngắn hơn.
+      en: Applying one operator to every element of a parameter pack previously required recursive
+        overloads and a base case. Fold expressions express that reduction directly and usually
+        produce shorter diagnostics.
+    dependsOn:
+      - 15
+    lessonIds:
+      - cpp17-fold-expressions
+    coverage: ready
+  - day: 17
+    phase: generic-compile-time
+    title:
+      vi: std::void_t, conjunction, disjunction và callable type traits
+      en: void_t, conjunction, disjunction, and Callable Type Traits
+    objective:
+      vi: Generic code cần hỏi type có expression nào đó không, nhiều constraint có cùng đúng không và
+        callable có nhận signature cho trước không mà không gây hard compile error.
+      en: Generic code needs to ask whether types provide an expression, whether several constraints hold,
+        and whether a callable accepts a given signature without causing a hard compilation error.
+    dependsOn:
+      - 16
+    lessonIds:
+      - cpp17-void-t-logical-callable-traits
+    coverage: ready
+  - day: 18
+    phase: generic-compile-time
+    title:
+      vi: if constexpr
+      en: if constexpr
+    objective:
+      vi: Template có thể cần implementation khác nhau theo type category. `if` thường vẫn yêu cầu cả hai
+        branch hợp lệ sau instantiation dù một branch không bao giờ chạy.
+      en: A template may need different implementations for different type categories. A normal `if` still
+        requires both branches to be well formed after instantiation, even when one can never
+        execute.
+    dependsOn:
+      - 17
+    lessonIds:
+      - cpp17-if-constexpr
+    coverage: ready
+  - day: 19
+    phase: generic-compile-time
+    title:
+      vi: constexpr lambda
+      en: constexpr Lambdas
+    objective:
+      vi: Computation cục bộ nhỏ dùng trong constant expression trước đây cần function có tên riêng. C++17
+        cho call operator phù hợp của lambda tham gia constant evaluation.
+      en: Small local computations used in constant expressions previously needed separate named
+        functions. C++17 lets suitable lambda call operators participate in constant evaluation.
+    dependsOn:
+      - 18
+    lessonIds:
+      - cpp17-constexpr-lambdas
+    coverage: ready
+  - day: 20
+    phase: generic-compile-time
+    title:
+      vi: Lambda capture *this và object lifetime
+      en: Lambda Capture *this and Object Lifetime
+    objective:
+      vi: Capture `this` chỉ copy pointer, nên callback sống lâu hơn object có thể dereference dangling
+        pointer. C++17 thêm `[*this]` để capture snapshot của object theo value.
+      en: Capturing `this` copies only a pointer, so a callback that outlives its object can dereference a
+        dangling pointer. C++17 adds `[*this]` to capture a snapshot of the object by value.
+    dependsOn:
+      - 19
+    lessonIds:
+      - cpp17-lambda-capture-star-this-lifetime
+    coverage: ready
+  - day: 21
+    phase: object-model-migration
+    title:
+      vi: Guaranteed copy elision và prvalue materialization
+      en: Guaranteed Copy Elision and prvalue Materialization
+    objective:
+      vi: Return object mới theo value từng có vẻ phụ thuộc optional optimization và move constructor truy
+        cập được. C++17 định nghĩa lại các trường hợp prvalue quan trọng để destination object được
+        khởi tạo trực tiếp.
+      en: Returning a fresh object by value once appeared to depend on an optional optimization and an
+        accessible move constructor. C++17 redefines important prvalue cases so the destination
+        object is initialized directly.
+    dependsOn:
+      - 20
+    lessonIds:
+      - cpp17-guaranteed-copy-elision-prvalue-materialization
+    coverage: ready
+  - day: 22
+    phase: object-model-migration
+    title:
+      vi: Evaluation order và noexcept trong function type
+      en: Evaluation Order and noexcept in Function Types
+    objective:
+      vi: Evaluation operand không rõ có thể làm side effect bất ngờ, còn exception specification trước
+        đây tham gia hạn chế vào type relationship. C++17 tăng một số sequencing rule và đưa
+        `noexcept` vào function type.
+      en: Unclear operand evaluation can make side effects surprising, while exception specifications
+        previously had limited participation in type relationships. C++17 strengthens several
+        sequencing rules and makes `noexcept` part of a function type.
+    dependsOn:
+      - 21
+    lessonIds:
+      - cpp17-evaluation-order-noexcept-function-type
+    coverage: ready
+  - day: 23
+    phase: object-model-migration
+    title:
+      vi: UTF-8 character literals, enum initialization và aggregate changes
+      en: UTF-8 Character Literals, Enum Initialization, and Aggregate Changes
+    objective:
+      vi: "Một số thay đổi nhỏ của C++17 làm notation dữ liệu và aggregate construction đều hơn: UTF-8
+        character literal, direct-list initialization enum có fixed underlying type và aggregate
+        class có public base."
+      en: "Several small C++17 language changes make data notation and aggregate construction more
+        regular: UTF-8 character literals, direct-list initialization of scoped enums with fixed
+        underlying types, and aggregate classes with public bases."
+    dependsOn:
+      - 22
+    lessonIds:
+      - cpp17-utf8-enum-aggregate-changes
+    coverage: ready
+  - day: 24
+    phase: object-model-migration
+    title:
+      vi: Migration từ C++14 sang C++17 và compiler compatibility
+      en: Migrating from C++14 to C++17 and Compiler Compatibility
+    objective:
+      vi: Đổi standard flag có thể thay language rule, library availability, warning, ABI assumption và
+        dependency requirement. Migration cần build matrix được audit chứ không chỉ
+        search-and-replace.
+      en: Changing a standard flag can alter language rules, library availability, warnings, ABI
+        assumptions, and dependency requirements. Migration needs an audited build matrix rather
+        than a search-and-replace exercise.
+    dependsOn:
+      - 23
+    lessonIds:
+      - cpp17-cpp14-to-cpp17-migration-compatibility
+    coverage: ready
+  - day: 25
+    phase: standard-library
+    title:
+      vi: std::optional và biểu diễn giá trị có thể vắng mặt
+      en: std::optional and Representing an Absent Value
+    objective:
+      vi: Sentinel như minus one làm quá tải value domain và caller dễ quên kiểm tra. `std::optional<T>`
+        biểu diễn rõ hoặc có live `T` hoặc không có value.
+      en: Sentinel values such as minus one overload the value domain and can be forgotten by callers.
+        `std::optional<T>` explicitly represents either a live `T` or no value.
+    dependsOn:
+      - 24
+    lessonIds:
+      - cpp17-optional-absent-value
+    coverage: ready
+  - day: 26
+    phase: standard-library
+    title:
+      vi: std::variant và std::visit
+      en: std::variant and std::visit
+    objective:
+      vi: Value có thể hợp lệ ở một trong nhiều type đã biết, nhưng union cần theo dõi lifetime thủ công
+        còn base-class polymorphism thêm allocation hoặc hierarchy. `std::variant` là tagged union
+        type-safe.
+      en: A value may validly be one of several known types, but unions require manual lifetime tracking
+        and base-class polymorphism adds allocation or hierarchy constraints. `std::variant`
+        provides a type-safe tagged union.
+    dependsOn:
+      - 25
+    lessonIds:
+      - cpp17-variant-visit
+    coverage: ready
+  - day: 27
+    phase: standard-library
+    title:
+      vi: std::any và type erasure
+      en: std::any and Type Erasure
+    objective:
+      vi: Một số extension hoặc metadata boundary cần mang copyable value mà receiving container chưa biết
+        type. `std::any` xóa concrete type khỏi interface nhưng giữ runtime type checking an toàn.
+      en: Some extension or metadata boundaries must carry a copyable value whose type is not known to the
+        receiving container. `std::any` erases that concrete type while preserving safe runtime type
+        checking.
+    dependsOn:
+      - 26
+    lessonIds:
+      - cpp17-any-type-erasure
+    coverage: ready
+  - day: 28
+    phase: standard-library
+    title:
+      vi: std::string_view và non-owning lifetime
+      en: std::string_view and Non-Owning Lifetime
+    objective:
+      vi: Xử lý string read-only thường chỉ cần character range, nhưng nhận hay tạo `std::string` value có
+        thể allocate và copy. `std::string_view` biểu diễn view non-owning rẻ.
+      en: Read-only string processing often needs only a character range, yet taking or creating
+        `std::string` values can allocate and copy. `std::string_view` represents a cheap non-owning
+        view.
+    dependsOn:
+      - 27
+    lessonIds:
+      - cpp17-string-view-non-owning-lifetime
+    coverage: ready
+  - day: 29
+    phase: standard-library
+    title:
+      vi: std::invoke và std::apply
+      en: std::invoke and std::apply
+    objective:
+      vi: Generic code cần gọi thống nhất function, function object, member function và member-data
+        pointer. Argument giữ trong tuple cũng cần expand vào call mà không viết index thủ công.
+      en: Generic code must uniformly call functions, function objects, member functions, and member-data
+        pointers. Tuple-held arguments also need expansion into a call without hand-written index
+        plumbing.
+    dependsOn:
+      - 28
+    lessonIds:
+      - cpp17-invoke-apply
+    coverage: ready
+  - day: 30
+    phase: standard-library
+    title:
+      vi: std::byte và object representation
+      en: std::byte and Object Representation
+    objective:
+      vi: Raw memory thường được biểu diễn bằng character integer vô tình cho phép arithmetic. `std::byte`
+        biểu diễn byte của object representation và hỗ trợ bit operation mà không giả là number.
+      en: Raw memory is often represented with character integers that accidentally allow arithmetic.
+        `std::byte` expresses a byte of object representation and supports bit operations without
+        pretending to be a number.
+    dependsOn:
+      - 29
+    lessonIds:
+      - cpp17-byte-object-representation
+    coverage: ready
+  - day: 31
+    phase: standard-library
+    title:
+      vi: std::to_chars và std::from_chars
+      en: std::to_chars and std::from_chars
+    objective:
+      vi: Stream và conversion phụ thuộc locale có thể nặng hoặc khó dự đoán hơn nhu cầu parse số
+        low-level. Character-conversion function thao tác trên buffer rõ, không allocation, locale
+        hay exception.
+      en: Streams and locale-aware conversions can be heavier or less predictable than low-level numeric
+        parsing needs. Character-conversion functions operate on explicit buffers without
+        allocation, locale, or exceptions.
+    dependsOn:
+      - 30
+    lessonIds:
+      - cpp17-to-chars-from-chars
+    coverage: ready
+  - day: 32
+    phase: standard-library
+    title:
+      vi: std::filesystem
+      en: std::filesystem
+    objective:
+      vi: Path manipulation và directory operation portable trước đây phụ thuộc platform API hoặc
+        third-party library. C++17 chuẩn hóa path, status query, iteration và file operation thông
+        dụng.
+      en: Portable path manipulation and directory operations previously depended on platform APIs or
+        third-party libraries. C++17 standardizes paths, status queries, iteration, and common file
+        operations.
+    dependsOn:
+      - 31
+    lessonIds:
+      - cpp17-filesystem
+    coverage: ready
+  - day: 33
+    phase: standard-library
+    title:
+      vi: Chrono rounding, floor, ceil và time-point conversion
+      en: Chrono Rounding, floor, ceil, and Time-Point Conversion
+    objective:
+      vi: Cast duration chỉ truncate về zero, nhưng ứng dụng thường cần floor, ceiling hoặc nearest rõ.
+        C++17 thêm chrono rounding operation có tên để ý định nhìn thấy được.
+      en: Casting a duration simply truncates toward zero, but applications often need explicit floor,
+        ceiling, or nearest rounding. C++17 adds named chrono rounding operations and makes intent
+        visible.
+    dependsOn:
+      - 32
+    lessonIds:
+      - cpp17-chrono-rounding-time-point-conversion
+    coverage: ready
+  - day: 34
+    phase: standard-library
+    title:
+      vi: Map/set node handles, extract và merge
+      en: Map/Set Node Handles, extract, and merge
+    objective:
+      vi: Chuyển element giữa associative container hoặc đổi map key trước đây cần allocation và
+        reconstruction vì key là const qua iterator. C++17 cung cấp detached node bằng handle có
+        ownership.
+      en: Moving elements between associative containers or changing a map key traditionally required
+        allocation and reconstruction because keys are const through iterators. C++17 exposes
+        detached nodes with ownership-aware handles.
+    dependsOn:
+      - 33
+    lessonIds:
+      - cpp17-map-set-node-handles-extract-merge
+    coverage: ready
+  - day: 35
+    phase: standard-library
+    title:
+      vi: std::size, std::data, std::empty, std::as_const và weak_from_this
+      en: size, data, empty, as_const, and weak_from_this
+    objective:
+      vi: Generic code cần inspect built-in array và container thống nhất, yêu cầu const access rõ và
+        observe shared object mà không kéo dài ownership. C++17 thêm utility nhỏ cho từng nhu cầu.
+      en: Generic code should inspect built-in arrays and containers uniformly, request const access
+        explicitly, and observe shared objects without extending ownership. C++17 adds small
+        utilities for each need.
+    dependsOn:
+      - 34
+    lessonIds:
+      - cpp17-size-data-empty-as-const-weak-from-this
+    coverage: ready
+  - day: 36
+    phase: standard-library
+    title:
+      vi: std::clamp, std::sample, std::not_fn, std::gcd và std::lcm
+      en: clamp, sample, not_fn, gcd, and lcm
+    objective:
+      vi: Operation nhỏ thông dụng thường được viết lại với lỗi boundary, randomness, predicate hoặc
+        arithmetic tinh tế. C++17 thêm vocabulary chuẩn cho clamp, sample, negate predicate,
+        greatest common divisor và least common multiple.
+      en: Small common operations are often rewritten with subtle boundary, randomness, predicate, or
+        arithmetic mistakes. C++17 adds standard vocabulary for clamping, sampling, predicate
+        negation, greatest common divisors, and least common multiples.
+    dependsOn:
+      - 35
+    lessonIds:
+      - cpp17-clamp-sample-not-fn-gcd-lcm
+    coverage: ready
+  - day: 37
+    phase: algorithms-memory-concurrency
+    title:
+      vi: std::reduce và std::transform_reduce
+      en: std::reduce and std::transform_reduce
+    objective:
+      vi: Numeric workload cần reduction có thể reorganize hoặc chạy dưới execution policy, cùng operation
+        fuse transform-and-reduce như dot product. C++17 chuẩn hóa cả hai.
+      en: Numeric workloads need reductions that may be reorganized or executed under policies, plus fused
+        transform-and-reduce operations such as dot products. C++17 standardizes both.
+    dependsOn:
+      - 36
+    lessonIds:
+      - cpp17-reduce-transform-reduce
+    coverage: ready
+  - day: 38
+    phase: algorithms-memory-concurrency
+    title:
+      vi: Inclusive scan, exclusive scan và transform scan
+      en: Inclusive, Exclusive, and Transform Scans
+    objective:
+      vi: "Nhiều algorithm cần mọi prefix result thay vì một final reduction: running total, offset,
+        cumulative product và transformed prefix. C++17 cung cấp scan algorithm cho các pattern
+        này."
+      en: "Many algorithms need every prefix result rather than one final reduction: running totals,
+        offsets, cumulative products, and transformed prefixes. C++17 supplies scan algorithms for
+        these patterns."
+    dependsOn:
+      - 37
+    lessonIds:
+      - cpp17-inclusive-exclusive-transform-scans
+    coverage: ready
+  - day: 39
+    phase: algorithms-memory-concurrency
+    title:
+      vi: Parallel algorithms và execution policies
+      en: Parallel Algorithms and Execution Policies
+    objective:
+      vi: Data-parallel loop khó schedule portable bằng tay. C++17 thêm overload nhận execution policy để
+        standard algorithm chọn sequential, parallel hoặc parallel-unsequenced execution.
+      en: Data-parallel loops are difficult to schedule portably by hand. C++17 adds execution-policy
+        overloads that let standard algorithms choose sequential, parallel, or parallel-unsequenced
+        execution.
+    dependsOn:
+      - 38
+    lessonIds:
+      - cpp17-parallel-algorithms-execution-policies
+    coverage: ready
+  - day: 40
+    phase: algorithms-memory-concurrency
+    title:
+      vi: std::pmr và polymorphic memory resources
+      en: std::pmr and Polymorphic Memory Resources
+    objective:
+      vi: Allocator type thường trở thành một phần static type của container, khiến đổi allocation policy
+        runtime khó. Polymorphic allocator C++17 định tuyến allocation qua interface
+        `memory_resource` runtime.
+      en: Allocator types normally become part of a container's static type, making runtime
+        allocation-policy changes awkward. C++17 polymorphic allocators route allocation through a
+        runtime `memory_resource` interface.
+    dependsOn:
+      - 39
+    lessonIds:
+      - cpp17-pmr-polymorphic-memory-resources
+    coverage: ready
+  - day: 41
+    phase: algorithms-memory-concurrency
+    title:
+      vi: std::shared_mutex và std::scoped_lock
+      en: std::shared_mutex and std::scoped_lock
+    objective:
+      vi: Read-heavy state có thể serialize mọi reader sau exclusive mutex không cần thiết, còn acquire
+        nhiều mutex thủ công dễ sai order và deadlock. C++17 chuẩn hóa shared ownership và variadic
+        scoped locking.
+      en: Read-heavy state can unnecessarily serialize all readers behind an exclusive mutex, while
+        acquiring several mutexes manually risks inconsistent order and deadlock. C++17 standardizes
+        shared ownership and variadic scoped locking.
+    dependsOn:
+      - 40
+    lessonIds:
+      - cpp17-shared-mutex-scoped-lock
+    coverage: ready
+  - day: 42
+    phase: algorithms-memory-concurrency
+    title:
+      vi: Thread, future, promise và asynchronous pipeline
+      en: Threads, Futures, Promises, and an Asynchronous Pipeline
+    objective:
+      vi: Stage bất đồng bộ cần chuyển value hoặc exception mà không tự share mutable result storage.
+        Future biểu diễn eventual result, còn promise cung cấp producer endpoint.
+      en: Asynchronous stages need to transfer either a value or an exception without sharing mutable
+        result storage manually. Futures represent eventual results, and promises provide a producer
+        endpoint.
+    dependsOn:
+      - 41
+    lessonIds:
+      - cpp17-thread-future-promise-async-pipeline
+    coverage: ready
+  - day: 43
+    phase: algorithms-memory-concurrency
+    title:
+      vi: Mutex, condition variable và producer–consumer design
+      en: Mutexes, Condition Variables, and Producer-Consumer Design
+    objective:
+      vi: Consumer nên sleep khi queue rỗng thay vì spin, nhưng wakeup không được làm mất state change hay
+        race với shutdown. Condition variable điều phối wait quanh predicate được mutex bảo vệ.
+      en: Consumers should sleep while a queue is empty rather than spin, yet wakeups must not lose state
+        changes or race with shutdown. A condition variable coordinates waiting around a
+        mutex-protected predicate.
+    dependsOn:
+      - 42
+    lessonIds:
+      - cpp17-mutex-condition-variable-producer-consumer
+    coverage: ready
+  - day: 44
+    phase: algorithms-memory-concurrency
+    title:
+      vi: Atomic operations, compare-and-swap và memory ordering
+      en: Atomic Operations, Compare-and-Swap, and Memory Ordering
+    objective:
+      vi: Một số shared state transition cần read-modify-write không chia cắt mà không dùng mutex.
+        Compare-and-swap chỉ update atomic nếu observed value vẫn khớp expected value.
+      en: Some shared state transitions need an indivisible read-modify-write without a mutex.
+        Compare-and-swap conditionally updates an atomic only if its observed value still matches an
+        expected value.
+    dependsOn:
+      - 43
+    lessonIds:
+      - cpp17-atomic-compare-exchange-memory-ordering
+    coverage: ready
+  - day: 45
+    phase: algorithms-memory-concurrency
+    title:
+      vi: Hardware interference size, false sharing và std::launder
+      en: Hardware Interference Size, False Sharing, and std::launder
+    objective:
+      vi: Các atomic độc lập nằm cùng cache line có thể invalidate cache của nhau, còn reuse storage cho
+        object mới có thể để old pointer nằm ngoài lifetime model. C++17 cung cấp vocabulary cho cả
+        hai boundary.
+      en: Independent atomics placed on one cache line can invalidate each other's caches, while reusing
+        storage for a new object can leave old pointers outside the language's lifetime model. C++17
+        provides vocabulary for both boundaries.
+    dependsOn:
+      - 44
+    lessonIds:
+      - cpp17-hardware-interference-false-sharing-launder
+    coverage: ready
+  - day: 46
+    phase: systems-performance
+    title:
+      vi: Lock-free SPSC queue
+      en: A Lock-Free SPSC Queue
+    objective:
+      vi: Một producer và một consumer có thể cần channel bounded, low-latency mà không block bằng mutex.
+        Ring buffer với index có owner riêng có thể cài concurrency contract hẹp này.
+      en: A single producer and single consumer may need a bounded low-latency channel without mutex
+        blocking. A ring buffer with separately owned indices can implement this narrow concurrency
+        contract.
+    dependsOn:
+      - 45
+    lessonIds:
+      - cpp17-lock-free-spsc-queue
+    coverage: ready
+  - day: 47
+    phase: systems-performance
+    title:
+      vi: Cache locality và data-oriented design
+      en: Cache Locality and Data-Oriented Design
+    objective:
+      vi: Thuật toán đúng vẫn có thể tốn phần lớn thời gian chờ memory rải rác hoặc load field mà hot loop
+        không dùng. Data-oriented design sắp dữ liệu quanh access pattern đã đo.
+      en: A correct algorithm can spend most of its time waiting for scattered memory or loading fields
+        that a hot loop never uses. Data-oriented design arranges data around measured access
+        patterns.
+    dependsOn:
+      - 46
+    lessonIds:
+      - cpp17-cache-locality-data-oriented-design
+    coverage: ready
+  - day: 48
+    phase: systems-performance
+    title:
+      vi: PMR memory pool và allocation-free hot path
+      en: PMR Memory Pools and an Allocation-Free Hot Path
+    objective:
+      vi: Allocation lặp lại trong latency-sensitive loop có thể thêm contention và delay khó đoán. PMR
+        pool có thể allocation lúc setup, còn container đã reserve tái dùng capacity trong hot path.
+      en: Repeated allocations in a latency-sensitive loop can add contention and unpredictable delays. A
+        PMR pool can perform setup allocation ahead of time, while reserved containers reuse
+        capacity inside the hot path.
+    dependsOn:
+      - 47
+    lessonIds:
+      - cpp17-pmr-pool-allocation-free-hot-path
+    coverage: ready
+  - day: 49
+    phase: systems-performance
+    title:
+      vi: Benchmarking, profiling và compiler optimization
+      en: Benchmarking, Profiling, and Compiler Optimization
+    objective:
+      vi: Tối ưu theo trực giác thường nhắm cold code hoặc đo cả setup lẫn noise. Benchmark định lượng
+        workload có kiểm soát, profiler tìm cost thật và optimized build cho thấy compiler có thể
+        transform hợp lệ gì.
+      en: Optimization by intuition frequently targets cold code or measures setup and noise. Benchmarks
+        quantify controlled workloads, profilers locate real costs, and optimized builds reveal what
+        the compiler can legally transform.
+    dependsOn:
+      - 48
+    lessonIds:
+      - cpp17-benchmarking-profiling-compiler-optimization
+    coverage: ready
+  - day: 50
+    phase: systems-performance
+    title:
+      vi: Binary parsing bằng std::byte, string_view và from_chars
+      en: Binary Parsing with byte, string_view, and from_chars
+    objective:
+      vi: Text-framed byte field và binary protocol cần bound chặt, numeric validation, exact width và
+        byte order rõ. Kết hợp non-owning input view, low-level conversion và byte storage giúp các
+        policy nhìn thấy.
+      en: Text-framed byte fields and binary protocols need strict bounds, numeric validation, exact
+        widths, and explicit byte order. Combining non-owning input views, low-level conversion, and
+        byte storage keeps those policies visible.
+    dependsOn:
+      - 49
+    lessonIds:
+      - cpp17-binary-parsing-byte-string-view-from-chars
+    coverage: ready

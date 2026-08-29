@@ -39,6 +39,7 @@ const storedContentTrackSchema = z.enum([
   "cpp98",
   "cpp11",
   "cpp14",
+  "cpp17",
   "cpp20",
   "python3",
   "cmake",

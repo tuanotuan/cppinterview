@@ -64,6 +64,7 @@ const standardLabels = {
   cpp98: "C++98",
   cpp11: "C++11",
   cpp14: "C++14",
+  cpp17: "C++17",
   cpp20: "C++20",
 };
 const learningLabels = {

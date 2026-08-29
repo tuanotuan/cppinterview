@@ -111,6 +111,46 @@ describe("database question store", () => {
     });
   });
 
+  it("accepts active C++17 rows at the database parsing boundary", () => {
+    const cpp17Lesson: LessonRow = {
+      id: "cpp17-toolchain",
+      lifecycle_status: "active",
+      source_hash: "c".repeat(64),
+      source_commit_sha: null,
+      source_path: "cpp17/01_toolchain",
+      standard: "cpp17",
+      language: "cpp",
+      track: "cpp17",
+      lesson_order: 1,
+      title: "C++17 toolchain",
+      tags: ["toolchain"],
+      prerequisites: [],
+      code: "int main() {}",
+      sections: [
+        {
+          id: "toolchain",
+          heading: "Toolchain",
+          bodyMarkdown: "Compiler pipeline",
+          bodyText: "Compiler pipeline",
+        },
+      ],
+      checklist_items: [],
+      manifest_order: 1,
+    };
+
+    const manifest = rowsToContentManifest(
+      [cpp17Lesson],
+      [],
+      "d".repeat(64),
+    );
+
+    expect(manifest.lessons[0]).toMatchObject({
+      id: cpp17Lesson.id,
+      track: "cpp17",
+      standard: "cpp17",
+    });
+  });
+
   it("filters permanent rejection tombstones in repository mode", async () => {
     vi.stubEnv("QUESTION_STORE", "repo");
     const rejectedId = getRepoContentManifest().questions[0]?.id;

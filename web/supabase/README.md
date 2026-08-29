@@ -344,6 +344,17 @@ Apply it before the first `content:sync` that contains the C++14 curriculum;
 otherwise the existing database checks reject the new lesson revisions. The
 migration does not publish or approve any lesson or question by itself.
 
+## C++17 content track
+
+`20260829130000_add_cpp17_content_track.sql` widens the same four checks to
+accept `cpp17` while retaining `cpp14` and every existing compatibility value.
+It uses validated replacement constraints and does not change data, views, RLS,
+grants, or RPCs.
+
+Apply `20260829100000_add_cpp14_content_track.sql` first, then this migration,
+before the first `content:sync` containing the C++17 curriculum. Neither
+migration publishes or approves lessons or questions by itself.
+
 ## Isolated mock-interview code runner
 
 `20260729100000_create_code_execution_admission.sql` adds the atomic admission,
