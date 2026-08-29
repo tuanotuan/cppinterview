@@ -6,6 +6,7 @@ vi.mock("server-only", () => ({}));
 import {
   getRepoContentManifest,
   loadQuestionStoreManifest,
+  loadSupabaseContentManifest,
   rowsToContentManifest,
   type LessonRow,
 } from "./question-store-server";
@@ -38,6 +39,76 @@ describe("database question store", () => {
     expect(
       rowsToContentManifest([legacyLesson], [], "a".repeat(64)).lessons,
     ).toEqual([]);
+  });
+
+  it("loads C++14 lessons from the database content store", async () => {
+    const cpp14Lesson: LessonRow = {
+      id: "cpp14-toolchain",
+      lifecycle_status: "active",
+      source_hash: "a".repeat(64),
+      source_commit_sha: null,
+      source_path: "cpp14/01_toolchain",
+      standard: "cpp14",
+      language: "cpp",
+      track: "cpp14",
+      lesson_order: 1,
+      title: "C++14 toolchain",
+      tags: ["toolchain"],
+      prerequisites: [],
+      code: "int main() {}",
+      sections: [
+        {
+          id: "toolchain",
+          heading: "Toolchain",
+          bodyMarkdown: "Compiler pipeline",
+          bodyText: "Compiler pipeline",
+        },
+      ],
+      checklist_items: [],
+      manifest_order: 1,
+    };
+    const relationCalls = new Map<string, number>();
+    const from = vi.fn((relation: string) => {
+      if (relation === "content_store_state") {
+        return {
+          select: () => ({
+            eq: () => ({
+              maybeSingle: async () => ({
+                data: { source_revision: "b".repeat(64) },
+                error: null,
+              }),
+            }),
+          }),
+        };
+      }
+
+      const query = {
+        select: () => query,
+        order: () => query,
+        range: async () => {
+          const call = relationCalls.get(relation) ?? 0;
+          relationCalls.set(relation, call + 1);
+          return {
+            data:
+              call === 0 && relation === "content_current_lessons"
+                ? [cpp14Lesson]
+                : [],
+            error: null,
+          };
+        },
+      };
+      return query;
+    });
+    const supabase = { from } as unknown as SupabaseClient;
+
+    const manifest = await loadSupabaseContentManifest(supabase);
+
+    expect(manifest.lessons).toHaveLength(1);
+    expect(manifest.lessons[0]).toMatchObject({
+      id: cpp14Lesson.id,
+      track: "cpp14",
+      standard: "cpp14",
+    });
   });
 
   it("filters permanent rejection tombstones in repository mode", async () => {

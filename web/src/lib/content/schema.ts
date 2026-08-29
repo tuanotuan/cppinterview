@@ -15,6 +15,7 @@ export type PracticeDeckId = z.infer<typeof practiceDeckSchema>;
 export const contentTrackSchema = z.enum([
   "cpp98",
   "cpp11",
+  "cpp14",
   "cpp20",
 ]);
 export type ContentTrack = z.infer<typeof contentTrackSchema>;

@@ -20,12 +20,14 @@ export type LessonLibraryItem = {
 const trackOrder: ContentTrack[] = [
   "cpp98",
   "cpp11",
+  "cpp14",
   "cpp20",
 ];
 
 const trackLabels: Record<ContentTrack, string> = {
   cpp98: "C++98",
   cpp11: "C++11",
+  cpp14: "C++14",
   cpp20: "C++20",
 };
 
@@ -37,7 +39,12 @@ export const lessonStandardFilters = [
     track: "cpp11",
     roadmapHref: "/learn/roadmap/cpp11",
   },
-  { value: "cpp14", label: "C++14", track: null, roadmapHref: null },
+  {
+    value: "cpp14",
+    label: "C++14",
+    track: "cpp14",
+    roadmapHref: "/learn/roadmap/cpp14",
+  },
   { value: "cpp17", label: "C++17", track: null, roadmapHref: null },
   { value: "cpp20", label: "C++20", track: "cpp20", roadmapHref: null },
   { value: "cpp23", label: "C++23", track: null, roadmapHref: null },

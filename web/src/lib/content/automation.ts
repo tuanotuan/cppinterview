@@ -20,6 +20,7 @@ import { questionFileSchema } from "./schema";
 const SOURCE_ROOTS = {
   cpp98_foundation: { language: "cpp", track: "cpp98", idPrefix: "cpp98" },
   cpp11: { language: "cpp", track: "cpp11", idPrefix: "cpp11" },
+  cpp14: { language: "cpp", track: "cpp14", idPrefix: "cpp14" },
   cpp20: { language: "cpp", track: "cpp20", idPrefix: "cpp20" },
 } as const;
 

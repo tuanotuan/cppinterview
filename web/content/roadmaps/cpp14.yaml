@@ -1,0 +1,855 @@
+schemaVersion: 1
+track: cpp14
+phases:
+  - id: cpp11-review
+    order: 1
+    title:
+      vi: Ôn nền tảng C++11
+      en: C++11 foundations review
+    summary:
+      vi: Củng cố toolchain, deduction, ownership, lambda, template, STL và concurrency trước khi học phần mở rộng C++14.
+      en: Reinforce toolchains, deduction, ownership, lambdas, templates, the STL, and concurrency before the C++14 additions.
+  - id: cpp14-language
+    order: 2
+    title:
+      vi: Tính năng ngôn ngữ C++14
+      en: C++14 language features
+    summary:
+      vi: Dùng các bổ sung C++14 để viết literal, lambda, deduction, constexpr và API chuyển đổi rõ ràng hơn.
+      en: Use C++14 additions for clearer literals, lambdas, deduction, constexpr code, and API transitions.
+  - id: object-api-memory
+    order: 3
+    title:
+      vi: Object, API và memory
+      en: Objects, APIs, and memory
+    summary:
+      vi: Thiết kế lifetime, ownership, exception safety và layout với contract có thể kiểm chứng.
+      en: Design lifetimes, ownership, exception safety, and layout with verifiable contracts.
+  - id: standard-library
+    order: 4
+    title:
+      vi: STL và cấu trúc dữ liệu
+      en: STL and data structures
+    summary:
+      vi: Chọn container, iterator và algorithm theo layout, invalidation, lookup và độ phức tạp.
+      en: Choose containers, iterators, and algorithms by layout, invalidation, lookup, and complexity.
+  - id: generic-design
+    order: 5
+    title:
+      vi: Generic programming và polymorphism
+      en: Generic programming and polymorphism
+    summary:
+      vi: Xây abstraction compile-time bằng template, SFINAE, sequence và static polymorphism.
+      en: Build compile-time abstractions with templates, SFINAE, sequences, and static polymorphism.
+  - id: concurrency
+    order: 6
+    title:
+      vi: Concurrency và memory model
+      en: Concurrency and the memory model
+    summary:
+      vi: Truyền kết quả, đồng bộ shared state và lập luận đúng về atomic ordering cùng lock-free data structure.
+      en: Transfer results, synchronize shared state, and reason about atomic ordering and lock-free data structures.
+  - id: systems-performance
+    order: 7
+    title:
+      vi: Systems và hiệu năng
+      en: Systems and performance
+    summary:
+      vi: Tối ưu locality và allocation bằng số đo, đồng thời parse binary data độc lập kiến trúc máy.
+      en: Optimize locality and allocation from measurements while parsing binary data independently of host architecture.
+days:
+  - day: 1
+    phase: cpp11-review
+    title:
+      vi: Toolchain, compiler flags và chế độ C++14
+      en: Toolchain, Compiler Flags, and C++14 Mode
+    objective:
+      vi: File nguồn C++ không tự quyết định chế độ ngôn ngữ hay mức cảnh báo. Toolchain và các compiler flag xác định cú pháp
+        C++14 có được chấp nhận hay không, cảnh báo nào xuất hiện và file nguồn được biến thành chương trình chạy được
+        như thế nào.
+      en: A C++ source file does not define its own language mode or warning policy. The toolchain and command-line flags
+        decide whether C++14 syntax is accepted, which diagnostics are shown, and how source files become an executable.
+    dependsOn: []
+    lessonIds:
+      - cpp14-toolchain-compiler-flags-cpp14
+    coverage: ready
+  - day: 2
+    phase: cpp11-review
+    title:
+      vi: Ôn auto, decltype và type deduction
+      en: Reviewing auto, decltype, and Type Deduction
+    objective:
+      vi: Các kiểu dài hoặc phụ thuộc biểu thức khiến khai báo rối và dễ ghi sai. `auto` suy ra kiểu biến mới từ giá trị khởi
+        tạo, còn `decltype` hỏi kiểu của một tên hoặc biểu thức.
+      en: Long or dependent types make declarations noisy and easy to duplicate incorrectly. `auto` derives a new variable
+        type from an initializer, while `decltype` asks for the type of a name or expression.
+    dependsOn:
+      - 1
+    lessonIds:
+      - cpp14-auto-decltype-type-deduction-review
+    coverage: ready
+  - day: 3
+    phase: cpp11-review
+    title:
+      vi: Ôn value categories, move semantics và ownership
+      en: Reviewing Value Categories, Move Semantics, and Ownership
+    objective:
+      vi: Sao chép object sở hữu tài nguyên có thể tốn kém hoặc bị cấm. Move semantics cho phép chuyển tài nguyên khỏi object
+        sắp không còn cần, còn value category giúp overload resolution biết biểu thức nào có thể được move.
+      en: Copying a resource-owning object may be expensive or forbidden. Move semantics lets code transfer a resource from an
+        object that is about to be discarded, while value categories tell overload resolution which expressions may be
+        moved from.
+    dependsOn:
+      - 2
+    lessonIds:
+      - cpp14-value-categories-move-semantics-ownership-review
+    coverage: ready
+  - day: 4
+    phase: cpp11-review
+    title:
+      vi: Ôn lambda và capture trong C++11
+      en: Reviewing Lambdas and Capture in C++11
+    objective:
+      vi: Một hành vi ngắn chỉ dùng một lần sẽ bất tiện nếu phải tách thành hàm có tên, nhất là khi nó cần trạng thái xung
+        quanh. Lambda tạo callable không tên và capture list cho biết biến bên ngoài nào trở thành một phần của
+        callable.
+      en: Short behavior used once is awkward to place in a separate named function, especially when it needs nearby state. A
+        lambda creates an unnamed callable and its capture list states which surrounding variables become part of that
+        callable.
+    dependsOn:
+      - 3
+    lessonIds:
+      - cpp14-lambda-capture-cpp11-review
+    coverage: ready
+  - day: 5
+    phase: cpp11-review
+    title:
+      vi: Ôn templates, parameter packs, type traits và constexpr
+      en: Reviewing Templates, Parameter Packs, Type Traits, and constexpr
+    objective:
+      vi: Lặp cùng một thuật toán cho nhiều kiểu tạo ra code trùng. Template mô tả cả họ khai báo, parameter pack nhận số
+        lượng template argument thay đổi, type trait kiểm tra kiểu, còn `constexpr` cho phép tính toán trong lúc biên
+        dịch.
+      en: Repeating the same algorithm for many types creates duplicated code. Templates describe a family of declarations,
+        parameter packs accept a varying number of template arguments, type traits inspect types, and `constexpr`
+        permits work during compilation.
+    dependsOn:
+      - 4
+    lessonIds:
+      - cpp14-templates-parameter-packs-type-traits-constexpr-review
+    coverage: ready
+  - day: 6
+    phase: cpp11-review
+    title:
+      vi: Ôn STL containers, iterators, algorithms và std::chrono
+      en: Reviewing STL Containers, Iterators, Algorithms, and chrono
+    objective:
+      vi: Chương trình thường xuyên cần collection, duyệt dữ liệu, thao tác tái sử dụng và đo thời gian an toàn về kiểu. Thư
+        viện chuẩn tách nơi lưu dữ liệu, iterator range, algorithm và thời lượng để ghép chúng mà không phải viết lại
+        vòng lặp.
+      en: Programs repeatedly need collections, traversal, reusable operations, and type-safe time measurement. The standard
+        library separates data storage, iterator ranges, algorithms, and clock durations so these pieces can be combined
+        without rewriting loops.
+    dependsOn:
+      - 5
+    lessonIds:
+      - cpp14-stl-containers-iterators-algorithms-chrono-review
+    coverage: ready
+  - day: 7
+    phase: cpp11-review
+    title:
+      vi: Ôn thread, mutex, atomic và C++ memory model
+      en: Reviewing thread, mutex, atomic, and the C++ Memory Model
+    objective:
+      vi: Nhiều thread có thể chạy cùng lúc và chạm vào shared memory. Thư viện thread khởi chạy công việc, mutex bảo vệ thao
+        tác nhiều bước không atomic, atomic cung cấp thao tác không thể bị chia nhỏ, còn memory model định nghĩa lúc nào
+        truy cập tạo data race.
+      en: Multiple threads may execute at the same time and touch shared memory. The threading library starts work, a mutex
+        protects compound non-atomic operations, atomics provide indivisible operations, and the memory model defines
+        when accesses form a data race.
+    dependsOn:
+      - 6
+    lessonIds:
+      - cpp14-thread-mutex-atomic-memory-model-review
+    coverage: ready
+  - day: 8
+    phase: cpp14-language
+    title:
+      vi: Binary literals và digit separators
+      en: Binary Literals and Digit Separators
+    objective:
+      vi: Bit mask khó kiểm tra khi chỉ viết ở hệ thập phân hoặc thập lục phân, còn hằng số dài rất dễ đếm nhầm chữ số. C++14
+        thêm binary literal và dấu phân cách bằng nháy đơn để code dễ đọc mà không đổi giá trị lưu trữ.
+      en: Bit masks are hard to review when written only in decimal or hexadecimal, and long numeric constants are easy to
+        miscount. C++14 adds binary literals and apostrophe separators that improve source readability without changing
+        the stored value.
+    dependsOn:
+      - 7
+    lessonIds:
+      - cpp14-binary-literals-digit-separators
+    coverage: ready
+  - day: 9
+    phase: cpp14-language
+    title:
+      vi: Generic lambda
+      en: Generic Lambdas
+    objective:
+      vi: Lambda C++11 thông thường cố định kiểu của từng parameter nên một thao tác nhỏ có thể phải viết nhiều bản. C++14 cho
+        phép parameter dùng `auto`, khiến call operator của lambda hoạt động giống function template.
+      en: A normal C++11 lambda fixes every parameter type, so the same tiny operation may need several copies. C++14 permits
+        `auto` parameters, making the lambda call operator behave like a function template.
+    dependsOn:
+      - 8
+    lessonIds:
+      - cpp14-generic-lambda
+    coverage: ready
+  - day: 10
+    phase: cpp14-language
+    title:
+      vi: Lambda init-capture
+      en: Lambda Init-Capture
+    objective:
+      vi: Capture C++11 thường sao chép hoặc tham chiếu biến cục bộ đã tồn tại với cùng tên. Init-capture C++14 cho closure
+        tạo member riêng từ biểu thức bất kỳ và có thể đặt tên member rõ hơn.
+      en: C++11 capture normally copies or references an existing local variable with the same name. C++14 init-capture lets a
+        closure create its own member from an arbitrary expression and optionally give that member a clearer name.
+    dependsOn:
+      - 9
+    lessonIds:
+      - cpp14-lambda-init-capture
+    coverage: ready
+  - day: 11
+    phase: cpp14-language
+    title:
+      vi: Move-only lambda capture và capture lifetime
+      en: Move-Only Lambda Capture and Capture Lifetime
+    objective:
+      vi: Một số trạng thái như `std::unique_ptr` không thể copy vào closure C++11. Init-capture C++14 có thể move trạng thái
+        đó vào closure, biến closure thành owner mới và gắn lifetime tài nguyên với lifetime của closure.
+      en: Some useful state, such as `std::unique_ptr`, cannot be copied into a C++11 closure. C++14 init-capture can move
+        that state into the closure, making the closure its new owner and naturally tying resource lifetime to closure
+        lifetime.
+    dependsOn:
+      - 10
+    lessonIds:
+      - cpp14-move-only-lambda-capture-lifetime
+    coverage: ready
+  - day: 12
+    phase: cpp14-language
+    title:
+      vi: Function return type deduction với auto
+      en: Function Return Type Deduction with auto
+    objective:
+      vi: Kiểu trả về của hàm có thể dài hoặc phụ thuộc biểu thức. C++14 cho phép hàm thường dùng `auto` làm placeholder kiểu
+        trả về để compiler suy ra từ câu lệnh return.
+      en: A function return type can be long or dependent on an expression. C++14 allows a normal function to use `auto` as
+        its return placeholder, letting the compiler deduce the type from its return statement.
+    dependsOn:
+      - 11
+    lessonIds:
+      - cpp14-function-return-type-deduction-auto
+    coverage: ready
+  - day: 13
+    phase: cpp14-language
+    title:
+      vi: decltype(auto) và bảo toàn reference
+      en: decltype(auto) and Preserving References
+    objective:
+      vi: Suy luận return bằng `auto` thường tạo value và bỏ reference. `decltype(auto)` của C++14 áp dụng quy tắc `decltype`
+        lên biểu thức return, cho phép hàm forwarding hoặc accessor giữ reference.
+      en: Plain `auto` return deduction normally produces a value and drops references. C++14 `decltype(auto)` applies
+        `decltype` rules to the return expression, allowing a forwarding or accessor function to preserve a reference.
+    dependsOn:
+      - 12
+    lessonIds:
+      - cpp14-decltype-auto-preserve-reference
+    coverage: ready
+  - day: 14
+    phase: cpp14-language
+    title:
+      vi: Relaxed constexpr trong C++14
+      en: Relaxed constexpr in C++14
+    objective:
+      vi: Thân hàm `constexpr` của C++11 bị giới hạn mạnh, thường buộc phải viết đệ quy bằng một biểu thức. C++14 cho phép
+        biến cục bộ, vòng lặp, nhánh và thay đổi trạng thái cục bộ nhưng vẫn tính ở compile-time khi argument cho phép.
+      en: C++11 `constexpr` function bodies were extremely restricted, often forcing recursive one-expression code. C++14
+        permits local variables, loops, branches, and mutation of local state while retaining compile-time evaluation
+        when the arguments permit it.
+    dependsOn:
+      - 13
+    lessonIds:
+      - cpp14-relaxed-constexpr-cpp14
+    coverage: ready
+  - day: 15
+    phase: cpp14-language
+    title:
+      vi: Variable templates
+      en: Variable Templates
+    objective:
+      vi: Trước C++14, hằng phụ thuộc kiểu thường phải đặt trong function template hoặc static member của class template.
+        Variable template mô tả trực tiếp một họ biến được chọn bằng template argument.
+      en: Before C++14, a type-dependent constant usually needed a function template or a static member inside a class
+        template. A variable template directly describes a family of variables indexed by template arguments.
+    dependsOn:
+      - 14
+    lessonIds:
+      - cpp14-variable-templates
+    coverage: ready
+  - day: 16
+    phase: cpp14-language
+    title:
+      vi: "[[deprecated]] và vòng đời API"
+      en: "[[deprecated]] and the API Lifecycle"
+    objective:
+      vi: Xóa API cũ ngay lập tức làm hỏng code người dùng, nhưng giữ im lặng lại khuyến khích phụ thuộc mới. Attribute chuẩn
+        `[[deprecated]]` giữ declaration còn dùng được đồng thời yêu cầu compiler cảnh báo nơi gọi và có thể chỉ ra cách
+        thay thế.
+      en: Removing an old API immediately breaks users, but leaving it silently encourages new dependencies. The standard
+        `[[deprecated]]` attribute keeps the declaration available while asking compilers to warn callers and optionally
+        explain the replacement.
+    dependsOn:
+      - 15
+    lessonIds:
+      - cpp14-deprecated-api-lifecycle
+    coverage: ready
+  - day: 17
+    phase: cpp14-language
+    title:
+      vi: Standard user-defined literals cho string, chrono và complex
+      en: Standard User-Defined Literals for string, chrono, and complex
+    objective:
+      vi: Literal thô như `"hello"` hoặc `250` tự nó không biểu thị owning string, đơn vị thời gian hay số ảo. Hậu tố literal
+        chuẩn của C++14 tạo trực tiếp giá trị thư viện có kiểu rõ.
+      en: A raw literal such as `"hello"` or `250` does not by itself express an owning string, a time unit, or an imaginary
+        number. C++14 standard literal suffixes construct strongly typed library values directly.
+    dependsOn:
+      - 16
+    lessonIds:
+      - cpp14-standard-user-defined-literals
+    coverage: ready
+  - day: 18
+    phase: cpp14-language
+    title:
+      vi: std::make_unique và ownership factory
+      en: std::make_unique and Ownership Factories
+    objective:
+      vi: C++11 thường phải ghi `new` trong lúc tạo `std::unique_ptr`. `std::make_unique` của C++14 kết hợp cấp phát với tạo
+        ownership trong một factory call rõ ràng và không lộ raw owning pointer.
+      en: C++11 required spelling `new` inside many `std::unique_ptr` constructions. C++14 `std::make_unique` combines
+        allocation and ownership construction in one clear factory call and avoids exposing a raw owning pointer.
+    dependsOn:
+      - 17
+    lessonIds:
+      - cpp14-make-unique-ownership-factory
+    coverage: ready
+  - day: 19
+    phase: cpp14-language
+    title:
+      vi: std::exchange và chuyển đổi trạng thái bằng move
+      en: std::exchange and Move-Based State Transitions
+    objective:
+      vi: Code chuyển trạng thái thường cần cả giá trị cũ lẫn giá trị thay thế. `std::exchange` của C++14 move hoặc copy giá
+        trị cũ ra, gán giá trị mới rồi trả lại giá trị cũ trong một biểu thức rõ ràng.
+      en: State-transition code often needs both the previous value and a replacement. C++14 `std::exchange` moves or copies
+        out the old value, assigns the new value, and returns the old one in one explicit expression.
+    dependsOn:
+      - 18
+    lessonIds:
+      - cpp14-std-exchange-move-state-transition
+    coverage: ready
+  - day: 20
+    phase: cpp14-language
+    title:
+      vi: Migration từ C++11 sang C++14 và compiler compatibility
+      en: Migrating from C++11 to C++14 and Compiler Compatibility
+    objective:
+      vi: Đổi flag dự án từ C++11 sang C++14 không bảo đảm mọi target, compiler, platform và dependency hỗ trợ cùng tính năng.
+        Migration cần ma trận build có kiểm soát, áp dụng feature có chọn lọc và kiểm tra tương thích.
+      en: Changing the project flag from C++11 to C++14 does not guarantee every target, compiler, platform, and dependency
+        supports the same features. Migration needs a controlled build matrix, targeted feature adoption, and
+        compatibility checks.
+    dependsOn:
+      - 19
+    lessonIds:
+      - cpp14-cpp11-to-cpp14-migration-compatibility
+    coverage: ready
+  - day: 21
+    phase: object-api-memory
+    title:
+      vi: Object lifetime, RAII, Rule of Five và Rule of Zero
+      en: Object Lifetime, RAII, Rule of Five, and Rule of Zero
+    objective:
+      vi: Tài nguyên phải được giải phóng trên mọi đường chạy, kể cả return sớm và exception. RAII gắn cleanup với object
+        lifetime; Rule of Five chỉ ra các special operation mà owner tự quản lý có thể cần, còn Rule of Zero giao việc
+        đó cho member type đáng tin cậy.
+      en: Resources must be released on every path, including early returns and exceptions. RAII binds cleanup to object
+        lifetime; the Rule of Five identifies special operations a manual resource owner may need, while the Rule of
+        Zero delegates them to reliable member types.
+    dependsOn:
+      - 20
+    lessonIds:
+      - cpp14-object-lifetime-raii-rule-of-five-zero
+    coverage: ready
+  - day: 22
+    phase: object-api-memory
+    title:
+      vi: Thiết kế API bằng value, reference, pointer và ownership
+      en: API Design with Values, References, Pointers, and Ownership
+    objective:
+      vi: Function signature không chỉ để kiểm tra kiểu; nó truyền đạt copy, mutation, optionality, borrowing và chuyển
+        ownership. Chọn value, reference, raw pointer hay smart pointer có chủ đích làm hợp đồng API hiện rõ tại call
+        site.
+      en: "A function signature is more than a type checker: it communicates copying, mutation, optionality, borrowing, and
+        ownership transfer. Choosing value, reference, raw pointer, or smart pointer deliberately makes API contracts
+        visible at the call site."
+    dependsOn:
+      - 21
+    lessonIds:
+      - cpp14-api-value-reference-pointer-ownership
+    coverage: ready
+  - day: 23
+    phase: object-api-memory
+    title:
+      vi: Exception safety và noexcept
+      en: Exception Safety and noexcept
+    objective:
+      vi: Thao tác có thể thất bại sau khi đã làm một phần công việc. Exception safety định nghĩa invariant và giá trị nào vẫn
+        hợp lệ khi exception thoát ra, còn `noexcept` cam kết hàm không để exception lan ra ngoài.
+      en: Operations can fail after partially doing work. Exception safety defines which program invariants and values remain
+        valid when an exception escapes, while `noexcept` promises that a function will not let exceptions propagate.
+    dependsOn:
+      - 22
+    lessonIds:
+      - cpp14-exception-safety-noexcept
+    coverage: ready
+  - day: 24
+    phase: object-api-memory
+    title:
+      vi: Memory layout, alignment, padding và sized deallocation
+      en: Memory Layout, Alignment, Padding, and Sized Deallocation
+    objective:
+      vi: Member của object phải nằm ở địa chỉ phù hợp alignment của kiểu nên compiler có thể chèn padding và làm tròn kích
+        thước cho array. C++14 cũng chuẩn hóa sized deallocation, cho phép hàm delete nhận kích thước object được giải
+        phóng.
+      en: Object members must appear at addresses suitable for their types, so compilers may insert padding and round object
+        size for arrays. C++14 also standardizes sized deallocation, allowing a delete function to receive the size of
+        the object being released.
+    dependsOn:
+      - 23
+    lessonIds:
+      - cpp14-memory-layout-alignment-padding-sized-deallocation
+    coverage: ready
+  - day: 25
+    phase: standard-library
+    title:
+      vi: Sequence containers, emplace và contiguous memory
+      en: Sequence Containers, emplace, and Contiguous Memory
+    objective:
+      vi: Sequence container cùng có interface theo thứ tự nhưng khác cách lưu và invalidation. `std::vector` lưu phần tử liên
+        tục, còn `emplace_back` dựng phần tử mới trực tiếp từ constructor argument được truyền.
+      en: Sequence containers share an ordered interface but have different storage and invalidation behavior. `std::vector`
+        stores elements contiguously, while `emplace_back` constructs a new element directly from supplied constructor
+        arguments.
+    dependsOn:
+      - 24
+    lessonIds:
+      - cpp14-sequence-containers-emplace-contiguous-memory
+    coverage: ready
+  - day: 26
+    phase: standard-library
+    title:
+      vi: Iterator categories, invalidation và reverse iterators
+      en: Iterator Categories, Invalidation, and Reverse Iterators
+    objective:
+      vi: Algorithm cần mức khả năng duyệt khác nhau, còn mutation trên container có thể làm iterator đã lưu không dùng được.
+        Iterator category mô tả thao tác hỗ trợ, quy tắc invalidation bảo vệ lifetime và reverse iterator biến range
+        thành chiều ngược.
+      en: Algorithms require different traversal powers, and container mutations can make saved iterators unusable. Iterator
+        categories describe supported operations, invalidation rules protect lifetime correctness, and reverse iterators
+        adapt a range for backward traversal.
+    dependsOn:
+      - 25
+    lessonIds:
+      - cpp14-iterator-categories-invalidation-reverse-iterators
+    coverage: ready
+  - day: 27
+    phase: standard-library
+    title:
+      vi: STL algorithms kết hợp generic lambda
+      en: STL Algorithms with Generic Lambdas
+    objective:
+      vi: Vòng lặp viết tay thường trộn traversal với logic biến đổi, lọc hoặc sắp thứ tự. STL algorithm nêu rõ mẫu duyệt, còn
+        generic lambda cung cấp thao tác nhỏ mà không cố định parameter type không cần thiết.
+      en: Handwritten loops often mix traversal with transformation, filtering, or ordering logic. STL algorithms state the
+        traversal pattern, while a generic lambda supplies the small operation without fixing an unnecessary parameter
+        type.
+    dependsOn:
+      - 26
+    lessonIds:
+      - cpp14-stl-algorithms-generic-lambda
+    coverage: ready
+  - day: 28
+    phase: standard-library
+    title:
+      vi: Numeric algorithms và thống kê cơ bản
+      en: Numeric Algorithms and Basic Statistics
+    objective:
+      vi: Tính tổng, tích vô hướng và thống kê đơn giản là các mẫu reduction phổ biến. Numeric algorithm diễn đạt trực tiếp
+        các thao tác này và giảm lỗi index, còn kiểu của giá trị khởi đầu kiểm soát kiểu số học.
+      en: Summation, dot products, and simple statistics are common reduction patterns. The numeric algorithms express these
+        operations directly and reduce indexing mistakes, while careful initial-value types control the arithmetic type.
+    dependsOn:
+      - 27
+    lessonIds:
+      - cpp14-numeric-algorithms-basic-statistics
+    coverage: ready
+  - day: 29
+    phase: standard-library
+    title:
+      vi: Ordered containers và transparent comparator
+      en: Ordered Containers and Transparent Comparators
+    objective:
+      vi: Ordered container duy trì key theo comparator và khái niệm tương đương đến từ ordering chứ không phải `operator==`.
+        Transparent comparator C++14 như `std::less<>` có thể so sánh các kiểu giống key tương thích.
+      en: Ordered containers maintain keys according to a comparator, and their notion of equivalence comes from that ordering
+        rather than `operator==`. C++14 transparent comparators such as `std::less<>` can compare compatible key-like
+        types.
+    dependsOn:
+      - 28
+    lessonIds:
+      - cpp14-ordered-containers-transparent-comparator
+    coverage: ready
+  - day: 30
+    phase: standard-library
+    title:
+      vi: Heterogeneous lookup
+      en: Heterogeneous Lookup
+    objective:
+      vi: Tìm trong map có key `std::string` bằng kiểu giống chuỗi khác có thể phải tạo temporary key chỉ để lookup.
+        Heterogeneous lookup dùng transparent comparator để tìm trực tiếp bằng kiểu thay thế tương thích.
+      en: Searching a map whose key is `std::string` with another string-like type may otherwise create a temporary key just
+        for lookup. Heterogeneous lookup uses a transparent comparator to search directly with a compatible alternative
+        type.
+    dependsOn:
+      - 29
+    lessonIds:
+      - cpp14-heterogeneous-lookup
+    coverage: ready
+  - day: 31
+    phase: standard-library
+    title:
+      vi: Unordered containers, hashing, reserve và load factor
+      en: Unordered Containers, Hashing, reserve, and Load Factor
+    objective:
+      vi: Cây có thứ tự phải trả chi phí sắp xếp dù caller chỉ cần tìm key. Unordered container đặt key vào bucket bằng hash,
+        so sánh equality trong bucket ứng viên và cung cấp reserve cùng load factor để lập kế hoạch cấp phát.
+      en: Ordered trees pay for sorting even when callers only need key lookup. Unordered containers place keys into buckets
+        using a hash, compare equal keys inside candidate buckets, and expose reserve and load-factor controls for
+        allocation planning.
+    dependsOn:
+      - 30
+    lessonIds:
+      - cpp14-unordered-containers-hashing-reserve-load-factor
+    coverage: ready
+  - day: 32
+    phase: standard-library
+    title:
+      vi: Queue, priority queue và ring buffer
+      en: queue, priority_queue, and Ring Buffers
+    objective:
+      vi: Workload khác nhau cần quy tắc lấy phần tử khác nhau. `std::queue` cung cấp FIFO, `std::priority_queue` cho phần tử
+        ưu tiên cao nhất, còn ring buffer tái sử dụng vùng nhớ cố định bằng index quay vòng.
+      en: Different workloads need different removal rules. `std::queue` provides FIFO order, `std::priority_queue` exposes
+        the highest-priority element, and a ring buffer reuses fixed storage with wrapped indices.
+    dependsOn:
+      - 31
+    lessonIds:
+      - cpp14-queue-priority-queue-ring-buffer
+    coverage: ready
+  - day: 33
+    phase: standard-library
+    title:
+      vi: std::pair, std::tuple, std::tie và std::get<T>
+      en: std::pair, std::tuple, std::tie, and std::get<T>
+    objective:
+      vi: Nhóm nhỏ cố định gồm nhiều kiểu không phải lúc nào cũng cần class có tên. `std::pair` giữ hai value, `std::tuple`
+        giữ số lượng cố định bất kỳ, `std::tie` gán qua reference và C++14 cho phép `std::get<T>` khi kiểu là duy nhất.
+      en: Small fixed groups of heterogeneous values do not always justify a named class. `std::pair` holds two values,
+        `std::tuple` holds an arbitrary fixed count, `std::tie` assigns through references, and C++14 permits
+        `std::get<T>` when the type is unique.
+    dependsOn:
+      - 32
+    lessonIds:
+      - cpp14-pair-tuple-tie-get-by-type
+    coverage: ready
+  - day: 34
+    phase: generic-design
+    title:
+      vi: Thiết kế function templates và class templates
+      en: Designing Function Templates and Class Templates
+    objective:
+      vi: Generic code nên tái sử dụng một ý tưởng thật sự độc lập với kiểu mà không xóa thông tin tĩnh hữu ích. Function
+        template parameter hóa hành vi, còn class template parameter hóa biểu diễn dữ liệu và thao tác.
+      en: Generic code should reuse a real type-independent idea without erasing useful static information. Function templates
+        parameterize behavior, while class templates parameterize a data representation and its operations.
+    dependsOn:
+      - 33
+    lessonIds:
+      - cpp14-function-class-template-design
+    coverage: ready
+  - day: 35
+    phase: generic-design
+    title:
+      vi: Type-trait aliases, SFINAE và std::enable_if
+      en: Type-Trait Aliases, SFINAE, and std::enable_if
+    objective:
+      vi: Thân template có thể chỉ hợp lệ với vài kiểu nhưng declaration không constraint vẫn tham gia overload resolution cho
+        mọi kiểu. SFINAE loại candidate khi substitution thất bại, còn `std::enable_if_t` diễn đạt điều kiện tham gia
+        Boolean gọn hơn.
+      en: A template body may only make sense for certain types, yet unconstrained declarations participate in overload
+        resolution for everything. SFINAE removes a candidate when substitution fails, and `std::enable_if_t` expresses
+        a Boolean participation condition compactly.
+    dependsOn:
+      - 34
+    lessonIds:
+      - cpp14-type-trait-aliases-sfinae-enable-if
+    coverage: ready
+  - day: 36
+    phase: generic-design
+    title:
+      vi: Variadic templates và parameter packs
+      en: Variadic Templates and Parameter Packs
+    objective:
+      vi: Một số thao tác tự nhiên nhận số lượng argument khác kiểu thay đổi ở compile-time. Variadic template gom các
+        argument đó thành parameter pack và pack expansion áp dụng một mẫu cho từng phần tử.
+      en: Some operations naturally accept a compile-time-varying number of differently typed arguments. Variadic templates
+        collect those arguments into parameter packs, and pack expansion applies a pattern once per element.
+    dependsOn:
+      - 35
+    lessonIds:
+      - cpp14-variadic-templates-parameter-packs
+    coverage: ready
+  - day: 37
+    phase: generic-design
+    title:
+      vi: std::integer_sequence và std::index_sequence
+      en: std::integer_sequence and std::index_sequence
+    objective:
+      vi: Tuple lưu value sau compile-time index nhưng C++14 không có vòng lặp thường nào biến runtime index thành template
+        argument. `std::index_sequence` tạo các index thành parameter pack để bung.
+      en: A tuple stores values behind compile-time indices, but C++14 has no ordinary loop whose runtime index can become a
+        template argument. `std::index_sequence` materializes indices as a parameter pack for expansion.
+    dependsOn:
+      - 36
+    lessonIds:
+      - cpp14-integer-sequence-index-sequence
+    coverage: ready
+  - day: 38
+    phase: generic-design
+    title:
+      vi: Compile-time tables bằng constexpr và variable templates
+      en: Compile-Time Tables with constexpr and Variable Templates
+    objective:
+      vi: Bảng lookup nhỏ, xác định không cần được dựng lại lúc khởi động hay ghi tay dễ sai. `constexpr` nới lỏng của C++14
+        có thể điền một literal table type nhỏ bằng vòng lặp, còn variable template cung cấp một bảng cho mỗi size.
+      en: Small deterministic lookup tables need not be rebuilt during startup or handwritten as error-prone constants. C++14
+        relaxed `constexpr` can fill a small literal table type in a loop, and a variable template exposes one table per
+        size.
+    dependsOn:
+      - 37
+    lessonIds:
+      - cpp14-compile-time-tables-constexpr-variable-templates
+    coverage: ready
+  - day: 39
+    phase: generic-design
+    title:
+      vi: Function pointer, functor, generic lambda và std::function
+      en: Function Pointers, Functors, Generic Lambdas, and std::function
+    objective:
+      vi: C++ biểu diễn callable bằng nhiều dạng khác nhau về state, genericity và chi phí lưu trữ. Function pointer trỏ free
+        function, functor mang state có kiểu, generic lambda cho lời gọi template ngắn, còn `std::function` type-erase
+        callable tương thích sau một signature.
+      en: C++ represents callable behavior in several forms with different state, genericity, and storage costs. Function
+        pointers name free functions, functors carry typed state, generic lambdas offer concise templated calls, and
+        `std::function` type-erases compatible callables behind one signature.
+    dependsOn:
+      - 38
+    lessonIds:
+      - cpp14-function-pointer-functor-generic-lambda-std-function
+    coverage: ready
+  - day: 40
+    phase: generic-design
+    title:
+      vi: CRTP, static polymorphism và virtual polymorphism
+      en: CRTP, Static Polymorphism, and Virtual Polymorphism
+    objective:
+      vi: Nhiều kiểu có thể dùng chung interface qua binding compile-time hoặc dispatch runtime. CRTP truyền derived type vào
+        base template để static polymorphism, còn virtual function chọn override qua base reference hoặc pointer lúc
+        runtime.
+      en: Several types may share an interface either with compile-time binding or runtime dispatch. CRTP passes the derived
+        type to a base template for static polymorphism, while virtual functions select an override through a base
+        reference or pointer at runtime.
+    dependsOn:
+      - 39
+    lessonIds:
+      - cpp14-crtp-static-virtual-polymorphism
+    coverage: ready
+  - day: 41
+    phase: concurrency
+    title:
+      vi: std::thread, std::async, future và promise
+      en: std::thread, std::async, future, and promise
+    objective:
+      vi: Khởi chạy công việc và chuyển kết quả tương lai là hai mối quan tâm riêng. `std::thread` chạy callable rõ ràng,
+        `std::async` ghép task launch với future, còn cặp `promise`/`future` tạo kênh truyền một kết quả.
+      en: Starting work and transporting its eventual result are separate concerns. `std::thread` runs an explicit callable,
+        `std::async` couples task launch to a future, and a `promise`/`future` pair creates a one-result communication
+        channel.
+    dependsOn:
+      - 40
+    lessonIds:
+      - cpp14-thread-async-future-promise
+    coverage: ready
+  - day: 42
+    phase: concurrency
+    title:
+      vi: Mutex, condition variable và std::shared_timed_mutex
+      en: mutex, condition_variable, and std::shared_timed_mutex
+    objective:
+      vi: Thread cần bảo vệ shared state mà không đốt CPU lúc chờ, còn dữ liệu nhiều lượt đọc có thể cho nhiều reader cùng
+        lúc. Mutex bảo vệ predicate, `condition_variable` block tới khi có notify và `shared_timed_mutex` tách writer
+        độc quyền khỏi reader chia sẻ.
+      en: Threads need to protect shared state without wasting CPU while waiting, and read-heavy data may permit simultaneous
+        readers. A mutex guards a predicate, `condition_variable` blocks until notification, and `shared_timed_mutex`
+        separates exclusive writers from shared readers.
+    dependsOn:
+      - 41
+    lessonIds:
+      - cpp14-mutex-condition-variable-shared-timed-mutex
+    coverage: ready
+  - day: 43
+    phase: concurrency
+    title:
+      vi: Atomic operations và compare-and-swap
+      en: Atomic Operations and Compare-and-Swap
+    objective:
+      vi: "Chuỗi đọc-kiểm tra-ghi trên shared data có thể bị thread khác xen vào. Atomic compare-and-swap thực hiện chuyển
+        trạng thái có điều kiện như một thao tác atomic: chỉ cập nhật nếu value hiện tại bằng expected."
+      en: "A read-check-write sequence on shared data can interleave between threads. Atomic compare-and-swap performs that
+        conditional transition as one atomic operation: update only if the current value equals an expected value."
+    dependsOn:
+      - 42
+    lessonIds:
+      - cpp14-atomic-operations-compare-and-swap
+    coverage: ready
+  - day: 44
+    phase: concurrency
+    title:
+      vi: C++ memory model và memory ordering
+      en: The C++ Memory Model and Memory Ordering
+    objective:
+      vi: Atomicity riêng lẻ không xác định lúc nào ghi trên vùng nhớ khác trở nên nhìn thấy. C++ memory model định nghĩa quan
+        hệ ordering, còn release/acquire có thể publish dữ liệu thường an toàn từ thread này sang thread khác.
+      en: Atomicity alone does not specify when writes to other memory become visible. The C++ memory model defines ordering
+        relations, and release/acquire operations can publish ordinary data safely from one thread to another.
+    dependsOn:
+      - 43
+    lessonIds:
+      - cpp14-cpp-memory-model-memory-ordering
+    coverage: ready
+  - day: 45
+    phase: concurrency
+    title:
+      vi: Data race, deadlock và false sharing
+      en: Data Races, Deadlocks, and False Sharing
+    objective:
+      vi: Code đồng thời có thể sai vì truy cập xung đột thiếu đồng bộ, đứng vì vòng chờ lock hoặc chạy chậm do atomic độc lập
+        chung cache line. Đó lần lượt là data race, deadlock và false sharing.
+      en: Concurrent code can be wrong through unsynchronized conflicting access, stop through cyclic lock waiting, or run
+        slowly because independent atomics share a cache line. These are respectively data races, deadlocks, and false
+        sharing.
+    dependsOn:
+      - 44
+    lessonIds:
+      - cpp14-data-race-deadlock-false-sharing
+    coverage: ready
+  - day: 46
+    phase: concurrency
+    title:
+      vi: Lock-free SPSC queue
+      en: A Lock-Free SPSC Queue
+    objective:
+      vi: Một producer và một consumer có thể trao đổi item hữu hạn không cần mutex khi mỗi phía sở hữu một index. SPSC ring
+        dùng atomic head/tail để publish cùng storage cố định, tránh allocation ở steady state.
+      en: A single producer and single consumer can exchange bounded items without a mutex when each side owns one index. An
+        SPSC ring uses atomic head and tail publication plus fixed storage, avoiding allocation in the steady state.
+    dependsOn:
+      - 45
+    lessonIds:
+      - cpp14-lock-free-spsc-queue
+    coverage: ready
+  - day: 47
+    phase: systems-performance
+    title:
+      vi: Cache locality và data-oriented design
+      en: Cache Locality and Data-Oriented Design
+    objective:
+      vi: Thuật toán đúng vẫn có thể tốn thời gian chờ memory khi working data rải rác hoặc trộn với field không dùng. Cache
+        locality giữ truy cập gần nhau trong memory gần nhau, còn data-oriented design sắp dữ liệu quanh thao tác xử lý.
+      en: A correct algorithm can waste time waiting for memory when its working data is scattered or mixed with unused
+        fields. Cache locality keeps nearby accesses in nearby memory, and data-oriented design arranges data around the
+        operations that process it.
+    dependsOn:
+      - 46
+    lessonIds:
+      - cpp14-cache-locality-data-oriented-design
+    coverage: ready
+  - day: 48
+    phase: systems-performance
+    title:
+      vi: Memory pool, custom allocator và giảm allocation
+      en: Memory Pools, Custom Allocators, and Reducing Allocation
+    objective:
+      vi: General-purpose allocation thường xuyên có thể tăng latency, metadata overhead, fragmentation và locality kém.
+        Memory pool reserve storage thành block lớn và custom allocation interface dựng object trong slot tái sử dụng.
+      en: Frequent general-purpose allocations can add latency, metadata overhead, fragmentation, and poor locality. A memory
+        pool reserves storage in larger blocks and a custom allocation interface constructs objects in reusable slots.
+    dependsOn:
+      - 47
+    lessonIds:
+      - cpp14-memory-pool-custom-allocator-reduce-allocation
+    coverage: ready
+  - day: 49
+    phase: systems-performance
+    title:
+      vi: Benchmarking, profiling và compiler optimization
+      en: Benchmarking, Profiling, and Compiler Optimization
+    objective:
+      vi: Tối ưu theo trực giác thường nhắm cold code hoặc đo noise. Benchmark định lượng workload có kiểm soát, profiling tìm
+        nơi tốn thời gian và hardware event trong chương trình, còn compiler optimization thay generated code theo quy
+        tắc observable behavior.
+      en: Optimization based on intuition often targets cold code or measures noise. Benchmarking quantifies a controlled
+        workload, profiling locates time and hardware events across a program, and compiler optimization changes
+        generated code under the language's observable-behavior rules.
+    dependsOn:
+      - 48
+    lessonIds:
+      - cpp14-benchmarking-profiling-compiler-optimization
+    coverage: ready
+  - day: 50
+    phase: systems-performance
+    title:
+      vi: Fixed-width integers, binary parsing và endianness
+      en: Fixed-Width Integers, Binary Parsing, and Endianness
+    objective:
+      vi: Binary protocol định nghĩa field bằng bit width và byte order chính xác, trong khi kích thước số nguyên C++ native
+        cùng host byte order có thể khác. Fixed-width integer và phép parse shift/or rõ ràng làm biểu diễn bên ngoài độc
+        lập layout máy.
+      en: Binary protocols define fields by exact bit width and byte order, while native C++ integer size and host byte order
+        may vary. Fixed-width integer types and explicit shift/or parsing make the external representation independent
+        of machine layout.
+    dependsOn:
+      - 49
+    lessonIds:
+      - cpp14-fixed-width-binary-parsing-endianness
+    coverage: ready

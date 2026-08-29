@@ -1,9 +1,26 @@
 import { Link } from "@/i18n/navigation";
-import type {
-  Cpp11Roadmap,
-  Cpp11RoadmapDay,
-  RoadmapCoverage,
-} from "@/lib/learn/cpp11-roadmap";
+
+type RoadmapCoverage = "ready" | "partial" | "planned";
+
+type CppRoadmapDay = {
+  day: number;
+  phaseId: string;
+  title: string;
+  objective: string;
+  dependsOn: number[];
+  lessons: Array<{ id: string; title: string }>;
+  coverage: RoadmapCoverage;
+};
+
+type CppRoadmap = {
+  phases: Array<{
+    id: string;
+    order: number;
+    title: string;
+    summary: string;
+    days: CppRoadmapDay[];
+  }>;
+};
 
 type DayCopy = {
   dayLabel: string;
@@ -11,7 +28,7 @@ type DayCopy = {
   unavailableAria: string;
 };
 
-export type Cpp11RoadmapMapCopy = {
+export type CppRoadmapMapCopy = {
   mapAria: string;
   start: string;
   finish: string;
@@ -30,12 +47,12 @@ const coverageNodeStyles: Record<RoadmapCoverage, string> = {
 const nodeClassName =
   "group relative flex min-h-[4.75rem] w-full flex-col items-start justify-center rounded-lg border-2 px-3.5 py-2.5 text-left shadow-[3px_3px_0_rgb(15_58_105_/_16%)] transition-[background-color,border-color,box-shadow]";
 
-export function Cpp11RoadmapMap({
+export function CppRoadmapMap({
   roadmap,
   copy,
 }: {
-  roadmap: Cpp11Roadmap;
-  copy: Cpp11RoadmapMapCopy;
+  roadmap: CppRoadmap;
+  copy: CppRoadmapMapCopy;
 }) {
   return (
     <div
@@ -152,7 +169,7 @@ function RoadmapNode({
   direction,
   connectsAfter,
 }: {
-  entry: Cpp11RoadmapDay;
+  entry: CppRoadmapDay;
   copy: DayCopy;
   gridColumn: number;
   direction: "forward" | "reverse";
@@ -206,7 +223,7 @@ function RoadmapNodeContent({
   copy,
   linked,
 }: {
-  entry: Cpp11RoadmapDay;
+  entry: CppRoadmapDay;
   copy: DayCopy;
   linked: boolean;
 }) {
@@ -238,8 +255,8 @@ function RoadmapNodeContent({
   );
 }
 
-function chunkDays(days: Cpp11RoadmapDay[]) {
-  const rows: Cpp11RoadmapDay[][] = [];
+function chunkDays(days: CppRoadmapDay[]) {
+  const rows: CppRoadmapDay[][] = [];
   for (let index = 0; index < days.length; index += 3) {
     rows.push(days.slice(index, index + 3));
   }
