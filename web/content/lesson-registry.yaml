@@ -1157,3 +1157,536 @@ lessons:
       - bounds
     prerequisites:
       - cpp14-benchmarking-profiling-compiler-optimization
+  - id: cpp17-toolchain-compiler-flags-cpp17
+    sourcePath: cpp17/01_toolchain_compiler_flags_cpp17
+    language: cpp
+    track: cpp17
+    order: 1
+    tags:
+      - toolchain
+    prerequisites: []
+  - id: cpp17-object-lifetime-raii-move-rule-of-zero-review
+    sourcePath: cpp17/02_object_lifetime_raii_move_rule_of_zero_review
+    language: cpp
+    track: cpp17
+    order: 2
+    tags:
+      - lifetime
+      - ownership
+      - move-semantics
+    prerequisites:
+      - cpp17-toolchain-compiler-flags-cpp17
+  - id: cpp17-auto-decltype-generic-lambda-type-deduction-review
+    sourcePath: cpp17/03_auto_decltype_generic_lambda_type_deduction_review
+    language: cpp
+    track: cpp17
+    order: 3
+    tags:
+      - type-deduction
+      - lambda
+    prerequisites:
+      - cpp17-object-lifetime-raii-move-rule-of-zero-review
+  - id: cpp17-templates-packs-traits-constexpr-review
+    sourcePath: cpp17/04_templates_packs_traits_constexpr_review
+    language: cpp
+    track: cpp17
+    order: 4
+    tags:
+      - templates
+      - compile-time
+    prerequisites:
+      - cpp17-auto-decltype-generic-lambda-type-deduction-review
+  - id: cpp17-stl-containers-iterators-algorithms-callables-review
+    sourcePath: cpp17/05_stl_containers_iterators_algorithms_callables_review
+    language: cpp
+    track: cpp17
+    order: 5
+    tags:
+      - container
+      - iterator
+      - algorithm
+      - callable
+    prerequisites:
+      - cpp17-templates-packs-traits-constexpr-review
+  - id: cpp17-thread-atomic-memory-model-review
+    sourcePath: cpp17/06_thread_atomic_memory_model_review
+    language: cpp
+    track: cpp17
+    order: 6
+    tags:
+      - concurrency
+      - atomic
+      - memory-model
+    prerequisites:
+      - cpp17-stl-containers-iterators-algorithms-callables-review
+  - id: cpp17-auto-braced-initialization-rules
+    sourcePath: cpp17/07_auto_braced_initialization_rules
+    language: cpp
+    track: cpp17
+    order: 7
+    tags:
+      - type-deduction
+      - initialization
+    prerequisites:
+      - cpp17-thread-atomic-memory-model-review
+  - id: cpp17-structured-bindings
+    sourcePath: cpp17/08_structured_bindings
+    language: cpp
+    track: cpp17
+    order: 8
+    tags:
+      - structured-binding
+      - type-deduction
+    prerequisites:
+      - cpp17-auto-braced-initialization-rules
+  - id: cpp17-if-switch-with-initializer
+    sourcePath: cpp17/09_if_switch_with_initializer
+    language: cpp
+    track: cpp17
+    order: 9
+    tags:
+      - control-flow
+      - scope
+      - initialization
+    prerequisites:
+      - cpp17-structured-bindings
+  - id: cpp17-nested-namespaces
+    sourcePath: cpp17/10_nested_namespaces
+    language: cpp
+    track: cpp17
+    order: 10
+    tags:
+      - namespace
+      - readability
+    prerequisites:
+      - cpp17-if-switch-with-initializer
+  - id: cpp17-inline-variables-odr
+    sourcePath: cpp17/11_inline_variables_odr
+    language: cpp
+    track: cpp17
+    order: 11
+    tags:
+      - odr
+      - linkage
+      - variables
+    prerequisites:
+      - cpp17-nested-namespaces
+  - id: cpp17-attributes-has-include
+    sourcePath: cpp17/12_attributes_has_include
+    language: cpp
+    track: cpp17
+    order: 12
+    tags:
+      - attributes
+      - portability
+      - preprocessing
+    prerequisites:
+      - cpp17-inline-variables-odr
+  - id: cpp17-class-template-argument-deduction
+    sourcePath: cpp17/13_class_template_argument_deduction
+    language: cpp
+    track: cpp17
+    order: 13
+    tags:
+      - templates
+      - type-deduction
+    prerequisites:
+      - cpp17-attributes-has-include
+  - id: cpp17-deduction-guides
+    sourcePath: cpp17/14_deduction_guides
+    language: cpp
+    track: cpp17
+    order: 14
+    tags:
+      - templates
+      - type-deduction
+    prerequisites:
+      - cpp17-class-template-argument-deduction
+  - id: cpp17-auto-non-type-template-parameters
+    sourcePath: cpp17/15_auto_non_type_template_parameters
+    language: cpp
+    track: cpp17
+    order: 15
+    tags:
+      - templates
+      - compile-time
+    prerequisites:
+      - cpp17-deduction-guides
+  - id: cpp17-fold-expressions
+    sourcePath: cpp17/16_fold_expressions
+    language: cpp
+    track: cpp17
+    order: 16
+    tags:
+      - templates
+      - parameter-pack
+    prerequisites:
+      - cpp17-auto-non-type-template-parameters
+  - id: cpp17-void-t-logical-callable-traits
+    sourcePath: cpp17/17_void_t_logical_callable_traits
+    language: cpp
+    track: cpp17
+    order: 17
+    tags:
+      - type-traits
+      - sfinae
+      - callable
+    prerequisites:
+      - cpp17-fold-expressions
+  - id: cpp17-if-constexpr
+    sourcePath: cpp17/18_if_constexpr
+    language: cpp
+    track: cpp17
+    order: 18
+    tags:
+      - compile-time
+      - templates
+      - control-flow
+    prerequisites:
+      - cpp17-void-t-logical-callable-traits
+  - id: cpp17-constexpr-lambdas
+    sourcePath: cpp17/19_constexpr_lambdas
+    language: cpp
+    track: cpp17
+    order: 19
+    tags:
+      - lambda
+      - compile-time
+    prerequisites:
+      - cpp17-if-constexpr
+  - id: cpp17-lambda-capture-star-this-lifetime
+    sourcePath: cpp17/20_lambda_capture_star_this_lifetime
+    language: cpp
+    track: cpp17
+    order: 20
+    tags:
+      - lambda
+      - capture
+      - lifetime
+    prerequisites:
+      - cpp17-constexpr-lambdas
+  - id: cpp17-guaranteed-copy-elision-prvalue-materialization
+    sourcePath: cpp17/21_guaranteed_copy_elision_prvalue_materialization
+    language: cpp
+    track: cpp17
+    order: 21
+    tags:
+      - copy
+      - lifetime
+      - value-category
+    prerequisites:
+      - cpp17-lambda-capture-star-this-lifetime
+  - id: cpp17-evaluation-order-noexcept-function-type
+    sourcePath: cpp17/22_evaluation_order_noexcept_function_type
+    language: cpp
+    track: cpp17
+    order: 22
+    tags:
+      - sequencing
+      - noexcept
+      - type-system
+    prerequisites:
+      - cpp17-guaranteed-copy-elision-prvalue-materialization
+  - id: cpp17-utf8-enum-aggregate-changes
+    sourcePath: cpp17/23_utf8_enum_aggregate_changes
+    language: cpp
+    track: cpp17
+    order: 23
+    tags:
+      - unicode
+      - enum
+      - aggregate
+    prerequisites:
+      - cpp17-evaluation-order-noexcept-function-type
+  - id: cpp17-cpp14-to-cpp17-migration-compatibility
+    sourcePath: cpp17/24_cpp14_to_cpp17_migration_compatibility
+    language: cpp
+    track: cpp17
+    order: 24
+    tags:
+      - toolchain
+      - portability
+      - migration
+    prerequisites:
+      - cpp17-utf8-enum-aggregate-changes
+  - id: cpp17-optional-absent-value
+    sourcePath: cpp17/25_optional_absent_value
+    language: cpp
+    track: cpp17
+    order: 25
+    tags:
+      - optional
+      - error-handling
+    prerequisites:
+      - cpp17-cpp14-to-cpp17-migration-compatibility
+  - id: cpp17-variant-visit
+    sourcePath: cpp17/26_variant_visit
+    language: cpp
+    track: cpp17
+    order: 26
+    tags:
+      - variant
+      - type-safety
+    prerequisites:
+      - cpp17-optional-absent-value
+  - id: cpp17-any-type-erasure
+    sourcePath: cpp17/27_any_type_erasure
+    language: cpp
+    track: cpp17
+    order: 27
+    tags:
+      - type-erasure
+      - type-safety
+    prerequisites:
+      - cpp17-variant-visit
+  - id: cpp17-string-view-non-owning-lifetime
+    sourcePath: cpp17/28_string_view_non_owning_lifetime
+    language: cpp
+    track: cpp17
+    order: 28
+    tags:
+      - string-view
+      - lifetime
+      - ownership
+    prerequisites:
+      - cpp17-any-type-erasure
+  - id: cpp17-invoke-apply
+    sourcePath: cpp17/29_invoke_apply
+    language: cpp
+    track: cpp17
+    order: 29
+    tags:
+      - callable
+      - tuple
+      - templates
+    prerequisites:
+      - cpp17-string-view-non-owning-lifetime
+  - id: cpp17-byte-object-representation
+    sourcePath: cpp17/30_byte_object_representation
+    language: cpp
+    track: cpp17
+    order: 30
+    tags:
+      - object-model
+      - memory
+      - byte
+    prerequisites:
+      - cpp17-invoke-apply
+  - id: cpp17-to-chars-from-chars
+    sourcePath: cpp17/31_to_chars_from_chars
+    language: cpp
+    track: cpp17
+    order: 31
+    tags:
+      - parsing
+      - conversion
+      - error-handling
+    prerequisites:
+      - cpp17-byte-object-representation
+  - id: cpp17-filesystem
+    sourcePath: cpp17/32_filesystem
+    language: cpp
+    track: cpp17
+    order: 32
+    tags:
+      - filesystem
+      - error-handling
+    prerequisites:
+      - cpp17-to-chars-from-chars
+  - id: cpp17-chrono-rounding-time-point-conversion
+    sourcePath: cpp17/33_chrono_rounding_time_point_conversion
+    language: cpp
+    track: cpp17
+    order: 33
+    tags:
+      - chrono
+      - timestamps
+      - conversion
+    prerequisites:
+      - cpp17-filesystem
+  - id: cpp17-map-set-node-handles-extract-merge
+    sourcePath: cpp17/34_map_set_node_handles_extract_merge
+    language: cpp
+    track: cpp17
+    order: 34
+    tags:
+      - container
+      - node-handle
+      - ownership
+    prerequisites:
+      - cpp17-chrono-rounding-time-point-conversion
+  - id: cpp17-size-data-empty-as-const-weak-from-this
+    sourcePath: cpp17/35_size_data_empty_as_const_weak_from_this
+    language: cpp
+    track: cpp17
+    order: 35
+    tags:
+      - container
+      - iterator
+      - ownership
+    prerequisites:
+      - cpp17-map-set-node-handles-extract-merge
+  - id: cpp17-clamp-sample-not-fn-gcd-lcm
+    sourcePath: cpp17/36_clamp_sample_not_fn_gcd_lcm
+    language: cpp
+    track: cpp17
+    order: 36
+    tags:
+      - algorithm
+      - numeric
+    prerequisites:
+      - cpp17-size-data-empty-as-const-weak-from-this
+  - id: cpp17-reduce-transform-reduce
+    sourcePath: cpp17/37_reduce_transform_reduce
+    language: cpp
+    track: cpp17
+    order: 37
+    tags:
+      - algorithm
+      - numeric
+      - parallelism
+    prerequisites:
+      - cpp17-clamp-sample-not-fn-gcd-lcm
+  - id: cpp17-inclusive-exclusive-transform-scans
+    sourcePath: cpp17/38_inclusive_exclusive_transform_scans
+    language: cpp
+    track: cpp17
+    order: 38
+    tags:
+      - algorithm
+      - numeric
+      - parallelism
+    prerequisites:
+      - cpp17-reduce-transform-reduce
+  - id: cpp17-parallel-algorithms-execution-policies
+    sourcePath: cpp17/39_parallel_algorithms_execution_policies
+    language: cpp
+    track: cpp17
+    order: 39
+    tags:
+      - algorithm
+      - parallelism
+      - concurrency
+    prerequisites:
+      - cpp17-inclusive-exclusive-transform-scans
+  - id: cpp17-pmr-polymorphic-memory-resources
+    sourcePath: cpp17/40_pmr_polymorphic_memory_resources
+    language: cpp
+    track: cpp17
+    order: 40
+    tags:
+      - pmr
+      - memory
+      - allocation
+    prerequisites:
+      - cpp17-parallel-algorithms-execution-policies
+  - id: cpp17-shared-mutex-scoped-lock
+    sourcePath: cpp17/41_shared_mutex_scoped_lock
+    language: cpp
+    track: cpp17
+    order: 41
+    tags:
+      - concurrency
+      - mutex
+      - locking
+    prerequisites:
+      - cpp17-pmr-polymorphic-memory-resources
+  - id: cpp17-thread-future-promise-async-pipeline
+    sourcePath: cpp17/42_thread_future_promise_async_pipeline
+    language: cpp
+    track: cpp17
+    order: 42
+    tags:
+      - concurrency
+      - async
+      - future
+    prerequisites:
+      - cpp17-shared-mutex-scoped-lock
+  - id: cpp17-mutex-condition-variable-producer-consumer
+    sourcePath: cpp17/43_mutex_condition_variable_producer_consumer
+    language: cpp
+    track: cpp17
+    order: 43
+    tags:
+      - concurrency
+      - mutex
+      - condition-variable
+    prerequisites:
+      - cpp17-thread-future-promise-async-pipeline
+  - id: cpp17-atomic-compare-exchange-memory-ordering
+    sourcePath: cpp17/44_atomic_compare_exchange_memory_ordering
+    language: cpp
+    track: cpp17
+    order: 44
+    tags:
+      - atomic
+      - memory-order
+      - concurrency
+    prerequisites:
+      - cpp17-mutex-condition-variable-producer-consumer
+  - id: cpp17-hardware-interference-false-sharing-launder
+    sourcePath: cpp17/45_hardware_interference_false_sharing_launder
+    language: cpp
+    track: cpp17
+    order: 45
+    tags:
+      - cache
+      - performance
+      - false-sharing
+    prerequisites:
+      - cpp17-atomic-compare-exchange-memory-ordering
+  - id: cpp17-lock-free-spsc-queue
+    sourcePath: cpp17/46_lock_free_spsc_queue
+    language: cpp
+    track: cpp17
+    order: 46
+    tags:
+      - concurrency
+      - lock-free
+      - queue
+    prerequisites:
+      - cpp17-hardware-interference-false-sharing-launder
+  - id: cpp17-cache-locality-data-oriented-design
+    sourcePath: cpp17/47_cache_locality_data_oriented_design
+    language: cpp
+    track: cpp17
+    order: 47
+    tags:
+      - cache
+      - performance
+      - data-layout
+    prerequisites:
+      - cpp17-lock-free-spsc-queue
+  - id: cpp17-pmr-pool-allocation-free-hot-path
+    sourcePath: cpp17/48_pmr_pool_allocation_free_hot_path
+    language: cpp
+    track: cpp17
+    order: 48
+    tags:
+      - pmr
+      - allocation
+      - performance
+    prerequisites:
+      - cpp17-cache-locality-data-oriented-design
+  - id: cpp17-benchmarking-profiling-compiler-optimization
+    sourcePath: cpp17/49_benchmarking_profiling_compiler_optimization
+    language: cpp
+    track: cpp17
+    order: 49
+    tags:
+      - benchmarking
+      - profiling
+      - optimization
+    prerequisites:
+      - cpp17-pmr-pool-allocation-free-hot-path
+  - id: cpp17-binary-parsing-byte-string-view-from-chars
+    sourcePath: cpp17/50_binary_parsing_byte_string_view_from_chars
+    language: cpp
+    track: cpp17
+    order: 50
+    tags:
+      - binary-parsing
+      - type-safety
+      - bounds
+    prerequisites:
+      - cpp17-benchmarking-profiling-compiler-optimization

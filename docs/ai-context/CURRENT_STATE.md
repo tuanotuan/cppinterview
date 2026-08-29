@@ -10,14 +10,14 @@ trạng thái từ tên nhánh.
 
 - Bộ lọc thư viện `/learn` hiển thị riêng C++98, C++11, C++14, C++17, C++20
   và C++23, không còn gộp nhiều chuẩn trong một chip. Catalog hiện có lesson
-  C++98/C++11/C++14/C++20 nên C++17 và C++23 xuất hiện ở trạng thái disabled; chip
+  C++98/C++11/C++14/C++17/C++20 nên chỉ C++23 còn ở trạng thái disabled; chip
   tự xuống dòng và giữ vùng bấm tối thiểu 44 px trên màn hình hẹp. Nhãn điều
-  hướng roadmap bám theo chuẩn đang lọc; ở `Tất cả` chỉ hiện `Roadmap`. C++11 và
-  C++14 mở route riêng, còn chuẩn chưa có roadmap mở bộ chọn phiên bản và được
+  hướng roadmap bám theo chuẩn đang lọc; ở `Tất cả` chỉ hiện `Roadmap`. C++11,
+  C++14 và C++17 mở route riêng, còn chuẩn chưa có roadmap mở bộ chọn phiên bản và được
   đánh dấu `Sắp có` thay vì bị chuyển nhầm sang roadmap khác.
-- Roadmap C++11 có 53 ngày/8 chặng và roadmap C++14 có 50 ngày/7 chặng; mỗi
+- Roadmap C++11 có 53 ngày/8 chặng; roadmap C++14 và C++17 đều có 50 ngày/7 chặng; mỗi
   roadmap giữ thứ tự riêng với `lesson.order` và mọi node đều `ready`. Các lesson
-  C++11 được đánh số `01`–`53`, C++14 được đánh số `01`–`50`; mỗi lesson có canonical `vi.md`,
+  C++11 được đánh số `01`–`53`, C++14/C++17 được đánh số `01`–`50`; mỗi lesson có canonical `vi.md`,
   companion `en.md` và `main.cpp` theo cùng cấu trúc 10 phần như Toolchain;
   loader vẫn nhận `knowledge.md` cho lesson cũ, pipeline sinh overlay lesson
   exact-revision và giữ section ID canonical khi đổi locale. Coverage `ready` không lặp
@@ -35,9 +35,9 @@ trạng thái từ tên nhánh.
   và callback Auth kỹ thuật vẫn không prefix. Các lối tắt Admin trong Practice,
   Stats và guide tick dùng `next/link` trực tiếp nên luôn mở `/admin`, không bị
   navigation theo locale đổi thành route 404 `/vi/admin` hoặc `/en/admin`.
-- Catalog hiện có 323 question Git-owned: 4 verified và 319 draft. Mỗi lesson
-  C++11/C++14 có ba draft beginner/intermediate/advanced với taxonomy
-  `standard::cpp11` hoặc `standard::cpp14`; 309 English copy tương ứng xuất hiện thành mục duyệt riêng
+- Catalog hiện có 473 question Git-owned: 4 verified và 469 draft. Mỗi lesson
+  C++11/C++14/C++17 có ba draft beginner/intermediate/advanced với taxonomy
+  `standard::cpp11`, `standard::cpp14` hoặc `standard::cpp17`; 459 English copy tương ứng xuất hiện thành mục duyệt riêng
   trong Admin nhưng giữ nguyên canonical ID/version/hash/taxonomy. Cả 4 question verified
   cũng có overlay tiếng Anh; `/en/practice` chỉ xếp question và English copy đã duyệt vào hàng học. Question được duyệt
   nhưng chưa dịch không còn fallback sang tiếng Việt, còn source excerpt/title
@@ -156,9 +156,9 @@ trạng thái từ tên nhánh.
 
 ## Giới hạn và trạng thái chưa xác minh
 
-- Phạm vi review hiện hành là đúng 309 canonical question C++11/C++14 và 309
+- Phạm vi review hiện hành là đúng 459 canonical question C++11/C++14/C++17 và 459
   English draft khớp exact revision, tương ứng ba câu mỗi ngôn ngữ cho từng bài
-  trong 53 bài C++11 và 50 bài C++14. Bốn English overlay ngoài hai lộ trình vẫn
+  trong 53 bài C++11, 50 bài C++14 và 50 bài C++17. Bốn English overlay ngoài ba lộ trình vẫn
   có trong catalog lịch sử nhưng bị
   tombstone theo canonical ID; migration
   `20260828223000_retire_pre_curriculum_questions.sql` mã hóa đúng 90 ID legacy
@@ -171,10 +171,11 @@ trạng thái từ tên nhánh.
   `responseLocale`; English chỉ nhận question có overlay exact-revision và mọi
   provider đều có output contract tiếng Anh. Practice và các route AI/Mock đọc
   verified publication từ view translation DB rồi đối chiếu exact copy Git.
-- Migration `20260829100000_add_cpp14_content_track.sql` chưa được áp dụng remote.
-  Nó phải chạy trước lần content sync đầu tiên chứa lesson C++14; nếu không,
-  check constraint hiện hành sẽ từ chối track `cpp14`. Migration chỉ thay check
-  constraint, không đổi dữ liệu, RLS, grant, view hay RPC.
+- Hai migration `20260829100000_add_cpp14_content_track.sql` và
+  `20260829130000_add_cpp17_content_track.sql` chưa được chứng minh là đã áp dụng
+  remote. Chúng phải chạy đúng thứ tự trước lần content sync đầu tiên chứa lesson
+  C++14/C++17; nếu không, check constraint hiện hành sẽ từ chối track mới. Cả hai
+  chỉ thay check constraint, không đổi dữ liệu, RLS, grant, view hay RPC.
 
 - Kho câu hỏi đã duyệt chưa bao phủ đều tick data, Linux/mạng, hệ
   thống phân tán và kỹ năng chịu trách nhiệm đầu cuối. Giao diện phải gọi đây là
@@ -310,14 +311,15 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Bộ học liệu song ngữ C++11 ngày 01–53 và C++14 ngày 01–50 đạt toàn bộ
-  `npm run validate`: content/context check, ESLint, TypeScript, 121 file/728
-  Vitest test và Next.js production build sinh 273 static page. Build có route
-  `/[locale]/learn/roadmap/cpp11` và `/[locale]/learn/roadmap/cpp14`. Regression
-  test khóa đúng ba mức khó/tag chuẩn cho mỗi lesson, exact 309 câu canonical +
-  309 English draft dùng chung ID/version/hash và toàn bộ 103 node roadmap ở
-  trạng thái `ready`. Cả 50 sample C++14 qua `g++ -std=c++14 -Wall -Wextra
-  -Wpedantic -fsyntax-only`; 150 file import khớp SHA-256 với nguồn người dùng.
+- Bộ học liệu song ngữ C++11 ngày 01–53, C++14 ngày 01–50 và C++17 ngày 01–50
+  đạt toàn bộ `npm run validate`: content/context check, ESLint, TypeScript,
+  124 file/744 Vitest test và Next.js production build sinh 375 static page.
+  Build có đủ ba route `/[locale]/learn/roadmap/{cpp11,cpp14,cpp17}`. Regression
+  test khóa đúng ba mức khó/tag chuẩn cho mỗi lesson, exact 459 câu canonical +
+  459 English draft dùng chung ID/version/hash và toàn bộ 153 node roadmap ở
+  trạng thái `ready`. Cả 50 sample C++17 qua `g++ -std=c++17 -Wall -Wextra
+  -Wpedantic -pthread -fsyntax-only`; 150 file import khớp SHA-256 với nguồn
+  người dùng.
 - Hotfix Practice cho question DB stale đạt `content:check`, `context:check`,
   ESLint, TypeScript, 111 file/656 Vitest test và Next.js production build 67
   page. Regression test giữ question revision cũ trong hàng `needs_review` nhưng

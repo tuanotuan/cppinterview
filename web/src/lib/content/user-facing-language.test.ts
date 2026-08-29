@@ -24,6 +24,8 @@ describe("user-facing language", () => {
       ...walk(path.join(repoRoot, "cmake")),
       ...walk(path.join(repoRoot, "cpp98_foundation")),
       ...walk(path.join(repoRoot, "cpp11")),
+      ...walk(path.join(repoRoot, "cpp14")),
+      ...walk(path.join(repoRoot, "cpp17")),
       ...walk(path.join(repoRoot, "cpp20")),
       ...walk(path.join(repoRoot, "python")),
     ];
