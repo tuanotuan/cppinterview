@@ -22,7 +22,12 @@ export type AiBudgetReservation = {
 export class AiMonthlyBudgetExceededError extends Error {}
 export class AiDailyBudgetExceededError extends Error {}
 export class AiBudgetConfigurationError extends Error {}
-export class AiOperationNotStartedError extends Error {}
+export class AiOperationNotStartedError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "AiOperationNotStartedError";
+  }
+}
 export class AiOperationOutcomeUnknownError extends Error {
   constructor(readonly cause: unknown) {
     super("The AI provider request outcome could not be confirmed");

@@ -342,9 +342,10 @@ export async function POST(request: Request) {
         idempotencyKey: ownerReservation.idempotencyKey,
         leaseToken: ownerReservation.leaseToken,
       });
-    } catch {
+    } catch (error) {
       throw new AiOperationNotStartedError(
         "Lesson assistant dispatch could not be confirmed",
+        { cause: error },
       );
     }
   };
@@ -505,6 +506,21 @@ export async function POST(request: Request) {
         503,
         "Trợ lý AI chưa được cấu hình khóa truy cập.",
         "The AI assistant access key is not configured.",
+      );
+    }
+    if (error instanceof AiOperationNotStartedError) {
+      console.error("Lesson assistant provider preflight failed", {
+        name: error.name,
+        causeName:
+          error.cause instanceof Error ? error.cause.name : "UnknownError",
+      });
+      return errorResponse(
+        locale,
+        "provider_not_started",
+        503,
+        "Chưa thể chuẩn bị lượt hỏi AI. Không có yêu cầu nào được gửi tới OpenAI; vui lòng thử lại sau.",
+        "The AI turn could not be prepared. No request was sent to OpenAI; try again later.",
+        { "Retry-After": "10" },
       );
     }
     if (error instanceof PublicAiSiteBudgetExceededError) {

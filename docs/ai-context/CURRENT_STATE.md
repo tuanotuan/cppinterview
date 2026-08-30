@@ -304,12 +304,14 @@ trạng thái từ tên nhánh.
   cùng section citation đã kiểm tra, dùng đúng ngôn ngữ UI, không nhận question
   bank/rubric/answer key và không fallback Gemini.
 - Public/non-admin chia sẻ quota AI ba lượt rolling 24 giờ hiện hữu; owner dùng
-  daily/monthly budget cùng durable ambiguity barrier. Migration local
-  `20260829130024_add_lesson_ai_assistant.sql` phải được áp remote trước khi deploy
-  UI/API mới; chưa áp thì endpoint fail closed trước provider. Repo không tự
-  chứng minh migration remote hay deployment đã diễn ra. Local Supabase migration
-  runtime chưa kiểm tra được trên máy không có Docker/Podman; static SQL security
-  tests vẫn là gate bắt buộc.
+  daily/monthly budget cùng durable ambiguity barrier. Migration
+  `20260829130024_add_lesson_ai_assistant.sql` và bản sửa kế tiếp
+  `20260830021455_fix_lesson_ai_dispatch_coalesce.sql` phải được áp theo thứ tự
+  trước khi deploy UI/API mới. Bản sửa thay schema-qualified `COALESCE` không hợp
+  lệ trong dispatch RPC; nếu preflight vẫn lỗi, endpoint trả `provider_not_started`
+  và fail closed trước khi gọi provider. Repo không tự suy diễn migration remote
+  hay deployment đã diễn ra. Local Supabase migration runtime chưa kiểm tra được
+  trên máy không có Docker/Podman; static SQL security tests vẫn là gate bắt buộc.
 
 ## Public AI quota rollout
 

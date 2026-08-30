@@ -53,6 +53,27 @@ describe("database hardening migrations", () => {
     expect(sql).toContain("notify pgrst, 'reload schema';");
   });
 
+  it("repairs the lesson AI dispatch marker without calling COALESCE as a catalog function", async () => {
+    const sql = await readMigration(
+      "20260830021455_fix_lesson_ai_dispatch_coalesce.sql",
+    );
+
+    expect(sql).toMatch(
+      /create or replace function public\.mark_lesson_ai_response_dispatched\([\s\S]*?security definer[\s\S]*?set search_path = ''/,
+    );
+    expect(sql).toContain(
+      "set dispatched_at = coalesce(dispatched_at, pg_catalog.now())",
+    );
+    expect(sql).not.toContain("pg_catalog.coalesce");
+    expect(sql).toMatch(
+      /revoke all on function public\.mark_lesson_ai_response_dispatched\(uuid, uuid\)\s+from public, anon, authenticated;/,
+    );
+    expect(sql).toMatch(
+      /grant execute on function public\.mark_lesson_ai_response_dispatched\(uuid, uuid\)\s+to authenticated;/,
+    );
+    expect(sql).toContain("notify pgrst, 'reload schema';");
+  });
+
   it("keeps Coach evaluation idempotency locale-bound", async () => {
     const sql = await readMigration(
       "20260828110000_localize_coach_evaluation_fingerprints.sql",
