@@ -52,8 +52,10 @@ trạng thái từ tên nhánh.
   loại tombstone khỏi cả store Git, shadow và DB nên content sync không làm câu
   sống lại; revision/source append-only vẫn được giữ tối thiểu cho audit.
 - Hàng đợi cũng có card “Bản dịch · English” và duyệt hàng loạt chung với câu
-  gốc. Approval translation chỉ ghi copy catalog server cho exact revision;
-  publication không tạo question/history mới và tự hết hiệu lực khi copy đổi.
+  gốc. Bulk approval chia riêng hai luồng thành batch tối đa 200 mục theo contract
+  API, hiện tiến độ tại hàng đợi và chỉ gỡ các batch server đã xác nhận; phần lỗi
+  vẫn ở lại để thử lại. Approval translation chỉ ghi copy catalog server cho exact
+  revision; publication không tạo question/history mới và tự hết hiệu lực khi copy đổi.
 - Reader lesson mở các câu đã duyệt của exact lesson bằng lesson-check riêng;
   Toolchain hiện có ba question tương ứng. Mode này luôn đi hết tập câu đã duyệt
   dù đã ôn trong ngày. Mỗi lần bấm CTA sẽ xóa snapshot đúng bài/tài khoản để bắt
