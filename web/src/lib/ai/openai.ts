@@ -26,6 +26,16 @@ import {
   type QuestionClarification,
 } from "./contracts";
 import {
+  buildLessonAssistantInput,
+  buildLessonAssistantInstructions,
+  type LessonAssistantContext,
+} from "./lesson-assistant-context.server";
+import {
+  lessonAssistantResponseSchema,
+  type LessonAssistantMessage,
+  type LessonAssistantResponse,
+} from "./lesson-assistant";
+import {
   buildCoachFollowUpPrompt,
   buildCoachPrompt,
   buildCoachSystemInstruction,
@@ -128,6 +138,50 @@ export async function answerCoachFollowUpWithOpenAI({
   );
   if (result.data.sourceSectionIds.some((id) => !allowedSourceIds.has(id))) {
     throw new Error("OpenAI returned an unknown source section");
+  }
+  return result;
+}
+
+export async function answerLessonWithOpenAI({
+  context,
+  messages,
+  safetyIdentifier,
+  responseLocale = "vi",
+}: {
+  context: LessonAssistantContext;
+  messages: LessonAssistantMessage[];
+  safetyIdentifier: string;
+  responseLocale?: AiResponseLocale;
+}): Promise<OpenAIStructuredResult<LessonAssistantResponse>> {
+  const model = openAIModel("luna");
+  const response = await openAIClient().responses.parse({
+    model,
+    store: false,
+    safety_identifier: safetyIdentifier,
+    instructions: buildLessonAssistantInstructions(responseLocale),
+    input: buildLessonAssistantInput({ context, messages }),
+    reasoning: { effort: "medium" },
+    max_output_tokens: 2_200,
+    text: {
+      format: zodTextFormat(
+        lessonAssistantResponseSchema,
+        "lesson_assistant_response",
+      ),
+      verbosity: "medium",
+    },
+  });
+
+  const result = parsedResult(
+    response,
+    model,
+    "OpenAI returned an empty lesson assistant response",
+  );
+  if (
+    result.data.sourceSectionIds.some(
+      (sectionId) => !context.sourceSectionIds.has(sectionId),
+    )
+  ) {
+    throw new Error("OpenAI returned an unknown lesson source section");
   }
   return result;
 }

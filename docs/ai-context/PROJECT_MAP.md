@@ -77,7 +77,7 @@ dùng navigation wrapper của `next-intl`, để không sinh nhầm `/vi/admin`
 | `/` | `[locale]/page.tsx`, `recall-landing-page.tsx` | Landing public của cppinterview: giới thiệu luồng học, thư viện, AI coach, mock interview và đăng nhập/đăng ký; account đã đăng nhập được chuyển sang Practice cùng locale (trừ khi route mang thông báo auth); CTA thử luyện mở guest mode |
 | `/practice` | `[locale]/practice/page.tsx`, `practice-app.tsx`, `code-review-workspace.tsx`, `question-editor-dialog.tsx`, `confirmation-dialog.tsx` | Today workspace: CTA tiếp tục/luyện thêm, tiến độ và chỉ số ngày trước card; guest mode `?guest=1` giữ tiến độ local và mở Luna với giới hạn public 3 lượt/24 giờ, còn vùng trả lời không lặp cảnh báo trial cho tài khoản đã đăng nhập; Daily/custom study và Focus Sprint exact queue; `study=lesson-check` là kiểm tra một lần cho exact lesson, chỉ nhận ID question đã qua publication/approval filter và không rating, ghi review hay cập nhật scheduler; `/en/practice` chỉ nhận question có overlay đúng revision, đồng thời ẩn source excerpt/title lesson chưa có overlay để không fallback sang tiếng Việt; mỗi thẻ chỉ hiện hai nhãn phân loại độ khó và Text/Code theo locale, còn taxonomy nội bộ không lộ ra hoặc lọc ở UI; question overlay, toàn bộ control/modal và AI Coach dùng locale phiên hiện tại; `code_review` thay textarea bằng workspace chọn dòng, lưu annotation vào candidate answer để tồn tại qua F5 và gửi nguyên vẹn cho Coach, không lộ rubric/comment mẫu; answer không giới hạn sản phẩm, blank = chưa biết và vẫn gọi được AI, rating, scheduler, cloud sync, saved state, owner-only edit/archive thẻ và return về Guided Mission; thao tác phá hủy dùng confirmation sheet của cppinterview thay vì hộp thoại trình duyệt |
 | `/worldquant/*` | `worldquant/layout.tsx` và các module lịch sử | Workspace chuẩn bị theo một công ty cũ chỉ còn truy cập được bởi admin GitHub `tuanotuan`; người học thường bị chuyển về `/practice`. Không có entry point công khai tới vùng này. |
-| `/learn` | `[locale]/learn/page.tsx`, `[locale]/learn/[lessonId]/page.tsx` | Thư viện lesson từ manifest với UI theo locale, tổng quan bài/thẻ đã duyệt/bài có mã, tìm kiếm và chip riêng cho từng chuẩn C++98/11/14/17/20/23; chuẩn chưa có lesson bị khóa thay vì trả danh sách rỗng; card danh sách chỉ giữ chuẩn C++, số bài và tiêu đề, không lặp số phần/mã mẫu/số câu hay prerequisite; reader render Markdown/code mẫu, cho đổi locale ngay tại header và đặt CTA kiểm tra câu hỏi đã duyệt ở đầu lẫn cuối bài, không còn checklist tự đánh dấu |
+| `/learn` | `[locale]/learn/page.tsx`, `[locale]/learn/[lessonId]/page.tsx`, `app/learn/lesson-ai-assistant.tsx` | Thư viện lesson từ manifest với UI theo locale, tìm kiếm và chip riêng cho từng chuẩn C++98/11/14/17/20/23; chuẩn chưa có lesson bị khóa; card chỉ giữ chuẩn C++, số bài và tiêu đề. Reader render Markdown/code mẫu, đổi VI/EN tại header, đặt CTA kiểm tra ở đầu/cuối bài và có đúng một panel “Học với AI”: mobile nằm trước mục lục/nội dung, desktop sticky bên phải, transcript chỉ ở React memory |
 | `/learn/roadmap/cpp11`, `/learn/roadmap/cpp14`, `/learn/roadmap/cpp17` | Route locale theo chuẩn, `app/learn/{cpp11,cpp14,cpp17}-roadmap-app.tsx`, `app/learn/cpp-roadmap-map.tsx`, `lib/learn/{cpp11,cpp14,cpp17}-roadmap.ts` | Roadmap song ngữ: C++11 có 53 ngày/8 chặng; C++14 và C++17 đều có 50 ngày/7 chặng. Cả ba chỉ link lesson `ready` đúng track và dùng chung sơ đồ node/connector ba cột ziczac trên desktop, một trục dọc trên tablet/mobile. Node mở lesson chính trong tab mới; coverage không phải tiến độ người học |
 | `/mock-interview` | `[locale]/mock-interview/page.tsx`, `mock-interview-app.tsx` | Phỏng vấn thử v4 toàn diện/trọng tâm 30/45/60 phút. Locale được đóng băng khi bắt đầu phiên để báo cáo và history không đổi ngôn ngữ giữa chừng. Targeted Mock v2 có hai scenario rõ nghĩa (tích hợp feed mới; chuyển đổi & sự cố), exact server-rebuilt plan và lịch sử v1 vẫn chỉ đọc; báo cáo tám tiêu chí có evidence server-canonical, deterministic gate C++/market-data/migration và không đưa ra phán quyết role-ready. Lịch sử và kế hoạch ôn tiếp vẫn tạo đúng ba việc luyện tiếp để capture vào Mistake Inbox sau durable history; desktop session rail chỉ lộ thứ tự/trạng thái trả lời, còn thanh chuyển câu/nộp bài sticky; nộp sớm, reset, thay Focus hoặc xóa history đều xác nhận trong UI |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx`, `lib/learn/tick-data-guide.ts` | Guide tick data/order book |
@@ -90,6 +90,7 @@ dùng navigation wrapper của `next-intl`, để không sinh nhầm `/vi/admin`
 API quan trọng:
 
 - `api/coach/{evaluate,follow-up,clarify}`: chấm, giải thích và diễn giải đề. `clarify` owner-only, dùng Luna, diễn đạt bình dân theo tình huống thay vì từ điển thuật ngữ và không gửi đáp án/rubric; evaluate/follow-up dùng OpenAI trước, Gemini fallback theo quota.
+- `api/coach/lesson`: server dựng lại toàn bộ lesson đúng locale từ manifest, gọi Luna với structured answer/citation và không nhận context lesson từ client; public/non-admin dùng chung quota AI 3 lượt/24 giờ, owner dùng durable reservation + budget hiện hữu, không fallback Gemini.
 - `api/mock-interview/{run,report,history}`: chạy sample code, xác minh exact
   blueprint, tạo report có hidden evaluation và danh mục evidence canonical (câu trả lời/code/test), rồi đọc/xóa history theo account.
 - `api/progress/sync`: đồng bộ review/Anki state.
@@ -123,8 +124,8 @@ API quan trọng:
 | `worldquant` | `curriculum.ts`, `curriculum-evidence.ts`, `drills.ts` | Concept graph, content/transfer coverage và catalog 30 scenario: một practice + hai checkpoint mỗi competency |
 | `worldquant` | `training-state.ts`, `mission-snapshot.ts`, `tick-replay.ts`, `legacy-modern-capstone.ts` | Evidence account-scoped, cloud CAS/local fallback, Mission frozen, mô phỏng tick và capstone chuyển đổi legacy |
 | `ai` | `openai.ts`, `gemini.ts`, `fallback.ts`, `access.ts` | Provider call không transport retry, fallback và chặn AI không quota ngoài local development; Luna cho học tập/Coach, Terra chỉ cho report Mock |
-| `ai` | `budget.ts`, `usage.ts`, `billing.ts`, `coach-idempotency-client.ts`, `coach-reservation.server.ts`, `coach-follow-up-reservation.server.ts` | Sổ hạn mức UUID, phân loại kết quả provider và terminal cache Coach theo exact request |
-| `ai` | `public-ai-quota.server.ts`, `public-ai-admission.server.ts`, `public-ai-quota-display.ts`, `public-ai-budget.server.ts` | AI Coach public/non-admin: HMAC IP/device/account, đọc quota hiệu dụng khi tải Practice, rolling 24 giờ, lease chống gọi trùng và ledger Luna site-wide riêng; không dùng quota account hay Gemini fallback của owner |
+| `ai` | `budget.ts`, `usage.ts`, `billing.ts`, `coach-idempotency-client.ts`, `coach-reservation.server.ts`, `coach-follow-up-reservation.server.ts`, `lesson-assistant-{context,reservation}.server.ts` | Sổ hạn mức UUID, context lesson server-canonical, phân loại kết quả provider và terminal cache theo exact request |
+| `ai` | `public-ai-quota.server.ts`, `public-ai-admission.server.ts`, `public-ai-quota-display.ts`, `public-ai-budget.server.ts` | AI Coach và lesson tutor public/non-admin: HMAC IP/device/account, rolling 24 giờ dùng chung, lease chống gọi trùng và ledger Luna site-wide riêng; không dùng identity thô hay Gemini fallback |
 | `mock-interview` | `profile.ts`, `profile-server.ts`, `catalog.ts`, `target-plan.ts` | JD question/version grounding, canonical competency mapping, scenario family và deterministic balanced/targeted blueprint v2 |
 | `mock-interview` | `session-v4.ts`, `contracts-v4.ts`, `session.ts`, `contracts.ts` | Account-scoped frozen v4 session/API contract, owner check và revision CAS; legacy parser không cấp dữ liệu cho Hub |
 | `mock-interview` | `contracts.ts`, `report-prompt.ts`, `history.server.ts`, `report-submission-client.ts`, `trends.ts` | Report raw/normalized, danh mục evidence server-owned cho tám tiêu chí và đúng ba next-practice actions; lease/cache/idempotency chống stale cross-tab submission và trend chỉ trên attempt comparable |
@@ -338,7 +339,7 @@ voice stop có phase riêng để chờ final transcript. Khi kết thúc, app c
 response sau durable write và lưu summary số (rubric, word/filler count) cùng
 exact role/full-round/round/drill revision vào training state.
 
-### AI coach
+### AI coach và lesson tutor
 
 Request được validate + rate-limit + auth/approval check → reserve durable
 evaluation/follow-up theo fingerprint và idempotency key → reserve daily OpenAI
@@ -359,6 +360,15 @@ revision và prompt buộc mọi field người học nhìn thấy trả về b�
 OpenAI và Gemini nhận cùng contract locale.
 Candidate answer là field bắt buộc nhưng được phép rỗng; prompt đánh dấu rõ blank
 là “chưa biết” để trả feedback dạy từ nền tảng.
+
+Lesson reader chỉ gửi `lessonId`, locale, transcript giới hạn và UUIDv8
+idempotency. Route `/api/coach/lesson` localize manifest rồi serialize đủ mọi
+section và code mẫu, khóa context ở 20.000 ký tự và không đưa question/rubric/
+answer bank vào prompt. Luna trả structured answer cùng tối đa bốn section ID;
+server lẫn client đều từ chối citation không thuộc exact lesson. Tối đa bốn lượt
+hỏi trong một transcript memory-only; đổi lesson/locale/content hash tạo panel
+mới. Prompt buộc đúng ngôn ngữ UI, coi lesson/conversation là dữ liệu không tin
+cậy và phân biệt kiến thức trong bài, kiến thức C++ bổ sung, ngoài phạm vi.
 
 Guest và tài khoản không phải owner đi qua public admission riêng. `/practice`
 đọc trước số lượt hiệu dụng bằng IP HMAC cùng device/account hiện có; một profile

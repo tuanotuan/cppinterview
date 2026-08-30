@@ -293,6 +293,24 @@ trạng thái từ tên nhánh.
   `/practice` (unless it carries an auth-result notice), so the shared brand
   link cannot look like it logged the learner out.
 
+## Lesson AI assistant rollout
+
+- Mỗi reader lesson VI/EN có đúng một panel “Học với AI” / “Learn with AI”.
+  Mobile/tablet đặt panel sau hero và trước mục lục; desktop giữ panel sticky bên
+  phải. Transcript chỉ ở memory, tối đa bốn lượt hỏi và reset theo lesson/locale/
+  content hash.
+- `/api/coach/lesson` tự dựng toàn bộ lesson đúng locale từ manifest, gồm mọi
+  section và code mẫu; client không thể thay context. Luna trả structured answer
+  cùng section citation đã kiểm tra, dùng đúng ngôn ngữ UI, không nhận question
+  bank/rubric/answer key và không fallback Gemini.
+- Public/non-admin chia sẻ quota AI ba lượt rolling 24 giờ hiện hữu; owner dùng
+  daily/monthly budget cùng durable ambiguity barrier. Migration local
+  `20260829130024_add_lesson_ai_assistant.sql` phải được áp remote trước khi deploy
+  UI/API mới; chưa áp thì endpoint fail closed trước provider. Repo không tự
+  chứng minh migration remote hay deployment đã diễn ra. Local Supabase migration
+  runtime chưa kiểm tra được trên máy không có Docker/Podman; static SQL security
+  tests vẫn là gate bắt buộc.
+
 ## Public AI quota rollout
 
 - Public Luna admission is working in production after the response-shape and
@@ -311,11 +329,13 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Reader lesson chuẩn hóa số thứ tự ở mục lục và tiêu đề phần từ source Markdown,
-  nên nhãn đã có số hoặc vô tình lặp vẫn chỉ hiển thị đúng một số. Thay đổi đạt
-  toàn bộ `npm run validate`: content/context check, ESLint, TypeScript, 124
-  file/745 Vitest test và Next.js production build sinh đủ 375 static page;
-  smoke production Toolchain trả HTTP 200 và không còn ordinal lặp trong HTML.
+- Lesson tutor đạt toàn bộ `npm run validate`: content/context check, ESLint,
+  TypeScript, 129 file/769 Vitest test và Next.js production build sinh 376
+  static page cùng route `/api/coach/lesson`. Targeted tests phủ context đầy đủ
+  của mọi lesson VI/EN, locale/prompt-injection boundary, quota/idempotency,
+  reservation terminal, SQL grants/RLS và UI responsive/accessibility. Audit
+  production dependency báo 0 vulnerability; migration runtime local chưa chạy
+  được vì máy không có Docker/Podman và không có remote mutation nào được thực hiện.
 - Hotfix Practice cho question DB stale đạt `content:check`, `context:check`,
   ESLint, TypeScript, 111 file/656 Vitest test và Next.js production build 67
   page. Regression test giữ question revision cũ trong hàng `needs_review` nhưng

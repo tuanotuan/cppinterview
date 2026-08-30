@@ -223,7 +223,37 @@
       "section": "Section {number}",
       "completeCode": "Complete sample code",
       "adjacentAria": "Adjacent lessons",
-      "metaDescription": "A {track} lesson with sample code and related review cards."
+      "metaDescription": "A {track} lesson with sample code and related review cards.",
+      "ai": {
+        "eyebrow": "Lesson tutor",
+        "title": "Learn with AI",
+        "description": "Ask about a concept, example, or source code in this lesson. Luna rereads the complete lesson before answering.",
+        "transcriptAria": "Conversation with the lesson tutor",
+        "emptyTitle": "What would you like to understand?",
+        "emptyBody": "Ask one specific question. The answer will link back to the relevant lesson sections.",
+        "assistantLabel": "Luna",
+        "userLabel": "You",
+        "loading": "Luna is reading the lesson and preparing an answer…",
+        "retry": "Try again",
+        "editQuestion": "Edit question",
+        "turnLimit": "This conversation has reached {count} questions. Clear it to start again.",
+        "questionLabel": "Your question",
+        "clear": "Clear conversation",
+        "placeholder": "For example: Why does this rule prevent a lifetime bug?",
+        "keyboardHint": "Enter to send · Shift + Enter for a new line",
+        "send": "Send question",
+        "sending": "Asking Luna…",
+        "quotaRemaining": "{remaining}/{limit} public AI turns left in 24 hours",
+        "grounding": {
+          "lesson": "Grounded in this lesson",
+          "lessonPlusGeneral": "Lesson + additional C++ context",
+          "outsideScope": "Outside this lesson's scope"
+        },
+        "errors": {
+          "generic": "The AI could not answer this question. Try again later.",
+          "network": "The AI assistant could not be reached. Check your connection and try again."
+        }
+      }
     }
   },
   "Cpp11Roadmap": {
