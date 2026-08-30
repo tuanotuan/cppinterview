@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   isSupabaseConfigured: vi.fn(),
   isUnmeteredLocalAiEnabled: vi.fn(),
   localizeContentManifest: vi.fn(),
+  markLessonAssistantDispatched: vi.fn(),
   consumeCoachRequest: vi.fn(),
   reserveLessonAssistantResponse: vi.fn(),
   reservePublicAiAdmission: vi.fn(),
@@ -91,7 +92,7 @@ vi.mock("@/lib/ai/lesson-assistant-reservation.server", async () => {
   return {
     ...actual,
     completeLessonAssistantResponse: vi.fn(),
-    markLessonAssistantDispatched: vi.fn(),
+    markLessonAssistantDispatched: mocks.markLessonAssistantDispatched,
     markLessonAssistantOutcomeUnknown: vi.fn(),
     releaseLessonAssistantResponse: vi.fn(),
     reserveLessonAssistantResponse: mocks.reserveLessonAssistantResponse,
@@ -162,6 +163,7 @@ beforeEach(() => {
     retryAfterSeconds: 0,
   });
   mocks.answerLessonWithOpenAI.mockResolvedValue(providerResult);
+  mocks.markLessonAssistantDispatched.mockResolvedValue(undefined);
   mocks.withAiBudget.mockImplementation(
     async (
       _client: unknown,
@@ -324,6 +326,52 @@ describe("POST /api/coach/lesson", () => {
         requestFingerprint: expect.stringMatching(/^[a-f0-9]{64}$/),
       }),
     );
+  });
+
+  it("reports a failed dispatch preflight without claiming that OpenAI answered", async () => {
+    mocks.isSupabaseConfigured.mockReturnValue(true);
+    mocks.isUnmeteredLocalAiEnabled.mockReturnValue(false);
+    mocks.isAdmin.mockReturnValue(true);
+    mocks.createSupabaseServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "123e4567-e89b-42d3-a456-426614174010" } },
+          error: null,
+        }),
+      },
+    });
+    mocks.reserveLessonAssistantResponse.mockResolvedValue({
+      status: "running",
+      idempotencyKey,
+      requestFingerprint: "b".repeat(64),
+      response: null,
+      model: null,
+      leaseToken: "123e4567-e89b-42d3-a456-426614174011",
+      leaseExpiresAt: "2026-08-30T02:00:00.000Z",
+      outcomeUnknownAt: null,
+      isNew: true,
+    });
+    mocks.markLessonAssistantDispatched.mockRejectedValue(
+      new Error("dispatch RPC unavailable"),
+    );
+
+    const response = await POST(
+      request({
+        lessonId: "cpp11-toolchain",
+        messages: [{ role: "user", content: "Lifetime là gì?" }],
+        responseLocale: "vi",
+        idempotencyKey,
+      }),
+    );
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get("Retry-After")).toBe("10");
+    await expect(response.json()).resolves.toMatchObject({
+      code: "provider_not_started",
+      error: expect.stringContaining("Không có yêu cầu nào được gửi tới OpenAI"),
+    });
+    expect(mocks.markLessonAssistantDispatched).toHaveBeenCalledOnce();
+    expect(mocks.answerLessonWithOpenAI).not.toHaveBeenCalled();
   });
 });
 

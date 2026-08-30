@@ -386,9 +386,12 @@ Lesson tutor dùng cùng public quota ba lượt/24 giờ với request kind
 `20260829130024_add_lesson_ai_assistant.sql` mở rộng constraint/RPC quota và tạo
 terminal cache account-scoped cho owner. Migration không lưu prompt/transcript,
 thu hồi quyền table và chỉ cấp đúng RPC cần thiết. Migration tương thích với app
-cũ nên áp migration trước khi deploy UI/API mới; nếu chưa áp, route mới fail
-closed trước provider. Coding task chỉ chuẩn bị migration local, không tự push
-Supabase remote.
+cũ; áp migration đó rồi
+`20260830021455_fix_lesson_ai_dispatch_coalesce.sql` trước khi deploy UI/API mới.
+Bản sửa giữ nguyên auth/lock/lease nhưng dùng `COALESCE` đúng cú pháp trong dispatch
+RPC. Nếu bước đánh dấu dispatch lỗi, route trả `provider_not_started`/503 và không
+gọi OpenAI. Coding task chỉ chuẩn bị migration local, không tự push Supabase
+remote.
 
 ## Supabase
 
@@ -432,7 +435,9 @@ Các nhóm schema hiện có:
   lesson/locale/context hash/transcript; public admission thêm cùng request kind
   vào quota hiện hữu. RPC dùng `auth.uid()`, advisory lock, lease/dispatch marker,
   terminal `completed`/`outcome_unknown`, fixed empty `search_path` và không cấp
-  quyền đọc/ghi trực tiếp bảng cho client.
+  quyền đọc/ghi trực tiếp bảng cho client. Luôn áp tiếp
+  `20260830021455_fix_lesson_ai_dispatch_coalesce.sql`; migration này sửa dispatch
+  marker mà không mở rộng quyền hoặc đổi contract RPC.
 - C++14/C++17 lesson/question sync cần lần lượt
   `20260829100000_add_cpp14_content_track.sql` và
   `20260829130000_add_cpp17_content_track.sql`. Cả hai chỉ mở rộng bốn check

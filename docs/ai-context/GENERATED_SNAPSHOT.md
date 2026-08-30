@@ -17,8 +17,8 @@
 - API routes: 29 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/admin/questions/approve-translation, /api/admin/questions/manual, /api/admin/questions/reject, /api/coach/clarify, /api/coach/evaluate, /api/coach/follow-up, /api/coach/lesson, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/profile/mobile-usage, /api/progress/sync, /api/questions/approve, /api/worldquant/mission-snapshot, /api/worldquant/training-state, /auth/callback, /auth/confirm, /auth/login, /auth/logout)
 - TypeScript source files excluding tests: 233
 - Colocated test files: 129
-- Supabase migrations: 53
-- Latest migration filename: `20260829130024_add_lesson_ai_assistant.sql`
+- Supabase migrations: 54
+- Latest migration filename: `20260830021455_fix_lesson_ai_dispatch_coalesce.sql`
 
 ## Toolchain declared in package.json
 
@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `dfc4b1b7be052a4b1938dff81cf3766e627a34b93d563d01616114c91b03cca0`
-- Fingerprinted files: 925
+- Project input fingerprint: `bb7414f29f7d7b3d98b7255c1783b5e764028b8c591288e0bb418e46c469e444`
+- Fingerprinted files: 926
 
 The fingerprint covers registered lesson sources, content files, application
 source/tests, scripts, package metadata, environment template, workflows, and
