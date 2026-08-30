@@ -125,14 +125,14 @@ Trên `main`, CI refresh deterministic files, commit nếu cần, sync snapshot 
 Supabase, rồi enqueue/generate DB-native drafts. Không dùng `content:auto` hay
 `content:draft` cho production flow bình thường.
 
-## Recipe: sửa roadmap C++11/C++14/C++17
+## Recipe: sửa roadmap C++11/C++14/C++17/C++20
 
 - Registry riêng nằm tại `web/content/roadmaps/<track>.yaml`; không dùng
   `lesson.order` làm số ngày và không thêm placeholder vào
   `content/lesson-registry.yaml`.
-- Giữ đúng 53 ngày cho C++11 hoặc 50 ngày cho C++14/C++17 và dependency chỉ trỏ về
-  ngày trước đó. `planned` không có `lessonIds`; `ready`/`partial` chỉ được trỏ
-  tới lesson đúng track đã có thật.
+- Giữ đúng 53 ngày cho C++11, 50 ngày cho C++14/C++17 hoặc 52 ngày cho C++20 và
+  dependency chỉ trỏ về ngày trước đó. `planned` không có `lessonIds`;
+  `ready`/`partial` chỉ được trỏ tới lesson đúng track đã có thật.
 - Title/objective/phase phải có cả `vi` và `en`. Chuỗi khung giao diện vẫn nằm
   trong `src/messages/{vi,en}.json`.
 - Thứ tự `lessonIds` có ý nghĩa: `lessonIds[0]` là lesson chính mà node roadmap
@@ -444,6 +444,9 @@ Các nhóm schema hiện có:
   constraint standard/track hiện có; không đổi dữ liệu, RLS, grant, view hay RPC.
   Áp đúng thứ tự trước lần `content:sync` đầu tiên có lesson tương ứng; không push
   DB chỉ vì migration mới xuất hiện trong một nhánh chưa merge.
+- C++20 đã thuộc các constraint standard/track hiện hành; thêm lesson/question
+  C++20 không cần migration mới. Vẫn không chạy `content:sync` hoặc mutation remote
+  nếu người dùng chưa yêu cầu rõ ràng.
 - Migration `20260730140000` dùng retry protocol v3 cho Mistake: lease hết hạn
   trước marker provider được thu hồi và claim lại, còn lease đã marker hoặc kết
   quả provider/completion không xác định chuyển `dead_letter`. Trigger chặn

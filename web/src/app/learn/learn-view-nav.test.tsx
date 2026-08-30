@@ -63,7 +63,7 @@ describe("LearnViewNav", () => {
 
     expect(html).toContain(">Roadmap<svg");
     expect(html).toContain("Chọn phiên bản roadmap");
-    expect(roadmapLinkCount(html)).toBe(3);
+    expect(roadmapLinkCount(html)).toBe(4);
     expect(html).toContain("C++98");
     expect(html).toContain("C++23");
     expect(html).toContain('aria-disabled="true"');
@@ -71,18 +71,19 @@ describe("LearnViewNav", () => {
 
   it("names an unavailable roadmap after the selected standard", () => {
     const html = renderToStaticMarkup(
-      <LearnViewNav current="list" selectedStandard="cpp20" />,
+      <LearnViewNav current="list" selectedStandard="cpp23" />,
     );
 
-    expect(html).toContain(">Roadmap C++20<svg");
+    expect(html).toContain(">Roadmap C++23<svg");
     expect(html).toContain("Sắp có");
-    expect(roadmapLinkCount(html)).toBe(3);
+    expect(roadmapLinkCount(html)).toBe(4);
   });
 
   it.each([
     ["cpp11", "/learn/roadmap/cpp11", "Roadmap C++11"],
     ["cpp14", "/learn/roadmap/cpp14", "Roadmap C++14"],
     ["cpp17", "/learn/roadmap/cpp17", "Roadmap C++17"],
+    ["cpp20", "/learn/roadmap/cpp20", "Roadmap C++20"],
   ] as const)(
     "links directly to the roadmap for the selected supported standard %s",
     (standard, href, label) => {
@@ -119,9 +120,12 @@ describe("LearnViewNav", () => {
     expect(Object.keys(englishMessages.Cpp17Roadmap).sort()).toEqual(
       Object.keys(vietnameseMessages.Cpp17Roadmap).sort(),
     );
+    expect(Object.keys(englishMessages.Cpp20Roadmap).sort()).toEqual(
+      Object.keys(vietnameseMessages.Cpp20Roadmap).sort(),
+    );
   });
 });
 
 function roadmapLinkCount(html: string) {
-  return html.match(/href="\/learn\/roadmap\/(?:cpp11|cpp14|cpp17)"/g)?.length ?? 0;
+  return html.match(/href="\/learn\/roadmap\/(?:cpp11|cpp14|cpp17|cpp20)"/g)?.length ?? 0;
 }

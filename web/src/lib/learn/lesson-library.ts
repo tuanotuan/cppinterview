@@ -53,7 +53,12 @@ export const lessonStandardFilters = [
     track: "cpp17",
     roadmapHref: "/learn/roadmap/cpp17",
   },
-  { value: "cpp20", label: "C++20", track: "cpp20", roadmapHref: null },
+  {
+    value: "cpp20",
+    label: "C++20",
+    track: "cpp20",
+    roadmapHref: "/learn/roadmap/cpp20",
+  },
   { value: "cpp23", label: "C++23", track: null, roadmapHref: null },
 ] as const;
 

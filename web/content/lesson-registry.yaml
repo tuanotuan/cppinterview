@@ -54,16 +54,6 @@ lessons:
       - cpp98-object-variable-memory
     language: cpp
     track: cpp98
-  - id: cpp20-designated-initializers
-    sourcePath: cpp20/01_designated initializer
-    order: 1
-    tags:
-      - initialization
-      - aggregate
-      - readability
-    prerequisites: []
-    language: cpp
-    track: cpp20
   - id: cpp11-toolchain
     sourcePath: cpp11/01_toolchain
     order: 1
@@ -644,56 +634,54 @@ lessons:
     track: cpp11
   - id: cpp14-toolchain-compiler-flags-cpp14
     sourcePath: cpp14/01_toolchain_compiler_flags_cpp14
-    language: cpp
-    track: cpp14
     order: 1
     tags:
       - toolchain
     prerequisites: []
-  - id: cpp14-auto-decltype-type-deduction-review
-    sourcePath: cpp14/02_auto_decltype_type_deduction_review
     language: cpp
     track: cpp14
+  - id: cpp14-auto-decltype-type-deduction-review
+    sourcePath: cpp14/02_auto_decltype_type_deduction_review
     order: 2
     tags:
       - type-deduction
       - type-safety
     prerequisites:
       - cpp14-toolchain-compiler-flags-cpp14
-  - id: cpp14-value-categories-move-semantics-ownership-review
-    sourcePath: cpp14/03_value_categories_move_semantics_ownership_review
     language: cpp
     track: cpp14
+  - id: cpp14-value-categories-move-semantics-ownership-review
+    sourcePath: cpp14/03_value_categories_move_semantics_ownership_review
     order: 3
     tags:
       - ownership
       - lifetime
     prerequisites:
       - cpp14-auto-decltype-type-deduction-review
-  - id: cpp14-lambda-capture-cpp11-review
-    sourcePath: cpp14/04_lambda_capture_cpp11_review
     language: cpp
     track: cpp14
+  - id: cpp14-lambda-capture-cpp11-review
+    sourcePath: cpp14/04_lambda_capture_cpp11_review
     order: 4
     tags:
       - lambda
       - capture
     prerequisites:
       - cpp14-value-categories-move-semantics-ownership-review
-  - id: cpp14-templates-parameter-packs-type-traits-constexpr-review
-    sourcePath: cpp14/05_templates_parameter_packs_type_traits_constexpr_review
     language: cpp
     track: cpp14
+  - id: cpp14-templates-parameter-packs-type-traits-constexpr-review
+    sourcePath: cpp14/05_templates_parameter_packs_type_traits_constexpr_review
     order: 5
     tags:
       - templates
       - compile-time
     prerequisites:
       - cpp14-lambda-capture-cpp11-review
-  - id: cpp14-stl-containers-iterators-algorithms-chrono-review
-    sourcePath: cpp14/06_stl_containers_iterators_algorithms_chrono_review
     language: cpp
     track: cpp14
+  - id: cpp14-stl-containers-iterators-algorithms-chrono-review
+    sourcePath: cpp14/06_stl_containers_iterators_algorithms_chrono_review
     order: 6
     tags:
       - container
@@ -702,40 +690,40 @@ lessons:
       - timestamps
     prerequisites:
       - cpp14-templates-parameter-packs-type-traits-constexpr-review
-  - id: cpp14-thread-mutex-atomic-memory-model-review
-    sourcePath: cpp14/07_thread_mutex_atomic_memory_model_review
     language: cpp
     track: cpp14
+  - id: cpp14-thread-mutex-atomic-memory-model-review
+    sourcePath: cpp14/07_thread_mutex_atomic_memory_model_review
     order: 7
     tags:
       - memory
       - sequencing
     prerequisites:
       - cpp14-stl-containers-iterators-algorithms-chrono-review
-  - id: cpp14-binary-literals-digit-separators
-    sourcePath: cpp14/08_binary_literals_digit_separators
     language: cpp
     track: cpp14
+  - id: cpp14-binary-literals-digit-separators
+    sourcePath: cpp14/08_binary_literals_digit_separators
     order: 8
     tags:
       - readability
       - constant
     prerequisites:
       - cpp14-thread-mutex-atomic-memory-model-review
-  - id: cpp14-generic-lambda
-    sourcePath: cpp14/09_generic_lambda
     language: cpp
     track: cpp14
+  - id: cpp14-generic-lambda
+    sourcePath: cpp14/09_generic_lambda
     order: 9
     tags:
       - lambda
       - templates
     prerequisites:
       - cpp14-binary-literals-digit-separators
-  - id: cpp14-lambda-init-capture
-    sourcePath: cpp14/10_lambda_init_capture
     language: cpp
     track: cpp14
+  - id: cpp14-lambda-init-capture
+    sourcePath: cpp14/10_lambda_init_capture
     order: 10
     tags:
       - lambda
@@ -743,10 +731,10 @@ lessons:
       - initialization
     prerequisites:
       - cpp14-generic-lambda
-  - id: cpp14-move-only-lambda-capture-lifetime
-    sourcePath: cpp14/11_move_only_lambda_capture_lifetime
     language: cpp
     track: cpp14
+  - id: cpp14-move-only-lambda-capture-lifetime
+    sourcePath: cpp14/11_move_only_lambda_capture_lifetime
     order: 11
     tags:
       - lambda
@@ -755,99 +743,99 @@ lessons:
       - lifetime
     prerequisites:
       - cpp14-lambda-init-capture
-  - id: cpp14-function-return-type-deduction-auto
-    sourcePath: cpp14/12_function_return_type_deduction_auto
     language: cpp
     track: cpp14
+  - id: cpp14-function-return-type-deduction-auto
+    sourcePath: cpp14/12_function_return_type_deduction_auto
     order: 12
     tags:
       - type-deduction
     prerequisites:
       - cpp14-move-only-lambda-capture-lifetime
-  - id: cpp14-decltype-auto-preserve-reference
-    sourcePath: cpp14/13_decltype_auto_preserve_reference
     language: cpp
     track: cpp14
+  - id: cpp14-decltype-auto-preserve-reference
+    sourcePath: cpp14/13_decltype_auto_preserve_reference
     order: 13
     tags:
       - type-deduction
       - reference
     prerequisites:
       - cpp14-function-return-type-deduction-auto
-  - id: cpp14-relaxed-constexpr-cpp14
-    sourcePath: cpp14/14_relaxed_constexpr_cpp14
     language: cpp
     track: cpp14
+  - id: cpp14-relaxed-constexpr-cpp14
+    sourcePath: cpp14/14_relaxed_constexpr_cpp14
     order: 14
     tags:
       - compile-time
       - constant
     prerequisites:
       - cpp14-decltype-auto-preserve-reference
-  - id: cpp14-variable-templates
-    sourcePath: cpp14/15_variable_templates
     language: cpp
     track: cpp14
+  - id: cpp14-variable-templates
+    sourcePath: cpp14/15_variable_templates
     order: 15
     tags:
       - templates
       - constant
     prerequisites:
       - cpp14-relaxed-constexpr-cpp14
-  - id: cpp14-deprecated-api-lifecycle
-    sourcePath: cpp14/16_deprecated_api_lifecycle
     language: cpp
     track: cpp14
+  - id: cpp14-deprecated-api-lifecycle
+    sourcePath: cpp14/16_deprecated_api_lifecycle
     order: 16
     tags:
       - lifecycle
       - readability
     prerequisites:
       - cpp14-variable-templates
-  - id: cpp14-standard-user-defined-literals
-    sourcePath: cpp14/17_standard_user_defined_literals
     language: cpp
     track: cpp14
+  - id: cpp14-standard-user-defined-literals
+    sourcePath: cpp14/17_standard_user_defined_literals
     order: 17
     tags:
       - initialization
       - type-safety
     prerequisites:
       - cpp14-deprecated-api-lifecycle
-  - id: cpp14-make-unique-ownership-factory
-    sourcePath: cpp14/18_make_unique_ownership_factory
     language: cpp
     track: cpp14
+  - id: cpp14-make-unique-ownership-factory
+    sourcePath: cpp14/18_make_unique_ownership_factory
     order: 18
     tags:
       - ownership
       - initialization
     prerequisites:
       - cpp14-standard-user-defined-literals
-  - id: cpp14-std-exchange-move-state-transition
-    sourcePath: cpp14/19_std_exchange_move_state_transition
     language: cpp
     track: cpp14
+  - id: cpp14-std-exchange-move-state-transition
+    sourcePath: cpp14/19_std_exchange_move_state_transition
     order: 19
     tags:
       - mutation
       - ownership
     prerequisites:
       - cpp14-make-unique-ownership-factory
-  - id: cpp14-cpp11-to-cpp14-migration-compatibility
-    sourcePath: cpp14/20_cpp11_to_cpp14_migration_compatibility
     language: cpp
     track: cpp14
+  - id: cpp14-cpp11-to-cpp14-migration-compatibility
+    sourcePath: cpp14/20_cpp11_to_cpp14_migration_compatibility
     order: 20
     tags:
       - toolchain
       - lifecycle
     prerequisites:
       - cpp14-std-exchange-move-state-transition
-  - id: cpp14-object-lifetime-raii-rule-of-five-zero
-    sourcePath: cpp14/21_object_lifetime_raii_rule_of_five_zero
     language: cpp
     track: cpp14
+  - id: cpp14-object-lifetime-raii-rule-of-five-zero
+    sourcePath: cpp14/21_object_lifetime_raii_rule_of_five_zero
     order: 21
     tags:
       - lifetime
@@ -855,10 +843,10 @@ lessons:
       - special-member-function
     prerequisites:
       - cpp14-cpp11-to-cpp14-migration-compatibility
-  - id: cpp14-api-value-reference-pointer-ownership
-    sourcePath: cpp14/22_api_value_reference_pointer_ownership
     language: cpp
     track: cpp14
+  - id: cpp14-api-value-reference-pointer-ownership
+    sourcePath: cpp14/22_api_value_reference_pointer_ownership
     order: 22
     tags:
       - ownership
@@ -866,30 +854,30 @@ lessons:
       - pointer
     prerequisites:
       - cpp14-object-lifetime-raii-rule-of-five-zero
-  - id: cpp14-exception-safety-noexcept
-    sourcePath: cpp14/23_exception_safety_noexcept
     language: cpp
     track: cpp14
+  - id: cpp14-exception-safety-noexcept
+    sourcePath: cpp14/23_exception_safety_noexcept
     order: 23
     tags:
       - invariants
       - lifetime
     prerequisites:
       - cpp14-api-value-reference-pointer-ownership
-  - id: cpp14-memory-layout-alignment-padding-sized-deallocation
-    sourcePath: cpp14/24_memory_layout_alignment_padding_sized_deallocation
     language: cpp
     track: cpp14
+  - id: cpp14-memory-layout-alignment-padding-sized-deallocation
+    sourcePath: cpp14/24_memory_layout_alignment_padding_sized_deallocation
     order: 24
     tags:
       - memory
       - alignment
     prerequisites:
       - cpp14-exception-safety-noexcept
-  - id: cpp14-sequence-containers-emplace-contiguous-memory
-    sourcePath: cpp14/25_sequence_containers_emplace_contiguous_memory
     language: cpp
     track: cpp14
+  - id: cpp14-sequence-containers-emplace-contiguous-memory
+    sourcePath: cpp14/25_sequence_containers_emplace_contiguous_memory
     order: 25
     tags:
       - container
@@ -897,10 +885,10 @@ lessons:
       - memory
     prerequisites:
       - cpp14-memory-layout-alignment-padding-sized-deallocation
-  - id: cpp14-iterator-categories-invalidation-reverse-iterators
-    sourcePath: cpp14/26_iterator_categories_invalidation_reverse_iterators
     language: cpp
     track: cpp14
+  - id: cpp14-iterator-categories-invalidation-reverse-iterators
+    sourcePath: cpp14/26_iterator_categories_invalidation_reverse_iterators
     order: 26
     tags:
       - iteration
@@ -908,10 +896,10 @@ lessons:
       - lifetime
     prerequisites:
       - cpp14-sequence-containers-emplace-contiguous-memory
-  - id: cpp14-stl-algorithms-generic-lambda
-    sourcePath: cpp14/27_stl_algorithms_generic_lambda
     language: cpp
     track: cpp14
+  - id: cpp14-stl-algorithms-generic-lambda
+    sourcePath: cpp14/27_stl_algorithms_generic_lambda
     order: 27
     tags:
       - algorithm
@@ -919,50 +907,50 @@ lessons:
       - iteration
     prerequisites:
       - cpp14-iterator-categories-invalidation-reverse-iterators
-  - id: cpp14-numeric-algorithms-basic-statistics
-    sourcePath: cpp14/28_numeric_algorithms_basic_statistics
     language: cpp
     track: cpp14
+  - id: cpp14-numeric-algorithms-basic-statistics
+    sourcePath: cpp14/28_numeric_algorithms_basic_statistics
     order: 28
     tags:
       - algorithm
       - performance
     prerequisites:
       - cpp14-stl-algorithms-generic-lambda
-  - id: cpp14-ordered-containers-transparent-comparator
-    sourcePath: cpp14/29_ordered_containers_transparent_comparator
     language: cpp
     track: cpp14
+  - id: cpp14-ordered-containers-transparent-comparator
+    sourcePath: cpp14/29_ordered_containers_transparent_comparator
     order: 29
     tags:
       - container
       - sort
     prerequisites:
       - cpp14-numeric-algorithms-basic-statistics
-  - id: cpp14-heterogeneous-lookup
-    sourcePath: cpp14/30_heterogeneous_lookup
     language: cpp
     track: cpp14
+  - id: cpp14-heterogeneous-lookup
+    sourcePath: cpp14/30_heterogeneous_lookup
     order: 30
     tags:
       - container
       - performance
     prerequisites:
       - cpp14-ordered-containers-transparent-comparator
-  - id: cpp14-unordered-containers-hashing-reserve-load-factor
-    sourcePath: cpp14/31_unordered_containers_hashing_reserve_load_factor
     language: cpp
     track: cpp14
+  - id: cpp14-unordered-containers-hashing-reserve-load-factor
+    sourcePath: cpp14/31_unordered_containers_hashing_reserve_load_factor
     order: 31
     tags:
       - container
       - performance
     prerequisites:
       - cpp14-heterogeneous-lookup
-  - id: cpp14-queue-priority-queue-ring-buffer
-    sourcePath: cpp14/32_queue_priority_queue_ring_buffer
     language: cpp
     track: cpp14
+  - id: cpp14-queue-priority-queue-ring-buffer
+    sourcePath: cpp14/32_queue_priority_queue_ring_buffer
     order: 32
     tags:
       - container
@@ -970,30 +958,30 @@ lessons:
       - bounds
     prerequisites:
       - cpp14-unordered-containers-hashing-reserve-load-factor
-  - id: cpp14-pair-tuple-tie-get-by-type
-    sourcePath: cpp14/33_pair_tuple_tie_get_by_type
     language: cpp
     track: cpp14
+  - id: cpp14-pair-tuple-tie-get-by-type
+    sourcePath: cpp14/33_pair_tuple_tie_get_by_type
     order: 33
     tags:
       - alias
       - type-safety
     prerequisites:
       - cpp14-queue-priority-queue-ring-buffer
-  - id: cpp14-function-class-template-design
-    sourcePath: cpp14/34_function_class_template_design
     language: cpp
     track: cpp14
+  - id: cpp14-function-class-template-design
+    sourcePath: cpp14/34_function_class_template_design
     order: 34
     tags:
       - templates
       - class-design
     prerequisites:
       - cpp14-pair-tuple-tie-get-by-type
-  - id: cpp14-type-trait-aliases-sfinae-enable-if
-    sourcePath: cpp14/35_type_trait_aliases_sfinae_enable_if
     language: cpp
     track: cpp14
+  - id: cpp14-type-trait-aliases-sfinae-enable-if
+    sourcePath: cpp14/35_type_trait_aliases_sfinae_enable_if
     order: 35
     tags:
       - templates
@@ -1001,20 +989,20 @@ lessons:
       - type-safety
     prerequisites:
       - cpp14-function-class-template-design
-  - id: cpp14-variadic-templates-parameter-packs
-    sourcePath: cpp14/36_variadic_templates_parameter_packs
     language: cpp
     track: cpp14
+  - id: cpp14-variadic-templates-parameter-packs
+    sourcePath: cpp14/36_variadic_templates_parameter_packs
     order: 36
     tags:
       - templates
       - compile-time
     prerequisites:
       - cpp14-type-trait-aliases-sfinae-enable-if
-  - id: cpp14-integer-sequence-index-sequence
-    sourcePath: cpp14/37_integer_sequence_index_sequence
     language: cpp
     track: cpp14
+  - id: cpp14-integer-sequence-index-sequence
+    sourcePath: cpp14/37_integer_sequence_index_sequence
     order: 37
     tags:
       - templates
@@ -1022,20 +1010,20 @@ lessons:
       - compile-time
     prerequisites:
       - cpp14-variadic-templates-parameter-packs
-  - id: cpp14-compile-time-tables-constexpr-variable-templates
-    sourcePath: cpp14/38_compile_time_tables_constexpr_variable_templates
     language: cpp
     track: cpp14
+  - id: cpp14-compile-time-tables-constexpr-variable-templates
+    sourcePath: cpp14/38_compile_time_tables_constexpr_variable_templates
     order: 38
     tags:
       - compile-time
       - constant
     prerequisites:
       - cpp14-integer-sequence-index-sequence
-  - id: cpp14-function-pointer-functor-generic-lambda-std-function
-    sourcePath: cpp14/39_function_pointer_functor_generic_lambda_std_function
     language: cpp
     track: cpp14
+  - id: cpp14-function-pointer-functor-generic-lambda-std-function
+    sourcePath: cpp14/39_function_pointer_functor_generic_lambda_std_function
     order: 39
     tags:
       - callable
@@ -1043,10 +1031,10 @@ lessons:
       - performance
     prerequisites:
       - cpp14-compile-time-tables-constexpr-variable-templates
-  - id: cpp14-crtp-static-virtual-polymorphism
-    sourcePath: cpp14/40_crtp_static_virtual_polymorphism
     language: cpp
     track: cpp14
+  - id: cpp14-crtp-static-virtual-polymorphism
+    sourcePath: cpp14/40_crtp_static_virtual_polymorphism
     order: 40
     tags:
       - class-design
@@ -1054,60 +1042,60 @@ lessons:
       - overload
     prerequisites:
       - cpp14-function-pointer-functor-generic-lambda-std-function
-  - id: cpp14-thread-async-future-promise
-    sourcePath: cpp14/41_thread_async_future_promise
     language: cpp
     track: cpp14
+  - id: cpp14-thread-async-future-promise
+    sourcePath: cpp14/41_thread_async_future_promise
     order: 41
     tags:
       - callable
       - sequencing
     prerequisites:
       - cpp14-crtp-static-virtual-polymorphism
-  - id: cpp14-mutex-condition-variable-shared-timed-mutex
-    sourcePath: cpp14/42_mutex_condition_variable_shared_timed_mutex
     language: cpp
     track: cpp14
+  - id: cpp14-mutex-condition-variable-shared-timed-mutex
+    sourcePath: cpp14/42_mutex_condition_variable_shared_timed_mutex
     order: 42
     tags:
       - sequencing
       - invariants
     prerequisites:
       - cpp14-thread-async-future-promise
-  - id: cpp14-atomic-operations-compare-and-swap
-    sourcePath: cpp14/43_atomic_operations_compare_and_swap
     language: cpp
     track: cpp14
+  - id: cpp14-atomic-operations-compare-and-swap
+    sourcePath: cpp14/43_atomic_operations_compare_and_swap
     order: 43
     tags:
       - sequencing
       - mutation
     prerequisites:
       - cpp14-mutex-condition-variable-shared-timed-mutex
-  - id: cpp14-cpp-memory-model-memory-ordering
-    sourcePath: cpp14/44_cpp_memory_model_memory_ordering
     language: cpp
     track: cpp14
+  - id: cpp14-cpp-memory-model-memory-ordering
+    sourcePath: cpp14/44_cpp_memory_model_memory_ordering
     order: 44
     tags:
       - sequencing
       - memory
     prerequisites:
       - cpp14-atomic-operations-compare-and-swap
-  - id: cpp14-data-race-deadlock-false-sharing
-    sourcePath: cpp14/45_data_race_deadlock_false_sharing
     language: cpp
     track: cpp14
+  - id: cpp14-data-race-deadlock-false-sharing
+    sourcePath: cpp14/45_data_race_deadlock_false_sharing
     order: 45
     tags:
       - sequencing
       - performance
     prerequisites:
       - cpp14-cpp-memory-model-memory-ordering
-  - id: cpp14-lock-free-spsc-queue
-    sourcePath: cpp14/46_lock_free_spsc_queue
     language: cpp
     track: cpp14
+  - id: cpp14-lock-free-spsc-queue
+    sourcePath: cpp14/46_lock_free_spsc_queue
     order: 46
     tags:
       - container
@@ -1115,20 +1103,20 @@ lessons:
       - bounds
     prerequisites:
       - cpp14-data-race-deadlock-false-sharing
-  - id: cpp14-cache-locality-data-oriented-design
-    sourcePath: cpp14/47_cache_locality_data_oriented_design
     language: cpp
     track: cpp14
+  - id: cpp14-cache-locality-data-oriented-design
+    sourcePath: cpp14/47_cache_locality_data_oriented_design
     order: 47
     tags:
       - memory
       - performance
     prerequisites:
       - cpp14-lock-free-spsc-queue
-  - id: cpp14-memory-pool-custom-allocator-reduce-allocation
-    sourcePath: cpp14/48_memory_pool_custom_allocator_reduce_allocation
     language: cpp
     track: cpp14
+  - id: cpp14-memory-pool-custom-allocator-reduce-allocation
+    sourcePath: cpp14/48_memory_pool_custom_allocator_reduce_allocation
     order: 48
     tags:
       - memory
@@ -1136,20 +1124,20 @@ lessons:
       - ownership
     prerequisites:
       - cpp14-cache-locality-data-oriented-design
-  - id: cpp14-benchmarking-profiling-compiler-optimization
-    sourcePath: cpp14/49_benchmarking_profiling_compiler_optimization
     language: cpp
     track: cpp14
+  - id: cpp14-benchmarking-profiling-compiler-optimization
+    sourcePath: cpp14/49_benchmarking_profiling_compiler_optimization
     order: 49
     tags:
       - performance
       - toolchain
     prerequisites:
       - cpp14-memory-pool-custom-allocator-reduce-allocation
-  - id: cpp14-fixed-width-binary-parsing-endianness
-    sourcePath: cpp14/50_fixed_width_binary_parsing_endianness
     language: cpp
     track: cpp14
+  - id: cpp14-fixed-width-binary-parsing-endianness
+    sourcePath: cpp14/50_fixed_width_binary_parsing_endianness
     order: 50
     tags:
       - binary-parsing
@@ -1157,18 +1145,18 @@ lessons:
       - bounds
     prerequisites:
       - cpp14-benchmarking-profiling-compiler-optimization
+    language: cpp
+    track: cpp14
   - id: cpp17-toolchain-compiler-flags-cpp17
     sourcePath: cpp17/01_toolchain_compiler_flags_cpp17
-    language: cpp
-    track: cpp17
     order: 1
     tags:
       - toolchain
     prerequisites: []
-  - id: cpp17-object-lifetime-raii-move-rule-of-zero-review
-    sourcePath: cpp17/02_object_lifetime_raii_move_rule_of_zero_review
     language: cpp
     track: cpp17
+  - id: cpp17-object-lifetime-raii-move-rule-of-zero-review
+    sourcePath: cpp17/02_object_lifetime_raii_move_rule_of_zero_review
     order: 2
     tags:
       - lifetime
@@ -1176,30 +1164,30 @@ lessons:
       - move-semantics
     prerequisites:
       - cpp17-toolchain-compiler-flags-cpp17
-  - id: cpp17-auto-decltype-generic-lambda-type-deduction-review
-    sourcePath: cpp17/03_auto_decltype_generic_lambda_type_deduction_review
     language: cpp
     track: cpp17
+  - id: cpp17-auto-decltype-generic-lambda-type-deduction-review
+    sourcePath: cpp17/03_auto_decltype_generic_lambda_type_deduction_review
     order: 3
     tags:
       - type-deduction
       - lambda
     prerequisites:
       - cpp17-object-lifetime-raii-move-rule-of-zero-review
-  - id: cpp17-templates-packs-traits-constexpr-review
-    sourcePath: cpp17/04_templates_packs_traits_constexpr_review
     language: cpp
     track: cpp17
+  - id: cpp17-templates-packs-traits-constexpr-review
+    sourcePath: cpp17/04_templates_packs_traits_constexpr_review
     order: 4
     tags:
       - templates
       - compile-time
     prerequisites:
       - cpp17-auto-decltype-generic-lambda-type-deduction-review
-  - id: cpp17-stl-containers-iterators-algorithms-callables-review
-    sourcePath: cpp17/05_stl_containers_iterators_algorithms_callables_review
     language: cpp
     track: cpp17
+  - id: cpp17-stl-containers-iterators-algorithms-callables-review
+    sourcePath: cpp17/05_stl_containers_iterators_algorithms_callables_review
     order: 5
     tags:
       - container
@@ -1208,10 +1196,10 @@ lessons:
       - callable
     prerequisites:
       - cpp17-templates-packs-traits-constexpr-review
-  - id: cpp17-thread-atomic-memory-model-review
-    sourcePath: cpp17/06_thread_atomic_memory_model_review
     language: cpp
     track: cpp17
+  - id: cpp17-thread-atomic-memory-model-review
+    sourcePath: cpp17/06_thread_atomic_memory_model_review
     order: 6
     tags:
       - concurrency
@@ -1219,30 +1207,30 @@ lessons:
       - memory-model
     prerequisites:
       - cpp17-stl-containers-iterators-algorithms-callables-review
-  - id: cpp17-auto-braced-initialization-rules
-    sourcePath: cpp17/07_auto_braced_initialization_rules
     language: cpp
     track: cpp17
+  - id: cpp17-auto-braced-initialization-rules
+    sourcePath: cpp17/07_auto_braced_initialization_rules
     order: 7
     tags:
       - type-deduction
       - initialization
     prerequisites:
       - cpp17-thread-atomic-memory-model-review
-  - id: cpp17-structured-bindings
-    sourcePath: cpp17/08_structured_bindings
     language: cpp
     track: cpp17
+  - id: cpp17-structured-bindings
+    sourcePath: cpp17/08_structured_bindings
     order: 8
     tags:
       - structured-binding
       - type-deduction
     prerequisites:
       - cpp17-auto-braced-initialization-rules
-  - id: cpp17-if-switch-with-initializer
-    sourcePath: cpp17/09_if_switch_with_initializer
     language: cpp
     track: cpp17
+  - id: cpp17-if-switch-with-initializer
+    sourcePath: cpp17/09_if_switch_with_initializer
     order: 9
     tags:
       - control-flow
@@ -1250,20 +1238,20 @@ lessons:
       - initialization
     prerequisites:
       - cpp17-structured-bindings
-  - id: cpp17-nested-namespaces
-    sourcePath: cpp17/10_nested_namespaces
     language: cpp
     track: cpp17
+  - id: cpp17-nested-namespaces
+    sourcePath: cpp17/10_nested_namespaces
     order: 10
     tags:
       - namespace
       - readability
     prerequisites:
       - cpp17-if-switch-with-initializer
-  - id: cpp17-inline-variables-odr
-    sourcePath: cpp17/11_inline_variables_odr
     language: cpp
     track: cpp17
+  - id: cpp17-inline-variables-odr
+    sourcePath: cpp17/11_inline_variables_odr
     order: 11
     tags:
       - odr
@@ -1271,10 +1259,10 @@ lessons:
       - variables
     prerequisites:
       - cpp17-nested-namespaces
-  - id: cpp17-attributes-has-include
-    sourcePath: cpp17/12_attributes_has_include
     language: cpp
     track: cpp17
+  - id: cpp17-attributes-has-include
+    sourcePath: cpp17/12_attributes_has_include
     order: 12
     tags:
       - attributes
@@ -1282,50 +1270,50 @@ lessons:
       - preprocessing
     prerequisites:
       - cpp17-inline-variables-odr
-  - id: cpp17-class-template-argument-deduction
-    sourcePath: cpp17/13_class_template_argument_deduction
     language: cpp
     track: cpp17
+  - id: cpp17-class-template-argument-deduction
+    sourcePath: cpp17/13_class_template_argument_deduction
     order: 13
     tags:
       - templates
       - type-deduction
     prerequisites:
       - cpp17-attributes-has-include
-  - id: cpp17-deduction-guides
-    sourcePath: cpp17/14_deduction_guides
     language: cpp
     track: cpp17
+  - id: cpp17-deduction-guides
+    sourcePath: cpp17/14_deduction_guides
     order: 14
     tags:
       - templates
       - type-deduction
     prerequisites:
       - cpp17-class-template-argument-deduction
-  - id: cpp17-auto-non-type-template-parameters
-    sourcePath: cpp17/15_auto_non_type_template_parameters
     language: cpp
     track: cpp17
+  - id: cpp17-auto-non-type-template-parameters
+    sourcePath: cpp17/15_auto_non_type_template_parameters
     order: 15
     tags:
       - templates
       - compile-time
     prerequisites:
       - cpp17-deduction-guides
-  - id: cpp17-fold-expressions
-    sourcePath: cpp17/16_fold_expressions
     language: cpp
     track: cpp17
+  - id: cpp17-fold-expressions
+    sourcePath: cpp17/16_fold_expressions
     order: 16
     tags:
       - templates
       - parameter-pack
     prerequisites:
       - cpp17-auto-non-type-template-parameters
-  - id: cpp17-void-t-logical-callable-traits
-    sourcePath: cpp17/17_void_t_logical_callable_traits
     language: cpp
     track: cpp17
+  - id: cpp17-void-t-logical-callable-traits
+    sourcePath: cpp17/17_void_t_logical_callable_traits
     order: 17
     tags:
       - type-traits
@@ -1333,10 +1321,10 @@ lessons:
       - callable
     prerequisites:
       - cpp17-fold-expressions
-  - id: cpp17-if-constexpr
-    sourcePath: cpp17/18_if_constexpr
     language: cpp
     track: cpp17
+  - id: cpp17-if-constexpr
+    sourcePath: cpp17/18_if_constexpr
     order: 18
     tags:
       - compile-time
@@ -1344,20 +1332,20 @@ lessons:
       - control-flow
     prerequisites:
       - cpp17-void-t-logical-callable-traits
-  - id: cpp17-constexpr-lambdas
-    sourcePath: cpp17/19_constexpr_lambdas
     language: cpp
     track: cpp17
+  - id: cpp17-constexpr-lambdas
+    sourcePath: cpp17/19_constexpr_lambdas
     order: 19
     tags:
       - lambda
       - compile-time
     prerequisites:
       - cpp17-if-constexpr
-  - id: cpp17-lambda-capture-star-this-lifetime
-    sourcePath: cpp17/20_lambda_capture_star_this_lifetime
     language: cpp
     track: cpp17
+  - id: cpp17-lambda-capture-star-this-lifetime
+    sourcePath: cpp17/20_lambda_capture_star_this_lifetime
     order: 20
     tags:
       - lambda
@@ -1365,10 +1353,10 @@ lessons:
       - lifetime
     prerequisites:
       - cpp17-constexpr-lambdas
-  - id: cpp17-guaranteed-copy-elision-prvalue-materialization
-    sourcePath: cpp17/21_guaranteed_copy_elision_prvalue_materialization
     language: cpp
     track: cpp17
+  - id: cpp17-guaranteed-copy-elision-prvalue-materialization
+    sourcePath: cpp17/21_guaranteed_copy_elision_prvalue_materialization
     order: 21
     tags:
       - copy
@@ -1376,10 +1364,10 @@ lessons:
       - value-category
     prerequisites:
       - cpp17-lambda-capture-star-this-lifetime
-  - id: cpp17-evaluation-order-noexcept-function-type
-    sourcePath: cpp17/22_evaluation_order_noexcept_function_type
     language: cpp
     track: cpp17
+  - id: cpp17-evaluation-order-noexcept-function-type
+    sourcePath: cpp17/22_evaluation_order_noexcept_function_type
     order: 22
     tags:
       - sequencing
@@ -1387,10 +1375,10 @@ lessons:
       - type-system
     prerequisites:
       - cpp17-guaranteed-copy-elision-prvalue-materialization
-  - id: cpp17-utf8-enum-aggregate-changes
-    sourcePath: cpp17/23_utf8_enum_aggregate_changes
     language: cpp
     track: cpp17
+  - id: cpp17-utf8-enum-aggregate-changes
+    sourcePath: cpp17/23_utf8_enum_aggregate_changes
     order: 23
     tags:
       - unicode
@@ -1398,10 +1386,10 @@ lessons:
       - aggregate
     prerequisites:
       - cpp17-evaluation-order-noexcept-function-type
-  - id: cpp17-cpp14-to-cpp17-migration-compatibility
-    sourcePath: cpp17/24_cpp14_to_cpp17_migration_compatibility
     language: cpp
     track: cpp17
+  - id: cpp17-cpp14-to-cpp17-migration-compatibility
+    sourcePath: cpp17/24_cpp14_to_cpp17_migration_compatibility
     order: 24
     tags:
       - toolchain
@@ -1409,40 +1397,40 @@ lessons:
       - migration
     prerequisites:
       - cpp17-utf8-enum-aggregate-changes
-  - id: cpp17-optional-absent-value
-    sourcePath: cpp17/25_optional_absent_value
     language: cpp
     track: cpp17
+  - id: cpp17-optional-absent-value
+    sourcePath: cpp17/25_optional_absent_value
     order: 25
     tags:
       - optional
       - error-handling
     prerequisites:
       - cpp17-cpp14-to-cpp17-migration-compatibility
-  - id: cpp17-variant-visit
-    sourcePath: cpp17/26_variant_visit
     language: cpp
     track: cpp17
+  - id: cpp17-variant-visit
+    sourcePath: cpp17/26_variant_visit
     order: 26
     tags:
       - variant
       - type-safety
     prerequisites:
       - cpp17-optional-absent-value
-  - id: cpp17-any-type-erasure
-    sourcePath: cpp17/27_any_type_erasure
     language: cpp
     track: cpp17
+  - id: cpp17-any-type-erasure
+    sourcePath: cpp17/27_any_type_erasure
     order: 27
     tags:
       - type-erasure
       - type-safety
     prerequisites:
       - cpp17-variant-visit
-  - id: cpp17-string-view-non-owning-lifetime
-    sourcePath: cpp17/28_string_view_non_owning_lifetime
     language: cpp
     track: cpp17
+  - id: cpp17-string-view-non-owning-lifetime
+    sourcePath: cpp17/28_string_view_non_owning_lifetime
     order: 28
     tags:
       - string-view
@@ -1450,10 +1438,10 @@ lessons:
       - ownership
     prerequisites:
       - cpp17-any-type-erasure
-  - id: cpp17-invoke-apply
-    sourcePath: cpp17/29_invoke_apply
     language: cpp
     track: cpp17
+  - id: cpp17-invoke-apply
+    sourcePath: cpp17/29_invoke_apply
     order: 29
     tags:
       - callable
@@ -1461,10 +1449,10 @@ lessons:
       - templates
     prerequisites:
       - cpp17-string-view-non-owning-lifetime
-  - id: cpp17-byte-object-representation
-    sourcePath: cpp17/30_byte_object_representation
     language: cpp
     track: cpp17
+  - id: cpp17-byte-object-representation
+    sourcePath: cpp17/30_byte_object_representation
     order: 30
     tags:
       - object-model
@@ -1472,10 +1460,10 @@ lessons:
       - byte
     prerequisites:
       - cpp17-invoke-apply
-  - id: cpp17-to-chars-from-chars
-    sourcePath: cpp17/31_to_chars_from_chars
     language: cpp
     track: cpp17
+  - id: cpp17-to-chars-from-chars
+    sourcePath: cpp17/31_to_chars_from_chars
     order: 31
     tags:
       - parsing
@@ -1483,20 +1471,20 @@ lessons:
       - error-handling
     prerequisites:
       - cpp17-byte-object-representation
-  - id: cpp17-filesystem
-    sourcePath: cpp17/32_filesystem
     language: cpp
     track: cpp17
+  - id: cpp17-filesystem
+    sourcePath: cpp17/32_filesystem
     order: 32
     tags:
       - filesystem
       - error-handling
     prerequisites:
       - cpp17-to-chars-from-chars
-  - id: cpp17-chrono-rounding-time-point-conversion
-    sourcePath: cpp17/33_chrono_rounding_time_point_conversion
     language: cpp
     track: cpp17
+  - id: cpp17-chrono-rounding-time-point-conversion
+    sourcePath: cpp17/33_chrono_rounding_time_point_conversion
     order: 33
     tags:
       - chrono
@@ -1504,10 +1492,10 @@ lessons:
       - conversion
     prerequisites:
       - cpp17-filesystem
-  - id: cpp17-map-set-node-handles-extract-merge
-    sourcePath: cpp17/34_map_set_node_handles_extract_merge
     language: cpp
     track: cpp17
+  - id: cpp17-map-set-node-handles-extract-merge
+    sourcePath: cpp17/34_map_set_node_handles_extract_merge
     order: 34
     tags:
       - container
@@ -1515,10 +1503,10 @@ lessons:
       - ownership
     prerequisites:
       - cpp17-chrono-rounding-time-point-conversion
-  - id: cpp17-size-data-empty-as-const-weak-from-this
-    sourcePath: cpp17/35_size_data_empty_as_const_weak_from_this
     language: cpp
     track: cpp17
+  - id: cpp17-size-data-empty-as-const-weak-from-this
+    sourcePath: cpp17/35_size_data_empty_as_const_weak_from_this
     order: 35
     tags:
       - container
@@ -1526,20 +1514,20 @@ lessons:
       - ownership
     prerequisites:
       - cpp17-map-set-node-handles-extract-merge
-  - id: cpp17-clamp-sample-not-fn-gcd-lcm
-    sourcePath: cpp17/36_clamp_sample_not_fn_gcd_lcm
     language: cpp
     track: cpp17
+  - id: cpp17-clamp-sample-not-fn-gcd-lcm
+    sourcePath: cpp17/36_clamp_sample_not_fn_gcd_lcm
     order: 36
     tags:
       - algorithm
       - numeric
     prerequisites:
       - cpp17-size-data-empty-as-const-weak-from-this
-  - id: cpp17-reduce-transform-reduce
-    sourcePath: cpp17/37_reduce_transform_reduce
     language: cpp
     track: cpp17
+  - id: cpp17-reduce-transform-reduce
+    sourcePath: cpp17/37_reduce_transform_reduce
     order: 37
     tags:
       - algorithm
@@ -1547,10 +1535,10 @@ lessons:
       - parallelism
     prerequisites:
       - cpp17-clamp-sample-not-fn-gcd-lcm
-  - id: cpp17-inclusive-exclusive-transform-scans
-    sourcePath: cpp17/38_inclusive_exclusive_transform_scans
     language: cpp
     track: cpp17
+  - id: cpp17-inclusive-exclusive-transform-scans
+    sourcePath: cpp17/38_inclusive_exclusive_transform_scans
     order: 38
     tags:
       - algorithm
@@ -1558,10 +1546,10 @@ lessons:
       - parallelism
     prerequisites:
       - cpp17-reduce-transform-reduce
-  - id: cpp17-parallel-algorithms-execution-policies
-    sourcePath: cpp17/39_parallel_algorithms_execution_policies
     language: cpp
     track: cpp17
+  - id: cpp17-parallel-algorithms-execution-policies
+    sourcePath: cpp17/39_parallel_algorithms_execution_policies
     order: 39
     tags:
       - algorithm
@@ -1569,10 +1557,10 @@ lessons:
       - concurrency
     prerequisites:
       - cpp17-inclusive-exclusive-transform-scans
-  - id: cpp17-pmr-polymorphic-memory-resources
-    sourcePath: cpp17/40_pmr_polymorphic_memory_resources
     language: cpp
     track: cpp17
+  - id: cpp17-pmr-polymorphic-memory-resources
+    sourcePath: cpp17/40_pmr_polymorphic_memory_resources
     order: 40
     tags:
       - pmr
@@ -1580,10 +1568,10 @@ lessons:
       - allocation
     prerequisites:
       - cpp17-parallel-algorithms-execution-policies
-  - id: cpp17-shared-mutex-scoped-lock
-    sourcePath: cpp17/41_shared_mutex_scoped_lock
     language: cpp
     track: cpp17
+  - id: cpp17-shared-mutex-scoped-lock
+    sourcePath: cpp17/41_shared_mutex_scoped_lock
     order: 41
     tags:
       - concurrency
@@ -1591,10 +1579,10 @@ lessons:
       - locking
     prerequisites:
       - cpp17-pmr-polymorphic-memory-resources
-  - id: cpp17-thread-future-promise-async-pipeline
-    sourcePath: cpp17/42_thread_future_promise_async_pipeline
     language: cpp
     track: cpp17
+  - id: cpp17-thread-future-promise-async-pipeline
+    sourcePath: cpp17/42_thread_future_promise_async_pipeline
     order: 42
     tags:
       - concurrency
@@ -1602,10 +1590,10 @@ lessons:
       - future
     prerequisites:
       - cpp17-shared-mutex-scoped-lock
-  - id: cpp17-mutex-condition-variable-producer-consumer
-    sourcePath: cpp17/43_mutex_condition_variable_producer_consumer
     language: cpp
     track: cpp17
+  - id: cpp17-mutex-condition-variable-producer-consumer
+    sourcePath: cpp17/43_mutex_condition_variable_producer_consumer
     order: 43
     tags:
       - concurrency
@@ -1613,10 +1601,10 @@ lessons:
       - condition-variable
     prerequisites:
       - cpp17-thread-future-promise-async-pipeline
-  - id: cpp17-atomic-compare-exchange-memory-ordering
-    sourcePath: cpp17/44_atomic_compare_exchange_memory_ordering
     language: cpp
     track: cpp17
+  - id: cpp17-atomic-compare-exchange-memory-ordering
+    sourcePath: cpp17/44_atomic_compare_exchange_memory_ordering
     order: 44
     tags:
       - atomic
@@ -1624,10 +1612,10 @@ lessons:
       - concurrency
     prerequisites:
       - cpp17-mutex-condition-variable-producer-consumer
-  - id: cpp17-hardware-interference-false-sharing-launder
-    sourcePath: cpp17/45_hardware_interference_false_sharing_launder
     language: cpp
     track: cpp17
+  - id: cpp17-hardware-interference-false-sharing-launder
+    sourcePath: cpp17/45_hardware_interference_false_sharing_launder
     order: 45
     tags:
       - cache
@@ -1635,10 +1623,10 @@ lessons:
       - false-sharing
     prerequisites:
       - cpp17-atomic-compare-exchange-memory-ordering
-  - id: cpp17-lock-free-spsc-queue
-    sourcePath: cpp17/46_lock_free_spsc_queue
     language: cpp
     track: cpp17
+  - id: cpp17-lock-free-spsc-queue
+    sourcePath: cpp17/46_lock_free_spsc_queue
     order: 46
     tags:
       - concurrency
@@ -1646,10 +1634,10 @@ lessons:
       - queue
     prerequisites:
       - cpp17-hardware-interference-false-sharing-launder
-  - id: cpp17-cache-locality-data-oriented-design
-    sourcePath: cpp17/47_cache_locality_data_oriented_design
     language: cpp
     track: cpp17
+  - id: cpp17-cache-locality-data-oriented-design
+    sourcePath: cpp17/47_cache_locality_data_oriented_design
     order: 47
     tags:
       - cache
@@ -1657,10 +1645,10 @@ lessons:
       - data-layout
     prerequisites:
       - cpp17-lock-free-spsc-queue
-  - id: cpp17-pmr-pool-allocation-free-hot-path
-    sourcePath: cpp17/48_pmr_pool_allocation_free_hot_path
     language: cpp
     track: cpp17
+  - id: cpp17-pmr-pool-allocation-free-hot-path
+    sourcePath: cpp17/48_pmr_pool_allocation_free_hot_path
     order: 48
     tags:
       - pmr
@@ -1668,10 +1656,10 @@ lessons:
       - performance
     prerequisites:
       - cpp17-cache-locality-data-oriented-design
-  - id: cpp17-benchmarking-profiling-compiler-optimization
-    sourcePath: cpp17/49_benchmarking_profiling_compiler_optimization
     language: cpp
     track: cpp17
+  - id: cpp17-benchmarking-profiling-compiler-optimization
+    sourcePath: cpp17/49_benchmarking_profiling_compiler_optimization
     order: 49
     tags:
       - benchmarking
@@ -1679,10 +1667,10 @@ lessons:
       - optimization
     prerequisites:
       - cpp17-pmr-pool-allocation-free-hot-path
-  - id: cpp17-binary-parsing-byte-string-view-from-chars
-    sourcePath: cpp17/50_binary_parsing_byte_string_view_from_chars
     language: cpp
     track: cpp17
+  - id: cpp17-binary-parsing-byte-string-view-from-chars
+    sourcePath: cpp17/50_binary_parsing_byte_string_view_from_chars
     order: 50
     tags:
       - binary-parsing
@@ -1690,3 +1678,540 @@ lessons:
       - bounds
     prerequisites:
       - cpp17-benchmarking-profiling-compiler-optimization
+    language: cpp
+    track: cpp17
+  - id: cpp20-toolchain-compiler-flags-cpp20
+    sourcePath: cpp20/01_toolchain_compiler_flags_cpp20
+    language: cpp
+    track: cpp20
+    order: 1
+    tags:
+      - toolchain
+    prerequisites: []
+  - id: cpp20-lifetime-raii-ownership-views
+    sourcePath: cpp20/02_lifetime_raii_ownership_views
+    language: cpp
+    track: cpp20
+    order: 2
+    tags:
+      - lifetime
+      - ownership
+    prerequisites:
+      - cpp20-toolchain-compiler-flags-cpp20
+  - id: cpp20-templates-type-traits-sfinae-if-constexpr
+    sourcePath: cpp20/03_templates_type_traits_sfinae_if_constexpr
+    language: cpp
+    track: cpp20
+    order: 3
+    tags:
+      - templates
+      - type-traits
+      - sfinae
+    prerequisites:
+      - cpp20-lifetime-raii-ownership-views
+  - id: cpp20-generic-lambda-variadic-templates-callables
+    sourcePath: cpp20/04_generic_lambda_variadic_templates_callables
+    language: cpp
+    track: cpp20
+    order: 4
+    tags:
+      - lambda
+      - parameter-pack
+      - callable
+    prerequisites:
+      - cpp20-templates-type-traits-sfinae-if-constexpr
+  - id: cpp20-iterators-algorithms-string-view-pmr
+    sourcePath: cpp20/05_iterators_algorithms_string_view_pmr
+    language: cpp
+    track: cpp20
+    order: 5
+    tags:
+      - iterator
+      - algorithm
+      - string-view
+      - pmr
+    prerequisites:
+      - cpp20-generic-lambda-variadic-templates-callables
+  - id: cpp20-thread-atomic-memory-model
+    sourcePath: cpp20/06_thread_atomic_memory_model
+    language: cpp
+    track: cpp20
+    order: 6
+    tags:
+      - concurrency
+      - atomic
+      - memory-model
+    prerequisites:
+      - cpp20-iterators-algorithms-string-view-pmr
+  - id: cpp20-requires-expressions-requirements
+    sourcePath: cpp20/07_requires_expressions_requirements
+    language: cpp
+    track: cpp20
+    order: 7
+    tags:
+      - templates
+      - constraint
+      - compile-time
+    prerequisites:
+      - cpp20-thread-atomic-memory-model
+  - id: cpp20-custom-concepts
+    sourcePath: cpp20/08_custom_concepts
+    language: cpp
+    track: cpp20
+    order: 8
+    tags:
+      - templates
+      - constraint
+      - type-system
+    prerequisites:
+      - cpp20-requires-expressions-requirements
+  - id: cpp20-standard-concepts-library
+    sourcePath: cpp20/09_standard_concepts_library
+    language: cpp
+    track: cpp20
+    order: 9
+    tags:
+      - constraint
+      - templates
+    prerequisites:
+      - cpp20-custom-concepts
+  - id: cpp20-constrained-templates-abbreviated-functions
+    sourcePath: cpp20/10_constrained_templates_abbreviated_functions
+    language: cpp
+    track: cpp20
+    order: 10
+    tags:
+      - templates
+      - constraint
+      - type-deduction
+    prerequisites:
+      - cpp20-standard-concepts-library
+  - id: cpp20-concept-subsumption-overload-resolution
+    sourcePath: cpp20/11_concept_subsumption_overload_resolution
+    language: cpp
+    track: cpp20
+    order: 11
+    tags:
+      - constraint
+      - overload
+    prerequisites:
+      - cpp20-constrained-templates-abbreviated-functions
+  - id: cpp20-explicit-template-parameters-lambda
+    sourcePath: cpp20/12_explicit_template_parameters_lambda
+    language: cpp
+    track: cpp20
+    order: 12
+    tags:
+      - lambda
+      - templates
+    prerequisites:
+      - cpp20-concept-subsumption-overload-resolution
+  - id: cpp20-lambda-pack-capture-va-opt
+    sourcePath: cpp20/13_lambda_pack_capture_va_opt
+    language: cpp
+    track: cpp20
+    order: 13
+    tags:
+      - lambda
+      - parameter-pack
+      - preprocessing
+    prerequisites:
+      - cpp20-explicit-template-parameters-lambda
+  - id: cpp20-class-type-nttp
+    sourcePath: cpp20/14_class_type_nttp
+    language: cpp
+    track: cpp20
+    order: 14
+    tags:
+      - templates
+      - compile-time
+    prerequisites:
+      - cpp20-lambda-pack-capture-va-opt
+  - id: cpp20-consteval-constexpr-immediate-functions
+    sourcePath: cpp20/15_consteval_constexpr_immediate_functions
+    language: cpp
+    track: cpp20
+    order: 15
+    tags:
+      - constant
+      - compile-time
+    prerequisites:
+      - cpp20-class-type-nttp
+  - id: cpp20-constinit-static-initialization
+    sourcePath: cpp20/16_constinit_static_initialization
+    language: cpp
+    track: cpp20
+    order: 16
+    tags:
+      - constant
+      - initialization
+    prerequisites:
+      - cpp20-consteval-constexpr-immediate-functions
+  - id: cpp20-is-constant-evaluated-constexpr-library
+    sourcePath: cpp20/17_is_constant_evaluated_constexpr_library
+    language: cpp
+    track: cpp20
+    order: 17
+    tags:
+      - constant
+      - compile-time
+    prerequisites:
+      - cpp20-constinit-static-initialization
+  - id: cpp20-constexpr-virtual-explicit-bool
+    sourcePath: cpp20/18_constexpr_virtual_explicit_bool
+    language: cpp
+    track: cpp20
+    order: 18
+    tags:
+      - constant
+      - object-model
+    prerequisites:
+      - cpp20-is-constant-evaluated-constexpr-library
+  - id: cpp20-three-way-comparison-categories
+    sourcePath: cpp20/19_three_way_comparison_categories
+    language: cpp
+    track: cpp20
+    order: 19
+    tags:
+      - type-system
+      - overload
+    prerequisites:
+      - cpp20-constexpr-virtual-explicit-bool
+  - id: cpp20-defaulted-comparisons-helpers
+    sourcePath: cpp20/20_defaulted_comparisons_helpers
+    language: cpp
+    track: cpp20
+    order: 20
+    tags:
+      - type-system
+      - overload
+    prerequisites:
+      - cpp20-three-way-comparison-categories
+  - id: cpp20-lexicographical-compare-three-way
+    sourcePath: cpp20/21_lexicographical_compare_three_way
+    language: cpp
+    track: cpp20
+    order: 21
+    tags:
+      - algorithm
+      - type-system
+    prerequisites:
+      - cpp20-defaulted-comparisons-helpers
+  - id: cpp20-designated-initializers-aggregates
+    sourcePath: cpp20/22_designated_initializers_aggregates
+    language: cpp
+    track: cpp20
+    order: 22
+    tags:
+      - initialization
+      - aggregate
+    prerequisites:
+      - cpp20-lexicographical-compare-three-way
+  - id: cpp20-range-for-initializer-lifetime
+    sourcePath: cpp20/23_range_for_initializer_lifetime
+    language: cpp
+    track: cpp20
+    order: 23
+    tags:
+      - for-each
+      - lifetime
+    prerequisites:
+      - cpp20-designated-initializers-aggregates
+  - id: cpp20-likely-unlikely-this-capture
+    sourcePath: cpp20/24_likely_unlikely_this_capture
+    language: cpp
+    track: cpp20
+    order: 24
+    tags:
+      - attributes
+      - capture
+    prerequisites:
+      - cpp20-range-for-initializer-lifetime
+  - id: cpp20-using-enum-char8-t-safe-comparisons
+    sourcePath: cpp20/25_using_enum_char8_t_safe_comparisons
+    language: cpp
+    track: cpp20
+    order: 25
+    tags:
+      - enum
+      - unicode
+      - type-safety
+    prerequisites:
+      - cpp20-likely-unlikely-this-capture
+  - id: cpp20-modules-interface-implementation-import
+    sourcePath: cpp20/26_modules_interface_implementation_import
+    language: cpp
+    track: cpp20
+    order: 26
+    tags:
+      - toolchain
+      - portability
+    prerequisites:
+      - cpp20-using-enum-char8-t-safe-comparisons
+  - id: cpp20-modules-header-units-migration
+    sourcePath: cpp20/27_modules_header_units_migration
+    language: cpp
+    track: cpp20
+    order: 27
+    tags:
+      - toolchain
+      - migration
+    prerequisites:
+      - cpp20-modules-interface-implementation-import
+  - id: cpp20-span-static-dynamic-extent
+    sourcePath: cpp20/28_span_static_dynamic_extent
+    language: cpp
+    track: cpp20
+    order: 28
+    tags:
+      - array
+      - bounds
+      - type-safety
+    prerequisites:
+      - cpp20-modules-header-units-migration
+  - id: cpp20-range-iterator-sentinel-concepts
+    sourcePath: cpp20/29_range_iterator_sentinel_concepts
+    language: cpp
+    track: cpp20
+    order: 29
+    tags:
+      - iterator
+      - constraint
+    prerequisites:
+      - cpp20-span-static-dynamic-extent
+  - id: cpp20-ranges-algorithms
+    sourcePath: cpp20/30_ranges_algorithms
+    language: cpp
+    track: cpp20
+    order: 30
+    tags:
+      - algorithm
+      - iterator
+    prerequisites:
+      - cpp20-range-iterator-sentinel-concepts
+  - id: cpp20-views-lazy-evaluation
+    sourcePath: cpp20/31_views_lazy_evaluation
+    language: cpp
+    track: cpp20
+    order: 31
+    tags:
+      - iterator
+      - algorithm
+    prerequisites:
+      - cpp20-ranges-algorithms
+  - id: cpp20-view-pipelines-borrowed-dangling
+    sourcePath: cpp20/32_view_pipelines_borrowed_dangling
+    language: cpp
+    track: cpp20
+    order: 32
+    tags:
+      - iterator
+      - lifetime
+    prerequisites:
+      - cpp20-views-lazy-evaluation
+  - id: cpp20-string-helpers-erase-if-to-array
+    sourcePath: cpp20/33_string_helpers_erase_if_to_array
+    language: cpp
+    track: cpp20
+    order: 33
+    tags:
+      - algorithm
+      - array
+    prerequisites:
+      - cpp20-view-pipelines-borrowed-dangling
+  - id: cpp20-format-vformat-custom-formatter
+    sourcePath: cpp20/34_format_vformat_custom_formatter
+    language: cpp
+    track: cpp20
+    order: 34
+    tags:
+      - type-system
+      - error-handling
+    prerequisites:
+      - cpp20-string-helpers-erase-if-to-array
+  - id: cpp20-source-location-osyncstream
+    sourcePath: cpp20/35_source_location_osyncstream
+    language: cpp
+    track: cpp20
+    order: 35
+    tags:
+      - error-handling
+      - concurrency
+    prerequisites:
+      - cpp20-format-vformat-custom-formatter
+  - id: cpp20-bit-endian-math-midpoint-bind-front
+    sourcePath: cpp20/36_bit_endian_math_midpoint_bind_front
+    language: cpp
+    track: cpp20
+    order: 36
+    tags:
+      - byte
+      - algorithm
+      - numeric
+    prerequisites:
+      - cpp20-source-location-osyncstream
+  - id: cpp20-chrono-calendar-time-zones-clocks
+    sourcePath: cpp20/37_chrono_calendar_time_zones_clocks
+    language: cpp
+    track: cpp20
+    order: 37
+    tags:
+      - chrono
+      - timestamps
+    prerequisites:
+      - cpp20-bit-endian-math-midpoint-bind-front
+  - id: cpp20-jthread-stop-token-auto-join
+    sourcePath: cpp20/38_jthread_stop_token_auto_join
+    language: cpp
+    track: cpp20
+    order: 38
+    tags:
+      - concurrency
+      - lifecycle
+    prerequisites:
+      - cpp20-chrono-calendar-time-zones-clocks
+  - id: cpp20-cooperative-cancellation-stop-callback
+    sourcePath: cpp20/39_cooperative_cancellation_stop_callback
+    language: cpp
+    track: cpp20
+    order: 39
+    tags:
+      - concurrency
+      - lifecycle
+    prerequisites:
+      - cpp20-jthread-stop-token-auto-join
+  - id: cpp20-atomic-ref-wait-notify-smart-pointers
+    sourcePath: cpp20/40_atomic_ref_wait_notify_smart_pointers
+    language: cpp
+    track: cpp20
+    order: 40
+    tags:
+      - atomic
+      - concurrency
+      - memory-order
+    prerequisites:
+      - cpp20-cooperative-cancellation-stop-callback
+  - id: cpp20-counting-binary-semaphore
+    sourcePath: cpp20/41_counting_binary_semaphore
+    language: cpp
+    track: cpp20
+    order: 41
+    tags:
+      - concurrency
+      - locking
+    prerequisites:
+      - cpp20-atomic-ref-wait-notify-smart-pointers
+  - id: cpp20-latch-reusable-barrier
+    sourcePath: cpp20/42_latch_reusable_barrier
+    language: cpp
+    track: cpp20
+    order: 42
+    tags:
+      - concurrency
+      - locking
+    prerequisites:
+      - cpp20-counting-binary-semaphore
+  - id: cpp20-concurrent-data-pipeline
+    sourcePath: cpp20/43_concurrent_data_pipeline
+    language: cpp
+    track: cpp20
+    order: 43
+    tags:
+      - concurrency
+      - queue
+    prerequisites:
+      - cpp20-latch-reusable-barrier
+  - id: cpp20-coroutine-model-keywords
+    sourcePath: cpp20/44_coroutine_model_keywords
+    language: cpp
+    track: cpp20
+    order: 44
+    tags:
+      - async
+      - control-flow
+    prerequisites:
+      - cpp20-concurrent-data-pipeline
+  - id: cpp20-promise-handle-coroutine-frame
+    sourcePath: cpp20/45_promise_handle_coroutine_frame
+    language: cpp
+    track: cpp20
+    order: 45
+    tags:
+      - async
+      - lifetime
+    prerequisites:
+      - cpp20-coroutine-model-keywords
+  - id: cpp20-awaitable-awaiter-suspension
+    sourcePath: cpp20/46_awaitable_awaiter_suspension
+    language: cpp
+    track: cpp20
+    order: 46
+    tags:
+      - async
+      - control-flow
+    prerequisites:
+      - cpp20-promise-handle-coroutine-frame
+  - id: cpp20-generator-lazy-streams
+    sourcePath: cpp20/47_generator_lazy_streams
+    language: cpp
+    track: cpp20
+    order: 47
+    tags:
+      - async
+      - iterator
+    prerequisites:
+      - cpp20-awaitable-awaiter-suspension
+  - id: cpp20-asynchronous-coroutine-task
+    sourcePath: cpp20/48_asynchronous_coroutine_task
+    language: cpp
+    track: cpp20
+    order: 48
+    tags:
+      - async
+      - future
+    prerequisites:
+      - cpp20-generator-lazy-streams
+  - id: cpp20-coroutine-cancellation-exception-lifetime
+    sourcePath: cpp20/49_coroutine_cancellation_exception_lifetime
+    language: cpp
+    track: cpp20
+    order: 49
+    tags:
+      - async
+      - lifetime
+      - error-handling
+    prerequisites:
+      - cpp20-asynchronous-coroutine-task
+  - id: cpp20-cache-locality-data-oriented-assume-aligned
+    sourcePath: cpp20/50_cache_locality_data_oriented_assume_aligned
+    language: cpp
+    track: cpp20
+    order: 50
+    tags:
+      - cache
+      - data-layout
+      - performance
+    prerequisites:
+      - cpp20-coroutine-cancellation-exception-lifetime
+  - id: cpp20-pmr-hot-path-benchmarking-profiling
+    sourcePath: cpp20/51_pmr_hot_path_benchmarking_profiling
+    language: cpp
+    track: cpp20
+    order: 51
+    tags:
+      - pmr
+      - benchmarking
+      - profiling
+    prerequisites:
+      - cpp20-cache-locality-data-oriented-assume-aligned
+  - id: cpp20-binary-parsing-span-byte-bit-cast-endian
+    sourcePath: cpp20/52_binary_parsing_span_byte_bit_cast_endian
+    language: cpp
+    track: cpp20
+    order: 52
+    tags:
+      - binary-parsing
+      - byte
+      - bounds
+    prerequisites:
+      - cpp20-pmr-hot-path-benchmarking-profiling

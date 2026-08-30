@@ -13,12 +13,13 @@ trạng thái từ tên nhánh.
   C++98/C++11/C++14/C++17/C++20 nên chỉ C++23 còn ở trạng thái disabled; chip
   tự xuống dòng và giữ vùng bấm tối thiểu 44 px trên màn hình hẹp. Nhãn điều
   hướng roadmap bám theo chuẩn đang lọc; ở `Tất cả` chỉ hiện `Roadmap`. C++11,
-  C++14 và C++17 mở route riêng, còn chuẩn chưa có roadmap mở bộ chọn phiên bản và được
+  C++14, C++17 và C++20 mở route riêng, còn chuẩn chưa có roadmap mở bộ chọn phiên bản và được
   đánh dấu `Sắp có` thay vì bị chuyển nhầm sang roadmap khác.
-- Roadmap C++11 có 53 ngày/8 chặng; roadmap C++14 và C++17 đều có 50 ngày/7 chặng; mỗi
-  roadmap giữ thứ tự riêng với `lesson.order` và mọi node đều `ready`. Các lesson
-  C++11 được đánh số `01`–`53`, C++14/C++17 được đánh số `01`–`50`; mỗi lesson có canonical `vi.md`,
-  companion `en.md` và `main.cpp` theo cùng cấu trúc 10 phần như Toolchain;
+- Roadmap C++11 có 53 ngày/8 chặng; roadmap C++14 và C++17 đều có 50 ngày/7 chặng;
+  roadmap C++20 có 52 ngày/8 chặng. Mỗi roadmap giữ thứ tự riêng với
+  `lesson.order` và mọi node đều `ready`. Các lesson C++11 được đánh số `01`–`53`,
+  C++14/C++17 được đánh số `01`–`50`, C++20 được đánh số `01`–`52`; mỗi lesson có
+  canonical `vi.md`, companion `en.md` và `main.cpp` theo cùng cấu trúc 10 phần như Toolchain;
   loader vẫn nhận `knowledge.md` cho lesson cũ, pipeline sinh overlay lesson
   exact-revision và giữ section ID canonical khi đổi locale. Coverage `ready` không lặp
   nhãn trên từng node hay trong legend; legend chỉ xuất hiện khi thật sự có ngày
@@ -35,11 +36,11 @@ trạng thái từ tên nhánh.
   và callback Auth kỹ thuật vẫn không prefix. Các lối tắt Admin trong Practice,
   Stats và guide tick dùng `next/link` trực tiếp nên luôn mở `/admin`, không bị
   navigation theo locale đổi thành route 404 `/vi/admin` hoặc `/en/admin`.
-- Catalog hiện có 473 question Git-owned: 4 verified và 469 draft. Mỗi lesson
-  C++11/C++14/C++17 có ba draft beginner/intermediate/advanced với taxonomy
-  `standard::cpp11`, `standard::cpp14` hoặc `standard::cpp17`; 459 English copy tương ứng xuất hiện thành mục duyệt riêng
-  trong Admin nhưng giữ nguyên canonical ID/version/hash/taxonomy. Cả 4 question verified
-  cũng có overlay tiếng Anh; `/en/practice` chỉ xếp question và English copy đã duyệt vào hàng học. Question được duyệt
+- Catalog hiện có 628 question Git-owned: 3 verified và 625 draft. Mỗi lesson
+  C++11/C++14/C++17/C++20 có ba draft beginner/intermediate/advanced với taxonomy
+  `standard::<track>` và `difficulty::<level>`; 615 English copy tương ứng xuất hiện thành
+  mục duyệt riêng trong Admin nhưng giữ nguyên canonical ID/version/hash/taxonomy.
+  Cả 3 question verified hiện hành cũng có overlay tiếng Anh; `/en/practice` chỉ xếp question và English copy đã duyệt vào hàng học. Question được duyệt
   nhưng chưa dịch không còn fallback sang tiếng Việt, còn source excerpt/title
   lesson chưa dịch được ẩn hoặc thay bằng nhãn chủ đề trung tính. Stable identity,
   version, source hash, taxonomy, source và code không thay đổi. Toàn bộ control,
@@ -158,11 +159,13 @@ trạng thái từ tên nhánh.
 
 ## Giới hạn và trạng thái chưa xác minh
 
-- Phạm vi review hiện hành là đúng 459 canonical question C++11/C++14/C++17 và 459
-  English draft khớp exact revision, tương ứng ba câu mỗi ngôn ngữ cho từng bài
-  trong 53 bài C++11, 50 bài C++14 và 50 bài C++17. Bốn English overlay ngoài ba lộ trình vẫn
-  có trong catalog lịch sử nhưng bị
-  tombstone theo canonical ID; migration
+- Phạm vi review hiện hành là đúng 615 canonical question C++11/C++14/C++17/C++20 và
+  615 English draft khớp exact revision, tương ứng ba câu mỗi ngôn ngữ cho từng bài
+  trong 53 bài C++11, 50 bài C++14, 50 bài C++17 và 52 bài C++20. Canonical lesson/câu
+  `cpp20-designated-initializers` cũ đã được archive khỏi manifest hiện hành; English copy
+  lịch sử vẫn nằm trong catalog audit nhưng không có canonical question để xuất bản.
+  Ba English overlay C++98 verified ngoài bốn lộ trình vẫn hoạt động theo exact revision.
+  Migration
   `20260828223000_retire_pre_curriculum_questions.sql` mã hóa đúng 90 ID legacy
   cần loại khỏi cả vùng đã duyệt và chưa duyệt mà không xóa audit history.
   Tiếng Anh dùng thêm source
@@ -345,14 +348,13 @@ trạng thái từ tên nhánh.
   ESLint, TypeScript, 111 file/656 Vitest test và Next.js production build 67
   page. Regression test giữ question revision cũ trong hàng `needs_review` nhưng
   không resolve section ID cũ vào lesson revision hiện hành.
-- Roadmap C++11 cùng điều hướng bám theo bộ lọc chuẩn đạt toàn bộ
-  `npm run validate`: content/context check, ESLint, TypeScript, 116 file/690
-  Vitest test và Next.js production build, gồm route
-  `/[locale]/learn/roadmap/cpp11`. Visual smoke 1440 px xác nhận đường ziczac ba
-  cột; 768 px chuyển đúng sang trục dọc không tràn ngang. Smoke VI/EN xác nhận
-  node có học liệu sinh đúng route locale tới lesson chính với `target="_blank"`
-  và `rel="noopener noreferrer"`; node chưa có bài không sinh `href` rỗng,
-  popup cũ không còn trong HTML và response không có payload Supabase.
+- Bộ 52 lesson/roadmap C++20 đạt toàn bộ `npm run validate`: content/context check,
+  ESLint, TypeScript, 133 file/792 Vitest test và Next.js production build sinh
+  480 static path, gồm route `/[locale]/learn/roadmap/cpp20`. Targeted test khóa
+  đúng 52 ngày/8 chặng, companion VI/EN, predecessor chain, 156 canonical draft,
+  156 English draft và taxonomy chuẩn/độ khó; cả 52 `main.cpp` qua
+  `g++ -std=c++20 -fsyntax-only`, production dependency audit báo 0 vulnerability.
+  Không có migration, Supabase sync hay remote mutation nào.
 - Google OAuth ở `/auth` dùng cùng callback PKCE của Supabase như GitHub; trước
   khi nút hoạt động cần bật provider, điền Google Client ID/Secret và đăng ký
   callback/origin theo `web/supabase/README.md`. Thay đổi UI/route đã đạt

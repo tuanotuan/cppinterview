@@ -1,0 +1,917 @@
+schemaVersion: 1
+track: cpp20
+phases:
+  - id: foundations-review
+    order: 1
+    title:
+      vi: Ôn nền tảng C++17
+      en: C++17 foundations review
+    summary:
+      vi: Củng cố toolchain, lifetime, generic programming, STL và memory model trước khi dùng các bổ sung
+        C++20.
+      en: Reinforce toolchains, lifetimes, generic programming, the STL, and the memory model before
+        adopting C++20 additions.
+  - id: concepts-generic-programming
+    order: 2
+    title:
+      vi: Concepts và generic programming
+      en: Concepts and generic programming
+    summary:
+      vi: Biểu đạt requirement trực tiếp bằng concepts, constrained template, lambda template và non-type
+        template parameter kiểu class.
+      en: Express requirements directly with concepts, constrained templates, lambda templates, and
+        class-type non-type template parameters.
+  - id: compile-time-language
+    order: 3
+    title:
+      vi: Compile time và nền tảng ngôn ngữ
+      en: Compile time and language foundations
+    summary:
+      vi: Làm chủ immediate function, initialization, comparison, aggregate, lifetime và các thay đổi cú
+        pháp cốt lõi của C++20.
+      en: Master immediate functions, initialization, comparisons, aggregates, lifetimes, and core C++20
+        language changes.
+  - id: modules-ranges-views
+    order: 4
+    title:
+      vi: Modules, ranges và views
+      en: Modules, ranges, and views
+    summary:
+      vi: Tổ chức boundary build bằng modules và xử lý dữ liệu qua span, range, sentinel cùng pipeline
+        view lazy an toàn lifetime.
+      en: Organize build boundaries with modules and process data through spans, ranges, sentinels, and
+        lifetime-safe lazy view pipelines.
+  - id: standard-library-utilities
+    order: 5
+    title:
+      vi: Tiện ích thư viện chuẩn
+      en: Standard-library utilities
+    summary:
+      vi: Áp dụng format, source location, synchronized output, bit utility và chrono calendar/time zone
+        với contract rõ.
+      en: Apply formatting, source locations, synchronized output, bit utilities, and chrono calendars and
+        time zones with explicit contracts.
+  - id: structured-concurrency
+    order: 6
+    title:
+      vi: Structured concurrency
+      en: Structured concurrency
+    summary:
+      vi: Kết hợp jthread, cooperative cancellation, atomic wait/notify, semaphore, latch và barrier thành
+        pipeline đồng thời kiểm soát được.
+      en: Combine jthread, cooperative cancellation, atomic wait/notify, semaphores, latches, and barriers
+        into controlled concurrent pipelines.
+  - id: coroutines
+    order: 7
+    title:
+      vi: Coroutines và asynchronous task
+      en: Coroutines and asynchronous tasks
+    summary:
+      vi: Hiểu coroutine frame, promise, handle, awaiter, generator, task bất đồng bộ cùng boundary hủy,
+        exception và lifetime.
+      en: Understand coroutine frames, promises, handles, awaiters, generators, asynchronous tasks, and
+        their cancellation, exception, and lifetime boundaries.
+  - id: systems-performance
+    order: 8
+    title:
+      vi: Systems và hiệu năng
+      en: Systems and performance
+    summary:
+      vi: Đo và tối ưu data layout, PMR hot path rồi xây binary parser có bound, representation và endian
+        rõ ràng.
+      en: Measure and optimize data layouts and PMR hot paths, then build a bounded binary parser with
+        explicit representation and endianness.
+days:
+  - day: 1
+    phase: foundations-review
+    title:
+      vi: Toolchain, cờ compiler và chế độ C++20
+      en: Toolchain, Compiler Flags, and C++20 Mode
+    objective:
+      vi: Toolchain biến mã nguồn thành chương trình chạy được, còn các cờ compiler chọn bộ quy tắc ngôn
+        ngữ, mức cảnh báo và tên tệp đầu ra. Nó làm một giả định quan trọng trở nên rõ và có thể
+        kiểm tra.
+      en: A toolchain turns source text into an executable, while compiler flags select the language
+        rules, diagnostics, and output file. It makes an important assumption visible and checkable.
+    dependsOn: []
+    lessonIds:
+      - cpp20-toolchain-compiler-flags-cpp20
+    coverage: ready
+  - day: 2
+    phase: foundations-review
+    title:
+      vi: Lifetime, RAII, ownership và non-owning views
+      en: Lifetime, RAII, Ownership, and Non-Owning Views
+    objective:
+      vi: Các khái niệm này trả lời ai sở hữu tài nguyên, tài nguyên sống bao lâu và đoạn mã khác được
+        quan sát nó thế nào mà không nhận quyền sở hữu. Nó làm một giả định quan trọng trở nên rõ và
+        có thể kiểm tra.
+      en: These ideas answer who owns a resource, how long it remains valid, and how other code may
+        observe it without taking ownership. It makes an important assumption visible and checkable.
+    dependsOn:
+      - 1
+    lessonIds:
+      - cpp20-lifetime-raii-ownership-views
+    coverage: ready
+  - day: 3
+    phase: foundations-review
+    title:
+      vi: Templates, type traits, SFINAE và if constexpr
+      en: Templates, Type Traits, SFINAE, and if constexpr
+    objective:
+      vi: Mã generic cần thích nghi với nhiều kiểu nhưng vẫn phải loại những phép toán không có ý nghĩa
+        với một kiểu cụ thể. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: Generic code must adapt to several types while rejecting operations that do not make sense for a
+        particular type. It makes an important assumption visible and checkable.
+    dependsOn:
+      - 2
+    lessonIds:
+      - cpp20-templates-type-traits-sfinae-if-constexpr
+    coverage: ready
+  - day: 4
+    phase: foundations-review
+    title:
+      vi: Generic lambda, variadic templates và callables
+      en: Generic Lambdas, Variadic Templates, and Callables
+    objective:
+      vi: Callable cho phép thuật toán nhận hành vi như dữ liệu; dạng generic và variadic giúp một
+        callable xử lý nhiều kiểu hoặc số lượng đối số khác nhau. Nó làm một giả định quan trọng trở
+        nên rõ và có thể kiểm tra.
+      en: Callables let algorithms accept behavior as data, while generic and variadic forms let one
+        callable handle several types or argument counts. It makes an important assumption visible
+        and checkable.
+    dependsOn:
+      - 3
+    lessonIds:
+      - cpp20-generic-lambda-variadic-templates-callables
+    coverage: ready
+  - day: 5
+    phase: foundations-review
+    title:
+      vi: Iterators, algorithms, string_view và PMR
+      en: Iterators, Algorithms, string_view, and PMR
+    objective:
+      vi: Thư viện chuẩn tách việc lưu trữ, duyệt, thuật toán, view văn bản và chính sách cấp phát để từng
+        phần có thể tái sử dụng. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: The standard library separates storage, traversal, algorithms, text views, and allocation policy
+        so each concern can be reused. It makes an important assumption visible and checkable.
+    dependsOn:
+      - 4
+    lessonIds:
+      - cpp20-iterators-algorithms-string-view-pmr
+    coverage: ready
+  - day: 6
+    phase: foundations-review
+    title:
+      vi: Thread, atomic và C++ memory model
+      en: Threads, Atomics, and the C++ Memory Model
+    objective:
+      vi: Nhiều thread có thể truy cập trạng thái chung cùng lúc, vì vậy chương trình cần quy tắc rõ ràng
+        về khả năng nhìn thấy và thứ tự bộ nhớ. Nó làm một giả định quan trọng trở nên rõ và có thể
+        kiểm tra.
+      en: Concurrent threads may access shared state at the same time, so the program needs defined rules
+        for visibility and ordering. It makes an important assumption visible and checkable.
+    dependsOn:
+      - 5
+    lessonIds:
+      - cpp20-thread-atomic-memory-model
+    coverage: ready
+  - day: 7
+    phase: concepts-generic-programming
+    title:
+      vi: Requires expressions và các loại requirement
+      en: Requires Expressions and Requirement Kinds
+    objective:
+      vi: Requires expression hỏi trước khi chọn template rằng một kiểu có hỗ trợ cú pháp và thuộc tính cụ
+        thể hay không. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: A requires expression asks whether a type supports specific syntax and properties before a
+        template is selected. It makes an important assumption visible and checkable.
+    dependsOn:
+      - 6
+    lessonIds:
+      - cpp20-requires-expressions-requirements
+    coverage: ready
+  - day: 8
+    phase: concepts-generic-programming
+    title:
+      vi: Định nghĩa custom concepts
+      en: Defining Custom Concepts
+    objective:
+      vi: Custom concept đặt tên có ý nghĩa cho một hợp đồng compile time có thể tái sử dụng đối với tham
+        số template. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: A custom concept gives a meaningful name to a reusable compile-time contract for template
+        arguments. It makes an important assumption visible and checkable.
+    dependsOn:
+      - 7
+    lessonIds:
+      - cpp20-custom-concepts
+    coverage: ready
+  - day: 9
+    phase: concepts-generic-programming
+    title:
+      vi: Standard concepts library
+      en: The Standard Concepts Library
+    objective:
+      vi: Thư viện chuẩn cung cấp các vocabulary concept phổ biến để interface generic diễn đạt quan hệ
+        kiểu một cách nhất quán. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: The standard library supplies common vocabulary concepts so generic interfaces can express
+        familiar type relationships consistently. It makes an important assumption visible and
+        checkable.
+    dependsOn:
+      - 8
+    lessonIds:
+      - cpp20-standard-concepts-library
+    coverage: ready
+  - day: 10
+    phase: concepts-generic-programming
+    title:
+      vi: Constrained templates và abbreviated function templates
+      en: Constrained Templates and Abbreviated Function Templates
+    objective:
+      vi: Constraint ngăn template nhận đối số không hợp lệ, còn cú pháp abbreviated loại bớt boilerplate
+        cho tham số có ràng buộc đơn giản. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm
+        tra.
+      en: Constraints keep invalid template arguments out of an interface, and abbreviated syntax removes
+        boilerplate for simple constrained parameters. It makes an important assumption visible and
+        checkable.
+    dependsOn:
+      - 9
+    lessonIds:
+      - cpp20-constrained-templates-abbreviated-functions
+    coverage: ready
+  - day: 11
+    phase: concepts-generic-programming
+    title:
+      vi: Concept subsumption và overload resolution
+      en: Concept Subsumption and Overload Resolution
+    objective:
+      vi: Khi nhiều constrained overload đều hợp lệ, subsumption giúp compiler chọn overload có constraint
+        cụ thể hơn. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: When several constrained overloads are viable, subsumption helps the compiler choose the one
+        whose constraint is more specific. It makes an important assumption visible and checkable.
+    dependsOn:
+      - 10
+    lessonIds:
+      - cpp20-concept-subsumption-overload-resolution
+    coverage: ready
+  - day: 12
+    phase: concepts-generic-programming
+    title:
+      vi: Explicit template parameter list cho lambda
+      en: Explicit Template Parameter Lists for Lambdas
+    objective:
+      vi: C++20 cho phép lambda đặt tên template parameter, nhờ đó thể hiện quan hệ giữa các kiểu mà không
+        cần tạo function template riêng. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm
+        tra.
+      en: C++20 lets a lambda name its template parameters, making relationships between parameter types
+        explicit without defining a separate function template. It makes an important assumption
+        visible and checkable.
+    dependsOn:
+      - 11
+    lessonIds:
+      - cpp20-explicit-template-parameters-lambda
+    coverage: ready
+  - day: 13
+    phase: concepts-generic-programming
+    title:
+      vi: Lambda capture parameter packs và __VA_OPT__
+      en: Lambda Pack Capture and __VA_OPT__
+    objective:
+      vi: C++20 cho phép lambda capture từng phần tử của parameter pack và cho macro phát token chỉ khi
+        danh sách đối số variadic không rỗng. Nó làm một giả định quan trọng trở nên rõ và có thể
+        kiểm tra.
+      en: C++20 can capture every element of a parameter pack in a lambda and can emit macro tokens only
+        when variadic macro arguments exist. It makes an important assumption visible and checkable.
+    dependsOn:
+      - 12
+    lessonIds:
+      - cpp20-lambda-pack-capture-va-opt
+    coverage: ready
+  - day: 14
+    phase: concepts-generic-programming
+    title:
+      vi: Class types trong non-type template parameters
+      en: Class Types as Non-Type Template Parameters
+    objective:
+      vi: C++20 cho phép giá trị class structural phù hợp làm template argument, nhờ đó dữ liệu compile
+        time như chuỗi cố định trở nên dễ đọc. Nó làm một giả định quan trọng trở nên rõ và có thể
+        kiểm tra.
+      en: C++20 permits suitable structural class values as template arguments, enabling readable
+        compile-time data such as fixed strings. It makes an important assumption visible and
+        checkable.
+    dependsOn:
+      - 13
+    lessonIds:
+      - cpp20-class-type-nttp
+    coverage: ready
+  - day: 15
+    phase: compile-time-language
+    title:
+      vi: consteval, constexpr và immediate functions
+      en: consteval, constexpr, and Immediate Functions
+    objective:
+      vi: constexpr cho phép đánh giá lúc biên dịch khi đầu vào phù hợp, còn consteval buộc mọi lời gọi
+        thực sự được dùng phải xảy ra ở compile time. Nó làm một giả định quan trọng trở nên rõ và
+        có thể kiểm tra.
+      en: constexpr permits compile-time evaluation when inputs allow it, while consteval requires every
+        potentially evaluated call to happen at compile time. It makes an important assumption
+        visible and checkable.
+    dependsOn:
+      - 14
+    lessonIds:
+      - cpp20-consteval-constexpr-immediate-functions
+    coverage: ready
+  - day: 16
+    phase: compile-time-language
+    title:
+      vi: constinit và static initialization
+      en: constinit and Static Initialization
+    objective:
+      vi: constinit xác minh object có static hoặc thread storage được static initialization, tránh thứ tự
+        dynamic initialization khó đoán. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm
+        tra.
+      en: constinit verifies that a static or thread-storage object receives static initialization,
+        avoiding uncertain dynamic initialization order. It makes an important assumption visible
+        and checkable.
+    dependsOn:
+      - 15
+    lessonIds:
+      - cpp20-constinit-static-initialization
+    coverage: ready
+  - day: 17
+    phase: compile-time-language
+    title:
+      vi: is_constant_evaluated và constexpr standard library
+      en: is_constant_evaluated and the constexpr Standard Library
+    objective:
+      vi: Đôi khi cùng một interface cần đường thực thi khác nhau ở constant evaluation và runtime nhưng
+        vẫn chỉ dùng một hàm. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: Code sometimes needs one implementation path during constant evaluation and another at runtime,
+        while still presenting one function interface. It makes an important assumption visible and
+        checkable.
+    dependsOn:
+      - 16
+    lessonIds:
+      - cpp20-is-constant-evaluated-constexpr-library
+    coverage: ready
+  - day: 18
+    phase: compile-time-language
+    title:
+      vi: Constexpr virtual functions và explicit(bool)
+      en: constexpr Virtual Functions and explicit(bool)
+    objective:
+      vi: C++20 mở rộng OOP lúc biên dịch và cho constructor trở thành explicit hoặc implicit theo một
+        điều kiện Boolean hằng. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: C++20 extends compile-time object-oriented evaluation and lets a constructor become explicit or
+        implicit from a constant Boolean condition. It makes an important assumption visible and
+        checkable.
+    dependsOn:
+      - 17
+    lessonIds:
+      - cpp20-constexpr-virtual-explicit-bool
+    coverage: ready
+  - day: 19
+    phase: compile-time-language
+    title:
+      vi: Three-way comparison và comparison categories
+      en: Three-Way Comparison and Comparison Categories
+    objective:
+      vi: Three-way comparison tạo một kết quả ordering có thể hỗ trợ nhiều toán tử quan hệ và giữ thông
+        tin thứ tự strong, weak hay partial. Nó làm một giả định quan trọng trở nên rõ và có thể
+        kiểm tra.
+      en: The three-way comparison produces one ordering result that can support several relational
+        operators and preserve whether ordering is strong, weak, or partial. It makes an important
+        assumption visible and checkable.
+    dependsOn:
+      - 18
+    lessonIds:
+      - cpp20-three-way-comparison-categories
+    coverage: ready
+  - day: 20
+    phase: compile-time-language
+    title:
+      vi: Defaulted comparisons và comparison helpers
+      en: Defaulted Comparisons and Comparison Helpers
+    objective:
+      vi: Defaulted comparison bỏ code so từng member lặp lại, còn helper đọc category result mà không so
+        nó với số nguyên tùy ý. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: Defaulted comparison removes repetitive member-by-member code, while helper functions interpret
+        category results without comparing them to arbitrary integers. It makes an important
+        assumption visible and checkable.
+    dependsOn:
+      - 19
+    lessonIds:
+      - cpp20-defaulted-comparisons-helpers
+    coverage: ready
+  - day: 21
+    phase: compile-time-language
+    title:
+      vi: std::lexicographical_compare_three_way
+      en: lexicographical_compare_three_way
+    objective:
+      vi: Thuật toán này so hai dãy từng phần tử và trả comparison category thay vì chỉ một Boolean “nhỏ
+        hơn”. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: This algorithm compares two sequences element by element and returns a comparison category
+        rather than only a less-than Boolean. It makes an important assumption visible and
+        checkable.
+    dependsOn:
+      - 20
+    lessonIds:
+      - cpp20-lexicographical-compare-three-way
+    coverage: ready
+  - day: 22
+    phase: compile-time-language
+    title:
+      vi: Designated initializers và aggregate initialization
+      en: Designated Initializers and Aggregate Initialization
+    objective:
+      vi: Designated initializer làm aggregate construction dễ đọc bằng cách nêu tên member nhận giá trị.
+        Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: Designated initializers make aggregate construction readable by naming the members that receive
+        values. It makes an important assumption visible and checkable.
+    dependsOn:
+      - 21
+    lessonIds:
+      - cpp20-designated-initializers-aggregates
+    coverage: ready
+  - day: 23
+    phase: compile-time-language
+    title:
+      vi: Range-based for với initializer và range lifetime
+      en: Range-for Initializers and Range Lifetime
+    objective:
+      vi: Initializer của range-for C++20 tạo trạng thái chuẩn bị có tên và lifetime bao trùm toàn bộ vòng
+        lặp. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: A C++20 range-for initializer creates named setup state whose lifetime covers the entire loop.
+        It makes an important assumption visible and checkable.
+    dependsOn:
+      - 22
+    lessonIds:
+      - cpp20-range-for-initializer-lifetime
+    coverage: ready
+  - day: 24
+    phase: compile-time-language
+    title:
+      vi: likely, unlikely và explicit capture của this
+      en: likely, unlikely, and Explicit this Capture
+    objective:
+      vi: Attribute dự đoán nhánh truyền optimization hint, còn explicit capture this làm sự phụ thuộc của
+        lambda vào object hiện rõ. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: Branch-likelihood attributes communicate an optimization hint, while explicit this capture makes
+        a lambda’s dependence on its object visible. It makes an important assumption visible and
+        checkable.
+    dependsOn:
+      - 23
+    lessonIds:
+      - cpp20-likely-unlikely-this-capture
+    coverage: ready
+  - day: 25
+    phase: compile-time-language
+    title:
+      vi: using enum, char8_t và safe integral comparisons
+      en: using enum, char8_t, and Safe Integral Comparisons
+    objective:
+      vi: Các công cụ C++20 này giảm độ dài tên enum, tạo kiểu riêng cho UTF-8 code unit và tránh
+        conversion bất ngờ khi so signed với unsigned. Nó làm một giả định quan trọng trở nên rõ và
+        có thể kiểm tra.
+      en: These C++20 tools reduce enum verbosity, give UTF-8 code units a distinct type, and avoid
+        surprising signed/unsigned comparison conversions. It makes an important assumption visible
+        and checkable.
+    dependsOn:
+      - 24
+    lessonIds:
+      - cpp20-using-enum-char8-t-safe-comparisons
+    coverage: ready
+  - day: 26
+    phase: modules-ranges-views
+    title:
+      vi: Module interface, implementation unit và import
+      en: Module Interfaces, Implementation Units, and import
+    objective:
+      vi: Module cung cấp interface đã biên dịch có tên, tránh include văn bản và tách API được export
+        khỏi implementation ẩn. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: Modules provide named compiled interfaces that avoid textual header inclusion and separate
+        exported API from hidden implementation. It makes an important assumption visible and
+        checkable.
+    dependsOn:
+      - 25
+    lessonIds:
+      - cpp20-modules-interface-implementation-import
+    coverage: ready
+  - day: 27
+    phase: modules-ranges-views
+    title:
+      vi: Modules, header units và migration từ header
+      en: Modules, Header Units, and Header Migration
+    objective:
+      vi: Header unit cho toolchain phù hợp import legacy header như unit đã biên dịch, còn migration từng
+        bước giúp consumer cũ và mới cùng hoạt động. Nó làm một giả định quan trọng trở nên rõ và có
+        thể kiểm tra.
+      en: Header units let supported toolchains import legacy headers as compiled units, while gradual
+        migration keeps old and new consumers working. It makes an important assumption visible and
+        checkable.
+    dependsOn:
+      - 26
+    lessonIds:
+      - cpp20-modules-header-units-migration
+    coverage: ready
+  - day: 28
+    phase: modules-ranges-views
+    title:
+      vi: span, static extent và dynamic extent
+      en: span, Static Extent, and Dynamic Extent
+    objective:
+      vi: std::span truyền dãy phần tử liên tục mà không copy hay sở hữu, với kích thước nằm trong kiểu
+        hoặc được giữ ở runtime. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: std::span passes contiguous elements without copying or owning them, with size known either in
+        the type or at runtime. It makes an important assumption visible and checkable.
+    dependsOn:
+      - 27
+    lessonIds:
+      - cpp20-span-static-dynamic-extent
+    coverage: ready
+  - day: 29
+    phase: modules-ranges-views
+    title:
+      vi: Range, iterator và sentinel concepts
+      en: Range, Iterator, and Sentinel Concepts
+    objective:
+      vi: Concept C++20 mô tả khả năng duyệt của range, gồm end sentinel không bắt buộc cùng kiểu với
+        iterator. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: C++20 concepts describe what traversal operations a range provides, including an end sentinel
+        that need not have the iterator’s type. It makes an important assumption visible and
+        checkable.
+    dependsOn:
+      - 28
+    lessonIds:
+      - cpp20-range-iterator-sentinel-concepts
+    coverage: ready
+  - day: 30
+    phase: modules-ranges-views
+    title:
+      vi: Ranges algorithms
+      en: Ranges Algorithms
+    objective:
+      vi: Ranges algorithm nhận nguyên range, tích hợp constraint và thường tránh lặp cặp begin/end thủ
+        công. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: Ranges algorithms accept whole ranges, integrate constraints, and often avoid repeating explicit
+        begin/end pairs. It makes an important assumption visible and checkable.
+    dependsOn:
+      - 29
+    lessonIds:
+      - cpp20-ranges-algorithms
+    coverage: ready
+  - day: 31
+    phase: modules-ranges-views
+    title:
+      vi: Views và lazy evaluation
+      en: Views and Lazy Evaluation
+    objective:
+      vi: View mô tả phép biến đổi mà không tạo ngay một owning container mới chứa toàn bộ kết quả. Nó làm
+        một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: A view describes a transformation without eagerly creating a new owning container for all
+        results. It makes an important assumption visible and checkable.
+    dependsOn:
+      - 30
+    lessonIds:
+      - cpp20-views-lazy-evaluation
+    coverage: ready
+  - day: 32
+    phase: modules-ranges-views
+    title:
+      vi: View pipelines, borrowed ranges và dangling views
+      en: View Pipelines, Borrowed Ranges, and Dangling Views
+    objective:
+      vi: Pipeline ghép các lazy adaptor, còn borrowed-range rule cho biết iterator có thể sống sau range
+        object truyền vào algorithm hay không. Nó làm một giả định quan trọng trở nên rõ và có thể
+        kiểm tra.
+      en: Pipelines compose lazy adaptors, while borrowed-range rules indicate when iterators may safely
+        outlive the range object passed to an algorithm. It makes an important assumption visible
+        and checkable.
+    dependsOn:
+      - 31
+    lessonIds:
+      - cpp20-view-pipelines-borrowed-dangling
+    coverage: ready
+  - day: 33
+    phase: modules-ranges-views
+    title:
+      vi: starts_with, ends_with, contains, erase_if và to_array
+      en: starts_with, ends_with, contains, erase_if, and to_array
+    objective:
+      vi: C++20 thêm thao tác ngắn cho kiểm tra prefix/suffix, membership associative, xóa theo predicate
+        và tạo std::array từ built-in array literal. Nó làm một giả định quan trọng trở nên rõ và có
+        thể kiểm tra.
+      en: C++20 adds concise library operations for prefix/suffix checks, associative membership,
+        predicate erasure, and creating std::array from a built-in array literal. It makes an
+        important assumption visible and checkable.
+    dependsOn:
+      - 32
+    lessonIds:
+      - cpp20-string-helpers-erase-if-to-array
+    coverage: ready
+  - day: 34
+    phase: standard-library-utilities
+    title:
+      vi: format, vformat và custom formatter
+      en: format, vformat, and Custom Formatters
+    objective:
+      vi: Formatting library tách message template khỏi giá trị, hỗ trợ runtime format argument store và
+        cho user type định nghĩa quy tắc format. Nó làm một giả định quan trọng trở nên rõ và có thể
+        kiểm tra.
+      en: The formatting library separates message templates from values, supports runtime format argument
+        stores, and allows user types to define formatting rules. It makes an important assumption
+        visible and checkable.
+    dependsOn:
+      - 33
+    lessonIds:
+      - cpp20-format-vformat-custom-formatter
+    coverage: ready
+  - day: 35
+    phase: standard-library-utilities
+    title:
+      vi: source_location và osyncstream
+      en: source_location and osyncstream
+    objective:
+      vi: source_location lấy metadata call site không cần macro; osyncstream buffer output để cả chunk
+        hoàn chỉnh đi vào shared stream nguyên vẹn. Nó làm một giả định quan trọng trở nên rõ và có
+        thể kiểm tra.
+      en: source_location captures call-site metadata without macros, and osyncstream buffers output so a
+        completed chunk reaches a shared stream atomically. It makes an important assumption visible
+        and checkable.
+    dependsOn:
+      - 34
+    lessonIds:
+      - cpp20-source-location-osyncstream
+    coverage: ready
+  - day: 36
+    phase: standard-library-utilities
+    title:
+      vi: bit_cast, endian, bit operations, math constants, midpoint và bind_front
+      en: bit_cast, Endian, Bit Operations, Math Constants, midpoint, and bind_front
+    objective:
+      vi: C++20 chuẩn hóa nhiều utility low-level và số học để thay unsafe cast, bit trick tự viết, magic
+        constant và wrapper lặp lại. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: C++20 standardizes several low-level and numeric utilities that replace unsafe casts,
+        hand-written bit tricks, magic constants, and repetitive wrappers. It makes an important
+        assumption visible and checkable.
+    dependsOn:
+      - 35
+    lessonIds:
+      - cpp20-bit-endian-math-midpoint-bind-front
+    coverage: ready
+  - day: 37
+    phase: standard-library-utilities
+    title:
+      vi: Chrono calendar, time zones và clock conversion
+      en: Chrono Calendars, Time Zones, and Clock Conversion
+    objective:
+      vi: Chrono C++20 mô hình hóa civil date, instant theo clock và diễn giải time zone bằng type riêng
+        thay vì số nguyên không nhãn. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: C++20 chrono models civil dates, clock-based instants, and time-zone interpretation with
+        distinct types instead of unlabelled integers. It makes an important assumption visible and
+        checkable.
+    dependsOn:
+      - 36
+    lessonIds:
+      - cpp20-chrono-calendar-time-zones-clocks
+    coverage: ready
+  - day: 38
+    phase: structured-concurrency
+    title:
+      vi: jthread, stop_token và automatic joining
+      en: jthread, stop_token, and Automatic Joining
+    objective:
+      vi: std::jthread sở hữu thread với RAII joining và có thể truyền cooperative stop token cho worker.
+        Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: std::jthread owns a thread with RAII joining and can pass a cooperative stop token to the
+        worker. It makes an important assumption visible and checkable.
+    dependsOn:
+      - 37
+    lessonIds:
+      - cpp20-jthread-stop-token-auto-join
+    coverage: ready
+  - day: 39
+    phase: structured-concurrency
+    title:
+      vi: Cooperative cancellation và stop_callback
+      en: Cooperative Cancellation and stop_callback
+    objective:
+      vi: Các stop-state type cho một thành phần request cancellation, observer truy vấn trạng thái và
+        callback phản ứng nhanh không cần polling. Nó làm một giả định quan trọng trở nên rõ và có
+        thể kiểm tra.
+      en: The stop-state types let one component request cancellation, observers query it, and callbacks
+        react promptly without polling. It makes an important assumption visible and checkable.
+    dependsOn:
+      - 38
+    lessonIds:
+      - cpp20-cooperative-cancellation-stop-callback
+    coverage: ready
+  - day: 40
+    phase: structured-concurrency
+    title:
+      vi: atomic_ref, atomic wait/notify và atomic smart pointers
+      en: atomic_ref, Atomic Wait/Notify, and Atomic Smart Pointers
+    objective:
+      vi: C++20 có thể áp atomic operation lên storage phù hợp đang tồn tại, block hiệu quả đến khi giá
+        trị đổi và publish shared-pointer ownership atomically. Nó làm một giả định quan trọng trở
+        nên rõ và có thể kiểm tra.
+      en: C++20 can apply atomic operations to suitable existing storage, block efficiently until atomic
+        values change, and atomically publish shared-pointer ownership. It makes an important
+        assumption visible and checkable.
+    dependsOn:
+      - 39
+    lessonIds:
+      - cpp20-atomic-ref-wait-notify-smart-pointers
+    coverage: ready
+  - day: 41
+    phase: structured-concurrency
+    title:
+      vi: Counting semaphore và binary semaphore
+      en: Counting and Binary Semaphores
+    objective:
+      vi: "Semaphore kiểm soát truy cập bằng permit: counting form biểu diễn nhiều slot, còn binary form
+        có tối đa một permit. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra."
+      en: "Semaphores control access through permits: counting form represents several available slots,
+        while binary form represents at most one. It makes an important assumption visible and
+        checkable."
+    dependsOn:
+      - 40
+    lessonIds:
+      - cpp20-counting-binary-semaphore
+    coverage: ready
+  - day: 42
+    phase: structured-concurrency
+    title:
+      vi: Latch và reusable barrier
+      en: Latch and Reusable Barrier
+    objective:
+      vi: Latch chờ countdown một lần, còn barrier nhiều lần tập hợp nhóm cố định ở boundary từng phase và
+        có thể chạy completion step. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: A latch waits for a one-time countdown, while a barrier repeatedly gathers a fixed group at
+        phase boundaries and may run a completion step. It makes an important assumption visible and
+        checkable.
+    dependsOn:
+      - 41
+    lessonIds:
+      - cpp20-latch-reusable-barrier
+    coverage: ready
+  - day: 43
+    phase: structured-concurrency
+    title:
+      vi: Thiết kế concurrent data pipeline
+      en: Designing a Concurrent Data Pipeline
+    objective:
+      vi: Data pipeline chia công việc thành stage có input, output, ownership transfer và synchronization
+        boundary rõ ràng. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: A data pipeline divides work into stages with explicit inputs, outputs, ownership transfer, and
+        synchronization boundaries. It makes an important assumption visible and checkable.
+    dependsOn:
+      - 42
+    lessonIds:
+      - cpp20-concurrent-data-pipeline
+    coverage: ready
+  - day: 44
+    phase: coroutines
+    title:
+      vi: Coroutine model, co_await, co_yield và co_return
+      en: "Coroutine Model: co_await, co_yield, and co_return"
+    objective:
+      vi: Coroutine có thể suspend trong khi giữ local state rồi resume sau; ba keyword diễn đạt chờ,
+        yield và hoàn tất. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: A coroutine can suspend while preserving local state, then resume later; the three keywords
+        express waiting, yielding, and completion. It makes an important assumption visible and
+        checkable.
+    dependsOn:
+      - 43
+    lessonIds:
+      - cpp20-coroutine-model-keywords
+    coverage: ready
+  - day: 45
+    phase: coroutines
+    title:
+      vi: Promise type, coroutine handle và coroutine frame
+      en: Promise Type, Coroutine Handle, and Coroutine Frame
+    objective:
+      vi: Promise tùy chỉnh hành vi coroutine, handle điều khiển suspended frame, còn frame lưu state cần
+        qua các lần suspension. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: The promise customizes coroutine behavior, the handle controls a suspended frame, and the frame
+        stores state needed across suspensions. It makes an important assumption visible and
+        checkable.
+    dependsOn:
+      - 44
+    lessonIds:
+      - cpp20-promise-handle-coroutine-frame
+    coverage: ready
+  - day: 46
+    phase: coroutines
+    title:
+      vi: Awaitable, awaiter và suspension lifecycle
+      en: Awaitables, Awaiters, and Suspension Lifecycle
+    objective:
+      vi: Awaiter định nghĩa coroutine có suspend không, điều gì xảy ra tại suspension và giá trị/effect
+        nào xuất hiện khi resume. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: An awaiter defines whether a coroutine suspends, what happens at suspension, and what value or
+        effect appears when execution resumes. It makes an important assumption visible and
+        checkable.
+    dependsOn:
+      - 45
+    lessonIds:
+      - cpp20-awaitable-awaiter-suspension
+    coverage: ready
+  - day: 47
+    phase: coroutines
+    title:
+      vi: Generator và lazy data streams
+      en: Generators and Lazy Data Streams
+    objective:
+      vi: Generator bộc lộ sequence từng phần tử mà không cần allocate và điền toàn bộ result container
+        trước. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: A generator exposes a sequence one element at a time without allocating and filling an entire
+        result container first. It makes an important assumption visible and checkable.
+    dependsOn:
+      - 46
+    lessonIds:
+      - cpp20-generator-lazy-streams
+    coverage: ready
+  - day: 48
+    phase: coroutines
+    title:
+      vi: Asynchronous task bằng coroutine
+      en: Asynchronous Tasks with Coroutines
+    objective:
+      vi: Coroutine task biểu diễn operation có thể pause rồi cung cấp một result hoặc exception cho
+        continuation sau. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: A coroutine task represents an operation that can pause and later deliver one result or
+        exception to a continuation. It makes an important assumption visible and checkable.
+    dependsOn:
+      - 47
+    lessonIds:
+      - cpp20-asynchronous-coroutine-task
+    coverage: ready
+  - day: 49
+    phase: coroutines
+    title:
+      vi: Coroutine cancellation, exception, lifetime và allocation
+      en: Coroutine Cancellation, Exceptions, Lifetime, and Allocation
+    objective:
+      vi: Coroutine type dùng thật phải phối hợp cooperative cancellation, lưu exception, sở hữu frame
+        lifetime và hiểu frame allocation xảy ra ở đâu. Nó làm một giả định quan trọng trở nên rõ và
+        có thể kiểm tra.
+      en: Production coroutine types must coordinate cooperative cancellation, store exceptions, own frame
+        lifetime, and understand where frame allocation occurs. It makes an important assumption
+        visible and checkable.
+    dependsOn:
+      - 48
+    lessonIds:
+      - cpp20-coroutine-cancellation-exception-lifetime
+    coverage: ready
+  - day: 50
+    phase: systems-performance
+    title:
+      vi: Cache locality, data-oriented design và assume_aligned
+      en: Cache Locality, Data-Oriented Design, and assume_aligned
+    objective:
+      vi: Hiệu năng thường phụ thuộc cách đặt dữ liệu dùng nhiều liền nhau và truyền alignment đã chứng
+        minh cho optimized code. Nó làm một giả định quan trọng trở nên rõ và có thể kiểm tra.
+      en: Performance often depends on arranging frequently processed data contiguously and communicating
+        proven alignment to optimized code. It makes an important assumption visible and checkable.
+    dependsOn:
+      - 49
+    lessonIds:
+      - cpp20-cache-locality-data-oriented-assume-aligned
+    coverage: ready
+  - day: 51
+    phase: systems-performance
+    title:
+      vi: PMR, allocation-free hot path, benchmarking và profiling
+      en: PMR, Allocation-Free Hot Paths, Benchmarking, and Profiling
+    objective:
+      vi: PMR arena cố định có thể loại heap allocation khỏi hot loop được đo; benchmark đo một câu hỏi
+        còn profiler tìm cost trên toàn hệ thống. Nó làm một giả định quan trọng trở nên rõ và có
+        thể kiểm tra.
+      en: A fixed PMR arena can remove heap allocation from a measured hot loop, while benchmarking
+        measures a question and profiling locates system-wide cost. It makes an important assumption
+        visible and checkable.
+    dependsOn:
+      - 50
+    lessonIds:
+      - cpp20-pmr-hot-path-benchmarking-profiling
+    coverage: ready
+  - day: 52
+    phase: systems-performance
+    title:
+      vi: Binary parsing bằng span, byte, bit_cast và endian
+      en: Binary Parsing with span, byte, bit_cast, and Endian
+    objective:
+      vi: Binary parsing an toàn phải chặn mọi lần đọc theo biên, biểu diễn raw byte rõ ràng, copy object
+        representation hợp lệ và chuẩn hóa byte order ngoài. Nó làm một giả định quan trọng trở nên
+        rõ và có thể kiểm tra.
+      en: Safe binary parsing must bound every read, represent raw bytes explicitly, copy object
+        representation legally, and normalize external byte order. It makes an important assumption
+        visible and checkable.
+    dependsOn:
+      - 51
+    lessonIds:
+      - cpp20-binary-parsing-span-byte-bit-cast-endian
+    coverage: ready

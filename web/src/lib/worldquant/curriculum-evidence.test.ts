@@ -9,7 +9,7 @@ describe("WorldQuant curriculum manifest evidence", () => {
   it("keeps a verified personal remediation card out of canonical coverage", () => {
     const fullManifest = contentManifestSchema.parse(manifestJson);
     const question = fullManifest.questions.find(
-      (item) => item.id === "cpp20-designated-initializers-001",
+      (item) => item.id === "cpp98-address-pointer-001",
     );
     expect(question?.status).toBe("verified");
     const lesson = fullManifest.lessons.find(

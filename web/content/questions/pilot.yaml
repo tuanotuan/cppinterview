@@ -16,8 +16,8 @@ questions:
       thiểu kích hoạt chế độ C++11?
     hint: Phân biệt cờ chọn chuẩn ngôn ngữ với các cờ chỉ bật thêm cảnh báo.
     answer:
-      short: Toolchain biến mã nguồn thành chương trình chạy được; cờ `-std=c++11` chọn bộ quy tắc
-        ngôn ngữ C++11 cho lần build.
+      short: Toolchain biến mã nguồn thành chương trình chạy được; cờ `-std=c++11` chọn bộ quy tắc ngôn
+        ngữ C++11 cho lần build.
       detailed: Compiler và linker trong toolchain lần lượt dịch rồi liên kết mã nguồn thành executable.
         Trong lệnh mẫu, `-std=c++11` mới là thành phần chọn chế độ ngôn ngữ C++11. Các cờ `-Wall`,
         `-Wextra` và `-Wpedantic` tăng mức chẩn đoán nhưng không thay thế cờ chọn chuẩn.
@@ -63,11 +63,11 @@ questions:
       }
     hint: Xác định giá trị chuẩn của macro `__cplusplus` trong C++11 rồi tính phép nhân số nguyên.
     answer:
-      short: Với compiler tuân thủ C++11, chương trình in `cplusplus=201103` rồi `total=42` trên hai
-        dòng.
+      short: Với compiler tuân thủ C++11, chương trình in `cplusplus=201103` rồi `total=42` trên hai dòng.
       detailed: Cờ `-std=c++11` làm macro chuẩn `__cplusplus` có giá trị `201103L`; khi đưa vào stream,
         hậu tố kiểu `L` không được in nên dòng đầu là `cplusplus=201103`. Hai hằng số nguyên có giá
-        trị 7 và 6, vì vậy phép nhân tạo dòng `total=42`. Chương trình không phụ thuộc input runtime.
+        trị 7 và 6, vì vậy phép nhân tạo dòng `total=42`. Chương trình không phụ thuộc input
+        runtime.
     rubric:
       required:
         - Nêu đúng hai dòng kết quả theo đúng thứ tự.
@@ -162,8 +162,8 @@ questions:
       - sectionId: member-order-still-matters
       - sectionId: aggregate-types-only
     sourceHash: 77220c505e8b03b2f6646e03eee9a3e31bbcdfa6b1b0bf0cd6db45d2a56c7f24
-    status: verified
-    version: 1
+    status: archived
+    version: 2
   - id: cpp98-address-pointer-001
     lessonId: cpp98-address-pointer
     type: recall

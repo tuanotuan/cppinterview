@@ -129,7 +129,7 @@ describe("admin dashboard snapshot", () => {
     ]);
   });
 
-  it("lists every C++11, C++14, and C++17 English copy as an independent translation review", () => {
+  it("lists every C++11, C++14, C++17, and C++20 English copy as an independent translation review", () => {
     const repositoryManifest = contentManifestSchema.parse(repositoryManifestJson);
     const snapshot = buildAdminDashboardSnapshot(
       repositoryManifest,
@@ -139,7 +139,7 @@ describe("admin dashboard snapshot", () => {
       "2026-08-28",
     );
 
-    expect(snapshot.metrics.pendingTranslations).toBe((53 + 50 + 50) * 3);
+    expect(snapshot.metrics.pendingTranslations).toBe((53 + 50 + 50 + 52) * 3);
     const toolchainReviews = snapshot.translationReviews.filter(
       (review) => review.question.lessonId === "cpp11-toolchain",
     );
@@ -186,6 +186,19 @@ describe("admin dashboard snapshot", () => {
       );
     }
 
+    const cpp20ToolchainReviews = snapshot.translationReviews.filter(
+      (review) =>
+        review.question.lessonId === "cpp20-toolchain-compiler-flags-cpp20",
+    );
+    expect(cpp20ToolchainReviews).toHaveLength(3);
+    for (const review of cpp20ToolchainReviews) {
+      expect(review.question.taxonomy.standard).toBe("cpp20");
+      expect(review.question.taxonomy.tags).toContain("standard::cpp20");
+      expect(review.question.taxonomy.tags).toContain(
+        `difficulty::${review.question.difficulty}`,
+      );
+    }
+
     const approved = snapshot.translationReviews[0];
     const refreshed = buildAdminDashboardSnapshot(
       repositoryManifest,
@@ -207,7 +220,7 @@ describe("admin dashboard snapshot", () => {
     );
 
     expect(refreshed.metrics.pendingTranslations).toBe(
-      (53 + 50 + 50) * 3 - 1,
+      (53 + 50 + 50 + 52) * 3 - 1,
     );
     expect(refreshed.translationReviews.map((review) => review.question.id)).not
       .toContain(approved.question.id);
