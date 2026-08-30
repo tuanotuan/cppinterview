@@ -20,13 +20,13 @@ describe("content translations", () => {
     const source = manifest;
     const localized = localizeContentManifest(source, "en");
     const sourceQuestion = source.questions.find(
-      (question) => question.id === "cpp20-designated-initializers-001",
+      (question) => question.id === "cpp98-address-pointer-001",
     )!;
     const translatedQuestion = localized.questions.find(
       (question) => question.id === sourceQuestion.id,
     )!;
 
-    expect(translatedQuestion.prompt).toContain("valid");
+    expect(translatedQuestion.prompt).toContain("Distinguish");
     expect(translatedQuestion.prompt).not.toBe(sourceQuestion.prompt);
     expect({
       id: translatedQuestion.id,
@@ -51,8 +51,8 @@ describe("content translations", () => {
       "en",
     );
     expect(coverage).toEqual({
-      lessons: 153,
-      questions: 463,
+      lessons: 205,
+      questions: 618,
     });
   });
 
@@ -74,7 +74,7 @@ describe("content translations", () => {
 
   it("distinguishes translated questions from canonical-language fallbacks", () => {
     const translated = manifest.questions.find(
-      (question) => question.id === "cpp20-designated-initializers-001",
+      (question) => question.id === "cpp98-address-pointer-001",
     )!;
     const untranslated = manifest.questions.find(
       (question) => question.id === "cpp98-object-variable-memory-001",
@@ -88,21 +88,22 @@ describe("content translations", () => {
     expect(hasExactLessonTranslation(untranslatedLesson, "en")).toBe(false);
   });
 
-  it("queues three English drafts for every C++11, C++14, and C++17 lesson with canonical filter tags", () => {
+  it("queues three English drafts for every C++11, C++14, C++17, and C++20 lesson with canonical filter tags", () => {
     const reviews = questionTranslationReviewCandidates(manifest, "en");
     const roadmapLessons = manifest.lessons
       .filter(
         (lesson) =>
           lesson.track === "cpp11" ||
           lesson.track === "cpp14" ||
-          lesson.track === "cpp17",
+          lesson.track === "cpp17" ||
+          lesson.track === "cpp20",
       )
       .sort(
         (left, right) =>
           left.track.localeCompare(right.track) || left.order - right.order,
       );
 
-    expect(reviews).toHaveLength((53 + 50 + 50) * 3);
+    expect(reviews).toHaveLength((53 + 50 + 50 + 52) * 3);
     for (const lesson of roadmapLessons) {
       const lessonReviews = reviews.filter(
         (review) => review.question.lessonId === lesson.id,

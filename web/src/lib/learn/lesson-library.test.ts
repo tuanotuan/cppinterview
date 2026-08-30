@@ -107,7 +107,7 @@ describe("lesson library", () => {
       { value: "cpp11", roadmapHref: "/learn/roadmap/cpp11" },
       { value: "cpp14", roadmapHref: "/learn/roadmap/cpp14" },
       { value: "cpp17", roadmapHref: "/learn/roadmap/cpp17" },
-      { value: "cpp20", roadmapHref: null },
+      { value: "cpp20", roadmapHref: "/learn/roadmap/cpp20" },
       { value: "cpp23", roadmapHref: null },
     ]);
   });
