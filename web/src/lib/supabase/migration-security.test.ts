@@ -14,6 +14,45 @@ const migrationRoot = path.resolve(
 const webRoot = path.resolve(migrationRoot, "..", "..");
 
 describe("database hardening migrations", () => {
+  it("keeps lesson AI responses account-scoped, terminal, and quota-bound", async () => {
+    const sql = await readMigration(
+      "20260829130024_add_lesson_ai_assistant.sql",
+    );
+
+    expect(sql).toContain("create table if not exists public.lesson_ai_reservations");
+    expect(sql).toContain("references auth.users(id) on delete cascade");
+    expect(sql).toContain("primary key (user_id, idempotency_key)");
+    expect(sql).toContain(
+      "on public.lesson_ai_reservations (user_id, request_fingerprint)",
+    );
+    expect(sql).toContain(
+      "status in ('running', 'completed', 'outcome_unknown')",
+    );
+    expect(sql).toContain("alter table public.lesson_ai_reservations enable row level security");
+    expect(sql).toMatch(
+      /revoke all on table public\.lesson_ai_reservations\s+from public, anon, authenticated;/,
+    );
+    expect(sql).toContain("security definer");
+    expect(sql).toContain("set search_path = ''");
+    expect(sql).toContain("v_user_id uuid := (select auth.uid())");
+    expect(sql).toContain("mark_lesson_ai_response_dispatched");
+    expect(sql).toContain("mark_lesson_ai_response_outcome_unknown");
+    expect(sql).toMatch(
+      /if v_reservation\.dispatched_at is null then\s+delete from public\.lesson_ai_reservations/,
+    );
+    expect(sql).toContain("'lesson_assistant'");
+    expect(sql).toMatch(
+      /revoke all on function public\.reserve_public_ai_quota\([\s\S]*?\) from public, anon, authenticated;/,
+    );
+    expect(sql).toMatch(
+      /grant execute on function public\.reserve_public_ai_quota\([\s\S]*?\) to service_role;/,
+    );
+    expect(sql).not.toMatch(
+      /grant (?:select|insert|update|delete|all).*lesson_ai_reservations.*authenticated/i,
+    );
+    expect(sql).toContain("notify pgrst, 'reload schema';");
+  });
+
   it("keeps Coach evaluation idempotency locale-bound", async () => {
     const sql = await readMigration(
       "20260828110000_localize_coach_evaluation_fingerprints.sql",

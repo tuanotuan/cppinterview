@@ -14,11 +14,11 @@
 ## Application inventory
 
 - App pages: 23 (/[locale], /[locale]/auth, /[locale]/auth/reset-password, /[locale]/auth/set-password, /[locale]/learn, /[locale]/learn/[lessonId], /[locale]/learn/roadmap/cpp11, /[locale]/learn/roadmap/cpp14, /[locale]/learn/roadmap/cpp17, /[locale]/learn/tick-data-order-book, /[locale]/mock-interview, /[locale]/practice, /[locale]/profile, /[locale]/stats, /admin, /admin/coverage, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/legacy-modern-capstone, /worldquant/mission, /worldquant/tick-replay-lab)
-- API routes: 28 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/admin/questions/approve-translation, /api/admin/questions/manual, /api/admin/questions/reject, /api/coach/clarify, /api/coach/evaluate, /api/coach/follow-up, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/profile/mobile-usage, /api/progress/sync, /api/questions/approve, /api/worldquant/mission-snapshot, /api/worldquant/training-state, /auth/callback, /auth/confirm, /auth/login, /auth/logout)
-- TypeScript source files excluding tests: 227
-- Colocated test files: 124
-- Supabase migrations: 52
-- Latest migration filename: `20260829130000_add_cpp17_content_track.sql`
+- API routes: 29 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/admin/questions/approve-translation, /api/admin/questions/manual, /api/admin/questions/reject, /api/coach/clarify, /api/coach/evaluate, /api/coach/follow-up, /api/coach/lesson, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/profile/mobile-usage, /api/progress/sync, /api/questions/approve, /api/worldquant/mission-snapshot, /api/worldquant/training-state, /auth/callback, /auth/confirm, /auth/login, /auth/logout)
+- TypeScript source files excluding tests: 233
+- Colocated test files: 129
+- Supabase migrations: 53
+- Latest migration filename: `20260829130024_add_lesson_ai_assistant.sql`
 
 ## Toolchain declared in package.json
 
@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `004a17de24c8507bc9c42f8bc89e73a518cdbfcabfb9970818fb2a4ac610761c`
-- Fingerprinted files: 913
+- Project input fingerprint: `dfc4b1b7be052a4b1938dff81cf3766e627a34b93d563d01616114c91b03cca0`
+- Fingerprinted files: 925
 
 The fingerprint covers registered lesson sources, content files, application
 source/tests, scripts, package metadata, environment template, workflows, and

@@ -7,8 +7,9 @@ import { BrandMark } from "@/app/brand-mark";
 import { LanguageSwitcher } from "@/app/language-switcher";
 import { localizedAlternates } from "@/i18n/metadata";
 import type { Locale } from "@/i18n/routing";
-import { localizeContentManifest } from "@/lib/content/translations";
+import { buildLessonAssistantContext } from "@/lib/ai/lesson-assistant-context.server";
 import { getRepoContentManifest } from "@/lib/content/question-store-server";
+import { localizeContentManifest } from "@/lib/content/translations";
 import {
   buildLessonLibrary,
   findLesson,
@@ -18,6 +19,7 @@ import {
 } from "@/lib/learn/lesson-library";
 
 import { LessonMarkdown } from "../../../learn/lesson-markdown";
+import { LessonAiAssistant } from "../../../learn/lesson-ai-assistant";
 
 export const dynamicParams = false;
 
@@ -63,6 +65,7 @@ export default async function LessonReaderPage({
   const previous = itemIndex > 0 ? library[itemIndex - 1] : null;
   const next = itemIndex < library.length - 1 ? library[itemIndex + 1] : null;
   const practiceHref = lessonPracticeHref(lesson);
+  const assistantContext = buildLessonAssistantContext(lesson);
   const titleById = new Map(
     manifest.lessons.map((item) => [item.id, item.title]),
   );
@@ -124,8 +127,19 @@ export default async function LessonReaderPage({
           </div>
         </section>
 
-        <div className="mt-7 grid items-start gap-7 xl:grid-cols-[260px_minmax(0,1fr)]">
-          <aside className="h-fit rounded-2xl border border-[#0f3a69]/12 bg-white/60 p-4 xl:sticky xl:top-5">
+        <div className="mt-7 grid items-start gap-7 xl:grid-cols-[240px_minmax(34rem,1fr)_20rem]">
+          <LessonAiAssistant
+            key={`${locale}:${lesson.id}:${assistantContext.contextHash}`}
+            contextHash={assistantContext.contextHash}
+            lessonId={lesson.id}
+            locale={locale}
+            sections={lesson.sections.map((section, index) => ({
+              id: section.id,
+              label: lessonSectionLabel(section.heading, index + 1),
+            }))}
+          />
+
+          <aside className="order-2 h-fit rounded-2xl border border-[#0f3a69]/12 bg-white/60 p-4 xl:sticky xl:top-5 xl:col-start-1 xl:row-start-1">
             <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#526276] uppercase">
               {t("reader.contents")}
             </p>
@@ -171,7 +185,7 @@ export default async function LessonReaderPage({
             </div>
           </aside>
 
-          <article className="min-w-0 space-y-5">
+          <article className="order-3 min-w-0 space-y-5 xl:col-start-2 xl:row-start-1">
             {lesson.sections.map((section, index) => (
               <section
                 key={section.id}

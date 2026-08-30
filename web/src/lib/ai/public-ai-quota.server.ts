@@ -18,7 +18,8 @@ export const PUBLIC_AI_DEVICE_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 180;
 
 export type PublicAiQuotaRequestKind =
   | "coach_evaluation"
-  | "coach_follow_up";
+  | "coach_follow_up"
+  | "lesson_assistant";
 export type PublicAiQuotaReservationStatus =
   | "reserved"
   | "dispatched"
@@ -481,7 +482,8 @@ function assertReservationInput(input: {
     !isUuid(input.idempotencyKey) ||
     !/^[a-f0-9]{64}$/.test(input.requestFingerprint) ||
     (input.requestKind !== "coach_evaluation" &&
-      input.requestKind !== "coach_follow_up") ||
+      input.requestKind !== "coach_follow_up" &&
+      input.requestKind !== "lesson_assistant") ||
     (input.principalHash !== input.deviceHash &&
       input.principalHash !== input.accountHash)
   ) {

@@ -113,6 +113,39 @@ describe("public AI quota RPC parsing", () => {
     });
   });
 
+  it("admits lesson assistant turns into the shared rolling quota", async () => {
+    const rpc = vi.fn().mockResolvedValue({
+      data: {
+        status: "reserved",
+        reservation_id: "123e4567-e89b-42d3-a456-426614174000",
+        lease_token: "123e4567-e89b-42d3-a456-426614174001",
+        lease_expires_at: "2026-08-05T08:10:00.000Z",
+        is_new: true,
+        limit: 3,
+        remaining: 2,
+      },
+      error: null,
+    });
+
+    await reservePublicAiQuota(
+      { rpc } as unknown as SupabaseClient,
+      {
+        principalHash: "a".repeat(64),
+        ipHash: "b".repeat(64),
+        deviceHash: "a".repeat(64),
+        accountHash: null,
+        idempotencyKey: "123e4567-e89b-82d3-a456-426614174002",
+        requestFingerprint: "c".repeat(64),
+        requestKind: "lesson_assistant",
+      },
+    );
+
+    expect(rpc).toHaveBeenCalledWith(
+      "reserve_public_ai_quota_v2",
+      expect.objectContaining({ p_request_kind: "lesson_assistant" }),
+    );
+  });
+
   it("falls back to the enforcing v1 RPC while the v2 migration rolls out", async () => {
     const rpc = vi
       .fn()

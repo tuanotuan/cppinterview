@@ -247,7 +247,7 @@ Xem danh sách chuẩn trong `web/.env.example`.
   `NODE_ENV=development` và `ALLOW_UNMETERED_LOCAL_AI=true`; production và test
   luôn bỏ qua cờ này rồi từ chối theo hướng an toàn.
 - OpenAI routing cố định: Luna phục vụ AI Coach (chấm, hỏi tiếp/đào sâu),
-  flashcard sửa lỗi và sinh nội dung; Terra chỉ phục vụ tổng kết phỏng vấn thử
+  lesson tutor, flashcard sửa lỗi và sinh nội dung; Terra chỉ phục vụ tổng kết phỏng vấn thử
   với reasoning `high`. Reservation quota phải dùng đúng tier gọi provider.
 - Không log secret, không commit `.env.local`, không truyền secret vào sandbox.
 
@@ -258,6 +258,9 @@ config tương ứng và có thể fail closed theo thiết kế.
 
 Trạng thái trình duyệt không thêm migration:
 
+- Transcript “Học với AI” của lesson chỉ sống trong React memory, không ghi
+  localStorage/Supabase và reset khi đổi lesson, locale hoặc content hash. Client
+  không gửi Markdown/code lesson; route luôn dựng lại localized context canonical.
 - Progress, study session, Focus session, saved item/AI answer, Hub preference,
   Guided onboarding, WorldQuant training state và Mission snapshot đều dùng
   namespace theo `account UUID`/`local`. Không đọc hoặc tự nhận dữ liệu legacy
@@ -378,6 +381,15 @@ or content-sync key; neither variable may use `NEXT_PUBLIC_`. Keep
 `PUBLIC_AI_ENABLED=false` until the migrations and deployed API/UI version are
 both ready.
 
+Lesson tutor dùng cùng public quota ba lượt/24 giờ với request kind
+`lesson_assistant`; migration
+`20260829130024_add_lesson_ai_assistant.sql` mở rộng constraint/RPC quota và tạo
+terminal cache account-scoped cho owner. Migration không lưu prompt/transcript,
+thu hồi quyền table và chỉ cấp đúng RPC cần thiết. Migration tương thích với app
+cũ nên áp migration trước khi deploy UI/API mới; nếu chưa áp, route mới fail
+closed trước provider. Coding task chỉ chuẩn bị migration local, không tự push
+Supabase remote.
+
 ## Supabase
 
 Migration là append-only, chạy theo timestamp trong `web/supabase/migrations/`.
@@ -415,6 +427,12 @@ Các nhóm schema hiện có:
   server-derived cùng cặp fingerprint/UUIDv8 riêng để không thể đọc cache tiếng
   Việt. Dispatch/complete luôn dùng exact identity RPC đã reserve; không ghép key
   locale-aware với fingerprint legacy vì row đó sẽ conflict sau migration.
+- Lesson assistant cần migration
+  `20260829130024_add_lesson_ai_assistant.sql`: owner reservation bind exact
+  lesson/locale/context hash/transcript; public admission thêm cùng request kind
+  vào quota hiện hữu. RPC dùng `auth.uid()`, advisory lock, lease/dispatch marker,
+  terminal `completed`/`outcome_unknown`, fixed empty `search_path` và không cấp
+  quyền đọc/ghi trực tiếp bảng cho client.
 - C++14/C++17 lesson/question sync cần lần lượt
   `20260829100000_add_cpp14_content_track.sql` và
   `20260829130000_add_cpp17_content_track.sql`. Cả hai chỉ mở rộng bốn check
@@ -539,6 +557,11 @@ service-role-only/browser grants như contract hiện tại.
   safety identifier, không dùng owner `ai_usage_*` hay Gemini fallback. Nếu
   dispatch có outcome mơ hồ, terminalize admission và charge bảo thủ; không
   gọi lại provider cùng lượt.
+- Lesson tutor phải rebuild full localized lesson server-side, hard-fail nếu quá
+  context bound, không tin context/citation từ client và không đưa question bank,
+  rubric hay đáp án vào prompt. Public/non-admin dùng admission hiện hữu; owner
+  dùng account reservation + daily/monthly budget. Cả hai chỉ gọi Luna một lần,
+  `store: false`, structured output và không fallback Gemini.
 - OpenAI/Gemini transport retry phải để `0` cho request trả phí. Lỗi cấu hình hoặc
   lỗi 4xx xác định trước/sau dispatch theo classifier hiện hành mới được release
   reservation; timeout, mất mạng, 408, 5xx hoặc parse response thất bại là kết

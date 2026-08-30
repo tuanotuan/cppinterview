@@ -223,7 +223,37 @@
       "section": "Phần {number}",
       "completeCode": "Mã mẫu hoàn chỉnh",
       "adjacentAria": "Bài học liền kề",
-      "metaDescription": "Bài học {track} với mã mẫu và thẻ ghi nhớ liên quan."
+      "metaDescription": "Bài học {track} với mã mẫu và thẻ ghi nhớ liên quan.",
+      "ai": {
+        "eyebrow": "Trợ giảng theo bài",
+        "title": "Học với AI",
+        "description": "Hỏi về khái niệm, ví dụ hoặc mã nguồn trong bài này. Luna luôn đọc lại toàn bộ bài trước khi trả lời.",
+        "transcriptAria": "Cuộc trò chuyện với trợ giảng bài học",
+        "emptyTitle": "Bạn muốn hiểu rõ phần nào?",
+        "emptyBody": "Hãy hỏi một câu cụ thể. Câu trả lời sẽ chỉ dẫn lại đúng phần liên quan trong bài.",
+        "assistantLabel": "Luna",
+        "userLabel": "Bạn",
+        "loading": "Luna đang đọc bài và soạn câu trả lời…",
+        "retry": "Thử lại",
+        "editQuestion": "Sửa câu hỏi",
+        "turnLimit": "Cuộc trò chuyện đã đủ {count} lượt hỏi. Xóa cuộc trò chuyện để bắt đầu lại.",
+        "questionLabel": "Câu hỏi của bạn",
+        "clear": "Xóa cuộc trò chuyện",
+        "placeholder": "Ví dụ: Vì sao quy tắc này tránh được lỗi lifetime?",
+        "keyboardHint": "Enter để gửi · Shift + Enter để xuống dòng",
+        "send": "Gửi câu hỏi",
+        "sending": "Đang hỏi Luna…",
+        "quotaRemaining": "Còn {remaining}/{limit} lượt AI công khai trong 24 giờ",
+        "grounding": {
+          "lesson": "Dựa trên bài học",
+          "lessonPlusGeneral": "Bài học + kiến thức C++ bổ sung",
+          "outsideScope": "Ngoài phạm vi bài học"
+        },
+        "errors": {
+          "generic": "AI chưa trả lời được câu hỏi này. Vui lòng thử lại sau.",
+          "network": "Không kết nối được với trợ lý AI. Kiểm tra mạng rồi thử lại."
+        }
+      }
     }
   },
   "Cpp11Roadmap": {
