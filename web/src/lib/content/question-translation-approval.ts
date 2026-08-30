@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { questionApprovalBatchSize } from "./question-approval-batches";
+
 export const questionTranslationApprovalSchema = z.object({
   questionId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(100),
   questionVersion: z.number().int().positive(),
@@ -11,7 +13,7 @@ export const approveQuestionTranslationsSchema = z.object({
   translations: z
     .array(questionTranslationApprovalSchema)
     .min(1)
-    .max(200)
+    .max(questionApprovalBatchSize)
     .superRefine((translations, context) => {
       const seen = new Set<string>();
       translations.forEach((translation, index) => {

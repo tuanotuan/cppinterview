@@ -31,6 +31,7 @@ import {
   questionDifficultyLabels,
   questionResponseModeLabels,
 } from "@/lib/content/user-facing-labels";
+import { submitQuestionApprovalBatches } from "@/lib/content/question-approval-batches";
 import type {
   AiUsageSummary,
   ContentGenerationJobSummary,
@@ -128,6 +129,10 @@ const reviewRatingLabels: Record<string, string> = {
   easy: "Dễ",
 };
 type ScheduleAction = "suspend" | "unsuspend" | "reset" | "reschedule";
+type ReviewQueueNotice = {
+  tone: "success" | "error";
+  message: string;
+};
 type MistakeInputRequest =
   | { kind: "reinforce_existing"; candidateId: string }
   | { kind: "ground"; candidateId: string };
@@ -164,6 +169,12 @@ export function AdminDashboard({
   const [learningFilter, setLearningFilter] = useState("all");
   const [savingIds, setSavingIds] = useState<Set<string>>(() => new Set());
   const [notice, setNotice] = useState<string | null>(null);
+  const [reviewQueueNotice, setReviewQueueNotice] =
+    useState<ReviewQueueNotice | null>(null);
+  const [bulkApprovalProgress, setBulkApprovalProgress] = useState<{
+    approved: number;
+    total: number;
+  } | null>(null);
   const [geminiFallbackEnabled, setGeminiFallbackEnabled] = useState(
     initialGeminiFallbackEnabled,
   );
@@ -462,6 +473,7 @@ function mistakeErrorMessage(code: string) {
 
     setSavingIds(new Set(selected.map((question) => question.id)));
     setNotice(null);
+    setReviewQueueNotice(null);
     try {
       const response = await fetch("/api/questions/approve", {
         method: "POST",
@@ -483,9 +495,16 @@ function mistakeErrorMessage(code: string) {
             : question,
         ),
       );
-      setNotice(`Đã duyệt ${selected.length} câu hỏi.`);
+      setReviewQueueNotice({
+        tone: "success",
+        message: `Đã duyệt ${selected.length} câu hỏi.`,
+      });
     } catch {
-      setNotice("Chưa duyệt được. Tải lại trang và kiểm tra kết nối Supabase.");
+      setReviewQueueNotice({
+        tone: "error",
+        message:
+          "Chưa duyệt được câu hỏi. Kiểm tra kết nối rồi thử lại ngay tại hàng đợi.",
+      });
     } finally {
       setSavingIds(new Set());
     }
@@ -499,6 +518,7 @@ function mistakeErrorMessage(code: string) {
 
     setSavingIds(new Set(selected.map((review) => review.reviewKey)));
     setNotice(null);
+    setReviewQueueNotice(null);
     try {
       const response = await fetch(
         "/api/admin/questions/approve-translation",
@@ -520,11 +540,16 @@ function mistakeErrorMessage(code: string) {
       setTranslationReviews((current) =>
         current.filter((review) => !selectedKeys.has(review.reviewKey)),
       );
-      setNotice(`Đã duyệt ${selected.length} bản dịch tiếng Anh.`);
+      setReviewQueueNotice({
+        tone: "success",
+        message: `Đã duyệt ${selected.length} bản dịch tiếng Anh.`,
+      });
     } catch {
-      setNotice(
-        "Chưa duyệt được bản dịch. Tải lại trang và kiểm tra kết nối Supabase.",
-      );
+      setReviewQueueNotice({
+        tone: "error",
+        message:
+          "Chưa duyệt được bản dịch. Kiểm tra kết nối rồi thử lại ngay tại hàng đợi.",
+      });
     } finally {
       setSavingIds(new Set());
     }
@@ -533,75 +558,117 @@ function mistakeErrorMessage(code: string) {
   async function approveAllPending() {
     if (!reviewQueueCount) return;
 
+    const total = reviewQueueCount;
     const savingKeys = [
       ...questionReviewQueue.map((question) => question.id),
       ...translationReviews.map((review) => review.reviewKey),
     ];
     setSavingIds(new Set(savingKeys));
     setNotice(null);
+    setReviewQueueNotice(null);
+    setBulkApprovalProgress({ approved: 0, total });
 
-    const questionRequest = questionReviewQueue.length
-      ? fetch("/api/questions/approve", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            questions: questionReviewQueue.map((question) => ({
-              questionId: question.id,
-              questionVersion: question.version,
-              sourceHash: question.sourceHash,
-            })),
-          }),
-        })
-      : Promise.resolve(null);
-    const translationRequest = translationReviews.length
-      ? fetch("/api/admin/questions/approve-translation", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            translations: translationReviews.map((review) => ({
-              questionId: review.question.id,
-              questionVersion: review.question.version,
-              sourceHash: review.question.sourceHash,
-              locale: review.locale,
-            })),
-          }),
-        })
-      : Promise.resolve(null);
+    const recordApprovedBatch = (batch: readonly unknown[]) => {
+      setBulkApprovalProgress((current) =>
+        current
+          ? { ...current, approved: current.approved + batch.length }
+          : current,
+      );
+    };
 
     try {
-      const [questionResponse, translationResponse] = await Promise.all([
-        questionRequest,
-        translationRequest,
+      const [questionResult, translationResult] = await Promise.all([
+        submitQuestionApprovalBatches({
+          items: questionReviewQueue,
+          failureMessage: "Không duyệt được nhóm câu hỏi này.",
+          onBatchApproved: recordApprovedBatch,
+          submit: (batch) =>
+            fetch("/api/questions/approve", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                questions: batch.map((question) => ({
+                  questionId: question.id,
+                  questionVersion: question.version,
+                  sourceHash: question.sourceHash,
+                })),
+              }),
+            }),
+        }),
+        submitQuestionApprovalBatches({
+          items: translationReviews,
+          failureMessage: "Không duyệt được nhóm bản dịch này.",
+          onBatchApproved: recordApprovedBatch,
+          submit: (batch) =>
+            fetch("/api/admin/questions/approve-translation", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                translations: batch.map((review) => ({
+                  questionId: review.question.id,
+                  questionVersion: review.question.version,
+                  sourceHash: review.question.sourceHash,
+                  locale: review.locale,
+                })),
+              }),
+            }),
+        }),
       ]);
-      const questionsApproved = questionResponse?.ok ?? true;
-      const translationsApproved = translationResponse?.ok ?? true;
 
-      if (questionsApproved && questionReviewQueue.length) {
-        const selectedIds = new Set(
-          questionReviewQueue.map((question) => question.id),
-        );
+      const approvedQuestionIds = new Set(
+        questionResult.approved.map((question) => question.id),
+      );
+      if (approvedQuestionIds.size) {
         setQuestions((current) =>
           current.map((question) =>
-            selectedIds.has(question.id)
+            approvedQuestionIds.has(question.id)
               ? { ...question, approved: true, adminStatus: "active" }
               : question,
           ),
         );
       }
-      if (translationsApproved && translationReviews.length) {
-        setTranslationReviews([]);
+
+      const approvedTranslationKeys = new Set(
+        translationResult.approved.map((review) => review.reviewKey),
+      );
+      if (approvedTranslationKeys.size) {
+        setTranslationReviews((current) =>
+          current.filter(
+            (review) => !approvedTranslationKeys.has(review.reviewKey),
+          ),
+        );
       }
 
-      if (!questionsApproved || !translationsApproved) {
-        setNotice(
-          "Một phần danh sách chưa duyệt được. Các mục đã lưu vẫn được giữ; hãy tải lại và thử phần còn lại.",
+      const approvedCount =
+        questionResult.approved.length + translationResult.approved.length;
+      const remainingCount = total - approvedCount;
+      if (remainingCount) {
+        const errors = Array.from(
+          new Set(
+            [questionResult.error, translationResult.error].filter(
+              (message): message is string => Boolean(message),
+            ),
+          ),
         );
+        setReviewQueueNotice({
+          tone: "error",
+          message: `Đã duyệt ${approvedCount}/${total} mục. Còn ${remainingCount} mục chưa lưu. ${errors.join(" ")} Bấm “Duyệt tất cả” để thử lại các mục còn lại.`,
+        });
         return;
       }
-      setNotice(`Đã duyệt ${reviewQueueCount} mục.`);
+
+      setReviewQueueNotice({
+        tone: "success",
+        message: `Đã duyệt toàn bộ ${approvedCount} mục.`,
+      });
     } catch {
-      setNotice("Chưa duyệt được. Tải lại trang và kiểm tra kết nối Supabase.");
+      setReviewQueueNotice({
+        tone: "error",
+        message:
+          "Chưa duyệt được danh sách. Kiểm tra kết nối rồi bấm “Duyệt tất cả” để thử lại.",
+      });
     } finally {
+      setBulkApprovalProgress(null);
       setSavingIds(new Set());
     }
   }
@@ -619,6 +686,7 @@ function mistakeErrorMessage(code: string) {
   async function rejectQuestion(question: AdminQuestion) {
     setSavingIds(new Set([question.id]));
     setNotice(null);
+    setReviewQueueNotice(null);
     try {
       const response = await fetch("/api/admin/questions/reject", {
         method: "POST",
@@ -649,13 +717,18 @@ function mistakeErrorMessage(code: string) {
           (review) => review.question.id !== payload.questionId,
         ),
       );
-      setNotice(`Đã từ chối và xóa vĩnh viễn câu ${question.id} khỏi ngân hàng.`);
+      setReviewQueueNotice({
+        tone: "success",
+        message: `Đã từ chối và xóa vĩnh viễn câu ${question.id} khỏi ngân hàng.`,
+      });
     } catch (error) {
-      setNotice(
-        error instanceof Error
-          ? error.message
-          : "Không từ chối được câu hỏi. Hãy thử lại sau.",
-      );
+      setReviewQueueNotice({
+        tone: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Không từ chối được câu hỏi. Hãy thử lại sau.",
+      });
     } finally {
       setSavingIds(new Set());
     }
@@ -1367,7 +1440,21 @@ function mistakeErrorMessage(code: string) {
             </span>
           </summary>
 
-          <div className="border-t border-[#a65c0e]/15 px-5 py-6 sm:px-7">
+          {bulkApprovalProgress ? (
+            <p
+              className="sr-only"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              {`Đang duyệt ${bulkApprovalProgress.approved}/${bulkApprovalProgress.total} mục.`}
+            </p>
+          ) : null}
+
+          <div
+            aria-busy={bulkApprovalProgress !== null}
+            className="border-t border-[#a65c0e]/15 px-5 py-6 sm:px-7"
+          >
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="max-w-2xl">
                 <p className="text-sm text-[#526276]">
@@ -1390,14 +1477,34 @@ function mistakeErrorMessage(code: string) {
                   type="button"
                   onClick={() => void approveAllPending()}
                   disabled={savingIds.size > 0}
-                  className="rounded-xl border border-[#a65c0e]/35 bg-white/70 px-4 py-2.5 text-xs font-bold text-[#c43d3d] transition hover:bg-white disabled:cursor-wait disabled:opacity-60"
+                  aria-describedby={
+                    reviewQueueNotice ? "review-queue-notice" : undefined
+                  }
+                  className="min-h-11 cursor-pointer rounded-xl border border-[#a65c0e]/35 bg-white/70 px-4 py-2.5 text-xs font-bold text-[#c43d3d] transition hover:bg-white disabled:cursor-wait disabled:opacity-60"
                 >
-                  {savingIds.size
-                    ? "Đang xử lý…"
-                    : `Duyệt tất cả (${reviewQueueCount})`}
+                  {bulkApprovalProgress
+                    ? `Đang duyệt ${bulkApprovalProgress.approved}/${bulkApprovalProgress.total}…`
+                    : savingIds.size
+                      ? "Đang xử lý…"
+                      : `Duyệt tất cả (${reviewQueueCount})`}
                 </button>
               ) : null}
             </div>
+
+            {reviewQueueNotice ? (
+              <p
+                id="review-queue-notice"
+                role={reviewQueueNotice.tone === "error" ? "alert" : "status"}
+                aria-atomic="true"
+                className={`mt-4 rounded-2xl border px-4 py-3 text-sm font-semibold leading-6 ${
+                  reviewQueueNotice.tone === "error"
+                    ? "border-[#c43d3d]/25 bg-[#fff1ed] text-[#9f2f2f]"
+                    : "border-[#16865a]/25 bg-[#eef8f2] text-[#0d6845]"
+                }`}
+              >
+                {reviewQueueNotice.message}
+              </p>
+            ) : null}
 
             <div className="mt-6 grid gap-4 lg:grid-cols-2">
               {questionReviewQueue.map((question) => (

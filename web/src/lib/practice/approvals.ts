@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { questionApprovalBatchSize } from "@/lib/content/question-approval-batches";
 import type { Question } from "@/lib/content/schema";
 
 export const questionApprovalSchema = z.object({
@@ -9,7 +10,10 @@ export const questionApprovalSchema = z.object({
 });
 
 export const approveQuestionsSchema = z.object({
-  questions: z.array(questionApprovalSchema).min(1).max(200),
+  questions: z
+    .array(questionApprovalSchema)
+    .min(1)
+    .max(questionApprovalBatchSize),
 });
 
 export type QuestionApproval = z.infer<typeof questionApprovalSchema>;
