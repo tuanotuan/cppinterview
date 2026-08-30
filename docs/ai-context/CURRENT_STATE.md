@@ -296,9 +296,10 @@ trạng thái từ tên nhánh.
 ## Lesson AI assistant rollout
 
 - Mỗi reader lesson VI/EN có đúng một panel “Học với AI” / “Learn with AI”.
-  Mobile/tablet đặt panel sau hero và trước mục lục; desktop giữ panel sticky bên
-  phải. Transcript chỉ ở memory, tối đa bốn lượt hỏi và reset theo lesson/locale/
-  content hash.
+  Mobile/tablet đặt panel sau hero và trước mục lục; desktop dùng rail sticky rộng
+  24–28rem, cao theo viewport. Nút mở rộng chuyển panel thành dialog focus tối đa
+  40rem, hỗ trợ focus trap và Escape. Transcript chỉ ở memory, tối đa bốn lượt hỏi
+  và reset theo lesson/locale/content hash.
 - `/api/coach/lesson` tự dựng toàn bộ lesson đúng locale từ manifest, gồm mọi
   section và code mẫu; client không thể thay context. Luna trả structured answer
   cùng section citation đã kiểm tra, dùng đúng ngôn ngữ UI, không nhận question

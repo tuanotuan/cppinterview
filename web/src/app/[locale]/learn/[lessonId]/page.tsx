@@ -127,7 +127,7 @@ export default async function LessonReaderPage({
           </div>
         </section>
 
-        <div className="mt-7 grid items-start gap-7 xl:grid-cols-[240px_minmax(34rem,1fr)_20rem]">
+        <div className="mt-7 grid items-start gap-7 xl:gap-6 xl:grid-cols-[13.75rem_minmax(32rem,1fr)_clamp(24rem,30vw,28rem)]">
           <LessonAiAssistant
             key={`${locale}:${lesson.id}:${assistantContext.contextHash}`}
             contextHash={assistantContext.contextHash}

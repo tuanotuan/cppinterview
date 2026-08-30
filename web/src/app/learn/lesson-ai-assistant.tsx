@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 
+import { useDialogAccessibility } from "@/app/accessible-dialog";
 import type {
   LessonAssistantMessage,
   LessonAssistantResponse,
@@ -50,11 +51,21 @@ export function LessonAiAssistant({
 }) {
   const t = useTranslations("Learn.reader.ai");
   const formRef = useRef<HTMLFormElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+  const expandButtonRef = useRef<HTMLButtonElement>(null);
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<AssistantTranscriptMessage[]>([]);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
   const [quota, setQuota] = useState<PublicQuotaSnapshot | null>(null);
+  const [expanded, setExpanded] = useState(false);
+
+  useDialogAccessibility({
+    open: expanded,
+    dialogRef: panelRef,
+    initialFocusRef: expandButtonRef,
+    onDismiss: () => setExpanded(false),
+  });
 
   const sectionById = useMemo(
     () => new Map(sections.map((section) => [section.id, section])),
@@ -179,10 +190,28 @@ export function LessonAiAssistant({
   }
 
   return (
-    <aside
-      aria-labelledby="lesson-ai-title"
-      className="order-1 min-w-0 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/80 shadow-[0_16px_60px_rgb(15_58_105_/_7%)] xl:sticky xl:top-5 xl:col-start-3 xl:row-start-1 xl:flex xl:max-h-[calc(100vh-2.5rem)] xl:flex-col"
-    >
+    <>
+      {expanded ? (
+        <div
+          aria-hidden="true"
+          className="fixed inset-0 z-[60] bg-[#092c51]/45 backdrop-blur-[2px]"
+          onMouseDown={() => setExpanded(false)}
+        />
+      ) : null}
+      <aside
+        id="lesson-ai-panel"
+        ref={panelRef}
+        tabIndex={expanded ? -1 : undefined}
+        role={expanded ? "dialog" : undefined}
+        aria-modal={expanded ? "true" : undefined}
+        aria-labelledby="lesson-ai-title"
+        aria-describedby="lesson-ai-description"
+        className={`min-w-0 overflow-hidden rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/95 shadow-[0_16px_60px_rgb(15_58_105_/_7%)] ${
+          expanded
+            ? "fixed inset-2 z-[70] flex flex-col shadow-[0_28px_90px_rgba(7,33,26,0.35)] sm:inset-y-4 sm:right-4 sm:left-auto sm:w-[min(40rem,calc(100vw-2rem))]"
+            : "order-1 xl:sticky xl:top-5 xl:col-start-3 xl:row-start-1 xl:flex xl:h-[calc(100dvh-2.5rem)] xl:flex-col"
+        }`}
+      >
       <div className="border-b border-[#0f3a69]/10 p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -196,11 +225,27 @@ export function LessonAiAssistant({
               {t("title")}
             </h2>
           </div>
-          <span className="shrink-0 rounded-full bg-[#65e6d2]/25 px-2.5 py-1 font-mono text-[10px] font-bold text-[#0f3a69]">
-            Luna
-          </span>
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+            <span className="rounded-full bg-[#65e6d2]/25 px-2.5 py-1 font-mono text-[10px] font-bold text-[#0f3a69]">
+              Luna
+            </span>
+            <button
+              ref={expandButtonRef}
+              type="button"
+              aria-controls="lesson-ai-panel"
+              aria-expanded={expanded}
+              title={expanded ? t("collapse") : t("expand")}
+              onClick={() => setExpanded((current) => !current)}
+              className={`${expanded ? "inline-flex" : "hidden xl:inline-flex"} min-h-11 items-center rounded-xl border border-[#0f3a69]/15 bg-white px-3 py-2 text-[11px] font-bold text-[#0f3a69] transition hover:border-[#138f8c]/50 hover:bg-[#eef7f6] focus-visible:ring-4 focus-visible:ring-[#65e6d2]/45 focus-visible:outline-none`}
+            >
+              {expanded ? t("collapse") : t("expand")}
+            </button>
+          </div>
         </div>
-        <p className="mt-2 text-sm leading-6 text-[#526276]">
+        <p
+          id="lesson-ai-description"
+          className="mt-2 text-sm leading-6 text-[#526276]"
+        >
           {t("description")}
         </p>
       </div>
@@ -210,7 +255,7 @@ export function LessonAiAssistant({
         aria-live="off"
         aria-label={t("transcriptAria")}
         aria-busy={status === "loading"}
-        className="min-h-0 space-y-3 p-5 xl:flex-1 xl:overflow-y-auto"
+        className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain p-5"
       >
         {messages.length === 0 ? (
           <div className="rounded-2xl bg-[#eef7f6] p-4 text-sm leading-6 text-[#43546a]">
@@ -328,7 +373,7 @@ export function LessonAiAssistant({
       <form
         ref={formRef}
         onSubmit={handleSubmit}
-        className="border-t border-[#0f3a69]/10 p-5"
+        className="border-t border-[#0f3a69]/10 p-4 sm:p-5"
       >
         <div className="flex items-center justify-between gap-3">
           <label
@@ -352,7 +397,7 @@ export function LessonAiAssistant({
           id="lesson-ai-question"
           value={draft}
           maxLength={1_500}
-          rows={4}
+          rows={3}
           disabled={status === "loading" || turnLimitReached}
           aria-describedby="lesson-ai-question-help"
           onChange={(event) => setDraft(event.target.value)}
@@ -388,7 +433,8 @@ export function LessonAiAssistant({
           </p>
         ) : null}
       </form>
-    </aside>
+      </aside>
+    </>
   );
 }
 

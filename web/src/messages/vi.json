@@ -227,6 +227,8 @@
       "ai": {
         "eyebrow": "Trợ giảng theo bài",
         "title": "Học với AI",
+        "expand": "Mở rộng",
+        "collapse": "Thu gọn",
         "description": "Hỏi về khái niệm, ví dụ hoặc mã nguồn trong bài này. Luna luôn đọc lại toàn bộ bài trước khi trả lời.",
         "transcriptAria": "Cuộc trò chuyện với trợ giảng bài học",
         "emptyTitle": "Bạn muốn hiểu rõ phần nào?",

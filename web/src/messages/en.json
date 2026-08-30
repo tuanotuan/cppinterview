@@ -227,6 +227,8 @@
       "ai": {
         "eyebrow": "Lesson tutor",
         "title": "Learn with AI",
+        "expand": "Expand",
+        "collapse": "Collapse",
         "description": "Ask about a concept, example, or source code in this lesson. Luna rereads the complete lesson before answering.",
         "transcriptAria": "Conversation with the lesson tutor",
         "emptyTitle": "What would you like to understand?",
