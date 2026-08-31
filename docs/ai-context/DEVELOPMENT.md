@@ -611,6 +611,10 @@ service-role-only/browser grants như contract hiện tại.
   `auth.uid()` và `is_content_admin()`. Lỗi provider được xác nhận là chưa bắt đầu
   phải release admission để retry cùng frozen request; outcome không xác định phải
   terminalize, không tạo idempotency key mới để gọi lại.
+- `GREATEST`/`LEAST` là conditional expressions đặc biệt của PostgreSQL, không
+  phải function có thể gọi bằng `pg_catalog.greatest(...)`; quota RPC phải dùng
+  cú pháp không schema-qualified. Sau mỗi push migration quota, kiểm tra migration
+  history, query `pg_policies`, chạy `db lint` và `db advisors` trên linked project.
 - Mock v4 lịch sử phải reserve durable history trước hidden runner/paid AI. Retry dùng
   frozen submission; chỉ token hiện hành được release/abort lease. Không chạy
   lại paid AI để khắc phục provider/completion response bất định. Lease hết hạn
