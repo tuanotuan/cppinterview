@@ -27,6 +27,7 @@ describe("user-facing language", () => {
       ...walk(path.join(repoRoot, "cpp14")),
       ...walk(path.join(repoRoot, "cpp17")),
       ...walk(path.join(repoRoot, "cpp20")),
+      ...walk(path.join(repoRoot, "cpp23")),
       ...walk(path.join(repoRoot, "python")),
     ];
     const informalPronoun = new RegExp(

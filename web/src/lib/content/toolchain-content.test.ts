@@ -421,6 +421,105 @@ describe("C++20 52-day curriculum", () => {
   });
 });
 
+describe("C++23 54-day curriculum", () => {
+  const manifest = contentManifestSchema.parse(manifestJson);
+  const lessons = manifest.lessons
+    .filter((lesson) => lesson.track === "cpp23")
+    .sort((left, right) => left.order - right.order);
+
+  it("loads all 54 bilingual lessons with the same source shape", () => {
+    expect(lessons).toHaveLength(54);
+    expect(lessons.map((lesson) => lesson.order)).toEqual(
+      Array.from({ length: 54 }, (_, index) => index + 1),
+    );
+    for (const [index, lesson] of lessons.entries()) {
+      expect(lesson.knowledgePath).toBe(`${lesson.sourcePath}/vi.md`);
+      expect(lesson.translationPaths).toEqual([`${lesson.sourcePath}/en.md`]);
+      expect(lesson.codePath).toBe(`${lesson.sourcePath}/main.cpp`);
+      expect(lesson.sections).toHaveLength(10);
+      expect(lesson.code).not.toBeNull();
+      expect(lesson.prerequisites).toEqual(
+        index === 0 ? [] : [lessons[index - 1]!.id],
+      );
+    }
+  });
+
+  it("keeps only vi.md, en.md, and main.cpp in every lesson directory", async () => {
+    const repoRoot = path.resolve(process.cwd(), "..");
+    for (const lesson of lessons) {
+      const files = await readdir(path.join(repoRoot, lesson.sourcePath));
+      expect(files.sort()).toEqual(["en.md", "main.cpp", "vi.md"]);
+    }
+  });
+
+  it("keeps three canonical drafts per lesson with C++23 and difficulty tags", () => {
+    for (const lesson of lessons) {
+      const questions = manifest.questions
+        .filter((question) => question.lessonId === lesson.id)
+        .sort((left, right) => left.id.localeCompare(right.id));
+      expect(
+        questions.map((question) => ({
+          id: question.id,
+          status: question.status,
+          difficulty: question.difficulty,
+        })),
+      ).toEqual([
+        {
+          id: `${lesson.id}-001`,
+          status: "draft",
+          difficulty: "beginner",
+        },
+        {
+          id: `${lesson.id}-002`,
+          status: "draft",
+          difficulty: "intermediate",
+        },
+        {
+          id: `${lesson.id}-003`,
+          status: "draft",
+          difficulty: "advanced",
+        },
+      ]);
+      expect(normalizeCode(questions[1]!.code)).toBe(normalizeCode(lesson.code));
+      for (const question of questions) {
+        expect(question.sourceHash).toBe(lesson.sourceHash);
+        expect(question.taxonomy.standard).toBe("cpp23");
+        expect(question.taxonomy.tags).toContain("standard::cpp23");
+        expect(question.taxonomy.tags).toContain(
+          `difficulty::${question.difficulty}`,
+        );
+      }
+    }
+  });
+
+  it("copies all six self-check prompts into the two review queues", async () => {
+    const repoRoot = path.resolve(process.cwd(), "..");
+    const englishReviews = new Map(
+      questionTranslationReviewCandidates(manifest, "en")
+        .filter((review) => review.question.lessonId.startsWith("cpp23-"))
+        .map((review) => [review.question.id, review.question.prompt]),
+    );
+
+    expect(englishReviews.size).toBe(162);
+    for (const lesson of lessons) {
+      const [vietnameseMarkdown, englishMarkdown] = await Promise.all([
+        readFile(path.join(repoRoot, lesson.knowledgePath), "utf8"),
+        readFile(path.join(repoRoot, lesson.translationPaths![0]!), "utf8"),
+      ]);
+      const questions = manifest.questions
+        .filter((question) => question.lessonId === lesson.id)
+        .sort((left, right) => left.id.localeCompare(right.id));
+
+      expect(questions.map((question) => question.prompt)).toEqual(
+        selfCheckPrompts(vietnameseMarkdown, /^(?:Dễ|Trung bình|Khó)$/u),
+      );
+      expect(questions.map((question) => englishReviews.get(question.id))).toEqual(
+        selfCheckPrompts(englishMarkdown, /^(?:Easy|Medium|Hard)$/u),
+      );
+    }
+  });
+});
+
 function selfCheckPrompts(markdown: string, difficulty: RegExp) {
   return markdown
     .replace(/\r\n?/gu, "\n")
@@ -429,4 +528,8 @@ function selfCheckPrompts(markdown: string, difficulty: RegExp) {
       const match = /^\d+\. ([^—]+) — (.+)$/u.exec(line.trim());
       return match && difficulty.test(match[1]!.trim()) ? [match[2]!.trim()] : [];
     });
+}
+
+function normalizeCode(code: string | null | undefined) {
+  return code?.replace(/\r\n?/gu, "\n").trimEnd();
 }

@@ -18,6 +18,7 @@ export const contentTrackSchema = z.enum([
   "cpp14",
   "cpp17",
   "cpp20",
+  "cpp23",
 ]);
 export type ContentTrack = z.infer<typeof contentTrackSchema>;
 

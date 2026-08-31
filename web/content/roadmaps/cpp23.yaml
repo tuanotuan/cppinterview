@@ -1,0 +1,979 @@
+schemaVersion: 1
+track: cpp23
+phases:
+  - id: foundations-review
+    order: 1
+    title:
+      vi: Ôn nền tảng C++ hiện đại
+      en: Modern C++ foundations review
+    summary:
+      vi: Củng cố toolchain, lifetime, generic programming, ranges, coroutine và memory model trước khi học các bổ
+        sung C++23.
+      en: Reinforce toolchains, lifetimes, generic programming, ranges, coroutines, and the memory model before
+        adopting C++23 additions.
+  - id: compile-time-value-semantics
+    order: 2
+    title:
+      vi: Compile time và value semantics
+      en: Compile time and value semantics
+    summary:
+      vi: Làm chủ if consteval, constexpr mở rộng, decay-copy và quy tắc implicit move đơn giản hơn.
+      en: Master if consteval, expanded constexpr, decay-copy, and the simpler implicit-move rules.
+  - id: object-model-language
+    order: 3
+    title:
+      vi: Object model và thay đổi ngôn ngữ
+      en: Object model and language changes
+    summary:
+      vi: Áp dụng explicit object parameter, lambda mới, lifetime, literal, attribute, preprocessing và chiến lược
+        migration C++20–C++23.
+      en: Apply explicit object parameters, new lambda forms, lifetime rules, literals, attributes, preprocessing,
+        and C++20-to-C++23 migration strategy.
+  - id: vocabulary-types-callables
+    order: 4
+    title:
+      vi: Vocabulary type và callable
+      en: Vocabulary types and callables
+    summary:
+      vi: Xây pipeline lỗi và ownership rõ ràng bằng optional, expected, move-only callable, forwarding utility và
+        smart-pointer interoperability.
+      en: Build explicit error and ownership pipelines with optional, expected, move-only callables, forwarding
+        utilities, and smart-pointer interoperability.
+  - id: io-text-diagnostics
+    order: 5
+    title:
+      vi: I/O, text và diagnostics
+      en: I/O, text, and diagnostics
+    summary:
+      vi: Dùng print, format, spanstream và string utility với boundary bộ đệm, lỗi và portability rõ ràng.
+      en: Use print, format, spanstream, and string utilities with explicit buffer, error, and portability
+        boundaries.
+  - id: ranges-algorithms
+    order: 6
+    title:
+      vi: Ranges, views và algorithms
+      en: Ranges, views, and algorithms
+    summary:
+      vi: Kết hợp const-aware range, chuyển đổi container, view adaptor và thuật toán tìm kiếm/fold theo pipeline
+        lazy an toàn lifetime.
+      en: Combine const-aware ranges, container conversion, view adaptors, and search/fold algorithms in
+        lifetime-safe lazy pipelines.
+  - id: containers-multidimensional
+    order: 7
+    title:
+      vi: Container phẳng và dữ liệu nhiều chiều
+      en: Flat containers and multidimensional data
+    summary:
+      vi: Đánh giá flat associative container và mô hình dữ liệu nhiều chiều bằng mdspan, extent, layout, mapping và
+        accessor.
+      en: Evaluate flat associative containers and model multidimensional data with mdspan extents, layouts,
+        mappings, and accessors.
+  - id: generators-modules-systems
+    order: 8
+    title:
+      vi: Generator, modules và systems
+      en: Generators, modules, and systems
+    summary:
+      vi: Khép lại bằng generator coroutine, module thư viện chuẩn và binary parser có bounds, endian cùng error
+        contract rõ ràng.
+      en: Finish with coroutine generators, standard-library modules, and a bounded binary parser with explicit
+        endianness and error contracts.
+days:
+  - day: 1
+    phase: foundations-review
+    title:
+      vi: Toolchain và mức hỗ trợ C++23
+      en: Toolchains and C++23 Support
+    objective:
+      vi: Chuẩn ngôn ngữ là bản đặc tả, còn GCC, Clang và MSVC là các bản triển khai. Bài này chỉ cách bật chế độ
+        C++23 và kiểm tra compiler hiện tại thật sự cung cấp gì.
+      en: A language standard is a specification, while GCC, Clang, and MSVC are implementations. This lesson shows
+        how to select C++23 mode and verify what the active compiler actually provides. The goal is to make
+        the relevant rule visible in code instead of relying on an assumption about what “C++23 support”
+        means.
+    dependsOn: []
+    lessonIds:
+      - cpp23-toolchain-cpp23-support
+    coverage: ready
+  - day: 2
+    phase: foundations-review
+    title:
+      vi: CMake C++23, feature-test macro và ma trận compiler
+      en: CMake C++23, Feature-Test Macros, and Compiler Matrices
+    objective:
+      vi: Dự án cần một cách lặp lại được để yêu cầu C++23 và một cách riêng để kiểm tra từng tính năng. CMake mô tả
+        yêu cầu build; feature-test macro mô tả khả năng của mã.
+      en: Projects need one repeatable way to request C++23 and a separate way to test individual facilities. CMake
+        expresses the build requirement; feature-test macros describe the code capability. The goal is to make
+        the relevant rule visible in code instead of relying on an assumption about what “C++23 support”
+        means.
+    dependsOn:
+      - 1
+    lessonIds:
+      - cpp23-cmake-feature-test-compiler-matrix
+    coverage: ready
+  - day: 3
+    phase: foundations-review
+    title:
+      vi: Value category, lifetime, move và perfect forwarding
+      en: Value Categories, Lifetime, Move, and Perfect Forwarding
+    objective:
+      vi: Mã generic hiện đại phải giữ được việc đối số là đối tượng có tên hay giá trị tạm. Move có thể chuyển tài
+        nguyên, còn perfect forwarding giữ value category của lời gọi.
+      en: Modern generic code must preserve whether an argument is a named object or a temporary. Move semantics can
+        transfer resources, while perfect forwarding preserves the caller's value category. The goal is to
+        make the relevant rule visible in code instead of relying on an assumption about what “C++23 support”
+        means.
+    dependsOn:
+      - 2
+    lessonIds:
+      - cpp23-value-categories-lifetime-move-forwarding
+    coverage: ready
+  - day: 4
+    phase: foundations-review
+    title:
+      vi: Templates, concepts, CRTP và generic programming
+      en: Templates, Concepts, CRTP, and Generic Programming
+    objective:
+      vi: Template cho một thuật toán làm việc với nhiều kiểu. Concept nêu các phép toán bắt buộc, còn CRTP tạo tùy
+        biến lúc biên dịch qua kiểu dẫn xuất mà không cần virtual dispatch.
+      en: Templates let one algorithm work with many types. Concepts state the required operations, while CRTP gives
+        compile-time customization through a derived type without virtual dispatch. The goal is to make the
+        relevant rule visible in code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 3
+    lessonIds:
+      - cpp23-templates-concepts-crtp-generic-programming
+    coverage: ready
+  - day: 5
+    phase: foundations-review
+    title:
+      vi: Ranges, views, iterators và sentinels
+      en: Ranges, Views, Iterators, and Sentinels
+    objective:
+      vi: Range mô tả trực tiếp một dãy, còn view tạo phép biến đổi lười mà không sinh container trung gian ngay.
+        Iterator chỉ vị trí; sentinel đánh dấu nơi dừng duyệt.
+      en: Ranges describe sequences directly, and views build lazy transformations without eagerly creating
+        intermediate containers. Iterators mark positions; a sentinel marks where traversal stops. The goal is
+        to make the relevant rule visible in code instead of relying on an assumption about what “C++23
+        support” means.
+    dependsOn:
+      - 4
+    lessonIds:
+      - cpp23-ranges-views-iterators-sentinels
+    coverage: ready
+  - day: 6
+    phase: foundations-review
+    title:
+      vi: Coroutines, RAII, memory model và concurrency
+      en: Coroutines, RAII, Memory Model, and Concurrency
+    objective:
+      vi: Công việc đồng thời hoặc bị tạm dừng tạo trạng thái sống lâu hơn một lời gọi thường. RAII quản lý dọn dẹp,
+        còn memory model quy định đọc ghi xuyên thread nào hợp lệ và quan sát được.
+      en: Concurrent and suspended work introduces state that outlives one ordinary call. RAII controls cleanup,
+        while the memory model defines which cross-thread reads and writes are valid and observable. The goal
+        is to make the relevant rule visible in code instead of relying on an assumption about what “C++23
+        support” means.
+    dependsOn:
+      - 5
+    lessonIds:
+      - cpp23-coroutines-raii-memory-model-concurrency
+    coverage: ready
+  - day: 7
+    phase: compile-time-value-semantics
+    title:
+      vi: "`if consteval` và `if !consteval`"
+      en: "`if consteval` and `if !consteval`"
+    objective:
+      vi: Một hàm constexpr đôi khi cần mã khác nhau giữa lúc tính hằng và lúc chạy. C++23 cung cấp cách kiểm tra
+        trực tiếp, dễ đọc cho ngữ cảnh đánh giá đó.
+      en: One constexpr function sometimes needs different code during constant evaluation and runtime evaluation.
+        C++23 provides a direct, readable test of that evaluation context. The goal is to make the relevant
+        rule visible in code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 6
+    lessonIds:
+      - cpp23-if-consteval
+    coverage: ready
+  - day: 8
+    phase: compile-time-value-semantics
+    title:
+      vi: Các mở rộng `constexpr` trong C++23
+      en: C++23 `constexpr` Extensions
+    objective:
+      vi: C++23 bỏ một số giới hạn nhân tạo trong thân hàm constexpr. Nhiều mã trông bình thường hơn có thể khai báo
+        constexpr, nhưng chỉ đường đi hợp lệ mới được chạy lúc biên dịch.
+      en: C++23 removes several artificial restrictions from constexpr function bodies. More ordinary-looking code
+        can be declared constexpr, although only a valid constant-evaluation path may run at compile time. The
+        goal is to make the relevant rule visible in code instead of relying on an assumption about what
+        “C++23 support” means.
+    dependsOn:
+      - 7
+    lessonIds:
+      - cpp23-constexpr-extensions
+    coverage: ready
+  - day: 9
+    phase: compile-time-value-semantics
+    title:
+      vi: Decay-copy với `auto(x)` và `auto{x}`
+      en: Decay-Copy with `auto(x)` and `auto{x}`
+    objective:
+      vi: Mã generic thường cần một bản sao giá trị thường, bỏ tham chiếu và const cấp ngoài. C++23 cho phép auto
+        xuất hiện như biểu thức ép kiểu để decay-copy rõ ràng.
+      en: Generic code often needs a plain value copy with reference and top-level const removed. C++23 lets auto
+        appear as a cast-like expression for that explicit decay-copy. The goal is to make the relevant rule
+        visible in code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 8
+    lessonIds:
+      - cpp23-auto-decay-copy
+    coverage: ready
+  - day: 10
+    phase: compile-time-value-semantics
+    title:
+      vi: Simpler implicit move
+      en: Simpler Implicit Move
+    objective:
+      vi: Trả biến cục bộ hoặc tham số truyền theo giá trị thường nên chuyển tài nguyên. C++23 đơn giản hóa overload
+        resolution bằng cách xem toán hạng return đủ điều kiện như rvalue mà không dùng mô hình thử hai bước
+        cũ.
+      en: Returning a local or by-value parameter should normally transfer its resources. C++23 simplifies overload
+        resolution by treating eligible return operands as rvalues without the older two-stage fallback model.
+        The goal is to make the relevant rule visible in code instead of relying on an assumption about what
+        “C++23 support” means.
+    dependsOn:
+      - 9
+    lessonIds:
+      - cpp23-simpler-implicit-move
+    coverage: ready
+  - day: 11
+    phase: object-model-language
+    title:
+      vi: Explicit object parameter và deducing `this`
+      en: Explicit Object Parameters and Deducing `this`
+    objective:
+      vi: Hàm thành viên truyền thống nhận this ngầm. C++23 cho phép viết object parameter tường minh, nhờ đó suy
+        luận được kiểu và giảm các overload lặp lại.
+      en: Traditional member functions receive an implicit this. C++23 can spell the object parameter explicitly,
+        making its type available for deduction and reducing repeated overloads. The goal is to make the
+        relevant rule visible in code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 10
+    lessonIds:
+      - cpp23-explicit-object-parameter
+    coverage: ready
+  - day: 12
+    phase: object-model-language
+    title:
+      vi: Deducing `this` với `const` và value category
+      en: Deducing `this` with `const` and Value Categories
+    objective:
+      vi: "Accessor thường cần bốn dạng: mutable lvalue, const lvalue, mutable rvalue và const rvalue. Explicit
+        object parameter được suy luận có thể giữ cả bốn trong một thân hàm."
+      en: "Accessors often need four forms: mutable lvalue, const lvalue, mutable rvalue, and const rvalue. A
+        deduced explicit object parameter can preserve all four in one body. The goal is to make the relevant
+        rule visible in code instead of relying on an assumption about what “C++23 support” means."
+    dependsOn:
+      - 11
+    lessonIds:
+      - cpp23-deducing-this-const-value-categories
+    coverage: ready
+  - day: 13
+    phase: object-model-language
+    title:
+      vi: Deducing `this` với templates và concepts
+      en: Deducing `this` with Templates and Concepts
+    objective:
+      vi: Khi kiểu đối tượng đã được suy luận, member có thể ràng buộc kiểu đó như mọi tham số template khác. Kết
+        quả là một member generic có quy tắc tham gia dễ đọc.
+      en: Once the object type is deduced, a member can constrain that type just like any other template parameter.
+        This produces one generic member with a readable participation rule. The goal is to make the relevant
+        rule visible in code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 12
+    lessonIds:
+      - cpp23-deducing-this-templates-concepts
+    coverage: ready
+  - day: 14
+    phase: object-model-language
+    title:
+      vi: Deducing `this` với CRTP, mixin và recursive lambda
+      en: Deducing `this` with CRTP, Mixins, and Recursive Lambdas
+    objective:
+      vi: Deducing this có thể thay bớt boilerplate CRTP và cho lambda gọi chính callable object của nó mà không cần
+        std::function bên ngoài. Đệ quy trở nên cục bộ, không cấp phát.
+      en: Deducing this can replace some CRTP boilerplate and lets a lambda name its own callable object without an
+        external std::function. Recursion becomes local and allocation-free. The goal is to make the relevant
+        rule visible in code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 13
+    lessonIds:
+      - cpp23-deducing-this-crtp-mixins-recursive-lambdas
+    coverage: ready
+  - day: 15
+    phase: object-model-language
+    title:
+      vi: Static lambda và static call operator
+      en: Static Lambdas and Static Call Operators
+    objective:
+      vi: Callable không dùng trạng thái đối tượng thì không cần object parameter ngầm. C++23 cho phép call operator
+        của lambda và operator() hoặc operator[] nạp chồng là static.
+      en: A callable that uses no object state does not need an implicit object parameter. C++23 permits static
+        lambda call operators and static overloaded operator() or operator[]. The goal is to make the relevant
+        rule visible in code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 14
+    lessonIds:
+      - cpp23-static-callables
+    coverage: ready
+  - day: 16
+    phase: object-model-language
+    title:
+      vi: Multidimensional subscript operator
+      en: Multidimensional Subscript Operator
+    objective:
+      vi: Trước C++23, matrix tự tạo thường dùng bracket nối chuỗi hoặc operator(). C++23 cho phép subscript
+        operator nạp chồng nhận nhiều chỉ số trực tiếp như grid[row, column].
+      en: Before C++23, a custom matrix usually used chained brackets or operator(). C++23 allows an overloaded
+        subscript operator to accept several indices directly as grid[row, column]. The goal is to make the
+        relevant rule visible in code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 15
+    lessonIds:
+      - cpp23-multidimensional-subscript
+    coverage: ready
+  - day: 17
+    phase: object-model-language
+    title:
+      vi: Kéo dài lifetime trong range-based `for`
+      en: Range-Based `for` Lifetime Extension
+    objective:
+      vi: Biểu thức range có thể chứa temporary lồng nhau. C++23 kéo dài lifetime của temporary tạo trong
+        for-range-initializer đến hết vòng lặp, ngăn các mẫu tham chiếu treo quan trọng.
+      en: A range expression can contain nested temporaries. C++23 extends the lifetime of temporaries created
+        inside the for-range-initializer through the loop, preventing important dangling-reference patterns.
+        The goal is to make the relevant rule visible in code instead of relying on an assumption about what
+        “C++23 support” means.
+    dependsOn:
+      - 16
+    lessonIds:
+      - cpp23-range-for-lifetime-extension
+    coverage: ready
+  - day: 18
+    phase: object-model-language
+    title:
+      vi: Cú pháp lambda, attributes và trailing-return scope
+      en: Lambda Syntax, Attributes, and Trailing-Return Scope
+    objective:
+      vi: "C++23 làm cú pháp lambda đều đặn hơn: attribute có thể áp lên call operator sinh ra, dấu ngoặc được bỏ
+        trong nhiều dạng hơn và lookup của trailing return nhìn đúng scope lambda."
+      en: "C++23 regularizes lambda grammar: attributes can target the generated call operator, parentheses can be
+        omitted in more forms, and trailing-return lookup sees the intended lambda scope. The goal is to make
+        the relevant rule visible in code instead of relying on an assumption about what “C++23 support”
+        means."
+    dependsOn:
+      - 17
+    lessonIds:
+      - cpp23-lambda-syntax-attributes-return-scope
+    coverage: ready
+  - day: 19
+    phase: object-model-language
+    title:
+      vi: CTAD từ inherited constructor và alias trong init-statement
+      en: Inherited-Constructor CTAD and Alias Init-Statements
+    objective:
+      vi: C++23 lấp hai khoảng trống về suy luận và scope. Constructor kế thừa có thể tham gia CTAD, và alias
+        declaration có thể nằm trong init-statement của if hoặc switch với scope gọn.
+      en: C++23 fills two deduction and scope gaps. Inherited constructors can contribute to CTAD, and an alias
+        declaration can live in an if or switch init-statement with tightly limited scope. The goal is to make
+        the relevant rule visible in code instead of relying on an assumption about what “C++23 support”
+        means.
+    dependsOn:
+      - 18
+    lessonIds:
+      - cpp23-inherited-ctad-alias-init-statements
+    coverage: ready
+  - day: 20
+    phase: object-model-language
+    title:
+      vi: Literal suffix `z`/`uz` và extended floating-point type
+      en: "`z`/`uz` Literal Suffixes and Extended Floating Types"
+    objective:
+      vi: Số học chỉ số thường trộn số nguyên có dấu với std::sizet, còn mã số học đôi khi cần độ rộng trao đổi cụ
+        thể. C++23 thêm suffix liên quan size và các typedef floating mở rộng tùy chọn.
+      en: Index arithmetic frequently mixes signed integers with std::sizet, while numeric code sometimes needs a
+        specific interchange width. C++23 adds size-related literal suffixes and optional extended floating
+        typedefs. The goal is to make the relevant rule visible in code instead of relying on an assumption
+        about what “C++23 support” means.
+    dependsOn:
+      - 19
+    lessonIds:
+      - cpp23-size-suffixes-extended-floats
+    coverage: ready
+  - day: 21
+    phase: object-model-language
+    title:
+      vi: "`[[assume]]` và `std::unreachable`"
+      en: "`[[assume]]` and `std::unreachable`"
+    objective:
+      vi: Optimizer có thể sinh mã tốt hơn khi invariant được bảo đảm nhưng không chứng minh được. C++23 cung cấp
+        [[assume(expr)]] và std::unreachable() để nói một số trạng thái không thể xảy ra.
+      en: Optimizers can generate better code when an invariant is guaranteed but not provable. C++23 offers
+        [[assume(expr)]] and std::unreachable() to communicate that certain states cannot occur. The goal is
+        to make the relevant rule visible in code instead of relying on an assumption about what “C++23
+        support” means.
+    dependsOn:
+      - 20
+    lessonIds:
+      - cpp23-assume-unreachable
+    coverage: ready
+  - day: 22
+    phase: object-model-language
+    title:
+      vi: "`#elifdef`, `#elifndef` và `#warning`"
+      en: "`#elifdef`, `#elifndef`, and `#warning`"
+    objective:
+      vi: Nhánh preprocessor thường kiểm tra macro có tồn tại. C++23 rút gọn dạng elif defined(...) phổ biến và
+        chuẩn hóa warning để phát chẩn đoán có chủ ý mà không dừng dịch.
+      en: Preprocessor branches often test whether a macro exists. C++23 shortens common elif defined(...) forms and
+        standardizes warning for an intentional diagnostic that does not stop translation. The goal is to make
+        the relevant rule visible in code instead of relying on an assumption about what “C++23 support”
+        means.
+    dependsOn:
+      - 21
+    lessonIds:
+      - cpp23-elifdef-elifndef-warning
+    coverage: ready
+  - day: 23
+    phase: object-model-language
+    title:
+      vi: Character set, escape sequence và tính portable của `char8_t`
+      en: Character Sets, Escapes, and `char8_t` Portability
+    objective:
+      vi: Ký tự nguồn, Unicode code point và byte mã hóa là các lớp khác nhau. C++23 làm rõ quy tắc encoding nguồn,
+        còn char8t đưa ý định UTF-8 vào hệ kiểu.
+      en: Source characters, Unicode code points, and encoded bytes are different layers. C++23 clarifies source
+        encoding rules, while char8t makes UTF-8 intent visible in the type system. The goal is to make the
+        relevant rule visible in code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 22
+    lessonIds:
+      - cpp23-character-sets-escapes-char8-t
+    coverage: ready
+  - day: 24
+    phase: object-model-language
+    title:
+      vi: Deprecation, compatibility và migration C++20–C++23
+      en: Deprecations, Compatibility, and C++20–C++23 Migration
+    objective:
+      vi: Migration không chỉ là đổi cờ. Nhóm phải tìm tính năng bị bỏ hoặc deprecated, kiểm tra mức hỗ trợ, giữ
+        hành vi ổn định và đưa thay thế vào từng bước dễ review.
+      en: Migration is not a flag flip. Teams must identify removed or deprecated facilities, check implementation
+        support, keep behavior stable, and introduce replacements in reviewable steps. The goal is to make the
+        relevant rule visible in code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 23
+    lessonIds:
+      - cpp23-cpp20-cpp23-migration
+    coverage: ready
+  - day: 25
+    phase: vocabulary-types-callables
+    title:
+      vi: Monadic operation của `std::optional`
+      en: Monadic Operations on `std::optional`
+    objective:
+      vi: Mã liên tục kiểm tra optional dễ lồng sâu và nhiều nhiễu. C++23 thêm andthen, transform và orelse để ghép
+        rõ nhánh có giá trị và nhánh rỗng.
+      en: Code that repeatedly checks an optional value becomes nested and noisy. C++23 adds andthen, transform, and
+        orelse so success and empty paths can be composed explicitly. The goal is to make the relevant rule
+        visible in code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 24
+    lessonIds:
+      - cpp23-optional-monadic-operations
+    coverage: ready
+  - day: 26
+    phase: vocabulary-types-callables
+    title:
+      vi: "`std::expected` và `std::unexpected`"
+      en: "`std::expected` and `std::unexpected`"
+    objective:
+      vi: Thao tác có thể thất bại vì lý do bên gọi cần xem. std::expected<T, E lưu hoặc giá trị thành công T hoặc
+        lỗi E; std::unexpected tạo nhánh lỗi.
+      en: An operation may fail for a reason that callers need to inspect. std::expected<T, E stores either a
+        success value T or an error E; std::unexpected constructs the error alternative. The goal is to make
+        the relevant rule visible in code instead of relying on an assumption about what “C++23 support”
+        means.
+    dependsOn:
+      - 25
+    lessonIds:
+      - cpp23-expected-unexpected
+    coverage: ready
+  - day: 27
+    phase: vocabulary-types-callables
+    title:
+      vi: Monadic operation và error pipeline với `std::expected`
+      en: Monadic Operations and Error Pipelines with `std::expected`
+    objective:
+      vi: Nhiều bước có thể lỗi thường cần kiểm tra lặp và return sớm. Monadic operation C++23 nối chúng, giữ lỗi
+        đầu tiên và bỏ các bước thành công phía sau.
+      en: Several fallible steps otherwise require repeated checks and early returns. C++23 monadic operations
+        connect them while preserving the first error and skipping later success work. The goal is to make the
+        relevant rule visible in code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 26
+    lessonIds:
+      - cpp23-expected-monadic-pipelines
+    coverage: ready
+  - day: 28
+    phase: vocabulary-types-callables
+    title:
+      vi: "`std::move_only_function`"
+      en: "`std::move_only_function`"
+    objective:
+      vi: std::function yêu cầu target được lưu phải copy được. C++23 thêm std::moveonlyfunction để callback
+        type-erased có thể sở hữu trạng thái move-only như std::uniqueptr.
+      en: std::function requires its stored target to be copyable. C++23 adds std::moveonlyfunction so a type-erased
+        callback can own move-only state such as a std::uniqueptr. The goal is to make the relevant rule
+        visible in code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 27
+    lessonIds:
+      - cpp23-move-only-function
+    coverage: ready
+  - day: 29
+    phase: vocabulary-types-callables
+    title:
+      vi: "`std::forward_like`"
+      en: "`std::forward_like`"
+    objective:
+      vi: Accessor generic thường cần forward một member giống một kiểu khác chứ không giống kiểu suy luận riêng của
+        member. std::forwardlike<T chép mẫu cv/ref của T lên biểu thức khác.
+      en: Generic accessors often need to forward a member like some other type rather than like the member's own
+        deduced type. std::forwardlike<T copies the cv/ref pattern of T onto another expression. The goal is
+        to make the relevant rule visible in code instead of relying on an assumption about what “C++23
+        support” means.
+    dependsOn:
+      - 28
+    lessonIds:
+      - cpp23-forward-like
+    coverage: ready
+  - day: 30
+    phase: vocabulary-types-callables
+    title:
+      vi: "`std::invoke_r`, `std::bind_back` và callable utility"
+      en: "`std::invoke_r`, `std::bind_back`, and Callable Utilities"
+    objective:
+      vi: Mã callable phải xử lý thống nhất hàm tự do, member pointer và function object. std::invoker còn yêu cầu
+        kiểu kết quả, còn std::bindback lưu đối số ở cuối lời gọi tương lai.
+      en: Callable code must handle free functions, member pointers, and function objects consistently. std::invoker
+        also requests a result type, while std::bindback stores arguments at the end of a future call. The
+        goal is to make the relevant rule visible in code instead of relying on an assumption about what
+        “C++23 support” means.
+    dependsOn:
+      - 29
+    lessonIds:
+      - cpp23-invoke-r-bind-back-callables
+    coverage: ready
+  - day: 31
+    phase: vocabulary-types-callables
+    title:
+      vi: Tiện ích enum và bit
+      en: Enum and Bit Utilities
+    objective:
+      vi: "C++23 làm rõ các ý định thấp tầng phổ biến: std::tounderlying lấy biểu diễn nguyên của enum,
+        std::isscopedenum nhận diện scoped enum và std::byteswap đảo thứ tự byte."
+      en: "C++23 makes common low-level intent explicit: std::tounderlying extracts an enum's integer
+        representation, std::isscopedenum identifies scoped enums, and std::byteswap reverses byte order. The
+        goal is to make the relevant rule visible in code instead of relying on an assumption about what
+        “C++23 support” means."
+    dependsOn:
+      - 30
+    lessonIds:
+      - cpp23-enum-and-bit-utilities
+    coverage: ready
+  - day: 32
+    phase: vocabulary-types-callables
+    title:
+      vi: "`std::out_ptr` và `std::inout_ptr`"
+      en: "`std::out_ptr` and `std::inout_ptr`"
+    objective:
+      vi: API C thường trả quyền sở hữu qua T, không khớp trực tiếp smart pointer C++. std::outptr và std::inoutptr
+        thích nghi output parameter rồi khôi phục quyền sở hữu RAII sau đó.
+      en: C APIs often return ownership through T, which does not directly match a C++ smart pointer. std::outptr
+        and std::inoutptr adapt that output parameter while restoring RAII ownership afterward. The goal is to
+        make the relevant rule visible in code instead of relying on an assumption about what “C++23 support”
+        means.
+    dependsOn:
+      - 31
+    lessonIds:
+      - cpp23-out-ptr-inout-ptr
+    coverage: ready
+  - day: 33
+    phase: vocabulary-types-callables
+    title:
+      vi: Bắt đầu lifetime, cấp phát và smart pointer `constexpr`
+      en: Lifetime Start, Allocation, and `constexpr` Smart Pointers
+    objective:
+      vi: "C++23 mở ba khu vực trước đây khó diễn đạt: bắt đầu đối tượng implicit-lifetime trong raw storage, yêu
+        cầu cấp phát kèm số lượng thật nhận được và dùng thêm thao tác smart pointer lúc tính hằng."
+      en: "C++23 exposes three previously awkward areas: starting implicit-lifetime objects in raw storage,
+        requesting allocation with an actual returned count, and using more smart-pointer operations during
+        constant evaluation. The goal is to make the relevant rule visible in code instead of relying on an
+        assumption about what “C++23 support” means."
+    dependsOn:
+      - 32
+    lessonIds:
+      - cpp23-lifetime-allocation-constexpr-smart-pointers
+    coverage: ready
+  - day: 34
+    phase: vocabulary-types-callables
+    title:
+      vi: "`std::stacktrace` và `std::source_location`"
+      en: "`std::stacktrace` and `std::source_location`"
+    objective:
+      vi: Chẩn đoán cần cả vị trí gọi ngay lập tức và chuỗi lời gọi dẫn đến đó. std::sourcelocation chụp metadata
+        nguồn với chi phí thấp; std::stacktrace C++23 chụp frame runtime khi được triển khai.
+      en: Diagnostics need both the immediate call site and the chain of calls that led there. std::sourcelocation
+        captures source metadata cheaply; C++23 std::stacktrace captures runtime frames when implemented. The
+        goal is to make the relevant rule visible in code instead of relying on an assumption about what
+        “C++23 support” means.
+    dependsOn:
+      - 33
+    lessonIds:
+      - cpp23-stacktrace-source-location
+    coverage: ready
+  - day: 35
+    phase: io-text-diagnostics
+    title:
+      vi: "`std::print` và `std::println`"
+      en: "`std::print` and `std::println`"
+    objective:
+      vi: Toán tử chèn stream có thể dài dòng và tách format khỏi giá trị. std::print C++23 ghi văn bản đã format
+        trực tiếp, còn std::println thêm newline cuối.
+      en: Stream insertion can be verbose and separates format from values. C++23 std::print writes formatted text
+        directly, while std::println adds a final newline. The goal is to make the relevant rule visible in
+        code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 34
+    lessonIds:
+      - cpp23-print-println
+    coverage: ready
+  - day: 36
+    phase: io-text-diagnostics
+    title:
+      vi: Formatting range, tuple và thread ID
+      en: Formatting Ranges, Tuples, and Thread IDs
+    objective:
+      vi: C++23 mở formatting vượt khỏi giá trị đơn. Formatter chuẩn cho range, tuple-like và thread ID giúp chẩn
+        đoán dữ liệu có cấu trúc mà không tự viết loop hay ghép chuỗi.
+      en: C++23 extends formatting beyond scalar values. Standard range, tuple-like, and thread-id formatters let
+        diagnostics describe structured data without manual loops or string assembly. The goal is to make the
+        relevant rule visible in code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 35
+    lessonIds:
+      - cpp23-format-ranges-tuples-thread-ids
+    coverage: ready
+  - day: 37
+    phase: io-text-diagnostics
+    title:
+      vi: "`std::spanstream` và I/O dựa trên buffer"
+      en: "`std::spanstream` and Buffer-Based I/O"
+    objective:
+      vi: String stream sở hữu chuỗi được quản lý động. Span stream C++23 cung cấp thao tác chèn và rút trích quen
+        thuộc trên buffer ký tự liên tục do bên gọi cấp.
+      en: String streams own a dynamically managed string. C++23 span streams provide familiar stream extraction and
+        insertion over a caller-supplied contiguous character buffer. The goal is to make the relevant rule
+        visible in code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 36
+    lessonIds:
+      - cpp23-spanstream-buffer-io
+    coverage: ready
+  - day: 38
+    phase: io-text-diagnostics
+    title:
+      vi: Kiểm tra chuỗi và `resize_and_overwrite`
+      en: String Containment and `resize_and_overwrite`
+    objective:
+      vi: Tìm substring không nên phải so với npos, và điền chuỗi qua buffer ghi thô không nên cần bước sửa size
+        riêng. C++23 thêm API trực tiếp cho cả hai việc.
+      en: Searching for a substring should not require comparing against npos, and filling a string through a raw
+        writable buffer should not require a separate resize correction. C++23 adds direct APIs for both jobs.
+        The goal is to make the relevant rule visible in code instead of relying on an assumption about what
+        “C++23 support” means.
+    dependsOn:
+      - 37
+    lessonIds:
+      - cpp23-string-contains-resize-overwrite
+    coverage: ready
+  - day: 39
+    phase: ranges-algorithms
+    title:
+      vi: Constant iterator và const-aware range
+      en: Constant Iterators and Const-Aware Ranges
+    objective:
+      vi: Mã generic đôi khi có đối tượng range mutable nhưng phải lộ phép duyệt chỉ đọc. Tiện ích constant iterator
+        và concept range biết const trong C++23 diễn đạt lời hứa đó mà không copy phần tử.
+      en: Generic code sometimes has a mutable range object but must expose read-only iteration. C++23
+        constant-iterator utilities and const-aware range concepts express that promise without copying the
+        elements. The goal is to make the relevant rule visible in code instead of relying on an assumption
+        about what “C++23 support” means.
+    dependsOn:
+      - 38
+    lessonIds:
+      - cpp23-constant-iterators-const-ranges
+    coverage: ready
+  - day: 40
+    phase: ranges-algorithms
+    title:
+      vi: "`std::ranges::to` và `std::from_range`"
+      en: "`std::ranges::to` and `std::from_range`"
+    objective:
+      vi: Range lười cuối cùng thường cần materialize thành container sở hữu. std::ranges::to thực hiện chuyển đổi
+        tường minh, còn std::fromrange chọn constructor container nhận range.
+      en: A lazy range eventually needs materialization into an owning container. std::ranges::to performs explicit
+        conversion, while std::fromrange selects a container constructor that consumes a range. The goal is to
+        make the relevant rule visible in code instead of relying on an assumption about what “C++23 support”
+        means.
+    dependsOn:
+      - 39
+    lessonIds:
+      - cpp23-ranges-to-from-range
+    coverage: ready
+  - day: 41
+    phase: ranges-algorithms
+    title:
+      vi: Các thao tác range của container
+      en: Container Range Operations
+    objective:
+      vi: Container C++23 có thể nhận trực tiếp range qua assignrange, insertrange, appendrange và prependrange.
+        Cách này tránh viết cặp iterator và giảm lỗi endpoint.
+      en: C++23 containers can consume a range directly through assignrange, insertrange, appendrange, and
+        prependrange. This avoids spelling iterator pairs and reduces accidental endpoint mistakes. The goal
+        is to make the relevant rule visible in code instead of relying on an assumption about what “C++23
+        support” means.
+    dependsOn:
+      - 40
+    lessonIds:
+      - cpp23-container-range-operations
+    coverage: ready
+  - day: 42
+    phase: ranges-algorithms
+    title:
+      vi: View `zip`, `zip_transform` và `enumerate`
+      en: "`zip`, `zip_transform`, and `enumerate` Views"
+    objective:
+      vi: Chương trình thường duyệt các dãy liên quan cùng nhịp hoặc cần chỉ số bên cạnh phần tử. C++23 cung cấp
+        view lười thay cho tự quản lý index hoặc tạo container tuple ngay.
+      en: Programs often traverse related sequences in lockstep or need an index beside each element. C++23 provides
+        lazy views instead of manual index bookkeeping or eager tuple containers. The goal is to make the
+        relevant rule visible in code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 41
+    lessonIds:
+      - cpp23-zip-zip-transform-enumerate
+    coverage: ready
+  - day: 43
+    phase: ranges-algorithms
+    title:
+      vi: View adjacent, adjacent-transform và pairwise
+      en: Adjacent, Adjacent-Transform, and Pairwise Views
+    objective:
+      vi: Thuật toán dựa trên hàng xóm cần cửa sổ chồng nhau. adjacent<N C++23 tạo tuple gồm N phần tử liên tiếp,
+        adjacenttransform<N tính từ mỗi tuple, còn pairwise đặt tên trường hợp N = 2.
+      en: Neighbor-based algorithms need overlapping windows. C++23 adjacent<N yields tuples of N consecutive
+        elements, adjacenttransform<N computes from each tuple, and pairwise names the common N = 2 case. The
+        goal is to make the relevant rule visible in code instead of relying on an assumption about what
+        “C++23 support” means.
+    dependsOn:
+      - 42
+    lessonIds:
+      - cpp23-adjacent-pairwise-views
+    coverage: ready
+  - day: 44
+    phase: ranges-algorithms
+    title:
+      vi: View chunk, slide, chunk-by và stride
+      en: Chunk, Slide, Chunk-By, and Stride Views
+    objective:
+      vi: Các bài toán gom nhóm cần quy tắc di chuyển khác nhau. C++23 thêm chunk cố định không chồng, slide chồng,
+        nhóm kề nhau theo predicate và bước stride đều qua range.
+      en: Different grouping tasks need different movement rules. C++23 adds fixed non-overlapping chunks,
+        overlapping slides, predicate-defined adjacent groups, and regular strides through a range. The goal
+        is to make the relevant rule visible in code instead of relying on an assumption about what “C++23
+        support” means.
+    dependsOn:
+      - 43
+    lessonIds:
+      - cpp23-chunk-slide-chunk-by-stride
+    coverage: ready
+  - day: 45
+    phase: ranges-algorithms
+    title:
+      vi: View join-with, repeat và cartesian-product
+      en: Join-With, Repeat, and Cartesian-Product Views
+    objective:
+      vi: C++23 có thể làm phẳng range lồng với dấu phân cách, sinh giá trị lặp một cách lười và liệt kê mọi tổ hợp
+        của nhiều range mà không dựng trước toàn bộ kết quả.
+      en: C++23 can flatten nested ranges with separators, generate repeated values lazily, and enumerate every
+        combination across several ranges without constructing all results first. The goal is to make the
+        relevant rule visible in code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 44
+    lessonIds:
+      - cpp23-join-with-repeat-cartesian-product
+    coverage: ready
+  - day: 46
+    phase: ranges-algorithms
+    title:
+      vi: "`as_const`, `as_rvalue` và custom range adaptor"
+      en: "`as_const`, `as_rvalue`, and Custom Range Adaptors"
+    objective:
+      vi: Pipeline có thể cần phần tử chỉ đọc hoặc quyền move phần tử khỏi nguồn. C++23 cung cấp views::asconst và
+        views::asrvalue, còn adaptor closure cho thư viện thêm phép biến đổi dùng được với pipe.
+      en: A pipeline may need read-only elements or permission to move elements from its source. C++23 provides
+        views::asconst and views::asrvalue, while adaptor closures let libraries add pipeable transformations.
+        The goal is to make the relevant rule visible in code instead of relying on an assumption about what
+        “C++23 support” means.
+    dependsOn:
+      - 45
+    lessonIds:
+      - cpp23-as-const-as-rvalue-custom-adaptors
+    coverage: ready
+  - day: 47
+    phase: ranges-algorithms
+    title:
+      vi: Thuật toán tìm kiếm range trong C++23
+      en: C++23 Range Search Algorithms
+    objective:
+      vi: C++23 lấp các khoảng trống tìm kiếm phổ biến bằng contains, containssubrange, startswith, endswith và
+        findlast. Tên hàm nêu thẳng câu hỏi và nhận range thay vì cặp iterator thủ công.
+      en: C++23 fills common search gaps with contains, containssubrange, startswith, endswith, and findlast. Their
+        names state the question directly and accept ranges rather than manual iterator pairs. The goal is to
+        make the relevant rule visible in code instead of relying on an assumption about what “C++23 support”
+        means.
+    dependsOn:
+      - 46
+    lessonIds:
+      - cpp23-range-search-algorithms
+    coverage: ready
+  - day: 48
+    phase: ranges-algorithms
+    title:
+      vi: Fold algorithm, `ranges::iota` và shift algorithm
+      en: Fold Algorithms, `ranges::iota`, and Shift Algorithms
+    objective:
+      vi: C++23 thêm fold trái, fold phải có tên và iota theo range, bổ sung cho shift algorithm hiện có để dời phần
+        tử trong dãy. Hướng và boundary trả về trở nên rõ.
+      en: C++23 adds named left and right folds and a range-based iota fill, complementing the existing shift
+        algorithms that move elements within a sequence. Direction and returned boundaries become explicit.
+        The goal is to make the relevant rule visible in code instead of relying on an assumption about what
+        “C++23 support” means.
+    dependsOn:
+      - 47
+    lessonIds:
+      - cpp23-folds-ranges-iota-shifts
+    coverage: ready
+  - day: 49
+    phase: containers-multidimensional
+    title:
+      vi: "`std::flat_map` và `std::flat_multimap`"
+      en: "`std::flat_map` and `std::flat_multimap`"
+    objective:
+      vi: Map dựa trên node cho node ổn định và chèn riêng lẻ rẻ nhưng locality cache kém. Flat map C++23 lưu key và
+        value đã sort trong container nền liên tục để đổi lấy tradeoff hiệu năng khác.
+      en: Node-based maps provide stable nodes and cheap individual insertion but poor cache locality. C++23 flat
+        maps store sorted keys and values in contiguous underlying containers for a different performance
+        tradeoff. The goal is to make the relevant rule visible in code instead of relying on an assumption
+        about what “C++23 support” means.
+    dependsOn:
+      - 48
+    lessonIds:
+      - cpp23-flat-map-flat-multimap
+    coverage: ready
+  - day: 50
+    phase: containers-multidimensional
+    title:
+      vi: "`std::mdspan`, extents và dữ liệu nhiều chiều"
+      en: "`std::mdspan`, Extents, and Multidimensional Data"
+    objective:
+      vi: Dữ liệu nhiều chiều thường nằm trong một buffer liên tục. std::mdspan cung cấp view đánh chỉ số không sở
+        hữu, còn extents mô tả mỗi chiều có size tĩnh hoặc runtime.
+      en: Multidimensional data is often stored in one contiguous buffer. std::mdspan provides a non-owning indexed
+        view, while extents describe each dimension as static or runtime-sized. The goal is to make the
+        relevant rule visible in code instead of relying on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 49
+    lessonIds:
+      - cpp23-mdspan-extents
+    coverage: ready
+  - day: 51
+    phase: containers-multidimensional
+    title:
+      vi: Layout, mapping và accessor của `mdspan`
+      en: "`mdspan` Layouts, Mappings, and Accessors"
+    objective:
+      vi: Cùng tọa độ logic có thể ánh xạ vào bộ nhớ theo thứ tự khác, và truy cập phần tử có thể cần policy tùy
+        biến. mdspan tách extents, layout mapping và accessor để tùy biến không thêm chi phí.
+      en: The same logical coordinates can map to memory in different orders, and element access may require a
+        custom policy. mdspan separates extents, layout mapping, and accessor for zero-overhead customization.
+        The goal is to make the relevant rule visible in code instead of relying on an assumption about what
+        “C++23 support” means.
+    dependsOn:
+      - 50
+    lessonIds:
+      - cpp23-mdspan-layouts-mappings-accessors
+    coverage: ready
+  - day: 52
+    phase: generators-modules-systems
+    title:
+      vi: "`std::generator` và dãy coroutine lười"
+      en: "`std::generator` and Lazy Coroutine Sequences"
+    objective:
+      vi: Viết coroutine generator trước đây cần promise, iterator và wrapper lifetime tự tạo. std::generator C++23
+        chuẩn hóa range đồng bộ, lười, có coroutine yield từng phần tử.
+      en: Writing a coroutine generator previously required a custom promise, iterator, and lifetime wrapper. C++23
+        std::generator standardizes a synchronous lazy range whose coroutine yields elements one at a time.
+        The goal is to make the relevant rule visible in code instead of relying on an assumption about what
+        “C++23 support” means.
+    dependsOn:
+      - 51
+    lessonIds:
+      - cpp23-generator-lazy-sequences
+    coverage: ready
+  - day: 53
+    phase: generators-modules-systems
+    title:
+      vi: Module thư viện chuẩn `std` và `std.compat`
+      en: Standard Library Modules `std` and `std.compat`
+    objective:
+      vi: C++23 chuẩn hóa named module cho thư viện chuẩn. import std; cung cấp tên thư viện C++, còn std.compat
+        thêm tên tương thích thường gắn với C header.
+      en: C++23 standardizes named modules for the standard library. import std; exposes C++ library names, while
+        std.compat also supports compatibility names traditionally associated with C headers. The goal is to
+        make the relevant rule visible in code instead of relying on an assumption about what “C++23 support”
+        means.
+    dependsOn:
+      - 52
+    lessonIds:
+      - cpp23-std-modules
+    coverage: ready
+  - day: 54
+    phase: generators-modules-systems
+    title:
+      vi: Parse binary feed với `span`, `byteswap` và `expected`
+      en: Binary Feed Parsing with `span`, `byteswap`, and `expected`
+    objective:
+      vi: Binary feed cần truy cập có biên, thứ tự byte tường minh và lỗi phục hồi được. std::span nhìn byte do bên
+        gọi sở hữu, std::byteswap đổi endianness khi cần, còn std::expected trả trường đã parse hoặc lỗi.
+      en: Binary feeds need bounded access, explicit byte order, and recoverable errors. std::span views
+        caller-owned bytes, std::byteswap converts endianness when necessary, and std::expected returns either
+        a parsed field or an error. The goal is to make the relevant rule visible in code instead of relying
+        on an assumption about what “C++23 support” means.
+    dependsOn:
+      - 53
+    lessonIds:
+      - cpp23-binary-feed-parsing
+    coverage: ready

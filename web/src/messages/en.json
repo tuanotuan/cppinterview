@@ -378,6 +378,36 @@
     "lessonUnavailable": "Day {day}: {title}. This lesson has not been published yet.",
     "backToTop": "Back to roadmap top"
   },
+  "Cpp23Roadmap": {
+    "metaTitle": "C++23 roadmap — cppinterview",
+    "metaDescription": "A 54-day C++23 roadmap from modern C++ foundations through language updates, library vocabulary, ranges, multidimensional data, generators, modules, and binary parsing.",
+    "brandTagline": "54 days · practical C++23",
+    "eyebrow": "C++23 roadmap",
+    "title": "The 54-day C++23 roadmap",
+    "description": "Follow a visual path from toolchain and modern C++ foundations through C++23 language changes, vocabulary types, I/O, ranges, flat containers, mdspan, generators, standard-library modules, and binary feed parsing.",
+    "contentNote": "The statuses below describe available learning material, not your personal learning progress.",
+    "metrics": {
+      "days": "Days",
+      "phases": "Phases",
+      "available": "Days with material"
+    },
+    "overviewTitle": "C++23 learning map",
+    "overviewDescription": "Follow the connectors from left to right, then continue on the next row. Select a node to open its matching library lesson.",
+    "legendAria": "Learning-material status legend",
+    "mapAria": "The 54-day C++23 learning map",
+    "start": "Start here",
+    "finish": "Roadmap complete",
+    "coverage": {
+      "ready": "Lesson ready",
+      "partial": "Partially covered",
+      "planned": "Coming soon"
+    },
+    "phaseLabel": "Phase {number}",
+    "dayLabel": "Day {day}",
+    "openLesson": "Open day {day} lesson in a new tab: {title}",
+    "lessonUnavailable": "Day {day}: {title}. This lesson has not been published yet.",
+    "backToTop": "Back to roadmap top"
+  },
   "Practice": {
     "metaTitle": "Today's practice — cppinterview",
     "metaDescription": "Practice C++ cards on schedule, get AI feedback, and keep your learning progress.",

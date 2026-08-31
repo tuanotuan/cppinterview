@@ -94,6 +94,7 @@ describe("lesson library", () => {
     expect(lessonTrackLabel("cpp14")).toBe("C++14");
     expect(lessonTrackLabel("cpp17")).toBe("C++17");
     expect(lessonTrackLabel("cpp20")).toBe("C++20");
+    expect(lessonTrackLabel("cpp23")).toBe("C++23");
   });
 
   it("exposes only implemented roadmap routes", () => {
@@ -108,7 +109,7 @@ describe("lesson library", () => {
       { value: "cpp14", roadmapHref: "/learn/roadmap/cpp14" },
       { value: "cpp17", roadmapHref: "/learn/roadmap/cpp17" },
       { value: "cpp20", roadmapHref: "/learn/roadmap/cpp20" },
-      { value: "cpp23", roadmapHref: null },
+      { value: "cpp23", roadmapHref: "/learn/roadmap/cpp23" },
     ]);
   });
 
@@ -120,7 +121,7 @@ describe("lesson library", () => {
     expect(lessonStandardIsAvailable(lessons, "cpp14")).toBe(true);
     expect(lessonStandardIsAvailable(lessons, "cpp17")).toBe(true);
     expect(lessonStandardIsAvailable(lessons, "cpp20")).toBe(true);
-    expect(lessonStandardIsAvailable(lessons, "cpp23")).toBe(false);
+    expect(lessonStandardIsAvailable(lessons, "cpp23")).toBe(true);
     expect(lessonMatchesStandard("cpp11", "cpp14")).toBe(false);
   });
 });
