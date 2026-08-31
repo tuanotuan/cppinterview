@@ -6,10 +6,12 @@ import { readPublicAiAdmissionStatus } from "@/lib/ai/public-ai-admission.server
 import { isQuestionApproved } from "@/lib/practice/approvals";
 import { loadCloudAccount, loadCloudContext } from "@/lib/practice/cloud-server";
 import { parsePracticeDeck } from "@/lib/content/decks";
+import { getRepoContentManifest } from "@/lib/content/question-store-server";
 import { currentQuestionSourceSections } from "@/lib/content/question-source-sections";
 import { parseCustomStudyLaunch } from "@/lib/practice/custom-study";
 import { parseFocusSessionId } from "@/lib/practice/focus-session";
 import {
+  findLessonCheckLesson,
   lessonCheckQuestionIds,
   parseLessonCheckLaunch,
 } from "@/lib/practice/lesson-check";
@@ -99,6 +101,13 @@ export default async function PracticePage({
     lesson: single(query.lesson),
     restart: single(query.restart),
   });
+  const repositoryManifest = lessonCheckLaunch
+    ? localizeContentManifest(
+        getRepoContentManifest(),
+        locale,
+        cloud.questionTranslations,
+      )
+    : null;
   const customStudyLaunchKey = initialCustomStudyFilters
     ? [
         initialCustomStudyFilters.learningState,
@@ -115,8 +124,12 @@ export default async function PracticePage({
     minutes: single(query.returnMinutes),
   });
   const lessons = new Map(manifest.lessons.map((lesson) => [lesson.id, lesson]));
-  const lessonCheckLesson = lessonCheckLaunch
-    ? lessons.get(lessonCheckLaunch.lessonId)
+  const lessonCheckLesson = lessonCheckLaunch && repositoryManifest
+    ? findLessonCheckLesson(
+        manifest.lessons,
+        repositoryManifest.lessons,
+        lessonCheckLaunch.lessonId,
+      )
     : null;
 
   const mappedQuestions: PracticeQuestion[] = manifest.questions
@@ -166,6 +179,7 @@ export default async function PracticePage({
           restart: lessonCheckLaunch.restart,
           questionIds: lessonCheckQuestionIds(
             questions,
+            repositoryManifest?.questions ?? [],
             lessonCheckLesson.id,
           ),
         }

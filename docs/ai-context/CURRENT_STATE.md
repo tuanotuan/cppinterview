@@ -58,7 +58,11 @@ trạng thái từ tên nhánh.
   vẫn ở lại để thử lại. Approval translation chỉ ghi copy catalog server cho exact
   revision; publication không tạo question/history mới và tự hết hiệu lực khi copy đổi.
 - Reader lesson mở các câu đã duyệt của exact lesson bằng lesson-check riêng;
-  Toolchain hiện có ba question tương ứng. Mode này luôn đi hết tập câu đã duyệt
+  lesson-check chỉ lấy các ID canonical Git-owned của bài từ tập câu đã duyệt,
+  theo đúng thứ tự repo; câu DB-native hoặc legacy cùng `lessonId` không được
+  trộn vào. Nếu snapshot DB chưa có lesson mới, route vẫn giữ lesson-check và
+  hiển thị trạng thái chưa có câu thay vì rơi về phiên luyện chung. Mode này
+  luôn đi hết tập câu đã duyệt
   dù đã ôn trong ngày. Mỗi lần bấm CTA sẽ xóa snapshot đúng bài/tài khoản để bắt
   đầu lượt mới; marker restart được bỏ sau khi hydrate nên F5 vẫn tiếp tục lượt
   hiện tại. Mode không hiện lựa chọn interval và không ghi review/scheduler; hết
@@ -183,6 +187,12 @@ trạng thái từ tên nhánh.
   sau hai migration C++14/C++17. Lịch sử local/remote đã khớp; cả bốn check constraint
   standard/track đều validated và chấp nhận `cpp23`. Migration không publish hay duyệt
   học liệu.
+- Snapshot nội dung Supabase được kiểm tra read-only đang chậm hơn repo: remote có
+  đủ 53 lesson C++11, 50 C++14 và 50 C++17, nhưng chỉ có một lesson C++20 legacy
+  và chưa có C++23; `content_store_state.source_revision` vẫn là `859a6a4…`.
+  `content:sync:check` hiện dựng đúng payload 264 lesson/790 question. Sau khi merge
+  bản sửa pipeline, main workflow phải sync snapshot mới; đây là external mutation
+  nên không chạy thủ công từ nhánh feature.
 
 - Kho câu hỏi đã duyệt chưa bao phủ đều tick data, Linux/mạng, hệ
   thống phân tán và kỹ năng chịu trách nhiệm đầu cuối. Giao diện phải gọi đây là
@@ -341,6 +351,11 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
+- Fix lesson-check canonical và content sync pipeline đạt toàn bộ `npm run validate`:
+  content/context check, ESLint, TypeScript, 136 file/810 Vitest test và Next.js
+  production build sinh 590 static path. `content:sync:check` dựng payload 264
+  lesson/790 question; smoke import draft qua điều kiện `react-server` đạt và
+  production dependency audit báo 0 lỗ hổng. Remote chỉ được đọc, chưa sync.
 - Lesson tutor đạt toàn bộ `npm run validate`: content/context check, ESLint,
   TypeScript, 129 file/769 Vitest test và Next.js production build sinh 376
   static page cùng route `/api/coach/lesson`. Targeted tests phủ context đầy đủ

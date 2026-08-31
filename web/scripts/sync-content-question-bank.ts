@@ -13,7 +13,7 @@ import {
   buildContentBackfillPayload,
   type RawQuestionMetadata,
 } from "../src/lib/content/backfill";
-import { QUESTION_GENERATOR_PROMPT_VERSION } from "../src/lib/content/drafts";
+import { QUESTION_GENERATOR_PROMPT_VERSION } from "../src/lib/content/question-generator-version";
 import { findRepoRoot } from "../src/lib/content/loader";
 import {
   contentManifestSchema,
