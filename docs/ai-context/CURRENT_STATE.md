@@ -64,6 +64,8 @@ trạng thái từ tên nhánh.
   hiện tại. Mode không hiện lựa chọn interval và không ghi review/scheduler; hết
   câu sẽ báo hoàn thành. Reader có cùng CTA ở đầu/cuối bài, không còn CTA
   “Xem mã mẫu”, ghi chú tình trạng kho hay checklist “Tự kiểm tra · không chấm điểm”.
+  Khối “Mã mẫu” dùng chung và liên kết tương ứng trong mục lục nằm ngay sau phần
+  8 “Ví dụ đơn giản” ở mọi lesson có code, thay vì nằm sau toàn bộ mười phần.
 - Question DB-owned của revision bài học cũ vẫn được giữ làm `needs_review` để
   audit. Practice chỉ resolve source excerpt khi `question.sourceHash` khớp
   revision lesson hiện hành; section ID cũ không còn làm sập workspace của tài
@@ -341,6 +343,10 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
+- Thứ tự reader lesson đặt “Mã mẫu” ngay sau phần 8 đạt toàn bộ `npm run validate`:
+  content/context check, ESLint, TypeScript, 137 file/810 Vitest test và Next.js
+  production build sinh 590 static path. Targeted test khóa thứ tự cho lesson mười
+  phần và xác nhận lesson không có code không sinh thêm khối.
 - Lesson tutor đạt toàn bộ `npm run validate`: content/context check, ESLint,
   TypeScript, 129 file/769 Vitest test và Next.js production build sinh 376
   static page cùng route `/api/coach/lesson`. Targeted tests phủ context đầy đủ
