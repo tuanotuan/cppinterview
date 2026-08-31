@@ -177,13 +177,12 @@ trạng thái từ tên nhánh.
   provider đều có output contract tiếng Anh. Practice và các route AI/Mock đọc
   verified publication từ view translation DB rồi đối chiếu exact copy Git.
 - Hai migration `20260829100000_add_cpp14_content_track.sql` và
-  `20260829130000_add_cpp17_content_track.sql` chưa được chứng minh là đã áp dụng
-  remote. Chúng phải chạy đúng thứ tự trước lần content sync đầu tiên chứa lesson
-  C++14/C++17; nếu không, check constraint hiện hành sẽ từ chối track mới. Cả hai
-  chỉ thay check constraint, không đổi dữ liệu, RLS, grant, view hay RPC.
-- Migration `20260831025153_add_cpp23_content_track.sql` chưa được áp remote; migration
-  này phải chạy sau hai migration C++14/C++17 và trước lần `content:sync` đầu tiên chứa
-  C++23. Nó chỉ mở rộng bốn check constraint, không publish hay duyệt học liệu.
+  `20260829130000_add_cpp17_content_track.sql` đã có trong lịch sử Supabase remote.
+  Chúng chỉ thay check constraint, không đổi dữ liệu, RLS, grant, view hay RPC.
+- Migration `20260831025153_add_cpp23_content_track.sql` đã được áp lên Supabase remote
+  sau hai migration C++14/C++17. Lịch sử local/remote đã khớp; cả bốn check constraint
+  standard/track đều validated và chấp nhận `cpp23`. Migration không publish hay duyệt
+  học liệu.
 
 - Kho câu hỏi đã duyệt chưa bao phủ đều tick data, Linux/mạng, hệ
   thống phân tán và kỹ năng chịu trách nhiệm đầu cuối. Giao diện phải gọi đây là
@@ -359,9 +358,9 @@ trạng thái từ tên nhánh.
   đúng 54 ngày/8 chặng, companion VI/EN, predecessor chain, 162 canonical draft,
   162 English draft và taxonomy chuẩn/độ khó; cả 54 `main.cpp` qua
   `g++ -std=c++23 -fsyntax-only`, production dependency audit báo 0 vulnerability.
-  Migration mở constraint C++23 chỉ được thêm vào repo; không có Supabase sync,
-  migration push hay remote mutation nào. Test SQL contract đạt 3/3; `supabase
-  migration list --local` chưa chạy được vì Postgres local ở cổng 54322 không hoạt động.
+  Test SQL contract đạt 3/3; migration C++23 đã được push bằng `--skip-vault`, bốn
+  constraint remote đều validated và Database Advisors không có lỗi mức `ERROR`.
+  Không có `content:sync` hay mutation học liệu remote nào.
 - Google OAuth ở `/auth` dùng cùng callback PKCE của Supabase như GitHub; trước
   khi nút hoạt động cần bật provider, điền Google Client ID/Secret và đăng ký
   callback/origin theo `web/supabase/README.md`. Thay đổi UI/route đã đạt
