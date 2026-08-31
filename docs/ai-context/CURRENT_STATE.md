@@ -127,7 +127,7 @@ trạng thái từ tên nhánh.
 
 - Giao diện Practice/Admin chỉ biểu diễn hai nhãn phân loại của thẻ: `Dễ`/`Trung bình`/`Khó` và `Text`/`Code`. Filter theo bộ thẻ, lộ trình, loại câu và chủ đề đã được gỡ khỏi UI; taxonomy, `type`, `interviewCategory`, `interviewFormat` và `assessmentSkills` vẫn nằm trong data model để scheduler, tạo nội dung, coverage và WorldQuant/mock dùng nội bộ. `code_review` hiển thị workspace chọn dòng và lưu comment có số dòng vào candidate answer, không lộ comment/rubric mẫu. Trang `/admin/coverage` theo dõi mục tiêu C++ 300 câu verified theo sáu dạng; draft/approval riêng không được làm tăng số verified.
 
-- `/mock-interview` đã chuyển sang contract v5 trung lập cho mọi người dùng với đúng một vị trí C++ Engineer. Phiên 30/45/60 phút có 5/8/10 câu và server dựng lại plan bắt buộc phủ C++11/14/17/20/23 từ câu verified hoặc exact revision được content admin duyệt; browser chỉ nhận đề/code cùng metadata chọn câu, không nhận hint/answer/rubric. Khách vẫn hoàn tất và nhận báo cáo Luna bằng quota public, lưu tối đa năm artifact cục bộ; account có thêm cloud history. Report tự tính lại điểm tổng, verdict, điểm theo chuẩn và bảy năng lực từ điểm từng câu, giữ tám tiêu chí và đúng ba hành động tiếp theo, không có branding hoặc phán quyết tuyển dụng theo công ty. Lỗi chắc chắn xảy ra trước provider được release để retry cùng frozen request; outcome không xác định bị terminalize để không gọi trùng. Mock v4 và Mistake capture cũ vẫn được giữ cho workspace `/worldquant` riêng của admin.
+- `/mock-interview` đã chuyển sang contract v5 trung lập cho mọi người dùng với đúng một vị trí C++ Engineer. Phiên 30/45/60 phút có 5/8/10 câu và server dựng lại plan bắt buộc phủ C++11/14/17/20/23 từ câu verified hoặc exact revision được content admin duyệt; browser chỉ nhận đề/code cùng metadata chọn câu, không nhận hint/answer/rubric. Khách vẫn hoàn tất và nhận báo cáo Luna bằng quota public, lưu tối đa năm artifact cục bộ; account có thêm cloud history. Report tự tính lại điểm tổng, verdict, điểm theo chuẩn và bảy năng lực từ điểm từng câu, giữ tám tiêu chí và đúng ba hành động tiếp theo, không có branding hoặc phán quyết tuyển dụng theo công ty. Lỗi chắc chắn xảy ra trước provider được release để retry cùng frozen request; outcome không xác định bị terminalize để không gọi trùng. Publication RLS migration đã có trên remote; migration `20260831171239_fix_public_ai_quota_greatest.sql` sửa hai nhánh quota dùng sai `pg_catalog.greatest` và phải được push sau khi merge. Mock v4 và Mistake capture cũ vẫn được giữ cho workspace `/worldquant` riêng của admin.
 
 - Evidence Engine đợt 4 dùng `EvidenceProjection` v2 để harden chất lượng read model
   thống nhất của Hub và Today’s Mission. WorldQuant server đọc
@@ -147,11 +147,13 @@ trạng thái từ tên nhánh.
 
 - Luna “Làm rõ câu hỏi” hiện dành cho admin `tuanotuan` trên Practice. Route dùng budget ledger sẵn có, không cần migration hay biến môi trường mới; prompt chỉ nhận đề và mã trong đề, không nhận đáp án/rubric/tài liệu nguồn. Kết quả nói nôm na bằng tình huống gần gũi, không dựng từ điển thuật ngữ; dữ liệu local cũ vẫn đọc được và kết quả lưu theo exact question version/hash để tồn tại qua F5.
 
-- Nhánh hiện hành bổ sung thống kê riêng cho admin `tuanotuan`: thời gian cppinterview
-  hoạt động trên điện thoại hôm nay, 7 ngày và 30 ngày. Migration
-  `20260806100000_create_admin_mobile_usage.sql` chưa được áp dụng lên Supabase;
-  app phải deploy trước rồi mới chạy migration. Bộ đếm chỉ cộng heartbeat quan
-  sát được của tab phone đang visible, không thu thập IP/user-agent/URL.
+- Thống kê riêng cho admin `tuanotuan` đo thời gian cppinterview hoạt động trên
+  điện thoại hôm nay, 7 ngày và 30 ngày. Migration đã có trên remote, nhưng DB
+  lint hiện báo `usage_date` mơ hồ trong nhánh upsert của
+  `record_admin_mobile_usage_heartbeat`; đây là lỗi cũ ngoài migration quota và
+  cần một bản sửa riêng trước khi coi heartbeat đã được xác minh đầy đủ. Bộ đếm
+  chỉ cộng heartbeat quan sát được của tab phone đang visible, không thu thập
+  IP/user-agent/URL.
 - Đợt nâng cấp đang gom sáu chức năng học tập: phiên ôn tập trọng tâm từ
   Stats/thư viện bài học; Tick Replay Lab; thư viện bài học có
   tự kiểm tra; Toolchain Dojo; Legacy → Modern C++ Capstone; và đồng bộ nền cho
