@@ -229,7 +229,7 @@ Xem danh sách chuẩn trong `web/.env.example`.
 - Server app: OpenAI/Gemini keys, admin billing key, project ID, code-runner
   config.
 - GitHub Actions only: `SUPABASE_SERVICE_ROLE_KEY` cho content sync/generation.
-- Code runner và Mock v4 history dùng hai secret Supabase riêng
+- Code runner và Mock v4/v5 history cùng publication loader dùng hai secret Supabase riêng
   (`CODE_RUNNER_SUPABASE_SECRET_KEY`, `MOCK_HISTORY_SUPABASE_SECRET_KEY`);
   không tái dùng content-sync key hay dùng chung với nhau.
 - cppinterview mở cho mọi Supabase Auth account đã xác thực. Email provider phải bật;
@@ -418,7 +418,7 @@ Các nhóm schema hiện có:
 - immutable lesson/question revisions, sync runs, generation jobs;
 - C++ content metadata;
 - code execution admission/quota/idempotency.
-- account-scoped Mock v4 history, report lease/cache và owner delete.
+- account-scoped Mock v4/v5 history, report lease/cache và owner delete.
 - owner-private Mistake Inbox, observation dedupe và grounded remediation drafts.
 - WorldQuant training state và Mission snapshot account-scoped, chỉ đọc trực tiếp
   qua RLS; ghi chỉ qua RPC `save_worldquant_*` security-definer có `auth.uid()`,
@@ -602,7 +602,16 @@ service-role-only/browser grants như contract hiện tại.
 - Queue ưu tiên question New theo giới hạn trước các review còn lại theo policy
   trong `learning-state.ts`.
 - Hidden test/code-runner metadata không lộ ra client hay response.
-- Mock v4 phải reserve durable history trước hidden runner/paid AI. Retry dùng
+- Mock v5 công khai chỉ nhận browser-safe question refs rồi server dựng lại exact
+  plan từ câu verified hoặc publication của `content_admins`; answer/hint/rubric không được gửi qua
+  RSC props hay nhận lại từ client. Plan phải phủ đủ C++11/14/17/20/23, dùng
+  quota/budget public trước Luna và chỉ lưu cloud history khi có account. Guest
+  session/history ở localStorage theo scope `guest`; không được biến thiếu đăng
+  nhập thành gate. Mutation `question_approvals` qua Data API phải đồng thời bind
+  `auth.uid()` và `is_content_admin()`. Lỗi provider được xác nhận là chưa bắt đầu
+  phải release admission để retry cùng frozen request; outcome không xác định phải
+  terminalize, không tạo idempotency key mới để gọi lại.
+- Mock v4 lịch sử phải reserve durable history trước hidden runner/paid AI. Retry dùng
   frozen submission; chỉ token hiện hành được release/abort lease. Không chạy
   lại paid AI để khắc phục provider/completion response bất định. Lease hết hạn
   chưa dispatch được xóa để reserve lại; lease đã dispatch chuyển `failed` và

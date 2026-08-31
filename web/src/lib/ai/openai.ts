@@ -13,6 +13,10 @@ import {
   mockInterviewReportSchema,
   type MockInterviewReport,
 } from "../mock-interview/contracts";
+import {
+  generalCppRawReportSchema,
+  type GeneralCppRawReport,
+} from "../mock-interview/contracts-v5";
 
 import {
   type AiResponseLocale,
@@ -247,6 +251,40 @@ export async function evaluateMockInterviewWithOpenAI({
     response,
     model,
     "OpenAI returned an empty mock interview report",
+  );
+}
+
+export async function evaluateGeneralCppMockInterviewWithOpenAI({
+  instructions,
+  prompt,
+  safetyIdentifier,
+}: {
+  instructions: string;
+  prompt: string;
+  safetyIdentifier: string;
+}): Promise<OpenAIStructuredResult<GeneralCppRawReport>> {
+  const model = openAIModel("luna");
+  const response = await openAIClient().responses.parse({
+    model,
+    store: false,
+    safety_identifier: safetyIdentifier,
+    instructions,
+    input: prompt,
+    reasoning: { effort: "medium" },
+    max_output_tokens: 3_500,
+    text: {
+      format: zodTextFormat(
+        generalCppRawReportSchema,
+        "general_cpp_mock_interview_report",
+      ),
+      verbosity: "medium",
+    },
+  });
+
+  return parsedResult(
+    response,
+    model,
+    "OpenAI returned an empty general C++ mock interview report",
   );
 }
 
