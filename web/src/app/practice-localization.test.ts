@@ -34,6 +34,17 @@ describe("Practice localization", () => {
     });
   });
 
+  it("does not render redundant sync and source metadata below Practice", async () => {
+    const practiceApp = await readFile(
+      path.resolve(import.meta.dirname, "practice-app.tsx"),
+      "utf8",
+    );
+
+    expect(practiceApp).not.toContain('practiceT("footer.');
+    expect(englishMessages.Practice).not.toHaveProperty("footer");
+    expect(vietnameseMessages.Practice).not.toHaveProperty("footer");
+  });
+
   it("keeps untranslated canonical questions out of the English deck", async () => {
     const pageSource = await readFile(
       path.resolve(import.meta.dirname, "[locale]", "practice", "page.tsx"),
