@@ -354,9 +354,11 @@ trạng thái từ tên nhánh.
 ## Validation gần nhất
 
 - Fix lesson-check canonical, content sync pipeline và thứ tự reader đặt “Mã
-  mẫu” ngay sau phần 8 sẽ được xác minh lại sau khi gộp hai thay đổi.
-  Lesson-check chỉ lấy ba câu canonical Git-owned đã duyệt của đúng bài;
-  content sync check không ghi remote.
+  mẫu” ngay sau phần 8 đạt toàn bộ `npm run validate`: content/context
+  check, ESLint, TypeScript, 137 file/812 Vitest test và Next.js production build
+  sinh 590 static path. `content:sync:check` dựng payload 264 lesson/790 question;
+  targeted test đạt 10/10 và production dependency audit báo 0 lỗ hổng.
+  Remote chỉ được đọc, chưa sync.
 - Lesson tutor đạt toàn bộ `npm run validate`: content/context check, ESLint,
   TypeScript, 129 file/769 Vitest test và Next.js production build sinh 376
   static page cùng route `/api/coach/lesson`. Targeted tests phủ context đầy đủ
