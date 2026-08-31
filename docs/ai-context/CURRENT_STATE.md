@@ -247,7 +247,9 @@ trạng thái từ tên nhánh.
   landing/auth/admin không mang bottom nav. Practice có Chế độ tập trung cục bộ
   (Esc thoát, Alt+A mở/ẩn đáp án) để ẩn shell/sidebar; feedback AI trình bày
   ba bước đúng/cần cải thiện/làm tiếp, rubric chi tiết được thu gọn. Thay đổi UI
-  không chạm scheduler, AI admission hay dữ liệu học.
+  không chạm scheduler, AI admission hay dữ liệu học. Practice không lặp lại thông
+  tin tài khoản/đồng bộ hoặc source revision ở cuối trang; trạng thái đồng bộ vẫn
+  nằm trong panel tiến độ.
 - UI dùng chung có reduced-motion fallback; skeleton loading có thông báo cho
   screen reader và thanh điều hướng mobile giữ vùng chạm/focus rõ ràng.
 - Header, footer, trạng thái tải và cổng truy cập dùng chung logo C++ SVG thay cho

@@ -4195,22 +4195,6 @@ export function PracticeApp({
           />
         ) : null}
 
-        {!distractionFreeMode ? (
-          <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-[#0f3a69]/12 py-5 font-mono text-[11px] text-[#78857f]">
-            <span>
-              {isLessonCheck
-                ? practiceT("lessonCheck.notScheduled")
-                : account
-                  ? practiceT("footer.synced", { name: account.displayName })
-                  : practiceT("footer.local")}
-            </span>
-            <span>
-              {practiceT("footer.source", {
-                revision: sourceRevision.slice(0, 7),
-              })}
-            </span>
-          </footer>
-        ) : null}
       </div>
     </main>
   );

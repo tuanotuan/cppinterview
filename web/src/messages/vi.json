@@ -855,11 +855,6 @@
       "pending": "{count} câu đang nằm trong danh sách chờ duyệt. Hãy duyệt để bắt đầu luyện.",
       "description": "Thêm hoặc duyệt câu hỏi C++ trong trang Quản trị để bắt đầu luyện.",
       "admin": "Mở trang Quản trị"
-    },
-    "footer": {
-      "synced": "Đồng bộ riêng tư · {name}",
-      "local": "Tiến độ lưu trên trình duyệt này",
-      "source": "Nguồn {revision}"
     }
   },
   "Mock": {

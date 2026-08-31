@@ -855,11 +855,6 @@
       "pending": "{count, plural, one {# question is awaiting approval} other {# questions are awaiting approval}}. Approve them to begin practicing.",
       "description": "Add or approve C++ questions in Admin to begin practicing.",
       "admin": "Open Admin"
-    },
-    "footer": {
-      "synced": "Private sync · {name}",
-      "local": "Progress saved in this browser",
-      "source": "Source {revision}"
     }
   },
   "Mock": {
