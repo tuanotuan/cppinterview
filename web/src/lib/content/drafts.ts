@@ -108,7 +108,7 @@ export type BeforeQuestionDraftProviderRequest = (
   model: string,
 ) => Promise<void>;
 
-export const QUESTION_GENERATOR_PROMPT_VERSION = "multilanguage-interview-bank-v5";
+export { QUESTION_GENERATOR_PROMPT_VERSION } from "./question-generator-version";
 
 export async function generateQuestionDraftsWithOpenAI({
   lesson,

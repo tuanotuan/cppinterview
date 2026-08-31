@@ -32,6 +32,23 @@ const EXTERNAL_MUTATION_MARKERS = [
 ];
 
 describe("content workflow policy", () => {
+  it("loads paid generation scripts through the React server condition", async () => {
+    const repoRoot = await findRepoRoot(import.meta.dirname);
+    const packageJson = JSON.parse(
+      await readFile(path.join(repoRoot, "web", "package.json"), "utf8"),
+    ) as { scripts?: Record<string, string> };
+
+    for (const scriptName of [
+      "content:draft",
+      "content:auto",
+      "content:generate:db",
+    ]) {
+      expect(packageJson.scripts?.[scriptName]).toContain(
+        "node --conditions=react-server --import tsx",
+      );
+    }
+  });
+
   it("allows external content mutations only from the main branch", async () => {
     const repoRoot = await findRepoRoot(import.meta.dirname);
     const workflow = parseYaml(

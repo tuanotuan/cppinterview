@@ -2,7 +2,12 @@ import type { ContentQuestion, PracticeDeckId } from "../content/schema";
 
 const lessonIdPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 
-type LessonCheckQuestion = Pick<ContentQuestion, "id" | "taxonomy">;
+type LessonCheckQuestion = Pick<ContentQuestion, "id" | "lessonId">;
+
+type LessonCheckLesson = {
+  id: string;
+  title: string;
+};
 
 export type LessonCheckLaunch = {
   lessonId: string;
@@ -44,16 +49,36 @@ export function parseLessonCheckLaunch(params: {
 }
 
 export function lessonCheckQuestionIds(
-  questions: readonly LessonCheckQuestion[],
+  availableQuestions: readonly LessonCheckQuestion[],
+  repositoryQuestions: readonly LessonCheckQuestion[],
   lessonId: string,
 ) {
-  // The caller owns publication/approval filtering. This helper only narrows
-  // that already-authorized collection to the requested lesson.
-  return questions
+  // The available collection owns publication/approval filtering. Walk the
+  // Git-owned collection to preserve its canonical order while excluding
+  // approved DB-native or retired questions that happen to share a lesson.
+  const availableIds = new Set(
+    availableQuestions
+      .filter((question) => question.lessonId === lessonId)
+      .map((question) => question.id),
+  );
+  return repositoryQuestions
     .filter(
-      (question) => question.taxonomy.sourceLessonId === lessonId,
+      (question) =>
+        question.lessonId === lessonId && availableIds.has(question.id),
     )
     .map((question) => question.id);
+}
+
+export function findLessonCheckLesson(
+  availableLessons: readonly LessonCheckLesson[],
+  repositoryLessons: readonly LessonCheckLesson[],
+  lessonId: string,
+) {
+  return (
+    availableLessons.find((lesson) => lesson.id === lessonId) ??
+    repositoryLessons.find((lesson) => lesson.id === lessonId) ??
+    null
+  );
 }
 
 export function completeLessonCheckQuestion(

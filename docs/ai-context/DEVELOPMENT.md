@@ -45,6 +45,11 @@ typecheck và `context:check` là read-only. `content:refresh` cũng refresh
 `content:generate:db`, migration và deploy có tác động external; không chạy chỉ
 để “kiểm tra”.
 
+Các script tạo draft có trả phí chạy qua Node với điều kiện `react-server` vì
+chúng dùng chung module OpenAI server-only với route Next.js. Không đổi các lệnh
+này về `tsx <script>` trực tiếp; cách đó làm import fail trước khi pipeline sync
+và worker có thể xử lý hàng đợi.
+
 Sau mọi thay đổi project, chạy:
 
 ```powershell

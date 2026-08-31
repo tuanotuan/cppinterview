@@ -4,28 +4,15 @@ import type { ContentQuestion } from "../content/schema";
 import {
   buildLessonCheckLaunchHref,
   completeLessonCheckQuestion,
+  findLessonCheckLesson,
   lessonCheckQuestionIds,
   parseLessonCheckLaunch,
 } from "./lesson-check";
 
-const taxonomy = {
-  deckId: "cpp-interview",
-  standard: "cpp11",
-  topics: ["toolchain"],
-  skill: "recall",
-  difficulty: "beginner",
-  responseMode: "text",
-  sourceLessonId: "cpp11-toolchain",
-  tags: [
-    "deck::cpp-interview",
-    "standard::cpp11",
-    "topic::toolchain",
-    "skill::recall",
-    "difficulty::beginner",
-    "response::text",
-    "source::cpp11-toolchain",
-  ],
-} satisfies ContentQuestion["taxonomy"];
+const lessonQuestion = (id: string, lessonId = "cpp11-toolchain") => ({
+  id,
+  lessonId,
+}) satisfies Pick<ContentQuestion, "id" | "lessonId">;
 
 describe("lesson check", () => {
   it("round-trips a safe one-time lesson check link", () => {
@@ -78,30 +65,36 @@ describe("lesson check", () => {
     ).toBeNull();
   });
 
-  it("selects every approved input question from the exact lesson", () => {
+  it("selects only the three available Git-owned questions in canonical order", () => {
     expect(
       lessonCheckQuestionIds(
         [
-          { id: "easy", taxonomy },
-          {
-            id: "medium",
-            taxonomy: { ...taxonomy, difficulty: "intermediate" },
-          },
-          {
-            id: "other-lesson",
-            taxonomy: {
-              ...taxonomy,
-              sourceLessonId: "cpp11-other",
-            },
-          },
-          {
-            id: "hard",
-            taxonomy: { ...taxonomy, difficulty: "advanced" },
-          },
+          lessonQuestion("hard"),
+          lessonQuestion("database-generated"),
+          lessonQuestion("easy"),
+          lessonQuestion("medium"),
+          lessonQuestion("other-lesson", "cpp11-other"),
+        ],
+        [
+          lessonQuestion("easy"),
+          lessonQuestion("medium"),
+          lessonQuestion("hard"),
+          lessonQuestion("retired-but-still-current"),
+          lessonQuestion("other-lesson", "cpp11-other"),
         ],
         "cpp11-toolchain",
       ),
     ).toEqual(["easy", "medium", "hard"]);
+  });
+
+  it("uses the repository lesson when the DB snapshot has not synced it yet", () => {
+    expect(
+      findLessonCheckLesson(
+        [{ id: "cpp17-example", title: "C++17" }],
+        [{ id: "cpp23-example", title: "C++23" }],
+        "cpp23-example",
+      ),
+    ).toEqual({ id: "cpp23-example", title: "C++23" });
   });
 
   it("marks each checked question complete once", () => {
