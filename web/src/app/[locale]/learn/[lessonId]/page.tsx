@@ -17,6 +17,7 @@ import {
   lessonSectionLabel,
   lessonTrackLabel,
 } from "@/lib/learn/lesson-library";
+import { buildLessonReaderBlocks } from "@/lib/learn/lesson-reader-layout";
 
 import { LessonMarkdown } from "../../../learn/lesson-markdown";
 import { LessonAiAssistant } from "../../../learn/lesson-ai-assistant";
@@ -66,6 +67,7 @@ export default async function LessonReaderPage({
   const next = itemIndex < library.length - 1 ? library[itemIndex + 1] : null;
   const practiceHref = lessonPracticeHref(lesson);
   const assistantContext = buildLessonAssistantContext(lesson);
+  const readerBlocks = buildLessonReaderBlocks(lesson.sections, Boolean(lesson.code));
   const titleById = new Map(
     manifest.lessons.map((item) => [item.id, item.title]),
   );
@@ -144,23 +146,28 @@ export default async function LessonReaderPage({
               {t("reader.contents")}
             </p>
             <nav className="mt-3 space-y-1">
-              {lesson.sections.map((section, index) => (
-                <a
-                  key={section.id}
-                  href={`#${section.id}`}
-                  className="block rounded-xl px-3 py-2 text-xs font-semibold text-[#43546a] hover:bg-white hover:text-[#16865a]"
-                >
-                  {lessonSectionLabel(section.heading, index + 1)}
-                </a>
-              ))}
-              {lesson.code ? (
-                <a
-                  href="#code-sample"
-                  className="block rounded-xl px-3 py-2 text-xs font-semibold text-[#43546a] hover:bg-white hover:text-[#16865a]"
-                >
-                  {t("reader.sampleCode")}
-                </a>
-              ) : null}
+              {readerBlocks.map((block) =>
+                block.kind === "section" ? (
+                  <a
+                    key={block.section.id}
+                    href={`#${block.section.id}`}
+                    className="block rounded-xl px-3 py-2 text-xs font-semibold text-[#43546a] hover:bg-white hover:text-[#16865a]"
+                  >
+                    {lessonSectionLabel(
+                      block.section.heading,
+                      block.sectionIndex + 1,
+                    )}
+                  </a>
+                ) : (
+                  <a
+                    key="code-sample"
+                    href="#code-sample"
+                    className="block rounded-xl px-3 py-2 text-xs font-semibold text-[#43546a] hover:bg-white hover:text-[#16865a]"
+                  >
+                    {t("reader.sampleCode")}
+                  </a>
+                ),
+              )}
             </nav>
 
             <div className="mt-5 border-t border-[#0f3a69]/10 pt-4">
@@ -186,45 +193,49 @@ export default async function LessonReaderPage({
           </aside>
 
           <article className="order-3 min-w-0 space-y-5 xl:col-start-2 xl:row-start-1">
-            {lesson.sections.map((section, index) => (
-              <section
-                key={section.id}
-                id={section.id}
-                className="scroll-mt-5 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/65 p-5 shadow-[0_16px_60px_rgb(15_58_105_/_6%)] sm:p-8"
-              >
-                <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#a65c0e] uppercase">
-                  {t("reader.section", { number: index + 1 })}
-                </p>
-                <h2 className="mt-2 mb-5 text-2xl font-semibold tracking-tight sm:text-3xl">
-                  {lessonSectionLabel(section.heading, index + 1)}
-                </h2>
-                <LessonMarkdown markdown={section.bodyMarkdown} />
-              </section>
-            ))}
-
-            {lesson.code ? (
-              <section
-                id="code-sample"
-                className="scroll-mt-5 overflow-hidden rounded-[1.25rem] border border-[#0f3a69]/12 bg-[#092c51]"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-5 py-4 text-white sm:px-7">
-                  <div>
-                    <p className="font-mono text-xs font-bold text-[#65e6d2]">
-                      {t("reader.completeCode")}
-                    </p>
-                    <p className="mt-1 text-[10px] text-white/45">
-                      {lesson.codePath}
-                    </p>
+            {readerBlocks.map((block) =>
+              block.kind === "section" ? (
+                <section
+                  key={block.section.id}
+                  id={block.section.id}
+                  className="scroll-mt-5 rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/65 p-5 shadow-[0_16px_60px_rgb(15_58_105_/_6%)] sm:p-8"
+                >
+                  <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#a65c0e] uppercase">
+                    {t("reader.section", { number: block.sectionIndex + 1 })}
+                  </p>
+                  <h2 className="mt-2 mb-5 text-2xl font-semibold tracking-tight sm:text-3xl">
+                    {lessonSectionLabel(
+                      block.section.heading,
+                      block.sectionIndex + 1,
+                    )}
+                  </h2>
+                  <LessonMarkdown markdown={block.section.bodyMarkdown} />
+                </section>
+              ) : lesson.code ? (
+                <section
+                  key="code-sample"
+                  id="code-sample"
+                  className="scroll-mt-5 overflow-hidden rounded-[1.25rem] border border-[#0f3a69]/12 bg-[#092c51]"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-5 py-4 text-white sm:px-7">
+                    <div>
+                      <p className="font-mono text-xs font-bold text-[#65e6d2]">
+                        {t("reader.completeCode")}
+                      </p>
+                      <p className="mt-1 text-[10px] text-white/45">
+                        {lesson.codePath}
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-white/10 px-3 py-1 font-mono text-[10px]">
+                      C++
+                    </span>
                   </div>
-                  <span className="rounded-full bg-white/10 px-3 py-1 font-mono text-[10px]">
-                    C++
-                  </span>
-                </div>
-                <pre className="max-h-[42rem] overflow-auto p-5 font-mono text-[12px] leading-6 text-[#e6f8f5] sm:p-7">
-                  <code>{lesson.code}</code>
-                </pre>
-              </section>
-            ) : null}
+                  <pre className="max-h-[42rem] overflow-auto p-5 font-mono text-[12px] leading-6 text-[#e6f8f5] sm:p-7">
+                    <code>{lesson.code}</code>
+                  </pre>
+                </section>
+              ) : null,
+            )}
 
             <div className="flex justify-center py-3 sm:justify-start">
               <Link
