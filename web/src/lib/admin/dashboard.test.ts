@@ -139,7 +139,9 @@ describe("admin dashboard snapshot", () => {
       "2026-08-28",
     );
 
-    expect(snapshot.metrics.pendingTranslations).toBe((53 + 50 + 50 + 52) * 3);
+    expect(snapshot.metrics.pendingTranslations).toBe(
+      (53 + 50 + 50 + 52 + 54) * 3,
+    );
     const toolchainReviews = snapshot.translationReviews.filter(
       (review) => review.question.lessonId === "cpp11-toolchain",
     );
@@ -199,6 +201,18 @@ describe("admin dashboard snapshot", () => {
       );
     }
 
+    const cpp23ToolchainReviews = snapshot.translationReviews.filter(
+      (review) => review.question.lessonId === "cpp23-toolchain-cpp23-support",
+    );
+    expect(cpp23ToolchainReviews).toHaveLength(3);
+    for (const review of cpp23ToolchainReviews) {
+      expect(review.question.taxonomy.standard).toBe("cpp23");
+      expect(review.question.taxonomy.tags).toContain("standard::cpp23");
+      expect(review.question.taxonomy.tags).toContain(
+        `difficulty::${review.question.difficulty}`,
+      );
+    }
+
     const approved = snapshot.translationReviews[0];
     const refreshed = buildAdminDashboardSnapshot(
       repositoryManifest,
@@ -220,7 +234,7 @@ describe("admin dashboard snapshot", () => {
     );
 
     expect(refreshed.metrics.pendingTranslations).toBe(
-      (53 + 50 + 50 + 52) * 3 - 1,
+      (53 + 50 + 50 + 52 + 54) * 3 - 1,
     );
     expect(refreshed.translationReviews.map((review) => review.question.id)).not
       .toContain(approved.question.id);

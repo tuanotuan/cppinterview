@@ -23,6 +23,7 @@ const SOURCE_ROOTS = {
   cpp14: { language: "cpp", track: "cpp14", idPrefix: "cpp14" },
   cpp17: { language: "cpp", track: "cpp17", idPrefix: "cpp17" },
   cpp20: { language: "cpp", track: "cpp20", idPrefix: "cpp20" },
+  cpp23: { language: "cpp", track: "cpp23", idPrefix: "cpp23" },
 } as const;
 
 export async function discoverKnowledgeDirectories(repoRoot: string) {

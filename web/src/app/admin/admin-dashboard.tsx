@@ -67,6 +67,7 @@ const standardLabels = {
   cpp14: "C++14",
   cpp17: "C++17",
   cpp20: "C++20",
+  cpp23: "C++23",
 };
 const learningLabels = {
   new: "Mới",

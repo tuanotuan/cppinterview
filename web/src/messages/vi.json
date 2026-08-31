@@ -378,6 +378,36 @@
     "lessonUnavailable": "Ngày {day}: {title}. Bài học chưa được biên soạn.",
     "backToTop": "Về đầu roadmap"
   },
+  "Cpp23Roadmap": {
+    "metaTitle": "Roadmap C++23 — cppinterview",
+    "metaDescription": "Lộ trình C++23 gồm 54 ngày, từ nền tảng C++ hiện đại đến thay đổi ngôn ngữ, thư viện chuẩn, ranges, dữ liệu nhiều chiều, generator, modules và binary parsing.",
+    "brandTagline": "54 ngày · C++23 thực chiến",
+    "eyebrow": "Lộ trình C++23",
+    "title": "Roadmap C++23 trong 54 ngày",
+    "description": "Đi theo đường học trực quan từ toolchain và nền tảng C++ hiện đại đến thay đổi ngôn ngữ C++23, vocabulary type, I/O, ranges, flat container, mdspan, generator, module thư viện chuẩn và parse binary feed.",
+    "contentNote": "Trạng thái bên dưới phản ánh mức độ học liệu hiện có, không phải tiến độ học tập của bạn.",
+    "metrics": {
+      "days": "Ngày học",
+      "phases": "Chặng",
+      "available": "Ngày có học liệu"
+    },
+    "overviewTitle": "Bản đồ học C++23",
+    "overviewDescription": "Đi theo đường nối từ trái sang phải rồi vòng xuống hàng kế tiếp. Chọn node để mở thẳng bài học tương ứng trong thư viện.",
+    "legendAria": "Chú giải trạng thái học liệu",
+    "mapAria": "Bản đồ 54 ngày học C++23",
+    "start": "Bắt đầu tại đây",
+    "finish": "Hoàn thành lộ trình",
+    "coverage": {
+      "ready": "Có bài học",
+      "partial": "Một phần",
+      "planned": "Sắp có"
+    },
+    "phaseLabel": "Chặng {number}",
+    "dayLabel": "Ngày {day}",
+    "openLesson": "Mở bài học ngày {day} trong tab mới: {title}",
+    "lessonUnavailable": "Ngày {day}: {title}. Bài học chưa được biên soạn.",
+    "backToTop": "Về đầu roadmap"
+  },
   "Practice": {
     "metaTitle": "Học hôm nay — cppinterview",
     "metaDescription": "Luyện thẻ C++ theo lịch ôn, nhận phản hồi AI và lưu tiến độ học tập.",

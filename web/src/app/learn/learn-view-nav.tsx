@@ -15,7 +15,7 @@ type LearnViewNavProps =
     }
   | {
       current: "roadmap";
-      selectedStandard: "cpp11" | "cpp14" | "cpp17" | "cpp20";
+      selectedStandard: "cpp11" | "cpp14" | "cpp17" | "cpp20" | "cpp23";
     };
 
 const baseItemClassName =

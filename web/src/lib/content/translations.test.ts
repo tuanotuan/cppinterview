@@ -51,8 +51,8 @@ describe("content translations", () => {
       "en",
     );
     expect(coverage).toEqual({
-      lessons: 205,
-      questions: 618,
+      lessons: 259,
+      questions: 780,
     });
   });
 
@@ -88,7 +88,7 @@ describe("content translations", () => {
     expect(hasExactLessonTranslation(untranslatedLesson, "en")).toBe(false);
   });
 
-  it("queues three English drafts for every C++11, C++14, C++17, and C++20 lesson with canonical filter tags", () => {
+  it("queues three English drafts for every C++11 through C++23 roadmap lesson with canonical filter tags", () => {
     const reviews = questionTranslationReviewCandidates(manifest, "en");
     const roadmapLessons = manifest.lessons
       .filter(
@@ -96,14 +96,15 @@ describe("content translations", () => {
           lesson.track === "cpp11" ||
           lesson.track === "cpp14" ||
           lesson.track === "cpp17" ||
-          lesson.track === "cpp20",
+          lesson.track === "cpp20" ||
+          lesson.track === "cpp23",
       )
       .sort(
         (left, right) =>
           left.track.localeCompare(right.track) || left.order - right.order,
       );
 
-    expect(reviews).toHaveLength((53 + 50 + 50 + 52) * 3);
+    expect(reviews).toHaveLength((53 + 50 + 50 + 52 + 54) * 3);
     for (const lesson of roadmapLessons) {
       const lessonReviews = reviews.filter(
         (review) => review.question.lessonId === lesson.id,

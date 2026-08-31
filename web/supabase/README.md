@@ -355,6 +355,17 @@ Apply `20260829100000_add_cpp14_content_track.sql` first, then this migration,
 before the first `content:sync` containing the C++17 curriculum. Neither
 migration publishes or approves lessons or questions by itself.
 
+## C++23 content track
+
+`20260831025153_add_cpp23_content_track.sql` widens the same four lesson
+standard/track checks to accept `cpp23` while retaining every existing value.
+It validates replacement constraints before dropping the old names and does
+not change data, views, RLS, grants, or RPCs.
+
+Apply the C++14 and C++17 track migrations first, then this migration before
+the first `content:sync` containing the C++23 curriculum. The migration does
+not publish or approve lessons or questions by itself.
+
 ## Isolated mock-interview code runner
 
 `20260729100000_create_code_execution_admission.sql` adds the atomic admission,

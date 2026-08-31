@@ -7,7 +7,7 @@ Chạy command từ `web/` trừ khi ghi khác. Trên PowerShell có thể dùng
 
 ## Ranh giới content C++
 
-Chỉ `cpp98_foundation/`, `cpp11/`, `cpp14/`, `cpp17/` và `cpp20/` là source root của web.
+Chỉ `cpp98_foundation/`, `cpp11/`, `cpp14/`, `cpp17/`, `cpp20/` và `cpp23/` là source root của web.
 Không thêm `python/` hay CMake vào discovery/content sync; thư mục Python ở
 repo root được giữ độc lập với sản phẩm.
 
@@ -117,7 +117,7 @@ và vẫn phải làm theo recipe dưới đây.
    `web/src/generated/lesson-translations-en.json`.
 5. Chạy `npm run validate`.
 
-Source roots được discovery: `cpp98_foundation`, `cpp11`, `cpp14`, `cpp17`, `cpp20`. ID mới được
+Source roots được discovery: `cpp98_foundation`, `cpp11`, `cpp14`, `cpp17`, `cpp20`, `cpp23`. ID mới được
 suy ra từ path; nếu collision, đăng ký thủ công. Rename có
 thể được nhận ra và giữ ID, nhưng luôn kiểm tra diff.
 
@@ -125,12 +125,12 @@ Trên `main`, CI refresh deterministic files, commit nếu cần, sync snapshot 
 Supabase, rồi enqueue/generate DB-native drafts. Không dùng `content:auto` hay
 `content:draft` cho production flow bình thường.
 
-## Recipe: sửa roadmap C++11/C++14/C++17/C++20
+## Recipe: sửa roadmap C++11/C++14/C++17/C++20/C++23
 
 - Registry riêng nằm tại `web/content/roadmaps/<track>.yaml`; không dùng
   `lesson.order` làm số ngày và không thêm placeholder vào
   `content/lesson-registry.yaml`.
-- Giữ đúng 53 ngày cho C++11, 50 ngày cho C++14/C++17 hoặc 52 ngày cho C++20 và
+- Giữ đúng 53 ngày cho C++11, 50 ngày cho C++14/C++17, 52 ngày cho C++20 hoặc 54 ngày cho C++23 và
   dependency chỉ trỏ về ngày trước đó. `planned` không có `lessonIds`;
   `ready`/`partial` chỉ được trỏ tới lesson đúng track đã có thật.
 - Title/objective/phase phải có cả `vi` và `en`. Chuỗi khung giao diện vẫn nằm
@@ -447,6 +447,10 @@ Các nhóm schema hiện có:
 - C++20 đã thuộc các constraint standard/track hiện hành; thêm lesson/question
   C++20 không cần migration mới. Vẫn không chạy `content:sync` hoặc mutation remote
   nếu người dùng chưa yêu cầu rõ ràng.
+- C++23 cần `20260831025153_add_cpp23_content_track.sql` sau các migration C++14/C++17
+  và trước lần `content:sync` đầu tiên chứa lesson C++23. Migration chỉ mở rộng bốn
+  check constraint; không đổi dữ liệu, RLS, grant, view hay RPC. Không push migration,
+  chạy `content:sync` hoặc mutation remote nếu người dùng chưa yêu cầu rõ ràng.
 - Migration `20260730140000` dùng retry protocol v3 cho Mistake: lease hết hạn
   trước marker provider được thu hồi và claim lại, còn lease đã marker hoặc kết
   quả provider/completion không xác định chuyển `dead_letter`. Trigger chặn

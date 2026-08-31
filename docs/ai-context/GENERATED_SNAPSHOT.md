@@ -6,19 +6,19 @@
 ## Content
 
 - Manifest schema: 1
-- Source revision: `cfd8006cb8530377109d3a91411963e10c96970dea1977fb3d8fdd30ec090198`
-- Lessons: 210 (cpp11: 53, cpp14: 50, cpp17: 50, cpp20: 52, cpp98: 5)
-- Questions: 628 (draft: 625, verified: 3)
-- Question decks: cpp-interview: 628
+- Source revision: `5616fa929cc41ac6cc807efdc9eee9afb96219e4f2b9f3d9f259735617cb7798`
+- Lessons: 264 (cpp11: 53, cpp14: 50, cpp17: 50, cpp20: 52, cpp23: 54, cpp98: 5)
+- Questions: 790 (draft: 787, verified: 3)
+- Question decks: cpp-interview: 790
 
 ## Application inventory
 
-- App pages: 24 (/[locale], /[locale]/auth, /[locale]/auth/reset-password, /[locale]/auth/set-password, /[locale]/learn, /[locale]/learn/[lessonId], /[locale]/learn/roadmap/cpp11, /[locale]/learn/roadmap/cpp14, /[locale]/learn/roadmap/cpp17, /[locale]/learn/roadmap/cpp20, /[locale]/learn/tick-data-order-book, /[locale]/mock-interview, /[locale]/practice, /[locale]/profile, /[locale]/stats, /admin, /admin/coverage, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/legacy-modern-capstone, /worldquant/mission, /worldquant/tick-replay-lab)
+- App pages: 25 (/[locale], /[locale]/auth, /[locale]/auth/reset-password, /[locale]/auth/set-password, /[locale]/learn, /[locale]/learn/[lessonId], /[locale]/learn/roadmap/cpp11, /[locale]/learn/roadmap/cpp14, /[locale]/learn/roadmap/cpp17, /[locale]/learn/roadmap/cpp20, /[locale]/learn/roadmap/cpp23, /[locale]/learn/tick-data-order-book, /[locale]/mock-interview, /[locale]/practice, /[locale]/profile, /[locale]/stats, /admin, /admin/coverage, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/legacy-modern-capstone, /worldquant/mission, /worldquant/tick-replay-lab)
 - API routes: 29 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/admin/questions/approve-translation, /api/admin/questions/manual, /api/admin/questions/reject, /api/coach/clarify, /api/coach/evaluate, /api/coach/follow-up, /api/coach/lesson, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/profile/mobile-usage, /api/progress/sync, /api/questions/approve, /api/worldquant/mission-snapshot, /api/worldquant/training-state, /auth/callback, /auth/confirm, /auth/login, /auth/logout)
-- TypeScript source files excluding tests: 237
-- Colocated test files: 133
-- Supabase migrations: 54
-- Latest migration filename: `20260830021455_fix_lesson_ai_dispatch_coalesce.sql`
+- TypeScript source files excluding tests: 240
+- Colocated test files: 136
+- Supabase migrations: 55
+- Latest migration filename: `20260831025153_add_cpp23_content_track.sql`
 
 ## Toolchain declared in package.json
 
@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `b9497b2028c8ef9c742d97d42a50d25f1085846cb194dfeb577b6180002eda2e`
-- Fingerprinted files: 1090
+- Project input fingerprint: `cf9f9886d4de47cabfce78de93bc444e260d91a16dbed8604c24c90f3cf5a5ee`
+- Fingerprinted files: 1261
 
 The fingerprint covers registered lesson sources, content files, application
 source/tests, scripts, package metadata, environment template, workflows, and
