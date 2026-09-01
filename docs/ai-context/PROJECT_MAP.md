@@ -10,7 +10,7 @@ Tài liệu ổn định để tìm đúng vùng code. Xác minh lại nếu sou
 | `python/` | Ghi chú cá nhân giữ nguyên trong repo; web không quét, đồng bộ hoặc hiển thị |
 | `web/` | App cppinterview: Next.js App Router, React, TypeScript |
 | `web/src/proxy.ts`, `web/src/i18n/` | Entry point kết hợp refresh cookie/session Supabase với định tuyến locale `vi`/`en`; API, Admin và WorldQuant được bỏ qua khỏi locale middleware |
-| `web/src/app/[locale]/layout.tsx`, `web/src/app/site-footer.tsx` | Shell learner theo locale, `html lang`, message provider, footer và mobile navigation/tracker dùng chung; Admin/WorldQuant có document layout riêng không prefix locale |
+| `web/src/app/[locale]/layout.tsx`, `web/src/app/site-footer.tsx`, `web/src/app/site-footer-links.ts` | Shell learner theo locale, `html lang`, message provider, footer và mobile navigation/tracker dùng chung; link ngoài của footer được khai báo tập trung cho GitHub và cộng đồng Vibe Coding; Admin/WorldQuant có document layout riêng không prefix locale |
 | `web/src/messages/`, `web/src/content-translations/`, `web/src/lib/content/question-translations.server.ts` | Chuỗi UI theo namespace, overlay bản dịch bind exact revision và publication đã duyệt từ Supabase; ID/version/hash/taxonomy/code/source không bị dịch |
 | `web/src/app/recall-mobile-nav.tsx` | Điều hướng mobile dùng chung: Học hôm nay, Nhiệm vụ, Trung tâm chuẩn bị, Thư viện, Hồ sơ; tự ẩn ở mock/full-round để giữ không gian phỏng vấn |
 | `web/content/` | Registry lesson, question và roadmap YAML do Git quản lý; roadmap chỉ tổ chức đường học, không tạo lesson giả |

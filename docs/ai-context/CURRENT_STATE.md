@@ -287,7 +287,8 @@ trạng thái từ tên nhánh.
   của người dùng. Thao tác nguồn kiến thức, bản nháp AI, queue duyệt và quản lý ngân hàng
   là workspace riêng của admin GitHub `tuanotuan`. Footer learner là surface midnight
   full-width riêng biệt: có điều hướng nhanh tới các route học thật, CTA guest, trust
-  points, tài khoản, link “Đóng góp mã nguồn” tới GitHub, cộng đồng Facebook và bộ đổi
+  points, tài khoản, link “Đóng góp mã nguồn” tới GitHub, link “Cộng đồng Vibe
+  Coding” tới Facebook group `1318098620529328` và bộ đổi
   ngôn ngữ dark-tone mở lên; footer không
   đọc auth/Supabase và không thêm asset hay dependency mạng.
 - cppinterview phục vụ việc luyện C++ cho nhiều công ty: tên và entry point WorldQuant
@@ -362,14 +363,14 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Dọn autosave/blank-helper ở Practice, logo về trang chủ và lịch sử report C++
-  chi tiết đạt toàn bộ `npm run validate`: content/context check, ESLint,
-  TypeScript, 143 file/833 Vitest test và Next.js production build sinh 590 static
-  path. Targeted Practice localization 6/6 khóa hai dòng phụ khỏi UI và contract
-  VI/EN; targeted Mock UI 4/4 khóa link logo, card lịch sử semantic và escape nội
-  dung người dùng. Security review đủ 10 nhóm OWASP không có finding mở;
-  production dependency audit báo 0 lỗ hổng. Không có migration hay remote
-  mutation mới.
+- Footer Vibe Coding, dọn autosave/blank-helper ở Practice, logo về trang chủ và
+  lịch sử report C++ chi tiết đạt toàn bộ `npm run validate`: content/context
+  check, ESLint, TypeScript, 143 file/834 Vitest test và Next.js production build
+  sinh 590 static path. Targeted footer 5/5 khóa nhãn VI/EN và Facebook group mới;
+  targeted Practice localization 6/6 khóa hai dòng phụ; targeted Mock UI 4/4 khóa
+  link logo, card lịch sử semantic và escape nội dung người dùng. Security review
+  đủ 10 nhóm OWASP không có finding mở; production dependency audit báo 0 lỗ
+  hổng. Không có migration hay remote mutation mới.
 - Fix quyền đọc publication cho Mock đạt toàn bộ `npm run validate`: content/context
   check, ESLint, TypeScript, 142 file/823 Vitest test và Next.js production build
   sinh 590 static path. Targeted migration test đạt 2/2; `supabase db push --dry-run`
