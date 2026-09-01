@@ -41,7 +41,9 @@ câu C++ nên header hiển thị số câu đã duyệt như metadata, không d
 bộ câu không có lựa chọn thực.
 Practice có Chế độ tập trung tạm thời (thoát `Esc`, mở đáp án `Alt + A`) để ẩn
 shell/sidebar; feedback AI ưu tiên đúng/sửa/làm tiếp, còn rubric đầy đủ nằm trong
-`details`. Focus-visible và responsive inset vẫn áp dụng cho control sticky. Modal do app tự tạo dùng
+`details`. Khung trả lời thường chỉ giữ label và placeholder; hai dòng autosave/
+blank-helper dư thừa không được render nhưng hành vi lưu answer và gửi blank cho AI
+không đổi. Focus-visible và responsive inset vẫn áp dụng cho control sticky. Modal do app tự tạo dùng
 `web/src/app/accessible-dialog.ts` để khóa scroll, trả focus, đóng bằng Escape
 và giữ focus trong dialog; không dùng browser dialog cho luồng xác nhận.
 

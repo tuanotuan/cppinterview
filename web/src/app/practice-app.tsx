@@ -3548,7 +3548,7 @@ export function PracticeApp({
                     <>
                       <div
                         id="practice-answer-area"
-                        className="mt-8 flex flex-wrap items-center justify-between gap-2"
+                        className="mt-8"
                       >
                         <label
                           className="text-sm font-semibold text-[#43546a]"
@@ -3556,9 +3556,6 @@ export function PracticeApp({
                         >
                           {practiceT("question.yourAnswer")}
                         </label>
-                        <span className="font-mono text-[11px] text-[#64748b]">
-                          {practiceT("question.autosaved")}
-                        </span>
                       </div>
                       <textarea
                         id="candidate-answer"
@@ -3575,9 +3572,6 @@ export function PracticeApp({
                     </>
                   )}
 
-                  <p className="mt-3 text-xs leading-5 text-[#526276]">
-                    {practiceT("question.blankHelp")}
-                  </p>
                   {currentRescueRetry?.phase === "retrying" ? (
                     <div
                       id="rescue-retry-instruction"

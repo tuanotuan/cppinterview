@@ -269,8 +269,9 @@ trạng thái từ tên nhánh.
   (Esc thoát, Alt+A mở/ẩn đáp án) để ẩn shell/sidebar; feedback AI trình bày
   ba bước đúng/cần cải thiện/làm tiếp, rubric chi tiết được thu gọn. Thay đổi UI
   không chạm scheduler, AI admission hay dữ liệu học. Practice không lặp lại thông
-  tin tài khoản/đồng bộ hoặc source revision ở cuối trang; trạng thái đồng bộ vẫn
-  nằm trong panel tiến độ.
+  tin autosave/blank-helper cạnh textarea, cũng không lặp tài khoản/đồng bộ hoặc
+  source revision ở cuối trang; hành vi lưu answer và gửi blank cho AI vẫn giữ
+  nguyên, còn trạng thái đồng bộ vẫn nằm trong panel tiến độ.
 - UI dùng chung có reduced-motion fallback; skeleton loading có thông báo cho
   screen reader và thanh điều hướng mobile giữ vùng chạm/focus rõ ràng.
 - Header, footer, trạng thái tải và cổng truy cập dùng chung logo C++ SVG thay cho
@@ -361,13 +362,14 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Logo về trang chủ và lịch sử report C++ chi tiết đạt toàn bộ `npm run validate`:
-  content/context check, ESLint, TypeScript, 143 file/832 Vitest test và Next.js
-  production build sinh 590 static path. Targeted UI 4/4 khóa link logo VI/EN,
-  card lịch sử semantic và escape nội dung người dùng; contract test tiếp tục khóa
-  snapshot exact version/hash và tương thích artifact local/cloud cũ. Security
-  review đủ 10 nhóm OWASP không có finding mở; production dependency audit báo
-  0 lỗ hổng. Không có migration hay remote mutation mới.
+- Dọn autosave/blank-helper ở Practice, logo về trang chủ và lịch sử report C++
+  chi tiết đạt toàn bộ `npm run validate`: content/context check, ESLint,
+  TypeScript, 143 file/833 Vitest test và Next.js production build sinh 590 static
+  path. Targeted Practice localization 6/6 khóa hai dòng phụ khỏi UI và contract
+  VI/EN; targeted Mock UI 4/4 khóa link logo, card lịch sử semantic và escape nội
+  dung người dùng. Security review đủ 10 nhóm OWASP không có finding mở;
+  production dependency audit báo 0 lỗ hổng. Không có migration hay remote
+  mutation mới.
 - Fix quyền đọc publication cho Mock đạt toàn bộ `npm run validate`: content/context
   check, ESLint, TypeScript, 142 file/823 Vitest test và Next.js production build
   sinh 590 static path. Targeted migration test đạt 2/2; `supabase db push --dry-run`
