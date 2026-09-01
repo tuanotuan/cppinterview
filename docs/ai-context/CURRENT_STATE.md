@@ -129,6 +129,11 @@ trạng thái từ tên nhánh.
 
 - `/mock-interview` đã chuyển sang contract v5 trung lập cho mọi người dùng với đúng một vị trí C++ Engineer. Phiên 30/45/60 phút có 5/8/10 câu và server dựng lại plan bắt buộc phủ C++11/14/17/20/23 từ câu verified hoặc exact revision được content admin duyệt; browser chỉ nhận đề/code cùng metadata chọn câu, không nhận hint/answer/rubric. Khách vẫn hoàn tất và nhận báo cáo Luna bằng quota public, lưu tối đa năm artifact cục bộ; account có thêm cloud history. Report tự tính lại điểm tổng, verdict, điểm theo chuẩn và bảy năng lực từ điểm từng câu, giữ tám tiêu chí và đúng ba hành động tiếp theo, không có branding hoặc phán quyết tuyển dụng theo công ty. Lỗi chắc chắn xảy ra trước provider được release để retry cùng frozen request; outcome không xác định bị terminalize để không gọi trùng. Remote hiện có 779 exact revision được admin duyệt (C++11/14/17/20/23 lần lượt 161/150/150/156/162). Migration `20260901004524_grant_mock_publication_reader.sql` đã được áp dụng remote: dedicated backend key đọc được publication qua các view `security_invoker` và bảng nguồn, còn `anon` vẫn bị từ chối trên toàn bộ tập object này. Production `/vi/mock-interview` hiện trả `publicationAvailable=true` với coverage 161/150/150/156/162; `/en/mock-interview` trả 159/150/150/156/162 theo 777 exact English publication hiện có. Migration quota `20260831171239_fix_public_ai_quota_greatest.sql` đã có trên remote; smoke test quota dưới `service_role` trả `reserved`, limit 3, remaining 2 và không để lại reservation thử nghiệm. Mock v4 và Mistake capture cũ vẫn được giữ cho workspace `/worldquant` riêng của admin.
 
+- Mock C++ coi câu trả lời trống là bằng chứng thiếu kiến thức. Nếu toàn bộ câu đều
+  trống và provider trả báo cáo sai tập question ID, server dựng fallback song ngữ
+  xác định với điểm 0, đủ nhận xét cho exact plan và ba hành động chỉ tham chiếu ID
+  trong phiên; phiên có bất kỳ câu trả lời nào vẫn fail closed khi báo cáo AI sai.
+
 - Evidence Engine đợt 4 dùng `EvidenceProjection` v2 để harden chất lượng read model
   thống nhất của Hub và Today’s Mission. WorldQuant server đọc
   tối đa 250 Coach attempt theo account/RLS mà không SELECT `candidate_answer`, kết
@@ -355,6 +360,11 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
+- Fallback báo cáo cho phiên C++ có toàn bộ câu trả lời trống đạt toàn bộ
+  `npm run validate`: content/context check, ESLint, TypeScript, 142 file/825
+  Vitest test và Next.js production build sinh 590 static path. Hai test hồi quy
+  khóa báo cáo 0 điểm theo exact plan và giữ fail-closed nếu còn bất kỳ câu trả
+  lời có nội dung; không có migration hay remote mutation mới.
 - Fix quyền đọc publication cho Mock đạt toàn bộ `npm run validate`: content/context
   check, ESLint, TypeScript, 142 file/823 Vitest test và Next.js production build
   sinh 590 static path. Targeted migration test đạt 2/2; `supabase db push --dry-run`
