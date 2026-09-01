@@ -901,8 +901,97 @@
     "backToPractice": "Back to practice"
   },
   "Stats": {
-    "metaTitle": "Learning analytics — cppinterview",
-    "metaDescription": "Track retention, review history, and your spaced-repetition forecast."
+    "metaTitle": "C++ progress — cppinterview",
+    "metaDescription": "Track knowledge coverage by C++ standard, difficulty, and retention state.",
+    "homeAria": "Back to the cppinterview home page",
+    "headerTitle": "C++ progress",
+    "headerSubtitle": "Your knowledge coverage",
+    "navLabel": "Progress navigation",
+    "navPractice": "Practice cards",
+    "navMock": "Mock interview",
+    "eyebrow": "Knowledge coverage",
+    "title": "How far have you come?",
+    "description": "See what you have encountered, what you are still learning, and what you retain across the complete C++11 to C++23 path.",
+    "updated": "Updated through {date}",
+    "summary": {
+      "title": "Progress summary",
+      "coverage": "Total coverage",
+      "coverageNote": "{percent}% of the curriculum covered",
+      "lessons": "Lessons encountered",
+      "lessonsNote": "At least one card studied in each lesson",
+      "retained": "Durably retained",
+      "retainedNote": "Review interval of at least 21 days · {percent}%",
+      "due": "Due now",
+      "dueNote": "Cards are due or overdue",
+      "dueEmpty": "No cards are due"
+    },
+    "status": {
+      "legend": "Coverage status legend",
+      "unseen": "Unseen",
+      "learning": "Learning",
+      "retained": "Durably retained"
+    },
+    "standards": {
+      "eyebrow": "By standard",
+      "title": "Coverage from C++11 through C++23",
+      "description": "Each bar separates unseen material, active learning, and knowledge with a durable review interval.",
+      "coveredPercent": "{percent}% covered",
+      "counts": "{covered}/{total} slots studied · {retained} retained"
+    },
+    "difficulty": {
+      "eyebrow": "By difficulty",
+      "title": "Standard × difficulty",
+      "description": "Compare Beginner, Intermediate, and Advanced coverage precisely within every C++ standard.",
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced",
+      "counts": "{covered}/{total} slots studied",
+      "barLabel": "{difficulty}: {covered}/{total} slots studied, {retained} durably retained"
+    },
+    "matrix": {
+      "caption": "Coverage matrix by C++ standard and difficulty",
+      "standard": "Standard",
+      "cellCounts": "{covered}/{total} studied",
+      "cellRetained": "{count} retained",
+      "mobileCounts": "{covered}/{total} studied · {retained} retained"
+    },
+    "topics": {
+      "eyebrow": "Knowledge gaps",
+      "title": "Topics to prioritize",
+      "description": "Topics with the most unseen slots appear first so you can practice the right material next.",
+      "counts": "{covered}/{total} studied · {retained} retained",
+      "unseen": "{count} left",
+      "barLabel": "Topic {topic}: {covered}/{total} slots studied, {retained} durably retained"
+    },
+    "actions": {
+      "practiceUnseen": "Practice unseen material",
+      "reviewDue": "Review due cards",
+      "covered": "Fully covered",
+      "practice": "Practice",
+      "practiceTopic": "Practice unseen material",
+      "reviewTopic": "Review this topic"
+    },
+    "method": {
+      "title": "How coverage is calculated",
+      "description": "Every lesson contributes three knowledge slots: Beginner, Intermediate, and Advanced. A slot becomes covered after a valid review of the current content revision, and becomes durably retained once it reaches review state with an interval of at least 21 days. A slot can belong to multiple topics, so topic rows are not added together."
+    },
+    "activity": {
+      "eyebrow": "Study rhythm",
+      "title": "Recent activity",
+      "today": "Today",
+      "reviews": "Reviews",
+      "days": "Study days",
+      "streak": "Day streak"
+    },
+    "gate": {
+      "title": "Your learning progress",
+      "loginDescription": "Sign in to load your synced progress and view your private knowledge coverage.",
+      "notConfiguredDescription": "Supabase is not configured, so synced progress cannot be loaded.",
+      "dataErrorDescription": "Progress data could not be loaded. The page will not show 0% in place of failed data.",
+      "signIn": "Sign in",
+      "retry": "Try again",
+      "backToPractice": "Back to practice"
+    }
   },
   "Profile": {
     "metaTitle": "Profile — cppinterview",

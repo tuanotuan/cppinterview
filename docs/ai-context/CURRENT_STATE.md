@@ -98,6 +98,14 @@ trạng thái từ tên nhánh.
   Lịch sử Mock gửi xuống client chỉ gồm dữ liệu đang hiển thị, không kèm toàn bộ
   báo cáo, câu trả lời và execution records cũ.
 
+- `/stats` đã được thay bằng dashboard độ phủ kiến thức cho account đăng nhập,
+  dùng 777 câu canonical/259 lesson hiện có trong repo làm mẫu số cố định. Trang
+  hiển thị tổng quan, từng chuẩn C++11/14/17/20/23, ba mức độ khó, ma trận
+  chuẩn × độ khó và tám khoảng trống chủ đề ưu tiên; không còn heatmap, biểu đồ
+  rating, dự báo lịch hay panel FSRS. Nút luyện mở exact queue canonical theo
+  phần chưa phủ/đến hạn; DB-native extra không làm lệch số liệu. Lỗi cloud hiển
+  thị gate retry riêng, không giả thành tiến độ 0%.
+
 - cppinterview đã chuyển sang C++-only: web không còn discovery root, deck,
   route học, code-runner hay mock-question language cho Python/CMake. Thư mục
   `python/` ở repo root vẫn giữ nguyên như ghi chú cá nhân.
