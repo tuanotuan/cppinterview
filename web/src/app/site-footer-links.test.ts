@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import vietnameseMessages from "@/messages/vi.json";
+
 import {
   footerAccountLinks,
   footerExternalLinks,
@@ -24,6 +26,16 @@ describe("site footer links", () => {
     expect(
       footerExternalLinks.every(({ href }) => href.startsWith("https://")),
     ).toBe(true);
+  });
+
+  it("presents the repository link as a source contribution action in Vietnamese", () => {
+    expect(vietnameseMessages.Common.footer.github).toBe(
+      "Đóng góp mã nguồn",
+    );
+    expect(
+      footerExternalLinks.find(({ labelKey }) => labelKey === "footer.github")
+        ?.href,
+    ).toBe("https://github.com/tuanotuan/cppinterview");
   });
 
   it("does not repeat a destination within the same footer group", () => {

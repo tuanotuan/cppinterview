@@ -286,7 +286,8 @@ trạng thái từ tên nhánh.
   của người dùng. Thao tác nguồn kiến thức, bản nháp AI, queue duyệt và quản lý ngân hàng
   là workspace riêng của admin GitHub `tuanotuan`. Footer learner là surface midnight
   full-width riêng biệt: có điều hướng nhanh tới các route học thật, CTA guest, trust
-  points, tài khoản, GitHub/Facebook và bộ đổi ngôn ngữ dark-tone mở lên; footer không
+  points, tài khoản, link “Đóng góp mã nguồn” tới GitHub, cộng đồng Facebook và bộ đổi
+  ngôn ngữ dark-tone mở lên; footer không
   đọc auth/Supabase và không thêm asset hay dependency mạng.
 - cppinterview phục vụ việc luyện C++ cho nhiều công ty: tên và entry point WorldQuant
   đã được gỡ khỏi landing, Practice, Thư viện và Mock. Workspace `/worldquant/*` cũ
