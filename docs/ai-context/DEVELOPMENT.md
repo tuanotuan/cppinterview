@@ -608,8 +608,13 @@ service-role-only/browser grants như contract hiện tại.
   trong `learning-state.ts`.
 - Hidden test/code-runner metadata không lộ ra client hay response.
 - Mock v5 công khai chỉ nhận browser-safe question refs rồi server dựng lại exact
-  plan từ câu verified hoặc publication của `content_admins`; answer/hint/rubric không được gửi qua
-  RSC props hay nhận lại từ client. Plan phải phủ đủ C++11/14/17/20/23, dùng
+  plan từ câu verified hoặc publication của `content_admins`; đáp án mẫu/hint/rubric không được gửi
+  qua RSC props hay nhận lại từ client. Sau khi server resolve exact plan, phiên mới được
+  lưu thêm snapshot bounded chỉ gồm question ID/version/hash, đề/code đã hiển thị, câu trả lời
+  người dùng và thời gian; không đưa evaluation guide hay hidden diagnostic vào snapshot.
+  Cloud snapshot nằm trong `public_attempt` owner-scoped hiện hữu và chỉ được server đọc bằng
+  exact `user_id`; guest/local history giữ cùng contract trong localStorage. Artifact cũ không có
+  snapshot phải vẫn mở normalized report, không được giả lập lại câu trả lời đã mất. Plan phải phủ đủ C++11/14/17/20/23, dùng
   quota/budget public trước Luna và chỉ lưu cloud history khi có account. Guest
   session/history ở localStorage theo scope `guest`; không được biến thiếu đăng
   nhập thành gate. Mutation `question_approvals` qua Data API phải đồng thời bind

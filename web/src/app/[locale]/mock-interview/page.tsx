@@ -7,7 +7,7 @@ import {
 } from "@/app/mock-interview/general-cpp-mock-app";
 import type { Locale } from "@/i18n/routing";
 import { localizedAlternates } from "@/i18n/metadata";
-import { generalCppCompletedArtifactSchema } from "@/lib/mock-interview/contracts-v5";
+import { parseGeneralCppHistoryDetail } from "@/lib/mock-interview/contracts-v5";
 import { generalCppCatalogCoverage } from "@/lib/mock-interview/general-catalog";
 import {
   createMockHistoryAdminClient,
@@ -76,7 +76,7 @@ async function loadInitialHistory(accountId: string | null): Promise<{
       createMockHistoryAdminClient(),
       {
         userId: accountId,
-        limit: 20,
+        limit: 5,
         roleProfileId: "cpp-engineer-general",
       },
     );
@@ -84,19 +84,22 @@ async function loadInitialHistory(accountId: string | null): Promise<{
       available: true,
       items: history.items.flatMap((attempt) => {
         if (attempt.status !== "completed") return [];
-        const artifact = generalCppCompletedArtifactSchema.safeParse(
-          attempt.report,
-        );
-        if (!artifact.success) return [];
+        const detail = parseGeneralCppHistoryDetail({
+          artifact: attempt.report,
+          review: attempt.publicAttempt.review,
+        });
+        if (!detail) return [];
+        const artifact = detail.artifact;
         return [
           {
             attemptId: attempt.attemptId,
-            sessionId: artifact.data.sessionId,
-            completedAt: artifact.data.completedAt,
-            durationMinutes: artifact.data.plan.durationMinutes,
-            overallScore: artifact.data.report.overallScore,
-            readiness: artifact.data.report.readiness,
-            standardScores: artifact.data.report.standardScores,
+            sessionId: artifact.sessionId,
+            completedAt: artifact.completedAt,
+            durationMinutes: artifact.plan.durationMinutes,
+            overallScore: artifact.report.overallScore,
+            readiness: artifact.report.readiness,
+            standardScores: artifact.report.standardScores,
+            detail,
           },
         ];
       }),
