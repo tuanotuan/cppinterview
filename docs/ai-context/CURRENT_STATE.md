@@ -289,8 +289,12 @@ trạng thái từ tên nhánh.
   full-width riêng biệt: có điều hướng nhanh tới các route học thật, CTA guest, trust
   points, tài khoản, link “Đóng góp mã nguồn” tới GitHub, link “Cộng đồng Vibe
   Coding” tới Facebook group `1318098620529328` và bộ đổi
-  ngôn ngữ dark-tone mở lên; footer không
-  đọc auth/Supabase và không thêm asset hay dependency mạng.
+  ngôn ngữ dark-tone mở lên. Cột “Bắt đầu” gồm CTA guest và ba link tài khoản chỉ
+  render sau khi `/api/auth/status` xác nhận người xem là khách; account đã đăng nhập
+  và trạng thái đang kiểm tra bỏ toàn bộ cột này, đồng thời lưới co về hai cột.
+  Endpoint dùng JWT claims đã xác minh, loại anonymous identity và chỉ trả boolean
+  private/no-store; footer/root layout không trực tiếp đọc cookie hay Supabase nên
+  các lesson vẫn giữ static rendering. Không có asset hoặc dependency bên ngoài mới.
 - cppinterview phục vụ việc luyện C++ cho nhiều công ty: tên và entry point WorldQuant
   đã được gỡ khỏi landing, Practice, Thư viện và Mock. Workspace `/worldquant/*` cũ
   vẫn được giữ trong source nhưng layout chỉ cho admin `tuanotuan` vào; người học thường
@@ -363,14 +367,16 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Footer Vibe Coding, dọn autosave/blank-helper ở Practice, logo về trang chủ và
-  lịch sử report C++ chi tiết đạt toàn bộ `npm run validate`: content/context
-  check, ESLint, TypeScript, 143 file/834 Vitest test và Next.js production build
-  sinh 590 static path. Targeted footer 5/5 khóa nhãn VI/EN và Facebook group mới;
-  targeted Practice localization 6/6 khóa hai dòng phụ; targeted Mock UI 4/4 khóa
-  link logo, card lịch sử semantic và escape nội dung người dùng. Security review
-  đủ 10 nhóm OWASP không có finding mở; production dependency audit báo 0 lỗ
-  hổng. Không có migration hay remote mutation mới.
+- Footer chỉ hiện cột CTA/tài khoản cho khách, link Vibe Coding, dọn
+  autosave/blank-helper ở Practice, logo về trang chủ và lịch sử report C++ chi
+  tiết đạt toàn bộ `npm run validate`: content/context check, ESLint, TypeScript,
+  145 file/840 Vitest test và Next.js production build sinh 591 static path.
+  Targeted footer/auth đạt 11/11, gồm verified/non-anonymous claims, response chỉ
+  có boolean private/no-store và lưới không render guest actions khi đang kiểm tra
+  hoặc đã đăng nhập; targeted Practice localization 6/6 khóa hai dòng phụ;
+  targeted Mock UI 4/4 khóa link logo, card lịch sử semantic và escape nội dung
+  người dùng. Security review đủ 10 nhóm OWASP không có finding mở; production
+  dependency audit báo 0 lỗ hổng. Không có migration hay remote mutation mới.
 - Fix quyền đọc publication cho Mock đạt toàn bộ `npm run validate`: content/context
   check, ESLint, TypeScript, 142 file/823 Vitest test và Next.js production build
   sinh 590 static path. Targeted migration test đạt 2/2; `supabase db push --dry-run`
