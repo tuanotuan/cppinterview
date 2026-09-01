@@ -232,6 +232,11 @@ Xem danh sách chuẩn trong `web/.env.example`.
 - Code runner và Mock v4/v5 history cùng publication loader dùng hai secret Supabase riêng
   (`CODE_RUNNER_SUPABASE_SECRET_KEY`, `MOCK_HISTORY_SUPABASE_SECRET_KEY`);
   không tái dùng content-sync key hay dùng chung với nhau.
+- Publication loader chạy server-side bằng `service_role`; migration phục vụ
+  loader chỉ bổ sung quyền đọc. Vì các view `content_current_*` dùng
+  `security_invoker`, migration phải cấp `SELECT` cho cả view và đúng các bảng
+  nguồn mà view đọc; không bổ sung quyền ghi hay mở quyền tương ứng cho
+  `anon`/`authenticated`.
 - cppinterview mở cho mọi Supabase Auth account đã xác thực. Email provider phải bật;
   production nên bật xác minh email và đặt Site URL/Redirect URLs gồm
   `/auth/callback` cùng `/auth/confirm`. Mật khẩu được kiểm tra ở cả browser và
