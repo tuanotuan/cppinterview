@@ -327,9 +327,13 @@ Trạng thái trình duyệt không thêm migration:
 - Hub chỉ đọc phiên v4 theo account hoặc lịch sử v4 từ máy chủ; không đọc khóa
   v3 dùng chung. Parser legacy chỉ còn là compatibility boundary, không được
   dùng để khôi phục phiên cũ đang làm dở hay đưa dữ liệu không có owner vào Hub.
-- `ts-fsrs` dùng default FSRS-6 deterministic, retention 90%, fuzz tắt, chỉ
-  replay exact question version/source hash trong Stats. Scheduler hiện hữu vẫn
-  là nguồn due date duy nhất.
+- `ts-fsrs` vẫn là module thử nghiệm deterministic chỉ quan sát; route Stats
+  không render kết quả FSRS. Scheduler hiện hữu vẫn là nguồn due date duy nhất.
+- Stats dùng tập ID cố định từ question trong repo của deck C++ và năm chuẩn
+  C++11/14/17/20/23 làm mẫu số; overlay/DB chỉ cung cấp identity/nội dung hiện
+  hành. DB-native extra không được làm đổi mẫu số hoặc lọt vào custom-study queue
+  mở từ dashboard. State thiếu, `new` hoặc sai exact revision đều là chưa phủ;
+  `review` không suspended với interval từ 21 ngày là đã nhớ.
 - WorldQuant training state ghi local trước, sau đó hợp nhất cloud theo revision
   CAS khi account đã đăng nhập. Mission snapshot cloud ưu tiên bản đã tồn tại
   theo exact ngày/vị trí/thời lượng để giữ kế hoạch ổn định giữa thiết bị. Lỗi

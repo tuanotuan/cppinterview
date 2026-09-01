@@ -338,6 +338,7 @@ export function PracticeApp({
   requestedFocusId,
   invalidFocusRequest,
   initialCustomStudyFilters,
+  initialCustomStudyQuestionIds,
   initialLessonCheck,
   focusReturnHref,
   mistakeQuestionIds,
@@ -360,6 +361,7 @@ export function PracticeApp({
   requestedFocusId: string | null;
   invalidFocusRequest: boolean;
   initialCustomStudyFilters: CustomStudyFilters | null;
+  initialCustomStudyQuestionIds: string[] | null;
   initialLessonCheck: {
     lessonId: string;
     lessonTitle: string;
@@ -527,6 +529,13 @@ export function PracticeApp({
   const sessionHydrationStarted = useRef<string | null>(null);
   const focusHydrationStarted = useRef<string | null>(null);
   const customStudyLaunchStarted = useRef(false);
+  const initialCustomStudyQuestionIdSet = useMemo(
+    () =>
+      initialCustomStudyQuestionIds
+        ? new Set(initialCustomStudyQuestionIds)
+        : undefined,
+    [initialCustomStudyQuestionIds],
+  );
   const scrollToRatingWhenAvailable = useRef(false);
   const scrollToReferenceAnswerWhenAvailable = useRef(false);
   const scrollToCoachFeedbackWhenAvailable = useRef(false);
@@ -1589,6 +1598,7 @@ export function PracticeApp({
       learningStates,
       today,
       initialCustomStudyFilters,
+      initialCustomStudyQuestionIdSet,
     );
     clearStudySessionState();
     setSelectedQuestionId(null);
@@ -1609,6 +1619,7 @@ export function PracticeApp({
     clearStudySessionState,
     hasFocusRequest,
     initialCustomStudyFilters,
+    initialCustomStudyQuestionIdSet,
     learningStates,
     practiceT,
     sessionHydrated,
@@ -4555,6 +4566,7 @@ function CustomStudyPanel({
             onStart({
               learningState,
               standard: "all",
+              difficulty: "all",
               skill: "all",
               topic: "all",
               lessonId: "all",

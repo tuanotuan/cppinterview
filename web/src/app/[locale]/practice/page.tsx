@@ -9,6 +9,7 @@ import { parsePracticeDeck } from "@/lib/content/decks";
 import { getRepoContentManifest } from "@/lib/content/question-store-server";
 import { currentQuestionSourceSections } from "@/lib/content/question-source-sections";
 import { parseCustomStudyLaunch } from "@/lib/practice/custom-study";
+import { selectCanonicalCoverageQuestions } from "@/lib/practice/coverage-analytics";
 import { parseFocusSessionId } from "@/lib/practice/focus-session";
 import {
   findLessonCheckLesson,
@@ -50,6 +51,7 @@ export default async function PracticePage({
   searchParams: Promise<{
     auth?: string | string[];
     deck?: string | string[];
+    difficulty?: string | string[];
     focus?: string | string[];
     guest?: string | string[];
     limit?: string | string[];
@@ -58,6 +60,8 @@ export default async function PracticePage({
     returnRole?: string | string[];
     returnMinutes?: string | string[];
     restart?: string | string[];
+    standard?: string | string[];
+    state?: string | string[];
     study?: string | string[];
     topic?: string | string[];
   }>;
@@ -86,6 +90,7 @@ export default async function PracticePage({
   const authCode = single(query.auth);
   const guestMode = single(query.guest) === "1";
   const deckParam = single(query.deck);
+  const initialDeck = parsePracticeDeck(deckParam);
   const focusParam = single(query.focus);
   const requestedFocusId = parseFocusSessionId(focusParam);
   const invalidFocusRequest =
@@ -95,7 +100,18 @@ export default async function PracticePage({
     topic: single(query.topic),
     lesson: single(query.lesson),
     limit: single(query.limit),
+    state: single(query.state),
+    standard: single(query.standard),
+    difficulty: single(query.difficulty),
   });
+  const initialCustomStudyQuestionIds =
+    single(query.study) === "coverage" && initialCustomStudyFilters
+      ? selectCanonicalCoverageQuestions({
+          repoQuestions: getRepoContentManifest().questions,
+          currentQuestions: manifest.questions,
+          deck: initialDeck,
+        }).map((question) => question.id)
+      : null;
   const lessonCheckLaunch = parseLessonCheckLaunch({
     study: single(query.study),
     lesson: single(query.lesson),
@@ -112,6 +128,7 @@ export default async function PracticePage({
     ? [
         initialCustomStudyFilters.learningState,
         initialCustomStudyFilters.standard,
+        initialCustomStudyFilters.difficulty,
         initialCustomStudyFilters.skill,
         initialCustomStudyFilters.topic,
         initialCustomStudyFilters.lessonId,
@@ -215,10 +232,11 @@ export default async function PracticePage({
       initialAiDailyBudget={cloud.aiDailyBudget}
       initialPublicAiQuota={initialPublicAiQuota}
       authNotice={authNotice(authCode, t)}
-      initialDeck={parsePracticeDeck(deckParam)}
+      initialDeck={initialDeck}
       requestedFocusId={requestedFocusId}
       invalidFocusRequest={invalidFocusRequest}
       initialCustomStudyFilters={initialCustomStudyFilters}
+      initialCustomStudyQuestionIds={initialCustomStudyQuestionIds}
       initialLessonCheck={initialLessonCheck}
       focusReturnHref={focusReturnHref}
       mistakeQuestionIds={cloud.mistakeQuestionIds}

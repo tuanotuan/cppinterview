@@ -85,7 +85,7 @@ dùng navigation wrapper của `next-intl`, để không sinh nhầm `/vi/admin`
 | `/learn/roadmap/cpp11`, `/learn/roadmap/cpp14`, `/learn/roadmap/cpp17`, `/learn/roadmap/cpp20`, `/learn/roadmap/cpp23` | Route locale theo chuẩn, `app/learn/{cpp11,cpp14,cpp17,cpp20,cpp23}-roadmap-app.tsx`, `app/learn/cpp-roadmap-map.tsx`, `lib/learn/{cpp11,cpp14,cpp17,cpp20,cpp23}-roadmap.ts` | Roadmap song ngữ: C++11 có 53 ngày/8 chặng; C++14 và C++17 đều có 50 ngày/7 chặng; C++20 có 52 ngày/8 chặng; C++23 có 54 ngày/8 chặng. Cả năm chỉ link lesson `ready` đúng track và dùng chung sơ đồ node/connector ba cột ziczac trên desktop, một trục dọc trên tablet/mobile. Node mở lesson chính trong tab mới; coverage không phải tiến độ người học |
 | `/mock-interview` | `[locale]/mock-interview/page.tsx`, `app/mock-interview/general-cpp-mock-app.tsx` | Phỏng vấn thử công khai v5 cho một vị trí C++ Engineer, 30/45/60 phút tương ứng 5/8/10 câu. Plan deterministic bắt buộc phủ C++11/14/17/20/23, ưu tiên đa dạng lesson/chủ đề/năng lực và chỉ hiện thứ tự/trạng thái trả lời trong lúc làm. Logo header là link có nhãn trợ năng về trang chủ đúng locale ở màn hình bắt đầu, đang làm và báo cáo. Khách lưu tối đa năm báo cáo trong browser; tài khoản có thêm history cloud theo account. Mỗi card lịch sử mở lại report từng câu; phiên mới kèm snapshot đề/code/câu trả lời đã nộp, còn artifact cũ thiếu snapshot vẫn đọc nguyên feedback AI. Report trung lập theo công ty, tính lại điểm từ từng câu rồi trình bày theo chuẩn C++, bảy năng lực, tám tiêu chí và đúng ba hành động tiếp theo. Mock v4/Targeted Mock cũ chỉ còn phục vụ workspace lịch sử `/worldquant` và không được import vào entry point công khai. |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx`, `lib/learn/tick-data-guide.ts` | Guide tick data/order book |
-| `/stats` | `stats/page.tsx`, `fsrs-shadow-panel.tsx` | Analytics học tập và FSRS-6 shadow comparison |
+| `/stats` | `[locale]/stats/page.tsx`, `[locale]/stats/_components/coverage-dashboard.tsx`, `lib/practice/coverage-analytics.ts` | Dashboard tiến độ theo độ phủ của 777 câu canonical trong repo: tổng quan, C++11/14/17/20/23, độ khó, ma trận chuẩn × độ khó và khoảng trống chủ đề; CTA mở đúng custom-study queue tương ứng |
 | `/profile` | `profile/page.tsx`, `lib/profile/{contribution-activity,mobile-usage,profile-activity.server}.ts` | Trang cá nhân và contribution graph 53 tuần từ lượt ôn, AI coach và phỏng vấn thử đã hoàn tất; riêng admin `tuanotuan` còn có tổng thời gian cppinterview hoạt động trên điện thoại hôm nay/7/30 ngày |
 | `/admin` | `admin/page.tsx`, `admin-dashboard.tsx`, `manual-question-dialog.tsx`, `input-dialog.tsx` | Review/edit/archive question, duyệt riêng bản dịch English cùng canonical ID/taxonomy, schedule, AI/job settings và thêm câu hỏi thủ công. Ngân hàng câu hỏi chỉ tìm kiếm và lọc theo trạng thái vận hành/học; mỗi card chỉ hiện Dễ/Trung bình/Khó và Text/Code, còn taxonomy/loại câu vẫn là metadata nội bộ. Editor Admin quản lý thêm dạng đánh giá; chi tiết chỉ ở Admin mới nêu kỹ năng đo, standard, thời lượng và điều kiện test. Câu thủ công là DB-native draft có revision/audit, chỉ cần đề bài và đáp án tham khảo, không gắn lesson hay file `.md`, rồi chờ duyệt; header ưu tiên Luyện hôm nay, Thư viện, Mức bao phủ và chuẩn bị phỏng vấn; xác nhận/ràng buộc nguồn của mistake card dùng sheet/form trong UI thay vì API dialog của trình duyệt |
 | `/admin/coverage` | `admin/coverage/page.tsx`, `lib/content/interview-bank.ts` | Mức bao phủ ngân hàng câu hỏi và bảng mục tiêu 300 câu C++ đã xác minh theo sáu dạng đánh giá; draft hay owner approval không được tính là verified |
@@ -121,6 +121,7 @@ API quan trọng:
 | `content` | `question-store-server.ts` | Chọn `repo`/`shadow`/`db`, parity, apply override |
 | `learn` | `lesson-library.ts`, `{cpp11,cpp14,cpp17,cpp20,cpp23}-roadmap.ts` | Dựng catalog lesson và validate/localize registry roadmap riêng; node roadmap chỉ link lesson đúng track đã xuất bản, không tham gia discovery hay question sync |
 | `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts`, `progress-sync.ts`, `study-session.ts` | Queue Anki, rating nguyên tử, due date, streak, browser/cloud progress và draft/phase Trợ giúp → Làm lại |
+| `practice` | `coverage-analytics.ts`, `custom-study.ts` | Tính độ phủ từ canonical repo question + exact current identity, phân loại chưa phủ/đang học/đã nhớ/đến hạn và dựng deep-link luyện theo chuẩn, độ khó hoặc chủ đề mà không nhận DB-native extra |
 | `practice` | `lesson-check.ts` | Validate/build link kiểm tra theo lesson, giữ đúng tập question ID đã được server publication/approval filter và completion cục bộ không tham gia lịch ôn |
 | `practice` | `repair-queue.ts`, `rescue-retry.ts`, `fsrs-shadow.ts`, `browser-storage-lock.ts` | Blank-answer Rescue → Retry, same-session repair exact identity, cross-tab mutation lock và FSRS-6 chỉ quan sát |
 | `practice` | `focus-session.ts`, `focus-eligibility.ts` | Session Focus Sprint identity-only, resume/reconcile/completion và lọc exact approved refs |
@@ -329,9 +330,9 @@ Repair, không enqueue riêng trong AI response. Answer/code không có giới h
 tự ở tầng sản phẩm.
 Mutation repair queue và practice progress dùng Web Locks theo key khi browser
 hỗ trợ và merge-reread làm fallback. Rating được tính từ progress vừa reread
-trong lock; tab thua không sync cloud hoặc enqueue repair lần hai. Stats replay
-đúng question revision bằng `ts-fsrs` ở chế độ shadow; FSRS không mutation due
-date hay Preparation Index.
+trong lock; tab thua không sync cloud hoặc enqueue repair lần hai. Module
+`fsrs-shadow.ts` vẫn là thử nghiệm chỉ quan sát và không mutation due date; route
+Stats không còn render phép so sánh này.
 
 ### Full Round và English Voice
 

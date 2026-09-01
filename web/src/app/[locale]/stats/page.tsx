@@ -1,26 +1,22 @@
 import type { Metadata } from "next";
-import NextLink from "next/link";
-import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
+
 import { BrandMark } from "@/app/brand-mark";
 import { LanguageSwitcher } from "@/app/language-switcher";
+import { Link } from "@/i18n/navigation";
 import { localizedAlternates } from "@/i18n/metadata";
 import type { Locale } from "@/i18n/routing";
-
-import {
-  ENABLED_PRACTICE_DECK_IDS,
-  PRACTICE_DECKS,
-  parsePracticeDeck,
-} from "@/lib/content/decks";
+import { parsePracticeDeck } from "@/lib/content/decks";
+import { getRepoContentManifest } from "@/lib/content/question-store-server";
 import type { PracticeDeckId } from "@/lib/content/schema";
-import { taxonomyTopicLabel } from "@/lib/content/user-facing-labels";
-import { isQuestionApproved } from "@/lib/practice/approvals";
-import { buildPracticeAnalytics } from "@/lib/practice/analytics";
+import {
+  buildKnowledgeCoverageAnalytics,
+  selectCanonicalCoverageQuestions,
+} from "@/lib/practice/coverage-analytics";
 import { loadCloudContext } from "@/lib/practice/cloud-server";
 import { buildLearningStates } from "@/lib/practice/learning-state";
-import { buildCustomStudyLaunchHref } from "@/lib/practice/custom-study";
-import type { Rating } from "@/lib/practice/scheduler";
-import { FsrsShadowPanel } from "../../stats/fsrs-shadow-panel";
+
+import { CoverageDashboard } from "./_components/coverage-dashboard";
 
 export const dynamic = "force-dynamic";
 
@@ -38,26 +34,15 @@ export async function generateMetadata({
   };
 }
 
-const ratingLabels: Record<Rating, string> = {
-  again: "Chưa nhớ",
-  hard: "Khó",
-  good: "Ổn",
-  easy: "Dễ",
-};
-
-const ratingColors: Record<Rating, string> = {
-  again: "bg-[#a65c0e]",
-  hard: "bg-[#d08a36]",
-  good: "bg-[#285f86]",
-  easy: "bg-[#8ebf3f]",
-};
-
 export default async function StatsPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: Locale }>;
   searchParams: Promise<{ deck?: string | string[] }>;
 }) {
-  const [params, cloud] = await Promise.all([
+  const [{ locale }, query, cloud] = await Promise.all([
+    params,
     searchParams,
     loadCloudContext({
       includeAiUsage: false,
@@ -67,46 +52,49 @@ export default async function StatsPage({
       includeMistakeQuestionIds: false,
     }),
   ]);
-  const deckParam = Array.isArray(params.deck) ? params.deck[0] : params.deck;
-  const selectedDeck = parsePracticeDeck(deckParam);
-  if (!cloud.enabled) {
-    return <StatsGate mode="not-configured" deck={selectedDeck} />;
-  }
-  if (!cloud.account) return <StatsGate mode="login" deck={selectedDeck} />;
+  const t = await getTranslations({ locale, namespace: "Stats" });
+  const selectedDeck = parsePracticeDeck(single(query.deck));
 
-  const manifest = cloud.manifest;
-  const questions = manifest.questions.filter(
-    (question) =>
-      question.taxonomy.deckId === selectedDeck &&
-      question.status !== "archived" &&
-      (question.status === "verified" ||
-        isQuestionApproved(question, cloud.approvals)),
+  if (!cloud.enabled) {
+    return <StatsGate mode="not-configured" deck={selectedDeck} locale={locale} />;
+  }
+  if (!cloud.account) {
+    return <StatsGate mode="login" deck={selectedDeck} locale={locale} />;
+  }
+  if (cloud.error) {
+    return <StatsGate mode="data-error" deck={selectedDeck} locale={locale} />;
+  }
+
+  const repoManifest = getRepoContentManifest();
+  const canonicalQuestions = selectCanonicalCoverageQuestions({
+    repoQuestions: repoManifest.questions,
+    currentQuestions: cloud.manifest.questions,
+    deck: selectedDeck,
+  });
+  const canonicalQuestionIds = new Set(
+    canonicalQuestions.map((question) => question.id),
   );
-  const questionIds = new Set(questions.map((question) => question.id));
-  const deckProgress = {
-    ...cloud.progress,
-    reviews: cloud.progress.reviews.filter((review) =>
-      questionIds.has(review.questionId),
-    ),
-  };
-  const today = vietnamDateKey();
+  const reviews = cloud.progress.reviews.filter((review) =>
+    canonicalQuestionIds.has(review.questionId),
+  );
   const learningStates = buildLearningStates(
-    questions.map((question) => ({
+    canonicalQuestions.map((question) => ({
       id: question.id,
       version: question.version,
       sourceHash: question.sourceHash,
     })),
-    deckProgress.reviews,
-    cloud.questionStates.filter((state) => questionIds.has(state.questionId)),
+    reviews,
+    cloud.questionStates.filter((state) =>
+      canonicalQuestionIds.has(state.questionId),
+    ),
   );
-  const analytics = buildPracticeAnalytics(
-    questions,
-    deckProgress,
-    [...learningStates.values()],
+  const today = vietnamDateKey();
+  const analytics = buildKnowledgeCoverageAnalytics({
+    questions: canonicalQuestions,
+    states: [...learningStates.values()],
+    reviews,
     today,
-  );
-  const activityMax = Math.max(1, ...analytics.activity.map((day) => day.count));
-  const forecastMax = Math.max(1, ...analytics.forecast.map((day) => day.count));
+  });
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-7 lg:px-10">
@@ -115,43 +103,37 @@ export default async function StatsPage({
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              aria-label="Về trang chủ cppinterview"
-              title="Về trang chủ cppinterview"
+              aria-label={t("homeAria")}
+              title={t("homeAria")}
               className="shrink-0 rounded-2xl focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
               <BrandMark />
             </Link>
             <div>
-              <p className="text-lg font-bold">Thống kê cppinterview</p>
-              <p className="text-xs text-[#526276]">
-                Theo dõi sức khỏe học tập
-              </p>
+              <p className="text-lg font-bold">{t("headerTitle")}</p>
+              <p className="text-xs text-[#526276]">{t("headerSubtitle")}</p>
             </div>
           </div>
-          <nav aria-label="Điều hướng thống kê" className="flex flex-wrap items-center gap-2">
+          <nav
+            aria-label={t("navLabel")}
+            className="flex flex-wrap items-center gap-2"
+          >
             <LanguageSwitcher compact />
-            <StatsDeckSwitcher selected={selectedDeck} />
-            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/worldquant">
-              Trung tâm chuẩn bị
-            </Link>
-            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/learn/tick-data-order-book">
-              Học dữ liệu tick
-            </Link>
-            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href={`/practice?deck=${selectedDeck}`}>
-              Luyện thẻ
-            </Link>
-            <Link className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60" href="/mock-interview">
-              Phỏng vấn thử
-            </Link>
-            <NextLink
-              className="rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60"
-              href="/admin"
+            <Link
+              className="inline-flex min-h-11 items-center rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60 focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
+              href={`/practice?deck=${selectedDeck}`}
             >
-              Quản trị
-            </NextLink>
+              {t("navPractice")}
+            </Link>
+            <Link
+              className="inline-flex min-h-11 items-center rounded-xl px-4 py-2 text-sm font-bold hover:bg-white/60 focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
+              href="/mock-interview"
+            >
+              {t("navMock")}
+            </Link>
             <Link
               href="/profile"
-              className="rounded-full border border-[#0f3a69]/15 bg-white/65 px-4 py-2 text-xs font-semibold transition hover:border-[#285f86]/40"
+              className="inline-flex min-h-11 items-center rounded-full border border-[#0f3a69]/15 bg-white/65 px-4 py-2 text-xs font-semibold transition hover:border-[#285f86]/40 focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
               @{cloud.account.login ?? cloud.account.displayName}
             </Link>
@@ -159,326 +141,88 @@ export default async function StatsPage({
         </header>
 
         <section className="py-9">
-          <p className="ui-eyebrow text-[#a65c0e]">
-            Phân tích học tập
-          </p>
+          <p className="ui-eyebrow text-[#a65c0e]">{t("eyebrow")}</p>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
             <div>
               <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
-                Sức khỏe bộ câu hỏi
+                {t("title")}
               </h1>
-              <p className="mt-3 max-w-2xl leading-7 text-[#526276]">
-                Dựa trên lịch sử mức đánh giá thực tế của bạn. Trang này không
-                gọi AI và không trừ hạn mức sử dụng.
+              <p className="mt-3 max-w-3xl leading-7 text-[#526276]">
+                {t("description")}
               </p>
             </div>
-            <p className="font-mono text-xs text-[#526276]">Cập nhật đến {formatDate(today)}</p>
+            <p className="font-mono text-xs text-[#526276]">
+              {t("updated", { date: formatDate(today, locale) })}
+            </p>
           </div>
         </section>
 
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <MetricCard
-            label="Khả năng ghi nhớ ước tính"
-            value={`${analytics.summary.retentionPercent}%`}
-            note="Được tính từ các mức Khó, Ổn hoặc Dễ"
-          />
-          <MetricCard
-            label="Chuỗi ngày hiện tại"
-            value={`${analytics.summary.streak} ngày`}
-            note={`${analytics.summary.studiedDays} ngày đã học`}
-          />
-          <MetricCard
-            label="Đã học"
-            value={`${analytics.summary.learnedQuestions}/${questions.length}`}
-            note={`${analytics.summary.matureQuestions} câu đã ghi nhớ bền (≥21 ngày)`}
-          />
-          <MetricCard
-            label="Khoảng ôn trung bình"
-            value={`${analytics.summary.averageIntervalDays} ngày`}
-            note={`${analytics.summary.totalReviews} lượt ôn tổng cộng`}
-          />
-        </section>
-
-        <FsrsShadowPanel
-          questionIdentities={questions.map((question) => ({
-            id: question.id,
-            version: question.version,
-            sourceHash: question.sourceHash,
-          }))}
-          reviews={deckProgress.reviews}
-          asOf={today}
+        <CoverageDashboard
+          analytics={analytics}
+          deck={selectedDeck}
+          locale={locale}
         />
-
-        <section className="mt-5 grid gap-5 xl:grid-cols-[1.35fr_0.65fr]">
-          <Panel eyebrow="Tính đều đặn" title="Hoạt động trong 28 ngày">
-            <div className="mt-6 grid grid-cols-7 gap-2 sm:grid-cols-14">
-              {analytics.activity.map((day) => (
-                <div key={day.date} className="group relative">
-                  <div
-                    className="aspect-square rounded-md border border-[#0f3a69]/8 bg-[#285f86]"
-                    style={{ opacity: day.count ? 0.2 + (day.count / activityMax) * 0.8 : 0.06 }}
-                    title={`${formatDate(day.date)}: ${day.count} lượt`}
-                  />
-                  <span className="pointer-events-none absolute -top-8 left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#0f3a69] px-2 py-1 text-[10px] text-white group-hover:block">
-                    {day.count} lượt · {formatDate(day.date)}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-[#526276]">
-              <span>Hôm nay: <strong className="text-[#172033]">{analytics.summary.reviewedToday}</strong></span>
-              <span>28 ngày: <strong className="text-[#172033]">{analytics.activity.reduce((sum, day) => sum + day.count, 0)}</strong></span>
-            </div>
-          </Panel>
-
-          <Panel
-            eyebrow="Phân bố mức đánh giá"
-            title="Bạn đang ghi nhớ ở mức nào?"
-          >
-            <div className="mt-6 space-y-4">
-              {(Object.keys(ratingLabels) as Rating[]).map((rating) => {
-                const count = analytics.ratingCounts[rating];
-                const width = analytics.summary.totalReviews
-                  ? (count / analytics.summary.totalReviews) * 100
-                  : 0;
-                return (
-                  <div key={rating}>
-                    <div className="mb-1.5 flex justify-between text-sm">
-                      <span className="font-semibold">{ratingLabels[rating]}</span>
-                      <span className="font-mono text-xs text-[#526276]">{count} · {Math.round(width)}%</span>
-                    </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-[#0f3a69]/8">
-                      <div className={`h-full rounded-full ${ratingColors[rating]}`} style={{ width: `${width}%` }} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </Panel>
-        </section>
-
-        <section className="mt-5 grid gap-5 xl:grid-cols-2">
-          <Panel eyebrow="Dự báo" title="14 ngày sắp tới">
-            <p className="mt-2 text-sm text-[#526276]">
-              {analytics.overdueCount
-                ? `${analytics.overdueCount} câu quá hạn được gộp vào hôm nay.`
-                : "Không có câu quá hạn."}
-            </p>
-            {analytics.forecast[0]?.count ? (
-              <Link
-                href={buildCustomStudyLaunchHref(selectedDeck, {
-                  kind: "due",
-                  limit: 20,
-                })}
-                className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-[#0f3a69] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#16865a] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
-              >
-                Luyện ngay câu đến hạn
-              </Link>
-            ) : null}
-            <div className="mt-6 flex h-48 items-end gap-2">
-              {analytics.forecast.map((day, index) => (
-                <div key={day.date} className="flex min-w-0 flex-1 flex-col items-center gap-2">
-                  <span className="font-mono text-[10px] text-[#526276]">{day.count || ""}</span>
-                  <div className="flex h-32 w-full items-end rounded-lg bg-[#0f3a69]/5">
-                    <div
-                      className="w-full rounded-lg bg-[#285f86] transition-[height]"
-                      style={{ height: `${day.count ? Math.max(8, (day.count / forecastMax) * 100) : 0}%` }}
-                      title={`${formatDate(day.date)}: ${day.count} câu đến hạn`}
-                    />
-                  </div>
-                  <span className="font-mono text-[9px] text-[#526276]">{index === 0 ? "nay" : day.date.slice(8)}</span>
-                </div>
-              ))}
-            </div>
-          </Panel>
-
-          <Panel eyebrow="Điểm cần cải thiện" title="Chủ đề cần ưu tiên">
-            {analytics.weakTopics.length ? (
-              <div className="mt-5 space-y-3">
-                {analytics.weakTopics.map((topic) => (
-                  <div key={topic.topic} className="rounded-2xl border border-[#0f3a69]/10 bg-white/55 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <p className="font-semibold">
-                          {taxonomyTopicLabel(topic.topic)}
-                        </p>
-                        <p className="mt-1 font-mono text-[10px] text-[#526276]">
-                          {topic.attempts} lượt · {topic.again} Chưa nhớ ·{" "}
-                          {topic.hard} Khó
-                        </p>
-                      </div>
-                      <span className="rounded-full bg-[#fee7e7] px-3 py-1 font-mono text-xs font-bold text-[#c43d3d]">
-                        khó {topic.difficultyPercent}%
-                      </span>
-                    </div>
-                    <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#0f3a69]/8">
-                      <div className="h-full rounded-full bg-[#a65c0e]" style={{ width: `${topic.difficultyPercent}%` }} />
-                    </div>
-                    <Link
-                      href={buildCustomStudyLaunchHref(selectedDeck, {
-                        kind: "topic",
-                        topic: topic.topic,
-                        limit: 10,
-                      })}
-                      className="mt-3 inline-flex min-h-10 items-center rounded-xl border border-[#0f3a69]/15 bg-white px-3 py-2 text-xs font-bold text-[#16865a] transition hover:border-[#285f86]/40 focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
-                    >
-                      Luyện chủ đề này
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <EmptyState>Chưa đủ lịch sử để xác định chủ đề yếu.</EmptyState>
-            )}
-          </Panel>
-        </section>
-
-        <section className="mt-5">
-          <Panel eyebrow="Trạng thái bộ câu hỏi" title="Phân bố bộ câu hỏi">
-            <div className="mt-6 grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
-              <StateCard label="Mới" value={analytics.stateCounts.new} />
-              <StateCard label="Đang học" value={analytics.stateCounts.learning} />
-              <StateCard label="Ôn tập" value={analytics.stateCounts.review} />
-              <StateCard label="Học lại" value={analytics.stateCounts.relearning} />
-              <StateCard
-                label="Câu khó nhớ"
-                value={analytics.stateCounts.leech}
-                tone="warning"
-                href={
-                  analytics.stateCounts.leech
-                    ? buildCustomStudyLaunchHref(selectedDeck, {
-                        kind: "leech",
-                        limit: 20,
-                      })
-                    : undefined
-                }
-              />
-              <StateCard
-                label="Tạm dừng"
-                value={analytics.stateCounts.suspended}
-                tone="muted"
-              />
-            </div>
-          </Panel>
-        </section>
       </div>
     </main>
   );
 }
 
-function StatsDeckSwitcher({ selected }: { selected: PracticeDeckId }) {
-  return (
-    <div className="flex rounded-xl border border-[#0f3a69]/15 bg-white/55 p-1">
-      {ENABLED_PRACTICE_DECK_IDS.map((deckId) => {
-        const deck = PRACTICE_DECKS[deckId];
-        return (
-          <Link
-            key={deckId}
-            href={`/stats?deck=${deckId}`}
-            className={`rounded-lg px-3 py-1.5 text-xs font-bold ${
-              selected === deckId
-                ? "bg-[#0f3a69] text-white"
-                : "text-[#43546a] hover:bg-white"
-            }`}
-          >
-            {deck.badge}
-          </Link>
-        );
-      })}
-    </div>
-  );
-}
-
-function Panel({ eyebrow, title, children }: { eyebrow: string; title: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/58 p-5 shadow-[0_18px_70px_rgb(15_58_105_/_7%)] sm:p-7">
-      <p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#a65c0e] uppercase">{eyebrow}</p>
-      <h2 className="mt-2 text-2xl font-semibold tracking-tight">{title}</h2>
-      {children}
-    </section>
-  );
-}
-
-function MetricCard({ label, value, note }: { label: string; value: string; note: string }) {
-  return (
-    <article className="rounded-2xl border border-[#0f3a69]/12 bg-white/62 p-5">
-      <p className="font-mono text-[10px] font-bold tracking-[0.14em] text-[#526276] uppercase">{label}</p>
-      <p className="mt-3 text-3xl font-semibold tracking-tight">{value}</p>
-      <p className="mt-2 text-xs text-[#526276]">{note}</p>
-    </article>
-  );
-}
-
-function StateCard({
-  label,
-  value,
-  tone = "default",
-  href,
-}: {
-  label: string;
-  value: number;
-  tone?: "default" | "warning" | "muted";
-  href?: string;
-}) {
-  const toneClass = tone === "warning" ? "bg-[#fee7e7] text-[#c43d3d]" : tone === "muted" ? "bg-[#eaf2f8] text-[#526276]" : "bg-[#e6f8f5] text-[#16865a]";
-  const content = (
-    <>
-      <p className="font-mono text-[10px] font-bold uppercase">{label}</p>
-      <p className="mt-2 text-2xl font-semibold">{value}</p>
-      {href ? <p className="mt-2 text-[10px] font-bold">Luyện ngay →</p> : null}
-    </>
-  );
-  if (href) {
-    return (
-      <Link
-        href={href}
-        className={`rounded-2xl p-4 transition hover:-translate-y-0.5 focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none ${toneClass}`}
-      >
-        {content}
-      </Link>
-    );
-  }
-  return (
-    <div className={`rounded-2xl p-4 ${toneClass}`}>
-      {content}
-    </div>
-  );
-}
-
-function EmptyState({ children }: { children: React.ReactNode }) {
-  return <p className="mt-6 rounded-2xl border border-dashed border-[#0f3a69]/20 p-6 text-sm text-[#526276]">{children}</p>;
-}
-
-function StatsGate({
+async function StatsGate({
   mode,
   deck,
+  locale,
 }: {
-  mode: "login" | "not-configured";
+  mode: "login" | "not-configured" | "data-error";
   deck: PracticeDeckId;
+  locale: Locale;
 }) {
+  const t = await getTranslations({ locale, namespace: "Stats" });
+  const description = {
+    login: t("gate.loginDescription"),
+    "not-configured": t("gate.notConfiguredDescription"),
+    "data-error": t("gate.dataErrorDescription"),
+  }[mode];
+
   return (
     <main className="grid min-h-screen place-items-center px-5 py-12">
       <section className="w-full max-w-lg rounded-[1.25rem] border border-[#0f3a69]/15 bg-white/70 p-8 shadow-[0_24px_80px_rgb(15_58_105_/_10%)] sm:p-10">
-        <BrandMark size="lg" />
+        <Link
+          href="/"
+          aria-label={t("homeAria")}
+          className="inline-flex rounded-2xl focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
+        >
+          <BrandMark size="lg" />
+        </Link>
         <p className="mt-8 font-mono text-xs font-bold tracking-[0.18em] text-[#a65c0e] uppercase">
-          Phân tích học tập
+          {t("eyebrow")}
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight">
-          Thống kê học tập của bạn
+          {t("gate.title")}
         </h1>
-        <p className="mt-4 leading-7 text-[#526276]">
-          {mode === "login" ? "Đăng nhập để tải lịch sử ôn đã đồng bộ." : "Supabase chưa được cấu hình nên chưa tải được lịch sử."}
-        </p>
+        <p className="mt-4 leading-7 text-[#526276]">{description}</p>
         <div className="mt-8 flex flex-wrap gap-3">
           {mode === "login" ? (
             <Link
               href={`/auth?next=${encodeURIComponent(`/stats?deck=${deck}`)}`}
-              className="rounded-2xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white"
+              className="inline-flex min-h-11 items-center rounded-2xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
             >
-              Đăng nhập
+              {t("gate.signIn")}
             </Link>
           ) : null}
-          <Link href={`/practice?deck=${deck}`} className="rounded-2xl border border-[#0f3a69]/15 bg-white px-5 py-3 text-sm font-bold">Về trang luyện tập</Link>
+          {mode === "data-error" ? (
+            <Link
+              href={`/stats?deck=${deck}`}
+              className="inline-flex min-h-11 items-center rounded-2xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
+            >
+              {t("gate.retry")}
+            </Link>
+          ) : null}
+          <Link
+            href={`/practice?deck=${deck}`}
+            className="inline-flex min-h-11 items-center rounded-2xl border border-[#0f3a69]/15 bg-white px-5 py-3 text-sm font-bold focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
+          >
+            {t("gate.backToPractice")}
+          </Link>
         </div>
       </section>
     </main>
@@ -494,7 +238,15 @@ function vietnamDateKey() {
   }).format(new Date());
 }
 
-function formatDate(date: string) {
-  const [year, month, day] = date.split("-");
-  return `${day}/${month}/${year}`;
+function formatDate(date: string, locale: Locale) {
+  return new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-US", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(new Date(`${date}T12:00:00+07:00`));
+}
+
+function single(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
 }

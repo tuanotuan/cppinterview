@@ -45,6 +45,7 @@ describe("custom study", () => {
     ).toEqual({
       learningState: "all",
       standard: "all",
+      difficulty: "all",
       skill: "all",
       topic: "move-semantics",
       lessonId: "all",
@@ -53,6 +54,39 @@ describe("custom study", () => {
     expect(
       parseCustomStudyLaunch({ study: "due", limit: "not-a-number" }),
     ).toMatchObject({ learningState: "due", limit: 10 });
+  });
+
+  it("round-trips a validated coverage launch", () => {
+    expect(
+      buildCustomStudyLaunchHref("cpp-interview", {
+        kind: "coverage",
+        learningState: "new",
+        standard: "cpp20",
+        difficulty: "advanced",
+        topic: "concurrency",
+        limit: 12,
+      }),
+    ).toBe(
+      "/practice?deck=cpp-interview&study=coverage&state=new&standard=cpp20&difficulty=advanced&topic=concurrency&limit=12",
+    );
+    expect(
+      parseCustomStudyLaunch({
+        study: "coverage",
+        state: "new",
+        standard: "cpp20",
+        difficulty: "advanced",
+        topic: "concurrency",
+        limit: "12",
+      }),
+    ).toEqual({
+      learningState: "new",
+      standard: "cpp20",
+      difficulty: "advanced",
+      skill: "all",
+      topic: "concurrency",
+      lessonId: "all",
+      limit: 12,
+    });
   });
 
   it("rejects unknown presets and unsafe topic values", () => {
@@ -68,6 +102,27 @@ describe("custom study", () => {
       parseCustomStudyLaunch({
         study: "lesson",
         lesson: "../cpp11-lambda",
+      }),
+    ).toBeNull();
+    expect(
+      parseCustomStudyLaunch({
+        study: "coverage",
+        state: "new",
+        standard: "cpp26",
+      }),
+    ).toBeNull();
+    expect(
+      parseCustomStudyLaunch({
+        study: "coverage",
+        state: "new",
+        difficulty: "expert",
+      }),
+    ).toBeNull();
+    expect(
+      parseCustomStudyLaunch({
+        study: "coverage",
+        state: "new",
+        topic: "../../another-page",
       }),
     ).toBeNull();
   });
@@ -102,6 +157,7 @@ describe("custom study", () => {
       buildCustomStudyQueue(questions, states, "2026-07-21", {
         learningState: "new",
         standard: "cpp11",
+        difficulty: "intermediate",
         skill: "recall",
         topic: "lambda",
         lessonId: "all",
@@ -112,12 +168,53 @@ describe("custom study", () => {
       buildCustomStudyQueue(questions, states, "2026-07-21", {
         learningState: "due",
         standard: "all",
+        difficulty: "all",
         skill: "all",
         topic: "all",
         lessonId: "all",
         limit: 10,
       }),
     ).toEqual(["review-one"]);
+  });
+
+  it("treats changed content as unseen and honors a canonical question allow-list", () => {
+    const questions = ["changed", "repo-new", "remote-extra"].map((id) => ({
+      id,
+      taxonomy,
+    }));
+    const states = new Map(
+      questions.map((question) => [
+        question.id,
+        newQuestionLearningState({
+          questionId: question.id,
+          questionVersion: 1,
+          sourceHash: "c".repeat(64),
+        }),
+      ]),
+    );
+    states.set("changed", {
+      ...states.get("changed")!,
+      state: "learning",
+      contentChanged: true,
+    });
+
+    expect(
+      buildCustomStudyQueue(
+        questions,
+        states,
+        "2026-07-21",
+        {
+          learningState: "new",
+          standard: "all",
+          difficulty: "all",
+          skill: "all",
+          topic: "all",
+          lessonId: "all",
+          limit: 20,
+        },
+        new Set(["changed", "repo-new"]),
+      ).sort(),
+    ).toEqual(["changed", "repo-new"]);
   });
 
   it("limits a lesson launch to the exact source lesson", () => {
@@ -146,6 +243,7 @@ describe("custom study", () => {
       buildCustomStudyQueue(questions, states, "2026-07-21", {
         learningState: "all",
         standard: "all",
+        difficulty: "all",
         skill: "all",
         topic: "all",
         lessonId: "cpp11-lambda",

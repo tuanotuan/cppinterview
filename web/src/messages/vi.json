@@ -901,8 +901,97 @@
     "backToPractice": "Về trang luyện tập"
   },
   "Stats": {
-    "metaTitle": "Thống kê học tập — cppinterview",
-    "metaDescription": "Theo dõi khả năng ghi nhớ, lịch sử ôn và dự báo lịch ôn ngắt quãng."
+    "metaTitle": "Tiến độ C++ — cppinterview",
+    "metaDescription": "Theo dõi độ phủ kiến thức theo phiên bản C++, độ khó và trạng thái ghi nhớ.",
+    "homeAria": "Về trang chủ cppinterview",
+    "headerTitle": "Tiến độ C++",
+    "headerSubtitle": "Độ phủ kiến thức của bạn",
+    "navLabel": "Điều hướng tiến độ",
+    "navPractice": "Luyện thẻ",
+    "navMock": "Phỏng vấn thử",
+    "eyebrow": "Độ phủ kiến thức",
+    "title": "Bạn đã đi được bao xa?",
+    "description": "Theo dõi phần kiến thức đã tiếp cận, đang học và đã ghi nhớ bền trên toàn bộ lộ trình C++11 đến C++23.",
+    "updated": "Cập nhật đến {date}",
+    "summary": {
+      "title": "Tổng quan tiến độ",
+      "coverage": "Độ phủ tổng",
+      "coverageNote": "Đã phủ {percent}% chương trình",
+      "lessons": "Bài đã tiếp cận",
+      "lessonsNote": "Có ít nhất một câu đã học trong bài",
+      "retained": "Ghi nhớ bền",
+      "retainedNote": "Khoảng ôn từ 21 ngày trở lên · {percent}%",
+      "due": "Cần ôn ngay",
+      "dueNote": "Có câu đã đến hạn hoặc quá hạn",
+      "dueEmpty": "Không có câu đến hạn"
+    },
+    "status": {
+      "legend": "Chú giải trạng thái độ phủ",
+      "unseen": "Chưa học",
+      "learning": "Đang học",
+      "retained": "Ghi nhớ bền"
+    },
+    "standards": {
+      "eyebrow": "Theo phiên bản",
+      "title": "Độ phủ từ C++11 đến C++23",
+      "description": "Mỗi thanh cho biết phần nào còn mới, đang được củng cố và đã đạt nhịp ghi nhớ bền.",
+      "coveredPercent": "{percent}% đã phủ",
+      "counts": "{covered}/{total} ô đã học · {retained} ghi nhớ bền"
+    },
+    "difficulty": {
+      "eyebrow": "Theo độ khó",
+      "title": "Phiên bản × độ khó",
+      "description": "So sánh chính xác độ phủ Dễ, Trung bình và Khó trong từng phiên bản C++.",
+      "beginner": "Dễ",
+      "intermediate": "Trung bình",
+      "advanced": "Khó",
+      "counts": "{covered}/{total} ô đã học",
+      "barLabel": "Mức {difficulty}: {covered}/{total} ô đã học, {retained} ô ghi nhớ bền"
+    },
+    "matrix": {
+      "caption": "Ma trận độ phủ theo phiên bản C++ và độ khó",
+      "standard": "Phiên bản",
+      "cellCounts": "{covered}/{total} đã học",
+      "cellRetained": "{count} ghi nhớ bền",
+      "mobileCounts": "{covered}/{total} đã học · {retained} ghi nhớ bền"
+    },
+    "topics": {
+      "eyebrow": "Khoảng trống kiến thức",
+      "title": "Những chủ đề nên ưu tiên",
+      "description": "Các chủ đề còn nhiều ô chưa học được đưa lên trước để bạn chọn đúng phần cần luyện.",
+      "counts": "{covered}/{total} đã học · {retained} ghi nhớ bền",
+      "unseen": "còn {count}",
+      "barLabel": "Chủ đề {topic}: {covered}/{total} ô đã học, {retained} ô ghi nhớ bền"
+    },
+    "actions": {
+      "practiceUnseen": "Luyện phần chưa phủ",
+      "reviewDue": "Ôn câu đến hạn",
+      "covered": "Đã phủ hết",
+      "practice": "Luyện",
+      "practiceTopic": "Luyện phần chưa phủ",
+      "reviewTopic": "Ôn chủ đề này"
+    },
+    "method": {
+      "title": "Cách tính độ phủ",
+      "description": "Mỗi bài học tạo ba ô kiến thức Dễ, Trung bình và Khó. Một ô được tính là đã phủ sau lượt đánh giá hợp lệ đúng phiên bản nội dung; đạt trạng thái ôn tập với khoảng ôn từ 21 ngày trở lên thì được tính là ghi nhớ bền. Một ô có thể thuộc nhiều chủ đề nên không cộng các hàng chủ đề thành tổng chung."
+    },
+    "activity": {
+      "eyebrow": "Nhịp học",
+      "title": "Hoạt động gần đây",
+      "today": "Hôm nay",
+      "reviews": "Lượt ôn",
+      "days": "Ngày đã học",
+      "streak": "Chuỗi ngày"
+    },
+    "gate": {
+      "title": "Tiến độ học tập của bạn",
+      "loginDescription": "Đăng nhập để tải tiến độ đã đồng bộ và xem độ phủ kiến thức của riêng bạn.",
+      "notConfiguredDescription": "Supabase chưa được cấu hình nên chưa thể tải tiến độ đã đồng bộ.",
+      "dataErrorDescription": "Chưa tải được dữ liệu tiến độ. Trang không hiển thị 0% thay cho dữ liệu đang lỗi.",
+      "signIn": "Đăng nhập",
+      "retry": "Thử tải lại",
+      "backToPractice": "Về trang luyện tập"
+    }
   },
   "Profile": {
     "metaTitle": "Trang cá nhân — cppinterview",
