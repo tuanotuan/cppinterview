@@ -399,6 +399,127 @@ export function normalizeGeneralCppReport({
   });
 }
 
+export function normalizeGeneralCppReportForSubmission({
+  rawReport,
+  plan,
+  responses,
+  locale,
+}: {
+  rawReport: GeneralCppRawReport;
+  plan: GeneralCppInterviewPlan;
+  responses: readonly string[];
+  locale: "vi" | "en";
+}): {
+  report: GeneralCppNormalizedReport;
+  usedBlankFallback: boolean;
+} {
+  try {
+    return {
+      report: normalizeGeneralCppReport({ rawReport, plan }),
+      usedBlankFallback: false,
+    };
+  } catch (error) {
+    if (!responses.length || responses.some((response) => response.trim())) {
+      throw error;
+    }
+    return {
+      report: buildBlankGeneralCppReport(plan, locale),
+      usedBlankFallback: true,
+    };
+  }
+}
+
+function buildBlankGeneralCppReport(
+  plan: GeneralCppInterviewPlan,
+  locale: "vi" | "en",
+): GeneralCppNormalizedReport {
+  const isEnglish = locale === "en";
+  const competencyQuestionIds = questionsByCompetency(plan);
+  const competencies = generalCppCompetencies.reduce<
+    GeneralCppRawReport["competencies"]
+  >((result, competency) => {
+    const questionIds = competencyQuestionIds[competency];
+    result[competency] = questionIds.length
+      ? {
+          status: "assessed",
+          score: 0,
+          summary: isEnglish
+            ? "No answer was provided for this competency."
+            : "Chưa có câu trả lời cho nhóm năng lực này.",
+          strengths: [],
+          gaps: [
+            isEnglish
+              ? "Answer the skipped question from first principles."
+              : "Hãy trả lời lại câu đã bỏ trống từ các nguyên lý nền tảng.",
+          ],
+          evidenceQuestionIds: questionIds,
+        }
+      : {
+          status: "not_assessed",
+          score: null,
+          summary: isEnglish
+            ? "This competency was not covered by the interview plan."
+            : "Phiên này không có câu hỏi thuộc nhóm năng lực này.",
+          strengths: [],
+          gaps: [],
+          evidenceQuestionIds: [],
+        };
+    return result;
+  }, {} as GeneralCppRawReport["competencies"]);
+
+  return normalizeGeneralCppReport({
+    plan,
+    rawReport: {
+      summary: isEnglish
+        ? "No answers were submitted, so this interview is recorded with a score of 0. The report does not infer knowledge that was not demonstrated."
+        : "Bạn chưa nộp câu trả lời nào nên phiên này được ghi nhận 0 điểm. Báo cáo không suy đoán kiến thức chưa được thể hiện.",
+      competencies,
+      questionAssessments: plan.questions.map((question) => ({
+        questionId: question.id,
+        score: 0,
+        verdict: "needs_work" as const,
+        summary: isEnglish
+          ? "No answer was provided; this question receives 0 points."
+          : "Bạn chưa cung cấp câu trả lời; câu này được chấm 0 điểm.",
+        strengths: [],
+        missedCriteria: [
+          isEnglish
+            ? "No technical knowledge or reasoning was demonstrated."
+            : "Chưa thể hiện kiến thức kỹ thuật hoặc lập luận cho câu hỏi.",
+        ],
+      })),
+      interviewDimensions: mockInterviewDimensionKeys.map((key) => ({
+        key,
+        status: "not_assessed" as const,
+        score: null,
+        summary: isEnglish
+          ? "There is no answer to assess this dimension."
+          : "Không có câu trả lời để đánh giá tiêu chí này.",
+      })),
+      strengths: [],
+      priorityGaps: generalCppStandards.map((standard) =>
+        isEnglish
+          ? `No answer was provided for ${standardLabel(standard)}.`
+          : `Chưa có câu trả lời cho phần ${standardLabel(standard)}.`,
+      ),
+      nextActions: plan.questions.slice(0, 3).map((question, index) => ({
+        priority: index + 1,
+        title: isEnglish
+          ? `Retry the ${standardLabel(question.standard)} question`
+          : `Làm lại câu ${standardLabel(question.standard)}`,
+        action: isEnglish
+          ? "Write a short answer from first principles, then compare it with the lesson material."
+          : "Viết một câu trả lời ngắn từ nguyên lý nền tảng, sau đó đối chiếu với nội dung bài học.",
+        questionIds: [question.id],
+      })),
+    },
+  });
+}
+
+function standardLabel(standard: GeneralCppStandard) {
+  return standard.replace("cpp", "C++");
+}
+
 function average(values: readonly number[]) {
   if (!values.length) return 0;
   return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);

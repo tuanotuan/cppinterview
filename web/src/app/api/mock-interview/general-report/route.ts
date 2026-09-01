@@ -35,7 +35,7 @@ import { COACH_RESERVATION_USD_MICROS } from "@/lib/ai/usage";
 import {
   generalCppCompletedArtifactSchema,
   generalCppReportRequestSchema,
-  normalizeGeneralCppReport,
+  normalizeGeneralCppReportForSubmission,
   type GeneralCppCompletedArtifact,
   type GeneralCppReportRequest,
 } from "@/lib/mock-interview/contracts-v5";
@@ -180,6 +180,15 @@ export async function POST(request: Request) {
 
   let artifact: GeneralCppCompletedArtifact;
   try {
+    const normalized = normalizeGeneralCppReportForSubmission({
+      rawReport: providerResult.data,
+      plan: input.plan,
+      responses: input.items.map((item) => item.response),
+      locale,
+    });
+    if (normalized.usedBlankFallback) {
+      console.warn("General C++ mock used deterministic blank-answer fallback");
+    }
     artifact = generalCppCompletedArtifactSchema.parse({
       schemaVersion: 5,
       responseLocale: locale,
@@ -189,10 +198,7 @@ export async function POST(request: Request) {
       plan: input.plan,
       startedAt: input.startedAt,
       completedAt: input.submittedAt,
-      report: normalizeGeneralCppReport({
-        rawReport: providerResult.data,
-        plan: input.plan,
-      }),
+      report: normalized.report,
       model: providerResult.model,
       provider: "openai",
     });
