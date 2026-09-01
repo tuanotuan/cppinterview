@@ -9,6 +9,7 @@ import {
   generalCppStandards,
   type GeneralCppCompetency,
   type GeneralCppInterviewPlan,
+  type GeneralCppInterviewQuestion,
   type GeneralCppStandard,
 } from "./general-catalog";
 import { mockInterviewDimensionKeys } from "./contracts";
@@ -88,6 +89,26 @@ const answerItemSchema = z
   })
   .strict();
 
+const generalCppReviewItemSchema = z
+  .object({
+    questionId: kebabIdSchema,
+    questionVersion: z.number().int().positive(),
+    contentRevision: sha256Schema,
+    standard: standardSchema,
+    prompt: z.string().trim().min(1).max(4_000),
+    code: z.string().max(16_000).nullable(),
+    response: z.string().max(8_000),
+    elapsedSeconds: z.number().int().min(0).max(2 * 60 * 60),
+  })
+  .strict();
+
+export const generalCppReviewSnapshotSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    items: z.array(generalCppReviewItemSchema).min(5).max(10),
+  })
+  .strict();
+
 export const generalCppReportRequestSchema = z
   .object({
     schemaVersion: z.literal(5),
@@ -126,6 +147,30 @@ export const generalCppReportRequestSchema = z
         code: "custom",
         path: ["submittedAt"],
         message: "Interview cannot finish before it starts",
+      });
+    }
+  });
+
+export const generalCppHistoryPublicAttemptSchema = z
+  .object({
+    schemaVersion: z.literal(5),
+    responseLocale: z.enum(["vi", "en"]),
+    sourceRevision: sha256Schema,
+    startedAt: z.string().datetime(),
+    submittedAt: z.string().datetime(),
+    plan: generalCppInterviewPlanSchema,
+    review: generalCppReviewSnapshotSchema,
+  })
+  .strict()
+  .superRefine((snapshot, context) => {
+    if (
+      snapshot.sourceRevision !== snapshot.plan.catalogRevision
+      || !reviewSnapshotMatchesPlan(snapshot.review, snapshot.plan)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["review"],
+        message: "Stored review must match its immutable interview plan",
       });
     }
   });
@@ -292,6 +337,23 @@ export const generalCppCompletedArtifactSchema = z
     }
   });
 
+export const generalCppHistoryDetailSchema = z
+  .object({
+    artifact: generalCppCompletedArtifactSchema,
+    review: generalCppReviewSnapshotSchema.nullable(),
+  })
+  .strict()
+  .superRefine((detail, context) => {
+    if (!detail.review) return;
+    if (!reviewSnapshotMatchesPlan(detail.review, detail.artifact.plan)) {
+      context.addIssue({
+        code: "custom",
+        path: ["review", "items"],
+        message: "Review snapshot must match the completed interview plan",
+      });
+    }
+  });
+
 export type GeneralCppReportRequest = z.infer<
   typeof generalCppReportRequestSchema
 >;
@@ -302,6 +364,116 @@ export type GeneralCppNormalizedReport = z.infer<
 export type GeneralCppCompletedArtifact = z.infer<
   typeof generalCppCompletedArtifactSchema
 >;
+export type GeneralCppReviewSnapshot = z.infer<
+  typeof generalCppReviewSnapshotSchema
+>;
+export type GeneralCppHistoryPublicAttempt = z.infer<
+  typeof generalCppHistoryPublicAttemptSchema
+>;
+export type GeneralCppHistoryDetail = z.infer<
+  typeof generalCppHistoryDetailSchema
+>;
+
+export function buildGeneralCppReviewSnapshot({
+  request,
+  catalog,
+}: {
+  request: GeneralCppReportRequest;
+  catalog: readonly GeneralCppInterviewQuestion[];
+}): GeneralCppReviewSnapshot {
+  if (catalog.length !== request.plan.questions.length) {
+    throw new Error("Review snapshot must cover the exact interview plan");
+  }
+  const items = request.plan.questions.map((planned, index) => {
+    const question = catalog[index];
+    const submitted = request.items[index];
+    if (
+      !question
+      || !submitted
+      || question.id !== planned.id
+      || question.version !== planned.version
+      || question.contentRevision !== planned.contentRevision
+      || question.standard !== planned.standard
+      || submitted.question.id !== planned.id
+    ) {
+      throw new Error("Review snapshot question identity does not match");
+    }
+    return {
+      questionId: question.id,
+      questionVersion: question.version,
+      contentRevision: question.contentRevision,
+      standard: question.standard,
+      prompt: question.prompt,
+      code: question.code ?? null,
+      response: submitted.response,
+      elapsedSeconds: submitted.elapsedSeconds,
+    };
+  });
+  return generalCppReviewSnapshotSchema.parse({
+    schemaVersion: 1,
+    items,
+  });
+}
+
+export function buildGeneralCppHistoryPublicAttempt({
+  request,
+  review,
+}: {
+  request: GeneralCppReportRequest;
+  review: GeneralCppReviewSnapshot;
+}): GeneralCppHistoryPublicAttempt {
+  return generalCppHistoryPublicAttemptSchema.parse({
+    schemaVersion: 5,
+    responseLocale: request.responseLocale,
+    sourceRevision: request.sourceRevision,
+    startedAt: request.startedAt,
+    submittedAt: request.submittedAt,
+    plan: request.plan,
+    review,
+  });
+}
+
+export function parseGeneralCppHistoryDetail({
+  artifact,
+  review,
+}: {
+  artifact: unknown;
+  review: unknown;
+}): GeneralCppHistoryDetail | null {
+  const parsedArtifact = generalCppCompletedArtifactSchema.safeParse(artifact);
+  if (!parsedArtifact.success) return null;
+  const parsedReview = generalCppReviewSnapshotSchema.safeParse(review);
+  if (parsedReview.success) {
+    const detail = generalCppHistoryDetailSchema.safeParse({
+      artifact: parsedArtifact.data,
+      review: parsedReview.data,
+    });
+    if (detail.success) return detail.data;
+  }
+  return {
+    artifact: parsedArtifact.data,
+    review: null,
+  };
+}
+
+function reviewSnapshotMatchesPlan(
+  review: GeneralCppReviewSnapshot,
+  plan: GeneralCppInterviewPlan,
+) {
+  return (
+    review.items.length === plan.questions.length
+    && review.items.every((item, index) => {
+      const question = plan.questions[index];
+      return Boolean(
+        question
+        && item.questionId === question.id
+        && item.questionVersion === question.version
+        && item.contentRevision === question.contentRevision
+        && item.standard === question.standard,
+      );
+    })
+  );
+}
 
 export function normalizeGeneralCppReport({
   rawReport,

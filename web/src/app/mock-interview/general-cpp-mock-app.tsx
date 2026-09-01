@@ -17,8 +17,12 @@ import {
 } from "@/lib/mock-interview/general-catalog";
 import {
   generalCppCompletedArtifactSchema,
+  generalCppHistoryDetailSchema,
+  generalCppReviewSnapshotSchema,
   type GeneralCppCompletedArtifact,
+  type GeneralCppHistoryDetail,
   type GeneralCppReportRequest,
+  type GeneralCppReviewSnapshot,
 } from "@/lib/mock-interview/contracts-v5";
 import {
   clearGeneralCppSession,
@@ -39,6 +43,7 @@ export type GeneralCppHistorySummary = {
   overallScore: number;
   readiness: GeneralCppCompletedArtifact["report"]["readiness"];
   standardScores: GeneralCppCompletedArtifact["report"]["standardScores"];
+  detail: GeneralCppHistoryDetail;
 };
 
 type Props = {
@@ -55,6 +60,7 @@ type Props = {
 type ApiSuccess = {
   ok: true;
   artifact: GeneralCppCompletedArtifact;
+  review: GeneralCppReviewSnapshot;
   historySaved: boolean;
   quota: { remaining: number | null; resetsAt: string | null };
 };
@@ -77,6 +83,24 @@ const terminalReportErrorCodes = new Set([
   "plan_stale",
   "request_not_repeatable",
 ]);
+
+export function MockInterviewHomeLink({ locale }: { locale: Locale }) {
+  const label =
+    locale === "en"
+      ? "Go to the cppinterview home page"
+      : "Về trang chủ cppinterview";
+
+  return (
+    <Link
+      href="/"
+      aria-label={label}
+      title={label}
+      className="inline-flex size-11 shrink-0 touch-manipulation items-center justify-center rounded-2xl transition hover:opacity-90 focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
+    >
+      <BrandMark size="md" />
+    </Link>
+  );
+}
 
 const copy = {
   vi: {
@@ -121,18 +145,29 @@ const copy = {
     edit: "Quay lại câu trả lời",
     newSession: "Tạo phiên mới",
     reportEyebrow: "Báo cáo phỏng vấn",
+    historyReportEyebrow: "Báo cáo đã lưu",
     reportTitle: "Kết quả C++ Engineer",
+    completedAt: "Hoàn thành",
     overall: "Điểm tổng",
     byStandard: "Theo phiên bản C++",
     competencies: "Theo nhóm năng lực",
     dimensions: "Kỹ năng thể hiện trong câu trả lời",
     questionFeedback: "Nhận xét từng câu",
+    submittedAnswer: "Câu trả lời đã nộp",
+    blankSubmittedAnswer: "Không có câu trả lời.",
+    timeSpent: "Thời gian",
+    positiveFeedback: "Điểm làm tốt",
+    improvementFeedback: "Điểm còn thiếu",
+    snapshotUnavailable:
+      "Phiên cũ này chưa lưu bản chụp đề bài và câu trả lời. Phần chấm AI bên dưới vẫn là báo cáo gốc.",
     strengths: "Điểm mạnh",
     gaps: "Ưu tiên cải thiện",
     actions: "3 bước tiếp theo",
     history: "Lịch sử gần đây",
     localHistory: "Được lưu trên trình duyệt này",
-    cloudHistory: "Được lưu trên cloud",
+    cloudHistory: "Được lưu riêng tư trên cloud",
+    viewReport: "Xem báo cáo",
+    backToHistory: "Quay lại lịch sử",
     noHistory: "Chưa có phiên hoàn thành.",
     savedCloud: "Báo cáo đã được lưu vào lịch sử cloud.",
     savedLocal: "Báo cáo được lưu trên trình duyệt này.",
@@ -179,18 +214,29 @@ const copy = {
     edit: "Return to answers",
     newSession: "Start a new session",
     reportEyebrow: "Interview report",
+    historyReportEyebrow: "Saved interview report",
     reportTitle: "C++ Engineer results",
+    completedAt: "Completed",
     overall: "Overall score",
     byStandard: "By C++ standard",
     competencies: "By competency",
     dimensions: "Skills demonstrated in your answers",
     questionFeedback: "Question-by-question feedback",
+    submittedAnswer: "Submitted answer",
+    blankSubmittedAnswer: "No answer was submitted.",
+    timeSpent: "Time",
+    positiveFeedback: "What went well",
+    improvementFeedback: "What was missing",
+    snapshotUnavailable:
+      "This older session did not save a question-and-answer snapshot. The AI feedback below is still the original report.",
     strengths: "Strengths",
     gaps: "Priority gaps",
     actions: "Your next 3 actions",
     history: "Recent history",
     localHistory: "Saved in this browser",
-    cloudHistory: "Saved to cloud",
+    cloudHistory: "Saved privately to cloud",
+    viewReport: "View report",
+    backToHistory: "Back to history",
     noHistory: "No completed sessions yet.",
     savedCloud: "This report was saved to cloud history.",
     savedLocal: "This report is saved in this browser.",
@@ -262,8 +308,10 @@ export function GeneralCppMockApp(props: Props) {
   const [duration, setDuration] = useState<GeneralCppDuration>(45);
   const [session, setSession] = useState<GeneralCppSession | null>(null);
   const [localHistory, setLocalHistory] = useState<
-    GeneralCppCompletedArtifact[]
+    GeneralCppHistoryDetail[]
   >([]);
+  const [selectedHistory, setSelectedHistory] =
+    useState<GeneralCppHistoryDetail | null>(null);
   const [ready, setReady] = useState(false);
   const [now, setNow] = useState(readClock);
   const [error, setError] = useState<string | null>(null);
@@ -336,6 +384,7 @@ export function GeneralCppMockApp(props: Props) {
     setError(null);
     setErrorCode(null);
     setNotice(null);
+    setSelectedHistory(null);
     try {
       const plan = buildGeneralCppInterviewPlan({
         catalog: props.catalog,
@@ -477,16 +526,19 @@ export function GeneralCppMockApp(props: Props) {
         );
       }
       const artifact = generalCppCompletedArtifactSchema.parse(body.artifact);
+      const review = generalCppReviewSnapshotSchema.parse(body.review);
+      const detail = generalCppHistoryDetailSchema.parse({ artifact, review });
       const completed: GeneralCppSession = {
         ...evaluating,
         status: "completed",
         pendingRequest: undefined,
         report: artifact,
+        review,
       };
       setSession(completed);
       saveGeneralCppSession(completed);
       setLocalHistory(
-        prependGeneralCppLocalHistory(accountScope, artifact),
+        prependGeneralCppLocalHistory(accountScope, detail),
       );
       setNotice(body.historySaved ? t.savedCloud : t.savedLocal);
     } catch (caught) {
@@ -524,6 +576,7 @@ export function GeneralCppMockApp(props: Props) {
     setError(null);
     setErrorCode(null);
     setNotice(null);
+    setSelectedHistory(null);
   }
 
   function commitQuestionTime(current: GeneralCppSession) {
@@ -558,12 +611,32 @@ export function GeneralCppMockApp(props: Props) {
     );
   }
 
+  if (selectedHistory) {
+    return (
+      <ReportView
+        artifact={selectedHistory.artifact}
+        review={selectedHistory.review}
+        locale={props.locale}
+        notice={null}
+        history={history}
+        historyLabel={
+          props.account && props.historyAvailable
+            ? t.cloudHistory
+            : t.localHistory
+        }
+        onBack={() => setSelectedHistory(null)}
+        onNew={resetSession}
+        onOpenHistory={setSelectedHistory}
+      />
+    );
+  }
+
   if (!session) {
     return (
       <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
         <div className="mx-auto max-w-6xl">
           <header className="flex items-center justify-between gap-4 border-b border-[#0f3a69]/10 pb-5">
-            <BrandMark size="md" />
+            <MockInterviewHomeLink locale={props.locale} />
             <LanguageSwitcher compact hideOnMock={false} />
           </header>
 
@@ -699,6 +772,7 @@ export function GeneralCppMockApp(props: Props) {
                 title={t.history}
                 empty={t.noHistory}
                 cloud={props.account && props.historyAvailable ? t.cloudHistory : t.localHistory}
+                onOpen={setSelectedHistory}
               />
             </aside>
           </div>
@@ -711,10 +785,17 @@ export function GeneralCppMockApp(props: Props) {
     return (
       <ReportView
         artifact={report}
+        review={session.review ?? null}
         locale={props.locale}
         notice={notice}
         history={history}
+        historyLabel={
+          props.account && props.historyAvailable
+            ? t.cloudHistory
+            : t.localHistory
+        }
         onNew={resetSession}
+        onOpenHistory={setSelectedHistory}
       />
     );
   }
@@ -733,7 +814,7 @@ export function GeneralCppMockApp(props: Props) {
     <main className="min-h-screen px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
       <div className="mx-auto max-w-6xl">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#0f3a69]/10 pb-5">
-          <BrandMark size="md" />
+          <MockInterviewHomeLink locale={props.locale} />
           <div className="flex items-center gap-3">
             <span className={`rounded-full px-3 py-1.5 font-mono text-xs font-bold ${secondsLeft >= 0 ? "bg-[#e9fbf7] text-[#087d70]" : "bg-[#fff0ed] text-[#b23c2e]"}`}>
               {secondsLeft >= 0 ? t.remaining : t.overtime}: {formatClock(Math.abs(secondsLeft))}
@@ -888,29 +969,51 @@ export function GeneralCppMockApp(props: Props) {
 
 function ReportView({
   artifact,
+  review,
   locale,
   notice,
   history,
+  historyLabel,
+  onBack,
   onNew,
+  onOpenHistory,
 }: {
   artifact: GeneralCppCompletedArtifact;
+  review: GeneralCppReviewSnapshot | null;
   locale: Locale;
   notice: string | null;
   history: GeneralCppHistorySummary[];
+  historyLabel: string | null | false;
+  onBack?: () => void;
   onNew: () => void;
+  onOpenHistory: (detail: GeneralCppHistoryDetail) => void;
 }) {
   const t = copy[locale];
   const report = artifact.report;
+  const reviewByQuestionId = new Map(
+    review?.items.map((item) => [item.questionId, item]) ?? [],
+  );
   return (
     <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
       <div className="mx-auto max-w-6xl">
-        <header className="flex items-center justify-between gap-4 border-b border-[#0f3a69]/10 pb-5">
-          <BrandMark size="md" />
+        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#0f3a69]/10 pb-5">
+          <div className="flex flex-wrap items-center gap-3">
+            <MockInterviewHomeLink locale={locale} />
+            {onBack ? (
+              <button
+                type="button"
+                onClick={onBack}
+                className="min-h-11 rounded-xl border border-[#0f3a69]/15 bg-white px-4 py-2 text-sm font-bold text-[#0f3a69] transition hover:border-[#22b8a7] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#22b8a7]"
+              >
+                ← {t.backToHistory}
+              </button>
+            ) : null}
+          </div>
           <LanguageSwitcher compact hideOnMock={false} />
         </header>
         <section className="mt-7 rounded-[2rem] bg-[#0f3a69] p-7 text-white shadow-[0_24px_80px_rgb(15_58_105_/_18%)] sm:p-10">
           <p className="font-mono text-xs font-bold tracking-[0.18em] text-[#69e0d1] uppercase">
-            {t.reportEyebrow}
+            {onBack ? t.historyReportEyebrow : t.reportEyebrow}
           </p>
           <div className="mt-4 flex flex-wrap items-end justify-between gap-6">
             <div>
@@ -919,6 +1022,9 @@ function ReportView({
               </h1>
               <p className="mt-3 max-w-3xl leading-7 text-white/75">
                 {report.summary}
+              </p>
+              <p className="mt-3 text-sm font-semibold text-white/60">
+                {t.completedAt}: {formatDate(artifact.completedAt, locale)}
               </p>
             </div>
             <div className="min-w-40 rounded-2xl bg-white/10 px-5 py-4 text-center">
@@ -982,21 +1088,63 @@ function ReportView({
             </ReportSection>
 
             <ReportSection title={t.questionFeedback}>
+              {!review ? (
+                <p className="mb-4 rounded-2xl border border-[#d8892d]/25 bg-[#fff8eb] px-4 py-3 text-sm leading-6 text-[#7b4a12]" role="note">
+                  {t.snapshotUnavailable}
+                </p>
+              ) : null}
               <div className="space-y-4">
-                {report.questionAssessments.map((item, index) => (
-                  <article key={item.questionId} className="rounded-2xl border border-[#0f3a69]/10 p-5">
-                    <div className="flex items-center justify-between gap-3">
-                      <h3 className="font-semibold text-[#08264a]">{t.question} {index + 1}</h3>
-                      <span className="rounded-full bg-[#0f3a69] px-3 py-1 font-mono text-xs font-bold text-white">{item.score}/100</span>
-                    </div>
-                    <p className="mt-3 text-sm leading-6 text-[#526276]">{item.summary}</p>
-                    {item.missedCriteria.length ? (
-                      <ul className="mt-3 list-disc space-y-1 pl-5 text-sm leading-6 text-[#7b3f15]">
-                        {item.missedCriteria.map((gap) => <li key={gap}>{gap}</li>)}
-                      </ul>
-                    ) : null}
-                  </article>
-                ))}
+                {report.questionAssessments.map((item, index) => {
+                  const reviewItem = reviewByQuestionId.get(item.questionId);
+                  return (
+                    <article key={item.questionId} className="rounded-2xl border border-[#0f3a69]/10 p-5 sm:p-6">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <h3 className="font-semibold text-[#08264a]">{t.question} {index + 1}</h3>
+                        <span className="rounded-full bg-[#0f3a69] px-3 py-1 font-mono text-xs font-bold text-white">{item.score}/100</span>
+                      </div>
+                      {reviewItem ? (
+                        <div className="mt-4">
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs font-bold text-[#087d70]">
+                            <span>{reviewItem.standard.replace("cpp", "C++")}</span>
+                            <span>{t.timeSpent}: {formatClock(reviewItem.elapsedSeconds)}</span>
+                          </div>
+                          <p className="mt-3 text-base leading-7 font-semibold text-[#08264a]">
+                            {reviewItem.prompt}
+                          </p>
+                          {reviewItem.code ? (
+                            <pre className="mt-4 max-h-80 overflow-auto rounded-2xl bg-[#0b315c] p-4 text-sm leading-6 text-[#ecfeff]">
+                              <code>{reviewItem.code}</code>
+                            </pre>
+                          ) : null}
+                          <SubmittedAnswer
+                            label={t.submittedAnswer}
+                            response={reviewItem.response}
+                            empty={t.blankSubmittedAnswer}
+                          />
+                        </div>
+                      ) : null}
+                      <div className="mt-4 border-t border-[#0f3a69]/10 pt-4">
+                        <p className="text-sm leading-6 text-[#526276]">{item.summary}</p>
+                        {item.strengths.length ? (
+                          <div className="mt-3">
+                            <p className="text-xs font-bold tracking-[0.1em] text-[#087d70] uppercase">{t.positiveFeedback}</p>
+                            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-[#35645d]">
+                              {item.strengths.map((strength) => <li key={strength}>{strength}</li>)}
+                            </ul>
+                          </div>
+                        ) : null}
+                        {item.missedCriteria.length ? (
+                          <div className="mt-3">
+                            <p className="text-xs font-bold tracking-[0.1em] text-[#9a5816] uppercase">{t.improvementFeedback}</p>
+                            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-6 text-[#7b3f15]">
+                              {item.missedCriteria.map((gap) => <li key={gap}>{gap}</li>)}
+                            </ul>
+                          </div>
+                        ) : null}
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
             </ReportSection>
           </div>
@@ -1021,7 +1169,14 @@ function ReportView({
             <button type="button" onClick={onNew} className="min-h-12 w-full rounded-2xl bg-[#22c7b5] px-5 py-3 text-sm font-extrabold text-[#08264a]">
               {t.newSession}
             </button>
-            <HistoryPanel history={history} locale={locale} title={t.history} empty={t.noHistory} cloud={t.localHistory} />
+            <HistoryPanel
+              history={history}
+              locale={locale}
+              title={t.history}
+              empty={t.noHistory}
+              cloud={historyLabel}
+              onOpen={onOpenHistory}
+            />
           </aside>
         </div>
       </div>
@@ -1060,22 +1215,69 @@ function ReportList({ title, items, tone }: { title: string; items: string[]; to
   );
 }
 
-function HistoryPanel({ history, locale, title, empty, cloud }: { history: GeneralCppHistorySummary[]; locale: Locale; title: string; empty: string; cloud: string | null | false }) {
+export function SubmittedAnswer({
+  label,
+  response,
+  empty,
+}: {
+  label: string;
+  response: string;
+  empty: string;
+}) {
+  const hasResponse = Boolean(response.trim());
+  return (
+    <div className="mt-4 rounded-2xl bg-[#f5f8fb] p-4">
+      <p className="text-xs font-bold tracking-[0.12em] text-[#64748b] uppercase">
+        {label}
+      </p>
+      <p className={`mt-2 whitespace-pre-wrap break-words text-sm leading-6 ${hasResponse ? "text-[#10243f]" : "italic text-[#7b8797]"}`}>
+        {hasResponse ? response : empty}
+      </p>
+    </div>
+  );
+}
+
+export function HistoryPanel({
+  history,
+  locale,
+  title,
+  empty,
+  cloud,
+  onOpen,
+}: {
+  history: GeneralCppHistorySummary[];
+  locale: Locale;
+  title: string;
+  empty: string;
+  cloud: string | null | false;
+  onOpen: (detail: GeneralCppHistoryDetail) => void;
+}) {
+  const viewLabel = copy[locale].viewReport;
   return (
     <section className="rounded-[1.5rem] border border-[#0f3a69]/12 bg-white/75 p-5">
-      <div className="flex items-baseline justify-between gap-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-lg font-semibold text-[#08264a]">{title}</h2>
-        {cloud ? <span className="text-[11px] text-[#64748b]">{cloud}</span> : null}
+        {cloud ? <span className="text-[11px] leading-4 text-[#64748b]">{cloud}</span> : null}
       </div>
       {history.length ? (
         <ol className="mt-4 space-y-3">
           {history.slice(0, 5).map((item) => (
-            <li key={`${item.attemptId}:${item.sessionId}`} className="rounded-xl bg-[#f5f8fb] p-3">
-              <div className="flex items-center justify-between gap-3">
-                <strong className="text-sm text-[#08264a]">{item.overallScore}/100</strong>
-                <span className="text-xs text-[#64748b]">{item.durationMinutes} min</span>
-              </div>
-              <p className="mt-1 text-xs text-[#64748b]">{formatDate(item.completedAt, locale)}</p>
+            <li key={`${item.attemptId}:${item.sessionId}`}>
+              <button
+                type="button"
+                onClick={() => onOpen(item.detail)}
+                aria-label={`${viewLabel}: ${item.overallScore}/100, ${formatDate(item.completedAt, locale)}`}
+                className="group min-h-16 w-full rounded-xl bg-[#f5f8fb] p-3 text-left transition hover:bg-[#eaf4f3] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#22b8a7]"
+              >
+                <span className="flex items-center justify-between gap-3">
+                  <strong className="text-sm text-[#08264a]">{item.overallScore}/100</strong>
+                  <span className="text-xs text-[#64748b]">{item.durationMinutes} min</span>
+                </span>
+                <span className="mt-1 flex items-end justify-between gap-3">
+                  <span className="text-xs text-[#64748b]">{formatDate(item.completedAt, locale)}</span>
+                  <span className="text-xs font-bold text-[#087d70] group-hover:underline">{viewLabel} →</span>
+                </span>
+              </button>
             </li>
           ))}
         </ol>
@@ -1087,29 +1289,36 @@ function HistoryPanel({ history, locale, title, empty, cloud }: { history: Gener
 }
 
 function mergeHistory(
-  local: readonly GeneralCppCompletedArtifact[],
+  local: readonly GeneralCppHistoryDetail[],
   cloud: readonly GeneralCppHistorySummary[],
 ) {
-  const localSummaries = local.map((artifact): GeneralCppHistorySummary => ({
-    attemptId: `local-${artifact.sessionId}`,
-    sessionId: artifact.sessionId,
-    completedAt: artifact.completedAt,
-    durationMinutes: artifact.plan.durationMinutes,
-    overallScore: artifact.report.overallScore,
-    readiness: artifact.report.readiness,
-    standardScores: artifact.report.standardScores,
-  }));
-  return [
-    ...new Map(
-      [...localSummaries, ...cloud]
-        .sort(
-          (left, right) =>
-            new Date(right.completedAt).getTime() -
-            new Date(left.completedAt).getTime(),
-        )
-        .map((item) => [item.sessionId, item]),
-    ).values(),
-  ];
+  const localSummaries = local.map((detail): GeneralCppHistorySummary => {
+    const artifact = detail.artifact;
+    return {
+      attemptId: `local-${artifact.sessionId}`,
+      sessionId: artifact.sessionId,
+      completedAt: artifact.completedAt,
+      durationMinutes: artifact.plan.durationMinutes,
+      overallScore: artifact.report.overallScore,
+      readiness: artifact.report.readiness,
+      standardScores: artifact.report.standardScores,
+      detail,
+    };
+  });
+  const merged = new Map<string, GeneralCppHistorySummary>();
+  [...localSummaries, ...cloud]
+    .sort(
+      (left, right) =>
+        new Date(right.completedAt).getTime() -
+        new Date(left.completedAt).getTime(),
+    )
+    .forEach((item) => {
+      const existing = merged.get(item.sessionId);
+      if (!existing || (!existing.detail.review && item.detail.review)) {
+        merged.set(item.sessionId, item);
+      }
+    });
+  return [...merged.values()];
 }
 
 function formatClock(totalSeconds: number) {

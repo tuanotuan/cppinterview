@@ -14,9 +14,9 @@
 ## Application inventory
 
 - App pages: 25 (/[locale], /[locale]/auth, /[locale]/auth/reset-password, /[locale]/auth/set-password, /[locale]/learn, /[locale]/learn/[lessonId], /[locale]/learn/roadmap/cpp11, /[locale]/learn/roadmap/cpp14, /[locale]/learn/roadmap/cpp17, /[locale]/learn/roadmap/cpp20, /[locale]/learn/roadmap/cpp23, /[locale]/learn/tick-data-order-book, /[locale]/mock-interview, /[locale]/practice, /[locale]/profile, /[locale]/stats, /admin, /admin/coverage, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/legacy-modern-capstone, /worldquant/mission, /worldquant/tick-replay-lab)
-- API routes: 30 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/admin/questions/approve-translation, /api/admin/questions/manual, /api/admin/questions/reject, /api/coach/clarify, /api/coach/evaluate, /api/coach/follow-up, /api/coach/lesson, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/general-report, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/profile/mobile-usage, /api/progress/sync, /api/questions/approve, /api/worldquant/mission-snapshot, /api/worldquant/training-state, /auth/callback, /auth/confirm, /auth/login, /auth/logout)
-- TypeScript source files excluding tests: 249
-- Colocated test files: 142
+- API routes: 31 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/admin/questions/approve-translation, /api/admin/questions/manual, /api/admin/questions/reject, /api/auth/status, /api/coach/clarify, /api/coach/evaluate, /api/coach/follow-up, /api/coach/lesson, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/general-report, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/profile/mobile-usage, /api/progress/sync, /api/questions/approve, /api/worldquant/mission-snapshot, /api/worldquant/training-state, /auth/callback, /auth/confirm, /auth/login, /auth/logout)
+- TypeScript source files excluding tests: 251
+- Colocated test files: 145
 - Supabase migrations: 58
 - Latest migration filename: `20260901004524_grant_mock_publication_reader.sql`
 
@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `1d095c760e58cd49ee5cea54b660c12e279f613379d5aed18db1a4489dc3ae49`
-- Fingerprinted files: 1279
+- Project input fingerprint: `a5d44749d6b6cc059edd0fdff7bba99140599531dfe30bc81fd8d86ff6e09622`
+- Fingerprinted files: 1284
 
 The fingerprint covers registered lesson sources, content files, application
 source/tests, scripts, package metadata, environment template, workflows, and

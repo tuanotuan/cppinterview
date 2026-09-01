@@ -33,11 +33,15 @@ import {
 import { AiOperationOutcomeUnknownError } from "@/lib/ai/budget";
 import { COACH_RESERVATION_USD_MICROS } from "@/lib/ai/usage";
 import {
+  buildGeneralCppHistoryPublicAttempt,
+  buildGeneralCppReviewSnapshot,
   generalCppCompletedArtifactSchema,
   generalCppReportRequestSchema,
   normalizeGeneralCppReportForSubmission,
   type GeneralCppCompletedArtifact,
+  type GeneralCppHistoryPublicAttempt,
   type GeneralCppReportRequest,
+  type GeneralCppReviewSnapshot,
 } from "@/lib/mock-interview/contracts-v5";
 import { resolveGeneralCppInterviewPlan } from "@/lib/mock-interview/general-catalog";
 import {
@@ -116,6 +120,30 @@ export async function POST(request: Request) {
       "plan_stale",
       "Bộ câu hỏi không còn khớp với ngân hàng đã duyệt. Hãy tạo phiên mới.",
       "This question set no longer matches the published bank. Start a new session.",
+    );
+  }
+
+  let review: GeneralCppReviewSnapshot;
+  let publicAttempt: GeneralCppHistoryPublicAttempt;
+  try {
+    review = buildGeneralCppReviewSnapshot({
+      request: input,
+      catalog: resolvedQuestions,
+    });
+    publicAttempt = buildGeneralCppHistoryPublicAttempt({
+      request: input,
+      review,
+    });
+  } catch (error) {
+    console.error("General C++ mock review snapshot failed", {
+      name: error instanceof Error ? error.name : "UnknownError",
+    });
+    return localizedError(
+      locale,
+      503,
+      "review_snapshot_unavailable",
+      "Chưa thể chuẩn bị bản lưu báo cáo. Vui lòng thử lại sau.",
+      "The saved report snapshot could not be prepared. Please try again later.",
     );
   }
 
@@ -233,6 +261,7 @@ export async function POST(request: Request) {
         user,
         input,
         artifact,
+        publicAttempt,
         requestFingerprint,
       })
     : false;
@@ -241,6 +270,7 @@ export async function POST(request: Request) {
       {
         ok: true,
         artifact,
+        review,
         historySaved,
         quota: {
           remaining: admission.remaining,
@@ -257,11 +287,13 @@ async function persistCloudHistory({
   user,
   input,
   artifact,
+  publicAttempt,
   requestFingerprint,
 }: {
   user: User;
   input: GeneralCppReportRequest;
   artifact: GeneralCppCompletedArtifact;
+  publicAttempt: GeneralCppHistoryPublicAttempt;
   requestFingerprint: string;
 }) {
   try {
@@ -280,14 +312,7 @@ async function persistCloudHistory({
       blueprintVersion: input.plan.planVersion,
       blueprintFingerprint: planFingerprint,
       durationMinutes: input.plan.durationMinutes,
-      publicAttempt: {
-        schemaVersion: 5,
-        responseLocale: input.responseLocale,
-        sourceRevision: input.sourceRevision,
-        startedAt: input.startedAt,
-        submittedAt: input.submittedAt,
-        plan: input.plan,
-      },
+      publicAttempt,
     });
     if (attempt.status === "completed") return true;
     if (!attempt.leaseToken) return false;

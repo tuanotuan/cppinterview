@@ -39,7 +39,7 @@
       "deliberate": "Deliberate practice",
       "connect": "Connect",
       "github": "Source code on GitHub",
-      "facebook": "Facebook community",
+      "vibeCodingCommunity": "Vibe Coding community",
       "slogan": "C++ interview practice · Learn deliberately"
     },
     "meta": {
@@ -515,12 +515,10 @@
       "delete": "Delete card",
       "anotherRandom": "↻ Another random question",
       "yourAnswer": "Your answer",
-      "autosaved": "● autosaved in your browser",
       "designExplanation": "Explain your design choices",
       "optionalAutosaved": "optional · autosaved",
       "designPlaceholder": "Explain ownership, API design, trade-offs, and important decisions…",
       "answerPlaceholder": "Answer as if you were in an interview, or leave blank if you do not know…",
-      "blankHelp": "If you do not know, leave it blank. AI can teach from first principles; answers have no character limit.",
       "retry": "Retry · attempt {count}",
       "retryInstruction": "Answer again in your own words without looking at the solution. When you finish, ask AI to review the retry.",
       "hideHint": "Hide hint",

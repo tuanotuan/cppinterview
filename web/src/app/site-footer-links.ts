@@ -18,7 +18,7 @@ export const footerExternalLinks = [
     labelKey: "footer.github",
   },
   {
-    href: "https://www.facebook.com/CNTT.HCMUS.K23",
-    labelKey: "footer.facebook",
+    href: "https://www.facebook.com/groups/1318098620529328",
+    labelKey: "footer.vibeCodingCommunity",
   },
 ] as const;

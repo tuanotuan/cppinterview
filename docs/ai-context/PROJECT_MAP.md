@@ -10,7 +10,7 @@ Tài liệu ổn định để tìm đúng vùng code. Xác minh lại nếu sou
 | `python/` | Ghi chú cá nhân giữ nguyên trong repo; web không quét, đồng bộ hoặc hiển thị |
 | `web/` | App cppinterview: Next.js App Router, React, TypeScript |
 | `web/src/proxy.ts`, `web/src/i18n/` | Entry point kết hợp refresh cookie/session Supabase với định tuyến locale `vi`/`en`; API, Admin và WorldQuant được bỏ qua khỏi locale middleware |
-| `web/src/app/[locale]/layout.tsx`, `web/src/app/site-footer.tsx` | Shell learner theo locale, `html lang`, message provider, footer và mobile navigation/tracker dùng chung; Admin/WorldQuant có document layout riêng không prefix locale |
+| `web/src/app/[locale]/layout.tsx`, `web/src/app/site-footer.tsx`, `web/src/app/site-footer-session-grid.tsx`, `web/src/app/site-footer-links.ts` | Shell learner theo locale, `html lang`, message provider, footer và mobile navigation/tracker dùng chung; footer dùng trạng thái boolean từ `/api/auth/status` để chỉ render cột CTA/tài khoản cho khách mà không làm root layout mất static rendering; link ngoài được khai báo tập trung cho GitHub và cộng đồng Vibe Coding; Admin/WorldQuant có document layout riêng không prefix locale |
 | `web/src/messages/`, `web/src/content-translations/`, `web/src/lib/content/question-translations.server.ts` | Chuỗi UI theo namespace, overlay bản dịch bind exact revision và publication đã duyệt từ Supabase; ID/version/hash/taxonomy/code/source không bị dịch |
 | `web/src/app/recall-mobile-nav.tsx` | Điều hướng mobile dùng chung: Học hôm nay, Nhiệm vụ, Trung tâm chuẩn bị, Thư viện, Hồ sơ; tự ẩn ở mock/full-round để giữ không gian phỏng vấn |
 | `web/content/` | Registry lesson, question và roadmap YAML do Git quản lý; roadmap chỉ tổ chức đường học, không tạo lesson giả |
@@ -33,7 +33,9 @@ chứa token semantic cho light theme navy + turquoise, bề mặt workspace ph�
 action, app-header trắng và thang bo góc 12/16/20 px dùng chung. Footer learner
 dùng surface midnight full-bleed với token text/link/border riêng, còn nội dung
 giữ cùng `ui-page-width`; khoảng reserve dưới mobile navigation cũng dùng nền
-footer để không tạo dải sáng. Gradient chỉ nằm ở landing; navigation active dùng
+footer để không tạo dải sáng. Cột “Bắt đầu” chỉ xuất hiện sau khi endpoint auth
+xác nhận người xem là khách; trạng thái đang kiểm tra và account đã đăng nhập dùng
+lưới hai cột để không giữ khoảng trống. Gradient chỉ nằm ở landing; navigation active dùng
 nền turquoise nhạt, chữ navy và indicator thay vì pill tối. Landing, Practice,
 thư viện, Mock, Stats và Profile dùng cùng
 header/card/CTA và `ui-page-width` trên desktop lẫn mobile. Practice chỉ có một bộ
@@ -41,7 +43,9 @@ câu C++ nên header hiển thị số câu đã duyệt như metadata, không d
 bộ câu không có lựa chọn thực.
 Practice có Chế độ tập trung tạm thời (thoát `Esc`, mở đáp án `Alt + A`) để ẩn
 shell/sidebar; feedback AI ưu tiên đúng/sửa/làm tiếp, còn rubric đầy đủ nằm trong
-`details`. Focus-visible và responsive inset vẫn áp dụng cho control sticky. Modal do app tự tạo dùng
+`details`. Khung trả lời thường chỉ giữ label và placeholder; hai dòng autosave/
+blank-helper dư thừa không được render nhưng hành vi lưu answer và gửi blank cho AI
+không đổi. Focus-visible và responsive inset vẫn áp dụng cho control sticky. Modal do app tự tạo dùng
 `web/src/app/accessible-dialog.ts` để khóa scroll, trả focus, đóng bằng Escape
 và giữ focus trong dialog; không dùng browser dialog cho luồng xác nhận.
 
@@ -79,7 +83,7 @@ dùng navigation wrapper của `next-intl`, để không sinh nhầm `/vi/admin`
 | `/worldquant/*` | `worldquant/layout.tsx` và các module lịch sử | Workspace chuẩn bị theo một công ty cũ chỉ còn truy cập được bởi admin GitHub `tuanotuan`; người học thường bị chuyển về `/practice`. Không có entry point công khai tới vùng này. |
 | `/learn` | `[locale]/learn/page.tsx`, `[locale]/learn/[lessonId]/page.tsx`, `app/learn/lesson-ai-assistant.tsx` | Thư viện lesson từ manifest với UI theo locale, tìm kiếm và chip riêng cho từng chuẩn C++98/11/14/17/20/23; chuẩn chưa có lesson bị khóa; card chỉ giữ chuẩn C++, số bài và tiêu đề. Reader render Markdown/code mẫu, đổi VI/EN tại header, đặt CTA kiểm tra ở đầu/cuối bài và có đúng một panel “Học với AI”: mobile nằm trước mục lục/nội dung, desktop sticky bên phải, transcript chỉ ở React memory |
 | `/learn/roadmap/cpp11`, `/learn/roadmap/cpp14`, `/learn/roadmap/cpp17`, `/learn/roadmap/cpp20`, `/learn/roadmap/cpp23` | Route locale theo chuẩn, `app/learn/{cpp11,cpp14,cpp17,cpp20,cpp23}-roadmap-app.tsx`, `app/learn/cpp-roadmap-map.tsx`, `lib/learn/{cpp11,cpp14,cpp17,cpp20,cpp23}-roadmap.ts` | Roadmap song ngữ: C++11 có 53 ngày/8 chặng; C++14 và C++17 đều có 50 ngày/7 chặng; C++20 có 52 ngày/8 chặng; C++23 có 54 ngày/8 chặng. Cả năm chỉ link lesson `ready` đúng track và dùng chung sơ đồ node/connector ba cột ziczac trên desktop, một trục dọc trên tablet/mobile. Node mở lesson chính trong tab mới; coverage không phải tiến độ người học |
-| `/mock-interview` | `[locale]/mock-interview/page.tsx`, `app/mock-interview/general-cpp-mock-app.tsx` | Phỏng vấn thử công khai v5 cho một vị trí C++ Engineer, 30/45/60 phút tương ứng 5/8/10 câu. Plan deterministic bắt buộc phủ C++11/14/17/20/23, ưu tiên đa dạng lesson/chủ đề/năng lực và chỉ hiện thứ tự/trạng thái trả lời trong lúc làm. Khách lưu phiên/báo cáo trong browser và vẫn dùng Luna qua quota public; tài khoản có thêm history cloud. Report trung lập theo công ty, tính lại điểm từ từng câu rồi trình bày theo chuẩn C++, bảy năng lực, tám tiêu chí và đúng ba hành động tiếp theo. Mock v4/Targeted Mock cũ chỉ còn phục vụ workspace lịch sử `/worldquant` và không được import vào entry point công khai. |
+| `/mock-interview` | `[locale]/mock-interview/page.tsx`, `app/mock-interview/general-cpp-mock-app.tsx` | Phỏng vấn thử công khai v5 cho một vị trí C++ Engineer, 30/45/60 phút tương ứng 5/8/10 câu. Plan deterministic bắt buộc phủ C++11/14/17/20/23, ưu tiên đa dạng lesson/chủ đề/năng lực và chỉ hiện thứ tự/trạng thái trả lời trong lúc làm. Logo header là link có nhãn trợ năng về trang chủ đúng locale ở màn hình bắt đầu, đang làm và báo cáo. Khách lưu tối đa năm báo cáo trong browser; tài khoản có thêm history cloud theo account. Mỗi card lịch sử mở lại report từng câu; phiên mới kèm snapshot đề/code/câu trả lời đã nộp, còn artifact cũ thiếu snapshot vẫn đọc nguyên feedback AI. Report trung lập theo công ty, tính lại điểm từ từng câu rồi trình bày theo chuẩn C++, bảy năng lực, tám tiêu chí và đúng ba hành động tiếp theo. Mock v4/Targeted Mock cũ chỉ còn phục vụ workspace lịch sử `/worldquant` và không được import vào entry point công khai. |
 | `/learn/tick-data-order-book` | `learn/tick-data-order-book/page.tsx`, `lib/learn/tick-data-guide.ts` | Guide tick data/order book |
 | `/stats` | `stats/page.tsx`, `fsrs-shadow-panel.tsx` | Analytics học tập và FSRS-6 shadow comparison |
 | `/profile` | `profile/page.tsx`, `lib/profile/{contribution-activity,mobile-usage,profile-activity.server}.ts` | Trang cá nhân và contribution graph 53 tuần từ lượt ôn, AI coach và phỏng vấn thử đã hoàn tất; riêng admin `tuanotuan` còn có tổng thời gian cppinterview hoạt động trên điện thoại hôm nay/7/30 ngày |
@@ -89,9 +93,12 @@ dùng navigation wrapper của `next-intl`, để không sinh nhầm `/vi/admin`
 
 API quan trọng:
 
+- `api/auth/status`: xác minh JWT Supabase ở server rồi chỉ trả boolean account đã
+  đăng nhập; response private/no-store, không trả identity và giúp footer tĩnh ẩn
+  toàn bộ CTA/tài khoản dành cho khách mà không đọc cookie trong root layout.
 - `api/coach/{evaluate,follow-up,clarify}`: chấm, giải thích và diễn giải đề. `clarify` owner-only, dùng Luna, diễn đạt bình dân theo tình huống thay vì từ điển thuật ngữ và không gửi đáp án/rubric; evaluate/follow-up dùng OpenAI trước, Gemini fallback theo quota.
 - `api/coach/lesson`: server dựng lại toàn bộ lesson đúng locale từ manifest, gọi Luna với structured answer/citation và không nhận context lesson từ client; public/non-admin dùng chung quota AI 3 lượt/24 giờ, owner dùng durable reservation + budget hiện hữu, không fallback Gemini.
-- `api/mock-interview/general-report`: dựng lại exact plan v5 từ câu verified hoặc revision được content admin duyệt, giữ answer/hint/rubric ở server, gọi Luna qua quota/budget public rồi lưu artifact cloud khi có account.
+- `api/mock-interview/general-report`: dựng lại exact plan v5 từ câu verified hoặc revision được content admin duyệt, giữ đáp án mẫu/hint/rubric ở server, gọi Luna qua quota/budget public rồi trả/lưu snapshot chỉ gồm đề/code và câu trả lời người dùng cùng normalized artifact; cloud chỉ ghi khi có account.
 - `api/mock-interview/{run,report,history}`: API v4 lịch sử cho workspace admin; chạy sample code, xác minh exact blueprint, tạo report có hidden evaluation và đọc/xóa history theo account.
 - `api/progress/sync`: đồng bộ review/Anki state.
 - `api/worldquant/{training-state,mission-snapshot}`: state của workspace lịch sử,
@@ -126,7 +133,7 @@ API quan trọng:
 | `ai` | `openai.ts`, `gemini.ts`, `fallback.ts`, `access.ts` | Provider call không transport retry, fallback và chặn AI không quota ngoài local development; Luna cho học tập/Coach và report Mock v5 công khai, Terra chỉ còn cho report Mock v4 lịch sử |
 | `ai` | `budget.ts`, `usage.ts`, `billing.ts`, `coach-idempotency-client.ts`, `coach-reservation.server.ts`, `coach-follow-up-reservation.server.ts`, `lesson-assistant-{context,reservation}.server.ts` | Sổ hạn mức UUID, context lesson server-canonical, phân loại kết quả provider và terminal cache theo exact request |
 | `ai` | `public-ai-quota.server.ts`, `public-ai-admission.server.ts`, `public-ai-quota-display.ts`, `public-ai-budget.server.ts` | AI Coach, lesson tutor và Mock v5 public/non-admin: HMAC IP/device/account, rolling 24 giờ dùng chung, lease chống gọi trùng và ledger Luna site-wide riêng; không dùng identity thô hay Gemini fallback |
-| `mock-interview` | `general-catalog.ts`, `published-bank.server.ts`, `contracts-v5.ts`, `session-v5.ts`, `general-report-prompt.ts` | Catalog browser-safe từ câu verified hoặc exact admin approval, plan C++11–23 deterministic, session guest/account local, contract/report trung lập và prompt chấm chỉ dựng ở server |
+| `mock-interview` | `general-catalog.ts`, `published-bank.server.ts`, `contracts-v5.ts`, `session-v5.ts`, `general-report-prompt.ts` | Catalog browser-safe từ câu verified hoặc exact admin approval, plan C++11–23 deterministic, session guest/account local, contract/report trung lập, snapshot history có version/hash và parser tương thích artifact cũ; prompt chấm chỉ dựng ở server |
 | `mock-interview` | `profile.ts`, `profile-server.ts`, `catalog.ts`, `target-plan.ts`, `session-v4.ts`, `contracts-v4.ts` | Luồng v4 theo JD/scenario của workspace WorldQuant lịch sử; không còn sở hữu route Mock công khai |
 | `mock-interview` | `contracts.ts`, `report-prompt.ts`, `history.server.ts`, `report-submission-client.ts`, `trends.ts` | Report raw/normalized, danh mục evidence server-owned cho tám tiêu chí và đúng ba next-practice actions; lease/cache/idempotency chống stale cross-tab submission và trend chỉ trên attempt comparable |
 | `worldquant` | `mock-debrief.ts`, `mock-gates.ts`, `mock-remediation.ts` | Role-scoped evidence, assessed/not-assessed matrix, deterministic ranked gaps, non-AI competency gate và Focus remediation |

@@ -127,7 +127,7 @@ trạng thái từ tên nhánh.
 
 - Giao diện Practice/Admin chỉ biểu diễn hai nhãn phân loại của thẻ: `Dễ`/`Trung bình`/`Khó` và `Text`/`Code`. Filter theo bộ thẻ, lộ trình, loại câu và chủ đề đã được gỡ khỏi UI; taxonomy, `type`, `interviewCategory`, `interviewFormat` và `assessmentSkills` vẫn nằm trong data model để scheduler, tạo nội dung, coverage và WorldQuant/mock dùng nội bộ. `code_review` hiển thị workspace chọn dòng và lưu comment có số dòng vào candidate answer, không lộ comment/rubric mẫu. Trang `/admin/coverage` theo dõi mục tiêu C++ 300 câu verified theo sáu dạng; draft/approval riêng không được làm tăng số verified.
 
-- `/mock-interview` đã chuyển sang contract v5 trung lập cho mọi người dùng với đúng một vị trí C++ Engineer. Phiên 30/45/60 phút có 5/8/10 câu và server dựng lại plan bắt buộc phủ C++11/14/17/20/23 từ câu verified hoặc exact revision được content admin duyệt; browser chỉ nhận đề/code cùng metadata chọn câu, không nhận hint/answer/rubric. Khách vẫn hoàn tất và nhận báo cáo Luna bằng quota public, lưu tối đa năm artifact cục bộ; account có thêm cloud history. Report tự tính lại điểm tổng, verdict, điểm theo chuẩn và bảy năng lực từ điểm từng câu, giữ tám tiêu chí và đúng ba hành động tiếp theo, không có branding hoặc phán quyết tuyển dụng theo công ty. Lỗi chắc chắn xảy ra trước provider được release để retry cùng frozen request; outcome không xác định bị terminalize để không gọi trùng. Remote hiện có 779 exact revision được admin duyệt (C++11/14/17/20/23 lần lượt 161/150/150/156/162). Migration `20260901004524_grant_mock_publication_reader.sql` đã được áp dụng remote: dedicated backend key đọc được publication qua các view `security_invoker` và bảng nguồn, còn `anon` vẫn bị từ chối trên toàn bộ tập object này. Production `/vi/mock-interview` hiện trả `publicationAvailable=true` với coverage 161/150/150/156/162; `/en/mock-interview` trả 159/150/150/156/162 theo 777 exact English publication hiện có. Migration quota `20260831171239_fix_public_ai_quota_greatest.sql` đã có trên remote; smoke test quota dưới `service_role` trả `reserved`, limit 3, remaining 2 và không để lại reservation thử nghiệm. Mock v4 và Mistake capture cũ vẫn được giữ cho workspace `/worldquant` riêng của admin.
+- `/mock-interview` dùng contract v5 trung lập cho mọi người dùng với đúng một vị trí C++ Engineer. Phiên 30/45/60 phút có 5/8/10 câu và server dựng lại plan bắt buộc phủ C++11/14/17/20/23 từ câu verified hoặc exact revision được content admin duyệt; browser chỉ nhận đề/code cùng metadata chọn câu, không nhận hint/đáp án mẫu/rubric. Logo header ở cả ba trạng thái bắt đầu/đang làm/báo cáo là link bàn phím về trang chủ đúng locale. Card lịch sử giờ là control bàn phím mở lại full report và feedback từng câu. Phiên mới lưu thêm snapshot bounded của đúng đề/code đã hiển thị, câu trả lời đã nộp và thời gian; account ghi trong `public_attempt` owner-scoped, guest ghi local, không lưu evaluation guide/hidden diagnostic. Phiên cũ thiếu snapshot vẫn mở normalized AI report và báo rõ đề/câu trả lời không thể khôi phục. Không có migration hay remote mutation mới cho thay đổi này vì tái sử dụng JSONB history hiện hữu. Report tự tính lại điểm tổng, verdict, điểm theo chuẩn và bảy năng lực từ điểm từng câu, giữ tám tiêu chí và đúng ba hành động tiếp theo, không có branding hoặc phán quyết tuyển dụng theo công ty. Lỗi chắc chắn xảy ra trước provider được release để retry cùng frozen request; outcome không xác định bị terminalize để không gọi trùng. Remote hiện có 779 exact revision được admin duyệt (C++11/14/17/20/23 lần lượt 161/150/150/156/162). Migration `20260901004524_grant_mock_publication_reader.sql` đã được áp dụng remote: dedicated backend key đọc được publication qua các view `security_invoker` và bảng nguồn, còn `anon` vẫn bị từ chối trên toàn bộ tập object này. Production `/vi/mock-interview` hiện trả `publicationAvailable=true` với coverage 161/150/150/156/162; `/en/mock-interview` trả 159/150/150/156/162 theo 777 exact English publication hiện có. Migration quota `20260831171239_fix_public_ai_quota_greatest.sql` đã có trên remote; smoke test quota dưới `service_role` trả `reserved`, limit 3, remaining 2 và không để lại reservation thử nghiệm. Mock v4 và Mistake capture cũ vẫn được giữ cho workspace `/worldquant` riêng của admin.
 
 - Mock C++ coi câu trả lời trống là bằng chứng thiếu kiến thức. Nếu toàn bộ câu đều
   trống và provider trả báo cáo sai tập question ID, server dựng fallback song ngữ
@@ -269,8 +269,9 @@ trạng thái từ tên nhánh.
   (Esc thoát, Alt+A mở/ẩn đáp án) để ẩn shell/sidebar; feedback AI trình bày
   ba bước đúng/cần cải thiện/làm tiếp, rubric chi tiết được thu gọn. Thay đổi UI
   không chạm scheduler, AI admission hay dữ liệu học. Practice không lặp lại thông
-  tin tài khoản/đồng bộ hoặc source revision ở cuối trang; trạng thái đồng bộ vẫn
-  nằm trong panel tiến độ.
+  tin autosave/blank-helper cạnh textarea, cũng không lặp tài khoản/đồng bộ hoặc
+  source revision ở cuối trang; hành vi lưu answer và gửi blank cho AI vẫn giữ
+  nguyên, còn trạng thái đồng bộ vẫn nằm trong panel tiến độ.
 - UI dùng chung có reduced-motion fallback; skeleton loading có thông báo cho
   screen reader và thanh điều hướng mobile giữ vùng chạm/focus rõ ràng.
 - Header, footer, trạng thái tải và cổng truy cập dùng chung logo C++ SVG thay cho
@@ -286,9 +287,14 @@ trạng thái từ tên nhánh.
   của người dùng. Thao tác nguồn kiến thức, bản nháp AI, queue duyệt và quản lý ngân hàng
   là workspace riêng của admin GitHub `tuanotuan`. Footer learner là surface midnight
   full-width riêng biệt: có điều hướng nhanh tới các route học thật, CTA guest, trust
-  points, tài khoản, link “Đóng góp mã nguồn” tới GitHub, cộng đồng Facebook và bộ đổi
-  ngôn ngữ dark-tone mở lên; footer không
-  đọc auth/Supabase và không thêm asset hay dependency mạng.
+  points, tài khoản, link “Đóng góp mã nguồn” tới GitHub, link “Cộng đồng Vibe
+  Coding” tới Facebook group `1318098620529328` và bộ đổi
+  ngôn ngữ dark-tone mở lên. Cột “Bắt đầu” gồm CTA guest và ba link tài khoản chỉ
+  render sau khi `/api/auth/status` xác nhận người xem là khách; account đã đăng nhập
+  và trạng thái đang kiểm tra bỏ toàn bộ cột này, đồng thời lưới co về hai cột.
+  Endpoint dùng JWT claims đã xác minh, loại anonymous identity và chỉ trả boolean
+  private/no-store; footer/root layout không trực tiếp đọc cookie hay Supabase nên
+  các lesson vẫn giữ static rendering. Không có asset hoặc dependency bên ngoài mới.
 - cppinterview phục vụ việc luyện C++ cho nhiều công ty: tên và entry point WorldQuant
   đã được gỡ khỏi landing, Practice, Thư viện và Mock. Workspace `/worldquant/*` cũ
   vẫn được giữ trong source nhưng layout chỉ cho admin `tuanotuan` vào; người học thường
@@ -361,11 +367,16 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Fallback báo cáo cho phiên C++ có toàn bộ câu trả lời trống đạt toàn bộ
-  `npm run validate`: content/context check, ESLint, TypeScript, 142 file/825
-  Vitest test và Next.js production build sinh 590 static path. Hai test hồi quy
-  khóa báo cáo 0 điểm theo exact plan và giữ fail-closed nếu còn bất kỳ câu trả
-  lời có nội dung; không có migration hay remote mutation mới.
+- Footer chỉ hiện cột CTA/tài khoản cho khách, link Vibe Coding, dọn
+  autosave/blank-helper ở Practice, logo về trang chủ và lịch sử report C++ chi
+  tiết đạt toàn bộ `npm run validate`: content/context check, ESLint, TypeScript,
+  145 file/840 Vitest test và Next.js production build sinh 591 static path.
+  Targeted footer/auth đạt 11/11, gồm verified/non-anonymous claims, response chỉ
+  có boolean private/no-store và lưới không render guest actions khi đang kiểm tra
+  hoặc đã đăng nhập; targeted Practice localization 6/6 khóa hai dòng phụ;
+  targeted Mock UI 4/4 khóa link logo, card lịch sử semantic và escape nội dung
+  người dùng. Security review đủ 10 nhóm OWASP không có finding mở; production
+  dependency audit báo 0 lỗ hổng. Không có migration hay remote mutation mới.
 - Fix quyền đọc publication cho Mock đạt toàn bộ `npm run validate`: content/context
   check, ESLint, TypeScript, 142 file/823 Vitest test và Next.js production build
   sinh 590 static path. Targeted migration test đạt 2/2; `supabase db push --dry-run`

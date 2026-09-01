@@ -2,8 +2,11 @@ import { z } from "zod";
 
 import {
   generalCppCompletedArtifactSchema,
+  generalCppHistoryDetailSchema,
   generalCppInterviewPlanSchema,
   generalCppReportRequestSchema,
+  generalCppReviewSnapshotSchema,
+  type GeneralCppHistoryDetail,
 } from "./contracts-v5";
 
 const answerSchema = z
@@ -27,6 +30,7 @@ export const generalCppSessionSchema = z
     answers: z.record(z.string(), answerSchema),
     pendingRequest: generalCppReportRequestSchema.optional(),
     report: generalCppCompletedArtifactSchema.optional(),
+    review: generalCppReviewSnapshotSchema.optional(),
   })
   .strict()
   .superRefine((session, context) => {
@@ -61,6 +65,23 @@ export const generalCppSessionSchema = z
       });
     }
     if (
+      session.review
+      && (
+        session.status !== "completed"
+        || !session.report
+        || !generalCppHistoryDetailSchema.safeParse({
+          artifact: session.report,
+          review: session.review,
+        }).success
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["review"],
+        message: "Session review must match its completed report",
+      });
+    }
+    if (
       session.pendingRequest &&
       (session.pendingRequest.sessionId !== session.sessionId ||
         JSON.stringify(session.pendingRequest.plan) !==
@@ -74,8 +95,19 @@ export const generalCppSessionSchema = z
     }
   });
 
+const legacyGeneralCppLocalHistoryEntrySchema =
+  generalCppCompletedArtifactSchema.transform((artifact) => ({
+    artifact,
+    review: null,
+  }));
+
 export const generalCppLocalHistorySchema = z
-  .array(generalCppCompletedArtifactSchema)
+  .array(
+    z.union([
+      generalCppHistoryDetailSchema,
+      legacyGeneralCppLocalHistoryEntrySchema,
+    ]),
+  )
   .max(5);
 
 export type GeneralCppSession = z.infer<typeof generalCppSessionSchema>;
@@ -119,14 +151,16 @@ export function clearGeneralCppSession(accountScope: string) {
 
 export function prependGeneralCppLocalHistory(
   accountScope: string,
-  artifact: z.infer<typeof generalCppCompletedArtifactSchema>,
+  detail: GeneralCppHistoryDetail,
 ) {
   const current = parseGeneralCppLocalHistory(
     window.localStorage.getItem(generalCppHistoryStorageKey(accountScope)),
   );
   const next = [
-    artifact,
-    ...current.filter((item) => item.sessionId !== artifact.sessionId),
+    detail,
+    ...current.filter(
+      (item) => item.artifact.sessionId !== detail.artifact.sessionId,
+    ),
   ].slice(0, 5);
   window.localStorage.setItem(
     generalCppHistoryStorageKey(accountScope),

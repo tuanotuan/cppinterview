@@ -45,6 +45,20 @@ describe("Practice localization", () => {
     expect(vietnameseMessages.Practice).not.toHaveProperty("footer");
   });
 
+  it("does not render redundant autosave and blank-answer helper copy", async () => {
+    const practiceApp = await readFile(
+      path.resolve(import.meta.dirname, "practice-app.tsx"),
+      "utf8",
+    );
+
+    expect(practiceApp).not.toContain('practiceT("question.autosaved")');
+    expect(practiceApp).not.toContain('practiceT("question.blankHelp")');
+    expect(englishMessages.Practice.question).not.toHaveProperty("autosaved");
+    expect(englishMessages.Practice.question).not.toHaveProperty("blankHelp");
+    expect(vietnameseMessages.Practice.question).not.toHaveProperty("autosaved");
+    expect(vietnameseMessages.Practice.question).not.toHaveProperty("blankHelp");
+  });
+
   it("keeps untranslated canonical questions out of the English deck", async () => {
     const pageSource = await readFile(
       path.resolve(import.meta.dirname, "[locale]", "practice", "page.tsx"),
