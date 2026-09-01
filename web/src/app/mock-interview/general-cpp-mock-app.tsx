@@ -84,6 +84,24 @@ const terminalReportErrorCodes = new Set([
   "request_not_repeatable",
 ]);
 
+export function MockInterviewHomeLink({ locale }: { locale: Locale }) {
+  const label =
+    locale === "en"
+      ? "Go to the cppinterview home page"
+      : "Về trang chủ cppinterview";
+
+  return (
+    <Link
+      href="/"
+      aria-label={label}
+      title={label}
+      className="inline-flex size-11 shrink-0 touch-manipulation items-center justify-center rounded-2xl transition hover:opacity-90 focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
+    >
+      <BrandMark size="md" />
+    </Link>
+  );
+}
+
 const copy = {
   vi: {
     eyebrow: "Phỏng vấn thử C++",
@@ -618,7 +636,7 @@ export function GeneralCppMockApp(props: Props) {
       <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
         <div className="mx-auto max-w-6xl">
           <header className="flex items-center justify-between gap-4 border-b border-[#0f3a69]/10 pb-5">
-            <BrandMark size="md" />
+            <MockInterviewHomeLink locale={props.locale} />
             <LanguageSwitcher compact hideOnMock={false} />
           </header>
 
@@ -796,7 +814,7 @@ export function GeneralCppMockApp(props: Props) {
     <main className="min-h-screen px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
       <div className="mx-auto max-w-6xl">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#0f3a69]/10 pb-5">
-          <BrandMark size="md" />
+          <MockInterviewHomeLink locale={props.locale} />
           <div className="flex items-center gap-3">
             <span className={`rounded-full px-3 py-1.5 font-mono text-xs font-bold ${secondsLeft >= 0 ? "bg-[#e9fbf7] text-[#087d70]" : "bg-[#fff0ed] text-[#b23c2e]"}`}>
               {secondsLeft >= 0 ? t.remaining : t.overtime}: {formatClock(Math.abs(secondsLeft))}
@@ -980,7 +998,7 @@ function ReportView({
       <div className="mx-auto max-w-6xl">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[#0f3a69]/10 pb-5">
           <div className="flex flex-wrap items-center gap-3">
-            <BrandMark size="md" />
+            <MockInterviewHomeLink locale={locale} />
             {onBack ? (
               <button
                 type="button"

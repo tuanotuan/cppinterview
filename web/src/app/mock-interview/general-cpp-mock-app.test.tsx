@@ -1,17 +1,41 @@
+import { createElement, type AnchorHTMLAttributes } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 import type { GeneralCppHistoryDetail } from "@/lib/mock-interview/contracts-v5";
 
-vi.mock("@/app/brand-mark", () => ({ BrandMark: () => null }));
+vi.mock("@/app/brand-mark", () => ({
+  BrandMark: () => createElement("span", { "data-brand-mark": true }),
+}));
 vi.mock("@/app/language-switcher", () => ({
   LanguageSwitcher: () => null,
 }));
-vi.mock("@/i18n/navigation", () => ({ Link: () => null }));
+vi.mock("@/i18n/navigation", () => ({
+  Link: (props: AnchorHTMLAttributes<HTMLAnchorElement>) =>
+    createElement("a", props),
+}));
 
-import { HistoryPanel, SubmittedAnswer } from "./general-cpp-mock-app";
+import {
+  HistoryPanel,
+  MockInterviewHomeLink,
+  SubmittedAnswer,
+} from "./general-cpp-mock-app";
 
 describe("general C++ mock history", () => {
+  it.each([
+    ["vi" as const, "Về trang chủ cppinterview"],
+    ["en" as const, "Go to the cppinterview home page"],
+  ])("links the %s mock logo to the localized home route", (locale, label) => {
+    const html = renderToStaticMarkup(
+      <MockInterviewHomeLink locale={locale} />,
+    );
+
+    expect(html).toContain('href="/"');
+    expect(html).toContain(`aria-label="${label}"`);
+    expect(html).toContain(`title="${label}"`);
+    expect(html).toContain("focus-visible:ring-4");
+  });
+
   it("renders each saved report as a keyboard-operable button", () => {
     const onOpen = vi.fn();
     const detail = {} as GeneralCppHistoryDetail;
