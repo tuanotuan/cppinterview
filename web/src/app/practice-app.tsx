@@ -325,6 +325,7 @@ export function PracticeApp({
   account,
   guestMode,
   canManageQuestionBank,
+  questionBankAvailable,
   initialCloudProgress,
   initialQuestionStates,
   cloudSetupError,
@@ -348,6 +349,7 @@ export function PracticeApp({
   account: PracticeAccount | null;
   guestMode: boolean;
   canManageQuestionBank: boolean;
+  questionBankAvailable: boolean;
   initialCloudProgress: PracticeProgress;
   initialQuestionStates: QuestionLearningState[];
   cloudSetupError: boolean;
@@ -1519,11 +1521,21 @@ export function PracticeApp({
     const nextCloudStates = cloudQuestionStates.filter((state) =>
       deckQuestionIds.has(state.questionId),
     );
-    const nextQuestionIdentities = nextDeckQuestions.map((question) => ({
-      id: question.id,
-      version: question.version,
-      sourceHash: question.sourceHash,
-    }));
+    const nextQuestionIdentities = nextDeckQuestions.map(
+      (question, position) => ({
+        id: question.id,
+        version: question.version,
+        sourceHash: question.sourceHash,
+        newCardSequence:
+          question.standard === "cpp98"
+            ? null
+            : {
+                standard: question.standard,
+                difficulty: question.difficulty,
+                position,
+              },
+      }),
+    );
     const nextLearningStates = buildLearningStates(
       nextQuestionIdentities,
       nextDeckReviews,
@@ -3378,7 +3390,9 @@ export function PracticeApp({
           </section>
         ) : null}
 
-        {current ? (
+        {!questionBankAvailable && !canManageQuestionBank ? (
+          <QuestionBankUnavailableState />
+        ) : current ? (
           <div
             className={
               distractionFreeMode || isLessonCheck
@@ -4677,6 +4691,36 @@ function DeckEmptyState({
         >
           {t("emptyDeck.admin")}
         </NextLink>
+      </div>
+    </section>
+  );
+}
+
+function QuestionBankUnavailableState() {
+  const t = useTranslations("Practice");
+  return (
+    <section
+      className="grid min-h-[64vh] place-items-center py-12"
+      role="alert"
+      aria-live="polite"
+    >
+      <div className="max-w-xl rounded-[1.25rem] border border-[#c43d3d]/25 bg-[#fff1f1] p-8 text-center shadow-[0_20px_70px_rgba(15,58,105,0.08)] sm:p-10">
+        <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-[#0f3a69] font-mono text-lg font-bold text-[#65e6d2]">
+          C++
+        </span>
+        <h1 className="mt-6 text-3xl font-semibold tracking-tight">
+          {t("questionBankUnavailable.title")}
+        </h1>
+        <p className="mt-4 leading-7 text-[#526276]">
+          {t("questionBankUnavailable.description")}
+        </p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="mt-7 inline-flex rounded-2xl bg-[#0f3a69] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#16865a] focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none"
+        >
+          {t("questionBankUnavailable.retry")}
+        </button>
       </div>
     </section>
   );

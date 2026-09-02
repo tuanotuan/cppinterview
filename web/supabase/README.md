@@ -410,7 +410,7 @@ bind cached results to the exact question, execution-spec revision, and source
 hash. Infrastructure failures are recorded as `sandbox_error` and must never
 reduce the candidate score.
 
-## Account-scoped Mock v4 history
+## Account-scoped Mock history and published question bank
 
 `20260730100000_create_mock_interview_attempts.sql` must be applied after the
 code-execution admission migration. It stores only candidate-visible attempt
@@ -418,7 +418,9 @@ metadata and normalized completed artifacts; candidate answers, rubrics,
 canonical answers, hidden inputs, diagnostics, and output are rejected.
 
 Create another dedicated Supabase secret API key named `mock_history` and add it
-to the web runtime as `MOCK_HISTORY_SUPABASE_SECRET_KEY`. Do not reuse
+to the web runtime as `MOCK_HISTORY_SUPABASE_SECRET_KEY`. The same server-only
+client reads the exact `content_admins` publications used by Practice and Mock.
+Do not reuse
 `CODE_RUNNER_SUPABASE_SECRET_KEY` or `SUPABASE_SERVICE_ROLE_KEY`, and never use a
 `NEXT_PUBLIC_` prefix.
 

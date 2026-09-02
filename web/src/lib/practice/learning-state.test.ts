@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  MAX_NEW_PER_DAY,
   buildAnkiDailyPlan,
   buildLearningStates,
   deriveLearningStateFromReviews,
@@ -343,6 +344,184 @@ describe("Anki-style learning-state foundation", () => {
     expect(nextDay.questionIds.at(-1)).toBe(
       selectedNew === "new-a" ? "new-b" : "new-a",
     );
+  });
+
+  it("introduces at most five New cards in standard and difficulty order", () => {
+    const sourceHash = "a".repeat(64);
+    const questions = [
+      ["cpp14-beginner", "cpp14", "beginner", 0],
+      ["cpp11-advanced", "cpp11", "advanced", 1],
+      ["cpp11-beginner-b", "cpp11", "beginner", 3],
+      ["cpp11-intermediate", "cpp11", "intermediate", 2],
+      ["cpp20-beginner", "cpp20", "beginner", 4],
+      ["cpp11-beginner-a", "cpp11", "beginner", 0],
+      ["cpp17-beginner", "cpp17", "beginner", 5],
+    ].map(([id, standard, difficulty, position]) => ({
+      id: String(id),
+      version: 1,
+      sourceHash,
+      newCardSequence: {
+        standard: standard as "cpp11" | "cpp14" | "cpp17" | "cpp20",
+        difficulty: difficulty as "beginner" | "intermediate" | "advanced",
+        position: Number(position),
+      },
+    }));
+
+    const plan = buildAnkiDailyPlan(
+      questions,
+      [],
+      [],
+      "2026-07-21",
+    );
+
+    expect(MAX_NEW_PER_DAY).toBe(5);
+    expect(plan.questionIds).toEqual([
+      "cpp11-beginner-a",
+      "cpp11-beginner-b",
+      "cpp11-intermediate",
+      "cpp11-advanced",
+      "cpp14-beginner",
+    ]);
+    expect(plan.counts.new).toBe(5);
+  });
+
+  it("keeps unfinished New cards and adds only enough cards to refill the next day", () => {
+    const sourceHash = "a".repeat(64);
+    const questions = Array.from({ length: 7 }, (_, position) => ({
+      id: `new-${position + 1}`,
+      version: 1,
+      sourceHash,
+      newCardSequence: {
+        standard: "cpp11" as const,
+        difficulty: "beginner" as const,
+        position,
+      },
+    }));
+    const firstDay = buildAnkiDailyPlan(
+      questions,
+      [],
+      [],
+      "2026-07-21",
+    );
+    const firstState = newQuestionLearningState({
+      questionId: "new-1",
+      questionVersion: 1,
+      sourceHash,
+    });
+    const secondState = newQuestionLearningState({
+      questionId: "new-2",
+      questionVersion: 1,
+      sourceHash,
+    });
+    const firstReview = scheduleQuestionReview(
+      firstState,
+      "good",
+      "2026-07-21",
+      [],
+    );
+    const secondReview = scheduleQuestionReview(
+      secondState,
+      "good",
+      "2026-07-21",
+      [],
+    );
+    const reviews = [firstReview.review, secondReview.review];
+    const states = [firstReview.state, secondReview.state];
+
+    const sameDay = buildAnkiDailyPlan(
+      questions,
+      reviews,
+      states,
+      "2026-07-21",
+    );
+    const nextDay = buildAnkiDailyPlan(
+      questions,
+      reviews,
+      states,
+      "2026-07-22",
+    );
+
+    expect(firstDay.questionIds).toEqual([
+      "new-1",
+      "new-2",
+      "new-3",
+      "new-4",
+      "new-5",
+    ]);
+    expect(sameDay.questionIds).toEqual(firstDay.questionIds);
+    expect(sameDay.remainingIds).toEqual(["new-3", "new-4", "new-5"]);
+    expect(sameDay.counts.new).toBe(3);
+    expect(nextDay.counts.new).toBe(5);
+    expect(
+      nextDay.questionIds.filter((questionId) =>
+        questionId.startsWith("new-"),
+      ),
+    ).toEqual(["new-3", "new-4", "new-5", "new-6", "new-7"]);
+  });
+
+  it("does not let remediation priority skip an earlier standard or difficulty", () => {
+    const sourceHash = "a".repeat(64);
+    const questions = [
+      {
+        id: "cpp14-priority",
+        version: 1,
+        sourceHash,
+        newCardSequence: {
+          standard: "cpp14" as const,
+          difficulty: "beginner" as const,
+          position: 0,
+        },
+      },
+      {
+        id: "cpp11-first",
+        version: 1,
+        sourceHash,
+        newCardSequence: {
+          standard: "cpp11" as const,
+          difficulty: "beginner" as const,
+          position: 1,
+        },
+      },
+    ];
+
+    const plan = buildAnkiDailyPlan(
+      questions,
+      [],
+      [],
+      "2026-07-21",
+      { newLimit: 1, priorityQuestionIds: ["cpp14-priority"] },
+    );
+
+    expect(plan.questionIds).toEqual(["cpp11-first"]);
+  });
+
+  it("excludes explicitly unsupported standards from automatic New cards", () => {
+    const sourceHash = "a".repeat(64);
+    const plan = buildAnkiDailyPlan(
+      [
+        {
+          id: "cpp98-card",
+          version: 1,
+          sourceHash,
+          newCardSequence: null,
+        },
+        {
+          id: "cpp11-card",
+          version: 1,
+          sourceHash,
+          newCardSequence: {
+            standard: "cpp11",
+            difficulty: "beginner",
+            position: 1,
+          },
+        },
+      ],
+      [],
+      [],
+      "2026-07-21",
+    );
+
+    expect(plan.questionIds).toEqual(["cpp11-card"]);
   });
 
   it("does not refill the daily Review quota after a due card is completed", () => {

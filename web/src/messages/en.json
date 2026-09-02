@@ -886,6 +886,11 @@
       "pending": "{count, plural, one {# question is awaiting approval} other {# questions are awaiting approval}}. Approve them to begin practicing.",
       "description": "Add or approve C++ questions in Admin to begin practicing.",
       "admin": "Open Admin"
+    },
+    "questionBankUnavailable": {
+      "title": "The question bank could not be loaded",
+      "description": "The question service is temporarily unavailable. Your progress is safe; please try again.",
+      "retry": "Try again"
     }
   },
   "Mock": {

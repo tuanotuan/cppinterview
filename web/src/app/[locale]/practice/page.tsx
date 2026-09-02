@@ -3,11 +3,12 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 
 import { readPublicAiAdmissionStatus } from "@/lib/ai/public-ai-admission.server";
-import { isQuestionApproved } from "@/lib/practice/approvals";
-import { loadCloudAccount, loadCloudContext } from "@/lib/practice/cloud-server";
 import { parsePracticeDeck } from "@/lib/content/decks";
+import { loadPublishedQuestionBank } from "@/lib/content/published-question-bank.server";
 import { getRepoContentManifest } from "@/lib/content/question-store-server";
 import { currentQuestionSourceSections } from "@/lib/content/question-source-sections";
+import { isQuestionApproved } from "@/lib/practice/approvals";
+import { loadCloudAccount, loadCloudContext } from "@/lib/practice/cloud-server";
 import { parseCustomStudyLaunch } from "@/lib/practice/custom-study";
 import { selectCanonicalCoverageQuestions } from "@/lib/practice/coverage-analytics";
 import { parseFocusSessionId } from "@/lib/practice/focus-session";
@@ -66,27 +67,51 @@ export default async function PracticePage({
     topic?: string | string[];
   }>;
 }) {
+  const localePromise = params;
   const accountPromise = loadCloudAccount();
   const cloudPromise = loadCloudContext({
     includeAiUsage: false,
     includeGeminiUsage: false,
     includeProviderSettings: false,
   });
-  const initialPublicAiQuotaPromise = accountPromise.then(({ account, canManageQuestionBank }) =>
-    canManageQuestionBank ? null : loadInitialPublicAiQuota(account?.id ?? null),
+  const initialPublicAiQuotaPromise = accountPromise.then(
+    ({ account, canManageQuestionBank }) =>
+      canManageQuestionBank
+        ? null
+        : loadInitialPublicAiQuota(account?.id ?? null),
   );
-  const [cloud, initialPublicAiQuota, query, { locale }, t] = await Promise.all([
+  const publishedBankPromise = localePromise.then(({ locale }) =>
+    loadPublishedQuestionBank(locale),
+  );
+  const [
+    cloud,
+    initialPublicAiQuota,
+    query,
+    { locale },
+    t,
+    publishedBank,
+  ] = await Promise.all([
     cloudPromise,
     initialPublicAiQuotaPromise,
     searchParams,
-    params,
+    localePromise,
     getTranslations("Practice"),
+    publishedBankPromise,
   ]);
-  const manifest = localizeContentManifest(
-    cloud.manifest,
-    locale,
-    cloud.questionTranslations,
-  );
+  const usesEditorialPreview = cloud.canManageQuestionBank;
+  const questionApprovals = usesEditorialPreview
+    ? cloud.approvals
+    : publishedBank.approvals;
+  const questionTranslations = usesEditorialPreview
+    ? cloud.questionTranslations
+    : publishedBank.translations;
+  const manifest = usesEditorialPreview
+    ? localizeContentManifest(
+        cloud.manifest,
+        locale,
+        questionTranslations,
+      )
+    : publishedBank.manifest;
   const authCode = single(query.auth);
   const guestMode = single(query.guest) === "1";
   const deckParam = single(query.deck);
@@ -121,7 +146,7 @@ export default async function PracticePage({
     ? localizeContentManifest(
         getRepoContentManifest(),
         locale,
-        cloud.questionTranslations,
+        questionTranslations,
       )
     : null;
   const customStudyLaunchKey = initialCustomStudyFilters
@@ -155,7 +180,7 @@ export default async function PracticePage({
         locale === "vi" || hasExactQuestionTranslation(
           question,
           locale,
-          cloud.questionTranslations,
+          questionTranslations,
         ),
     )
     .filter((question) => question.status !== "archived")
@@ -183,7 +208,7 @@ export default async function PracticePage({
   const questions = mappedQuestions.filter(
     (question) =>
       question.status === "verified" ||
-      isQuestionApproved(question, cloud.approvals),
+      isQuestionApproved(question, questionApprovals),
   );
   const initialLessonCheck =
     lessonCheckLaunch &&
@@ -201,16 +226,17 @@ export default async function PracticePage({
           ),
         }
       : null;
-  const reviewQueue = cloud.account
+  const reviewQueue = usesEditorialPreview
     ? mappedQuestions.filter(
         (question) =>
           new Set(["draft", "needs_review"]).has(question.status) &&
-          !isQuestionApproved(question, cloud.approvals),
+          !isQuestionApproved(question, questionApprovals),
       )
     : [];
   const practiceKey = [
     cloud.account?.id ?? "local",
-    requestedFocusId ?? (invalidFocusRequest ? "invalid-focus" : "normal-practice"),
+    requestedFocusId ??
+      (invalidFocusRequest ? "invalid-focus" : "normal-practice"),
     initialLessonCheck?.lessonId ?? "no-lesson-check",
     initialLessonCheck?.restart ? "restart" : "resume",
     customStudyLaunchKey,
@@ -229,6 +255,9 @@ export default async function PracticePage({
       initialCloudProgress={cloud.progress}
       initialQuestionStates={cloud.questionStates}
       cloudSetupError={cloud.error}
+      questionBankAvailable={
+        usesEditorialPreview || publishedBank.publicationAvailable
+      }
       initialAiDailyBudget={cloud.aiDailyBudget}
       initialPublicAiQuota={initialPublicAiQuota}
       authNotice={authNotice(authCode, t)}
