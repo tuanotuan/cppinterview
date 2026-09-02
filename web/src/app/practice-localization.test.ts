@@ -114,11 +114,11 @@ describe("Practice localization", () => {
       "utf8",
     );
     expect(pageSource).toMatch(
-      /hasExactQuestionTranslation\(\s*question,\s*locale,\s*cloud\.questionTranslations,/,
+      /hasExactQuestionTranslation\(\s*question,\s*locale,\s*questionTranslations,/,
     );
-    expect(pageSource).toMatch(
-      /localizeContentManifest\(\s*cloud\.manifest,\s*locale,\s*cloud\.questionTranslations,/,
-    );
+    expect(pageSource).toContain("loadPublishedQuestionBank(locale)");
+    expect(pageSource).toContain(": publishedBank.manifest");
+    expect(pageSource).toContain(": publishedBank.translations");
   });
 
   it("localizes the scenario editor scaffold instead of leaking Vietnamese", () => {

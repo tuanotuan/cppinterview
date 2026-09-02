@@ -229,7 +229,7 @@ Xem danh sách chuẩn trong `web/.env.example`.
 - Server app: OpenAI/Gemini keys, admin billing key, project ID, code-runner
   config.
 - GitHub Actions only: `SUPABASE_SERVICE_ROLE_KEY` cho content sync/generation.
-- Code runner và Mock v4/v5 history cùng publication loader dùng hai secret Supabase riêng
+- Code runner và Mock v4/v5 history cùng publication loader của Practice/Mock dùng hai secret Supabase riêng
   (`CODE_RUNNER_SUPABASE_SECRET_KEY`, `MOCK_HISTORY_SUPABASE_SECRET_KEY`);
   không tái dùng content-sync key hay dùng chung với nhau.
 - Publication loader chạy server-side bằng `service_role`; migration phục vụ
@@ -578,12 +578,20 @@ service-role-only/browser grants như contract hiện tại.
   fallback khi PostgREST chưa thấy overload mới. Review archive, sai version/hash
   hoặc transition thiếu trường không được đưa vào batch sync.
 - Daily plan không được tính bằng tổng learning state hiện tại. Phải rebuild
-  trạng thái đầu ngày từ review history + cloud generation, chọn tối đa một New,
+  trạng thái đầu ngày từ review history + cloud generation, chọn tối đa năm New,
   mọi Learning/Relearning đến hạn và tối đa năm Review đến hạn, rồi trừ các ID đã
   review trong ngày. Không được chạy lại selection trên state sau rating vì sẽ
   tự bơm câu khác vào quota và làm mẫu số tiến độ tăng. Thứ tự mặc định là
-  Relearning/Learning → Review đến hạn → New; Custom Study, Focus và Repair không
-  được làm lệch ba counter của daily plan.
+  Relearning/Learning → Review đến hạn → New. New chưa học giữ nguyên slot trong
+  ngày; ngày kế tiếp dựng lại tối đa năm New nên chỉ lấy thêm đủ số slot còn
+  thiếu sau các thẻ tồn. Custom Study, Focus và Repair không được làm lệch ba
+  counter của daily plan.
+- Learner/guest không được dùng `question_approvals` theo account làm nguồn xuất
+  bản. Practice và Mock phải đọc exact revision do `content_admins` duyệt qua
+  `published-question-bank.server.ts` bằng credential server-only; chỉ truyền
+  content/publication DTO cần thiết xuống client. Lỗi reader phải fail closed và
+  hiện retry, không được giả thành ngân hàng 0 câu. Editorial preview của admin
+  vẫn dùng manifest/override/approval theo phiên quản trị.
 - OpenAI admission theo ngày Việt Nam. Mỗi request tạo reservation UUID trước
   RPC đầu tiên, ghi marker `dispatched` cho cả reservation ứng dụng
   (Coach/Mock/Mistake) và ledger hạn mức ngay trước provider, rồi chỉ
@@ -621,8 +629,9 @@ service-role-only/browser grants như contract hiện tại.
 - Mọi bộ đọc cần toàn bộ lịch sử phải phân trang đến khi nhận trang rỗng, tiến
   cursor/offset theo số row thực nhận và fail closed nếu trang sau lỗi; không
   giả định backend luôn trả đủ page size yêu cầu.
-- Queue ưu tiên question New theo giới hạn trước các review còn lại theo policy
-  trong `learning-state.ts`.
+- Daily New chỉ nhận C++11/14/17/20/23 và được xếp theo chuẩn tăng dần, rồi
+  Dễ → Trung bình → Khó, rồi manifest order. Remediation priority chỉ được đổi
+  thứ tự bên trong cùng nhóm chuẩn/độ khó, không được nhảy cóc curriculum.
 - Hidden test/code-runner metadata không lộ ra client hay response.
 - Mock v5 công khai chỉ nhận browser-safe question refs rồi server dựng lại exact
   plan từ câu verified hoặc publication của `content_admins`; đáp án mẫu/hint/rubric không được gửi

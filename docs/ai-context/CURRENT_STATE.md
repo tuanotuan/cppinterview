@@ -83,16 +83,26 @@ trạng thái từ tên nhánh.
   build và context gate sau mỗi thay đổi UI.
 
 - Tiến độ hôm nay ở Practice dùng daily plan Anki-style gồm `Mới`, `Đang học`
-  (gộp Learning/Relearning) và `Đến hạn`. Một New và tối đa năm Review là quota
+  (gộp Learning/Relearning) và `Đến hạn`. Tối đa năm New và năm Review là quota
   thật theo ngày: plan được dựng lại từ trạng thái đầu ngày nên rating, F5 hay
   cloud merge chỉ trừ ID đã hoàn tất, không tự bơm thẻ khác hoặc tăng mẫu số.
-  Learning/Relearning đến hạn đứng trước Review đến hạn, rồi mới tới New; bốn
-  learning state và các queue Custom Study/Focus/Repair vẫn giữ riêng. Scheduler
+  Nếu còn ba New chưa học thì ngày kế tiếp chỉ lấy thêm hai. New tự động đi theo
+  C++11 → C++14 → C++17 → C++20 → C++23, và Dễ → Trung bình → Khó trong từng
+  chuẩn; C++98 không tự vào queue. Learning/Relearning đến hạn đứng trước Review
+  đến hạn, rồi mới tới New; bốn learning state và các queue Custom
+  Study/Focus/Repair vẫn giữ riêng. Learner mới và guest dùng chung exact
+  publication của `content_admins` qua server-only reader với Mock, không còn
+  đọc nhầm approval theo account thành 0; lỗi publication hiện gate thử lại thay
+  vì empty state quản trị. Scheduler
   đã chuyển từ multiplier cố định sang FSRS 6 cấp ngày: bốn nút `Quên`, `Nhớ nhưng
   khó`, `Tốt`, `Dễ` hiển thị khoảng ôn tính từ history đúng revision/generation.
   Migration `20260902014442_promote_fsrs_scheduler.sql` thêm overload RPC có giới
   hạn, RLS-invoker và tương thích rolling deploy; dry-run chỉ liệt kê migration
-  này, chưa có remote mutation.
+  này, chưa có remote mutation. Thay đổi publication + daily queue hiện tại đạt
+  content/context check, ESLint, TypeScript, 151 file/873 Vitest test và build
+  production sinh 591 static path; regression mục tiêu đạt 29/29. Security review đủ 10
+  nhóm OWASP không có finding mở và production dependency audit báo 0 lỗ hổng.
+  Không có migration hay remote mutation mới.
 
 - Favicon dùng badge C++ dạng SVG cục bộ, tối ưu cho kích thước tab trình duyệt;
   không phụ thuộc ảnh raster hay CDN bên ngoài.

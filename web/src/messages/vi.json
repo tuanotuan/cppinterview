@@ -886,6 +886,11 @@
       "pending": "{count} câu đang nằm trong danh sách chờ duyệt. Hãy duyệt để bắt đầu luyện.",
       "description": "Thêm hoặc duyệt câu hỏi C++ trong trang Quản trị để bắt đầu luyện.",
       "admin": "Mở trang Quản trị"
+    },
+    "questionBankUnavailable": {
+      "title": "Chưa thể tải ngân hàng câu hỏi",
+      "description": "Dịch vụ câu hỏi tạm thời không phản hồi. Tiến độ của bạn vẫn được giữ nguyên; vui lòng thử lại.",
+      "retry": "Thử lại"
     }
   },
   "Mock": {

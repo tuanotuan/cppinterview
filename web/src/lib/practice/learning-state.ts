@@ -1,5 +1,4 @@
 import {
-  selectDailyQuestion,
   type PracticeProgress,
   type Rating,
   type Review,
@@ -12,9 +11,28 @@ import {
   selectFsrsRevisionHistory,
 } from "./fsrs-scheduler";
 
-export const MAX_NEW_PER_DAY = 1;
+export const MAX_NEW_PER_DAY = 5;
 export const MAX_REVIEW_PER_DAY = 5;
 export const LEECH_LAPSE_THRESHOLD = 8;
+
+export const NEW_CARD_STANDARD_ORDER = [
+  "cpp11",
+  "cpp14",
+  "cpp17",
+  "cpp20",
+  "cpp23",
+] as const;
+export const NEW_CARD_DIFFICULTY_ORDER = [
+  "beginner",
+  "intermediate",
+  "advanced",
+] as const;
+
+export type NewCardSequence = {
+  standard: (typeof NEW_CARD_STANDARD_ORDER)[number];
+  difficulty: (typeof NEW_CARD_DIFFICULTY_ORDER)[number];
+  position: number;
+};
 
 export const LEARNING_STATES = [
   "new",
@@ -47,6 +65,8 @@ export type QuestionIdentity = {
   id: string;
   version: number;
   sourceHash: string;
+  /** Undefined preserves legacy input ordering; null excludes automatic New. */
+  newCardSequence?: NewCardSequence | null;
 };
 
 export type AnkiDailyCounts = {
@@ -334,6 +354,12 @@ export function buildAnkiDailyPlan(
     ),
   );
   const priority = new Set(priorityQuestionIds);
+  const identityById = new Map(
+    questions.map((question, position) => [
+      question.id,
+      { question, position },
+    ]),
+  );
   const available = [...states.values()].filter(
     (state) => !state.suspended,
   );
@@ -352,24 +378,16 @@ export function buildAnkiDailyPlan(
     .sort(compareQueueStates)
     .slice(0, Math.max(0, reviewLimit));
   const newIds = available
-    .filter((state) => state.state === "new")
+    .filter(
+      (state) =>
+        state.state === "new" &&
+        identityById.get(state.questionId)?.question.newCardSequence !== null,
+    )
     .map((state) => state.questionId)
-    .sort(
-      (left, right) =>
-        Number(priority.has(right)) - Number(priority.has(left)),
+    .sort((left, right) =>
+      compareNewCards(left, right, identityById, priority),
     );
-  const newQuestions: string[] = [];
-  const candidates = [...newIds];
-  for (let index = 0; index < Math.max(0, newLimit); index += 1) {
-    const preferred = candidates.filter((id) => priority.has(id));
-    const selected = selectDailyQuestion(
-      preferred.length ? preferred : candidates,
-      `${dateKey}:${index}`,
-    );
-    if (!selected) break;
-    newQuestions.push(selected);
-    candidates.splice(candidates.indexOf(selected), 1);
-  }
+  const newQuestions = newIds.slice(0, Math.max(0, newLimit));
 
   const buckets: Record<keyof AnkiDailyCounts, string[]> = {
     new: newQuestions,
@@ -410,6 +428,51 @@ export function buildAnkiDailyPlan(
     totalCount: questionIds.length,
     completedCount: completedIds.length,
   };
+}
+
+function compareNewCards(
+  leftId: string,
+  rightId: string,
+  identityById: ReadonlyMap<
+    string,
+    { question: QuestionIdentity; position: number }
+  >,
+  priority: ReadonlySet<string>,
+) {
+  const left = identityById.get(leftId);
+  const right = identityById.get(rightId);
+  const leftSequence = left?.question.newCardSequence;
+  const rightSequence = right?.question.newCardSequence;
+
+  if (leftSequence && rightSequence) {
+    const standardDifference =
+      NEW_CARD_STANDARD_ORDER.indexOf(leftSequence.standard) -
+      NEW_CARD_STANDARD_ORDER.indexOf(rightSequence.standard);
+    if (standardDifference !== 0) return standardDifference;
+
+    const difficultyDifference =
+      NEW_CARD_DIFFICULTY_ORDER.indexOf(leftSequence.difficulty) -
+      NEW_CARD_DIFFICULTY_ORDER.indexOf(rightSequence.difficulty);
+    if (difficultyDifference !== 0) return difficultyDifference;
+  } else if (leftSequence) {
+    return -1;
+  } else if (rightSequence) {
+    return 1;
+  }
+
+  const priorityDifference =
+    Number(priority.has(rightId)) - Number(priority.has(leftId));
+  if (priorityDifference !== 0) return priorityDifference;
+
+  if (leftSequence && rightSequence) {
+    const sequenceDifference = leftSequence.position - rightSequence.position;
+    if (sequenceDifference !== 0) return sequenceDifference;
+  }
+
+  return (
+    (left?.position ?? 0) - (right?.position ?? 0) ||
+    leftId.localeCompare(rightId)
+  );
 }
 
 export function isDueForStudy(
