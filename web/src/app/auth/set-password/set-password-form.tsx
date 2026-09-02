@@ -25,9 +25,6 @@ export function SetPasswordForm() {
         {t("setPassword.eyebrow")}
       </p>
       <h1 className="mt-2 text-3xl font-semibold tracking-tight">{t("setPassword.title")}</h1>
-      <p className="mt-3 text-sm leading-6 text-[#526276]">
-        {t("setPassword.description")}
-      </p>
 
       <form action={action} className="mt-6 space-y-4">
         <input type="hidden" name="locale" value={locale} />
@@ -50,7 +47,7 @@ export function SetPasswordForm() {
 
         {state.status !== "idle" ? (
           <p
-            aria-live="polite"
+            role={state.status === "error" ? "alert" : "status"}
             className={
               "rounded-xl px-3 py-3 text-sm leading-6 " +
               (state.status === "success"

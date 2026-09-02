@@ -26,6 +26,12 @@ export type AuthInputErrorCode =
   | "newPasswordMismatch"
   | "recoveryCodeInvalid";
 
+export type PasswordSaveFailureCode =
+  | "passwordWeak"
+  | "passwordReauthenticationRequired"
+  | "passwordSaveRateLimited"
+  | "passwordSaveFailed";
+
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function parseEmailPasswordCredentials({
@@ -211,6 +217,28 @@ export function passwordRecoveryRequestErrorCode(code: string | undefined) {
       return "recoveryEmailInvalid" as const;
     default:
       return "recoverySendFailed" as const;
+  }
+}
+
+/**
+ * Resolve a Supabase Auth error from adding or changing a password while the
+ * user is signed in. `same_password` means the requested end state already
+ * exists, so callers can complete the operation idempotently.
+ */
+export function passwordSaveFailureCode(
+  code: string | undefined,
+): PasswordSaveFailureCode | null {
+  switch (code) {
+    case "same_password":
+      return null;
+    case "weak_password":
+      return "passwordWeak";
+    case "reauthentication_needed":
+      return "passwordReauthenticationRequired";
+    case "over_request_rate_limit":
+      return "passwordSaveRateLimited";
+    default:
+      return "passwordSaveFailed";
   }
 }
 

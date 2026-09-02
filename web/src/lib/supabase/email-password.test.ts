@@ -6,6 +6,7 @@ import {
   parseRecoveryCode,
   parseRecoveryEmail,
   parseSignUpCredentials,
+  passwordSaveFailureCode,
   safeAuthNext,
   signInErrorMessage,
 } from "./email-password";
@@ -86,6 +87,20 @@ describe("email/password credentials", () => {
     );
     expect(signInErrorMessage("invalid_credentials")).toBe(
       "Email hoặc mật khẩu không đúng.",
+    );
+  });
+
+  it("treats an already-matching password as an idempotent success", () => {
+    expect(passwordSaveFailureCode("same_password")).toBeNull();
+    expect(passwordSaveFailureCode("weak_password")).toBe("passwordWeak");
+    expect(passwordSaveFailureCode("reauthentication_needed")).toBe(
+      "passwordReauthenticationRequired",
+    );
+    expect(passwordSaveFailureCode("over_request_rate_limit")).toBe(
+      "passwordSaveRateLimited",
+    );
+    expect(passwordSaveFailureCode("unexpected_failure")).toBe(
+      "passwordSaveFailed",
     );
   });
 });

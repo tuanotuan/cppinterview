@@ -151,7 +151,6 @@
     "setPassword": {
       "eyebrow": "Account security",
       "title": "Set a sign-in password",
-      "description": "Accounts that use Google or GitHub can add a password here. Sign in with your provider before saving a password.",
       "saving": "Saving…",
       "save": "Save password",
       "back": "Back to profile"
@@ -179,6 +178,9 @@
       "recoveryLinkInvalid": "The recovery link is no longer valid. Request a new recovery email.",
       "passwordUpdateFailed": "We could not update the password. The link may have expired; request a new recovery email.",
       "providerSignInRequired": "Sign in with Google or GitHub before setting a password.",
+      "passwordWeak": "This password does not meet the security requirements. Use a long, hard-to-guess password that you have not used elsewhere.",
+      "passwordReauthenticationRequired": "Your sign-in is too old for this change. Sign out, sign in again with Google or GitHub, then retry.",
+      "passwordSaveRateLimited": "Too many password save attempts were made. Wait a moment and try again.",
       "passwordSaveFailed": "We could not save the password. Sign in again and retry later."
     }
   },
