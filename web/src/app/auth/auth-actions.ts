@@ -17,6 +17,7 @@ import {
   parseRecoveryCode,
   parseRecoveryEmail,
   passwordRecoveryRequestErrorCode,
+  passwordSaveFailureCode,
   parseSignUpCredentials,
   safeAuthNext,
   signInErrorCode,
@@ -175,11 +176,7 @@ export async function updatePasswordFromRecovery(
   redirect(localizeHref("/auth?auth=password-updated", locale));
 }
 
-/**
- * OAuth-only accounts do not have an email identity for Supabase's recovery
- * endpoint. Let a user who has already authenticated with Google/GitHub add a
- * password without pretending that a recovery email was sent.
- */
+/** Let an authenticated account add or change its password in place. */
 export async function setPasswordForSignedInUser(
   _previous: AuthFormState,
   formData: FormData,
@@ -193,13 +190,14 @@ export async function setPasswordForSignedInUser(
 
   const supabase = await createSupabaseServerClient();
   const { data: authData, error: authError } = await supabase.auth.getUser();
-  if (authError || !authData.user) {
+  if (authError || !authData.user || authData.user.is_anonymous) {
     return localizedState(locale, "error", "providerSignInRequired");
   }
 
   const { error } = await supabase.auth.updateUser({ password: parsed.password });
   if (error) {
-    return localizedState(locale, "error", "passwordSaveFailed");
+    const failureCode = passwordSaveFailureCode(error.code);
+    if (failureCode) return localizedState(locale, "error", failureCode);
   }
 
   redirect(localizeHref("/auth?auth=password-updated", locale));

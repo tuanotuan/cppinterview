@@ -151,7 +151,6 @@
     "setPassword": {
       "eyebrow": "Bảo mật tài khoản",
       "title": "Đặt mật khẩu đăng nhập",
-      "description": "Tài khoản đăng nhập bằng Google hoặc GitHub có thể thêm mật khẩu tại đây. Bạn cần đăng nhập nhà cung cấp trước khi lưu mật khẩu.",
       "saving": "Đang lưu…",
       "save": "Lưu mật khẩu",
       "back": "Quay lại hồ sơ"
@@ -179,6 +178,9 @@
       "recoveryLinkInvalid": "Liên kết khôi phục không còn hợp lệ. Hãy yêu cầu một email khôi phục mới.",
       "passwordUpdateFailed": "Chưa thể đổi mật khẩu. Liên kết có thể đã hết hạn; hãy yêu cầu email khôi phục mới.",
       "providerSignInRequired": "Hãy đăng nhập bằng Google hoặc GitHub trước khi đặt mật khẩu.",
+      "passwordWeak": "Mật khẩu này chưa đáp ứng yêu cầu bảo mật. Hãy dùng mật khẩu dài, khó đoán và chưa từng dùng ở nơi khác.",
+      "passwordReauthenticationRequired": "Phiên đăng nhập đã quá cũ. Hãy đăng xuất, đăng nhập lại bằng Google hoặc GitHub rồi thử lại.",
+      "passwordSaveRateLimited": "Bạn đã thử lưu mật khẩu quá nhiều lần. Hãy chờ một lúc rồi thử lại.",
       "passwordSaveFailed": "Chưa thể lưu mật khẩu. Hãy đăng nhập lại rồi thử lại sau."
     }
   },

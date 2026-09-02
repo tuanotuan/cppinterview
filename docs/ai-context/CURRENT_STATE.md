@@ -142,8 +142,10 @@ trạng thái từ tên nhánh.
   trả lỗi gửi.
   OAuth-only account (như `providers = ["google"]`) có `recovery_sent_at = NULL`
   và không nhận recovery email; người dùng phải đăng nhập Google/GitHub rồi dùng
-  `/auth/set-password` để thêm mật khẩu. Đây là hành vi của Supabase, không phải
-  lỗi SMTP.
+  `/auth/set-password` để thêm mật khẩu. Form này chỉ nhận account không ẩn danh,
+  không lặp mô tả nhà cung cấp; Supabase `same_password` được coi là mục tiêu đã
+  đạt, còn mật khẩu yếu, phiên cần xác thực lại và rate limit được báo riêng.
+  Đây là hành vi của Supabase, không phải lỗi SMTP.
 
 - Giao diện Practice/Admin chỉ biểu diễn hai nhãn phân loại của thẻ: `Dễ`/`Trung bình`/`Khó` và `Text`/`Code`. Filter theo bộ thẻ, lộ trình, loại câu và chủ đề đã được gỡ khỏi UI; taxonomy, `type`, `interviewCategory`, `interviewFormat` và `assessmentSkills` vẫn nằm trong data model để scheduler, tạo nội dung, coverage và WorldQuant/mock dùng nội bộ. `code_review` hiển thị workspace chọn dòng và lưu comment có số dòng vào candidate answer, không lộ comment/rubric mẫu. Trang `/admin/coverage` theo dõi mục tiêu C++ 300 câu verified theo sáu dạng; draft/approval riêng không được làm tăng số verified.
 
@@ -387,12 +389,13 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- FSRS 6 cấp ngày và daily plan Anki-style đạt toàn bộ `npm run validate`:
-  content/context check, ESLint, TypeScript, 148 file/861 Vitest test và Next.js
-  production build sinh 591 static path. Targeted scheduler/sync/UI/SQL đạt
-  57/57; Supabase `db push --dry-run` chỉ liệt kê migration
-  `20260902014442_promote_fsrs_scheduler.sql`, chưa ghi remote. Security review
-  đủ 10 nhóm OWASP không có finding mở; production dependency audit báo 0 lỗ hổng.
+- Fix đặt mật khẩu cho account OAuth đạt toàn bộ `npm run validate`:
+  content/context check, ESLint, TypeScript, 150 file/867 Vitest test và Next.js
+  production build sinh 591 static path. Targeted auth/action/UI đạt 11/11;
+  auth log production xác nhận lỗi đã báo sai là `422 same_password`, nay được
+  xử lý idempotent. Security review đủ 10 nhóm OWASP không có finding mở;
+  production dependency audit báo 0 lỗ hổng. Không có migration hay remote
+  mutation mới.
 - Footer chỉ hiện cột CTA/tài khoản cho khách, link Vibe Coding, dọn
   autosave/blank-helper ở Practice, logo về trang chủ và lịch sử report C++ chi
   tiết đạt toàn bộ `npm run validate`: content/context check, ESLint, TypeScript,

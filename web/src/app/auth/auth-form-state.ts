@@ -21,6 +21,9 @@ export type AuthActionCode =
   | "recoveryLinkInvalid"
   | "passwordUpdateFailed"
   | "providerSignInRequired"
+  | "passwordWeak"
+  | "passwordReauthenticationRequired"
+  | "passwordSaveRateLimited"
   | "passwordSaveFailed";
 
 export type AuthFormState = {

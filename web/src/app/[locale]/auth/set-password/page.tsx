@@ -25,7 +25,7 @@ export default async function SetPasswordPage({
 
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase.auth.getUser();
-  if (!data.user) {
+  if (!data.user || data.user.is_anonymous) {
     redirect(
       localizeHref(
         `/auth?next=${encodeURIComponent(localizeHref("/auth/set-password", locale))}`,
