@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  buildAnkiDailyQueue,
+  buildAnkiDailyPlan,
   buildLearningStates,
-  countLearningStates,
   deriveLearningStateFromReviews,
   filterReviewsForLearningHistory,
+  isDueForStudy,
   learningQueuePriority,
   newQuestionLearningState,
   ratingIntervalDays,
@@ -64,7 +64,7 @@ describe("Anki-style learning-state foundation", () => {
     });
   });
 
-  it("orders new before relearning, learning, and review and excludes suspended", () => {
+  it("orders relearning, learning, and review before new and excludes suspended", () => {
     const base = newQuestionLearningState({
       questionId: "cpp11-auto-001",
       questionVersion: 1,
@@ -72,13 +72,13 @@ describe("Anki-style learning-state foundation", () => {
     });
 
     expect(
-      ["new", "review", "learning", "relearning"].map((state) =>
+      ["relearning", "learning", "review", "new"].map((state) =>
         learningQueuePriority({
           ...base,
           state: state as typeof base.state,
         }),
       ),
-    ).toEqual([0, 3, 2, 1]);
+    ).toEqual([0, 1, 2, 3]);
     expect(learningQueuePriority({ ...base, suspended: true })).toBe(Infinity);
   });
 
@@ -193,10 +193,17 @@ describe("Anki-style learning-state foundation", () => {
     expect(ratingIntervalDays(review, "easy")).toBe(32);
   });
 
-  it("keeps New questions first until all of them are completed", () => {
-    const questions = ["new-a", "new-b", "review-a", "review-b", "learn-a"].map(
-      (id) => ({ id, version: 1, sourceHash: "a".repeat(64) }),
-    );
+  it("builds one stable daily plan with Learning and Due before New", () => {
+    const questions = [
+      "new-a",
+      "new-b",
+      "review-a",
+      "review-b",
+      "review-future",
+      "review-suspended",
+      "learn-a",
+      "relearn-a",
+    ].map((id) => ({ id, version: 1, sourceHash: "a".repeat(64) }));
     const states = buildLearningStates(questions, []);
     states.set("review-a", {
       ...states.get("review-a")!,
@@ -216,8 +223,36 @@ describe("Anki-style learning-state foundation", () => {
       lastRating: "good",
       lastReviewedOn: "2026-07-16",
     });
+    states.set("review-future", {
+      ...states.get("review-future")!,
+      state: "review",
+      dueOn: "2026-07-22",
+      intervalDays: 4,
+      reviewCount: 1,
+      lastRating: "good",
+      lastReviewedOn: "2026-07-18",
+    });
+    states.set("review-suspended", {
+      ...states.get("review-suspended")!,
+      state: "review",
+      dueOn: "2026-07-20",
+      intervalDays: 4,
+      reviewCount: 1,
+      lastRating: "good",
+      lastReviewedOn: "2026-07-16",
+      suspended: true,
+    });
     states.set("learn-a", {
       ...states.get("learn-a")!,
+      state: "learning",
+      dueOn: "2026-07-21",
+      intervalDays: 1,
+      reviewCount: 1,
+      lastRating: "again",
+      lastReviewedOn: "2026-07-20",
+    });
+    states.set("relearn-a", {
+      ...states.get("relearn-a")!,
       state: "relearning",
       dueOn: "2026-07-21",
       intervalDays: 1,
@@ -226,60 +261,193 @@ describe("Anki-style learning-state foundation", () => {
       lastReviewedOn: "2026-07-20",
     });
 
-    expect(countLearningStates(states.values())).toEqual({
-      new: 2,
-      learning: 0,
-      review: 2,
-      relearning: 1,
+    const firstPlan = buildAnkiDailyPlan(
+      questions,
+      [],
+      [...states.values()],
+      "2026-07-21",
+      { newLimit: 1, reviewLimit: 1 },
+    );
+    const selectedNew = firstPlan.questionIds.at(-1)!;
+
+    expect(firstPlan.questionIds).toEqual([
+      "relearn-a",
+      "learn-a",
+      "review-a",
+      selectedNew,
+    ]);
+    expect(selectedNew).toMatch(/^new-/);
+    expect(firstPlan.counts).toEqual({
+      new: 1,
+      learning: 2,
+      review: 1,
+    });
+    expect(firstPlan).toMatchObject({
+      completedCount: 0,
+      totalCount: 4,
     });
 
-    const queueOptions = {
-      newLimit: 1,
-      reviewLimit: 1,
+    const scheduled = scheduleQuestionReview(
+      states.get(selectedNew)!,
+      "good",
+      "2026-07-21",
+    );
+    const cloudAfterReview = new Map(states);
+    cloudAfterReview.set(selectedNew, scheduled.state);
+    const afterReload = buildAnkiDailyPlan(
+      questions,
+      [scheduled.review],
+      [...cloudAfterReview.values()],
+      "2026-07-21",
+      { newLimit: 1, reviewLimit: 1 },
+    );
+
+    expect(afterReload.questionIds).toEqual(firstPlan.questionIds);
+    expect(afterReload.remainingIds).not.toContain(selectedNew);
+    expect(afterReload.remainingIds).not.toContain(
+      selectedNew === "new-a" ? "new-b" : "new-a",
+    );
+    expect(afterReload.counts).toEqual({
+      new: 0,
+      learning: 2,
+      review: 1,
+    });
+    expect(afterReload).toMatchObject({
+      completedCount: 1,
+      totalCount: 4,
+    });
+
+    const nextDay = buildAnkiDailyPlan(
+      questions,
+      [scheduled.review],
+      [...cloudAfterReview.values()],
+      "2026-07-22",
+      { newLimit: 1, reviewLimit: 1 },
+    );
+    expect(nextDay.counts.new).toBe(1);
+    expect(nextDay.questionIds.at(-1)).toBe(
+      selectedNew === "new-a" ? "new-b" : "new-a",
+    );
+  });
+
+  it("does not refill the daily Review quota after a due card is completed", () => {
+    const sourceHash = "a".repeat(64);
+    const questions = ["review-a", "review-b"].map((id) => ({
+      id,
+      version: 1,
+      sourceHash,
+    }));
+    const history: Review[] = questions.map((question) => ({
+      questionId: question.id,
+      questionVersion: question.version,
+      sourceHash,
+      reviewedOn: "2026-07-16",
+      rating: "good",
+      nextDueOn: "2026-07-20",
+      stateAfter: "review",
+      intervalDaysAfter: 4,
+      lapseCountAfter: 0,
+    }));
+    const states = buildLearningStates(questions, history);
+    const firstPlan = buildAnkiDailyPlan(
+      questions,
+      history,
+      [],
+      "2026-07-21",
+      { newLimit: 0, reviewLimit: 1 },
+    );
+    expect(firstPlan.questionIds).toEqual(["review-a"]);
+
+    const scheduled = scheduleQuestionReview(
+      states.get("review-a")!,
+      "good",
+      "2026-07-21",
+    );
+    const afterReload = buildAnkiDailyPlan(
+      questions,
+      [...history, scheduled.review],
+      [scheduled.state],
+      "2026-07-21",
+      { newLimit: 0, reviewLimit: 1 },
+    );
+
+    expect(afterReload.questionIds).toEqual(["review-a"]);
+    expect(afterReload.remainingIds).toEqual([]);
+    expect(afterReload.counts.review).toBe(0);
+    expect(afterReload.completedCount).toBe(1);
+  });
+
+  it("treats content-changed Learning cards with no due date as due", () => {
+    const state = {
+      ...newQuestionLearningState({
+        questionId: "changed",
+        questionVersion: 2,
+        sourceHash: "b".repeat(64),
+      }),
+      state: "learning" as const,
+      contentChanged: true,
     };
-    const firstQueue = buildAnkiDailyQueue(
-      states,
-      "2026-07-21",
-      queueOptions,
-    );
 
-    expect(firstQueue[0]).toMatch(/^new-/);
-    expect(firstQueue.slice(1)).toEqual(["learn-a", "review-a"]);
-
-    const firstNewId = firstQueue[0];
-    states.set(firstNewId, {
-      ...states.get(firstNewId)!,
-      state: "review",
-      dueOn: "2026-07-24",
-      intervalDays: 3,
-      reviewCount: 1,
-      lastRating: "good",
-      lastReviewedOn: "2026-07-21",
-    });
-
-    const secondQueue = buildAnkiDailyQueue(
-      states,
-      "2026-07-21",
-      queueOptions,
-    );
-    expect(secondQueue[0]).toMatch(/^new-/);
-    expect(secondQueue[0]).not.toBe(firstNewId);
-    expect(secondQueue.slice(1)).toEqual(["learn-a", "review-a"]);
-
-    const secondNewId = secondQueue[0];
-    states.set(secondNewId, {
-      ...states.get(secondNewId)!,
-      state: "review",
-      dueOn: "2026-07-24",
-      intervalDays: 3,
-      reviewCount: 1,
-      lastRating: "good",
-      lastReviewedOn: "2026-07-21",
-    });
-
+    expect(isDueForStudy(state, "2026-07-21")).toBe(true);
     expect(
-      buildAnkiDailyQueue(states, "2026-07-21", queueOptions),
-    ).toEqual(["learn-a", "review-a"]);
+      isDueForStudy({ ...state, state: "new" }, "2026-07-21"),
+    ).toBe(false);
+  });
+
+  it("keeps a reset generation on one stable New slot across reloads", () => {
+    const sourceHash = "a".repeat(64);
+    const questions = ["reset-card", "other-new"].map((id) => ({
+      id,
+      version: 1,
+      sourceHash,
+    }));
+    const resetToken = "d89ed8d0-7b1f-4c62-9ca4-90a14b8cfa86";
+    const resetState = {
+      ...newQuestionLearningState({
+        questionId: "reset-card",
+        questionVersion: 1,
+        sourceHash,
+      }),
+      historyResetOn: "2026-07-21",
+      historyResetToken: resetToken,
+    };
+    const firstPlan = buildAnkiDailyPlan(
+      questions,
+      [
+        {
+          questionId: "reset-card",
+          reviewedOn: "2026-07-20",
+          rating: "good",
+          nextDueOn: "2026-07-24",
+        },
+      ],
+      [resetState],
+      "2026-07-21",
+      {
+        newLimit: 1,
+        priorityQuestionIds: ["reset-card"],
+      },
+    );
+    expect(firstPlan.questionIds).toEqual(["reset-card"]);
+
+    const scheduled = scheduleQuestionReview(
+      resetState,
+      "good",
+      "2026-07-21",
+    );
+    const afterReload = buildAnkiDailyPlan(
+      questions,
+      [scheduled.review, scheduled.review],
+      [scheduled.state],
+      "2026-07-21",
+      {
+        newLimit: 1,
+        priorityQuestionIds: ["reset-card"],
+      },
+    );
+    expect(afterReload.questionIds).toEqual(["reset-card"]);
+    expect(afterReload.remainingIds).toEqual([]);
+    expect(afterReload.completedCount).toBe(1);
   });
 
   it("uses extended review metadata when restoring a state", () => {
@@ -362,21 +530,36 @@ describe("Anki-style learning-state foundation", () => {
 
 describe("mistake-card queue priority", () => {
   it("selects a new remediation card before ordinary New cards", () => {
-    const states = new Map(
-      ["ordinary-a", "remediation", "ordinary-b"].map((questionId) => [
-        questionId,
-        newQuestionLearningState({
-          questionId,
-          questionVersion: 1,
-          sourceHash: "a".repeat(64),
-        }),
-      ]),
+    const questions = ["ordinary-a", "remediation", "ordinary-b"].map(
+      (id) => ({ id, version: 1, sourceHash: "a".repeat(64) }),
     );
-    expect(
-      buildAnkiDailyQueue(states, "2026-07-27", {
+    const firstPlan = buildAnkiDailyPlan(questions, [], [], "2026-07-27", {
+      newLimit: 1,
+      priorityQuestionIds: ["remediation"],
+    });
+    expect(firstPlan.questionIds).toEqual(["remediation"]);
+
+    const remediationState = newQuestionLearningState({
+      questionId: "remediation",
+      questionVersion: 1,
+      sourceHash: "a".repeat(64),
+    });
+    const scheduled = scheduleQuestionReview(
+      remediationState,
+      "good",
+      "2026-07-27",
+    );
+    const afterReload = buildAnkiDailyPlan(
+      questions,
+      [scheduled.review],
+      [scheduled.state],
+      "2026-07-27",
+      {
         newLimit: 1,
         priorityQuestionIds: ["remediation"],
-      }),
-    ).toEqual(["remediation"]);
+      },
+    );
+    expect(afterReload.questionIds).toEqual(["remediation"]);
+    expect(afterReload.remainingIds).toEqual([]);
   });
 });

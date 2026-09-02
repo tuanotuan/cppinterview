@@ -571,6 +571,13 @@ service-role-only/browser grants như contract hiện tại.
   stale nếu nội dung vừa đổi, giữ review offline cũ hơn dưới dạng history-only và
   trả rating thẩm quyền. Review archive, sai version/hash hoặc transition thiếu
   trường không được đưa vào batch sync.
+- Daily plan không được tính bằng tổng learning state hiện tại. Phải rebuild
+  trạng thái đầu ngày từ review history + cloud generation, chọn tối đa một New,
+  mọi Learning/Relearning đến hạn và tối đa năm Review đến hạn, rồi trừ các ID đã
+  review trong ngày. Không được chạy lại selection trên state sau rating vì sẽ
+  tự bơm câu khác vào quota và làm mẫu số tiến độ tăng. Thứ tự mặc định là
+  Relearning/Learning → Review đến hạn → New; Custom Study, Focus và Repair không
+  được làm lệch ba counter của daily plan.
 - OpenAI admission theo ngày Việt Nam. Mỗi request tạo reservation UUID trước
   RPC đầu tiên, ghi marker `dispatched` cho cả reservation ứng dụng
   (Coach/Mock/Mistake) và ledger hạn mức ngay trước provider, rồi chỉ

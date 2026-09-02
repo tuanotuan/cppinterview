@@ -82,6 +82,14 @@ trạng thái từ tên nhánh.
   hierarchy heading/metadata; validation cần chạy typecheck, ESLint, test,
   build và context gate sau mỗi thay đổi UI.
 
+- Tiến độ hôm nay ở Practice dùng daily plan Anki-style gồm `Mới`, `Đang học`
+  (gộp Learning/Relearning) và `Đến hạn`. Một New và tối đa năm Review là quota
+  thật theo ngày: plan được dựng lại từ trạng thái đầu ngày nên rating, F5 hay
+  cloud merge chỉ trừ ID đã hoàn tất, không tự bơm thẻ khác hoặc tăng mẫu số.
+  Learning/Relearning đến hạn đứng trước Review đến hạn, rồi mới tới New; bốn
+  learning state và các queue Custom Study/Focus/Repair vẫn giữ riêng. Thay đổi
+  không cần migration hay remote mutation.
+
 - Favicon dùng badge C++ dạng SVG cục bộ, tối ưu cho kích thước tab trình duyệt;
   không phụ thuộc ảnh raster hay CDN bên ngoài.
 
@@ -375,6 +383,12 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
+- Daily plan Anki-style đạt toàn bộ `npm run validate`: content/context check,
+  ESLint, TypeScript, 146 file/852 Vitest test và Next.js production build sinh
+  591 static path. Targeted scheduler/UI/i18n đạt 28/28, gồm quota New/Review
+  không refill trong ngày, đổi ngày, cloud reload, reset generation, same-day
+  dedupe, remediation priority, thẻ tương lai/suspended, contentChanged due và
+  ba nhãn Việt/Anh. Không có migration, remote mutation hay dependency mới.
 - Footer chỉ hiện cột CTA/tài khoản cho khách, link Vibe Coding, dọn
   autosave/blank-helper ở Practice, logo về trang chủ và lịch sử report C++ chi
   tiết đạt toàn bộ `npm run validate`: content/context check, ESLint, TypeScript,

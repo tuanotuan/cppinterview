@@ -6,7 +6,10 @@ import {
   contentTrackSchema,
   questionDifficultySchema,
 } from "../content/schema";
-import type { QuestionLearningState } from "./learning-state";
+import {
+  isDueForStudy,
+  type QuestionLearningState,
+} from "./learning-state";
 import { selectDailyQuestion } from "./scheduler";
 
 export type CustomStudyFilters = {
@@ -158,9 +161,7 @@ export function buildCustomStudyQueue(
       const matchesState =
         filters.learningState === "all" ||
         (filters.learningState === "due"
-          ? effectiveState !== "new" &&
-            state.dueOn !== null &&
-            state.dueOn <= today
+          ? state.contentChanged || isDueForStudy(state, today)
           : filters.learningState === "leech"
             ? state.leech
             : effectiveState === filters.learningState);

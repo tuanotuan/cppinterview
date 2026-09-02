@@ -133,9 +133,8 @@ import {
   subscribeToPracticeProgress as subscribeToProgress,
 } from "@/lib/practice/storage";
 import {
-  buildAnkiDailyQueue,
+  buildAnkiDailyPlan,
   buildLearningStates,
-  countLearningStates,
   filterReviewsForLearningHistory,
   ratingIntervalDays,
   scheduleQuestionReview,
@@ -1494,9 +1493,9 @@ export function PracticeApp({
 
   const {
     completedToday,
+    dailyCounts,
     deckQuestions,
     latest,
-    learningCounts,
     learningStates,
     questionById,
     remainingIds,
@@ -1519,39 +1518,36 @@ export function PracticeApp({
     const nextQuestionById = new Map(
       nextDeckQuestions.map((question) => [question.id, question]),
     );
+    const nextCloudStates = cloudQuestionStates.filter((state) =>
+      deckQuestionIds.has(state.questionId),
+    );
+    const nextQuestionIdentities = nextDeckQuestions.map((question) => ({
+      id: question.id,
+      version: question.version,
+      sourceHash: question.sourceHash,
+    }));
     const nextLearningStates = buildLearningStates(
-      nextDeckQuestions.map((question) => ({
-        id: question.id,
-        version: question.version,
-        sourceHash: question.sourceHash,
-      })),
+      nextQuestionIdentities,
       nextDeckReviews,
-      cloudQuestionStates.filter((state) =>
-        deckQuestionIds.has(state.questionId),
-      ),
+      nextCloudStates,
     );
     const nextLatest = latestReviews(nextDeckReviews);
-    const nextRemainingIds = buildAnkiDailyQueue(
-      nextLearningStates,
+    const nextDailyPlan = buildAnkiDailyPlan(
+      nextQuestionIdentities,
+      nextDeckReviews,
+      nextCloudStates,
       today,
       { priorityQuestionIds: mistakeQuestionIds },
-    ).filter(
-      (questionId) => nextLatest.get(questionId)?.reviewedOn !== today,
     );
-    const nextCompletedToday = new Set(
-      nextDeckReviews
-        .filter((review) => review.reviewedOn === today)
-        .map((review) => review.questionId),
-    ).size;
 
     return {
-      completedToday: nextCompletedToday,
+      completedToday: nextDailyPlan.completedCount,
+      dailyCounts: nextDailyPlan.counts,
       deckQuestions: nextDeckQuestions,
       latest: nextLatest,
-      learningCounts: countLearningStates(nextLearningStates.values()),
       learningStates: nextLearningStates,
       questionById: nextQuestionById,
-      remainingIds: nextRemainingIds,
+      remainingIds: nextDailyPlan.remainingIds,
       selectedPendingReview: nextSelectedPendingReview,
       streak: calculateStreak(nextDeckReviews, today),
     };
@@ -4091,23 +4087,27 @@ export function PracticeApp({
                       })}
                 </p>
                 {!isFocusActive ? (
-                  <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
-                    <LearningCount
-                      label={practiceT("learningState.new")}
-                      value={learningCounts.new}
+                  <div className="mt-5 grid grid-cols-3 gap-2 text-xs">
+                    <DailyBucketCount
+                      label={practiceT("progressPanel.new")}
+                      value={dailyCounts.new}
                     />
-                    <LearningCount
-                      label={practiceT("learningState.learning")}
-                      value={learningCounts.learning}
+                    <DailyBucketCount
+                      label={practiceT("progressPanel.learning")}
+                      value={dailyCounts.learning}
                     />
-                    <LearningCount
-                      label={practiceT("learningState.review")}
-                      value={learningCounts.review}
+                    <DailyBucketCount
+                      label={practiceT("progressPanel.due")}
+                      value={dailyCounts.review}
                     />
-                    <LearningCount
-                      label={practiceT("learningState.relearning")}
-                      value={learningCounts.relearning}
-                    />
+                    <p role="status" aria-atomic="true" className="sr-only">
+                      {practiceT("progressPanel.dailyStatus", {
+                        new: dailyCounts.new,
+                        learning: dailyCounts.learning,
+                        due: dailyCounts.review,
+                        total: remainingIds.length,
+                      })}
+                    </p>
                   </div>
                 ) : null}
               </div>
@@ -4624,10 +4624,10 @@ function StudySelect({
   );
 }
 
-function LearningCount({ label, value }: { label: string; value: number }) {
+function DailyBucketCount({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-xl bg-white/10 px-3 py-2">
-      <span className="block font-mono text-[10px] tracking-wide text-white/55 uppercase">
+    <div className="min-w-0 rounded-xl bg-white/10 px-2 py-2.5 text-center">
+      <span className="block whitespace-nowrap font-mono text-[10px] tracking-wide text-white/65 uppercase">
         {label}
       </span>
       <strong className="mt-0.5 block text-base text-[#65e6d2]">{value}</strong>

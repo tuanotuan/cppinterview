@@ -177,7 +177,7 @@ describe("custom study", () => {
     ).toEqual(["review-one"]);
   });
 
-  it("treats changed content as unseen and honors a canonical question allow-list", () => {
+  it("keeps changed content unseen and due for relearning", () => {
     const questions = ["changed", "repo-new", "remote-extra"].map((id) => ({
       id,
       taxonomy,
@@ -198,6 +198,7 @@ describe("custom study", () => {
       contentChanged: true,
     });
 
+    const allowedQuestionIds = new Set(["changed", "repo-new"]);
     expect(
       buildCustomStudyQueue(
         questions,
@@ -212,9 +213,26 @@ describe("custom study", () => {
           lessonId: "all",
           limit: 20,
         },
-        new Set(["changed", "repo-new"]),
+        allowedQuestionIds,
       ).sort(),
     ).toEqual(["changed", "repo-new"]);
+    expect(
+      buildCustomStudyQueue(
+        questions,
+        states,
+        "2026-07-21",
+        {
+          learningState: "due",
+          standard: "all",
+          difficulty: "all",
+          skill: "all",
+          topic: "all",
+          lessonId: "all",
+          limit: 20,
+        },
+        allowedQuestionIds,
+      ),
+    ).toEqual(["changed"]);
   });
 
   it("limits a lesson launch to the exact source lesson", () => {
