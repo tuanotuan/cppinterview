@@ -8,7 +8,7 @@ import {
   isDueForStudy,
   learningQueuePriority,
   newQuestionLearningState,
-  ratingIntervalDays,
+  previewQuestionRatingIntervals,
   scheduleQuestionReview,
 } from "./learning-state";
 import type { Review } from "./scheduler";
@@ -88,11 +88,12 @@ describe("Anki-style learning-state foundation", () => {
       questionVersion: 2,
       sourceHash: "a".repeat(64),
     });
-    const learned = scheduleQuestionReview(fresh, "good", "2026-07-21");
+    const learned = scheduleQuestionReview(fresh, "good", "2026-07-21", []);
     const forgotten = scheduleQuestionReview(
       { ...learned.state, intervalDays: 10 },
       "again",
       "2026-07-24",
+      [learned.review],
     );
 
     expect(learned.state).toMatchObject({
@@ -131,6 +132,7 @@ describe("Anki-style learning-state foundation", () => {
       reset,
       "good",
       "2026-07-21",
+      [],
     );
 
     expect(scheduled.review.historyResetToken).toBe(resetToken);
@@ -175,22 +177,34 @@ describe("Anki-style learning-state foundation", () => {
     ]);
   });
 
-  it("grows Review intervals according to Hard, Good, and Easy", () => {
-    const review = {
-      ...newQuestionLearningState({
-        questionId: "cpp11-auto-001",
-        questionVersion: 1,
-        sourceHash: "a".repeat(64),
-      }),
-      state: "review" as const,
-      intervalDays: 10,
-      dueOn: "2026-07-21",
-      reviewCount: 2,
+  it("previews FSRS intervals from the card's actual review history", () => {
+    const question = {
+      id: "cpp11-auto-001",
+      version: 1,
+      sourceHash: "a".repeat(64),
     };
+    const first = scheduleQuestionReview(
+      newQuestionLearningState({
+        questionId: question.id,
+        questionVersion: question.version,
+        sourceHash: question.sourceHash,
+      }),
+      "good",
+      "2026-07-21",
+      [],
+    );
+    const intervals = previewQuestionRatingIntervals(
+      first.state,
+      [first.review],
+      "2026-07-24",
+    );
 
-    expect(ratingIntervalDays(review, "hard")).toBe(12);
-    expect(ratingIntervalDays(review, "good")).toBe(22);
-    expect(ratingIntervalDays(review, "easy")).toBe(32);
+    expect(intervals).toEqual({
+      again: 1,
+      hard: 9,
+      good: 14,
+      easy: 24,
+    });
   });
 
   it("builds one stable daily plan with Learning and Due before New", () => {
@@ -291,6 +305,7 @@ describe("Anki-style learning-state foundation", () => {
       states.get(selectedNew)!,
       "good",
       "2026-07-21",
+      [],
     );
     const cloudAfterReview = new Map(states);
     cloudAfterReview.set(selectedNew, scheduled.state);
@@ -362,6 +377,7 @@ describe("Anki-style learning-state foundation", () => {
       states.get("review-a")!,
       "good",
       "2026-07-21",
+      history,
     );
     const afterReload = buildAnkiDailyPlan(
       questions,
@@ -434,6 +450,7 @@ describe("Anki-style learning-state foundation", () => {
       resetState,
       "good",
       "2026-07-21",
+      [],
     );
     const afterReload = buildAnkiDailyPlan(
       questions,
@@ -450,7 +467,7 @@ describe("Anki-style learning-state foundation", () => {
     expect(afterReload.completedCount).toBe(1);
   });
 
-  it("uses extended review metadata when restoring a state", () => {
+  it("replays ratings through FSRS instead of trusting stale transition metadata", () => {
     const restored = deriveLearningStateFromReviews("cpp11-auto-001", [
       {
         questionId: "cpp11-auto-001",
@@ -469,12 +486,13 @@ describe("Anki-style learning-state foundation", () => {
       questionVersion: 3,
       sourceHash: "b".repeat(64),
       state: "review",
-      intervalDays: 12,
-      lapseCount: 4,
+      dueOn: "2026-07-23",
+      intervalDays: 2,
+      lapseCount: 0,
     });
   });
 
-  it("prefers the authoritative cloud projection when review dates tie", () => {
+  it("prefers the locally replayed FSRS projection when review dates tie", () => {
     const questions = [
       { id: "cpp11-auto-001", version: 1, sourceHash: "a".repeat(64) },
     ];
@@ -497,8 +515,8 @@ describe("Anki-style learning-state foundation", () => {
     ]);
 
     expect(states.get("cpp11-auto-001")).toMatchObject({
-      intervalDays: 22,
-      dueOn: "2026-08-12",
+      intervalDays: 3,
+      dueOn: "2026-07-24",
     });
   });
 
@@ -548,6 +566,7 @@ describe("mistake-card queue priority", () => {
       remediationState,
       "good",
       "2026-07-27",
+      [],
     );
     const afterReload = buildAnkiDailyPlan(
       questions,

@@ -87,8 +87,12 @@ trạng thái từ tên nhánh.
   thật theo ngày: plan được dựng lại từ trạng thái đầu ngày nên rating, F5 hay
   cloud merge chỉ trừ ID đã hoàn tất, không tự bơm thẻ khác hoặc tăng mẫu số.
   Learning/Relearning đến hạn đứng trước Review đến hạn, rồi mới tới New; bốn
-  learning state và các queue Custom Study/Focus/Repair vẫn giữ riêng. Thay đổi
-  không cần migration hay remote mutation.
+  learning state và các queue Custom Study/Focus/Repair vẫn giữ riêng. Scheduler
+  đã chuyển từ multiplier cố định sang FSRS 6 cấp ngày: bốn nút `Quên`, `Nhớ nhưng
+  khó`, `Tốt`, `Dễ` hiển thị khoảng ôn tính từ history đúng revision/generation.
+  Migration `20260902014442_promote_fsrs_scheduler.sql` thêm overload RPC có giới
+  hạn, RLS-invoker và tương thích rolling deploy; dry-run chỉ liệt kê migration
+  này, chưa có remote mutation.
 
 - Favicon dùng badge C++ dạng SVG cục bộ, tối ưu cho kích thước tab trình duyệt;
   không phụ thuộc ảnh raster hay CDN bên ngoài.
@@ -383,12 +387,12 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Daily plan Anki-style đạt toàn bộ `npm run validate`: content/context check,
-  ESLint, TypeScript, 146 file/852 Vitest test và Next.js production build sinh
-  591 static path. Targeted scheduler/UI/i18n đạt 28/28, gồm quota New/Review
-  không refill trong ngày, đổi ngày, cloud reload, reset generation, same-day
-  dedupe, remediation priority, thẻ tương lai/suspended, contentChanged due và
-  ba nhãn Việt/Anh. Không có migration, remote mutation hay dependency mới.
+- FSRS 6 cấp ngày và daily plan Anki-style đạt toàn bộ `npm run validate`:
+  content/context check, ESLint, TypeScript, 148 file/861 Vitest test và Next.js
+  production build sinh 591 static path. Targeted scheduler/sync/UI/SQL đạt
+  57/57; Supabase `db push --dry-run` chỉ liệt kê migration
+  `20260902014442_promote_fsrs_scheduler.sql`, chưa ghi remote. Security review
+  đủ 10 nhóm OWASP không có finding mở; production dependency audit báo 0 lỗ hổng.
 - Footer chỉ hiện cột CTA/tài khoản cho khách, link Vibe Coding, dọn
   autosave/blank-helper ở Practice, logo về trang chủ và lịch sử report C++ chi
   tiết đạt toàn bộ `npm run validate`: content/context check, ESLint, TypeScript,

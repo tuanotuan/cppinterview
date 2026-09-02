@@ -136,7 +136,7 @@ import {
   buildAnkiDailyPlan,
   buildLearningStates,
   filterReviewsForLearningHistory,
-  ratingIntervalDays,
+  previewQuestionRatingIntervals,
   scheduleQuestionReview,
   type QuestionLearningState,
 } from "@/lib/practice/learning-state";
@@ -188,13 +188,12 @@ type CoachApiPayload = {
 const ratingOptionDefinitions: Array<{
   value: Rating;
   labelKey: "again" | "hard" | "good" | "easy";
-  intervalKey: "oneDay" | "twoDays" | "fourDays" | "sevenDays";
   tone: string;
 }> = [
-  { value: "again", labelKey: "again", intervalKey: "oneDay", tone: "red" },
-  { value: "hard", labelKey: "hard", intervalKey: "twoDays", tone: "orange" },
-  { value: "good", labelKey: "good", intervalKey: "fourDays", tone: "green" },
-  { value: "easy", labelKey: "easy", intervalKey: "sevenDays", tone: "lime" },
+  { value: "again", labelKey: "again", tone: "red" },
+  { value: "hard", labelKey: "hard", tone: "orange" },
+  { value: "good", labelKey: "good", tone: "green" },
+  { value: "easy", labelKey: "easy", tone: "lime" },
 ];
 
 type PracticeStandard =
@@ -210,7 +209,6 @@ function useRatingOptions() {
   return ratingOptionDefinitions.map((option) => ({
     ...option,
     label: t(`rating.${option.labelKey}`),
-    interval: t(`rating.${option.intervalKey}`),
   }));
 }
 
@@ -1682,6 +1680,17 @@ export function PracticeApp({
       ? allLearningStates.get(current.id)
       : learningStates.get(current.id)
     : undefined;
+  const currentRatingIntervals = useMemo(
+    () =>
+      currentLearningState
+        ? previewQuestionRatingIntervals(
+            currentLearningState,
+            focusProgressReviews,
+            today,
+          )
+        : null,
+    [currentLearningState, focusProgressReviews, today],
+  );
   const isRandomQuestion = Boolean(
     !isLessonCheck &&
     !isFocusActive &&
@@ -1982,6 +1991,7 @@ export function PracticeApp({
                 lockedState,
                 reviewRating,
                 reviewedOn,
+                lockedProgress.reviews,
               ).review;
               const attemptId = coachAttemptIds[current.id];
               const needsRepair =
@@ -3795,32 +3805,35 @@ export function PracticeApp({
                         ) : null}
                       </div>
                       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                        {ratingOptions.map((option) => (
-                          <button
-                            key={option.value}
-                            type="button"
-                            onClick={() => rateCurrent(option.value)}
-                            data-tone={option.tone}
-                            className="rating-button rounded-2xl border bg-white px-3 py-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
-                          >
-                            <span className="block text-sm font-bold">{option.label}</span>
-                            <span className="mt-1 block font-mono text-[11px] opacity-65">
-                              {isRepairActive
-                                ? option.value === "good" ||
-                                  option.value === "easy"
-                                  ? practiceT("rating.fixed")
-                                  : practiceT("rating.repeatSession")
-                                : currentLearningState
-                                  ? practiceT("rating.againAfterDays", {
-                                      count: ratingIntervalDays(
-                                        currentLearningState,
-                                        option.value,
-                                      ),
-                                    })
-                                  : option.interval}
-                            </span>
-                          </button>
-                        ))}
+                        {ratingOptions.map((option) => {
+                          const intervalLabel = isRepairActive
+                            ? option.value === "good" ||
+                              option.value === "easy"
+                              ? practiceT("rating.fixed")
+                              : practiceT("rating.repeatSession")
+                            : currentRatingIntervals
+                              ? practiceT("rating.againAfterDays", {
+                                  count:
+                                    currentRatingIntervals[option.value],
+                                })
+                              : practiceT("rating.calculating");
+                          return (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => rateCurrent(option.value)}
+                              data-tone={option.tone}
+                              className="rating-button min-h-14 rounded-2xl border bg-white px-3 py-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:ring-4 focus:ring-[#65e6d2] focus:outline-none"
+                            >
+                              <span className="block text-sm font-bold">
+                                {option.label}
+                              </span>
+                              <span className="mt-1 block font-mono text-[11px] opacity-65">
+                                {intervalLabel}
+                              </span>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   ) : null}

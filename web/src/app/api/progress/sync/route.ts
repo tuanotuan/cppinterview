@@ -12,7 +12,15 @@ import {
   rowsToProgress,
   syncProgressSchema,
 } from "@/lib/practice/cloud";
-import { filterReviewsForLearningHistory } from "@/lib/practice/learning-state";
+import {
+  buildLearningStates,
+  filterReviewsForLearningHistory,
+} from "@/lib/practice/learning-state";
+import {
+  normalizeReviewWithFsrs,
+  replaceDailyReview,
+} from "@/lib/practice/fsrs-sync";
+import { FSRS_SCHEDULER_VERSION } from "@/lib/practice/fsrs-scheduler";
 import {
   captureCoachMistakes,
   MistakeQueueConfigurationError,
@@ -113,6 +121,37 @@ export async function POST(request: Request) {
     );
   }
 
+  // Read reviews first, then the generation-bearing state. If a reset commits
+  // between these reads, the later state filters the older generation before
+  // any queued review is normalized or written.
+  const initialReviewsResult = await readAllPracticeReviewRows(supabase);
+  const initialStatesResult = await readQuestionLearningStateRows(supabase);
+  if (initialReviewsResult.error || initialStatesResult.error) {
+    return Response.json(
+      { error: "Không đọc được tiến độ học trực tuyến." },
+      { status: 502 },
+    );
+  }
+  const initialQuestionStates = rowsToLearningStates(
+    initialStatesResult.rows,
+  );
+  const initialCloudProgress = rowsToProgress(initialReviewsResult.rows);
+  let workingReviews = filterReviewsForLearningHistory(
+    initialCloudProgress.reviews,
+    initialQuestionStates,
+  );
+  const workingStates = buildLearningStates(
+    manifest.questions
+      .filter((question) => allowedQuestionIds.has(question.id))
+      .map((question) => ({
+        id: question.id,
+        version: question.version,
+        sourceHash: question.sourceHash,
+      })),
+    workingReviews,
+    initialQuestionStates,
+  );
+
   const orderedReviews = [...parsed.data.reviews]
     .sort(
       (left, right) =>
@@ -120,9 +159,16 @@ export async function POST(request: Request) {
         left.questionId.localeCompare(right.questionId),
     );
   const reviewOutcomes: PracticeReviewOutcome[] = [];
+  const resetDiscardedReviews: typeof orderedReviews = [];
   for (const review of orderedReviews) {
     const question = questionById.get(review.questionId)!;
-    const v2Result = await supabase.rpc(
+    const currentState = workingStates.get(review.questionId)!;
+    const normalized = normalizeReviewWithFsrs(
+      currentState,
+      review,
+      workingReviews,
+    );
+    const fsrsResult = await supabase.rpc(
       "record_practice_review",
       {
         p_question_id: review.questionId,
@@ -131,16 +177,16 @@ export async function POST(request: Request) {
         p_reviewed_on: review.reviewedOn,
         p_rating: review.rating,
         p_history_reset_token: review.historyResetToken ?? null,
+        p_interval_days_after: normalized.review.intervalDaysAfter!,
+        p_scheduler_version: FSRS_SCHEDULER_VERSION,
       },
     );
-    let rpcError = v2Result.error;
+    let rpcError = fsrsResult.error;
+    let rpcData = fsrsResult.data;
+    let assumeLegacyRecorded = false;
     let outcome: PracticeReviewOutcome | null = null;
-    if (
-      rpcError &&
-      review.historyResetToken === undefined &&
-      (rpcError.code === "PGRST202" || rpcError.code === "42883")
-    ) {
-      const legacyResult = await supabase.rpc(
+    if (rpcError && isMissingPracticeReviewRpc(rpcError)) {
+      const generationResult = await supabase.rpc(
         "record_practice_review",
         {
           p_question_id: review.questionId,
@@ -148,20 +194,40 @@ export async function POST(request: Request) {
           p_source_hash: question.sourceHash,
           p_reviewed_on: review.reviewedOn,
           p_rating: review.rating,
+          p_history_reset_token: review.historyResetToken ?? null,
         },
       );
-      rpcError = legacyResult.error;
-      if (!rpcError) {
-        outcome = {
-          review,
-          status: "recorded",
-          rating: review.rating,
-        };
+      rpcError = generationResult.error;
+      rpcData = generationResult.data;
+      if (
+        rpcError &&
+        review.historyResetToken === undefined &&
+        isMissingPracticeReviewRpc(rpcError)
+      ) {
+        const legacyResult = await supabase.rpc(
+          "record_practice_review",
+          {
+            p_question_id: review.questionId,
+            p_question_version: question.version,
+            p_source_hash: question.sourceHash,
+            p_reviewed_on: review.reviewedOn,
+            p_rating: review.rating,
+          },
+        );
+        rpcError = legacyResult.error;
+        assumeLegacyRecorded = !rpcError;
       }
+    }
+    if (!rpcError && assumeLegacyRecorded) {
+      outcome = {
+        review: normalized.review,
+        status: "recorded",
+        rating: review.rating,
+      };
     } else if (!rpcError) {
       outcome = parsePracticeReviewOutcome(
-        review,
-        v2Result.data,
+        normalized.review,
+        rpcData,
       );
     }
     if (rpcError) {
@@ -177,11 +243,18 @@ export async function POST(request: Request) {
       );
     }
     reviewOutcomes.push(outcome);
+    if (outcome.status === "reset_discarded") {
+      resetDiscardedReviews.push(review);
+    } else if (outcome.rating === normalized.review.rating) {
+      workingReviews = replaceDailyReview(
+        workingReviews,
+        normalized.review,
+      );
+      workingStates.set(review.questionId, normalized.state);
+    }
   }
-  const discardedReviews = reviewOutcomes.flatMap((outcome) =>
-    outcome.status === "reset_discarded"
-      ? [practiceReviewDiscardIdentity(outcome.review)]
-      : [],
+  const discardedReviews = resetDiscardedReviews.map((review) =>
+    practiceReviewDiscardIdentity(review),
   );
 
   let mistakeCapture: MistakeCaptureResult | null = null;
@@ -349,8 +422,8 @@ export async function POST(request: Request) {
     };
   }
 
-  // Read reviews first, then the generation-bearing state. If a reset commits
-  // between these reads, the later state filters the older generation.
+  // Re-read after the writes so the response remains the authoritative cloud
+  // snapshot rather than the in-memory normalization used above.
   const reviewsResult = await readAllPracticeReviewRows(supabase);
   const statesResult = await readQuestionLearningStateRows(supabase);
   if (reviewsResult.error || statesResult.error) {
@@ -378,4 +451,8 @@ export async function POST(request: Request) {
     mistakeCaptureResolutions,
     mistakeQueueAvailable,
   });
+}
+
+function isMissingPracticeReviewRpc(error: { code?: string | null }) {
+  return error.code === "PGRST202" || error.code === "42883";
 }

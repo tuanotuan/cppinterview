@@ -1,15 +1,14 @@
-import {
-  Rating as FsrsRating,
-  createEmptyCard,
-  fsrs,
-  type Card,
-  type Grade,
-} from "ts-fsrs";
-
 import type { QuestionIdentity } from "./learning-state";
-import type { Rating, Review } from "./scheduler";
+import type { Review } from "./scheduler";
+import {
+  FSRS_SCHEDULER_VERSION,
+  currentFsrsOutcome,
+  dateDifferenceDays,
+  getFsrsRetrievability,
+  replayFsrsCard,
+} from "./fsrs-scheduler";
 
-export const FSRS_SHADOW_VERSION = "fsrs-6-default-v1" as const;
+export const FSRS_SHADOW_VERSION = FSRS_SCHEDULER_VERSION;
 
 export type FsrsShadowCard = {
   questionId: string;
@@ -24,20 +23,6 @@ export type FsrsShadowCard = {
   stability: number;
   difficulty: number;
   dueDeltaDays: number | null;
-};
-
-const scheduler = fsrs({
-  request_retention: 0.9,
-  maximum_interval: 36_500,
-  enable_fuzz: false,
-  enable_short_term: false,
-});
-
-const ratingMap: Record<Rating, Grade> = {
-  again: FsrsRating.Again,
-  hard: FsrsRating.Hard,
-  good: FsrsRating.Good,
-  easy: FsrsRating.Easy,
 };
 
 export function buildFsrsShadowCards({
@@ -75,24 +60,11 @@ export function buildFsrsShadowCards({
           left.rating.localeCompare(right.rating),
       );
       if (!sorted.length) return [];
-      let card: Card = createEmptyCard(
-        reviewDate(sorted[0].reviewedOn),
-      );
-      for (const review of sorted) {
-        card = scheduler.next(
-          card,
-          reviewDate(review.reviewedOn),
-          ratingMap[review.rating],
-        ).card;
-      }
-      const asOfDate = reviewDate(asOf);
-      const retrievability = scheduler.get_retrievability(
-        card,
-        asOfDate,
-        false,
-      );
+      const card = replayFsrsCard(sorted, sorted[0].reviewedOn);
+      const fsrs = currentFsrsOutcome(card);
+      const retrievability = getFsrsRetrievability(card, asOf);
       const latest = sorted.at(-1)!;
-      const shadowDueOn = dateKey(card.due);
+      const shadowDueOn = fsrs.dueOn;
       const identity = currentById.get(questionId)!;
       return [
         {
@@ -103,10 +75,7 @@ export function buildFsrsShadowCards({
           reviewCount: sorted.length,
           actualDueOn: latest.nextDueOn ?? null,
           shadowDueOn,
-          shadowIntervalDays: Math.max(
-            0,
-            dateDifferenceDays(latest.reviewedOn, shadowDueOn),
-          ),
+          shadowIntervalDays: fsrs.intervalDays,
           retrievabilityPercent: Math.round(
             Math.max(0, Math.min(1, retrievability)) * 100,
           ),
@@ -156,21 +125,6 @@ export function summarizeFsrsShadow(
       (card) => card.dueDeltaDays > 0,
     ).length,
   };
-}
-
-function reviewDate(date: string) {
-  return new Date(`${date}T12:00:00.000Z`);
-}
-
-function dateKey(date: Date) {
-  return date.toISOString().slice(0, 10);
-}
-
-function dateDifferenceDays(from: string, to: string) {
-  return Math.round(
-    (reviewDate(to).getTime() - reviewDate(from).getTime()) /
-      86_400_000,
-  );
 }
 
 function round(value: number) {

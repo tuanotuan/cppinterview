@@ -444,12 +444,102 @@ describe("database hardening migrations", () => {
     expect(syncRoute).toContain(
       "p_history_reset_token: review.historyResetToken ?? null",
     );
-    expect(syncRoute).toContain('rpcError.code === "PGRST202"');
     expect(syncRoute).toContain(
-      "practiceReviewDiscardIdentity(outcome.review)",
+      "isMissingPracticeReviewRpc(rpcError)",
+    );
+    expect(syncRoute).toContain(
+      "practiceReviewDiscardIdentity(review)",
     );
     expect(syncRoute).toContain(
       "filterReviewsForLearningHistory",
+    );
+  });
+
+  it("promotes practice reviews to a bounded, generation-safe FSRS RPC", async () => {
+    const [sql, syncRoute] = await Promise.all([
+      readMigration("20260902014442_promote_fsrs_scheduler.sql"),
+      readFile(
+        path.join(
+          webRoot,
+          "src",
+          "app",
+          "api",
+          "progress",
+          "sync",
+          "route.ts",
+        ),
+        "utf8",
+      ),
+    ]);
+    const functionAt = sql.indexOf(
+      "create function public.record_practice_review(",
+    );
+    const lockAt = sql.indexOf(
+      "pg_catalog.pg_advisory_xact_lock",
+      functionAt,
+    );
+    const dailyReadAt = sql.indexOf(
+      "from public.practice_reviews as review",
+      lockAt,
+    );
+    const resetMismatchAt = sql.indexOf(
+      "if v_history_reset_token is distinct from p_history_reset_token",
+      lockAt,
+    );
+    const writeAt = sql.indexOf(
+      "insert into public.practice_reviews",
+      resetMismatchAt,
+    );
+
+    expect(sql).toMatch(
+      /create function public\.record_practice_review\(\s*p_question_id text,\s*p_question_version integer,\s*p_source_hash text,\s*p_reviewed_on date,\s*p_rating text,\s*p_history_reset_token uuid,\s*p_interval_days_after integer,\s*p_scheduler_version text\s*\)/,
+    );
+    expect(sql).toContain("security invoker");
+    expect(sql).toContain("set search_path = ''");
+    expect(sql).not.toContain("security definer");
+    expect(sql).toContain("v_user_id uuid := auth.uid()");
+    expect(sql).toContain("p_interval_days_after > 36500");
+    expect(sql).toContain(
+      "p_scheduler_version is distinct from 'fsrs-6-default-v1'",
+    );
+    expect(sql).toContain(
+      "v_user_id::text || ':' || p_question_id",
+    );
+    expect(lockAt).toBeGreaterThan(functionAt);
+    expect(dailyReadAt).toBeGreaterThan(lockAt);
+    expect(resetMismatchAt).toBeGreaterThan(dailyReadAt);
+    expect(writeAt).toBeGreaterThan(resetMismatchAt);
+    expect(sql).toContain("'status', 'reset_discarded'");
+    expect(sql).toMatch(
+      /v_existing_rating is distinct from p_rating then[\s\S]*?'status', 'already_recorded'/,
+    );
+    expect(sql).toContain("review.reviewed_on < p_reviewed_on");
+    expect(sql).toContain(
+      "where rating = 'again' and review_number > 1",
+    );
+    expect(sql).toContain(
+      "v_due_on := p_reviewed_on + p_interval_days_after",
+    );
+    expect(sql).toMatch(
+      /p_reviewed_on < v_existing_last_reviewed_on then[\s\S]*?'status', 'history_recorded'/,
+    );
+    expect(sql).toMatch(
+      /revoke all on function public\.record_practice_review\([\s\S]*?\) from public, anon, authenticated;/,
+    );
+    expect(sql).toMatch(
+      /grant execute on function public\.record_practice_review\([\s\S]*?\) to authenticated;/,
+    );
+
+    expect(syncRoute).toContain(
+      "p_interval_days_after: normalized.review.intervalDaysAfter!",
+    );
+    expect(syncRoute).toContain(
+      "p_scheduler_version: FSRS_SCHEDULER_VERSION",
+    );
+    expect(syncRoute).toContain("normalizeReviewWithFsrs");
+    expect(syncRoute).toContain("isMissingPracticeReviewRpc");
+    expect(syncRoute.indexOf("initialReviewsResult")).toBeLessThan(
+      syncRoute.indexOf("for (const review of orderedReviews)"),
     );
   });
 

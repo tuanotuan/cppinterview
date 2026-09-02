@@ -58,6 +58,31 @@ describe("Practice localization", () => {
     );
   });
 
+  it("uses Anki rating semantics with FSRS-computed intervals", async () => {
+    const practiceApp = await readFile(
+      path.resolve(import.meta.dirname, "practice-app.tsx"),
+      "utf8",
+    );
+
+    expect(vietnameseMessages.Practice.rating).toMatchObject({
+      again: "Quên",
+      hard: "Nhớ nhưng khó",
+      good: "Tốt",
+      easy: "Dễ",
+    });
+    expect(englishMessages.Practice.rating).toMatchObject({
+      again: "Again",
+      hard: "Hard",
+      good: "Good",
+      easy: "Easy",
+    });
+    expect(vietnameseMessages.Practice.rating).not.toHaveProperty("oneDay");
+    expect(englishMessages.Practice.rating).not.toHaveProperty("sevenDays");
+    expect(practiceApp).toContain("previewQuestionRatingIntervals");
+    expect(practiceApp).toContain("currentRatingIntervals[option.value]");
+    expect(practiceApp).not.toContain("ratingIntervalDays");
+  });
+
   it("does not render redundant sync and source metadata below Practice", async () => {
     const practiceApp = await readFile(
       path.resolve(import.meta.dirname, "practice-app.tsx"),
