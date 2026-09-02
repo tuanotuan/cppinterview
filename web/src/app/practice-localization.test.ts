@@ -34,6 +34,30 @@ describe("Practice localization", () => {
     });
   });
 
+  it("uses the three Anki-style daily buckets without changing detailed states", async () => {
+    const practiceApp = await readFile(
+      path.resolve(import.meta.dirname, "practice-app.tsx"),
+      "utf8",
+    );
+
+    expect(vietnameseMessages.Practice.progressPanel).toMatchObject({
+      new: "Mới",
+      learning: "Đang học",
+      due: "Đến hạn",
+    });
+    expect(englishMessages.Practice.progressPanel).toMatchObject({
+      new: "New",
+      learning: "Learning",
+      due: "Due",
+    });
+    expect(practiceApp).toContain('practiceT("progressPanel.dailyStatus"');
+    expect(practiceApp).not.toContain("value={learningCounts.");
+    expect(vietnameseMessages.Practice.learningState).toHaveProperty(
+      "relearning",
+      "Học lại",
+    );
+  });
+
   it("does not render redundant sync and source metadata below Practice", async () => {
     const practiceApp = await readFile(
       path.resolve(import.meta.dirname, "practice-app.tsx"),

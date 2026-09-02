@@ -43,7 +43,20 @@ export type QuestionIdentity = {
   sourceHash: string;
 };
 
-export type LearningStateCounts = Record<LearningState, number>;
+export type AnkiDailyCounts = {
+  new: number;
+  learning: number;
+  review: number;
+};
+
+export type AnkiDailyPlan = {
+  questionIds: string[];
+  remainingIds: string[];
+  completedIds: string[];
+  counts: AnkiDailyCounts;
+  totalCount: number;
+  completedCount: number;
+};
 
 export function newQuestionLearningState({
   questionId,
@@ -256,8 +269,15 @@ export function recordScheduledReview(
   };
 }
 
-export function buildAnkiDailyQueue(
-  states: Map<string, QuestionLearningState>,
+/**
+ * Reconstructs the beginning-of-day state before selecting the bounded daily
+ * workload. Reviews recorded later that day only complete IDs already in the
+ * plan, so re-renders, reloads, and cloud merges cannot refill either quota.
+ */
+export function buildAnkiDailyPlan(
+  questions: QuestionIdentity[],
+  reviews: Review[],
+  cloudStates: QuestionLearningState[],
   dateKey: string,
   {
     newLimit = MAX_NEW_PER_DAY,
@@ -268,22 +288,35 @@ export function buildAnkiDailyQueue(
     reviewLimit?: number;
     priorityQuestionIds?: Iterable<string>;
   } = {},
-): string[] {
+): AnkiDailyPlan {
+  const currentHistory = filterReviewsForLearningHistory(
+    reviews,
+    cloudStates,
+  );
+  const states = buildLearningStates(
+    questions,
+    currentHistory.filter((review) => review.reviewedOn < dateKey),
+    cloudStates.filter(
+      (state) =>
+        state.lastReviewedOn === null || state.lastReviewedOn < dateKey,
+    ),
+  );
   const priority = new Set(priorityQuestionIds);
   const available = [...states.values()].filter(
-    (state) => !state.suspended && state.lastReviewedOn !== dateKey,
+    (state) => !state.suspended,
   );
-  const due = (state: QuestionLearningState) =>
-    state.dueOn === null || state.dueOn <= dateKey;
   const learning = available
     .filter(
       (state) =>
         (state.state === "learning" || state.state === "relearning") &&
-        due(state),
+        isDueForStudy(state, dateKey),
     )
     .sort(compareQueueStates);
-  const reviews = available
-    .filter((state) => state.state === "review" && due(state))
+  const dueReviews = available
+    .filter(
+      (state) =>
+        state.state === "review" && isDueForStudy(state, dateKey),
+    )
     .sort(compareQueueStates)
     .slice(0, Math.max(0, reviewLimit));
   const newIds = available
@@ -306,26 +339,54 @@ export function buildAnkiDailyQueue(
     candidates.splice(candidates.indexOf(selected), 1);
   }
 
-  return [
-    ...newQuestions,
+  const buckets: Record<keyof AnkiDailyCounts, string[]> = {
+    new: newQuestions,
+    learning: learning.map((state) => state.questionId),
+    review: dueReviews.map((state) => state.questionId),
+  };
+  const questionIds = [
     ...learning.map((state) => state.questionId),
-    ...reviews.map((state) => state.questionId),
+    ...dueReviews.map((state) => state.questionId),
+    ...newQuestions,
   ];
+  const reviewedToday = new Set(
+    currentHistory
+      .filter((review) => review.reviewedOn === dateKey)
+      .map((review) => review.questionId),
+  );
+  const completedIds = questionIds.filter((questionId) =>
+    reviewedToday.has(questionId),
+  );
+  const remainingIds = questionIds.filter(
+    (questionId) => !reviewedToday.has(questionId),
+  );
+
+  return {
+    questionIds,
+    remainingIds,
+    completedIds,
+    counts: {
+      new: buckets.new.filter((questionId) => !reviewedToday.has(questionId))
+        .length,
+      learning: buckets.learning.filter(
+        (questionId) => !reviewedToday.has(questionId),
+      ).length,
+      review: buckets.review.filter(
+        (questionId) => !reviewedToday.has(questionId),
+      ).length,
+    },
+    totalCount: questionIds.length,
+    completedCount: completedIds.length,
+  };
 }
 
-export function countLearningStates(
-  states: Iterable<QuestionLearningState>,
-): LearningStateCounts {
-  const counts: LearningStateCounts = {
-    new: 0,
-    learning: 0,
-    review: 0,
-    relearning: 0,
-  };
-  for (const state of states) {
-    if (!state.suspended) counts[state.state] += 1;
-  }
-  return counts;
+export function isDueForStudy(
+  state: QuestionLearningState,
+  dateKey: string,
+) {
+  if (state.state === "new") return false;
+  if (state.dueOn !== null) return state.dueOn <= dateKey;
+  return state.state === "learning" || state.state === "relearning";
 }
 
 export function ratingIntervalDays(
@@ -338,10 +399,10 @@ export function ratingIntervalDays(
 export function learningQueuePriority(state: QuestionLearningState): number {
   if (state.suspended) return Number.POSITIVE_INFINITY;
   return {
-    new: 0,
-    relearning: 1,
-    learning: 2,
-    review: 3,
+    relearning: 0,
+    learning: 1,
+    review: 2,
+    new: 3,
   }[state.state];
 }
 

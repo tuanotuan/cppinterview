@@ -27,7 +27,7 @@ import {
 } from "@/lib/mock-interview/trends";
 import type { PracticeAccount } from "@/lib/practice/cloud-server";
 import {
-  buildAnkiDailyQueue,
+  buildAnkiDailyPlan,
   buildLearningStates,
   filterReviewsForLearningHistory,
   type QuestionLearningState,
@@ -366,15 +366,19 @@ export function WorldQuantReadinessApp({
       const roleQuestionIds = new Set(
         roleQuestions.map((question) => question.id),
       );
-      const roleLearningStates = new Map(
-        [...learningStates].filter(([questionId]) =>
-          roleQuestionIds.has(questionId),
+      return buildAnkiDailyPlan(
+        roleQuestions.map((question) => ({
+          id: question.id,
+          version: question.version,
+          sourceHash: question.sourceHash,
+        })),
+        mergedProgress.reviews,
+        initialQuestionStates.filter((state) =>
+          roleQuestionIds.has(state.questionId),
         ),
-      );
-      return buildAnkiDailyQueue(roleLearningStates, today, {
-        newLimit: 1,
-        reviewLimit: 5,
-      })
+        today,
+        { newLimit: 1, reviewLimit: 5 },
+      ).remainingIds
         .map((questionId) =>
           roleQuestions.find((question) => question.id === questionId),
         )
@@ -383,7 +387,7 @@ export function WorldQuantReadinessApp({
             Boolean(question),
         );
     },
-    [learningStates, roleQuestions, today],
+    [initialQuestionStates, mergedProgress.reviews, roleQuestions, today],
   );
   const activeCompetencies = readiness.competencies
     .filter((competency) => competency.weight > 0)
