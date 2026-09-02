@@ -327,8 +327,11 @@ Trạng thái trình duyệt không thêm migration:
 - Hub chỉ đọc phiên v4 theo account hoặc lịch sử v4 từ máy chủ; không đọc khóa
   v3 dùng chung. Parser legacy chỉ còn là compatibility boundary, không được
   dùng để khôi phục phiên cũ đang làm dở hay đưa dữ liệu không có owner vào Hub.
-- `ts-fsrs` vẫn là module thử nghiệm deterministic chỉ quan sát; route Stats
-  không render kết quả FSRS. Scheduler hiện hữu vẫn là nguồn due date duy nhất.
+- `ts-fsrs` là scheduler thẩm quyền. `fsrs-scheduler.ts` ghim 21 trọng số FSRS 6,
+  retention 90%, tối đa 36.500 ngày, tắt fuzz và short-term vì review durable chỉ
+  có độ phân giải một ngày. Mọi preview/transition phải replay rating của đúng
+  question version/source hash/reset generation; `fsrs-shadow.ts` chỉ là projection
+  chẩn đoán dùng lại cùng engine và route Stats không render nó.
 - Stats dùng tập ID cố định từ question trong repo của deck C++ và năm chuẩn
   C++11/14/17/20/23 làm mẫu số; overlay/DB chỉ cung cấp identity/nội dung hiện
   hành. DB-native extra không được làm đổi mẫu số hoặc lọt vào custom-study queue
@@ -565,12 +568,15 @@ service-role-only/browser grants như contract hiện tại.
   phải kiểm tra đúng revision dưới Focus lock; resume phải reread snapshot trong
   lock để tab cũ không ghi đè queue mới.
 - Practice progress dùng key `account UUID`/`local`:v2. Rating tính transition
-  từ progress vừa reread trong Web Lock, giữ lượt đầu tiên của exact
+  FSRS từ progress vừa reread trong Web Lock, giữ lượt đầu tiên của exact
   question/ngày/phiên bản nội dung và chỉ enqueue repair cho lượt thắng. RPC
-  `record_practice_review` dùng advisory lock account/question, thay daily row
-  stale nếu nội dung vừa đổi, giữ review offline cũ hơn dưới dạng history-only và
-  trả rating thẩm quyền. Review archive, sai version/hash hoặc transition thiếu
-  trường không được đưa vào batch sync.
+  `record_practice_review` overload FSRS nhận interval đã được server replay,
+  kiểm tra scheduler version và biên 1–36.500 ngày, dùng advisory lock
+  account/question, thay daily row stale nếu nội dung vừa đổi, giữ review offline
+  cũ hơn dưới dạng history-only và trả rating thẩm quyền. Overload generation-aware
+  cũ phải được giữ trong migration để app/DB rolling deploy theo hai chiều; API
+  fallback khi PostgREST chưa thấy overload mới. Review archive, sai version/hash
+  hoặc transition thiếu trường không được đưa vào batch sync.
 - Daily plan không được tính bằng tổng learning state hiện tại. Phải rebuild
   trạng thái đầu ngày từ review history + cloud generation, chọn tối đa một New,
   mọi Learning/Relearning đến hạn và tối đa năm Review đến hạn, rồi trừ các ID đã

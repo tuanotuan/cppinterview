@@ -419,17 +419,14 @@
     "authError": "Đăng nhập chưa thành công. Hãy kiểm tra cấu hình rồi thử lại.",
     "editorLoading": "Đang tải trình soạn mã…",
     "rating": {
-      "again": "Chưa nhớ",
-      "hard": "Khó",
-      "good": "Ổn",
+      "again": "Quên",
+      "hard": "Nhớ nhưng khó",
+      "good": "Tốt",
       "easy": "Dễ",
-      "oneDay": "1 ngày",
-      "twoDays": "2 ngày",
-      "fourDays": "4 ngày",
-      "sevenDays": "7 ngày",
       "fixed": "đã khắc phục",
       "repeatSession": "lặp lại trong phiên",
-      "againAfterDays": "lại sau {count} ngày"
+      "againAfterDays": "lại sau {count} ngày",
+      "calculating": "Đang tính lịch…"
     },
     "learningState": {
       "new": "Mới",

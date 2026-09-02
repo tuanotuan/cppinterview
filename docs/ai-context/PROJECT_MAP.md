@@ -100,7 +100,9 @@ API quan trọng:
 - `api/coach/lesson`: server dựng lại toàn bộ lesson đúng locale từ manifest, gọi Luna với structured answer/citation và không nhận context lesson từ client; public/non-admin dùng chung quota AI 3 lượt/24 giờ, owner dùng durable reservation + budget hiện hữu, không fallback Gemini.
 - `api/mock-interview/general-report`: dựng lại exact plan v5 từ câu verified hoặc revision được content admin duyệt, giữ đáp án mẫu/hint/rubric ở server, gọi Luna qua quota/budget public rồi trả/lưu snapshot chỉ gồm đề/code và câu trả lời người dùng cùng normalized artifact; cloud chỉ ghi khi có account.
 - `api/mock-interview/{run,report,history}`: API v4 lịch sử cho workspace admin; chạy sample code, xác minh exact blueprint, tạo report có hidden evaluation và đọc/xóa history theo account.
-- `api/progress/sync`: đồng bộ review/Anki state.
+- `api/progress/sync`: đọc toàn bộ history đúng reset generation, chuẩn hóa
+  transition bằng FSRS 6 ở server rồi đồng bộ review/Anki state qua RPC có
+  advisory lock; fallback overload cũ chỉ phục vụ rolling deploy.
 - `api/worldquant/{training-state,mission-snapshot}`: state của workspace lịch sử,
   chỉ còn reachable qua khu vực admin; browser fallback về local khi API/database chưa sẵn sàng.
 - `api/profile/mobile-usage`: heartbeat riêng cho admin `tuanotuan`, chỉ nhận tab UUID ngắn hạn từ trình duyệt điện thoại đang hiển thị và ghi aggregate thời gian hoạt động.
@@ -120,10 +122,10 @@ API quan trọng:
 | `content` | `loader.ts`, `schema.ts`, `automation.ts`, `translations.ts` | Parse canonical `vi.md` của lesson song ngữ hoặc legacy `knowledge.md`, kiểm tra companion `en.md` cùng topology, sinh manifest/overlay và chỉ áp question translation đã publication exact copy mà không đổi identity/source/code |
 | `content` | `question-store-server.ts` | Chọn `repo`/`shadow`/`db`, parity, apply override |
 | `learn` | `lesson-library.ts`, `{cpp11,cpp14,cpp17,cpp20,cpp23}-roadmap.ts` | Dựng catalog lesson và validate/localize registry roadmap riêng; node roadmap chỉ link lesson đúng track đã xuất bản, không tham gia discovery hay question sync |
-| `practice` | `learning-state.ts`, `scheduler.ts`, `storage.ts`, `progress-sync.ts`, `study-session.ts` | Daily plan Anki-style dựng từ trạng thái đầu ngày, rating nguyên tử, due date, streak, browser/cloud progress và draft/phase Trợ giúp → Làm lại |
+| `practice` | `learning-state.ts`, `fsrs-scheduler.ts`, `fsrs-sync.ts`, `scheduler.ts`, `storage.ts`, `progress-sync.ts`, `study-session.ts` | Daily plan Anki-style dựng từ trạng thái đầu ngày; FSRS 6 replay exact content/history generation để tính due date và bốn khoảng rating động; browser/cloud progress, rating nguyên tử, streak và draft/phase Trợ giúp → Làm lại |
 | `practice` | `coverage-analytics.ts`, `custom-study.ts` | Tính độ phủ từ canonical repo question + exact current identity, phân loại chưa phủ/đang học/đã nhớ/đến hạn và dựng deep-link luyện theo chuẩn, độ khó hoặc chủ đề mà không nhận DB-native extra |
 | `practice` | `lesson-check.ts` | Validate/build link kiểm tra theo lesson, giữ đúng tập question ID đã được server publication/approval filter và completion cục bộ không tham gia lịch ôn |
-| `practice` | `repair-queue.ts`, `rescue-retry.ts`, `fsrs-shadow.ts`, `browser-storage-lock.ts` | Blank-answer Rescue → Retry, same-session repair exact identity, cross-tab mutation lock và FSRS-6 chỉ quan sát |
+| `practice` | `repair-queue.ts`, `rescue-retry.ts`, `fsrs-shadow.ts`, `browser-storage-lock.ts` | Blank-answer Rescue → Retry, same-session repair exact identity, cross-tab mutation lock và projection chẩn đoán dùng chung FSRS 6 thẩm quyền |
 | `practice` | `focus-session.ts`, `focus-eligibility.ts` | Session Focus Sprint identity-only, resume/reconcile/completion và lọc exact approved refs |
 | `practice` | `cloud-server.ts`, `cloud.ts`, `practice-review-reader.server.ts`, `question-learning-state-reader.server.ts` | `loadCloudAccount` chỉ xác minh account/owner cho guard; `loadCloudContext` dùng lại identity đã xác minh trong request rồi đọc review trước/state generation sau với fallback migration hẹp, approval, overrides, usage và manifest; loader evidence Coach dùng cùng identity đã cache |
 | `practice` | `mistake-cards.ts`, `mistake-cards.server.ts` | Capture lỗi durable, dedupe, grounded generation và materialize draft |
@@ -201,8 +203,11 @@ Không có Supabase: localStorage và app vẫn dùng được. Progress, study/
 session, mục đã lưu/đáp án AI và Hub preference đều tách theo `account UUID` hoặc
 `local`; không nhận dữ liệu legacy không có chủ sở hữu. Có Supabase + đúng owner:
 server phân trang đến hết review history, tải Anki projection, approvals,
-overrides và usage; browser merge offline state rồi sync. RPC DB là nguồn thẩm
-quyền cho cloud transition. Practice progress dùng Web Lock theo scope và chỉ
+overrides và usage; browser merge offline state rồi sync. FSRS 6 với trọng số
+được ghim, retention 90%, không fuzz và lịch cấp ngày replay rating của đúng
+version/hash/reset generation; cùng engine tính bốn khoảng `Again`/`Hard`/`Good`/
+`Easy` trước khi rate và chuẩn hóa lại batch ở server. RPC DB là nguồn thẩm
+quyền cho ownership, lock, idempotency và cloud projection. Practice progress dùng Web Lock theo scope và chỉ
 chấp nhận rating đầu tiên của exact question/ngày/content identity; RPC tiếp tục
 khóa theo account/question để hai thiết bị không ghi hai transition cạnh tranh.
 Review offline cũ hơn chỉ bổ sung history, không ghi lùi state; daily review của
@@ -324,7 +329,7 @@ mới, việc chuyển hoặc xác nhận điểm cần cải thiện và thốn
 được luyện đều dùng đúng phiên bản hiện hành; vòng phỏng vấn trộn phiên bản bị
 từ chối theo hướng an toàn.
 
-### Practice repair và scheduler shadow
+### Practice repair và FSRS scheduler
 
 Review `Again`/`Hard` vẫn ghi đúng một daily review qua scheduler chuẩn, đồng
 thời enqueue exact question revision để retrieval lại sau 3/5 thẻ xen kẽ.
@@ -339,8 +344,8 @@ tự ở tầng sản phẩm.
 Mutation repair queue và practice progress dùng Web Locks theo key khi browser
 hỗ trợ và merge-reread làm fallback. Rating được tính từ progress vừa reread
 trong lock; tab thua không sync cloud hoặc enqueue repair lần hai. Module
-`fsrs-shadow.ts` vẫn là thử nghiệm chỉ quan sát và không mutation due date; route
-Stats không còn render phép so sánh này.
+`fsrs-shadow.ts` chỉ còn projection chẩn đoán không mutation và dùng chung engine
+FSRS thẩm quyền; route Stats không render phép so sánh này.
 
 ### Full Round và English Voice
 
@@ -429,4 +434,4 @@ trừ điểm.
 - Supabase SSR/Postgres/RLS
 - OpenAI SDK, Google GenAI fallback
 - Vercel Sandbox; Monaco editor
-- `ts-fsrs` cho scheduler FSRS-6 shadow, không làm scheduler thẩm quyền
+- `ts-fsrs` cho scheduler FSRS 6 thẩm quyền và projection chẩn đoán dùng chung

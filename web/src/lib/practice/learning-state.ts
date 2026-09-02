@@ -1,10 +1,16 @@
 import {
-  addDays,
   selectDailyQuestion,
   type PracticeProgress,
   type Rating,
   type Review,
 } from "./scheduler";
+import {
+  applyFsrsRating,
+  currentFsrsOutcome,
+  previewFsrsRatings,
+  replayFsrsCard,
+  selectFsrsRevisionHistory,
+} from "./fsrs-scheduler";
 
 export const MAX_NEW_PER_DAY = 1;
 export const MAX_REVIEW_PER_DAY = 5;
@@ -92,11 +98,11 @@ export function deriveLearningStateFromReviews(
   questionVersion = 1,
   sourceHash: string | null = null,
 ): QuestionLearningState {
-  const history = reviews
+  const questionHistory = reviews
     .filter((review) => review.questionId === questionId)
     .sort((left, right) => left.reviewedOn.localeCompare(right.reviewedOn));
 
-  if (history.length === 0) {
+  if (questionHistory.length === 0) {
     return {
       ...newQuestionLearningState({
         questionId,
@@ -106,30 +112,40 @@ export function deriveLearningStateFromReviews(
     };
   }
 
+  const currentRevisionHistory = selectFsrsRevisionHistory(
+    { questionId, questionVersion, sourceHash },
+    questionHistory,
+  );
+  // If only another bound revision exists, retain its identity long enough for
+  // buildLearningStates() to mark the card contentChanged. The next review is
+  // still scheduled from an empty FSRS card.
+  const history = currentRevisionHistory.length
+    ? currentRevisionHistory
+    : questionHistory;
   const latest = history.at(-1)!;
-  const intervalDays =
-    latest.intervalDaysAfter ??
-    Math.max(1, dateDifferenceDays(latest.reviewedOn, latest.nextDueOn));
+  const fsrs = currentFsrsOutcome(
+    replayFsrsCard(history, latest.reviewedOn),
+  );
   const state =
-    latest.stateAfter ??
-    (latest.rating === "again" ? "relearning" : "review");
-  const lapseCount =
-    latest.lapseCountAfter ??
-    history.slice(1).filter((review) => review.rating === "again").length;
+    latest.rating === "again"
+      ? fsrs.reviewCount === 1
+        ? "learning"
+        : "relearning"
+      : "review";
 
   return {
     questionId,
     questionVersion: latest.questionVersion ?? questionVersion,
     sourceHash: latest.sourceHash ?? sourceHash,
     state,
-    dueOn: latest.nextDueOn,
-    intervalDays,
-    reviewCount: history.length,
-    lapseCount,
+    dueOn: fsrs.dueOn,
+    intervalDays: fsrs.intervalDays,
+    reviewCount: fsrs.reviewCount,
+    lapseCount: fsrs.lapseCount,
     lastRating: latest.rating,
     lastReviewedOn: latest.reviewedOn,
     suspended: false,
-    leech: lapseCount >= LEECH_LAPSE_THRESHOLD,
+    leech: fsrs.lapseCount >= LEECH_LAPSE_THRESHOLD,
     contentChanged: false,
     historyResetOn: null,
     historyResetToken: latest.historyResetToken ?? null,
@@ -185,7 +201,15 @@ export function buildLearningStates(
         question.version,
         question.sourceHash,
       );
-      const state = newerState(local, cloud);
+      const preferredState = newerState(local, cloud);
+      const state = cloud
+        ? {
+            ...preferredState,
+            suspended: cloud.suspended,
+            historyResetOn: cloud.historyResetOn,
+            historyResetToken: cloud.historyResetToken,
+          }
+        : preferredState;
       const contentChanged = Boolean(
         state.sourceHash &&
           (state.sourceHash !== question.sourceHash ||
@@ -212,22 +236,30 @@ export function scheduleQuestionReview(
   current: QuestionLearningState,
   rating: Rating,
   reviewedOn: string,
+  reviews: readonly Review[],
 ): { state: QuestionLearningState; review: Review } {
-  const transition = transitionFor(current, rating);
-  const lapseCount =
-    current.lapseCount +
-    (current.state === "review" && rating === "again" ? 1 : 0);
-  const dueOn = addDays(reviewedOn, transition.intervalDays);
+  const history = current.contentChanged
+    ? []
+    : selectFsrsRevisionHistory(current, reviews).filter(
+        (review) => review.reviewedOn < reviewedOn,
+      );
+  const transition = applyFsrsRating(history, rating, reviewedOn);
+  const nextState =
+    rating === "again"
+      ? transition.reviewCount === 1
+        ? "learning"
+        : "relearning"
+      : "review";
   const next: QuestionLearningState = {
     ...current,
-    state: transition.state,
-    dueOn,
+    state: nextState,
+    dueOn: transition.dueOn,
     intervalDays: transition.intervalDays,
-    reviewCount: current.reviewCount + 1,
-    lapseCount,
+    reviewCount: transition.reviewCount,
+    lapseCount: transition.lapseCount,
     lastRating: rating,
     lastReviewedOn: reviewedOn,
-    leech: lapseCount >= LEECH_LAPSE_THRESHOLD,
+    leech: transition.lapseCount >= LEECH_LAPSE_THRESHOLD,
     contentChanged: false,
   };
 
@@ -239,7 +271,7 @@ export function scheduleQuestionReview(
       sourceHash: current.sourceHash ?? undefined,
       reviewedOn,
       rating,
-      nextDueOn: dueOn,
+      nextDueOn: transition.dueOn,
       stateAfter: next.state === "new" ? undefined : next.state,
       intervalDaysAfter: next.intervalDays,
       lapseCountAfter: next.lapseCount,
@@ -389,11 +421,23 @@ export function isDueForStudy(
   return state.state === "learning" || state.state === "relearning";
 }
 
-export function ratingIntervalDays(
+export function previewQuestionRatingIntervals(
   current: QuestionLearningState,
-  rating: Rating,
+  reviews: readonly Review[],
+  reviewedOn: string,
 ) {
-  return transitionFor(current, rating).intervalDays;
+  const history = current.contentChanged
+    ? []
+    : selectFsrsRevisionHistory(current, reviews).filter(
+        (review) => review.reviewedOn < reviewedOn,
+      );
+  const preview = previewFsrsRatings(history, reviewedOn);
+  return {
+    again: preview.again.intervalDays,
+    hard: preview.hard.intervalDays,
+    good: preview.good.intervalDays,
+    easy: preview.easy.intervalDays,
+  } satisfies Record<Rating, number>;
 }
 
 export function learningQueuePriority(state: QuestionLearningState): number {
@@ -406,54 +450,6 @@ export function learningQueuePriority(state: QuestionLearningState): number {
   }[state.state];
 }
 
-function transitionFor(
-  current: QuestionLearningState,
-  rating: Rating,
-): { state: Exclude<LearningState, "new">; intervalDays: number } {
-  type Transition = {
-    state: Exclude<LearningState, "new">;
-    intervalDays: number;
-  };
-  const state = current.contentChanged ? "learning" : current.state;
-  if (state === "new" || state === "learning") {
-    const transitions: Record<Rating, Transition> = {
-      again: { state: "learning", intervalDays: 1 },
-      hard: { state: "learning", intervalDays: 2 },
-      good: { state: "review", intervalDays: 3 },
-      easy: { state: "review", intervalDays: 7 },
-    };
-    return transitions[rating];
-  }
-  if (state === "relearning") {
-    const transitions: Record<Rating, Transition> = {
-      again: { state: "relearning", intervalDays: 1 },
-      hard: { state: "relearning", intervalDays: 2 },
-      good: { state: "review", intervalDays: 3 },
-      easy: { state: "review", intervalDays: 7 },
-    };
-    return transitions[rating];
-  }
-
-  const currentInterval = Math.max(1, current.intervalDays);
-  if (rating === "again") return { state: "relearning", intervalDays: 1 };
-  if (rating === "hard") {
-    return {
-      state: "review",
-      intervalDays: Math.max(currentInterval + 1, Math.ceil(currentInterval * 1.2)),
-    };
-  }
-  if (rating === "good") {
-    return {
-      state: "review",
-      intervalDays: Math.max(currentInterval + 1, Math.ceil(currentInterval * 2.2)),
-    };
-  }
-  return {
-    state: "review",
-    intervalDays: Math.max(currentInterval + 2, Math.ceil(currentInterval * 3.2)),
-  };
-}
-
 function newerState(
   local: QuestionLearningState,
   cloud?: QuestionLearningState,
@@ -462,7 +458,7 @@ function newerState(
   if (cloud.state === "new" && cloud.historyResetOn) return cloud;
   if (!local.lastReviewedOn) return cloud;
   if (!cloud.lastReviewedOn) return local;
-  return local.lastReviewedOn > cloud.lastReviewedOn ? local : cloud;
+  return cloud.lastReviewedOn > local.lastReviewedOn ? cloud : local;
 }
 
 function compareQueueStates(
@@ -474,14 +470,4 @@ function compareQueueStates(
     (left.dueOn ?? "").localeCompare(right.dueOn ?? "") ||
     left.questionId.localeCompare(right.questionId)
   );
-}
-
-function dateDifferenceDays(from: string, to: string) {
-  let cursor = from;
-  let days = 0;
-  while (cursor < to && days < 36_600) {
-    cursor = addDays(cursor, 1);
-    days += 1;
-  }
-  return cursor === to ? days : 0;
 }

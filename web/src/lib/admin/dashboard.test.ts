@@ -99,7 +99,7 @@ describe("admin dashboard snapshot", () => {
         reviews: [
           {
             questionId: "cpp11-example-001",
-            reviewedOn: "2026-07-19",
+            reviewedOn: "2026-07-18",
             rating: "hard",
             nextDueOn: "2026-07-20",
           },

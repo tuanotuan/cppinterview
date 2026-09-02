@@ -419,17 +419,14 @@
     "authError": "Sign-in did not complete. Check the configuration and try again.",
     "editorLoading": "Loading the code editor…",
     "rating": {
-      "again": "Not yet",
+      "again": "Again",
       "hard": "Hard",
       "good": "Good",
       "easy": "Easy",
-      "oneDay": "1 day",
-      "twoDays": "2 days",
-      "fourDays": "4 days",
-      "sevenDays": "7 days",
       "fixed": "fixed",
       "repeatSession": "repeat this session",
-      "againAfterDays": "again in {count, plural, one {# day} other {# days}}"
+      "againAfterDays": "again in {count, plural, one {# day} other {# days}}",
+      "calculating": "Calculating…"
     },
     "learningState": {
       "new": "New",
