@@ -297,7 +297,9 @@ trạng thái từ tên nhánh.
   màu hành động/chữ cấu trúc, turquoise dành cho focus/active/progress, còn success
   dùng xanh lá riêng. Workspace dùng nền phẳng, card trắng, border mảnh, shadow ngắn
   và thang bo góc 12/16/20 px; gradient chỉ dành cho landing. Navigation active dùng
-  tonal background + indicator, không dùng pill tối. Landing, Today workspace, thư
+  tonal background + indicator, không dùng pill tối. Hàng điều hướng desktop của
+  Practice phủ đủ chiều ngang theo bốn cột bằng nhau, vùng bấm cao tối thiểu 48 px;
+  mobile tiếp tục dùng bottom nav riêng. Landing, Today workspace, thư
   viện, Mock, Stats và Profile dùng header/card/CTA nhất quán; shell mobile, session
   rail và sticky action vẫn giữ nguyên. Practice chỉ có một bộ C++ nên header dùng
   metadata số câu đã duyệt thay control chuyển bộ câu. Mobile chỉ hiện tiến độ/account
@@ -404,6 +406,12 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
+- Hàng điều hướng desktop của Practice phủ đủ bốn cột với vùng bấm 48 px, active
+  state có nền/viền/indicator và focus ring; bottom nav mobile không đổi. Thay đổi
+  đạt toàn bộ `npm run validate`: content/context check, ESLint, TypeScript, 154
+  file/884 Vitest test và Next.js production build sinh 591 static path. Preview
+  Chrome 1365×768 xác nhận bốn mục phủ hết header và không tràn ngang. Không có
+  migration, remote mutation hay dependency mới.
 - UX Đặt/Đổi mật khẩu cho account OAuth đạt toàn bộ `npm run validate`:
   content/context check, ESLint, TypeScript, 154 file/883 Vitest test và Next.js
   production build sinh 591 static path. Linked Supabase remote đã áp dụng
