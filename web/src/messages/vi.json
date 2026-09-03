@@ -150,9 +150,11 @@
     },
     "setPassword": {
       "eyebrow": "Bảo mật tài khoản",
-      "title": "Đặt mật khẩu đăng nhập",
+      "setTitle": "Đặt mật khẩu đăng nhập",
+      "changeTitle": "Đổi mật khẩu đăng nhập",
       "saving": "Đang lưu…",
-      "save": "Lưu mật khẩu",
+      "add": "Thêm mật khẩu",
+      "change": "Đổi mật khẩu",
       "back": "Quay lại hồ sơ"
     },
     "actions": {
@@ -181,7 +183,9 @@
       "passwordWeak": "Mật khẩu này chưa đáp ứng yêu cầu bảo mật. Hãy dùng mật khẩu dài, khó đoán và chưa từng dùng ở nơi khác.",
       "passwordReauthenticationRequired": "Phiên đăng nhập đã quá cũ. Hãy đăng xuất, đăng nhập lại bằng Google hoặc GitHub rồi thử lại.",
       "passwordSaveRateLimited": "Bạn đã thử lưu mật khẩu quá nhiều lần. Hãy chờ một lúc rồi thử lại.",
-      "passwordSaveFailed": "Chưa thể lưu mật khẩu. Hãy đăng nhập lại rồi thử lại sau."
+      "passwordSaveFailed": "Chưa thể lưu mật khẩu. Hãy đăng nhập lại rồi thử lại sau.",
+      "passwordAdded": "Đã thêm mật khẩu thành công.",
+      "passwordChanged": "Đã đổi mật khẩu thành công."
     }
   },
   "Learn": {

@@ -153,8 +153,13 @@ trạng thái từ tên nhánh.
   OAuth-only account (như `providers = ["google"]`) có `recovery_sent_at = NULL`
   và không nhận recovery email; người dùng phải đăng nhập Google/GitHub rồi dùng
   `/auth/set-password` để thêm mật khẩu. Form này chỉ nhận account không ẩn danh,
-  không lặp mô tả nhà cung cấp; Supabase `same_password` được coi là mục tiêu đã
-  đạt, còn mật khẩu yếu, phiên cần xác thực lại và rate limit được báo riêng.
+  không lặp mô tả nhà cung cấp; sau khi lưu, form giữ phiên và báo chính xác đã
+  thêm hay đổi mật khẩu thay vì chuyển về đăng nhập. Profile và form phân biệt
+  Đặt/Đổi bằng boolean owner-private được backfill/đồng bộ từ `auth.users` qua
+  `20260902154929_track_account_password_capability.sql`; provider chỉ là fallback
+  trước migration vì OAuth-first account không luôn có email identity. Supabase
+  `same_password` được coi là mục tiêu đã đạt, còn mật khẩu yếu, phiên cần xác
+  thực lại và rate limit được báo riêng.
   Đây là hành vi của Supabase, không phải lỗi SMTP.
 
 - Giao diện Practice/Admin chỉ biểu diễn hai nhãn phân loại của thẻ: `Dễ`/`Trung bình`/`Khó` và `Text`/`Code`. Filter theo bộ thẻ, lộ trình, loại câu và chủ đề đã được gỡ khỏi UI; taxonomy, `type`, `interviewCategory`, `interviewFormat` và `assessmentSkills` vẫn nằm trong data model để scheduler, tạo nội dung, coverage và WorldQuant/mock dùng nội bộ. `code_review` hiển thị workspace chọn dòng và lưu comment có số dòng vào candidate answer, không lộ comment/rubric mẫu. Trang `/admin/coverage` theo dõi mục tiêu C++ 300 câu verified theo sáu dạng; draft/approval riêng không được làm tăng số verified.
@@ -399,13 +404,13 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Fix đặt mật khẩu cho account OAuth đạt toàn bộ `npm run validate`:
-  content/context check, ESLint, TypeScript, 150 file/867 Vitest test và Next.js
-  production build sinh 591 static path. Targeted auth/action/UI đạt 11/11;
-  auth log production xác nhận lỗi đã báo sai là `422 same_password`, nay được
-  xử lý idempotent. Security review đủ 10 nhóm OWASP không có finding mở;
-  production dependency audit báo 0 lỗ hổng. Không có migration hay remote
-  mutation mới.
+- UX Đặt/Đổi mật khẩu cho account OAuth đạt toàn bộ `npm run validate`:
+  content/context check, ESLint, TypeScript, 154 file/883 Vitest test và Next.js
+  production build sinh 591 static path. Migration
+  `20260902154929_track_account_password_capability.sql` đã qua Supabase dry-run;
+  local chưa có Docker nên chưa chạy integration DB, và chưa có remote mutation.
+  Security review đủ 10 nhóm OWASP không có finding mở; production dependency
+  audit báo 0 lỗ hổng.
 - Footer chỉ hiện cột CTA/tài khoản cho khách, link Vibe Coding, dọn
   autosave/blank-helper ở Practice, logo về trang chủ và lịch sử report C++ chi
   tiết đạt toàn bộ `npm run validate`: content/context check, ESLint, TypeScript,
