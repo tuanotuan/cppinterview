@@ -3206,7 +3206,7 @@ export function PracticeApp({
           </div>
           <nav
             aria-label={common("nav.primaryAria")}
-            className="mt-4 hidden items-center gap-1 border-t border-[color:var(--border-subtle)] pt-3 lg:flex"
+            className="mt-4 hidden w-full grid-cols-4 gap-2 border-t border-[color:var(--border-subtle)] pt-3 lg:grid"
           >
             <WorkspaceNavLink href="/practice" active>
               {common("nav.practice")}
@@ -5000,10 +5000,10 @@ function WorkspaceNavLink({
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`relative inline-flex min-h-10 items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition ${
+      className={`relative inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-center text-sm font-bold transition-colors focus-visible:ring-4 focus-visible:ring-[#65e6d2] focus-visible:outline-none ${
         active
-          ? "bg-[color:var(--accent-soft)] text-[color:var(--pine)] after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:rounded-full after:bg-[color:var(--accent)]"
-          : "text-[color:var(--ink-muted)] hover:bg-[color:var(--surface-muted)] hover:text-[color:var(--pine)]"
+          ? "border-[#65e6d2]/70 bg-[#e6f8f5] text-[#0f3a69] shadow-[0_8px_22px_rgb(15_58_105_/_10%)] after:absolute after:inset-x-8 after:bottom-1 after:h-0.5 after:rounded-full after:bg-[#22b8a7]"
+          : "border-transparent text-[color:var(--ink-muted)] hover:border-[color:var(--border-subtle)] hover:bg-[color:var(--surface-muted)] hover:text-[color:var(--pine)] active:bg-[color:var(--accent-soft)]"
       }`}
     >
       {children}

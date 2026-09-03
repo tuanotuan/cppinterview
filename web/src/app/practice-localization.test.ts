@@ -108,6 +108,25 @@ describe("Practice localization", () => {
     expect(vietnameseMessages.Practice.question).not.toHaveProperty("blankHelp");
   });
 
+  it("gives the desktop primary navigation equal, prominent tap targets", async () => {
+    const practiceApp = await readFile(
+      path.resolve(import.meta.dirname, "practice-app.tsx"),
+      "utf8",
+    );
+
+    expect(practiceApp).toContain(
+      'className="mt-4 hidden w-full grid-cols-4 gap-2 border-t border-[color:var(--border-subtle)] pt-3 lg:grid"',
+    );
+    expect(practiceApp).toContain(
+      "relative inline-flex min-h-12 w-full items-center justify-center",
+    );
+    expect(practiceApp).toContain("text-center text-sm font-bold transition-colors");
+    expect(practiceApp).toContain(
+      'aria-current={active ? "page" : undefined}',
+    );
+    expect(practiceApp).toContain("focus-visible:ring-4");
+  });
+
   it("keeps untranslated canonical questions out of the English deck", async () => {
     const pageSource = await readFile(
       path.resolve(import.meta.dirname, "[locale]", "practice", "page.tsx"),
