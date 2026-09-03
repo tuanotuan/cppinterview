@@ -406,11 +406,13 @@ trạng thái từ tên nhánh.
 
 - UX Đặt/Đổi mật khẩu cho account OAuth đạt toàn bộ `npm run validate`:
   content/context check, ESLint, TypeScript, 154 file/883 Vitest test và Next.js
-  production build sinh 591 static path. Migration
-  `20260902154929_track_account_password_capability.sql` đã qua Supabase dry-run;
-  local chưa có Docker nên chưa chạy integration DB, và chưa có remote mutation.
-  Security review đủ 10 nhóm OWASP không có finding mở; production dependency
-  audit báo 0 lỗ hổng.
+  production build sinh 591 static path. Linked Supabase remote đã áp dụng
+  `20260902014442_promote_fsrs_scheduler.sql` và
+  `20260902154929_track_account_password_capability.sql`; migration history đã
+  đồng bộ. Backfill khớp 4/4 account, không thiếu/lệch row; RLS smoke test cho
+  owner/khác owner lần lượt thấy 1/0 row, anon REST bị chặn đúng `401`/`42501`,
+  và database advisor không có lỗi. Security review đủ 10 nhóm OWASP không có
+  finding mở; production dependency audit báo 0 lỗ hổng.
 - Footer chỉ hiện cột CTA/tài khoản cho khách, link Vibe Coding, dọn
   autosave/blank-helper ở Practice, logo về trang chủ và lịch sử report C++ chi
   tiết đạt toàn bộ `npm run validate`: content/context check, ESLint, TypeScript,
