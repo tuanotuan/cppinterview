@@ -264,6 +264,24 @@
       }
     }
   },
+  "RoadmapProgress": {
+    "personalProgress": "Tiến độ của bạn",
+    "completed": "đã xử lý",
+    "learning": "Đang học",
+    "done": "Đã xong",
+    "skipped": "Bỏ qua",
+    "actionsAria": "Cập nhật trạng thái bài học",
+    "toggleAria": "Mở lựa chọn trạng thái bài học",
+    "resetHint": "Nhấn lại để bỏ đánh dấu",
+    "loading": "Đang tải tiến độ roadmap…",
+    "loadError": "Chưa tải được tiến độ cá nhân. Vui lòng tải lại trang để thử lại.",
+    "saveError": "Chưa lưu được trạng thái bài học. Vui lòng thử lại.",
+    "saved": "Đã lưu tiến độ roadmap.",
+    "loginTitle": "Đăng nhập hoặc tạo tài khoản",
+    "loginDescription": "Bạn cần đăng nhập để lưu trạng thái bài học trên roadmap này.",
+    "closeDialog": "Đóng hộp thoại đăng nhập",
+    "useEmail": "Dùng địa chỉ email"
+  },
   "Cpp11Roadmap": {
     "metaTitle": "Roadmap C++11 — cppinterview",
     "metaDescription": "Lộ trình C++11 gồm 53 ngày, từ toolchain và object model đến concurrency và tối ưu hiệu năng.",
@@ -271,7 +289,7 @@
     "eyebrow": "Lộ trình C++11",
     "title": "Roadmap C++11 trong 53 ngày",
     "description": "Đi theo đường học trực quan từ toolchain, object model và template đến concurrency, cache locality và quản lý bộ nhớ.",
-    "contentNote": "Trạng thái bên dưới phản ánh mức độ học liệu hiện có, không phải tiến độ học tập của bạn.",
+    "contentNote": "Màu node cho biết mức học liệu hiện có; Đang học, Đã xong và Bỏ qua là tiến độ riêng được lưu vào tài khoản của bạn.",
     "metrics": {
       "days": "Ngày học",
       "phases": "Chặng",
@@ -301,7 +319,7 @@
     "eyebrow": "Lộ trình C++14",
     "title": "Roadmap C++14 trong 50 ngày",
     "description": "Đi theo đường học trực quan từ phần ôn C++11 và các bổ sung C++14 đến generic programming, concurrency, cache locality và binary parsing.",
-    "contentNote": "Trạng thái bên dưới phản ánh mức độ học liệu hiện có, không phải tiến độ học tập của bạn.",
+    "contentNote": "Màu node cho biết mức học liệu hiện có; Đang học, Đã xong và Bỏ qua là tiến độ riêng được lưu vào tài khoản của bạn.",
     "metrics": {
       "days": "Ngày học",
       "phases": "Chặng",
@@ -331,7 +349,7 @@
     "eyebrow": "Lộ trình C++17",
     "title": "Roadmap C++17 trong 50 ngày",
     "description": "Đi theo đường học trực quan từ phần ôn C++14 và các bổ sung C++17 đến generic programming, vocabulary types, parallel algorithms, PMR, concurrency và binary parsing.",
-    "contentNote": "Trạng thái bên dưới phản ánh mức độ học liệu hiện có, không phải tiến độ học tập của bạn.",
+    "contentNote": "Màu node cho biết mức học liệu hiện có; Đang học, Đã xong và Bỏ qua là tiến độ riêng được lưu vào tài khoản của bạn.",
     "metrics": {
       "days": "Ngày học",
       "phases": "Chặng",
@@ -361,7 +379,7 @@
     "eyebrow": "Lộ trình C++20",
     "title": "Roadmap C++20 trong 52 ngày",
     "description": "Đi theo đường học trực quan từ phần ôn C++17 đến concepts, compile time, modules, ranges, thư viện chuẩn, structured concurrency, coroutines và binary parsing.",
-    "contentNote": "Trạng thái bên dưới phản ánh mức độ học liệu hiện có, không phải tiến độ học tập của bạn.",
+    "contentNote": "Màu node cho biết mức học liệu hiện có; Đang học, Đã xong và Bỏ qua là tiến độ riêng được lưu vào tài khoản của bạn.",
     "metrics": {
       "days": "Ngày học",
       "phases": "Chặng",
@@ -391,7 +409,7 @@
     "eyebrow": "Lộ trình C++23",
     "title": "Roadmap C++23 trong 54 ngày",
     "description": "Đi theo đường học trực quan từ toolchain và nền tảng C++ hiện đại đến thay đổi ngôn ngữ C++23, vocabulary type, I/O, ranges, flat container, mdspan, generator, module thư viện chuẩn và parse binary feed.",
-    "contentNote": "Trạng thái bên dưới phản ánh mức độ học liệu hiện có, không phải tiến độ học tập của bạn.",
+    "contentNote": "Màu node cho biết mức học liệu hiện có; Đang học, Đã xong và Bỏ qua là tiến độ riêng được lưu vào tài khoản của bạn.",
     "metrics": {
       "days": "Ngày học",
       "phases": "Chặng",

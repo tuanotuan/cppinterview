@@ -264,6 +264,24 @@
       }
     }
   },
+  "RoadmapProgress": {
+    "personalProgress": "Your progress",
+    "completed": "covered",
+    "learning": "Learning",
+    "done": "Done",
+    "skipped": "Skip",
+    "actionsAria": "Update lesson status",
+    "toggleAria": "Open lesson status choices",
+    "resetHint": "Select again to clear this status",
+    "loading": "Loading roadmap progress…",
+    "loadError": "Your progress could not be loaded. Refresh the page to try again.",
+    "saveError": "The lesson status could not be saved. Try again.",
+    "saved": "Roadmap progress saved.",
+    "loginTitle": "Log in or sign up",
+    "loginDescription": "You must be logged in to save lesson status on this roadmap.",
+    "closeDialog": "Close login dialog",
+    "useEmail": "Use your email address"
+  },
   "Cpp11Roadmap": {
     "metaTitle": "C++11 roadmap — cppinterview",
     "metaDescription": "A 53-day C++11 roadmap from the toolchain and object model through concurrency and performance optimization.",
@@ -271,7 +289,7 @@
     "eyebrow": "C++11 roadmap",
     "title": "The 53-day C++11 roadmap",
     "description": "Follow a visual path from the toolchain, object model, and templates through concurrency, cache locality, and memory management.",
-    "contentNote": "The statuses below describe available learning material, not your personal learning progress.",
+    "contentNote": "Node color describes available material; Learning, Done, and Skip are personal progress saved to your account.",
     "metrics": {
       "days": "Days",
       "phases": "Phases",
@@ -301,7 +319,7 @@
     "eyebrow": "C++14 roadmap",
     "title": "The 50-day C++14 roadmap",
     "description": "Follow a visual path from the C++11 review and C++14 additions through generic programming, concurrency, cache locality, and binary parsing.",
-    "contentNote": "The statuses below describe available learning material, not your personal learning progress.",
+    "contentNote": "Node color describes available material; Learning, Done, and Skip are personal progress saved to your account.",
     "metrics": {
       "days": "Days",
       "phases": "Phases",
@@ -331,7 +349,7 @@
     "eyebrow": "C++17 roadmap",
     "title": "The 50-day C++17 roadmap",
     "description": "Follow a visual path from the C++14 review and C++17 additions through generic programming, vocabulary types, parallel algorithms, PMR, concurrency, and binary parsing.",
-    "contentNote": "The statuses below describe available learning material, not your personal learning progress.",
+    "contentNote": "Node color describes available material; Learning, Done, and Skip are personal progress saved to your account.",
     "metrics": {
       "days": "Days",
       "phases": "Phases",
@@ -361,7 +379,7 @@
     "eyebrow": "C++20 roadmap",
     "title": "The 52-day C++20 roadmap",
     "description": "Follow a visual path from the C++17 review through concepts, compile-time programming, modules, ranges, the standard library, structured concurrency, coroutines, and binary parsing.",
-    "contentNote": "The statuses below describe available learning material, not your personal learning progress.",
+    "contentNote": "Node color describes available material; Learning, Done, and Skip are personal progress saved to your account.",
     "metrics": {
       "days": "Days",
       "phases": "Phases",
@@ -391,7 +409,7 @@
     "eyebrow": "C++23 roadmap",
     "title": "The 54-day C++23 roadmap",
     "description": "Follow a visual path from toolchain and modern C++ foundations through C++23 language changes, vocabulary types, I/O, ranges, flat containers, mdspan, generators, standard-library modules, and binary feed parsing.",
-    "contentNote": "The statuses below describe available learning material, not your personal learning progress.",
+    "contentNote": "Node color describes available material; Learning, Done, and Skip are personal progress saved to your account.",
     "metrics": {
       "days": "Days",
       "phases": "Phases",
