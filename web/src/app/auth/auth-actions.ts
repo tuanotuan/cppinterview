@@ -22,6 +22,7 @@ import {
   safeAuthNext,
   signInErrorCode,
 } from "@/lib/supabase/email-password";
+import { readPasswordCapability } from "@/lib/supabase/password-capability.server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import type { AuthActionCode, AuthFormState } from "./auth-form-state";
@@ -194,13 +195,21 @@ export async function setPasswordForSignedInUser(
     return localizedState(locale, "error", "providerSignInRequired");
   }
 
+  const passwordCapability = await readPasswordCapability(
+    supabase,
+    authData.user,
+  );
   const { error } = await supabase.auth.updateUser({ password: parsed.password });
   if (error) {
     const failureCode = passwordSaveFailureCode(error.code);
     if (failureCode) return localizedState(locale, "error", failureCode);
   }
 
-  redirect(localizeHref("/auth?auth=password-updated", locale));
+  const successCode =
+    passwordCapability.hasPassword || error?.code === "same_password"
+      ? "passwordChanged"
+      : "passwordAdded";
+  return localizedState(locale, "success", successCode);
 }
 
 function actionLocale(formData: FormData): Locale {

@@ -7,6 +7,7 @@ import {
   isTuanotuanQuestionAdmin,
 } from "@/lib/supabase/authorization";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { readPasswordCapability } from "@/lib/supabase/password-capability.server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import {
@@ -28,6 +29,7 @@ export type ProfileAccount = {
   displayName: string;
   login: string | null;
   joinedAt: string;
+  hasPassword: boolean;
 };
 
 export type ProfileActivity = {
@@ -68,7 +70,14 @@ export async function loadProfileActivity(): Promise<ProfileActivity> {
   const timestampStart = `${startDate}T00:00:00+07:00`;
   const timestampEnd = `${addDateDays(today, 1)}T00:00:00+07:00`;
   const isAdmin = isTuanotuanQuestionAdmin(data.user);
-  const [reviewsResult, coachResult, mockResult, mobileUsageResult] = await Promise.all([
+  const [
+    passwordCapability,
+    reviewsResult,
+    coachResult,
+    mockResult,
+    mobileUsageResult,
+  ] = await Promise.all([
+    readPasswordCapability(supabase, data.user),
     readReviewEvents(supabase, startDate, today),
     readTimestampEvents({
       supabase,
@@ -115,7 +124,7 @@ export async function loadProfileActivity(): Promise<ProfileActivity> {
 
   return {
     enabled: true,
-    account: toProfileAccount(data.user),
+    account: toProfileAccount(data.user, passwordCapability.hasPassword),
     calendar: buildContributionCalendar({ today, events }),
     mobileUsage: mobileUsageResult.summary,
     error,
@@ -242,7 +251,7 @@ export async function readTimestampEvents({
   }
 }
 
-function toProfileAccount(user: User): ProfileAccount {
+function toProfileAccount(user: User, hasPassword: boolean): ProfileAccount {
   const login = stringMetadata(user.user_metadata.user_name);
   return {
     id: user.id,
@@ -253,6 +262,7 @@ function toProfileAccount(user: User): ProfileAccount {
       "Người học cppinterview",
     login,
     joinedAt: user.created_at,
+    hasPassword,
   };
 }
 

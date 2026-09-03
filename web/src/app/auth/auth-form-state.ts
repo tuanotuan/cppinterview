@@ -24,7 +24,9 @@ export type AuthActionCode =
   | "passwordWeak"
   | "passwordReauthenticationRequired"
   | "passwordSaveRateLimited"
-  | "passwordSaveFailed";
+  | "passwordSaveFailed"
+  | "passwordAdded"
+  | "passwordChanged";
 
 export type AuthFormState = {
   status: "idle" | "error" | "success";

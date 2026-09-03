@@ -150,9 +150,11 @@
     },
     "setPassword": {
       "eyebrow": "Account security",
-      "title": "Set a sign-in password",
+      "setTitle": "Set a sign-in password",
+      "changeTitle": "Change your sign-in password",
       "saving": "Saving…",
-      "save": "Save password",
+      "add": "Add password",
+      "change": "Change password",
       "back": "Back to profile"
     },
     "actions": {
@@ -181,7 +183,9 @@
       "passwordWeak": "This password does not meet the security requirements. Use a long, hard-to-guess password that you have not used elsewhere.",
       "passwordReauthenticationRequired": "Your sign-in is too old for this change. Sign out, sign in again with Google or GitHub, then retry.",
       "passwordSaveRateLimited": "Too many password save attempts were made. Wait a moment and try again.",
-      "passwordSaveFailed": "We could not save the password. Sign in again and retry later."
+      "passwordSaveFailed": "We could not save the password. Sign in again and retry later.",
+      "passwordAdded": "Password added successfully.",
+      "passwordChanged": "Password changed successfully."
     }
   },
   "Learn": {

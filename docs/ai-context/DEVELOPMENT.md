@@ -244,7 +244,15 @@ Xem danh sách chuẩn trong `web/.env.example`.
   hiện/ẩn áp dụng đồng thời cho hai ô), không log hay lưu lại trong ứng dụng.
   Email/password account dùng recovery OTP; OAuth-only account không tạo recovery
   token và phải đăng nhập Google/GitHub trước, sau đó đặt mật khẩu tại
-  `/auth/set-password` qua `auth.updateUser({ password })`.
+  `/auth/set-password` qua `auth.updateUser({ password })`. Server Action trả
+  thông báo thêm/đổi thành công ngay trong form và không đăng xuất hay chuyển về
+  màn hình đăng nhập; Supabase giữ phiên hiện tại và thu hồi các phiên khác theo
+  chính sách Auth của dự án. Nhãn Đặt/Đổi không được suy ra riêng từ provider vì
+  OAuth-first account có thể đã có password mà vẫn thiếu email identity:
+  `20260902154929_track_account_password_capability.sql` backfill rồi đồng bộ duy
+  nhất boolean `has_password` từ `auth.users` sang bảng owner-private có RLS.
+  App có fallback provider để deploy trước migration; sau khi merge/deploy, áp
+  migration để trạng thái OAuth-first cũ hiển thị chính xác.
   Quyền quản trị vẫn chỉ dựa vào GitHub provider identity
   bất biến `tuanotuan`, không tin `user_metadata` do người dùng tự sửa.
 - Proxy SSR làm mới cookie phiên bằng `supabase.auth.getClaims()`; không dùng

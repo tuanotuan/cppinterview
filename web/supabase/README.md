@@ -51,6 +51,15 @@ admission, the Mistake Inbox, and atomic daily/monthly AI accounting.
    `/auth/set-password`; that page calls `auth.updateUser({ password })` and
    keeps the provider session authenticated.
 
+   Apply `20260902154929_track_account_password_capability.sql` for exact
+   Set/Change password labels. Supabase's public user object does not reliably
+   gain an `email` identity when an OAuth-first account adds a password, so the
+   migration mirrors only a `has_password` boolean from `auth.users` into the
+   owner-private `account_auth_capabilities` table. It never exposes or copies
+   the password hash. The app can be deployed first: until the migration is
+   present it falls back to provider metadata, which keeps the flow usable but
+   may label a previously updated OAuth account as Set password.
+
 Recall is open to every authenticated Supabase account. RLS keeps reviews,
 progress, AI history, and mock history private to the account in its JWT.
 Admin-only controls remain restricted in application code to the immutable

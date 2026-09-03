@@ -40,6 +40,15 @@ export default async function ProfilePage() {
   if (!profile.account) return <ProfileGate mode="login" />;
 
   const { account, calendar, mobileUsage } = profile;
+  const passwordAction = account.hasPassword
+    ? {
+        description: "Đổi mật khẩu đăng nhập của tài khoản hiện tại.",
+        label: "Đổi mật khẩu",
+      }
+    : {
+        description: "Thêm mật khẩu để có thể đăng nhập bằng email.",
+        label: "Đặt mật khẩu",
+      };
   const weeks = chunkWeeks(calendar.days);
   const recentDays = calendar.days
     .filter((day) => day.date <= calendar.today && day.total > 0)
@@ -87,14 +96,14 @@ export default async function ProfilePage() {
               Bảo mật
             </p>
             <p className="mt-1 text-sm text-[#526276]">
-              Đặt hoặc đổi mật khẩu đăng nhập cho tài khoản hiện tại.
+              {passwordAction.description}
             </p>
           </div>
           <Link
             href="/auth/set-password"
-            className="rounded-xl border border-[#0f3a69]/18 bg-white px-4 py-2 text-sm font-bold text-[#16865a] transition hover:border-[#285f86]/45 hover:bg-[#eaf2f8]"
+            className="inline-flex min-h-11 items-center rounded-xl border border-[#0f3a69]/18 bg-white px-4 py-2 text-sm font-bold text-[#16865a] transition hover:border-[#285f86]/45 hover:bg-[#eaf2f8]"
           >
-            Đặt mật khẩu
+            {passwordAction.label}
           </Link>
         </section>
 

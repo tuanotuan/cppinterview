@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { BrandMark } from "@/app/brand-mark";
 import { localizeHref, type Locale } from "@/i18n/routing";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { readPasswordCapability } from "@/lib/supabase/password-capability.server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import { SetPasswordForm } from "../../../auth/set-password/set-password-form";
@@ -34,9 +35,11 @@ export default async function SetPasswordPage({
     );
   }
 
+  const passwordCapability = await readPasswordCapability(supabase, data.user);
+
   return (
     <PasswordShell>
-      <SetPasswordForm />
+      <SetPasswordForm initialHasPassword={passwordCapability.hasPassword} />
     </PasswordShell>
   );
 }
