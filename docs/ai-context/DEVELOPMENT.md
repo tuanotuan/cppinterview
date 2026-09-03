@@ -251,8 +251,8 @@ Xem danh sách chuẩn trong `web/.env.example`.
   OAuth-first account có thể đã có password mà vẫn thiếu email identity:
   `20260902154929_track_account_password_capability.sql` backfill rồi đồng bộ duy
   nhất boolean `has_password` từ `auth.users` sang bảng owner-private có RLS.
-  App có fallback provider để deploy trước migration; sau khi merge/deploy, áp
-  migration để trạng thái OAuth-first cũ hiển thị chính xác.
+  App có fallback provider để rolling deploy không gián đoạn; mỗi môi trường vẫn
+  phải áp migration để trạng thái OAuth-first cũ hiển thị chính xác.
   Quyền quản trị vẫn chỉ dựa vào GitHub provider identity
   bất biến `tuanotuan`, không tin `user_metadata` do người dùng tự sửa.
 - Proxy SSR làm mới cookie phiên bằng `supabase.auth.getClaims()`; không dùng
