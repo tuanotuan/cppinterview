@@ -272,7 +272,7 @@ button:disabled {
   position: relative;
   width: 100%;
   max-width: 50rem;
-  height: 2rem;
+  height: 3.5rem;
   margin-inline: auto;
 }
 
@@ -302,6 +302,173 @@ button:disabled {
   min-width: 0;
 }
 
+.cpp-roadmap-map-node:has(.cpp-roadmap-node-shell:hover),
+.cpp-roadmap-map-node:has(.cpp-roadmap-node-shell:focus-within) {
+  z-index: 5;
+}
+
+.cpp-roadmap-node-shell {
+  position: relative;
+  height: 100%;
+}
+
+.cpp-roadmap-node-shell > a[data-progress="learning"] {
+  box-shadow:
+    inset 4px 0 #6b57c7,
+    3px 3px 0 rgb(15 58 105 / 16%);
+}
+
+.cpp-roadmap-node-shell > a[data-progress="done"] {
+  box-shadow:
+    inset 4px 0 #16865a,
+    3px 3px 0 rgb(15 58 105 / 16%);
+}
+
+.cpp-roadmap-node-shell > a[data-progress="skipped"] {
+  box-shadow:
+    inset 4px 0 #718096,
+    3px 3px 0 rgb(15 58 105 / 16%);
+}
+
+.cpp-roadmap-progress-actions {
+  position: absolute;
+  /* Keep the toolbar touching the node so pointer travel cannot cross a
+     dead hover gap and close it before a choice is reached. */
+  bottom: calc(100% - 0.125rem);
+  left: 50%;
+  z-index: 20;
+  display: flex;
+  width: max-content;
+  max-width: min(22rem, calc(100vw - 2rem));
+  overflow: hidden;
+  border: 2px solid #0f3a69;
+  border-radius: 0.625rem;
+  background: white;
+  box-shadow: 3px 3px 0 rgb(15 58 105 / 18%);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 0.25rem);
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease;
+}
+
+.cpp-roadmap-node-shell:hover .cpp-roadmap-progress-actions,
+.cpp-roadmap-node-shell:focus-within .cpp-roadmap-progress-actions {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+
+.cpp-roadmap-progress-action {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  border-left: 1px solid rgb(15 58 105 / 16%);
+  padding: 0.5rem 0.7rem;
+  color: #43546a;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease;
+}
+
+.cpp-roadmap-progress-action:first-child {
+  border-left: 0;
+}
+
+.cpp-roadmap-progress-action:hover:not(:disabled) {
+  background: #eaf2f8;
+  color: #0f3a69;
+}
+
+.cpp-roadmap-progress-action:focus-visible,
+.cpp-roadmap-progress-trigger:focus-visible {
+  z-index: 1;
+  outline: 3px solid #65e6d2;
+  outline-offset: -3px;
+}
+
+.cpp-roadmap-progress-action:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.cpp-roadmap-progress-action[data-status="learning"][data-active="true"] {
+  background: #eeeafd;
+  color: #5540ad;
+}
+
+.cpp-roadmap-progress-action[data-status="done"][data-active="true"] {
+  background: #e2f5ec;
+  color: #116d49;
+}
+
+.cpp-roadmap-progress-action[data-status="skipped"][data-active="true"] {
+  background: #edf1f5;
+  color: #43546a;
+}
+
+.cpp-roadmap-progress-trigger {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  z-index: 4;
+  display: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border: 1px solid rgb(15 58 105 / 18%);
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 90%);
+  color: #0f3a69;
+  box-shadow: 0 3px 10px rgb(15 58 105 / 14%);
+  transform: translateY(-50%);
+}
+
+.cpp-roadmap-progress-trigger[data-status="learning"] {
+  color: #5540ad;
+}
+
+.cpp-roadmap-progress-trigger[data-status="done"] {
+  color: #116d49;
+}
+
+.cpp-roadmap-progress-trigger[data-status="skipped"] {
+  color: #526276;
+}
+
+[data-roadmap-summary-status="learning"] {
+  border-color: rgb(107 87 199 / 25%);
+  color: #5540ad;
+}
+
+[data-roadmap-summary-status="done"] {
+  border-color: rgb(22 134 90 / 25%);
+  color: #116d49;
+}
+
+[data-roadmap-summary-status="skipped"] {
+  border-color: rgb(82 98 118 / 22%);
+  color: #526276;
+}
+
+.cpp-roadmap-node-shell [data-status="learning"] {
+  color: #5540ad;
+}
+
+.cpp-roadmap-node-shell [data-status="done"] {
+  color: #116d49;
+}
+
+.cpp-roadmap-node-shell [data-status="skipped"] {
+  color: #43546a;
+}
+
 .cpp-roadmap-map-node[data-connect-after="true"]::after {
   position: absolute;
   z-index: -1;
@@ -324,7 +491,7 @@ button:disabled {
   position: relative;
   width: 100%;
   max-width: 50rem;
-  height: 2.25rem;
+  height: 3.5rem;
   margin-inline: auto;
 }
 
@@ -553,5 +720,55 @@ button:disabled {
     transform: translateX(0);
     opacity: 0.32;
     animation: none !important;
+  }
+}
+
+@media (max-width: 767px), (hover: none), (pointer: coarse) {
+  .cpp-roadmap-node-shell {
+    height: auto;
+  }
+
+  .cpp-roadmap-node-shell > a {
+    padding-right: 3.75rem;
+  }
+
+  .cpp-roadmap-progress-trigger {
+    display: grid;
+  }
+
+  .cpp-roadmap-progress-actions,
+  .cpp-roadmap-node-shell:hover .cpp-roadmap-progress-actions,
+  .cpp-roadmap-node-shell:focus-within .cpp-roadmap-progress-actions {
+    position: static;
+    width: 100%;
+    max-width: none;
+    max-height: 0;
+    margin-top: 0;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: none;
+  }
+
+  .cpp-roadmap-node-shell[data-menu-open="true"] .cpp-roadmap-progress-actions {
+    max-height: 4rem;
+    margin-top: 0.6rem;
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .cpp-roadmap-progress-action {
+    min-width: 0;
+    min-height: 2.75rem;
+    flex: 1;
+    padding-inline: 0.45rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cpp-roadmap-progress-actions,
+  .cpp-roadmap-progress-action {
+    transition: none;
   }
 }

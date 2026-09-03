@@ -23,12 +23,17 @@ trạng thái từ tên nhánh.
   loader vẫn nhận `knowledge.md` cho lesson cũ, pipeline sinh overlay lesson
   exact-revision và giữ section ID canonical khi đổi locale. Coverage `ready` không lặp
   nhãn trên từng node hay trong legend; legend chỉ xuất hiện khi thật sự có ngày
-  `partial`/`planned`, và các trạng thái chỉ là coverage nội dung, không phải tiến độ cá
-  nhân. Trang dùng YAML Git-owned song ngữ; sơ đồ compact dùng node/connector
+  `partial`/`planned`, và các trạng thái này chỉ là coverage nội dung. Trang dùng
+  YAML Git-owned song ngữ; sơ đồ compact dùng node/connector
   ba cột ziczac trên desktop và một trục dọc trên tablet/mobile. Node có học liệu
   mở lesson chính (`lessonIds[0]`) theo locale trong tab mới; node chưa có lesson giữ vị
-  trí nhưng disabled và không tạo điều hướng rỗng. Trang không đọc Supabase,
-  localStorage hay scheduler.
+  trí nhưng disabled và không tạo điều hướng rỗng. Account có thể đánh dấu độc lập
+  `Đang học`/`Đã xong`/`Bỏ qua` bằng toolbar hover/focus trên desktop hoặc trigger
+  44 px trên mobile; chọn lại cùng trạng thái trả node về pending. `Đang học` không
+  hoàn tất, còn `Đã xong + Bỏ qua` tính completion và vẫn được thống kê riêng.
+  Khách chọn trạng thái nhận dialog đăng nhập Google/GitHub/email. Tiến độ hydrate
+  sau static render từ `/api/roadmap/progress`, lưu trong bảng owner-private
+  `user_roadmap_lesson_states` và không chạm localStorage hay scheduler/FSRS.
 - Learner app hỗ trợ song ngữ Việt/Anh qua prefix bắt buộc `/vi` và `/en`; route
   không prefix tự chuyển theo cookie/browser với mặc định `vi`. Switcher giữ
   pathname, query và hash; `html lang`, metadata canonical/hreflang, navigation,
@@ -409,13 +414,17 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Loading giữa các route locale dùng status nhìn thấy được, thanh tiến trình và
-  shimmer không gây reflow; responsive status tự xuống hàng và reduced-motion
-  có fallback tĩnh. Thay đổi đạt toàn bộ `npm run validate`: content/context
-  check, ESLint, TypeScript, 155 file/885 Vitest test và Next.js production build
-  sinh 591 static path. Preview Chrome desktop xác nhận shimmer/contrast; preview
-  viewport hẹp xác nhận status không còn chen khỏi header. Không có migration,
-  remote mutation hay dependency mới.
+- Tiến độ cá nhân trên cả năm roadmap dùng `Đang học`/`Đã xong`/`Bỏ qua`, hydrate
+  sau static render và lưu owner-private tách khỏi FSRS. Desktop hover/focus hiện
+  toolbar sibling của link; mobile 390×844 có trigger 44 px; khách bấm trạng thái
+  nhận dialog chỉ gồm GitHub, Google và email. Thay đổi đạt toàn bộ
+  `npm run validate`: content/context check, ESLint, TypeScript, 160 file/899
+  Vitest test và Next.js production build sinh 592 static path, gồm API
+  `/api/roadmap/progress`. Security review đủ 10 nhóm OWASP không có finding mở;
+  production dependency audit báo 0 lỗ hổng. pgTAP runtime chưa chạy được vì máy
+  không có Docker/PostgreSQL local; static migration test và contract API/RLS vẫn
+  đạt. Migration `20260903102303_create_roadmap_lesson_progress.sql` chưa được
+  push remote và không có dependency mới.
 - Hàng điều hướng desktop của Practice phủ đủ bốn cột với vùng bấm 48 px, active
   state có nền/viền/indicator và focus ring; bottom nav mobile không đổi. Thay đổi
   đạt toàn bộ `npm run validate`: content/context check, ESLint, TypeScript, 154

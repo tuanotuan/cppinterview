@@ -1,8 +1,9 @@
 # Supabase setup
 
-Supabase stores private cross-device progress, AI and mock-interview history,
-question approvals and immutable revisions, content automation state, code-runner
-admission, the Mistake Inbox, and atomic daily/monthly AI accounting.
+Supabase stores private cross-device practice and roadmap progress, AI and
+mock-interview history, question approvals and immutable revisions, content
+automation state, code-runner admission, the Mistake Inbox, and atomic
+daily/monthly AI accounting.
 
 1. Create a free project at <https://database.new>.
 2. Copy the Project URL and publishable key into `web/.env.local`.
@@ -69,6 +70,16 @@ The migrations enable RLS. Authenticated users can only read and mutate rows
 whose `user_id` matches their JWT identity. Question approvals are bound to an
 exact question version and source hash, so a source edit automatically sends the
 question back to the Review Queue.
+
+`20260903102303_create_roadmap_lesson_progress.sql` adds the separate
+`user_roadmap_lesson_states` projection for `learning`, `done`, and `skipped`.
+It does not reuse `user_question_states` or alter FSRS scheduling. The `anon`
+role has no table grant; a restrictive policy also rejects Supabase anonymous
+Auth identities, which otherwise use the `authenticated` database role. A
+permanent account receives only SELECT/INSERT/UPDATE/DELETE and owner policies
+require `user_id = auth.uid()`. Apply this migration after the compatible app is
+deployed or in the same release; until then the roadmap API fails closed without
+falling back to browser storage.
 
 The AI budget migrations reserve a conservative amount before each web AI call,
 record the actual response-token cost afterward, and reconcile it against the

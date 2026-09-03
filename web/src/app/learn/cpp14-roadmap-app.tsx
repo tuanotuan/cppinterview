@@ -6,6 +6,7 @@ import {
   CppRoadmapMap,
   type CppRoadmapMapCopy,
 } from "@/app/learn/cpp-roadmap-map";
+import { getCppRoadmapProgressCopy } from "@/app/learn/cpp-roadmap-progress-copy.server";
 import { LearnViewNav } from "@/app/learn/learn-view-nav";
 import { Link } from "@/i18n/navigation";
 import type { Cpp14Roadmap, RoadmapCoverage } from "@/lib/learn/cpp14-roadmap";
@@ -19,6 +20,7 @@ export async function Cpp14RoadmapApp({ roadmap }: { roadmap: Cpp14Roadmap }) {
   const t = await getTranslations("Cpp14Roadmap");
   const learn = await getTranslations("Learn");
   const common = await getTranslations("Common");
+  const progressCopy = await getCppRoadmapProgressCopy();
   const availableDays = roadmap.coverageCounts.ready + roadmap.coverageCounts.partial;
   const exceptionalCoverages = (["partial", "planned"] as const).filter(
     (coverage) => roadmap.coverageCounts[coverage] > 0,
@@ -140,7 +142,11 @@ export async function Cpp14RoadmapApp({ roadmap }: { roadmap: Cpp14Roadmap }) {
           </div>
 
           <div className="mt-7 sm:mt-8">
-            <CppRoadmapMap roadmap={roadmap} copy={mapCopy} />
+            <CppRoadmapMap
+              roadmap={roadmap}
+              copy={mapCopy}
+              progressCopy={progressCopy}
+            />
           </div>
 
           <div className="mt-10 text-center">

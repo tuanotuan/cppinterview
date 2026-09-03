@@ -143,9 +143,18 @@ Supabase, rồi enqueue/generate DB-native drafts. Không dùng `content:auto` h
 - Thứ tự `lessonIds` có ý nghĩa: `lessonIds[0]` là lesson chính mà node roadmap
   mở trong tab mới; các ID còn lại là học liệu liên quan. Ngày chưa có học liệu giữ
   mảng rỗng để UI render placeholder disabled, không dùng URL giả hoặc URL rỗng.
-- Chạy targeted test roadmap tương ứng dưới `src/lib/learn/`, sau
-  đó chạy `npm run validate`. Thay đổi roadmap không chạy migration, không sync
-  Supabase và không biểu diễn trạng thái hoàn thành của người học.
+- Coverage `ready`/`partial`/`planned` mô tả học liệu, không được dùng làm tiến độ
+  account. Tiến độ cá nhân chỉ có `learning`/`done`/`skipped` trong
+  `user_roadmap_lesson_states`; chọn lại cùng trạng thái xóa row về pending ngầm,
+  và chỉ `done + skipped` tính completion. Không tái dùng state/review FSRS.
+- Link mở lesson và toolbar trạng thái phải là sibling, không lồng `button` trong
+  link. Desktop hỗ trợ hover lẫn `focus-within`; mobile/touch phải có trigger tối
+  thiểu 44 px. Guest chọn trạng thái mở dialog dùng đúng Google/GitHub/email hiện
+  có; không thêm provider chỉ để bắt chước UI tham khảo.
+- Chạy targeted test roadmap/API/migration tương ứng rồi `npm run validate`.
+  Sửa YAML/content roadmap đơn thuần không cần migration hay sync Supabase. Thay
+  đổi schema tiến độ phải thêm migration append-only và pgTAP owner/other-owner/
+  anonymous-Auth; chỉ push remote sau khi nhánh đã merge và người dùng yêu cầu rõ.
 
 ## Recipe: sửa question
 
@@ -433,6 +442,8 @@ học không bị ảnh hưởng.
 Các nhóm schema hiện có:
 
 - auth-scoped progress, reviews, Anki state, approvals, overrides;
+- account-scoped roadmap lesson state (`learning`/`done`/`skipped`), tách khỏi
+  Anki/FSRS và chỉ cấp CRUD qua owner-only RLS cho permanent account;
 - AI daily/monthly accounting, provider reconciliation, Gemini usage/settings
   và reservation ledger UUID cho từng lượt OpenAI;
 - immutable lesson/question revisions, sync runs, generation jobs;
@@ -476,6 +487,13 @@ Các nhóm schema hiện có:
   và trước lần `content:sync` đầu tiên chứa lesson C++23. Migration chỉ mở rộng bốn
   check constraint; không đổi dữ liệu, RLS, grant, view hay RPC. Không push migration,
   chạy `content:sync` hoặc mutation remote nếu người dùng chưa yêu cầu rõ ràng.
+- Roadmap account progress cần migration
+  `20260903102303_create_roadmap_lesson_progress.sql`. Deploy/apply migration theo
+  quy trình sau merge; trước migration API trả trạng thái unavailable và không
+  fallback sang localStorage. `anon` không có table grant; anonymous Auth dù dùng
+  role `authenticated` vẫn bị restrictive policy chặn, còn account thường chỉ
+  thấy/sửa row có `user_id = auth.uid()`. Không push migration remote từ coding
+  task nếu người dùng chưa yêu cầu rõ ràng.
 - Migration `20260730140000` dùng retry protocol v3 cho Mistake: lease hết hạn
   trước marker provider được thu hồi và claim lại, còn lease đã marker hoặc kết
   quả provider/completion không xác định chuyển `dead_letter`. Trigger chặn
