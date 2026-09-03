@@ -140,6 +140,70 @@ button:disabled {
   box-shadow: 0 4px 16px rgb(15 58 105 / 6%);
 }
 
+.ui-route-loading-track {
+  position: fixed;
+  z-index: 80;
+  inset: 0 0 auto;
+  height: 0.25rem;
+  overflow: hidden;
+  background: rgb(15 58 105 / 10%);
+}
+
+.ui-route-loading-progress {
+  display: block;
+  width: 38%;
+  height: 100%;
+  transform: translateX(-120%);
+  background: linear-gradient(90deg, #22b8a7, var(--accent), #22b8a7);
+  box-shadow: 0 0 12px rgb(101 230 210 / 55%);
+  animation: route-loading-progress 1.25s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform;
+}
+
+.ui-route-loading-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.ui-route-loading-shimmer::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  transform: translateX(-110%);
+  background: linear-gradient(
+    100deg,
+    transparent 18%,
+    rgb(255 255 255 / 72%) 45%,
+    rgb(101 230 210 / 24%) 52%,
+    transparent 78%
+  );
+  animation: route-loading-shimmer 1.6s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes route-loading-progress {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  65%,
+  100% {
+    transform: translateX(310%);
+  }
+}
+
+@keyframes route-loading-shimmer {
+  0% {
+    transform: translateX(-110%);
+  }
+
+  58%,
+  100% {
+    transform: translateX(110%);
+  }
+}
+
 .ui-landing-background {
   background:
     radial-gradient(circle at 88% 4%, rgb(101 230 210 / 22%), transparent 30rem),
@@ -477,5 +541,17 @@ button:disabled {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .ui-route-loading-progress {
+    width: 52%;
+    transform: translateX(46%);
+    animation: none !important;
+  }
+
+  .ui-route-loading-shimmer::after {
+    transform: translateX(0);
+    opacity: 0.32;
+    animation: none !important;
   }
 }

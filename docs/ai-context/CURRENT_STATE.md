@@ -311,8 +311,11 @@ trạng thái từ tên nhánh.
   tin autosave/blank-helper cạnh textarea, cũng không lặp tài khoản/đồng bộ hoặc
   source revision ở cuối trang; hành vi lưu answer và gửi blank cho AI vẫn giữ
   nguyên, còn trạng thái đồng bộ vẫn nằm trong panel tiến độ.
-- UI dùng chung có reduced-motion fallback; skeleton loading có thông báo cho
-  screen reader và thanh điều hướng mobile giữ vùng chạm/focus rõ ràng.
+- UI dùng chung có reduced-motion fallback. Loading giữa các route locale giữ
+  nguyên khung trang nhưng dùng thanh tiến trình turquoise, shimmer trên từng
+  skeleton và status nhìn thấy được; khi hệ điều hành yêu cầu giảm chuyển động,
+  hai animation dừng ở trạng thái tĩnh vẫn đủ tương phản. Thanh điều hướng mobile
+  giữ vùng chạm/focus rõ ràng.
 - Header, footer, trạng thái tải và cổng truy cập dùng chung logo C++ SVG thay cho
   badge chữ theo từng màn hình. Biểu tượng ở góc trái luôn mở trang chủ `/`; reader
   lesson còn đặt bộ đổi VI/EN ngay trước các link điều hướng để đổi ngôn ngữ tại bài.
@@ -406,6 +409,13 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
+- Loading giữa các route locale dùng status nhìn thấy được, thanh tiến trình và
+  shimmer không gây reflow; responsive status tự xuống hàng và reduced-motion
+  có fallback tĩnh. Thay đổi đạt toàn bộ `npm run validate`: content/context
+  check, ESLint, TypeScript, 155 file/885 Vitest test và Next.js production build
+  sinh 591 static path. Preview Chrome desktop xác nhận shimmer/contrast; preview
+  viewport hẹp xác nhận status không còn chen khỏi header. Không có migration,
+  remote mutation hay dependency mới.
 - Hàng điều hướng desktop của Practice phủ đủ bốn cột với vùng bấm 48 px, active
   state có nền/viền/indicator và focus ring; bottom nav mobile không đổi. Thay đổi
   đạt toàn bộ `npm run validate`: content/context check, ESLint, TypeScript, 154
