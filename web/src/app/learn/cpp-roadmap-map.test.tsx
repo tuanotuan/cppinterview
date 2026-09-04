@@ -48,14 +48,17 @@ describe("CppRoadmapMap", () => {
   });
 
   it.each([
-    ["learning", "#dad1fd"],
-    ["done", "#cbcbcb"],
-    ["skipped", "#496b69"],
+    ["learning", "#dad1fd", "#cec2fa"],
+    ["done", "#8bd7af", "#76c99f"],
+    ["skipped", "#496b69", "#3c5a58"],
   ])(
     "fills the whole lesson node for the %s state",
-    (status, sourceSurface) => {
+    (status, expectedSurface, expectedHoverSurface) => {
       expect(globalStyles).toContain(
-        `--roadmap-${status}-surface: ${sourceSurface};`,
+        `--roadmap-${status}-surface: ${expectedSurface};`,
+      );
+      expect(globalStyles).toContain(
+        `--roadmap-${status}-surface-hover: ${expectedHoverSurface};`,
       );
 
       const selector = `.cpp-roadmap-node-shell > a[data-progress="${status}"]`;
