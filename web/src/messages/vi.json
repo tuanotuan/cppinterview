@@ -191,7 +191,7 @@
     "metrics": {"lessons": "Bài học", "approvedCards": "Thẻ đã duyệt", "withCode": "Bài có mã"},
     "searchLabel": "Tìm bài học",
     "searchPlaceholder": "Ví dụ: lambda, pointer, ownership…",
-    "filterLabel": "Lọc theo chuẩn C++",
+    "filterLabel": "Lọc theo phiên bản C++ hoặc bộ nội dung",
     "all": "Tất cả",
     "listTitle": "Danh sách bài học",
     "results": "{count} kết quả",

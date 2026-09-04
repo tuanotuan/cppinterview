@@ -51,8 +51,8 @@ describe("content translations", () => {
       "en",
     );
     expect(coverage).toEqual({
-      lessons: 259,
-      questions: 780,
+      lessons: 405,
+      questions: 926,
     });
   });
 
@@ -103,10 +103,16 @@ describe("content translations", () => {
         (left, right) =>
           left.track.localeCompare(right.track) || left.order - right.order,
       );
+    const roadmapLessonIds = new Set(
+      roadmapLessons.map((lesson) => lesson.id),
+    );
+    const roadmapReviews = reviews.filter((review) =>
+      roadmapLessonIds.has(review.question.lessonId),
+    );
 
-    expect(reviews).toHaveLength((53 + 50 + 50 + 52 + 54) * 3);
+    expect(roadmapReviews).toHaveLength((53 + 50 + 50 + 52 + 54) * 3);
     for (const lesson of roadmapLessons) {
-      const lessonReviews = reviews.filter(
+      const lessonReviews = roadmapReviews.filter(
         (review) => review.question.lessonId === lesson.id,
       );
       expect(lessonReviews.map((review) => review.question.difficulty)).toEqual([

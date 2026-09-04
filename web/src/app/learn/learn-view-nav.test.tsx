@@ -79,6 +79,16 @@ describe("LearnViewNav", () => {
     expect(roadmapLinkCount(html)).toBe(1);
   });
 
+  it("does not offer a roadmap for the Daily C++ Interview collection", () => {
+    const html = renderToStaticMarkup(
+      <LearnViewNav current="list" selectedStandard="dailycpp" />,
+    );
+
+    expect(html).toContain(">Danh sách bài học</a>");
+    expect(html).not.toContain("Roadmap Daily C++ Interview");
+    expect(html).not.toContain("<details");
+  });
+
   it.each([
     ["cpp11", "/learn/roadmap/cpp11", "Roadmap C++11"],
     ["cpp14", "/learn/roadmap/cpp14", "Roadmap C++14"],

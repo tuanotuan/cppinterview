@@ -21,6 +21,7 @@ export const NEW_CARD_STANDARD_ORDER = [
   "cpp17",
   "cpp20",
   "cpp23",
+  "dailycpp",
 ] as const;
 export const NEW_CARD_DIFFICULTY_ORDER = [
   "beginner",

@@ -2766,3 +2766,1462 @@ lessons:
       - portability
     prerequisites:
       - cpp23-std-modules
+  - id: dailycpp-q001
+    sourcePath: dailycppinterview/001_auto-type-deduction
+    language: cpp
+    track: dailycpp
+    order: 1
+    tags:
+      - daily-cpp-interview
+      - type-deduction
+    prerequisites: []
+  - id: dailycpp-q002
+    sourcePath: dailycppinterview/002_auto-deduce-undesired-types
+    language: cpp
+    track: dailycpp
+    order: 2
+    tags:
+      - daily-cpp-interview
+      - type-deduction
+    prerequisites:
+      - dailycpp-q001
+  - id: dailycpp-q003
+    sourcePath: dailycppinterview/003_the-advantages-of-using-auto
+    language: cpp
+    track: dailycpp
+    order: 3
+    tags:
+      - daily-cpp-interview
+      - type-deduction
+    prerequisites:
+      - dailycpp-q002
+  - id: dailycpp-q004
+    sourcePath: dailycppinterview/004_the-type-of-mycollection-after-the-following-declaration
+    language: cpp
+    track: dailycpp
+    order: 4
+    tags:
+      - daily-cpp-interview
+      - type-deduction
+    prerequisites:
+      - dailycpp-q003
+  - id: dailycpp-q005
+    sourcePath: dailycppinterview/005_trailing-return-types
+    language: cpp
+    track: dailycpp
+    order: 5
+    tags:
+      - daily-cpp-interview
+      - type-deduction
+    prerequisites:
+      - dailycpp-q004
+  - id: dailycpp-q006
+    sourcePath: dailycppinterview/006_decltype
+    language: cpp
+    track: dailycpp
+    order: 6
+    tags:
+      - daily-cpp-interview
+      - type-deduction
+    prerequisites:
+      - dailycpp-q005
+  - id: dailycpp-q007
+    sourcePath: dailycppinterview/007_use-decltype-auto
+    language: cpp
+    track: dailycpp
+    order: 7
+    tags:
+      - daily-cpp-interview
+      - type-deduction
+    prerequisites:
+      - dailycpp-q006
+  - id: dailycpp-q008
+    sourcePath: dailycppinterview/008_which-data-type-do-you-get-when-you-add-two-bools
+    language: cpp
+    track: dailycpp
+    order: 8
+    tags:
+      - daily-cpp-interview
+      - type-deduction
+    prerequisites:
+      - dailycpp-q007
+  - id: dailycpp-q009
+    sourcePath: dailycppinterview/009_a-static-member-variable-in-c-mean
+    language: cpp
+    track: dailycpp
+    order: 9
+    tags:
+      - daily-cpp-interview
+      - static
+    prerequisites:
+      - dailycpp-q008
+  - id: dailycpp-q010
+    sourcePath: dailycppinterview/010_a-static-member-function-mean-in-c
+    language: cpp
+    track: dailycpp
+    order: 10
+    tags:
+      - daily-cpp-interview
+      - static
+    prerequisites:
+      - dailycpp-q009
+  - id: dailycpp-q011
+    sourcePath: dailycppinterview/011_the-static-initialization-order-fiasco
+    language: cpp
+    track: dailycpp
+    order: 11
+    tags:
+      - daily-cpp-interview
+      - static
+    prerequisites:
+      - dailycpp-q010
+  - id: dailycpp-q012
+    sourcePath: dailycppinterview/012_solve-the-static-initialization-order-fiasco
+    language: cpp
+    track: dailycpp
+    order: 12
+    tags:
+      - daily-cpp-interview
+      - static
+    prerequisites:
+      - dailycpp-q011
+  - id: dailycpp-q013
+    sourcePath: dailycppinterview/013_the-difference-between-function-overloading-and-function-o
+    language: cpp
+    track: dailycpp
+    order: 13
+    tags:
+      - daily-cpp-interview
+      - polymorphism
+    prerequisites:
+      - dailycpp-q012
+  - id: dailycpp-q014
+    sourcePath: dailycppinterview/014_a-virtual-function
+    language: cpp
+    track: dailycpp
+    order: 14
+    tags:
+      - daily-cpp-interview
+      - polymorphism
+    prerequisites:
+      - dailycpp-q013
+  - id: dailycpp-q015
+    sourcePath: dailycppinterview/015_the-override-keyword-and-what-are-its-advantages
+    language: cpp
+    track: dailycpp
+    order: 15
+    tags:
+      - daily-cpp-interview
+      - polymorphism
+    prerequisites:
+      - dailycpp-q014
+  - id: dailycpp-q016
+    sourcePath: dailycppinterview/016_the-concept-of-covariant-return-types-and-show-a-use-case
+    language: cpp
+    track: dailycpp
+    order: 16
+    tags:
+      - daily-cpp-interview
+      - polymorphism
+    prerequisites:
+      - dailycpp-q015
+  - id: dailycpp-q017
+    sourcePath: dailycppinterview/017_virtual-inheritance-in-c-and-when-should-you-use-it
+    language: cpp
+    track: dailycpp
+    order: 17
+    tags:
+      - daily-cpp-interview
+      - polymorphism
+    prerequisites:
+      - dailycpp-q016
+  - id: dailycpp-q018
+    sourcePath: dailycppinterview/018_always-use-virtual-inheritance-if-yes-why-if-not-why-not
+    language: cpp
+    track: dailycpp
+    order: 18
+    tags:
+      - daily-cpp-interview
+      - polymorphism
+    prerequisites:
+      - dailycpp-q017
+  - id: dailycpp-q019
+    sourcePath: dailycppinterview/019_what-s-the-output-of-the-following-sample-program-is-that
+    language: cpp
+    track: dailycpp
+    order: 19
+    tags:
+      - daily-cpp-interview
+      - polymorphism
+    prerequisites:
+      - dailycpp-q018
+  - id: dailycpp-q020
+    sourcePath: dailycppinterview/020_access-the-public-and-protected-members-and-functions-of-a
+    language: cpp
+    track: dailycpp
+    order: 20
+    tags:
+      - daily-cpp-interview
+      - polymorphism
+    prerequisites:
+      - dailycpp-q019
+  - id: dailycpp-q021
+    sourcePath: dailycppinterview/021_private-inheritance-used-for
+    language: cpp
+    track: dailycpp
+    order: 21
+    tags:
+      - daily-cpp-interview
+      - polymorphism
+    prerequisites:
+      - dailycpp-q020
+  - id: dailycpp-q022
+    sourcePath: dailycppinterview/022_call-a-virtual-function-from-a-constructor-or-a-destructor
+    language: cpp
+    track: dailycpp
+    order: 22
+    tags:
+      - daily-cpp-interview
+      - polymorphism
+    prerequisites:
+      - dailycpp-q021
+  - id: dailycpp-q023
+    sourcePath: dailycppinterview/023_what-role-does-a-virtual-destructor-play
+    language: cpp
+    track: dailycpp
+    order: 23
+    tags:
+      - daily-cpp-interview
+      - polymorphism
+    prerequisites:
+      - dailycpp-q022
+  - id: dailycpp-q024
+    sourcePath: dailycppinterview/024_inherit-from-a-standard-container-such-as-vector-if-so-wha
+    language: cpp
+    track: dailycpp
+    order: 24
+    tags:
+      - daily-cpp-interview
+      - polymorphism
+    prerequisites:
+      - dailycpp-q023
+  - id: dailycpp-q025
+    sourcePath: dailycppinterview/025_a-strong-type-mean-and-what-advantages-does-it-have
+    language: cpp
+    track: dailycpp
+    order: 25
+    tags:
+      - daily-cpp-interview
+      - polymorphism
+    prerequisites:
+      - dailycpp-q024
+  - id: dailycpp-q026
+    sourcePath: dailycppinterview/026_short-circuit-evaluation
+    language: cpp
+    track: dailycpp
+    order: 26
+    tags:
+      - daily-cpp-interview
+      - polymorphism
+    prerequisites:
+      - dailycpp-q025
+  - id: dailycpp-q027
+    sourcePath: dailycppinterview/027_a-destructor-and-how-can-we-overload-it
+    language: cpp
+    track: dailycpp
+    order: 27
+    tags:
+      - daily-cpp-interview
+      - polymorphism
+    prerequisites:
+      - dailycpp-q026
+  - id: dailycpp-q028
+    sourcePath: dailycppinterview/028_the-output-of-the-following-piece-of-code-and-why
+    language: cpp
+    track: dailycpp
+    order: 28
+    tags:
+      - daily-cpp-interview
+      - polymorphism
+    prerequisites:
+      - dailycpp-q027
+  - id: dailycpp-q029
+    sourcePath: dailycppinterview/029_use-the-delete-specifier-in-c
+    language: cpp
+    track: dailycpp
+    order: 29
+    tags:
+      - daily-cpp-interview
+      - polymorphism
+    prerequisites:
+      - dailycpp-q028
+  - id: dailycpp-q030
+    sourcePath: dailycppinterview/030_immediately-invoked-lambda-functions
+    language: cpp
+    track: dailycpp
+    order: 30
+    tags:
+      - daily-cpp-interview
+      - lambdas
+    prerequisites:
+      - dailycpp-q029
+  - id: dailycpp-q031
+    sourcePath: dailycppinterview/031_what-kind-of-captures-are-available-for-lambda-expressions
+    language: cpp
+    track: dailycpp
+    order: 31
+    tags:
+      - daily-cpp-interview
+      - lambdas
+    prerequisites:
+      - dailycpp-q030
+  - id: dailycpp-q032
+    sourcePath: dailycppinterview/032_the-output-of-the-following-piece-of-code-and-why
+    language: cpp
+    track: dailycpp
+    order: 32
+    tags:
+      - daily-cpp-interview
+      - const
+    prerequisites:
+      - dailycpp-q031
+  - id: dailycpp-q033
+    sourcePath: dailycppinterview/033_the-advantages-of-using-const-local-variables
+    language: cpp
+    track: dailycpp
+    order: 33
+    tags:
+      - daily-cpp-interview
+      - const
+    prerequisites:
+      - dailycpp-q032
+  - id: dailycpp-q034
+    sourcePath: dailycppinterview/034_have-const-members-in-a-class
+    language: cpp
+    track: dailycpp
+    order: 34
+    tags:
+      - daily-cpp-interview
+      - const
+    prerequisites:
+      - dailycpp-q033
+  - id: dailycpp-q035
+    sourcePath: dailycppinterview/035_it-make-sense-to-return-const-objects-by-value
+    language: cpp
+    track: dailycpp
+    order: 35
+    tags:
+      - daily-cpp-interview
+      - const
+    prerequisites:
+      - dailycpp-q034
+  - id: dailycpp-q036
+    sourcePath: dailycppinterview/036_how-should-you-return-const-pointers-from-a-function
+    language: cpp
+    track: dailycpp
+    order: 36
+    tags:
+      - daily-cpp-interview
+      - const
+    prerequisites:
+      - dailycpp-q035
+  - id: dailycpp-q037
+    sourcePath: dailycppinterview/037_should-functions-return-const-references
+    language: cpp
+    track: dailycpp
+    order: 37
+    tags:
+      - daily-cpp-interview
+      - const
+    prerequisites:
+      - dailycpp-q036
+  - id: dailycpp-q038
+    sourcePath: dailycppinterview/038_take-plain-old-data-types-by-const-reference-as-a-function
+    language: cpp
+    track: dailycpp
+    order: 38
+    tags:
+      - daily-cpp-interview
+      - const
+    prerequisites:
+      - dailycpp-q037
+  - id: dailycpp-q039
+    sourcePath: dailycppinterview/039_pass-objects-by-const-reference-as-a-function-parameter
+    language: cpp
+    track: dailycpp
+    order: 39
+    tags:
+      - daily-cpp-interview
+      - const
+    prerequisites:
+      - dailycpp-q038
+  - id: dailycpp-q040
+    sourcePath: dailycppinterview/040_the-signature-of-a-function-declaration-has-to-match-the-s
+    language: cpp
+    track: dailycpp
+    order: 40
+    tags:
+      - daily-cpp-interview
+      - const
+    prerequisites:
+      - dailycpp-q039
+  - id: dailycpp-q041
+    sourcePath: dailycppinterview/041_what-consteval-and-constinit-bring-to-c
+    language: cpp
+    track: dailycpp
+    order: 41
+    tags:
+      - daily-cpp-interview
+      - const
+    prerequisites:
+      - dailycpp-q040
+  - id: dailycpp-q042
+    sourcePath: dailycppinterview/042_aggregate-initialization
+    language: cpp
+    track: dailycpp
+    order: 42
+    tags:
+      - daily-cpp-interview
+      - modern-practices
+    prerequisites:
+      - dailycpp-q041
+  - id: dailycpp-q043
+    sourcePath: dailycppinterview/043_explicit-constructors-and-what-are-their-advantages
+    language: cpp
+    track: dailycpp
+    order: 43
+    tags:
+      - daily-cpp-interview
+      - modern-practices
+    prerequisites:
+      - dailycpp-q042
+  - id: dailycpp-q044
+    sourcePath: dailycppinterview/044_user-defined-literals
+    language: cpp
+    track: dailycpp
+    order: 44
+    tags:
+      - daily-cpp-interview
+      - modern-practices
+    prerequisites:
+      - dailycpp-q043
+  - id: dailycpp-q045
+    sourcePath: dailycppinterview/045_we-use-nullptr-instead-of-null-or-0
+    language: cpp
+    track: dailycpp
+    order: 45
+    tags:
+      - daily-cpp-interview
+      - modern-practices
+    prerequisites:
+      - dailycpp-q044
+  - id: dailycpp-q046
+    sourcePath: dailycppinterview/046_what-advantages-does-alias-have-over-typedef
+    language: cpp
+    track: dailycpp
+    order: 46
+    tags:
+      - daily-cpp-interview
+      - modern-practices
+    prerequisites:
+      - dailycpp-q045
+  - id: dailycpp-q047
+    sourcePath: dailycppinterview/047_the-advantages-of-scoped-enums-over-unscoped-enums
+    language: cpp
+    track: dailycpp
+    order: 47
+    tags:
+      - daily-cpp-interview
+      - modern-practices
+    prerequisites:
+      - dailycpp-q046
+  - id: dailycpp-q048
+    sourcePath: dailycppinterview/048_explicitly-delete-unused-unsupported-special-functions-or
+    language: cpp
+    track: dailycpp
+    order: 48
+    tags:
+      - daily-cpp-interview
+      - modern-practices
+    prerequisites:
+      - dailycpp-q047
+  - id: dailycpp-q049
+    sourcePath: dailycppinterview/049_use-the-delete-specifier-in-c
+    language: cpp
+    track: dailycpp
+    order: 49
+    tags:
+      - daily-cpp-interview
+      - modern-practices
+    prerequisites:
+      - dailycpp-q048
+  - id: dailycpp-q050
+    sourcePath: dailycppinterview/050_a-trivial-class-in-c
+    language: cpp
+    track: dailycpp
+    order: 50
+    tags:
+      - daily-cpp-interview
+      - modern-practices
+    prerequisites:
+      - dailycpp-q049
+  - id: dailycpp-q051
+    sourcePath: dailycppinterview/051_the-resource-acquisition-is-initialization-raii-idiom
+    language: cpp
+    track: dailycpp
+    order: 51
+    tags:
+      - daily-cpp-interview
+      - smart-pointers
+    prerequisites:
+      - dailycpp-q050
+  - id: dailycpp-q052
+    sourcePath: dailycppinterview/052_we-use-unique-pointers
+    language: cpp
+    track: dailycpp
+    order: 52
+    tags:
+      - daily-cpp-interview
+      - smart-pointers
+    prerequisites:
+      - dailycpp-q051
+  - id: dailycpp-q053
+    sourcePath: dailycppinterview/053_the-reasons-to-use-shared-pointers
+    language: cpp
+    track: dailycpp
+    order: 53
+    tags:
+      - daily-cpp-interview
+      - smart-pointers
+    prerequisites:
+      - dailycpp-q052
+  - id: dailycpp-q054
+    sourcePath: dailycppinterview/054_use-a-weak-pointer
+    language: cpp
+    track: dailycpp
+    order: 54
+    tags:
+      - daily-cpp-interview
+      - smart-pointers
+    prerequisites:
+      - dailycpp-q053
+  - id: dailycpp-q055
+    sourcePath: dailycppinterview/055_the-advantages-of-make-shared-and-make-unique-compared-to
+    language: cpp
+    track: dailycpp
+    order: 55
+    tags:
+      - daily-cpp-interview
+      - smart-pointers
+    prerequisites:
+      - dailycpp-q054
+  - id: dailycpp-q056
+    sourcePath: dailycppinterview/056_use-smart-pointers-over-raw-pointers-all-the-time
+    language: cpp
+    track: dailycpp
+    order: 56
+    tags:
+      - daily-cpp-interview
+      - smart-pointers
+    prerequisites:
+      - dailycpp-q055
+  - id: dailycpp-q057
+    sourcePath: dailycppinterview/057_when-and-why-should-we-initialize-pointers-to-nullptr
+    language: cpp
+    track: dailycpp
+    order: 57
+    tags:
+      - daily-cpp-interview
+      - smart-pointers
+    prerequisites:
+      - dailycpp-q056
+  - id: dailycpp-q058
+    sourcePath: dailycppinterview/058_move-move
+    language: cpp
+    track: dailycpp
+    order: 58
+    tags:
+      - daily-cpp-interview
+      - references
+    prerequisites:
+      - dailycpp-q057
+  - id: dailycpp-q059
+    sourcePath: dailycppinterview/059_forward-forward
+    language: cpp
+    track: dailycpp
+    order: 59
+    tags:
+      - daily-cpp-interview
+      - references
+    prerequisites:
+      - dailycpp-q058
+  - id: dailycpp-q060
+    sourcePath: dailycppinterview/060_the-difference-between-universal-and-rvalue-references
+    language: cpp
+    track: dailycpp
+    order: 60
+    tags:
+      - daily-cpp-interview
+      - references
+    prerequisites:
+      - dailycpp-q059
+  - id: dailycpp-q061
+    sourcePath: dailycppinterview/061_reference-collapsing
+    language: cpp
+    track: dailycpp
+    order: 61
+    tags:
+      - daily-cpp-interview
+      - references
+    prerequisites:
+      - dailycpp-q060
+  - id: dailycpp-q062
+    sourcePath: dailycppinterview/062_when-constexpr-functions-are-evaluated
+    language: cpp
+    track: dailycpp
+    order: 62
+    tags:
+      - daily-cpp-interview
+      - references
+    prerequisites:
+      - dailycpp-q061
+  - id: dailycpp-q063
+    sourcePath: dailycppinterview/063_you-declare-your-functions-as-noexcept
+    language: cpp
+    track: dailycpp
+    order: 63
+    tags:
+      - daily-cpp-interview
+      - references
+    prerequisites:
+      - dailycpp-q062
+  - id: dailycpp-q064
+    sourcePath: dailycppinterview/064_concepts-in-c
+    language: cpp
+    track: dailycpp
+    order: 64
+    tags:
+      - daily-cpp-interview
+      - cpp20
+    prerequisites:
+      - dailycpp-q063
+  - id: dailycpp-q065
+    sourcePath: dailycppinterview/065_the-available-standard-attributes-in-c
+    language: cpp
+    track: dailycpp
+    order: 65
+    tags:
+      - daily-cpp-interview
+      - cpp20
+    prerequisites:
+      - dailycpp-q064
+  - id: dailycpp-q066
+    sourcePath: dailycppinterview/066_3-way-comparison
+    language: cpp
+    track: dailycpp
+    order: 66
+    tags:
+      - daily-cpp-interview
+      - cpp20
+    prerequisites:
+      - dailycpp-q065
+  - id: dailycpp-q067
+    sourcePath: dailycppinterview/067_what-consteval-and-constinit-bring-to-c
+    language: cpp
+    track: dailycpp
+    order: 67
+    tags:
+      - daily-cpp-interview
+      - cpp20
+    prerequisites:
+      - dailycpp-q066
+  - id: dailycpp-q068
+    sourcePath: dailycppinterview/068_modules-and-what-advantages-do-they-bring
+    language: cpp
+    track: dailycpp
+    order: 68
+    tags:
+      - daily-cpp-interview
+      - cpp20
+    prerequisites:
+      - dailycpp-q067
+  - id: dailycpp-q069
+    sourcePath: dailycppinterview/069_the-rule-of-three
+    language: cpp
+    track: dailycpp
+    order: 69
+    tags:
+      - daily-cpp-interview
+      - special-members
+    prerequisites:
+      - dailycpp-q068
+  - id: dailycpp-q070
+    sourcePath: dailycppinterview/070_the-rule-of-five
+    language: cpp
+    track: dailycpp
+    order: 70
+    tags:
+      - daily-cpp-interview
+      - special-members
+    prerequisites:
+      - dailycpp-q069
+  - id: dailycpp-q071
+    sourcePath: dailycppinterview/071_the-rule-of-zero
+    language: cpp
+    track: dailycpp
+    order: 71
+    tags:
+      - daily-cpp-interview
+      - special-members
+    prerequisites:
+      - dailycpp-q070
+  - id: dailycpp-q072
+    sourcePath: dailycppinterview/072_move-move
+    language: cpp
+    track: dailycpp
+    order: 72
+    tags:
+      - daily-cpp-interview
+      - special-members
+    prerequisites:
+      - dailycpp-q071
+  - id: dailycpp-q073
+    sourcePath: dailycppinterview/073_a-destructor-and-how-can-we-overload-it
+    language: cpp
+    track: dailycpp
+    order: 73
+    tags:
+      - daily-cpp-interview
+      - special-members
+    prerequisites:
+      - dailycpp-q072
+  - id: dailycpp-q074
+    sourcePath: dailycppinterview/074_explicitly-delete-unused-unsupported-special-functions-or
+    language: cpp
+    track: dailycpp
+    order: 74
+    tags:
+      - daily-cpp-interview
+      - special-members
+    prerequisites:
+      - dailycpp-q073
+  - id: dailycpp-q075
+    sourcePath: dailycppinterview/075_a-trivial-class-in-c
+    language: cpp
+    track: dailycpp
+    order: 75
+    tags:
+      - daily-cpp-interview
+      - special-members
+    prerequisites:
+      - dailycpp-q074
+  - id: dailycpp-q076
+    sourcePath: dailycppinterview/076_what-advantages-does-having-a-default-constructor-have
+    language: cpp
+    track: dailycpp
+    order: 76
+    tags:
+      - daily-cpp-interview
+      - special-members
+    prerequisites:
+      - dailycpp-q075
+  - id: dailycpp-q077
+    sourcePath: dailycppinterview/077_the-differences-between-a-class-and-a-struct
+    language: cpp
+    track: dailycpp
+    order: 77
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q076
+  - id: dailycpp-q078
+    sourcePath: dailycppinterview/078_constructor-delegation
+    language: cpp
+    track: dailycpp
+    order: 78
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q077
+  - id: dailycpp-q079
+    sourcePath: dailycppinterview/079_the-concept-of-covariant-return-types-and-show-a-use-case
+    language: cpp
+    track: dailycpp
+    order: 79
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q078
+  - id: dailycpp-q080
+    sourcePath: dailycppinterview/080_the-difference-between-function-overloading-and-function-o
+    language: cpp
+    track: dailycpp
+    order: 80
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q079
+  - id: dailycpp-q081
+    sourcePath: dailycppinterview/081_the-override-keyword-and-what-are-its-advantages
+    language: cpp
+    track: dailycpp
+    order: 81
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q080
+  - id: dailycpp-q082
+    sourcePath: dailycppinterview/082_what-is-a-friend-class-or-a-friend-function
+    language: cpp
+    track: dailycpp
+    order: 82
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q081
+  - id: dailycpp-q083
+    sourcePath: dailycppinterview/083_default-arguments-how-are-they-evaluated-in-a-c-function
+    language: cpp
+    track: dailycpp
+    order: 83
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q082
+  - id: dailycpp-q084
+    sourcePath: dailycppinterview/084_this-pointer-and-can-we-delete-it
+    language: cpp
+    track: dailycpp
+    order: 84
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q083
+  - id: dailycpp-q085
+    sourcePath: dailycppinterview/085_virtual-inheritance-in-c-and-when-should-you-use-it
+    language: cpp
+    track: dailycpp
+    order: 85
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q084
+  - id: dailycpp-q086
+    sourcePath: dailycppinterview/086_always-use-virtual-inheritance-if-yes-why-if-not-why-not
+    language: cpp
+    track: dailycpp
+    order: 86
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q085
+  - id: dailycpp-q087
+    sourcePath: dailycppinterview/087_a-strong-type-mean-and-what-advantages-does-it-have
+    language: cpp
+    track: dailycpp
+    order: 87
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q086
+  - id: dailycpp-q088
+    sourcePath: dailycppinterview/088_user-defined-literals
+    language: cpp
+    track: dailycpp
+    order: 88
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q087
+  - id: dailycpp-q089
+    sourcePath: dailycppinterview/089_we-use-boolean-arguments
+    language: cpp
+    track: dailycpp
+    order: 89
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q088
+  - id: dailycpp-q090
+    sourcePath: dailycppinterview/090_distinguish-between-shallow-copy-and-deep-copy
+    language: cpp
+    track: dailycpp
+    order: 90
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q089
+  - id: dailycpp-q091
+    sourcePath: dailycppinterview/091_are-class-functions-taken-into-consideration-as-part-of-th
+    language: cpp
+    track: dailycpp
+    order: 91
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q090
+  - id: dailycpp-q092
+    sourcePath: dailycppinterview/092_dynamic-dispatch-mean
+    language: cpp
+    track: dailycpp
+    order: 92
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q091
+  - id: dailycpp-q093
+    sourcePath: dailycppinterview/093_vtable-and-vpointer
+    language: cpp
+    track: dailycpp
+    order: 93
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q092
+  - id: dailycpp-q094
+    sourcePath: dailycppinterview/094_should-base-class-destructors-be-virtual
+    language: cpp
+    track: dailycpp
+    order: 94
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q093
+  - id: dailycpp-q095
+    sourcePath: dailycppinterview/095_an-abstract-class-in-c
+    language: cpp
+    track: dailycpp
+    order: 95
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q094
+  - id: dailycpp-q096
+    sourcePath: dailycppinterview/096_have-polymorphic-behaviour-without-the-cost-of-virtual-fun
+    language: cpp
+    track: dailycpp
+    order: 96
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q095
+  - id: dailycpp-q097
+    sourcePath: dailycppinterview/097_how-would-you-add-functionality-to-your-classes-with-the-c
+    language: cpp
+    track: dailycpp
+    order: 97
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q096
+  - id: dailycpp-q098
+    sourcePath: dailycppinterview/098_the-good-reasons-to-use-init-functions-to-initialize-an-ob
+    language: cpp
+    track: dailycpp
+    order: 98
+    tags:
+      - daily-cpp-interview
+      - object-design
+    prerequisites:
+      - dailycpp-q097
+  - id: dailycpp-q099
+    sourcePath: dailycppinterview/099_observable-behaviour-of-code
+    language: cpp
+    track: dailycpp
+    order: 99
+    tags:
+      - daily-cpp-interview
+      - behavior
+    prerequisites:
+      - dailycpp-q098
+  - id: dailycpp-q100
+    sourcePath: dailycppinterview/100_the-characteristics-of-an-ill-formed-c-program
+    language: cpp
+    track: dailycpp
+    order: 100
+    tags:
+      - daily-cpp-interview
+      - behavior
+    prerequisites:
+      - dailycpp-q099
+  - id: dailycpp-q101
+    sourcePath: dailycppinterview/101_unspecified-behaviour
+    language: cpp
+    track: dailycpp
+    order: 101
+    tags:
+      - daily-cpp-interview
+      - behavior
+    prerequisites:
+      - dailycpp-q100
+  - id: dailycpp-q102
+    sourcePath: dailycppinterview/102_implementation-defined-behaviour
+    language: cpp
+    track: dailycpp
+    order: 102
+    tags:
+      - daily-cpp-interview
+      - behavior
+    prerequisites:
+      - dailycpp-q101
+  - id: dailycpp-q103
+    sourcePath: dailycppinterview/103_undefined-behaviour-in-c
+    language: cpp
+    track: dailycpp
+    order: 103
+    tags:
+      - daily-cpp-interview
+      - behavior
+    prerequisites:
+      - dailycpp-q102
+  - id: dailycpp-q104
+    sourcePath: dailycppinterview/104_the-reasons-behind-undefined-behaviour-s-existence
+    language: cpp
+    track: dailycpp
+    order: 104
+    tags:
+      - daily-cpp-interview
+      - behavior
+    prerequisites:
+      - dailycpp-q103
+  - id: dailycpp-q105
+    sourcePath: dailycppinterview/105_what-approaches-to-take-to-avoid-undefined-behaviour
+    language: cpp
+    track: dailycpp
+    order: 105
+    tags:
+      - daily-cpp-interview
+      - behavior
+    prerequisites:
+      - dailycpp-q104
+  - id: dailycpp-q106
+    sourcePath: dailycppinterview/106_iterator-invalidation-give-a-few-examples
+    language: cpp
+    track: dailycpp
+    order: 106
+    tags:
+      - daily-cpp-interview
+      - behavior
+    prerequisites:
+      - dailycpp-q105
+  - id: dailycpp-q107
+    sourcePath: dailycppinterview/107_the-stl
+    language: cpp
+    track: dailycpp
+    order: 107
+    tags:
+      - daily-cpp-interview
+      - stl
+    prerequisites:
+      - dailycpp-q106
+  - id: dailycpp-q108
+    sourcePath: dailycppinterview/108_the-advantages-of-algorithms-over-raw-loops
+    language: cpp
+    track: dailycpp
+    order: 108
+    tags:
+      - daily-cpp-interview
+      - stl
+    prerequisites:
+      - dailycpp-q107
+  - id: dailycpp-q109
+    sourcePath: dailycppinterview/109_algorithms-validate-ranges
+    language: cpp
+    track: dailycpp
+    order: 109
+    tags:
+      - daily-cpp-interview
+      - stl
+    prerequisites:
+      - dailycpp-q108
+  - id: dailycpp-q110
+    sourcePath: dailycppinterview/110_combine-containers-of-different-sizes
+    language: cpp
+    track: dailycpp
+    order: 110
+    tags:
+      - daily-cpp-interview
+      - stl
+    prerequisites:
+      - dailycpp-q109
+  - id: dailycpp-q111
+    sourcePath: dailycppinterview/111_how-is-a-vector-s-memory-layout-organized
+    language: cpp
+    track: dailycpp
+    order: 111
+    tags:
+      - daily-cpp-interview
+      - stl
+    prerequisites:
+      - dailycpp-q110
+  - id: dailycpp-q112
+    sourcePath: dailycppinterview/112_inherit-from-a-standard-container-such-as-vector-if-so-wha
+    language: cpp
+    track: dailycpp
+    order: 112
+    tags:
+      - daily-cpp-interview
+      - stl
+    prerequisites:
+      - dailycpp-q111
+  - id: dailycpp-q113
+    sourcePath: dailycppinterview/113_the-type-of-mycollection-after-the-following-declaration
+    language: cpp
+    track: dailycpp
+    order: 113
+    tags:
+      - daily-cpp-interview
+      - stl
+    prerequisites:
+      - dailycpp-q112
+  - id: dailycpp-q114
+    sourcePath: dailycppinterview/114_the-advantages-of-const-iterators-over-iterators
+    language: cpp
+    track: dailycpp
+    order: 114
+    tags:
+      - daily-cpp-interview
+      - stl
+    prerequisites:
+      - dailycpp-q113
+  - id: dailycpp-q115
+    sourcePath: dailycppinterview/115_binary-search-an-element-with-algorithms
+    language: cpp
+    track: dailycpp
+    order: 115
+    tags:
+      - daily-cpp-interview
+      - stl
+    prerequisites:
+      - dailycpp-q114
+  - id: dailycpp-q116
+    sourcePath: dailycppinterview/116_an-iterator-class
+    language: cpp
+    track: dailycpp
+    order: 116
+    tags:
+      - daily-cpp-interview
+      - stl
+    prerequisites:
+      - dailycpp-q115
+  - id: dailycpp-q117
+    sourcePath: dailycppinterview/117_call-a-virtual-function-from-a-constructor-or-a-destructor
+    language: cpp
+    track: dailycpp
+    order: 117
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q116
+  - id: dailycpp-q118
+    sourcePath: dailycppinterview/118_default-arguments-how-are-they-evaluated-in-a-c-function
+    language: cpp
+    track: dailycpp
+    order: 118
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q117
+  - id: dailycpp-q119
+    sourcePath: dailycppinterview/119_can-virtual-functions-have-default-arguments
+    language: cpp
+    track: dailycpp
+    order: 119
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q118
+  - id: dailycpp-q120
+    sourcePath: dailycppinterview/120_should-base-class-destructors-be-virtual
+    language: cpp
+    track: dailycpp
+    order: 120
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q119
+  - id: dailycpp-q121
+    sourcePath: dailycppinterview/121_the-function-of-the-keyword-mutable
+    language: cpp
+    track: dailycpp
+    order: 121
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q120
+  - id: dailycpp-q122
+    sourcePath: dailycppinterview/122_the-function-of-the-keyword-volatile
+    language: cpp
+    track: dailycpp
+    order: 122
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q121
+  - id: dailycpp-q123
+    sourcePath: dailycppinterview/123_an-inline-function
+    language: cpp
+    track: dailycpp
+    order: 123
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q122
+  - id: dailycpp-q124
+    sourcePath: dailycppinterview/124_what-do-we-catch
+    language: cpp
+    track: dailycpp
+    order: 124
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q123
+  - id: dailycpp-q125
+    sourcePath: dailycppinterview/125_the-differences-between-references-and-pointers
+    language: cpp
+    track: dailycpp
+    order: 125
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q124
+  - id: dailycpp-q126
+    sourcePath: dailycppinterview/126_which-of-the-following-variable-declarations-compile-and-w
+    language: cpp
+    track: dailycpp
+    order: 126
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q125
+  - id: dailycpp-q127
+    sourcePath: dailycppinterview/127_what-will-the-line-of-code-below-print-out-and-why
+    language: cpp
+    track: dailycpp
+    order: 127
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q126
+  - id: dailycpp-q128
+    sourcePath: dailycppinterview/128_the-difference-between-pre-and-post-increment-decrement-op
+    language: cpp
+    track: dailycpp
+    order: 128
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q127
+  - id: dailycpp-q129
+    sourcePath: dailycppinterview/129_the-final-values-of-a-b-and-c
+    language: cpp
+    track: dailycpp
+    order: 129
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q128
+  - id: dailycpp-q130
+    sourcePath: dailycppinterview/130_this-string-declaration-compile
+    language: cpp
+    track: dailycpp
+    order: 130
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q129
+  - id: dailycpp-q131
+    sourcePath: dailycppinterview/131_default-member-initializers-in-c
+    language: cpp
+    track: dailycpp
+    order: 131
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q130
+  - id: dailycpp-q132
+    sourcePath: dailycppinterview/132_the-most-vexing-parse
+    language: cpp
+    track: dailycpp
+    order: 132
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q131
+  - id: dailycpp-q133
+    sourcePath: dailycppinterview/133_this-code-compile-if-yes-what-does-it-do-if-not-why-not
+    language: cpp
+    track: dailycpp
+    order: 133
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q132
+  - id: dailycpp-q134
+    sourcePath: dailycppinterview/134_string-view-and-why-should-we-use-it
+    language: cpp
+    track: dailycpp
+    order: 134
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q133
+  - id: dailycpp-q135
+    sourcePath: dailycppinterview/135_check-if-a-string-starts-or-ends-with-a-certain-substring
+    language: cpp
+    track: dailycpp
+    order: 135
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q134
+  - id: dailycpp-q136
+    sourcePath: dailycppinterview/136_rvo
+    language: cpp
+    track: dailycpp
+    order: 136
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q135
+  - id: dailycpp-q137
+    sourcePath: dailycppinterview/137_we-ensure-the-compiler-performs-rvo
+    language: cpp
+    track: dailycpp
+    order: 137
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q136
+  - id: dailycpp-q138
+    sourcePath: dailycppinterview/138_the-primary-and-mixed-value-categories-in-c
+    language: cpp
+    track: dailycpp
+    order: 138
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q137
+  - id: dailycpp-q139
+    sourcePath: dailycppinterview/139_safely-compare-signed-and-unsigned-integers
+    language: cpp
+    track: dailycpp
+    order: 139
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q138
+  - id: dailycpp-q140
+    sourcePath: dailycppinterview/140_the-return-value-of-main-and-what-are-the-available-signat
+    language: cpp
+    track: dailycpp
+    order: 140
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q139
+  - id: dailycpp-q141
+    sourcePath: dailycppinterview/141_prefer-default-arguments-or-overloading
+    language: cpp
+    track: dailycpp
+    order: 141
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q140
+  - id: dailycpp-q142
+    sourcePath: dailycppinterview/142_how-many-variables-should-you-declare-on-a-line
+    language: cpp
+    track: dailycpp
+    order: 142
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q141
+  - id: dailycpp-q143
+    sourcePath: dailycppinterview/143_prefer-a-switch-statement-or-chained-if-statements
+    language: cpp
+    track: dailycpp
+    order: 143
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q142
+  - id: dailycpp-q144
+    sourcePath: dailycppinterview/144_include-guards
+    language: cpp
+    track: dailycpp
+    order: 144
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q143
+  - id: dailycpp-q145
+    sourcePath: dailycppinterview/145_use-angle-brackets-filename-or-double-quotes-filename-to-i
+    language: cpp
+    track: dailycpp
+    order: 145
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q144
+  - id: dailycpp-q146
+    sourcePath: dailycppinterview/146_how-many-return-statements-should-you-have-in-a-function
+    language: cpp
+    track: dailycpp
+    order: 146
+    tags:
+      - daily-cpp-interview
+      - language-practice
+    prerequisites:
+      - dailycpp-q145

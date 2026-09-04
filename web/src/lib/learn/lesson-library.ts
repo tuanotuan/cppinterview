@@ -24,6 +24,7 @@ const trackOrder: ContentTrack[] = [
   "cpp17",
   "cpp20",
   "cpp23",
+  "dailycpp",
 ];
 
 const trackLabels: Record<ContentTrack, string> = {
@@ -33,6 +34,7 @@ const trackLabels: Record<ContentTrack, string> = {
   cpp17: "C++17",
   cpp20: "C++20",
   cpp23: "C++23",
+  dailycpp: "Daily C++ Interview",
 };
 
 export const lessonStandardFilters = [
@@ -66,6 +68,12 @@ export const lessonStandardFilters = [
     label: "C++23",
     track: "cpp23",
     roadmapHref: "/learn/roadmap/cpp23",
+  },
+  {
+    value: "dailycpp",
+    label: "Daily C++ Interview",
+    track: "dailycpp",
+    roadmapHref: null,
   },
 ] as const;
 

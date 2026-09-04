@@ -7,7 +7,8 @@ Chạy command từ `web/` trừ khi ghi khác. Trên PowerShell có thể dùng
 
 ## Ranh giới content C++
 
-Chỉ `cpp98_foundation/`, `cpp11/`, `cpp14/`, `cpp17/`, `cpp20/` và `cpp23/` là source root của web.
+Chỉ `cpp98_foundation/`, `cpp11/`, `cpp14/`, `cpp17/`, `cpp20/`, `cpp23/` và
+collection `dailycppinterview/` là source root của web.
 Không thêm `python/` hay CMake vào discovery/content sync; thư mục Python ở
 repo root được giữ độc lập với sản phẩm.
 
@@ -122,9 +123,26 @@ và vẫn phải làm theo recipe dưới đây.
    `web/src/generated/lesson-translations-en.json`.
 5. Chạy `npm run validate`.
 
-Source roots được discovery: `cpp98_foundation`, `cpp11`, `cpp14`, `cpp17`, `cpp20`, `cpp23`. ID mới được
+Source roots được discovery: `cpp98_foundation`, `cpp11`, `cpp14`, `cpp17`,
+`cpp20`, `cpp23`, `dailycppinterview`. ID mới được
 suy ra từ path; nếu collision, đăng ký thủ công. Rename có
 thể được nhận ra và giữ ID, nhưng luôn kiểm tra diff.
+
+### Collection Daily C++ Interview
+
+- `web/content/daily-cpp-interview-source.json` là manifest biên tập cho 146 mục
+  nguồn theo đúng thứ tự; PDF tham chiếu không được lưu trong repo. Prompt nguồn
+  được giữ nguyên theo từng ngôn ngữ, còn phần giải thích và code mẫu được biên
+  soạn độc lập.
+- Chạy `node scripts/generate-daily-cpp-interview.mjs` từ `web/` để sinh lại
+  `dailycppinterview/`, phần registry, YAML câu hỏi và overlay tiếng Anh; sau đó
+  chạy `npm run content:generate`. Mỗi thư mục phải có đúng `vi.md`, `en.md`,
+  `main.cpp`, còn mỗi lesson chỉ có một question ID `dailycpp-qNNN-001`.
+- Giữ cả 146 mục, bao gồm 19 câu lặp có chủ ý của nguồn; không gộp ID và không tự
+  sinh bộ ba Dễ/Trung bình/Khó. Difficulty là ước tính biên tập lưu trong manifest.
+- Track `dailycpp` là collection trung lập phiên bản: hiển thị trong Library và
+  queue học sau C++23, nhưng không có file/route roadmap, không tham gia ma trận
+  coverage theo phiên bản và chưa được chọn vào Mock C++11–23.
 
 Trên `main`, CI refresh deterministic files, commit nếu cần, sync snapshot sang
 Supabase, rồi enqueue/generate DB-native drafts. Không dùng `content:auto` hay
@@ -491,6 +509,11 @@ Các nhóm schema hiện có:
   và trước lần `content:sync` đầu tiên chứa lesson C++23. Migration chỉ mở rộng bốn
   check constraint; không đổi dữ liệu, RLS, grant, view hay RPC. Không push migration,
   chạy `content:sync` hoặc mutation remote nếu người dùng chưa yêu cầu rõ ràng.
+- Daily C++ Interview cần
+  `20260904092827_add_daily_cpp_content_track.sql` trước lần `content:sync` đầu
+  tiên chứa track `dailycpp`. Migration chỉ thay bốn check constraint
+  standard/track theo mẫu append-only hiện có; không đổi dữ liệu, RLS, grant,
+  view hay RPC. Không push migration hoặc sync remote từ nhánh feature.
 - Roadmap account progress cần migration
   `20260903102303_create_roadmap_lesson_progress.sql`. Deploy/apply migration theo
   quy trình sau merge; trước migration API trả trạng thái unavailable và không
@@ -615,7 +638,9 @@ service-role-only/browser grants như contract hiện tại.
   Relearning/Learning → Review đến hạn → New. New chưa học giữ nguyên slot trong
   ngày; ngày kế tiếp dựng lại tối đa năm New nên chỉ lấy thêm đủ số slot còn
   thiếu sau các thẻ tồn. Custom Study, Focus và Repair không được làm lệch ba
-  counter của daily plan.
+  counter của daily plan. New đi theo C++11 → C++14 → C++17 → C++20 → C++23 →
+  Daily C++ Interview, rồi Dễ → Trung bình → Khó trong từng track; C++98 không tự
+  vào daily New.
 - Learner/guest không được dùng `question_approvals` theo account làm nguồn xuất
   bản. Practice và Mock phải đọc exact revision do `content_admins` duyệt qua
   `published-question-bank.server.ts` bằng credential server-only; chỉ truyền

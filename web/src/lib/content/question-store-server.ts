@@ -42,6 +42,7 @@ const storedContentTrackSchema = z.enum([
   "cpp17",
   "cpp20",
   "cpp23",
+  "dailycpp",
   "python3",
   "cmake",
 ]);

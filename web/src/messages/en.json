@@ -191,7 +191,7 @@
     "metrics": {"lessons": "Lessons", "approvedCards": "Approved cards", "withCode": "With code"},
     "searchLabel": "Find a lesson",
     "searchPlaceholder": "For example: lambda, pointer, ownership…",
-    "filterLabel": "Filter by C++ standard",
+    "filterLabel": "Filter by C++ version or collection",
     "all": "All",
     "listTitle": "Lesson list",
     "results": "{count, plural, one {# result} other {# results}}",

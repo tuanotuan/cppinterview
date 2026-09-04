@@ -8,7 +8,11 @@ on:
     paths:
       - "cpp98_foundation/**"
       - "cpp11/**"
+      - "cpp14/**"
+      - "cpp17/**"
       - "cpp20/**"
+      - "cpp23/**"
+      - "dailycppinterview/**"
       - "web/**"
       - "AGENTS.md"
       - "AI_START_HERE.md"
@@ -18,7 +22,11 @@ on:
     paths:
       - "cpp98_foundation/**"
       - "cpp11/**"
+      - "cpp14/**"
+      - "cpp17/**"
       - "cpp20/**"
+      - "cpp23/**"
+      - "dailycppinterview/**"
       - "web/**"
       - "AGENTS.md"
       - "AI_START_HERE.md"
