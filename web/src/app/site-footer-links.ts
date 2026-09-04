@@ -1,24 +1,24 @@
-export const footerPrimaryLinks = [
-  { href: "/practice?guest=1", labelKey: "footer.today" },
-  { href: "/learn", labelKey: "nav.library" },
-  { href: "/mock-interview", labelKey: "footer.mock" },
-  { href: "/stats", labelKey: "footer.progress" },
-  { href: "/profile", labelKey: "footer.profile" },
-] as const;
+export const footerCreatorHandle = "tuanotuan";
 
-export const footerAccountLinks = [
-  { href: "/auth", labelKey: "footer.signIn" },
-  { href: "/auth?mode=signup", labelKey: "footer.signUp" },
-  { href: "/auth/reset-password", labelKey: "footer.forgotPassword" },
-] as const;
-
-export const footerExternalLinks = [
+export const footerContactLinks = [
   {
-    href: "https://github.com/tuanotuan/cppinterview",
+    kind: "github",
+    href: "https://github.com/tuanotuan/",
     labelKey: "footer.github",
+    external: true,
   },
   {
-    href: "https://www.facebook.com/groups/1318098620529328",
-    labelKey: "footer.vibeCodingCommunity",
+    kind: "facebook",
+    href: "https://www.facebook.com/CNTT.HCMUS.K23",
+    labelKey: "footer.facebook",
+    external: true,
+  },
+  {
+    kind: "email",
+    href: "mailto:tuan.hcmus77@gmail.com",
+    labelKey: "footer.email",
+    external: false,
   },
 ] as const;
+
+export type FooterContactKind = (typeof footerContactLinks)[number]["kind"];

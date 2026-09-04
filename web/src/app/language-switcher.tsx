@@ -209,7 +209,7 @@ export function LanguageSwitcher({
           role="menu"
           aria-label={t("menu")}
           className={`absolute z-50 grid min-w-48 gap-1 rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-raised)] p-1.5 shadow-[var(--shadow-lift)] ${
-            compact
+            compact && !onDark
               ? "top-full left-0 mt-2 sm:right-0 sm:left-auto"
               : "bottom-full left-0 mb-2"
           }`}
