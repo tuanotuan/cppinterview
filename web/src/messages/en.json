@@ -25,10 +25,11 @@
     "footer": {
       "description": "cppinterview helps you prepare for C++ interviews with spaced-repetition cards, AI feedback, and structured mock interviews.",
       "by": "by",
+      "connect": "Connect",
       "contactAria": "Creator links",
-      "github": "tuanotuan on GitHub",
-      "facebook": "tuanotuan on Facebook",
-      "email": "Email tuanotuan"
+      "github": "GitHub · @tuanotuan",
+      "facebook": "Vibe Coding community",
+      "email": "Email · tuan.hcmus77@gmail.com"
     },
     "meta": {
       "title": "cppinterview — Daily interview practice",

@@ -31,7 +31,19 @@ describe("site footer identity and contact links", () => {
     ]);
   });
 
-  it("provides localized accessible labels for every contact icon", () => {
+  it("provides localized visible labels for every contact destination", () => {
+    expect(vietnameseMessages.Common.footer.connect).toBe("Kết nối");
+    expect(englishMessages.Common.footer.connect).toBe("Connect");
+    expect(vietnameseMessages.Common.footer.github).toBe(
+      "GitHub · @tuanotuan",
+    );
+    expect(vietnameseMessages.Common.footer.facebook).toBe(
+      "Cộng đồng Vibe Coding",
+    );
+    expect(vietnameseMessages.Common.footer.email).toBe(
+      "Email · tuan.hcmus77@gmail.com",
+    );
+
     for (const { labelKey } of footerContactLinks) {
       const key = labelKey.replace("footer.", "") as
         | "github"
