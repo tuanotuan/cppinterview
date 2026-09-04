@@ -1,4 +1,4 @@
-// Daily C++ Interview Q100: What are the characteristics of an ill-formed C++ program?
+// Real-World C++ Interviews Q100: What are the characteristics of an ill-formed C++ program?
 // Key: An ill-formed program violates a syntax rule, semantic constraint, or diagnosable
 // requirement of C++. A conforming implementation must issue at least one diagnostic for
 // diagnosable violations, while ill-formed-no-diagnostic-required cases need not be detected.

@@ -1,4 +1,4 @@
-// Daily C++ Interview Q032: What is the output of the following piece of code and why?
+// Real-World C++ Interviews Q032: What is the output of the following piece of code and why?
 // Key: The output is `1`. The non-const object selects the non-const overload; making the
 // destination variable const does not retroactively select the const member function.
 #include <iostream>

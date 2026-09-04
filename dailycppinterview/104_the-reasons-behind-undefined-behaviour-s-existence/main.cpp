@@ -1,4 +1,4 @@
-// Daily C++ Interview Q104: What are the reasons behind undefined behaviour’s existence?
+// Real-World C++ Interviews Q104: What are the reasons behind undefined behaviour’s existence?
 // Key: Undefined behavior preserves room for efficient low-level implementations, avoids
 // mandatory checks and semantics that would penalize valid programs, and accommodates diverse
 // hardware. That freedom is useful only when programs uphold the language and library

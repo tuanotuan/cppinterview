@@ -1,4 +1,4 @@
-// Daily C++ Interview Q088: What are user-defined literals?
+// Real-World C++ Interviews Q088: What are user-defined literals?
 // Key: User-defined literals use a literal operator and a suffix such as `_ms` to construct a
 // domain value directly from literal syntax. Keep conversion rules explicit and use
 // reserved-safe suffix naming.

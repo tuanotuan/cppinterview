@@ -1,4 +1,4 @@
-// Daily C++ Interview Q066: What is 3-way comparison?
+// Real-World C++ Interviews Q066: What is 3-way comparison?
 // Key: The three-way operator `<=>` returns an ordering category such as strong, weak, or
 // partial ordering. A defaulted comparison can synthesize lexicographic member comparison and
 // supports rewritten relational operators, while `==` generation follows its own standard

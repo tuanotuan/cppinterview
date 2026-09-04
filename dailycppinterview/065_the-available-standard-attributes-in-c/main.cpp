@@ -1,4 +1,4 @@
-// Daily C++ Interview Q065: What are the available standard attributes in C++?
+// Real-World C++ Interviews Q065: What are the available standard attributes in C++?
 // Key: Standard attributes use `[[...]]` syntax. Across C++11–20 the main ones include
 // `noreturn`, `carries_dependency`, `deprecated`, `fallthrough`, `nodiscard`, `maybe_unused`,
 // `likely`, `unlikely`, and `no_unique_address`; support and placement rules depend on the

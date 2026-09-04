@@ -1,4 +1,4 @@
-// Daily C++ Interview Q003: What are the advantages of using auto?
+// Real-World C++ Interviews Q003: What are the advantages of using auto?
 // Key: `auto` guarantees initialization, avoids repeating complex or implementation-specific
 // types, and makes many refactors safer. Use it when the initializer makes intent clear; an
 // explicit type is still better when conversion or domain meaning matters.

@@ -1,4 +1,4 @@
-// Daily C++ Interview Q043: What are explicit constructors and what are their advantages?
+// Real-World C++ Interviews Q043: What are explicit constructors and what are their advantages?
 // Key: An `explicit` constructor or conversion function cannot be used for unwanted implicit
 // conversion in copy initialization or argument passing. Direct initialization remains
 // available, so the call site must state the conversion intentionally.

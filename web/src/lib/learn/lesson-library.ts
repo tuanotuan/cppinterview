@@ -34,7 +34,7 @@ const trackLabels: Record<ContentTrack, string> = {
   cpp17: "C++17",
   cpp20: "C++20",
   cpp23: "C++23",
-  dailycpp: "Daily C++ Interview",
+  dailycpp: "Real-World C++ Interviews",
 };
 
 export const lessonStandardFilters = [
@@ -71,7 +71,7 @@ export const lessonStandardFilters = [
   },
   {
     value: "dailycpp",
-    label: "Daily C++ Interview",
+    label: "Real-World C++ Interviews",
     track: "dailycpp",
     roadmapHref: null,
   },

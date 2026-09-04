@@ -1,4 +1,4 @@
-// Daily C++ Interview Q071: Explain the rule of zero
+// Real-World C++ Interviews Q071: Explain the rule of zero
 // Key: The Rule of Zero says application classes should compose RAII value types so they need
 // no custom destructor, copy, or move operations. Compiler-generated special members then
 // preserve correct value semantics with less code.

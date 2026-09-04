@@ -1,4 +1,4 @@
-// Daily C++ Interview Q142: How many variables should you declare on a line?
+// Real-World C++ Interviews Q142: How many variables should you declare on a line?
 // Key: Declare one variable per statement. It makes each type, pointer declarator, initializer,
 // lifetime, and comment unambiguous and avoids the false impression that one initializer
 // applies to every name.

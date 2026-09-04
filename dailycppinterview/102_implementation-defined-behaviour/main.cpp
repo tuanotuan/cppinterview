@@ -1,4 +1,4 @@
-// Daily C++ Interview Q102: What is implementation-defined behaviour?
+// Real-World C++ Interviews Q102: What is implementation-defined behaviour?
 // Key: Implementation-defined behavior lets each implementation choose an allowed behavior but
 // requires that choice to be documented, such as sizes or mappings for certain types. Portable
 // code either avoids depending on it or validates the documented target.

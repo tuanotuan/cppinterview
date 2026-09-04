@@ -1,4 +1,4 @@
-// Daily C++ Interview Q057: When and why should we initialize pointers to nullptr?
+// Real-World C++ Interviews Q057: When and why should we initialize pointers to nullptr?
 // Key: Initialize a pointer to `nullptr` when an empty state is valid and no real target is
 // available yet, so testing it is defined. Prefer immediate initialization to a valid target
 // when possible, because null adds another state every user must handle.

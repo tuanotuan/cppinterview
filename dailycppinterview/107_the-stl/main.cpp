@@ -1,4 +1,4 @@
-// Daily C++ Interview Q107: What is the STL?
+// Real-World C++ Interviews Q107: What is the STL?
 // Key: STL commonly refers to the generic containers, iterators, algorithms, function objects,
 // and related utilities standardized from the original Standard Template Library design. The
 // full C++ standard library is broader and also includes I/O, threading, filesystem, and more.

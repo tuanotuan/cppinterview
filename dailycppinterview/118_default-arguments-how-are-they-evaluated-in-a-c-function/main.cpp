@@ -1,4 +1,4 @@
-// Daily C++ Interview Q118: What are default arguments? How are they evaluated in a C++
+// Real-World C++ Interviews Q118: What are default arguments? How are they evaluated in a C++
 // function?
 // Key: Default arguments are chosen from the declaration visible at the call site and according
 // to static type, then evaluated when the call runs. They are not part of virtual dispatch and

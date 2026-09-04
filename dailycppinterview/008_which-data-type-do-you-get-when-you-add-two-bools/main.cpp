@@ -1,4 +1,4 @@
-// Daily C++ Interview Q008: Which data type do you get when you add two bools?
+// Real-World C++ Interviews Q008: Which data type do you get when you add two bools?
 // Key: Both operands undergo integral promotion from `bool` to `int`, so adding two `bool`
 // values produces an `int`. Its value is 0, 1, or 2.
 #include <type_traits>

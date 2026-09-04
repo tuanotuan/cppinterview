@@ -1,5 +1,5 @@
-// Daily C++ Interview Q096: Is it possible to have polymorphic behaviour without the cost of
-// virtual functions?
+// Real-World C++ Interviews Q096: Is it possible to have polymorphic behaviour without the cost
+// of virtual functions?
 // Key: Yes. Templates, CRTP, concepts, and discriminated unions such as `std::variant` can
 // provide static or closed-set polymorphism without virtual dispatch. The trade-offs include
 // compile-time coupling, code size, and less runtime extensibility.

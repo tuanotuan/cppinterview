@@ -2,7 +2,7 @@
 
 ## 1. Problem It Solves
 
-This is one self-contained C++ interview topic from the Daily C++ Interview collection. The goal is to give the conclusion, name the governing rule, and separate standard behavior from compiler-specific details.
+This is one self-contained C++ interview topic from the Real-World C++ Interviews collection. The goal is to give the conclusion, name the governing rule, and separate standard behavior from compiler-specific details.
 
 ## 2. Prerequisites
 

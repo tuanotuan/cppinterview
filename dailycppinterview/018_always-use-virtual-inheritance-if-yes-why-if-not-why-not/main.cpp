@@ -1,5 +1,5 @@
-// Daily C++ Interview Q018: Should we always use virtual inheritance? If yes, why? If not, why
-// not?
+// Real-World C++ Interviews Q018: Should we always use virtual inheritance? If yes, why? If
+// not, why not?
 // Key: No. Use virtual inheritance only when multiple inheritance must represent one shared
 // base identity, typically a diamond. It adds layout, construction, and reasoning costs, so
 // ordinary composition or non-virtual inheritance is preferable otherwise.

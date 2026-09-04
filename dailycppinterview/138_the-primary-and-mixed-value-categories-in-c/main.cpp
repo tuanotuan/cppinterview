@@ -1,4 +1,4 @@
-// Daily C++ Interview Q138: What are the primary and mixed value categories in C++?
+// Real-World C++ Interviews Q138: What are the primary and mixed value categories in C++?
 // Key: The primary value categories are lvalue, xvalue, and prvalue. Glvalue groups lvalue plus
 // xvalue because both identify an object or function; rvalue groups prvalue plus xvalue because
 // their resources can generally participate in move-oriented operations.

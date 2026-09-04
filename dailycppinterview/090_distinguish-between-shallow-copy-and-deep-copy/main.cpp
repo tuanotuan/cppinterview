@@ -1,4 +1,4 @@
-// Daily C++ Interview Q090: Distinguish between shallow copy and deep copy
+// Real-World C++ Interviews Q090: Distinguish between shallow copy and deep copy
 // Key: A shallow copy duplicates handles while both objects still refer to the same underlying
 // resource; a deep copy creates an independent resource with equivalent value. The correct
 // choice follows the type's ownership and value semantics.

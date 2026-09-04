@@ -60,7 +60,7 @@ const taxonomyTopicLabels: Record<string, string> = {
   "control-flow": "Luồng điều khiển",
   "data-layout": "Bố trí dữ liệu",
   "data-quality": "Chất lượng dữ liệu",
-  "daily-cpp-interview": "Bộ Daily C++ Interview",
+  "daily-cpp-interview": "Real-World C++ Interviews",
   enum: "Kiểu liệt kê",
   "error-handling": "Xử lý lỗi",
   feed: "Nguồn dữ liệu",
