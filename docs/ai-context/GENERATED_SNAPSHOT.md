@@ -6,7 +6,7 @@
 ## Content
 
 - Manifest schema: 1
-- Source revision: `3041063fdffeffd6d0e32ce2bf8df742d851c261787ab5d81a77188db5914824`
+- Source revision: `ea3fde8126f12e8b42f04a8566d1e0f023ecd2f1ce19782b600fc7b4f3101124`
 - Lessons: 410 (cpp11: 53, cpp14: 50, cpp17: 50, cpp20: 52, cpp23: 54, cpp98: 5, dailycpp: 146)
 - Questions: 936 (draft: 933, verified: 3)
 - Question decks: cpp-interview: 936
@@ -33,7 +33,7 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `80a20455179658791d8dfb78d0600a0b55c9461f132ece2e026e6b96d4cd7887`
+- Project input fingerprint: `9231a1d093c3acc0d71eb66bf55005b3b813b642068b5390d371fbe9d7603ad1`
 - Fingerprinted files: 1754
 
 The fingerprint covers registered lesson sources, content files, application

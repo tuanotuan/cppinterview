@@ -1,5 +1,5 @@
-// Daily C++ Interview Q098: What are the good reasons to use init() functions to initialize an
-// object?
+// Real-World C++ Interviews Q098: What are the good reasons to use init() functions to
+// initialize an object?
 // Key: An `init()` function is justified mainly for genuine two-phase protocols where
 // construction cannot finish immediately, such as registration requiring an already shared
 // owner. Otherwise it creates an observable invalid state; prefer constructors or factories

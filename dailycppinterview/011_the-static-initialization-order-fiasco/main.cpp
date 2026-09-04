@@ -1,4 +1,4 @@
-// Daily C++ Interview Q011: What is the static initialization order fiasco?
+// Real-World C++ Interviews Q011: What is the static initialization order fiasco?
 // Key: The static initialization order fiasco occurs when dynamically initialized objects in
 // different translation units depend on each other; their relative initialization order is
 // unspecified. A use can therefore observe an object before its dynamic initialization.

@@ -1,4 +1,4 @@
-// Daily C++ Interview Q034: Is it a good idea to have const members in a class?
+// Real-World C++ Interviews Q034: Is it a good idea to have const members in a class?
 // Key: Const data members can model truly immutable state, but they delete or restrict
 // generated assignment operations and complicate regular value semantics. Prefer private state
 // protected by class invariants unless per-object immutability is a deliberate requirement.

@@ -29,6 +29,7 @@ const sourceCatalog = JSON.parse(
   collection: {
     id: string;
     track: string;
+    title: string;
     questionCount: number;
     uniquePromptCount: number;
   };
@@ -44,11 +45,12 @@ const codeDependentQuestionNumbers = new Set([
 const mojibakePattern =
   /(?:\u00c3|\u00c2|\u00c6|\u00c4|\u00e1[\u00ba\u00bb]|\u00e2(?:\u0080|\u20ac)|\ufffd)/u;
 
-describe("Daily C++ Interview collection", () => {
+describe("Real-World C++ Interviews collection", () => {
   it("preserves the source inventory and intentional repetitions", () => {
     expect(sourceCatalog.collection).toMatchObject({
       id: "daily-cpp-interview",
       track: "dailycpp",
+      title: "Real-World C++ Interviews",
       questionCount: 146,
       uniquePromptCount: 127,
     });
@@ -163,6 +165,10 @@ describe("Daily C++ Interview collection", () => {
         readFile(path.join(repoRoot, lesson.knowledgePath), "utf8"),
         readFile(path.join(repoRoot, lesson.translationPaths![0]!), "utf8"),
       ]);
+      expect(viMarkdown).toContain("bộ Real-World C++ Interviews");
+      expect(enMarkdown).toContain("Real-World C++ Interviews collection");
+      expect(viMarkdown).not.toContain("Daily C++ Interview");
+      expect(enMarkdown).not.toContain("Daily C++ Interview");
       expect(selfCheckPrompt(viMarkdown)).toBe(source.prompt.vi);
       expect(selfCheckPrompt(enMarkdown)).toBe(source.prompt.en);
       expect(selfCheckCount(viMarkdown)).toBe(1);
@@ -189,7 +195,9 @@ function selfCheckPrompt(markdown: string) {
     .find((candidate) =>
       /^1\. (?:Dễ|Trung bình|Khó|Easy|Medium|Hard) — /u.test(candidate.trim()),
     );
-  if (!line) throw new Error("Missing single Daily C++ Interview self-check");
+  if (!line) {
+    throw new Error("Missing single Real-World C++ Interviews self-check");
+  }
   return line
     .trim()
     .replace(/^1\. (?:Dễ|Trung bình|Khó|Easy|Medium|Hard) — /u, "")

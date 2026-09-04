@@ -1,4 +1,4 @@
-// Daily C++ Interview Q115: Binary search an element with algorithms!
+// Real-World C++ Interviews Q115: Binary search an element with algorithms!
 // Key: `std::binary_search` requires the range to be partitioned according to the same ordering
 // used by the search, which a normally sorted range satisfies. Sort first or maintain the
 // invariant; calling it on the unsorted sample violates its precondition, so the result cannot

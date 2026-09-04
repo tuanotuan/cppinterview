@@ -1,4 +1,4 @@
-// Daily C++ Interview Q106: What is iterator invalidation? Give a few examples.
+// Real-World C++ Interviews Q106: What is iterator invalidation? Give a few examples.
 // Key: Iterator invalidation means a container operation makes existing iterators, references,
 // or pointers unusable. Reallocation invalidates all vector handles, erasing invalidates
 // handles at or after the erased vector position, while node-based containers have different

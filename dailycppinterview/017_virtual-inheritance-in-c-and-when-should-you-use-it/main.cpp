@@ -1,4 +1,5 @@
-// Daily C++ Interview Q017: What is virtual inheritance in C++ and when should you use it?
+// Real-World C++ Interviews Q017: What is virtual inheritance in C++ and when should you use
+// it?
 // Key: Virtual inheritance makes all paths in a diamond share one base subobject. The
 // most-derived constructor initializes that virtual base, which removes duplicate base state
 // but complicates layout and construction.

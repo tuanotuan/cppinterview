@@ -9,7 +9,7 @@ trạng thái từ tên nhánh.
 ## Handoff hiện tại
 
 - Bộ lọc thư viện `/learn` hiển thị riêng C++98, C++11, C++14, C++17, C++20,
-  C++23 và collection Daily C++ Interview, không còn gộp nhiều chuẩn trong một
+  C++23 và collection Real-World C++ Interviews, không còn gộp nhiều chuẩn trong một
   chip. Catalog hiện có lesson cho mọi chip nên tất cả đều khả dụng; chip
   tự xuống dòng và giữ vùng bấm tối thiểu 44 px trên màn hình hẹp. Nhãn điều
   hướng roadmap bám theo chuẩn đang lọc; ở `Tất cả` chỉ hiện `Roadmap`. C++11,
@@ -250,12 +250,14 @@ trạng thái từ tên nhánh.
   `20260904092827_add_daily_cpp_content_track.sql` đã được áp lên Supabase remote;
   lịch sử local/remote khớp và cả bốn constraint standard/track đều validated,
   chấp nhận `dailycpp`.
-- Content sync remote đã hoàn tất từ merge commit `5a4e19f`: state khớp exact
-  source revision/checksum local với 410 lesson active và 936 repository question
-  active. Riêng `dailycpp` có 146 lesson active và đúng 146 repository question
-  draft (73 dễ, 39 trung bình, 34 khó), không có question DB-owned hay generation
-  job. 30 lesson và 51 question legacy đã archive vẫn được giữ cho audit; 146
-  question Daily chưa được duyệt tự động.
+- Content sync remote từ merge commit `5a4e19f` là baseline có 410 lesson active
+  và 936 repository question active. Riêng `dailycpp` có 146 lesson active và
+  đúng 146 repository question draft (73 dễ, 39 trung bình, 34 khó), không có
+  question DB-owned hay generation job. Rebrand sang Real-World C++ Interviews
+  giữ nguyên toàn bộ lesson/question ID nhưng đổi source revision/checksum của
+  đúng 146 mục; chỉ sync remote sau khi nhánh rebrand được merge. 30 lesson và
+  51 question legacy đã archive vẫn được giữ cho audit; 146 question collection
+  chưa được duyệt tự động.
 
 - Kho câu hỏi đã duyệt chưa bao phủ đều tick data, Linux/mạng, hệ
   thống phân tán và kỹ năng chịu trách nhiệm đầu cuối. Giao diện phải gọi đây là
@@ -430,7 +432,7 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Collection Daily C++ Interview đạt toàn bộ `npm run validate`: content/context
+- Collection Real-World C++ Interviews đạt toàn bộ `npm run validate`: content/context
   check, ESLint, TypeScript, 162 file/915 Vitest test và Next.js production build
   sinh 884 static path. Targeted contract xác nhận đủ 146 lesson song ngữ, 438
   source file, đúng một question/lesson, 127 prompt duy nhất, 19 cặp lặp nguồn,
@@ -438,13 +440,13 @@ trạng thái từ tên nhánh.
   `g++ -std=c++20 -Wall -Wextra -Wpedantic -fsyntax-only`.
   `content:sync:check` dựng payload 410 lesson/936 question. Security review đủ
   10 nhóm OWASP không có finding mở và production dependency audit báo 0 lỗ
-  hổng. Migration Daily đã được push bằng `--skip-vault`; constraint và migration
+  hổng. Migration `dailycpp` đã được push bằng `--skip-vault`; constraint và migration
   history remote đã xác minh. GitHub Actions retry sau migration đạt toàn bộ gate,
   sync đúng merge commit/revision/checksum và enqueue 0 generation job. Remote có
-  đúng 146 lesson/146 repository question Daily, không có question DB-owned.
-  Production smoke trả HTTP 200 cho `/vi/learn` và `/vi/learn/dailycpp-q001`, có
-  đúng nhãn collection và nội dung câu hỏi đầu tiên; database advisor không có
-  lỗi mức `ERROR`.
+  đúng 146 lesson/146 repository question cho collection, không có question
+  DB-owned. Production smoke trước rebrand trả HTTP 200 cho `/vi/learn` và
+  `/vi/learn/dailycpp-q001`; cần smoke lại nhãn Real-World C++ Interviews sau khi
+  merge, deploy và sync nội dung. Database advisor không có lỗi mức `ERROR`.
 - Tiến độ cá nhân trên cả năm roadmap dùng `Đang học`/`Đã xong`/`Bỏ qua`, hydrate
   sau static render và lưu owner-private tách khỏi FSRS. Ba trạng thái phủ toàn bộ
   nền node bằng ba dải tím/xanh lá/xanh đậm tách biệt, có hover riêng và giữ chữ/icon đủ

@@ -167,7 +167,7 @@ function commentLines(label, value) {
 
 function commonPreamble(item) {
   return [
-    commentLines(`Daily C++ Interview Q${String(item.number).padStart(3, "0")}: `, item.prompt.en),
+    commentLines(`Real-World C++ Interviews Q${String(item.number).padStart(3, "0")}: `, item.prompt.en),
     commentLines("Key: ", item.answer.en),
     "",
   ].join("\n");
@@ -1331,7 +1331,7 @@ function lessonMarkdown(item, locale, code) {
 
 ## 1. Vấn đề nó giải quyết
 
-Đây là một chủ đề phỏng vấn C++ độc lập trong bộ Daily C++ Interview. Mục tiêu là trả lời đúng trọng tâm, nêu quy tắc chi phối và phân biệt hành vi do chuẩn quy định với chi tiết riêng của compiler.
+Đây là một chủ đề phỏng vấn C++ độc lập trong bộ Real-World C++ Interviews. Mục tiêu là trả lời đúng trọng tâm, nêu quy tắc chi phối và phân biệt hành vi do chuẩn quy định với chi tiết riêng của compiler.
 
 ## 2. Kiến thức cần có
 
@@ -1398,7 +1398,7 @@ Chạy với warning nghiêm ngặt để đối chiếu kết luận thay vì g
 
 ## 1. Problem It Solves
 
-This is one self-contained C++ interview topic from the Daily C++ Interview collection. The goal is to give the conclusion, name the governing rule, and separate standard behavior from compiler-specific details.
+This is one self-contained C++ interview topic from the Real-World C++ Interviews collection. The goal is to give the conclusion, name the governing rule, and separate standard behavior from compiler-specific details.
 
 ## 2. Prerequisites
 
@@ -1612,5 +1612,5 @@ englishCatalog.questions = englishCatalog.questions
 await writeFile(englishCatalogPath, `${JSON.stringify(englishCatalog, null, 2)}\n`, "utf8");
 
 console.log(
-  `Generated ${generated.length} Daily C++ Interview lessons, ${questions.length} questions, and ${generated.length} English question translations.`,
+  `Generated ${generated.length} Real-World C++ Interviews lessons, ${questions.length} questions, and ${generated.length} English question translations.`,
 );

@@ -1,4 +1,4 @@
-// Daily C++ Interview Q095: What is an abstract class in C++?
+// Real-World C++ Interviews Q095: What is an abstract class in C++?
 // Key: An abstract class has at least one pure virtual function and cannot be instantiated
 // directly. It can still own state, define constructors and concrete functions, and even
 // provide a definition for a pure virtual function.

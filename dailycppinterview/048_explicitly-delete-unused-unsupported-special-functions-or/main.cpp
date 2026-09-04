@@ -1,5 +1,5 @@
-// Daily C++ Interview Q048: Should you explicitly delete unused/unsupported special functions
-// or declare them as private?
+// Real-World C++ Interviews Q048: Should you explicitly delete unused/unsupported special
+// functions or declare them as private?
 // Key: Prefer a public deleted declaration: it states the unsupported operation in the
 // interface and gives a direct compile-time diagnostic regardless of access context. A private
 // undeclared function is a pre-C++11 technique with less precise behavior and diagnostics.

@@ -1,4 +1,4 @@
-// Daily C++ Interview Q031: What kind of captures are available for lambda expressions?
+// Real-World C++ Interviews Q031: What kind of captures are available for lambda expressions?
 // Key: Captures can be explicit by value or reference, defaulted with `[=]` or `[&]`, include
 // `this` or `*this`, and use init-capture to create a new member of the closure. Choose capture
 // per lifetime and mutation needs rather than defaulting blindly.

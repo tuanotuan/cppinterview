@@ -1,4 +1,4 @@
-// Daily C++ Interview Q121: What is the function of the keyword mutable?
+// Real-World C++ Interviews Q121: What is the function of the keyword mutable?
 // Key: A mutable data member may be modified even through a const object, which supports
 // logically const caches, counters, or mutexes without changing externally visible value. In a
 // lambda, `mutable` lets a non-const call operator modify captured-by-value state.

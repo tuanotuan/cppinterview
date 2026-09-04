@@ -1,4 +1,4 @@
-// Daily C++ Interview Q007: When to use decltype(auto)?
+// Real-World C++ Interviews Q007: When to use decltype(auto)?
 // Key: Use `decltype(auto)` when a deduced declaration or return type must preserve exactly
 // what `decltype(expression)` yields, including references. It is powerful for forwarding
 // accessors but can accidentally return a dangling reference.

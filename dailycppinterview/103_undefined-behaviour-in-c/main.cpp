@@ -1,4 +1,4 @@
-// Daily C++ Interview Q103: What is undefined behaviour in C++?
+// Real-World C++ Interviews Q103: What is undefined behaviour in C++?
 // Key: Undefined behavior occurs when the standard imposes no requirements after a violated
 // rule or precondition. The optimizer may assume it never happens, so one observed run cannot
 // establish a stable result.

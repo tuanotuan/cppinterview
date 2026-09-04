@@ -1,4 +1,4 @@
-// Daily C++ Interview Q015: What is the override keyword and what are its advantages?
+// Real-World C++ Interviews Q015: What is the override keyword and what are its advantages?
 // Key: `override` tells the compiler that a derived declaration must override a virtual base
 // function. A signature mismatch then becomes a compile error instead of silently creating a
 // different overload.

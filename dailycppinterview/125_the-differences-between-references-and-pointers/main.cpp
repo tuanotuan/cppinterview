@@ -1,4 +1,4 @@
-// Daily C++ Interview Q125: What are the differences between references and pointers?
+// Real-World C++ Interviews Q125: What are the differences between references and pointers?
 // Key: A reference is an alias that must be initialized and cannot be reseated, while a pointer
 // is an object that may be null, reassigned, and used in pointer arithmetic where valid. Both
 // can dangle, and neither alone expresses ownership.

@@ -68,7 +68,7 @@ const standardLabels = {
   cpp17: "C++17",
   cpp20: "C++20",
   cpp23: "C++23",
-  dailycpp: "Daily C++ Interview",
+  dailycpp: "Real-World C++ Interviews",
 };
 const learningLabels = {
   new: "Mới",

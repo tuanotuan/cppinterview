@@ -1,4 +1,4 @@
-// Daily C++ Interview Q052: When should we use unique pointers?
+// Real-World C++ Interviews Q052: When should we use unique pointers?
 // Key: Use `std::unique_ptr` when one object exclusively owns a dynamically allocated resource
 // and ownership may be transferred. Prefer direct objects when allocation or nullable ownership
 // is unnecessary, and pass observers as references or raw pointers.

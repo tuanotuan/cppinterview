@@ -128,7 +128,7 @@ Source roots được discovery: `cpp98_foundation`, `cpp11`, `cpp14`, `cpp17`,
 suy ra từ path; nếu collision, đăng ký thủ công. Rename có
 thể được nhận ra và giữ ID, nhưng luôn kiểm tra diff.
 
-### Collection Daily C++ Interview
+### Collection Real-World C++ Interviews
 
 - `web/content/daily-cpp-interview-source.json` là manifest biên tập cho 146 mục
   nguồn theo đúng thứ tự; PDF tham chiếu không được lưu trong repo. Prompt nguồn
@@ -509,7 +509,7 @@ Các nhóm schema hiện có:
   và trước lần `content:sync` đầu tiên chứa lesson C++23. Migration chỉ mở rộng bốn
   check constraint; không đổi dữ liệu, RLS, grant, view hay RPC. Không push migration,
   chạy `content:sync` hoặc mutation remote nếu người dùng chưa yêu cầu rõ ràng.
-- Daily C++ Interview cần
+- Real-World C++ Interviews cần
   `20260904092827_add_daily_cpp_content_track.sql` trước lần `content:sync` đầu
   tiên chứa track `dailycpp`. Migration chỉ thay bốn check constraint
   standard/track theo mẫu append-only hiện có; không đổi dữ liệu, RLS, grant,
@@ -639,7 +639,7 @@ service-role-only/browser grants như contract hiện tại.
   ngày; ngày kế tiếp dựng lại tối đa năm New nên chỉ lấy thêm đủ số slot còn
   thiếu sau các thẻ tồn. Custom Study, Focus và Repair không được làm lệch ba
   counter của daily plan. New đi theo C++11 → C++14 → C++17 → C++20 → C++23 →
-  Daily C++ Interview, rồi Dễ → Trung bình → Khó trong từng track; C++98 không tự
+  Real-World C++ Interviews, rồi Dễ → Trung bình → Khó trong từng track; C++98 không tự
   vào daily New.
 - Learner/guest không được dùng `question_approvals` theo account làm nguồn xuất
   bản. Practice và Mock phải đọc exact revision do `content_admins` duyệt qua

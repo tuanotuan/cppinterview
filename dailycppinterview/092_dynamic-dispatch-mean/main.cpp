@@ -1,4 +1,4 @@
-// Daily C++ Interview Q092: What does dynamic dispatch mean?
+// Real-World C++ Interviews Q092: What does dynamic dispatch mean?
 // Key: Dynamic dispatch is runtime selection of the final overrider for a virtual call based on
 // the object's dynamic type. It requires using the object polymorphically through a pointer or
 // reference rather than slicing it by value.

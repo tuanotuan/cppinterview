@@ -89,14 +89,14 @@ describe("lesson library", () => {
       "C++17",
       "C++20",
       "C++23",
-      "Daily C++ Interview",
+      "Real-World C++ Interviews",
     ]);
     expect(lessonTrackLabel("cpp11")).toBe("C++11");
     expect(lessonTrackLabel("cpp14")).toBe("C++14");
     expect(lessonTrackLabel("cpp17")).toBe("C++17");
     expect(lessonTrackLabel("cpp20")).toBe("C++20");
     expect(lessonTrackLabel("cpp23")).toBe("C++23");
-    expect(lessonTrackLabel("dailycpp")).toBe("Daily C++ Interview");
+    expect(lessonTrackLabel("dailycpp")).toBe("Real-World C++ Interviews");
   });
 
   it("exposes only implemented roadmap routes", () => {

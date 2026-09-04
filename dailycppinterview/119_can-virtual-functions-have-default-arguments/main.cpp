@@ -1,4 +1,4 @@
-// Daily C++ Interview Q119: Can virtual functions have default arguments?
+// Real-World C++ Interviews Q119: Can virtual functions have default arguments?
 // Key: Yes, a virtual function may declare default arguments, but the default is bound
 // statically while the function body dispatches dynamically. A call through a base can
 // therefore execute a derived override with the base declaration's default value, so this

@@ -2,7 +2,7 @@
 
 ## 1. Vấn đề nó giải quyết
 
-Đây là một chủ đề phỏng vấn C++ độc lập trong bộ Daily C++ Interview. Mục tiêu là trả lời đúng trọng tâm, nêu quy tắc chi phối và phân biệt hành vi do chuẩn quy định với chi tiết riêng của compiler.
+Đây là một chủ đề phỏng vấn C++ độc lập trong bộ Real-World C++ Interviews. Mục tiêu là trả lời đúng trọng tâm, nêu quy tắc chi phối và phân biệt hành vi do chuẩn quy định với chi tiết riêng của compiler.
 
 ## 2. Kiến thức cần có
 

@@ -1,4 +1,4 @@
-// Daily C++ Interview Q023: What role does a virtual destructor play?
+// Real-World C++ Interviews Q023: What role does a virtual destructor play?
 // Key: A virtual base destructor ensures that deleting through a base pointer destroys the
 // complete derived object. Without it, such deletion is undefined behavior; a non-polymorphic
 // base can instead use a protected non-virtual destructor to forbid deletion through the base.

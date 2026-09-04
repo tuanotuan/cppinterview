@@ -1,4 +1,4 @@
-// Daily C++ Interview Q070: Explain the rule of five
+// Real-World C++ Interviews Q070: Explain the rule of five
 // Key: In C++11 and later, a resource-owning class that defines special members may need all
 // five: destructor, copy constructor, copy assignment, move constructor, and move assignment.
 // Each should be implemented or deleted consistently.

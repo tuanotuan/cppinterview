@@ -13,7 +13,7 @@ const migration = readFileSync(
   "utf8",
 ).toLowerCase();
 
-describe("Daily C++ Interview content-track migration", () => {
+describe("Real-World C++ Interviews content-track migration", () => {
   it("extends every current lesson standard and track constraint", () => {
     for (const replacement of [
       "content_lesson_revisions_standard_dailycpp_check",

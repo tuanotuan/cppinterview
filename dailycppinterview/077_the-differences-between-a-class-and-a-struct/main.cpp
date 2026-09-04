@@ -1,4 +1,4 @@
-// Daily C++ Interview Q077: What are the differences between a class and a struct?
+// Real-World C++ Interviews Q077: What are the differences between a class and a struct?
 // Key: `class` and `struct` have the same language capabilities. Their only built-in
 // differences are defaults: members and bases are private for `class`, public for `struct`;
 // conventionally structs model transparent data while classes protect invariants.
