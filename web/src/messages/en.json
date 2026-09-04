@@ -23,7 +23,7 @@
       "status": "Loading a new page."
     },
     "footer": {
-      "description": "A structured C++ interview practice platform with review cards, AI feedback and mock interviews.",
+      "description": "A C++ interview practice platform with spaced-repetition cards, AI feedback and structured mock interviews.",
       "navigationAria": "Footer navigation",
       "today": "Today",
       "progress": "Progress",
@@ -40,11 +40,11 @@
       "connect": "Connect",
       "github": "Source code on GitHub",
       "vibeCodingCommunity": "Vibe Coding community",
-      "slogan": "C++ interview practice · Learn deliberately"
+      "slogan": "C++ interview practice · Spaced repetition"
     },
     "meta": {
       "title": "cppinterview — Daily interview practice",
-      "description": "Practice C++ interviews with a reviewed question bank, an AI coach and structured mock interviews."
+      "description": "Practice C++ interviews with spaced-repetition cards, a reviewed question bank, an AI coach and structured mock interviews."
     }
   },
   "Landing": {
@@ -56,7 +56,7 @@
     "eyebrow": "C++ interview practice",
     "headline": "Learn C++ systematically.",
     "headlineAccent": "Answer with evidence.",
-    "description": "cppinterview combines a reviewed C++ question bank, deliberate review scheduling, an AI coach and mock interviews so every study session prepares you for the next interview.",
+    "description": "cppinterview helps you prepare for C++ interviews with spaced-repetition cards, a reviewed question bank, an AI coach and mock interviews—so knowledge lasts and is easier to apply when it matters.",
     "answerFirst": "Answer first",
     "answerFirstSuffix": "before revealing the solution",
     "private": "Private progress",
@@ -66,7 +66,7 @@
     "sampleQuestion": "When should an API use a reference, and when should it use a pointer in C++?",
     "yourAnswer": "Your answer",
     "sampleAnswer": "A reference expresses that an object is always present; a pointer fits when…",
-    "metricSchedule": "Review",
+    "metricSchedule": "Card review",
     "metricScheduleLabel": "at the right time",
     "metricCoach": "AI coach",
     "metricCoachLabel": "after your answer",
@@ -82,14 +82,14 @@
     "disabledAuth": "Sign-in is being configured.",
     "capabilities": [
       {"title": "A reviewed question bank", "description": "Study C++ cards whose content, answers and scoring criteria have been checked before they enter the review schedule."},
-      {"title": "Review consistently and see progress", "description": "Spaced review prioritizes exactly what you need to recall. An account keeps progress private and available across devices."},
+      {"title": "Spaced-repetition cards", "description": "The schedule brings each card back based on how well you remember it, helping you focus on what needs reinforcement and see progress over time."},
       {"title": "Practice like an engineering interview", "description": "Cover modern C++, code reading, debugging, system design and mock interviews for C++ engineering roles."}
     ],
     "workflow": [
       {"title": "Choose a session", "description": "Start with cards already available in the reviewed question bank."},
       {"title": "Answer independently", "description": "Work as you would in an interview before opening a hint or solution."},
       {"title": "Get feedback", "description": "The AI coach highlights what is correct, what is missing and what to explore next."},
-      {"title": "Review at the right time", "description": "The schedule brings back topics that need reinforcement so your knowledge lasts."}
+      {"title": "Repeat at the right time", "description": "Spaced repetition brings back cards that need reinforcement on a schedule so your knowledge lasts."}
     ],
     "notices": {
       "notConfigured": "Supabase has not been configured.",

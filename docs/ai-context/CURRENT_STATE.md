@@ -333,8 +333,9 @@ trạng thái từ tên nhánh.
   lẫn account đã đăng nhập. Đăng ký email cần xác nhận mật khẩu phía browser và
   server; nút hiện/ẩn dùng chung cho cả hai ô mật khẩu, rồi xác minh email qua
   `/auth/confirm`.
-- Landing công khai chỉ giới thiệu ngân hàng câu hỏi đã duyệt và trải nghiệm học/luyện
-  của người dùng. Thao tác nguồn kiến thức, bản nháp AI, queue duyệt và quản lý ngân hàng
+- Landing công khai định vị trải nghiệm luyện phỏng vấn bằng thẻ theo phương pháp lặp lại
+  ngắt quãng, cùng ngân hàng câu hỏi đã duyệt, phản hồi AI và phỏng vấn thử. Thao tác
+  nguồn kiến thức, bản nháp AI, queue duyệt và quản lý ngân hàng
   là workspace riêng của admin GitHub `tuanotuan`. Footer learner là surface midnight
   full-width riêng biệt: có điều hướng nhanh tới các route học thật, CTA guest, trust
   points, tài khoản, link “Đóng góp mã nguồn” tới GitHub, link “Cộng đồng Vibe
