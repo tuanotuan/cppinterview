@@ -23,24 +23,12 @@
       "status": "Đang tải trang mới."
     },
     "footer": {
-      "description": "Nền tảng luyện phỏng vấn C++ với thẻ ôn tập theo phương pháp lặp lại ngắt quãng, phản hồi AI và phỏng vấn thử có cấu trúc.",
-      "navigationAria": "Điều hướng cuối trang",
-      "today": "Học hôm nay",
-      "progress": "Tiến độ",
-      "profile": "Hồ sơ",
-      "try": "Thử luyện",
-      "mock": "Phỏng vấn thử",
-      "start": "Bắt đầu",
-      "signIn": "Đăng nhập",
-      "signUp": "Tạo tài khoản",
-      "forgotPassword": "Quên mật khẩu",
-      "reviewed": "Nội dung C++ được duyệt",
-      "privateProgress": "Tiến độ thuộc về bạn",
-      "deliberate": "Luyện có chủ đích",
-      "connect": "Kết nối",
-      "github": "Đóng góp mã nguồn",
-      "vibeCodingCommunity": "Cộng đồng Vibe Coding",
-      "slogan": "Luyện phỏng vấn C++ · Lặp lại ngắt quãng"
+      "description": "cppinterview giúp bạn luyện phỏng vấn C++ bằng thẻ theo phương pháp lặp lại ngắt quãng, phản hồi AI và các phiên phỏng vấn thử có cấu trúc.",
+      "by": "by",
+      "contactAria": "Liên kết của tác giả",
+      "github": "GitHub của tuanotuan",
+      "facebook": "Facebook của tuanotuan",
+      "email": "Gửi email cho tuanotuan"
     },
     "meta": {
       "title": "cppinterview — Luyện phỏng vấn mỗi ngày",

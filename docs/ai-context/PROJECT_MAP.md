@@ -10,7 +10,7 @@ Tài liệu ổn định để tìm đúng vùng code. Xác minh lại nếu sou
 | `python/` | Ghi chú cá nhân giữ nguyên trong repo; web không quét, đồng bộ hoặc hiển thị |
 | `web/` | App cppinterview: Next.js App Router, React, TypeScript |
 | `web/src/proxy.ts`, `web/src/i18n/` | Entry point kết hợp refresh cookie/session Supabase với định tuyến locale `vi`/`en`; API, Admin và WorldQuant được bỏ qua khỏi locale middleware |
-| `web/src/app/[locale]/layout.tsx`, `web/src/app/site-footer.tsx`, `web/src/app/site-footer-session-grid.tsx`, `web/src/app/site-footer-links.ts` | Shell learner theo locale, `html lang`, message provider, footer và mobile navigation/tracker dùng chung; footer dùng trạng thái boolean từ `/api/auth/status` để chỉ render cột CTA/tài khoản cho khách mà không làm root layout mất static rendering; link ngoài được khai báo tập trung cho GitHub và cộng đồng Vibe Coding; Admin/WorldQuant có document layout riêng không prefix locale |
+| `web/src/app/[locale]/layout.tsx`, `web/src/app/site-footer.tsx`, `web/src/app/site-footer-links.ts` | Shell learner theo locale, `html lang`, message provider, footer và mobile navigation/tracker dùng chung; footer tĩnh tối giản giới thiệu `cppinterview by @tuanotuan`, khai báo tập trung GitHub/Facebook/email công khai và không đọc trạng thái đăng nhập; Admin/WorldQuant có document layout riêng không prefix locale |
 | `web/src/messages/`, `web/src/content-translations/`, `web/src/lib/content/question-translations.server.ts` | Chuỗi UI theo namespace, overlay bản dịch bind exact revision và publication đã duyệt từ Supabase; ID/version/hash/taxonomy/code/source không bị dịch |
 | `web/src/app/recall-mobile-nav.tsx` | Điều hướng mobile dùng chung: Học hôm nay, Nhiệm vụ, Trung tâm chuẩn bị, Thư viện, Hồ sơ; tự ẩn ở mock/full-round để giữ không gian phỏng vấn |
 | `web/content/` | Registry lesson, question và roadmap YAML do Git quản lý; roadmap chỉ tổ chức đường học, không tạo lesson giả |
@@ -33,9 +33,9 @@ chứa token semantic cho light theme navy + turquoise, bề mặt workspace ph�
 action, app-header trắng và thang bo góc 12/16/20 px dùng chung. Footer learner
 dùng surface midnight full-bleed với token text/link/border riêng, còn nội dung
 giữ cùng `ui-page-width`; khoảng reserve dưới mobile navigation cũng dùng nền
-footer để không tạo dải sáng. Cột “Bắt đầu” chỉ xuất hiện sau khi endpoint auth
-xác nhận người xem là khách; trạng thái đang kiểm tra và account đã đăng nhập dùng
-lưới hai cột để không giữ khoảng trống. Gradient chỉ nằm ở landing; navigation active dùng
+footer để không tạo dải sáng. Footer dùng bố cục tối giản một cột, giữ logo,
+creator badge, mô tả, copyright, ba contact icon có nhãn trợ năng và bộ đổi ngôn
+ngữ; không có menu điều hướng hay CTA tài khoản. Gradient chỉ nằm ở landing; navigation active dùng
 nền turquoise nhạt, chữ navy và indicator thay vì pill tối. Landing, Practice,
 thư viện, Mock, Stats và Profile dùng cùng
 header/card/CTA và `ui-page-width` trên desktop lẫn mobile. Practice chỉ có một bộ
@@ -94,8 +94,8 @@ dùng navigation wrapper của `next-intl`, để không sinh nhầm `/vi/admin`
 API quan trọng:
 
 - `api/auth/status`: xác minh JWT Supabase ở server rồi chỉ trả boolean account đã
-  đăng nhập; response private/no-store, không trả identity và giúp footer tĩnh ẩn
-  toàn bộ CTA/tài khoản dành cho khách mà không đọc cookie trong root layout.
+  đăng nhập; response private/no-store, không trả identity và phục vụ các client
+  gate như panel AI của lesson mà không đọc cookie trong root layout.
 - `api/roadmap/progress`: xác minh account không ẩn danh bằng JWT claims, chỉ nhận
   track/lesson ID có thật trong manifest rồi đọc, upsert hoặc xóa trạng thái roadmap
   của chính owner. Mutation same-origin, response private/no-store và không nhận

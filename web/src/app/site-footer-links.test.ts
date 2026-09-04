@@ -3,66 +3,56 @@ import { describe, expect, it } from "vitest";
 import englishMessages from "@/messages/en.json";
 import vietnameseMessages from "@/messages/vi.json";
 
-import {
-  footerAccountLinks,
-  footerExternalLinks,
-  footerPrimaryLinks,
-} from "./site-footer-links";
+import { footerContactLinks, footerCreatorHandle } from "./site-footer-links";
 
-describe("site footer links", () => {
-  it("keeps the learner destinations in a stable quick-navigation order", () => {
-    expect(footerPrimaryLinks.map(({ href }) => href)).toEqual([
-      "/practice?guest=1",
-      "/learn",
-      "/mock-interview",
-      "/stats",
-      "/profile",
+describe("site footer identity and contact links", () => {
+  it("shows the creator handle as non-linked identity data", () => {
+    expect(footerCreatorHandle).toBe("tuanotuan");
+    expect(footerCreatorHandle).not.toMatch(/^https?:/);
+  });
+
+  it("contains only the three contact destinations supplied by the creator", () => {
+    expect(footerContactLinks).toEqual([
+      expect.objectContaining({
+        kind: "github",
+        href: "https://github.com/tuanotuan/",
+        external: true,
+      }),
+      expect.objectContaining({
+        kind: "facebook",
+        href: "https://www.facebook.com/CNTT.HCMUS.K23",
+        external: true,
+      }),
+      expect.objectContaining({
+        kind: "email",
+        href: "mailto:tuan.hcmus77@gmail.com",
+        external: false,
+      }),
     ]);
   });
 
-  it("uses internal paths for account actions and secure URLs externally", () => {
-    expect(footerAccountLinks.every(({ href }) => href.startsWith("/"))).toBe(
-      true,
-    );
-    expect(
-      footerExternalLinks.every(({ href }) => href.startsWith("https://")),
-    ).toBe(true);
-  });
+  it("provides localized accessible labels for every contact icon", () => {
+    for (const { labelKey } of footerContactLinks) {
+      const key = labelKey.replace("footer.", "") as
+        | "github"
+        | "facebook"
+        | "email";
 
-  it("presents the repository link as a source contribution action in Vietnamese", () => {
-    expect(vietnameseMessages.Common.footer.github).toBe(
-      "Đóng góp mã nguồn",
-    );
-    expect(
-      footerExternalLinks.find(({ labelKey }) => labelKey === "footer.github")
-        ?.href,
-    ).toBe("https://github.com/tuanotuan/cppinterview");
-  });
-
-  it("links the bilingual Vibe Coding community label to the Facebook group", () => {
-    expect(vietnameseMessages.Common.footer.vibeCodingCommunity).toBe(
-      "Cộng đồng Vibe Coding",
-    );
-    expect(englishMessages.Common.footer.vibeCodingCommunity).toBe(
-      "Vibe Coding community",
-    );
-    expect(
-      footerExternalLinks.find(
-        ({ labelKey }) => labelKey === "footer.vibeCodingCommunity",
-      )?.href,
-    ).toBe("https://www.facebook.com/groups/1318098620529328");
-    expect(vietnameseMessages.Common.footer).not.toHaveProperty("facebook");
-    expect(englishMessages.Common.footer).not.toHaveProperty("facebook");
-  });
-
-  it("does not repeat a destination within the same footer group", () => {
-    for (const links of [
-      footerPrimaryLinks,
-      footerAccountLinks,
-      footerExternalLinks,
-    ]) {
-      const hrefs = links.map(({ href }) => href);
-      expect(new Set(hrefs).size).toBe(hrefs.length);
+      expect(vietnameseMessages.Common.footer[key]).toBeTruthy();
+      expect(englishMessages.Common.footer[key]).toBeTruthy();
     }
+  });
+
+  it("does not advertise unavailable policy or social destinations", () => {
+    const hrefs = footerContactLinks.map(({ href }) => href);
+
+    expect(hrefs).toHaveLength(3);
+    expect(
+      hrefs.some((href) => /linkedin|youtube|twitter|x\.com|bsky/i.test(href)),
+    ).toBe(false);
+    expect(vietnameseMessages.Common.footer).not.toHaveProperty("terms");
+    expect(vietnameseMessages.Common.footer).not.toHaveProperty("privacy");
+    expect(englishMessages.Common.footer).not.toHaveProperty("terms");
+    expect(englishMessages.Common.footer).not.toHaveProperty("privacy");
   });
 });

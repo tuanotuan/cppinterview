@@ -20,12 +20,12 @@ describe("landing page messaging", () => {
     );
   });
 
-  it("keeps the homepage footer positioning aligned with the learning method", () => {
-    expect(vietnameseMessages.Common.footer.slogan).toContain(
-      "Lặp lại ngắt quãng",
+  it("keeps the footer description aligned with the learning method", () => {
+    expect(vietnameseMessages.Common.footer.description).toContain(
+      "lặp lại ngắt quãng",
     );
-    expect(englishMessages.Common.footer.slogan).toContain(
-      "Spaced repetition",
+    expect(englishMessages.Common.footer.description).toContain(
+      "spaced-repetition cards",
     );
   });
 });

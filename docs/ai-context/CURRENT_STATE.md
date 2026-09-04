@@ -337,15 +337,12 @@ trạng thái từ tên nhánh.
   ngắt quãng, cùng ngân hàng câu hỏi đã duyệt, phản hồi AI và phỏng vấn thử. Thao tác
   nguồn kiến thức, bản nháp AI, queue duyệt và quản lý ngân hàng
   là workspace riêng của admin GitHub `tuanotuan`. Footer learner là surface midnight
-  full-width riêng biệt: có điều hướng nhanh tới các route học thật, CTA guest, trust
-  points, tài khoản, link “Đóng góp mã nguồn” tới GitHub, link “Cộng đồng Vibe
-  Coding” tới Facebook group `1318098620529328` và bộ đổi
-  ngôn ngữ dark-tone mở lên. Cột “Bắt đầu” gồm CTA guest và ba link tài khoản chỉ
-  render sau khi `/api/auth/status` xác nhận người xem là khách; account đã đăng nhập
-  và trạng thái đang kiểm tra bỏ toàn bộ cột này, đồng thời lưới co về hai cột.
-  Endpoint dùng JWT claims đã xác minh, loại anonymous identity và chỉ trả boolean
-  private/no-store; footer/root layout không trực tiếp đọc cookie hay Supabase nên
-  các lesson vẫn giữ static rendering. Không có asset hoặc dependency bên ngoài mới.
+  full-width tối giản theo một cột: `cppinterview by @tuanotuan`, mô tả phương pháp
+  lặp lại ngắt quãng, copyright, bộ đổi ngôn ngữ và đúng ba contact icon tới GitHub,
+  Facebook cá nhân và email công khai. Handle chỉ là badge chữ; icon có nhãn/tooltip,
+  vùng bấm 44 px và chỉ hai HTTP link mở tab mới. Footer không còn menu điều hướng,
+  trust point, CTA/tài khoản hoặc client fetch `/api/auth/status`, nên vẫn giữ static
+  rendering và giảm một request trên mọi trang. Không có asset hoặc dependency ngoài mới.
 - cppinterview phục vụ việc luyện C++ cho nhiều công ty: tên và entry point WorldQuant
   đã được gỡ khỏi landing, Practice, Thư viện và Mock. Workspace `/worldquant/*` cũ
   vẫn được giữ trong source nhưng layout chỉ cho admin `tuanotuan` vào; người học thường
@@ -462,16 +459,13 @@ trạng thái từ tên nhánh.
   owner/khác owner lần lượt thấy 1/0 row, anon REST bị chặn đúng `401`/`42501`,
   và database advisor không có lỗi. Security review đủ 10 nhóm OWASP không có
   finding mở; production dependency audit báo 0 lỗ hổng.
-- Footer chỉ hiện cột CTA/tài khoản cho khách, link Vibe Coding, dọn
-  autosave/blank-helper ở Practice, logo về trang chủ và lịch sử report C++ chi
-  tiết đạt toàn bộ `npm run validate`: content/context check, ESLint, TypeScript,
-  145 file/840 Vitest test và Next.js production build sinh 591 static path.
-  Targeted footer/auth đạt 11/11, gồm verified/non-anonymous claims, response chỉ
-  có boolean private/no-store và lưới không render guest actions khi đang kiểm tra
-  hoặc đã đăng nhập; targeted Practice localization 6/6 khóa hai dòng phụ;
-  targeted Mock UI 4/4 khóa link logo, card lịch sử semantic và escape nội dung
-  người dùng. Security review đủ 10 nhóm OWASP không có finding mở; production
-  dependency audit báo 0 lỗ hổng. Không có migration hay remote mutation mới.
+- Footer cá nhân tối giản đạt toàn bộ `npm run validate`: content/context check,
+  ESLint, TypeScript, 160 file/906 Vitest test và Next.js production build sinh
+  592 static path. Targeted footer/landing/language đạt 8/8; SSR smoke xác nhận
+  đúng handle cùng GitHub/Facebook/email và không còn menu/tài khoản cũ trong
+  footer. Chrome 1365×768 và 390×844 xác nhận bố cục không tràn, contact icon đủ
+  vùng bấm 44 px; menu ngôn ngữ dark-tone mở lên trên. Không có migration, remote
+  mutation, asset hoặc dependency mới.
 - Fix quyền đọc publication cho Mock đạt toàn bộ `npm run validate`: content/context
   check, ESLint, TypeScript, 142 file/823 Vitest test và Next.js production build
   sinh 590 static path. Targeted migration test đạt 2/2; `supabase db push --dry-run`
