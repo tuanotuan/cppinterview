@@ -81,7 +81,7 @@ describe("lesson library", () => {
     });
   });
 
-  it("presents every C++ standard as a separate filter", () => {
+  it("presents every C++ standard and interview collection as a separate filter", () => {
     expect(lessonStandardFilters.map(({ label }) => label)).toEqual([
       "C++98",
       "C++11",
@@ -89,12 +89,14 @@ describe("lesson library", () => {
       "C++17",
       "C++20",
       "C++23",
+      "Daily C++ Interview",
     ]);
     expect(lessonTrackLabel("cpp11")).toBe("C++11");
     expect(lessonTrackLabel("cpp14")).toBe("C++14");
     expect(lessonTrackLabel("cpp17")).toBe("C++17");
     expect(lessonTrackLabel("cpp20")).toBe("C++20");
     expect(lessonTrackLabel("cpp23")).toBe("C++23");
+    expect(lessonTrackLabel("dailycpp")).toBe("Daily C++ Interview");
   });
 
   it("exposes only implemented roadmap routes", () => {
@@ -110,6 +112,7 @@ describe("lesson library", () => {
       { value: "cpp17", roadmapHref: "/learn/roadmap/cpp17" },
       { value: "cpp20", roadmapHref: "/learn/roadmap/cpp20" },
       { value: "cpp23", roadmapHref: "/learn/roadmap/cpp23" },
+      { value: "dailycpp", roadmapHref: null },
     ]);
   });
 
@@ -122,6 +125,7 @@ describe("lesson library", () => {
     expect(lessonStandardIsAvailable(lessons, "cpp17")).toBe(true);
     expect(lessonStandardIsAvailable(lessons, "cpp20")).toBe(true);
     expect(lessonStandardIsAvailable(lessons, "cpp23")).toBe(true);
+    expect(lessonStandardIsAvailable(lessons, "dailycpp")).toBe(true);
     expect(lessonMatchesStandard("cpp11", "cpp14")).toBe(false);
   });
 });

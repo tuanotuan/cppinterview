@@ -40,6 +40,9 @@ export function LearnViewNav({
     ? t("roadmapFor", { standard: selectedOption.label })
     : t("roadmap");
   const roadmapHref = selectedOption?.roadmapHref ?? null;
+  const roadmapOptions = lessonStandardFilters.filter(
+    (option) => option.value !== "dailycpp",
+  );
 
   return (
     <nav
@@ -56,7 +59,7 @@ export function LearnViewNav({
         {t("list")}
       </Link>
 
-      {roadmapHref ? (
+      {selectedStandard === "dailycpp" ? null : roadmapHref ? (
         <Link
           href={roadmapHref}
           aria-current={current === "roadmap" ? "page" : undefined}
@@ -81,7 +84,7 @@ export function LearnViewNav({
               {t("chooseRoadmap")}
             </p>
             <ul className="grid gap-1">
-              {lessonStandardFilters.map((option) => (
+              {roadmapOptions.map((option) => (
                 <li key={option.value}>
                   {option.roadmapHref ? (
                     <Link

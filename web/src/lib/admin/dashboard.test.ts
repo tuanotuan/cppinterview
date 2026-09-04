@@ -129,7 +129,7 @@ describe("admin dashboard snapshot", () => {
     ]);
   });
 
-  it("lists every C++11, C++14, C++17, and C++20 English copy as an independent translation review", () => {
+  it("lists every versioned and Daily English copy as an independent translation review", () => {
     const repositoryManifest = contentManifestSchema.parse(repositoryManifestJson);
     const snapshot = buildAdminDashboardSnapshot(
       repositoryManifest,
@@ -139,9 +139,9 @@ describe("admin dashboard snapshot", () => {
       "2026-08-28",
     );
 
-    expect(snapshot.metrics.pendingTranslations).toBe(
-      (53 + 50 + 50 + 52 + 54) * 3,
-    );
+    const expectedTranslationReviews =
+      (53 + 50 + 50 + 52 + 54) * 3 + 146;
+    expect(snapshot.metrics.pendingTranslations).toBe(expectedTranslationReviews);
     const toolchainReviews = snapshot.translationReviews.filter(
       (review) => review.question.lessonId === "cpp11-toolchain",
     );
@@ -213,6 +213,18 @@ describe("admin dashboard snapshot", () => {
       );
     }
 
+    const dailyReviews = snapshot.translationReviews.filter(
+      (review) => review.question.lessonId.startsWith("dailycpp-q"),
+    );
+    expect(dailyReviews).toHaveLength(146);
+    expect(
+      new Set(dailyReviews.map((review) => review.question.lessonId)).size,
+    ).toBe(146);
+    for (const review of dailyReviews) {
+      expect(review.question.taxonomy.standard).toBe("dailycpp");
+      expect(review.question.taxonomy.tags).toContain("standard::dailycpp");
+    }
+
     const approved = snapshot.translationReviews[0];
     const refreshed = buildAdminDashboardSnapshot(
       repositoryManifest,
@@ -234,7 +246,7 @@ describe("admin dashboard snapshot", () => {
     );
 
     expect(refreshed.metrics.pendingTranslations).toBe(
-      (53 + 50 + 50 + 52 + 54) * 3 - 1,
+      expectedTranslationReviews - 1,
     );
     expect(refreshed.translationReviews.map((review) => review.question.id)).not
       .toContain(approved.question.id);

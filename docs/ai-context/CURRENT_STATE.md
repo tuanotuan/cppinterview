@@ -8,13 +8,14 @@ trạng thái từ tên nhánh.
 
 ## Handoff hiện tại
 
-- Bộ lọc thư viện `/learn` hiển thị riêng C++98, C++11, C++14, C++17, C++20
-  và C++23, không còn gộp nhiều chuẩn trong một chip. Catalog hiện có lesson
-  C++98/C++11/C++14/C++17/C++20/C++23 nên mọi chip chuẩn hiện tại đều khả dụng; chip
+- Bộ lọc thư viện `/learn` hiển thị riêng C++98, C++11, C++14, C++17, C++20,
+  C++23 và collection Daily C++ Interview, không còn gộp nhiều chuẩn trong một
+  chip. Catalog hiện có lesson cho mọi chip nên tất cả đều khả dụng; chip
   tự xuống dòng và giữ vùng bấm tối thiểu 44 px trên màn hình hẹp. Nhãn điều
   hướng roadmap bám theo chuẩn đang lọc; ở `Tất cả` chỉ hiện `Roadmap`. C++11,
-  C++14, C++17, C++20 và C++23 mở route riêng, còn chuẩn chưa có roadmap mở bộ chọn phiên bản và được
-  đánh dấu `Sắp có` thay vì bị chuyển nhầm sang roadmap khác.
+  C++14, C++17, C++20 và C++23 mở route riêng. Daily là collection trung lập
+  phiên bản nên khi lọc Daily, UI chỉ giữ danh sách bài học và không hiển thị hay
+  gợi ý roadmap.
 - Roadmap C++11 có 53 ngày/8 chặng; roadmap C++14 và C++17 đều có 50 ngày/7 chặng;
   roadmap C++20 có 52 ngày/8 chặng và C++23 có 54 ngày/8 chặng. Mỗi roadmap giữ thứ tự riêng với
   `lesson.order` và mọi node đều `ready`. Các lesson C++11 được đánh số `01`–`53`,
@@ -44,10 +45,11 @@ trạng thái từ tên nhánh.
   và callback Auth kỹ thuật vẫn không prefix. Các lối tắt Admin trong Practice,
   Stats và guide tick dùng `next/link` trực tiếp nên luôn mở `/admin`, không bị
   navigation theo locale đổi thành route 404 `/vi/admin` hoặc `/en/admin`.
-- Catalog hiện có 790 question Git-owned: 3 verified và 787 draft. Mỗi lesson
+- Catalog hiện có 936 question Git-owned: 3 verified và 933 draft. Mỗi lesson
   C++11/C++14/C++17/C++20/C++23 có ba draft beginner/intermediate/advanced với taxonomy
-  `standard::<track>` và `difficulty::<level>`; 777 English copy tương ứng xuất hiện thành
-  mục duyệt riêng trong Admin nhưng giữ nguyên canonical ID/version/hash/taxonomy.
+  `standard::<track>` và `difficulty::<level>`; mỗi lesson Daily chỉ có đúng một
+  draft nguồn. Có 927 English copy tương ứng xuất hiện thành mục duyệt riêng trong
+  Admin nhưng giữ nguyên canonical ID/version/hash/taxonomy.
   Cả 3 question verified hiện hành cũng có overlay tiếng Anh; `/en/practice` chỉ xếp question và English copy đã duyệt vào hàng học. Question được duyệt
   nhưng chưa dịch không còn fallback sang tiếng Việt, còn source excerpt/title
   lesson chưa dịch được ẩn hoặc thay bằng nhãn chủ đề trung tính. Stable identity,
@@ -241,12 +243,18 @@ trạng thái từ tên nhánh.
   sau hai migration C++14/C++17. Lịch sử local/remote đã khớp; cả bốn check constraint
   standard/track đều validated và chấp nhận `cpp23`. Migration không publish hay duyệt
   học liệu.
+- Nhánh hiện tại thêm collection `dailycpp`: 146 thư mục theo đúng thứ tự nguồn,
+  mỗi thư mục có đúng `vi.md`, `en.md`, `main.cpp` và đúng một câu hỏi
+  `dailycpp-qNNN-001` với difficulty ước tính. 146 mục chứa 127 prompt duy nhất và
+  giữ nguyên 19 cặp lặp có chủ ý; không có roadmap. Migration local
+  `20260904092827_add_daily_cpp_content_track.sql` chỉ mở rộng bốn check constraint
+  và chưa được push remote; chưa chạy content sync hay duyệt 146 draft mới.
 - Snapshot nội dung Supabase được kiểm tra read-only đang chậm hơn repo: remote có
   đủ 53 lesson C++11, 50 C++14 và 50 C++17, nhưng chỉ có một lesson C++20 legacy
   và chưa có C++23; `content_store_state.source_revision` vẫn là `859a6a4…`.
-  `content:sync:check` hiện dựng đúng payload 264 lesson/790 question. Sau khi merge
-  bản sửa pipeline, main workflow phải sync snapshot mới; đây là external mutation
-  nên không chạy thủ công từ nhánh feature.
+  `content:sync:check` của working tree hiện dựng đúng payload 410 lesson/936
+  question. Sau khi merge phải áp migration Daily trước lần sync snapshot chứa
+  track mới; đây là external mutation nên không chạy thủ công từ nhánh feature.
 
 - Kho câu hỏi đã duyệt chưa bao phủ đều tick data, Linux/mạng, hệ
   thống phân tán và kỹ năng chịu trách nhiệm đầu cuối. Giao diện phải gọi đây là
@@ -421,6 +429,16 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
+- Collection Daily C++ Interview đạt toàn bộ `npm run validate`: content/context
+  check, ESLint, TypeScript, 162 file/915 Vitest test và Next.js production build
+  sinh 884 static path. Targeted contract xác nhận đủ 146 lesson song ngữ, 438
+  source file, đúng một question/lesson, 127 prompt duy nhất, 19 cặp lặp nguồn,
+  không có roadmap và không có mojibake; cả 146 `main.cpp` qua
+  `g++ -std=c++20 -Wall -Wextra -Wpedantic -fsyntax-only`.
+  `content:sync:check` dựng payload 410 lesson/936 question. Security review đủ
+  10 nhóm OWASP không có finding mở và production dependency audit báo 0 lỗ
+  hổng. Migration Daily và content snapshot mới chỉ nằm local; Supabase remote
+  chưa bị thay đổi.
 - Tiến độ cá nhân trên cả năm roadmap dùng `Đang học`/`Đã xong`/`Bỏ qua`, hydrate
   sau static render và lưu owner-private tách khỏi FSRS. Ba trạng thái phủ toàn bộ
   nền node bằng ba dải tím/xanh lá/xanh đậm tách biệt, có hover riêng và giữ chữ/icon đủ

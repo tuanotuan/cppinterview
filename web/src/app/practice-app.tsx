@@ -202,7 +202,8 @@ type PracticeStandard =
   | "cpp14"
   | "cpp17"
   | "cpp20"
-  | "cpp23";
+  | "cpp23"
+  | "dailycpp";
 
 function useRatingOptions() {
   const t = useTranslations("Practice");

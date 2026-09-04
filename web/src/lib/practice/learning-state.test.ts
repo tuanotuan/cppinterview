@@ -385,6 +385,34 @@ describe("Anki-style learning-state foundation", () => {
     expect(plan.counts.new).toBe(5);
   });
 
+  it("places the Daily collection after all versioned C++ New cards", () => {
+    const sourceHash = "a".repeat(64);
+    const questions = [
+      ["daily", "dailycpp"],
+      ["cpp23", "cpp23"],
+      ["cpp11", "cpp11"],
+    ].map(([id, standard], position) => ({
+      id,
+      version: 1,
+      sourceHash,
+      newCardSequence: {
+        standard: standard as "cpp11" | "cpp23" | "dailycpp",
+        difficulty: "beginner" as const,
+        position,
+      },
+    }));
+
+    const plan = buildAnkiDailyPlan(
+      questions,
+      [],
+      [],
+      "2026-07-21",
+      { newLimit: 3 },
+    );
+
+    expect(plan.questionIds).toEqual(["cpp11", "cpp23", "daily"]);
+  });
+
   it("keeps unfinished New cards and adds only enough cards to refill the next day", () => {
     const sourceHash = "a".repeat(64);
     const questions = Array.from({ length: 7 }, (_, position) => ({

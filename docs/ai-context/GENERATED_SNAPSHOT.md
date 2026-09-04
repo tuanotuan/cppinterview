@@ -6,19 +6,19 @@
 ## Content
 
 - Manifest schema: 1
-- Source revision: `5616fa929cc41ac6cc807efdc9eee9afb96219e4f2b9f3d9f259735617cb7798`
-- Lessons: 264 (cpp11: 53, cpp14: 50, cpp17: 50, cpp20: 52, cpp23: 54, cpp98: 5)
-- Questions: 790 (draft: 787, verified: 3)
-- Question decks: cpp-interview: 790
+- Source revision: `3041063fdffeffd6d0e32ce2bf8df742d851c261787ab5d81a77188db5914824`
+- Lessons: 410 (cpp11: 53, cpp14: 50, cpp17: 50, cpp20: 52, cpp23: 54, cpp98: 5, dailycpp: 146)
+- Questions: 936 (draft: 933, verified: 3)
+- Question decks: cpp-interview: 936
 
 ## Application inventory
 
 - App pages: 25 (/[locale], /[locale]/auth, /[locale]/auth/reset-password, /[locale]/auth/set-password, /[locale]/learn, /[locale]/learn/[lessonId], /[locale]/learn/roadmap/cpp11, /[locale]/learn/roadmap/cpp14, /[locale]/learn/roadmap/cpp17, /[locale]/learn/roadmap/cpp20, /[locale]/learn/roadmap/cpp23, /[locale]/learn/tick-data-order-book, /[locale]/mock-interview, /[locale]/practice, /[locale]/profile, /[locale]/stats, /admin, /admin/coverage, /worldquant, /worldquant/curriculum, /worldquant/drills, /worldquant/full-round, /worldquant/legacy-modern-capstone, /worldquant/mission, /worldquant/tick-replay-lab)
 - API routes: 32 (/api/admin/ai-settings, /api/admin/content-parity, /api/admin/generation-jobs, /api/admin/question-state, /api/admin/questions, /api/admin/questions/approve-translation, /api/admin/questions/manual, /api/admin/questions/reject, /api/auth/status, /api/coach/clarify, /api/coach/evaluate, /api/coach/follow-up, /api/coach/lesson, /api/mistakes/backfill, /api/mistakes/generate, /api/mistakes/ground, /api/mistakes/preferences, /api/mistakes/resolve, /api/mock-interview/general-report, /api/mock-interview/history, /api/mock-interview/report, /api/mock-interview/run, /api/profile/mobile-usage, /api/progress/sync, /api/questions/approve, /api/roadmap/progress, /api/worldquant/mission-snapshot, /api/worldquant/training-state, /auth/callback, /auth/confirm, /auth/login, /auth/logout)
 - TypeScript source files excluding tests: 260
-- Colocated test files: 160
-- Supabase migrations: 61
-- Latest migration filename: `20260903102303_create_roadmap_lesson_progress.sql`
+- Colocated test files: 162
+- Supabase migrations: 62
+- Latest migration filename: `20260904092827_add_daily_cpp_content_track.sql`
 
 ## Toolchain declared in package.json
 
@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `866b1bb3ee91feb964e8aad6074c6ad570f6be6b2e84f5724c223ad04c45ad73`
-- Fingerprinted files: 1312
+- Project input fingerprint: `80a20455179658791d8dfb78d0600a0b55c9461f132ece2e026e6b96d4cd7887`
+- Fingerprinted files: 1754
 
 The fingerprint covers registered lesson sources, content files, application
 source/tests, scripts, package metadata, environment template, workflows, and

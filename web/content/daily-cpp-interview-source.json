@@ -1,0 +1,2471 @@
+{
+  "schemaVersion": 1,
+  "collection": {
+    "id": "daily-cpp-interview",
+    "track": "dailycpp",
+    "title": "Daily C++ Interview",
+    "author": "Sandor Dargo",
+    "sourceEdition": "2022-09-05",
+    "questionCount": 146,
+    "uniquePromptCount": 127,
+    "licenseBasis": "User confirmed permission to reuse the 146 source prompts on 2026-09-04.",
+    "importPolicy": "The PDF is not stored. Only the source prompt and indispensable prompt context may be retained; lessons, answers, and examples are independently authored."
+  },
+  "chapters": [
+    {
+      "start": 1,
+      "end": 8,
+      "id": "type-deduction",
+      "en": "auto and type deduction",
+      "vi": "auto và suy luận kiểu"
+    },
+    {
+      "start": 9,
+      "end": 12,
+      "id": "static",
+      "en": "static and initialization",
+      "vi": "static và khởi tạo"
+    },
+    {
+      "start": 13,
+      "end": 29,
+      "id": "polymorphism",
+      "en": "polymorphism, inheritance, and virtual functions",
+      "vi": "đa hình, kế thừa và hàm ảo"
+    },
+    {
+      "start": 30,
+      "end": 31,
+      "id": "lambdas",
+      "en": "lambda expressions",
+      "vi": "biểu thức lambda"
+    },
+    {
+      "start": 32,
+      "end": 41,
+      "id": "const",
+      "en": "const correctness",
+      "vi": "tính đúng đắn const"
+    },
+    {
+      "start": 42,
+      "end": 50,
+      "id": "modern-practices",
+      "en": "modern C++ practices",
+      "vi": "thực hành C++ hiện đại"
+    },
+    {
+      "start": 51,
+      "end": 57,
+      "id": "smart-pointers",
+      "en": "smart pointers and ownership",
+      "vi": "smart pointer và ownership"
+    },
+    {
+      "start": 58,
+      "end": 63,
+      "id": "references",
+      "en": "references, move, and forwarding",
+      "vi": "reference, move và forwarding"
+    },
+    {
+      "start": 64,
+      "end": 68,
+      "id": "cpp20",
+      "en": "C++20 language features",
+      "vi": "tính năng ngôn ngữ C++20"
+    },
+    {
+      "start": 69,
+      "end": 76,
+      "id": "special-members",
+      "en": "special member functions",
+      "vi": "special member function"
+    },
+    {
+      "start": 77,
+      "end": 98,
+      "id": "object-design",
+      "en": "object-oriented design",
+      "vi": "thiết kế hướng đối tượng"
+    },
+    {
+      "start": 99,
+      "end": 106,
+      "id": "behavior",
+      "en": "program behavior and undefined behavior",
+      "vi": "hành vi chương trình và undefined behavior"
+    },
+    {
+      "start": 107,
+      "end": 116,
+      "id": "stl",
+      "en": "the standard library",
+      "vi": "thư viện chuẩn"
+    },
+    {
+      "start": 117,
+      "end": 146,
+      "id": "language-practice",
+      "en": "language rules and coding practice",
+      "vi": "quy tắc ngôn ngữ và thực hành code"
+    }
+  ],
+  "questions": [
+    {
+      "number": 1,
+      "sourceId": "daily-cpp-interview-q001",
+      "directory": "001_auto-type-deduction",
+      "chapter": "type-deduction",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "Explain auto type deduction!",
+        "vi": "Giải thích cách `auto` suy luận kiểu!"
+      },
+      "answer": {
+        "en": "`auto` follows template-style deduction: top-level references and cv-qualifiers may be dropped according to the declaration form, while braced initializers have special `std::initializer_list` rules. Write `auto&`, `const auto&`, or `auto&&` when reference behavior is part of the contract.",
+        "vi": "`auto` suy luận gần giống template: reference và cv-qualifier ở mức ngoài có thể bị bỏ tùy dạng khai báo, còn braced initializer có quy tắc riêng với `std::initializer_list`. Cần viết `auto&`, `const auto&` hoặc `auto&&` khi hành vi reference là một phần của contract."
+      }
+    },
+    {
+      "number": 2,
+      "sourceId": "daily-cpp-interview-q002",
+      "directory": "002_auto-deduce-undesired-types",
+      "chapter": "type-deduction",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "When can auto deduce undesired types?",
+        "vi": "Khi nào `auto` có thể suy luận ra kiểu không mong muốn?"
+      },
+      "answer": {
+        "en": "`auto` preserves the initializer's actual expression type, which can be an invisible proxy such as `std::vector<bool>::reference` rather than `bool`. Force the intended value type when a proxy could outlive its owner or expose surprising behavior.",
+        "vi": "`auto` giữ kiểu thực của biểu thức khởi tạo, nên có thể nhận một proxy ẩn như `std::vector<bool>::reference` thay vì `bool`. Hãy ép về kiểu giá trị mong muốn khi proxy có thể sống lâu hơn owner hoặc gây hành vi bất ngờ."
+      }
+    },
+    {
+      "number": 3,
+      "sourceId": "daily-cpp-interview-q003",
+      "directory": "003_the-advantages-of-using-auto",
+      "chapter": "type-deduction",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are the advantages of using auto?",
+        "vi": "Việc sử dụng `auto` có những lợi ích gì?"
+      },
+      "answer": {
+        "en": "`auto` guarantees initialization, avoids repeating complex or implementation-specific types, and makes many refactors safer. Use it when the initializer makes intent clear; an explicit type is still better when conversion or domain meaning matters.",
+        "vi": "`auto` bắt buộc phải khởi tạo, tránh lặp lại kiểu dài hoặc phụ thuộc implementation và giúp nhiều refactor an toàn hơn. Nên dùng khi initializer thể hiện rõ ý định; vẫn nên viết kiểu tường minh khi conversion hoặc ý nghĩa miền nghiệp vụ quan trọng."
+      }
+    },
+    {
+      "number": 4,
+      "sourceId": "daily-cpp-interview-q004",
+      "directory": "004_the-type-of-mycollection-after-the-following-declaration",
+      "chapter": "type-deduction",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is the type of myCollection after the following declaration?",
+        "vi": "`myCollection` có kiểu gì sau khai báo sau?"
+      },
+      "answer": {
+        "en": "`auto myCollection = {1, 2, 3};` deduces `std::initializer_list<int>`. All elements must support deduction of one common element type.",
+        "vi": "`auto myCollection = {1, 2, 3};` suy luận thành `std::initializer_list<int>`. Tất cả phần tử phải cho phép suy luận ra cùng một kiểu phần tử."
+      }
+    },
+    {
+      "number": 5,
+      "sourceId": "daily-cpp-interview-q005",
+      "directory": "005_trailing-return-types",
+      "chapter": "type-deduction",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are trailing return types?",
+        "vi": "Kiểu trả về đặt sau (trailing return type) là gì?"
+      },
+      "answer": {
+        "en": "A trailing return type writes the return after the parameter list, as in `auto f(T value) -> Result`. It is useful when the return type depends on parameters or when a member type is easier to name after entering class scope.",
+        "vi": "Trailing return type đặt kiểu trả về sau danh sách tham số, ví dụ `auto f(T value) -> Result`. Nó hữu ích khi kiểu trả về phụ thuộc tham số hoặc khi member type dễ gọi tên hơn sau khi đã vào scope của lớp."
+      }
+    },
+    {
+      "number": 6,
+      "sourceId": "daily-cpp-interview-q006",
+      "directory": "006_decltype",
+      "chapter": "type-deduction",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "Explain decltype!",
+        "vi": "Giải thích `decltype`!"
+      },
+      "answer": {
+        "en": "`decltype` reports the declared type for an unparenthesized name, but for other expressions it also reflects value category: lvalue gives `T&`, xvalue gives `T&&`, and prvalue gives `T`. Extra parentheses can therefore change the result.",
+        "vi": "`decltype` trả kiểu đã khai báo đối với một tên không có ngoặc; với biểu thức khác, nó còn phản ánh value category: lvalue cho `T&`, xvalue cho `T&&`, prvalue cho `T`. Vì vậy thêm ngoặc có thể đổi kết quả."
+      }
+    },
+    {
+      "number": 7,
+      "sourceId": "daily-cpp-interview-q007",
+      "directory": "007_use-decltype-auto",
+      "chapter": "type-deduction",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "When to use decltype(auto)?",
+        "vi": "Khi nào nên dùng `decltype(auto)`?"
+      },
+      "answer": {
+        "en": "Use `decltype(auto)` when a deduced declaration or return type must preserve exactly what `decltype(expression)` yields, including references. It is powerful for forwarding accessors but can accidentally return a dangling reference.",
+        "vi": "Dùng `decltype(auto)` khi khai báo hoặc kiểu trả về suy luận phải giữ chính xác kết quả của `decltype(expression)`, kể cả reference. Nó hữu ích cho forwarding accessor nhưng cũng có thể vô tình trả dangling reference."
+      }
+    },
+    {
+      "number": 8,
+      "sourceId": "daily-cpp-interview-q008",
+      "directory": "008_which-data-type-do-you-get-when-you-add-two-bools",
+      "chapter": "type-deduction",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "Which data type do you get when you add two bools?",
+        "vi": "Khi cộng hai giá trị `bool`, ta nhận được kiểu dữ liệu nào?"
+      },
+      "answer": {
+        "en": "Both operands undergo integral promotion from `bool` to `int`, so adding two `bool` values produces an `int`. Its value is 0, 1, or 2.",
+        "vi": "Cả hai toán hạng `bool` được integral promotion thành `int`, vì vậy phép cộng hai `bool` cho kết quả kiểu `int`, với giá trị 0, 1 hoặc 2."
+      }
+    },
+    {
+      "number": 9,
+      "sourceId": "daily-cpp-interview-q009",
+      "directory": "009_a-static-member-variable-in-c-mean",
+      "chapter": "static",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What does a static member variable in C++ mean?",
+        "vi": "Biến thành viên `static` trong C++ có ý nghĩa gì?"
+      },
+      "answer": {
+        "en": "A static data member belongs to the class rather than to each object, so one storage location is shared by all instances. Its definition and initialization rules depend on whether it is an inline static member and on the selected language standard.",
+        "vi": "Biến thành viên `static` thuộc về lớp thay vì từng object, nên mọi instance dùng chung một vùng lưu trữ. Quy tắc định nghĩa và khởi tạo phụ thuộc việc nó có phải inline static member hay không và chuẩn ngôn ngữ đang dùng."
+      }
+    },
+    {
+      "number": 10,
+      "sourceId": "daily-cpp-interview-q010",
+      "directory": "010_a-static-member-function-mean-in-c",
+      "chapter": "static",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What does a static member function mean in C++?",
+        "vi": "Hàm thành viên `static` trong C++ có ý nghĩa gì?"
+      },
+      "answer": {
+        "en": "A static member function has no `this` pointer and can be called through the class name. It can directly access only static members, although it may operate on objects passed explicitly.",
+        "vi": "Hàm thành viên `static` không có con trỏ `this` và có thể gọi qua tên lớp. Nó chỉ truy cập trực tiếp được static member, nhưng vẫn có thể thao tác trên object được truyền tường minh."
+      }
+    },
+    {
+      "number": 11,
+      "sourceId": "daily-cpp-interview-q011",
+      "directory": "011_the-static-initialization-order-fiasco",
+      "chapter": "static",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "What is the static initialization order fiasco?",
+        "vi": "Thảm họa thứ tự khởi tạo tĩnh là gì?"
+      },
+      "answer": {
+        "en": "The static initialization order fiasco occurs when dynamically initialized objects in different translation units depend on each other; their relative initialization order is unspecified. A use can therefore observe an object before its dynamic initialization.",
+        "vi": "Thảm họa thứ tự khởi tạo tĩnh xảy ra khi các object được dynamic initialization ở những translation unit khác nhau phụ thuộc lẫn nhau; thứ tự tương đối của chúng không được quy định. Một object vì thế có thể bị dùng trước khi hoàn tất dynamic initialization."
+      }
+    },
+    {
+      "number": 12,
+      "sourceId": "daily-cpp-interview-q012",
+      "directory": "012_solve-the-static-initialization-order-fiasco",
+      "chapter": "static",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "How to solve the static initialization order fiasco?",
+        "vi": "Làm thế nào để giải quyết thảm họa thứ tự khởi tạo tĩnh?"
+      },
+      "answer": {
+        "en": "The usual fix is construct-on-first-use: return a function-local static so initialization happens on first call and is thread-safe since C++11. Also minimize global state and make dependencies explicit; inline variables alone do not repair a cyclic initialization design.",
+        "vi": "Cách sửa phổ biến là construct-on-first-use: trả về function-local static để nó được khởi tạo ở lần gọi đầu và thread-safe từ C++11. Đồng thời giảm global state và biểu diễn dependency tường minh; chỉ thêm inline variable không sửa được thiết kế khởi tạo vòng."
+      }
+    },
+    {
+      "number": 13,
+      "sourceId": "daily-cpp-interview-q013",
+      "directory": "013_the-difference-between-function-overloading-and-function-o",
+      "chapter": "polymorphism",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "What is the difference between function overloading and function overriding?",
+        "vi": "Function overloading và function overriding khác nhau như thế nào?"
+      },
+      "answer": {
+        "en": "Overloading selects among functions with the same name but different parameter lists, normally at compile time. Overriding supplies a derived implementation for a virtual base function with a matching signature and participates in runtime dispatch.",
+        "vi": "Overloading chọn giữa các hàm cùng tên nhưng khác danh sách tham số, thường ở compile time. Overriding cung cấp implementation ở lớp dẫn xuất cho hàm ảo của lớp cơ sở có chữ ký khớp và tham gia runtime dispatch."
+      }
+    },
+    {
+      "number": 14,
+      "sourceId": "daily-cpp-interview-q014",
+      "directory": "014_a-virtual-function",
+      "chapter": "polymorphism",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is a virtual function?",
+        "vi": "Hàm ảo là gì?"
+      },
+      "answer": {
+        "en": "A virtual function enables dynamic dispatch: a call through a base pointer or reference selects the final overrider for the object's dynamic type. Calls on objects by value can still be affected by slicing.",
+        "vi": "Hàm ảo cho phép dynamic dispatch: lời gọi qua base pointer hoặc reference chọn final overrider theo dynamic type của object. Gọi trên object theo giá trị vẫn có thể bị ảnh hưởng bởi slicing."
+      }
+    },
+    {
+      "number": 15,
+      "sourceId": "daily-cpp-interview-q015",
+      "directory": "015_the-override-keyword-and-what-are-its-advantages",
+      "chapter": "polymorphism",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "What is the override keyword and what are its advantages?",
+        "vi": "Từ khóa `override` là gì và có những lợi ích nào?"
+      },
+      "answer": {
+        "en": "`override` tells the compiler that a derived declaration must override a virtual base function. A signature mismatch then becomes a compile error instead of silently creating a different overload.",
+        "vi": "`override` yêu cầu compiler xác nhận khai báo ở lớp dẫn xuất thật sự override một hàm ảo của lớp cơ sở. Sai khác chữ ký sẽ thành lỗi compile thay vì âm thầm tạo overload khác."
+      }
+    },
+    {
+      "number": 16,
+      "sourceId": "daily-cpp-interview-q016",
+      "directory": "016_the-concept-of-covariant-return-types-and-show-a-use-case",
+      "chapter": "polymorphism",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Explain the concept of covariant return types and show a use-case where it comes in handy!",
+        "vi": "Giải thích kiểu trả về hiệp biến và đưa ra một trường hợp nó hữu ích!"
+      },
+      "answer": {
+        "en": "An overriding virtual function may return a pointer or reference to a more-derived class than the base function returns. This covariant return lets callers with derived static type receive the narrower result while base callers retain the base interface.",
+        "vi": "Một hàm ảo override có thể trả pointer hoặc reference tới lớp dẫn xuất sâu hơn kiểu trả về của hàm cơ sở. Covariant return giúp caller có static type dẫn xuất nhận kết quả hẹp hơn, còn caller qua base vẫn giữ interface cơ sở."
+      }
+    },
+    {
+      "number": 17,
+      "sourceId": "daily-cpp-interview-q017",
+      "directory": "017_virtual-inheritance-in-c-and-when-should-you-use-it",
+      "chapter": "polymorphism",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "What is virtual inheritance in C++ and when should you use it?",
+        "vi": "Kế thừa ảo trong C++ là gì và khi nào nên dùng?"
+      },
+      "answer": {
+        "en": "Virtual inheritance makes all paths in a diamond share one base subobject. The most-derived constructor initializes that virtual base, which removes duplicate base state but complicates layout and construction.",
+        "vi": "Kế thừa ảo làm cho mọi nhánh trong cấu trúc kim cương dùng chung một base subobject. Constructor của lớp dẫn xuất cuối cùng khởi tạo virtual base đó; cách này loại bỏ state trùng nhưng làm layout và construction phức tạp hơn."
+      }
+    },
+    {
+      "number": 18,
+      "sourceId": "daily-cpp-interview-q018",
+      "directory": "018_always-use-virtual-inheritance-if-yes-why-if-not-why-not",
+      "chapter": "polymorphism",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "Should we always use virtual inheritance? If yes, why? If not, why not?",
+        "vi": "Có nên luôn dùng kế thừa ảo không? Nếu có, vì sao? Nếu không, vì sao?"
+      },
+      "answer": {
+        "en": "No. Use virtual inheritance only when multiple inheritance must represent one shared base identity, typically a diamond. It adds layout, construction, and reasoning costs, so ordinary composition or non-virtual inheritance is preferable otherwise.",
+        "vi": "Không. Chỉ dùng kế thừa ảo khi multiple inheritance phải biểu diễn một base identity dùng chung, thường là cấu trúc kim cương. Nó làm tăng chi phí layout, construction và suy luận; các trường hợp khác nên ưu tiên composition hoặc kế thừa thường."
+      }
+    },
+    {
+      "number": 19,
+      "sourceId": "daily-cpp-interview-q019",
+      "directory": "019_what-s-the-output-of-the-following-sample-program-is-that",
+      "chapter": "polymorphism",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "What’s the output of the following sample program? Is that what you’d expect? Why? Why not?",
+        "vi": "Chương trình mẫu sau in gì? Đó có phải điều bạn mong đợi không? Vì sao?"
+      },
+      "answer": {
+        "en": "The program prints `Dog speaks`, `Dog eats 42`, `Animal speaks`, then `Animal eats 42`. `speak` is not virtual, while `Dog::eat(unsigned)` does not override `Animal::eat(int)`; `override` would expose both mistakes at compile time.",
+        "vi": "Chương trình in lần lượt `Dog speaks`, `Dog eats 42`, `Animal speaks`, rồi `Animal eats 42`. `speak` không phải virtual, còn `Dog::eat(unsigned)` không override `Animal::eat(int)`; thêm `override` sẽ làm lộ cả hai lỗi ngay khi compile."
+      }
+    },
+    {
+      "number": 20,
+      "sourceId": "daily-cpp-interview-q020",
+      "directory": "020_access-the-public-and-protected-members-and-functions-of-a",
+      "chapter": "polymorphism",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Can you access the public and protected members and functions of a base class if you have private inheritance?",
+        "vi": "Nếu kế thừa riêng tư, lớp dẫn xuất có truy cập được thành viên và hàm `public`, `protected` của lớp cơ sở không?"
+      },
+      "answer": {
+        "en": "Yes, the derived implementation can access inherited public and protected members. Private inheritance changes their accessibility through the derived interface and blocks implicit public conversion to the base for outside callers.",
+        "vi": "Có, implementation của lớp dẫn xuất vẫn truy cập được member `public` và `protected` được kế thừa. Kế thừa riêng tư đổi mức truy cập của chúng qua interface dẫn xuất và chặn implicit public conversion sang base đối với caller bên ngoài."
+      }
+    },
+    {
+      "number": 21,
+      "sourceId": "daily-cpp-interview-q021",
+      "directory": "021_private-inheritance-used-for",
+      "chapter": "polymorphism",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "What is private inheritance used for?",
+        "vi": "Kế thừa riêng tư được dùng để làm gì?"
+      },
+      "answer": {
+        "en": "Private inheritance models an implementation relationship and can provide controlled access to protected members or enable empty-base optimization. Prefer composition unless inheritance is specifically needed for those mechanics.",
+        "vi": "Kế thừa riêng tư biểu diễn quan hệ dùng để triển khai, có thể cho phép truy cập có kiểm soát tới protected member hoặc tận dụng empty-base optimization. Nên ưu tiên composition nếu không thật sự cần các cơ chế đó."
+      }
+    },
+    {
+      "number": 22,
+      "sourceId": "daily-cpp-interview-q022",
+      "directory": "022_call-a-virtual-function-from-a-constructor-or-a-destructor",
+      "chapter": "polymorphism",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "Can you call a virtual function from a constructor or a destructor?",
+        "vi": "Có thể gọi hàm ảo từ constructor hoặc destructor không?"
+      },
+      "answer": {
+        "en": "A virtual call is legal in a constructor or destructor, but dispatch stops at the class currently being constructed or destroyed. More-derived parts are not active, and calling a pure virtual function in that situation is invalid.",
+        "vi": "Có thể gọi hàm ảo trong constructor hoặc destructor, nhưng dispatch dừng ở lớp đang được xây dựng hoặc hủy. Phần dẫn xuất sâu hơn chưa còn hoạt động; gọi pure virtual function trong tình huống đó là không hợp lệ."
+      }
+    },
+    {
+      "number": 23,
+      "sourceId": "daily-cpp-interview-q023",
+      "directory": "023_what-role-does-a-virtual-destructor-play",
+      "chapter": "polymorphism",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What role does a virtual destructor play?",
+        "vi": "Destructor ảo có vai trò gì?"
+      },
+      "answer": {
+        "en": "A virtual base destructor ensures that deleting through a base pointer destroys the complete derived object. Without it, such deletion is undefined behavior; a non-polymorphic base can instead use a protected non-virtual destructor to forbid deletion through the base.",
+        "vi": "Destructor ảo ở lớp cơ sở bảo đảm `delete` qua base pointer sẽ hủy toàn bộ object dẫn xuất. Nếu thiếu nó, thao tác đó là undefined behavior; base không đa hình có thể dùng destructor non-virtual `protected` để cấm xóa qua base."
+      }
+    },
+    {
+      "number": 24,
+      "sourceId": "daily-cpp-interview-q024",
+      "directory": "024_inherit-from-a-standard-container-such-as-vector-if-so-wha",
+      "chapter": "polymorphism",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Can we inherit from a standard container (such as std::vector)? If so what are the implications?",
+        "vi": "Có thể kế thừa từ container chuẩn như `std::vector` không? Nếu có thì hệ quả là gì?"
+      },
+      "answer": {
+        "en": "The language permits deriving from a standard container, but it is usually unsafe as a public polymorphic design: containers have no virtual destructor and were not designed as base classes. Prefer composition and expose only the operations your abstraction promises.",
+        "vi": "Ngôn ngữ cho phép kế thừa từ container chuẩn, nhưng đây thường là thiết kế public polymorphic không an toàn: container không có virtual destructor và không được thiết kế làm base class. Nên dùng composition và chỉ lộ các operation abstraction cam kết."
+      }
+    },
+    {
+      "number": 25,
+      "sourceId": "daily-cpp-interview-q025",
+      "directory": "025_a-strong-type-mean-and-what-advantages-does-it-have",
+      "chapter": "polymorphism",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "What does a strong type mean and what advantages does it have?",
+        "vi": "Strong type là gì và có những lợi ích nào?"
+      },
+      "answer": {
+        "en": "A strong type wraps a representation in a distinct domain type so values with the same underlying type cannot be mixed accidentally. It centralizes invariants, improves overload safety, and makes interfaces self-documenting.",
+        "vi": "Strong type bọc representation trong một domain type riêng, khiến các giá trị có cùng kiểu nền không thể bị trộn nhầm. Nó tập trung invariant, làm overload an toàn hơn và giúp interface tự mô tả."
+      }
+    },
+    {
+      "number": 26,
+      "sourceId": "daily-cpp-interview-q026",
+      "directory": "026_short-circuit-evaluation",
+      "chapter": "polymorphism",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "Explain short-circuit evaluation",
+        "vi": "Giải thích short-circuit evaluation."
+      },
+      "answer": {
+        "en": "`&&` stops after a false left operand and `||` stops after a true left operand because the final result is already known. This sequencing is often used to guard a later operation that would otherwise be invalid.",
+        "vi": "`&&` dừng sau toán hạng trái false và `||` dừng sau toán hạng trái true vì kết quả cuối đã xác định. Cơ chế sequencing này thường được dùng để bảo vệ operation phía sau vốn sẽ không hợp lệ nếu luôn chạy."
+      }
+    },
+    {
+      "number": 27,
+      "sourceId": "daily-cpp-interview-q027",
+      "directory": "027_a-destructor-and-how-can-we-overload-it",
+      "chapter": "polymorphism",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is a destructor and how can we overload it?",
+        "vi": "Destructor là gì và có thể overload nó như thế nào?"
+      },
+      "answer": {
+        "en": "A destructor ends an object's lifetime and releases resources owned by it. A class can have only one destructor, so destructors cannot be overloaded; it may be virtual, defaulted, deleted, or given an exception specification.",
+        "vi": "Destructor kết thúc lifetime của object và giải phóng resource mà nó sở hữu. Mỗi lớp chỉ có một destructor nên destructor không thể overload; nó có thể là virtual, defaulted, deleted hoặc có exception specification."
+      }
+    },
+    {
+      "number": 28,
+      "sourceId": "daily-cpp-interview-q028",
+      "directory": "028_the-output-of-the-following-piece-of-code-and-why",
+      "chapter": "polymorphism",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "What is the output of the following piece of code and why?",
+        "vi": "Đoạn mã sau in gì và vì sao?"
+      },
+      "answer": {
+        "en": "The output is `1`. Overload resolution uses the cv-qualification of object `a`, which is non-const, so it calls the non-const member; the `const` on result variable `b` does not affect that earlier call.",
+        "vi": "Kết quả là `1`. Overload resolution dựa trên cv-qualification của object `a`; vì `a` không const nên hàm member non-const được gọi. `const` trên biến kết quả `b` không ảnh hưởng lời gọi đã xảy ra."
+      }
+    },
+    {
+      "number": 29,
+      "sourceId": "daily-cpp-interview-q029",
+      "directory": "029_use-the-delete-specifier-in-c",
+      "chapter": "polymorphism",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "How to use the = delete specifier in C++?",
+        "vi": "Dùng đặc tả `= delete` trong C++ như thế nào?"
+      },
+      "answer": {
+        "en": "Writing `= delete` declares a function but makes every selected use ill-formed. It is useful for disabling copying, dangerous overloads, or implicit conversions while still letting overload resolution produce a precise diagnostic.",
+        "vi": "Viết `= delete` vẫn khai báo hàm nhưng khiến mọi cách dùng chọn trúng hàm đó trở thành ill-formed. Nó hữu ích để cấm copy, overload nguy hiểm hoặc implicit conversion, đồng thời giúp overload resolution đưa ra diagnostic rõ ràng."
+      }
+    },
+    {
+      "number": 30,
+      "sourceId": "daily-cpp-interview-q030",
+      "directory": "030_immediately-invoked-lambda-functions",
+      "chapter": "lambdas",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are immediately invoked lambda functions?",
+        "vi": "Immediately invoked lambda function là gì?"
+      },
+      "answer": {
+        "en": "An immediately invoked lambda expression places the call `()` directly after the lambda, such as `auto value = [&] { return compute(); }();`. It creates a small local scope for complex one-time initialization without leaving a callable behind.",
+        "vi": "Immediately invoked lambda expression đặt `()` ngay sau lambda, ví dụ `auto value = [&] { return compute(); }();`. Nó tạo một scope cục bộ nhỏ cho phép khởi tạo phức tạp một lần mà không để lại callable."
+      }
+    },
+    {
+      "number": 31,
+      "sourceId": "daily-cpp-interview-q031",
+      "directory": "031_what-kind-of-captures-are-available-for-lambda-expressions",
+      "chapter": "lambdas",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What kind of captures are available for lambda expressions?",
+        "vi": "Lambda expression có những kiểu capture nào?"
+      },
+      "answer": {
+        "en": "Captures can be explicit by value or reference, defaulted with `[=]` or `[&]`, include `this` or `*this`, and use init-capture to create a new member of the closure. Choose capture per lifetime and mutation needs rather than defaulting blindly.",
+        "vi": "Capture có thể tường minh theo giá trị hoặc reference, mặc định bằng `[=]` hay `[&]`, gồm `this` hoặc `*this`, và dùng init-capture để tạo member mới trong closure. Nên chọn theo lifetime và nhu cầu mutation thay vì dùng mặc định thiếu cân nhắc."
+      }
+    },
+    {
+      "number": 32,
+      "sourceId": "daily-cpp-interview-q032",
+      "directory": "032_the-output-of-the-following-piece-of-code-and-why",
+      "chapter": "const",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "What is the output of the following piece of code and why?",
+        "vi": "Đoạn mã sau in gì và vì sao?"
+      },
+      "repeatOf": "daily-cpp-interview-q028",
+      "answer": {
+        "en": "The output is `1`. The non-const object selects the non-const overload; making the destination variable const does not retroactively select the const member function.",
+        "vi": "Kết quả là `1`. Object không const chọn overload non-const; việc biến nhận kết quả là const không thể làm lời gọi trước đó chuyển sang const member function."
+      }
+    },
+    {
+      "number": 33,
+      "sourceId": "daily-cpp-interview-q033",
+      "directory": "033_the-advantages-of-using-const-local-variables",
+      "chapter": "const",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are the advantages of using const local variables?",
+        "vi": "Biến cục bộ `const` có những lợi ích gì?"
+      },
+      "answer": {
+        "en": "A const local variable documents that its value is stable after initialization and lets the compiler reject accidental writes. It narrows the mutable state a reader must track, though const should not be added when later reassignment is intentional.",
+        "vi": "Biến cục bộ const cho biết giá trị ổn định sau khởi tạo và giúp compiler chặn việc ghi nhầm. Nó giảm lượng mutable state người đọc phải theo dõi, nhưng không nên thêm const khi việc gán lại là có chủ ý."
+      }
+    },
+    {
+      "number": 34,
+      "sourceId": "daily-cpp-interview-q034",
+      "directory": "034_have-const-members-in-a-class",
+      "chapter": "const",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Is it a good idea to have const members in a class?",
+        "vi": "Có nên có thành viên `const` trong một lớp không?"
+      },
+      "answer": {
+        "en": "Const data members can model truly immutable state, but they delete or restrict generated assignment operations and complicate regular value semantics. Prefer private state protected by class invariants unless per-object immutability is a deliberate requirement.",
+        "vi": "Data member const có thể biểu diễn state thật sự bất biến, nhưng nó làm mất hoặc hạn chế assignment operation được sinh tự động và gây khó cho value semantics thông thường. Nên ưu tiên private state được invariant của lớp bảo vệ, trừ khi bất biến theo object là yêu cầu có chủ ý."
+      }
+    },
+    {
+      "number": 35,
+      "sourceId": "daily-cpp-interview-q035",
+      "directory": "035_it-make-sense-to-return-const-objects-by-value",
+      "chapter": "const",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Does it make sense to return const objects by value?",
+        "vi": "Trả đối tượng `const` theo giá trị có hợp lý không?"
+      },
+      "answer": {
+        "en": "Usually no. Top-level const on a returned value gives the caller no durable protection and can inhibit moving in older or generic code. Return an ordinary value and let the caller decide whether its receiving object is const.",
+        "vi": "Thường là không. Top-level const trên giá trị trả về không bảo vệ lâu dài cho caller và có thể cản trở move trong code cũ hoặc generic. Hãy trả giá trị thường và để caller quyết định object nhận có const hay không."
+      }
+    },
+    {
+      "number": 36,
+      "sourceId": "daily-cpp-interview-q036",
+      "directory": "036_how-should-you-return-const-pointers-from-a-function",
+      "chapter": "const",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "How should you return const pointers from a function?",
+        "vi": "Nên trả con trỏ `const` từ hàm như thế nào?"
+      },
+      "answer": {
+        "en": "Return a pointer-to-const, `const T*`, when the caller may observe but not mutate the pointee through that handle. Making the pointer value itself top-level const in a return type is discarded and does not constrain the caller.",
+        "vi": "Trả pointer-to-const, `const T*`, khi caller được quan sát nhưng không được sửa pointee qua handle đó. Top-level const đặt lên chính giá trị pointer trong kiểu trả về sẽ bị bỏ và không ràng buộc caller."
+      }
+    },
+    {
+      "number": 37,
+      "sourceId": "daily-cpp-interview-q037",
+      "directory": "037_should-functions-return-const-references",
+      "chapter": "const",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Should functions return const references?",
+        "vi": "Hàm có nên trả `const` reference không?"
+      },
+      "answer": {
+        "en": "A function may return a const reference only when the referred object is guaranteed to outlive every use by the caller. It avoids a copy and prevents mutation through that reference, but returning a local or short-lived subobject dangles.",
+        "vi": "Hàm chỉ nên trả const reference khi object được tham chiếu chắc chắn sống lâu hơn mọi lần dùng của caller. Cách này tránh copy và cấm mutation qua reference, nhưng trả local object hoặc subobject ngắn hạn sẽ tạo dangling reference."
+      }
+    },
+    {
+      "number": 38,
+      "sourceId": "daily-cpp-interview-q038",
+      "directory": "038_take-plain-old-data-types-by-const-reference-as-a-function",
+      "chapter": "const",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Should you take plain old data types by const reference as a function parameter?",
+        "vi": "Có nên truyền kiểu dữ liệu đơn giản bằng `const` reference không?"
+      },
+      "answer": {
+        "en": "Small scalar and other cheap value types should normally be passed by value; a reference can cost the same size while adding indirection and aliasing. Use const reference when copying is materially expensive or identity matters.",
+        "vi": "Scalar nhỏ và kiểu giá trị rẻ nên thường được truyền theo giá trị; reference có thể chiếm kích thước tương đương nhưng thêm indirection và aliasing. Dùng const reference khi việc copy thực sự đắt hoặc identity quan trọng."
+      }
+    },
+    {
+      "number": 39,
+      "sourceId": "daily-cpp-interview-q039",
+      "directory": "039_pass-objects-by-const-reference-as-a-function-parameter",
+      "chapter": "const",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Should you pass objects by const reference as a function parameter?",
+        "vi": "Có nên truyền object bằng `const` reference không?"
+      },
+      "answer": {
+        "en": "Use `const T&` for a required, non-owning read-only parameter when copying `T` is expensive. Use `T` when the function needs its own value, `T&` for mutation, and pointer-like forms when nullability or ownership must be expressed.",
+        "vi": "Dùng `const T&` cho tham số bắt buộc, non-owning, chỉ đọc khi copy `T` tốn kém. Dùng `T` khi hàm cần sở hữu giá trị riêng, `T&` để mutation và dạng pointer khi cần biểu diễn nullability hoặc ownership."
+      }
+    },
+    {
+      "number": 40,
+      "sourceId": "daily-cpp-interview-q040",
+      "directory": "040_the-signature-of-a-function-declaration-has-to-match-the-s",
+      "chapter": "const",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Does the signature of a function declaration has to match the signature of the function definition?",
+        "vi": "Chữ ký khai báo hàm có phải khớp chữ ký định nghĩa hàm không?"
+      },
+      "answer": {
+        "en": "Declarations for the same function must agree on parameter types and function qualifiers; otherwise they denote a different overload or fail to match a definition. Return type alone cannot distinguish overloads, while default arguments are not part of the function type.",
+        "vi": "Các khai báo của cùng một hàm phải thống nhất kiểu tham số và qualifier của hàm; nếu không, chúng biểu diễn overload khác hoặc không khớp định nghĩa. Chỉ kiểu trả về không thể phân biệt overload, còn default argument không thuộc function type."
+      }
+    },
+    {
+      "number": 41,
+      "sourceId": "daily-cpp-interview-q041",
+      "directory": "041_what-consteval-and-constinit-bring-to-c",
+      "chapter": "const",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "Explain what consteval and constinit bring to C++?",
+        "vi": "Giải thích `consteval` và `constinit` mang lại điều gì cho C++?"
+      },
+      "answer": {
+        "en": "`consteval` declares an immediate function whose potentially evaluated calls must produce a compile-time constant. `constinit` applies to static or thread storage and requires static initialization, but it does not make the object immutable.",
+        "vi": "`consteval` khai báo immediate function mà các lời gọi được đánh giá phải tạo hằng compile-time. `constinit` áp dụng cho static hoặc thread storage và bắt buộc static initialization, nhưng không làm object bất biến."
+      }
+    },
+    {
+      "number": 42,
+      "sourceId": "daily-cpp-interview-q042",
+      "directory": "042_aggregate-initialization",
+      "chapter": "modern-practices",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is aggregate initialization?",
+        "vi": "Aggregate initialization là gì?"
+      },
+      "answer": {
+        "en": "Aggregate initialization initializes an aggregate's elements directly from a braced list, in declaration order or with designated initializers where supported. Whether a class is an aggregate depends on standard-version rules about constructors, bases, virtual functions, and access.",
+        "vi": "Aggregate initialization khởi tạo trực tiếp các phần tử của aggregate từ braced list, theo thứ tự khai báo hoặc bằng designated initializer khi được hỗ trợ. Một lớp có phải aggregate hay không phụ thuộc quy tắc của từng chuẩn về constructor, base, virtual function và access."
+      }
+    },
+    {
+      "number": 43,
+      "sourceId": "daily-cpp-interview-q043",
+      "directory": "043_explicit-constructors-and-what-are-their-advantages",
+      "chapter": "modern-practices",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are explicit constructors and what are their advantages?",
+        "vi": "Explicit constructor là gì và có lợi ích nào?"
+      },
+      "answer": {
+        "en": "An `explicit` constructor or conversion function cannot be used for unwanted implicit conversion in copy initialization or argument passing. Direct initialization remains available, so the call site must state the conversion intentionally.",
+        "vi": "Constructor hoặc conversion function `explicit` không thể bị dùng cho implicit conversion ngoài ý muốn trong copy initialization hay truyền tham số. Direct initialization vẫn dùng được, nên call site phải thể hiện conversion có chủ ý."
+      }
+    },
+    {
+      "number": 44,
+      "sourceId": "daily-cpp-interview-q044",
+      "directory": "044_user-defined-literals",
+      "chapter": "modern-practices",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are user-defined literals?",
+        "vi": "User-defined literal là gì?"
+      },
+      "answer": {
+        "en": "A user-defined literal maps a suffix such as `_km` to a literal operator that constructs a typed value at compile time or runtime. It can improve domain clarity, but suffixes beginning with an underscore are the safe namespace for user code.",
+        "vi": "User-defined literal ánh xạ suffix như `_km` tới literal operator tạo một giá trị có kiểu ở compile time hoặc runtime. Nó giúp domain rõ hơn; suffix bắt đầu bằng dấu gạch dưới là không gian phù hợp cho code người dùng."
+      }
+    },
+    {
+      "number": 45,
+      "sourceId": "daily-cpp-interview-q045",
+      "directory": "045_we-use-nullptr-instead-of-null-or-0",
+      "chapter": "modern-practices",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "Why should we use nullptr instead of NULL or 0?",
+        "vi": "Vì sao nên dùng `nullptr` thay vì `NULL` hoặc `0`?"
+      },
+      "answer": {
+        "en": "`nullptr` has type `std::nullptr_t` and converts only to pointer-like targets, so it avoids the integer overload ambiguities of `0` and implementation-defined macro forms of `NULL`. It communicates a null pointer directly.",
+        "vi": "`nullptr` có kiểu `std::nullptr_t` và chỉ chuyển sang đích dạng pointer, nên tránh ambiguity với overload số nguyên của `0` và các dạng macro phụ thuộc implementation của `NULL`. Nó biểu diễn null pointer trực tiếp."
+      }
+    },
+    {
+      "number": 46,
+      "sourceId": "daily-cpp-interview-q046",
+      "directory": "046_what-advantages-does-alias-have-over-typedef",
+      "chapter": "modern-practices",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What advantages does alias have over typedef?",
+        "vi": "Alias có lợi thế gì so với `typedef`?"
+      },
+      "answer": {
+        "en": "A `using` alias reads left-to-right and, unlike `typedef`, can define alias templates. Both name an existing type rather than create a new strong type.",
+        "vi": "Alias bằng `using` đọc từ trái sang phải và khác `typedef` ở chỗ có thể định nghĩa alias template. Cả hai chỉ đặt tên khác cho kiểu có sẵn chứ không tạo strong type mới."
+      }
+    },
+    {
+      "number": 47,
+      "sourceId": "daily-cpp-interview-q047",
+      "directory": "047_the-advantages-of-scoped-enums-over-unscoped-enums",
+      "chapter": "modern-practices",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are the advantages of scoped enums over unscoped enums?",
+        "vi": "Scoped enum có lợi thế gì so với unscoped enum?"
+      },
+      "answer": {
+        "en": "A scoped enum (`enum class`) keeps enumerators in its scope, avoids implicit conversion to integers, and allows an explicit underlying type. These properties reduce name collisions and accidental arithmetic.",
+        "vi": "Scoped enum (`enum class`) giữ enumerator trong scope của enum, tránh implicit conversion sang số nguyên và cho phép chọn underlying type tường minh. Các đặc điểm này giảm đụng tên và phép toán ngoài ý muốn."
+      }
+    },
+    {
+      "number": 48,
+      "sourceId": "daily-cpp-interview-q048",
+      "directory": "048_explicitly-delete-unused-unsupported-special-functions-or",
+      "chapter": "modern-practices",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Should you explicitly delete unused/unsupported special functions or declare them as private?",
+        "vi": "Nên `delete` tường minh special function không hỗ trợ hay khai báo nó là `private`?"
+      },
+      "answer": {
+        "en": "Prefer a public deleted declaration: it states the unsupported operation in the interface and gives a direct compile-time diagnostic regardless of access context. A private undeclared function is a pre-C++11 technique with less precise behavior and diagnostics.",
+        "vi": "Nên ưu tiên khai báo deleted ở `public`: nó nêu operation không hỗ trợ ngay trong interface và tạo diagnostic compile-time trực tiếp bất kể access context. Hàm private chỉ khai báo là kỹ thuật trước C++11, kém rõ ràng hơn."
+      }
+    },
+    {
+      "number": 49,
+      "sourceId": "daily-cpp-interview-q049",
+      "directory": "049_use-the-delete-specifier-in-c",
+      "chapter": "modern-practices",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "How to use the = delete specifier in C++?",
+        "vi": "Dùng đặc tả `= delete` trong C++ như thế nào?"
+      },
+      "repeatOf": "daily-cpp-interview-q029",
+      "answer": {
+        "en": "Writing `= delete` declares a function but forbids every use selected by overload resolution. Besides special members, deleted overloads can block unsafe conversions and produce clear diagnostics.",
+        "vi": "Viết `= delete` khai báo hàm nhưng cấm mọi cách dùng được overload resolution chọn tới nó. Ngoài special member, deleted overload còn có thể chặn conversion không an toàn và tạo diagnostic rõ ràng."
+      }
+    },
+    {
+      "number": 50,
+      "sourceId": "daily-cpp-interview-q050",
+      "directory": "050_a-trivial-class-in-c",
+      "chapter": "modern-practices",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is a trivial class in C++?",
+        "vi": "Trivial class trong C++ là gì?"
+      },
+      "answer": {
+        "en": "A trivial class has eligible special member operations and destruction that are trivial and has no virtual machinery that would require custom runtime work. Exact traits vary by operation and standard, so test the property you need with the corresponding type trait.",
+        "vi": "Trivial class có các special member operation đủ điều kiện và destructor đều trivial, không có cơ chế virtual cần công việc runtime riêng. Điều kiện chính xác thay đổi theo operation và chuẩn, nên hãy kiểm tra đúng property cần dùng bằng type trait tương ứng."
+      }
+    },
+    {
+      "number": 51,
+      "sourceId": "daily-cpp-interview-q051",
+      "directory": "051_the-resource-acquisition-is-initialization-raii-idiom",
+      "chapter": "smart-pointers",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "Explain the Resource acquisition is initialization (RAII) idiom",
+        "vi": "Giải thích thành ngữ Resource Acquisition Is Initialization (RAII)."
+      },
+      "answer": {
+        "en": "RAII binds a resource's lifetime to an object's lifetime: acquisition establishes an invariant, and the destructor releases the resource on every exit path. Stack unwinding therefore handles exceptions without separate cleanup code.",
+        "vi": "RAII gắn lifetime của resource với lifetime của object: việc acquire thiết lập invariant và destructor giải phóng resource trên mọi đường thoát. Vì vậy stack unwinding xử lý exception mà không cần cleanup tách rời."
+      }
+    },
+    {
+      "number": 52,
+      "sourceId": "daily-cpp-interview-q052",
+      "directory": "052_we-use-unique-pointers",
+      "chapter": "smart-pointers",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "When should we use unique pointers?",
+        "vi": "Khi nào nên dùng `unique_ptr`?"
+      },
+      "answer": {
+        "en": "Use `std::unique_ptr` when one object exclusively owns a dynamically allocated resource and ownership may be transferred. Prefer direct objects when allocation or nullable ownership is unnecessary, and pass observers as references or raw pointers.",
+        "vi": "Dùng `std::unique_ptr` khi một object sở hữu độc quyền resource cấp phát động và ownership có thể được chuyển giao. Ưu tiên object trực tiếp nếu không cần cấp phát hoặc nullable ownership; truyền observer bằng reference hay raw pointer."
+      }
+    },
+    {
+      "number": 53,
+      "sourceId": "daily-cpp-interview-q053",
+      "directory": "053_the-reasons-to-use-shared-pointers",
+      "chapter": "smart-pointers",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are the reasons to use shared pointers?",
+        "vi": "Vì sao nên dùng `shared_ptr`?"
+      },
+      "answer": {
+        "en": "Use `std::shared_ptr` only when several independent owners genuinely determine one lifetime. Reference counting makes ownership explicit, but adds a control block and atomic-count overhead and does not make the pointee itself thread-safe.",
+        "vi": "Chỉ dùng `std::shared_ptr` khi nhiều owner độc lập thật sự cùng quyết định một lifetime. Reference counting làm ownership rõ ràng nhưng thêm control block, chi phí đếm thường dùng atomic và không làm pointee tự động thread-safe."
+      }
+    },
+    {
+      "number": 54,
+      "sourceId": "daily-cpp-interview-q054",
+      "directory": "054_use-a-weak-pointer",
+      "chapter": "smart-pointers",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "When to use a weak pointer?",
+        "vi": "Khi nào nên dùng `weak_ptr`?"
+      },
+      "answer": {
+        "en": "Use `std::weak_ptr` as a non-owning observer of an object managed by `shared_ptr`, especially to break ownership cycles. Call `lock()` and test the returned `shared_ptr` before accessing the object.",
+        "vi": "Dùng `std::weak_ptr` làm observer non-owning của object do `shared_ptr` quản lý, đặc biệt để phá ownership cycle. Hãy gọi `lock()` và kiểm tra `shared_ptr` trả về trước khi truy cập object."
+      }
+    },
+    {
+      "number": 55,
+      "sourceId": "daily-cpp-interview-q055",
+      "directory": "055_the-advantages-of-make-shared-and-make-unique-compared-to",
+      "chapter": "smart-pointers",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are the advantages of std::make_shared and std::make_unique compared to the new operator?",
+        "vi": "`std::make_shared` và `std::make_unique` có lợi thế gì so với toán tử `new`?"
+      },
+      "answer": {
+        "en": "`make_unique` and `make_shared` express ownership without a naked `new` and provide exception-safe construction. `make_shared` commonly combines object and control block in one allocation, though weak references may keep that combined allocation alive and custom deleter needs can favor direct construction.",
+        "vi": "`make_unique` và `make_shared` biểu diễn ownership mà không lộ `new`, đồng thời xây dựng exception-safe. `make_shared` thường gộp object và control block trong một allocation; tuy vậy weak reference có thể giữ allocation gộp lâu hơn và nhu cầu custom deleter có thể khiến cách tạo trực tiếp phù hợp hơn."
+      }
+    },
+    {
+      "number": 56,
+      "sourceId": "daily-cpp-interview-q056",
+      "directory": "056_use-smart-pointers-over-raw-pointers-all-the-time",
+      "chapter": "smart-pointers",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Should you use smart pointers over raw pointers all the time?",
+        "vi": "Có nên luôn dùng smart pointer thay cho raw pointer không?"
+      },
+      "answer": {
+        "en": "No. Smart pointers should represent ownership; raw pointers and references remain appropriate non-owning observers, and automatic objects need no pointer. The important rule is that every owning relationship is explicit and unambiguous.",
+        "vi": "Không. Smart pointer nên biểu diễn ownership; raw pointer và reference vẫn phù hợp làm observer non-owning, còn automatic object không cần pointer. Quy tắc quan trọng là mọi quan hệ sở hữu phải tường minh và không mơ hồ."
+      }
+    },
+    {
+      "number": 57,
+      "sourceId": "daily-cpp-interview-q057",
+      "directory": "057_when-and-why-should-we-initialize-pointers-to-nullptr",
+      "chapter": "smart-pointers",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "When and why should we initialize pointers to nullptr?",
+        "vi": "Khi nào và vì sao nên khởi tạo con trỏ bằng `nullptr`?"
+      },
+      "answer": {
+        "en": "Initialize a pointer to `nullptr` when an empty state is valid and no real target is available yet, so testing it is defined. Prefer immediate initialization to a valid target when possible, because null adds another state every user must handle.",
+        "vi": "Khởi tạo pointer bằng `nullptr` khi trạng thái rỗng là hợp lệ và chưa có target thật, để việc kiểm tra có hành vi xác định. Nếu có thể, nên khởi tạo ngay tới target hợp lệ vì null thêm một trạng thái mà mọi nơi sử dụng phải xử lý."
+      }
+    },
+    {
+      "number": 58,
+      "sourceId": "daily-cpp-interview-q058",
+      "directory": "058_move-move",
+      "chapter": "references",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What does std::move move?",
+        "vi": "`std::move` thực sự di chuyển điều gì?"
+      },
+      "answer": {
+        "en": "`std::move` moves nothing by itself; it casts its argument to an xvalue so overload resolution may select a move operation. The selected operation decides what is transferred, and the source remains valid but often has an unspecified value.",
+        "vi": "`std::move` tự nó không di chuyển gì; nó cast đối số thành xvalue để overload resolution có thể chọn move operation. Operation được chọn mới quyết định thứ gì được chuyển, còn source vẫn hợp lệ nhưng thường có giá trị unspecified."
+      }
+    },
+    {
+      "number": 59,
+      "sourceId": "daily-cpp-interview-q059",
+      "directory": "059_forward-forward",
+      "chapter": "references",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What does std::forward forward?",
+        "vi": "`std::forward` chuyển tiếp điều gì?"
+      },
+      "answer": {
+        "en": "`std::forward<T>` conditionally casts a forwarding-reference argument according to deduced `T`, preserving whether the original caller supplied an lvalue or rvalue. Use it only with the matching deduced template parameter.",
+        "vi": "`std::forward<T>` cast có điều kiện một đối số forwarding reference theo `T` đã suy luận, giữ việc caller ban đầu truyền lvalue hay rvalue. Chỉ dùng nó cùng template parameter được suy luận tương ứng."
+      }
+    },
+    {
+      "number": 60,
+      "sourceId": "daily-cpp-interview-q060",
+      "directory": "060_the-difference-between-universal-and-rvalue-references",
+      "chapter": "references",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "What is the difference between universal and rvalue references?",
+        "vi": "Universal reference và rvalue reference khác nhau thế nào?"
+      },
+      "answer": {
+        "en": "`T&&` is a forwarding reference only when `T` is cv-unqualified and deduced in that context (or for a corresponding `auto&&`). Otherwise it is an ordinary rvalue reference that binds to rvalues; the distinction controls reference collapsing and forwarding.",
+        "vi": "`T&&` chỉ là forwarding reference khi `T` không có cv-qualifier và được suy luận trong ngữ cảnh đó (hoặc dạng `auto&&` tương ứng). Trường hợp khác, nó là rvalue reference thường chỉ bind rvalue; khác biệt này chi phối reference collapsing và forwarding."
+      }
+    },
+    {
+      "number": 61,
+      "sourceId": "daily-cpp-interview-q061",
+      "directory": "061_reference-collapsing",
+      "chapter": "references",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "What is reference collapsing?",
+        "vi": "Reference collapsing là gì?"
+      },
+      "answer": {
+        "en": "Reference collapsing reduces nested reference formation to one reference: any combination containing `&` becomes `&`, and only `&&` combined with `&&` remains `&&`. This is what lets forwarding references preserve the caller's value category.",
+        "vi": "Reference collapsing rút reference lồng nhau thành một reference: mọi tổ hợp có `&` đều thành `&`, chỉ `&&` kết hợp `&&` mới còn `&&`. Đây là cơ chế giúp forwarding reference giữ value category của caller."
+      }
+    },
+    {
+      "number": 62,
+      "sourceId": "daily-cpp-interview-q062",
+      "directory": "062_when-constexpr-functions-are-evaluated",
+      "chapter": "references",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "When constexpr functions are evaluated?",
+        "vi": "Khi nào hàm `constexpr` được đánh giá?"
+      },
+      "answer": {
+        "en": "A `constexpr` function can run at compile time when called with suitable arguments in a context requiring a constant expression, but it may also run at runtime. `consteval` is the tool when compile-time evaluation is mandatory.",
+        "vi": "Hàm `constexpr` có thể chạy ở compile time khi được gọi bằng đối số phù hợp trong context yêu cầu constant expression, nhưng cũng có thể chạy ở runtime. Dùng `consteval` khi việc đánh giá compile-time là bắt buộc."
+      }
+    },
+    {
+      "number": 63,
+      "sourceId": "daily-cpp-interview-q063",
+      "directory": "063_you-declare-your-functions-as-noexcept",
+      "chapter": "references",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "When should you declare your functions as noexcept?",
+        "vi": "Khi nào nên khai báo hàm là `noexcept`?"
+      },
+      "answer": {
+        "en": "Declare a function `noexcept` when throwing would violate its contract, especially destructors, swap-like operations, and move operations that containers can safely prefer. If an exception escapes, the program terminates, so use conditional `noexcept` for generic code whose operations may throw.",
+        "vi": "Khai báo hàm `noexcept` khi việc ném exception vi phạm contract, đặc biệt với destructor, operation dạng swap và move operation để container có thể ưu tiên an toàn. Nếu exception thoát ra, chương trình terminate; generic code nên dùng conditional `noexcept` khi operation bên trong có thể ném."
+      }
+    },
+    {
+      "number": 64,
+      "sourceId": "daily-cpp-interview-q064",
+      "directory": "064_concepts-in-c",
+      "chapter": "cpp20",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are concepts in C++?",
+        "vi": "Concept trong C++ là gì?"
+      },
+      "answer": {
+        "en": "A concept is a named compile-time predicate used to constrain template arguments. It makes requirements part of the interface, participates in overload ordering, and usually produces diagnostics closer to the violated requirement.",
+        "vi": "Concept là predicate compile-time có tên dùng để ràng buộc template argument. Nó đưa requirement vào interface, tham gia sắp thứ tự overload và thường tạo diagnostic gần requirement bị vi phạm hơn."
+      }
+    },
+    {
+      "number": 65,
+      "sourceId": "daily-cpp-interview-q065",
+      "directory": "065_the-available-standard-attributes-in-c",
+      "chapter": "cpp20",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are the available standard attributes in C++?",
+        "vi": "C++ có những standard attribute nào?"
+      },
+      "answer": {
+        "en": "Standard attributes use `[[...]]` syntax. Across C++11–20 the main ones include `noreturn`, `carries_dependency`, `deprecated`, `fallthrough`, `nodiscard`, `maybe_unused`, `likely`, `unlikely`, and `no_unique_address`; support and placement rules depend on the chosen standard.",
+        "vi": "Standard attribute dùng cú pháp `[[...]]`. Trong C++11–20, các attribute chính gồm `noreturn`, `carries_dependency`, `deprecated`, `fallthrough`, `nodiscard`, `maybe_unused`, `likely`, `unlikely` và `no_unique_address`; quy tắc hỗ trợ và vị trí phụ thuộc chuẩn đang dùng."
+      }
+    },
+    {
+      "number": 66,
+      "sourceId": "daily-cpp-interview-q066",
+      "directory": "066_3-way-comparison",
+      "chapter": "cpp20",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is 3-way comparison?",
+        "vi": "Three-way comparison là gì?"
+      },
+      "answer": {
+        "en": "The three-way operator `<=>` returns an ordering category such as strong, weak, or partial ordering. A defaulted comparison can synthesize lexicographic member comparison and supports rewritten relational operators, while `==` generation follows its own standard rules.",
+        "vi": "Toán tử ba chiều `<=>` trả về ordering category như strong, weak hoặc partial ordering. Comparison được default có thể sinh phép so sánh member theo thứ tự từ điển và hỗ trợ các relational operator được viết lại; việc sinh `==` tuân theo quy tắc riêng của chuẩn."
+      }
+    },
+    {
+      "number": 67,
+      "sourceId": "daily-cpp-interview-q067",
+      "directory": "067_what-consteval-and-constinit-bring-to-c",
+      "chapter": "cpp20",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "Explain what consteval and constinit bring to C++?",
+        "vi": "Giải thích `consteval` và `constinit` mang lại điều gì cho C++?"
+      },
+      "repeatOf": "daily-cpp-interview-q041",
+      "answer": {
+        "en": "`consteval` makes a function immediate so evaluated calls must be constant expressions. `constinit` guarantees static initialization for a static- or thread-storage object but does not add constness.",
+        "vi": "`consteval` biến hàm thành immediate function nên các lời gọi được đánh giá phải là constant expression. `constinit` bảo đảm static initialization cho object có static hoặc thread storage nhưng không thêm constness."
+      }
+    },
+    {
+      "number": 68,
+      "sourceId": "daily-cpp-interview-q068",
+      "directory": "068_modules-and-what-advantages-do-they-bring",
+      "chapter": "cpp20",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "What are modules and what advantages do they bring?",
+        "vi": "Module là gì và mang lại lợi ích nào?"
+      },
+      "answer": {
+        "en": "Modules provide named, separately compiled interfaces instead of repeatedly text-including headers. They can improve isolation and build scalability, but dependency scanning, binary module artifacts, macros, and toolchain interoperability require an explicit build design.",
+        "vi": "Module cung cấp interface có tên và được biên dịch riêng thay vì liên tục chèn text từ header. Nó có thể cải thiện isolation và khả năng mở rộng build, nhưng dependency scanning, binary module artifact, macro và khả năng tương tác toolchain cần thiết kế build tường minh."
+      }
+    },
+    {
+      "number": 69,
+      "sourceId": "daily-cpp-interview-q069",
+      "directory": "069_the-rule-of-three",
+      "chapter": "special-members",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "Explain the rule of three",
+        "vi": "Giải thích Rule of Three."
+      },
+      "answer": {
+        "en": "If a class directly manages a resource and needs a user-defined destructor, it commonly also needs a copy constructor and copy assignment operator with coherent ownership semantics. This Rule of Three is a warning to define or delete the whole copy contract.",
+        "vi": "Nếu một lớp trực tiếp quản lý resource và cần destructor tự định nghĩa, nó thường cũng cần copy constructor và copy assignment operator có ownership semantics nhất quán. Rule of Three nhắc phải định nghĩa hoặc delete toàn bộ copy contract."
+      }
+    },
+    {
+      "number": 70,
+      "sourceId": "daily-cpp-interview-q070",
+      "directory": "070_the-rule-of-five",
+      "chapter": "special-members",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "Explain the rule of five",
+        "vi": "Giải thích Rule of Five."
+      },
+      "answer": {
+        "en": "In C++11 and later, a resource-owning class that defines special members may need all five: destructor, copy constructor, copy assignment, move constructor, and move assignment. Each should be implemented or deleted consistently.",
+        "vi": "Từ C++11, lớp sở hữu resource và tự định nghĩa special member có thể cần đủ năm hàm: destructor, copy constructor, copy assignment, move constructor và move assignment. Mỗi hàm phải được triển khai hoặc delete nhất quán."
+      }
+    },
+    {
+      "number": 71,
+      "sourceId": "daily-cpp-interview-q071",
+      "directory": "071_the-rule-of-zero",
+      "chapter": "special-members",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "Explain the rule of zero",
+        "vi": "Giải thích Rule of Zero."
+      },
+      "answer": {
+        "en": "The Rule of Zero says application classes should compose RAII value types so they need no custom destructor, copy, or move operations. Compiler-generated special members then preserve correct value semantics with less code.",
+        "vi": "Rule of Zero nói rằng lớp ứng dụng nên kết hợp các RAII value type để không cần custom destructor, copy hay move operation. Special member do compiler sinh sẽ giữ value semantics đúng với ít code hơn."
+      }
+    },
+    {
+      "number": 72,
+      "sourceId": "daily-cpp-interview-q072",
+      "directory": "072_move-move",
+      "chapter": "special-members",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What does std::move move?",
+        "vi": "`std::move` thực sự di chuyển điều gì?"
+      },
+      "repeatOf": "daily-cpp-interview-q058",
+      "answer": {
+        "en": "`std::move` is a cast to an xvalue, not a transfer operation. A subsequent constructor or assignment may move resources, and the source remains valid but its value may be unspecified.",
+        "vi": "`std::move` là phép cast thành xvalue chứ không phải operation chuyển resource. Constructor hoặc assignment sau đó có thể thực hiện move; source vẫn hợp lệ nhưng giá trị có thể unspecified."
+      }
+    },
+    {
+      "number": 73,
+      "sourceId": "daily-cpp-interview-q073",
+      "directory": "073_a-destructor-and-how-can-we-overload-it",
+      "chapter": "special-members",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is a destructor and how can we overload it?",
+        "vi": "Destructor là gì và có thể overload nó như thế nào?"
+      },
+      "repeatOf": "daily-cpp-interview-q027",
+      "answer": {
+        "en": "A destructor performs end-of-lifetime cleanup, and a class has exactly one destructor signature. It cannot be overloaded, although it can be virtual, defaulted, deleted, or constrained by accessibility.",
+        "vi": "Destructor thực hiện cleanup khi kết thúc lifetime và mỗi lớp chỉ có đúng một chữ ký destructor. Nó không thể overload, dù có thể là virtual, defaulted, deleted hoặc bị ràng buộc bởi access."
+      }
+    },
+    {
+      "number": 74,
+      "sourceId": "daily-cpp-interview-q074",
+      "directory": "074_explicitly-delete-unused-unsupported-special-functions-or",
+      "chapter": "special-members",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Should you explicitly delete unused/unsupported special functions or declare them as private?",
+        "vi": "Nên `delete` tường minh special function không hỗ trợ hay khai báo nó là `private`?"
+      },
+      "repeatOf": "daily-cpp-interview-q048",
+      "answer": {
+        "en": "A public `= delete` is the modern choice because it documents the forbidden operation and lets overload resolution diagnose it directly. Private declaration without a definition is a legacy technique and can defer or obscure the error.",
+        "vi": "`= delete` ở public là lựa chọn hiện đại vì nó mô tả operation bị cấm và cho overload resolution chẩn đoán trực tiếp. Khai báo private mà không định nghĩa là kỹ thuật cũ, có thể trì hoãn hoặc làm mơ hồ lỗi."
+      }
+    },
+    {
+      "number": 75,
+      "sourceId": "daily-cpp-interview-q075",
+      "directory": "075_a-trivial-class-in-c",
+      "chapter": "special-members",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is a trivial class in C++?",
+        "vi": "Trivial class trong C++ là gì?"
+      },
+      "repeatOf": "daily-cpp-interview-q050",
+      "answer": {
+        "en": "Triviality means the relevant construction, copy, move, or destruction operation requires no custom action under the standard's rules. Use traits such as `std::is_trivially_copyable_v<T>` for the exact operation instead of relying on appearance.",
+        "vi": "Triviality nghĩa là operation construction, copy, move hoặc destruction tương ứng không cần hành động tùy chỉnh theo quy tắc chuẩn. Hãy dùng trait như `std::is_trivially_copyable_v<T>` cho đúng property thay vì đoán theo hình thức lớp."
+      }
+    },
+    {
+      "number": 76,
+      "sourceId": "daily-cpp-interview-q076",
+      "directory": "076_what-advantages-does-having-a-default-constructor-have",
+      "chapter": "special-members",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What advantages does having a default constructor have?",
+        "vi": "Default constructor có những lợi ích gì?"
+      },
+      "answer": {
+        "en": "A default constructor lets an object be created without arguments, which many containers, arrays, serializers, and generic algorithms may require. Provide one only if it can establish a valid invariant; an invalid default state is worse than requiring data.",
+        "vi": "Default constructor cho phép tạo object không cần đối số, điều mà nhiều container, array, serializer và generic algorithm có thể yêu cầu. Chỉ cung cấp khi nó thiết lập được invariant hợp lệ; một default state không hợp lệ tệ hơn việc bắt buộc truyền dữ liệu."
+      }
+    },
+    {
+      "number": 77,
+      "sourceId": "daily-cpp-interview-q077",
+      "directory": "077_the-differences-between-a-class-and-a-struct",
+      "chapter": "object-design",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are the differences between a class and a struct?",
+        "vi": "Class và struct khác nhau ở những điểm nào?"
+      },
+      "answer": {
+        "en": "`class` and `struct` have the same language capabilities. Their only built-in differences are defaults: members and bases are private for `class`, public for `struct`; conventionally structs model transparent data while classes protect invariants.",
+        "vi": "`class` và `struct` có cùng khả năng ngôn ngữ. Khác biệt dựng sẵn chỉ là mặc định: member và base của `class` là private, của `struct` là public; theo convention, struct thường biểu diễn dữ liệu trong suốt còn class bảo vệ invariant."
+      }
+    },
+    {
+      "number": 78,
+      "sourceId": "daily-cpp-interview-q078",
+      "directory": "078_constructor-delegation",
+      "chapter": "object-design",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is constructor delegation?",
+        "vi": "Constructor delegation là gì?"
+      },
+      "answer": {
+        "en": "Constructor delegation lets one constructor call another constructor of the same class in its initializer list. The target constructor initializes the object first, after which the delegating constructor's body runs; delegation cannot be mixed with other member initializers.",
+        "vi": "Constructor delegation cho phép một constructor gọi constructor khác của cùng lớp trong initializer list. Constructor đích khởi tạo object trước, sau đó body của constructor ủy quyền chạy; không thể vừa delegate vừa ghi thêm member initializer khác."
+      }
+    },
+    {
+      "number": 79,
+      "sourceId": "daily-cpp-interview-q079",
+      "directory": "079_the-concept-of-covariant-return-types-and-show-a-use-case",
+      "chapter": "object-design",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Explain the concept of covariant return types and show a use-case where it comes in handy!",
+        "vi": "Giải thích kiểu trả về hiệp biến và đưa ra một trường hợp nó hữu ích!"
+      },
+      "repeatOf": "daily-cpp-interview-q016",
+      "answer": {
+        "en": "Covariant returns allow an override to narrow a returned class pointer or reference to a derived type. The rule applies only to compatible pointer/reference class returns, not arbitrary values or smart pointers.",
+        "vi": "Covariant return cho phép override thu hẹp pointer hoặc reference trả về thành kiểu dẫn xuất. Quy tắc chỉ áp dụng cho pointer/reference tới class tương thích, không áp dụng tùy ý cho value hay smart pointer."
+      }
+    },
+    {
+      "number": 80,
+      "sourceId": "daily-cpp-interview-q080",
+      "directory": "080_the-difference-between-function-overloading-and-function-o",
+      "chapter": "object-design",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "What is the difference between function overloading and function overriding?",
+        "vi": "Function overloading và function overriding khác nhau như thế nào?"
+      },
+      "repeatOf": "daily-cpp-interview-q013",
+      "answer": {
+        "en": "Overloading is compile-time selection among same-named functions with different parameters. Overriding replaces virtual behavior in a derived class through a matching signature and runtime dynamic dispatch.",
+        "vi": "Overloading là lựa chọn compile-time giữa các hàm cùng tên nhưng khác tham số. Overriding thay hành vi virtual trong lớp dẫn xuất bằng chữ ký khớp và runtime dynamic dispatch."
+      }
+    },
+    {
+      "number": 81,
+      "sourceId": "daily-cpp-interview-q081",
+      "directory": "081_the-override-keyword-and-what-are-its-advantages",
+      "chapter": "object-design",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "What is the override keyword and what are its advantages?",
+        "vi": "Từ khóa `override` là gì và có những lợi ích nào?"
+      },
+      "repeatOf": "daily-cpp-interview-q015",
+      "answer": {
+        "en": "`override` turns the intention to override into a checked compiler contract. It catches cv/ref qualifier, parameter, and other signature mismatches that would otherwise silently hide or overload a base function.",
+        "vi": "`override` biến ý định override thành contract được compiler kiểm tra. Nó bắt sai khác về cv/ref qualifier, tham số và các phần chữ ký khác vốn có thể âm thầm hide hoặc overload hàm base."
+      }
+    },
+    {
+      "number": 82,
+      "sourceId": "daily-cpp-interview-q082",
+      "directory": "082_what-is-a-friend-class-or-a-friend-function",
+      "chapter": "object-design",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "Explain what is a friend class or a friend function",
+        "vi": "Friend class hoặc friend function là gì?"
+      },
+      "answer": {
+        "en": "A friend function or class receives access to private and protected members without becoming a member or base. Friendship is explicitly granted, is neither inherited nor transitive, and should be limited to collaborators that help maintain the invariant.",
+        "vi": "Friend function hoặc friend class được quyền truy cập member private/protected mà không trở thành member hay base. Friendship phải được cấp tường minh, không kế thừa, không bắc cầu và nên giới hạn ở collaborator giúp duy trì invariant."
+      }
+    },
+    {
+      "number": 83,
+      "sourceId": "daily-cpp-interview-q083",
+      "directory": "083_default-arguments-how-are-they-evaluated-in-a-c-function",
+      "chapter": "object-design",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "What are default arguments? How are they evaluated in a C++ function?",
+        "vi": "Default argument là gì và được đánh giá như thế nào trong hàm C++?"
+      },
+      "answer": {
+        "en": "A default argument is substituted at the call site from declarations visible there, using the function's static type; its expression is evaluated when the call executes. Defaults are not dynamically dispatched, so combining them with virtual functions can surprise callers.",
+        "vi": "Default argument được thay tại call site từ khai báo nhìn thấy ở đó và theo static type của hàm; biểu thức của nó được đánh giá khi lời gọi chạy. Default không dynamic dispatch, nên kết hợp với virtual function có thể gây bất ngờ."
+      }
+    },
+    {
+      "number": 84,
+      "sourceId": "daily-cpp-interview-q084",
+      "directory": "084_this-pointer-and-can-we-delete-it",
+      "chapter": "object-design",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "What is this pointer and can we delete it?",
+        "vi": "Con trỏ `this` là gì và có thể `delete` nó không?"
+      },
+      "answer": {
+        "en": "`this` is the implicit pointer to the current object in a non-static member function. `delete this` is technically possible only under a very strict self-ownership contract for a heap object with no later access, but it is brittle and should normally be replaced by explicit ownership.",
+        "vi": "`this` là pointer ẩn tới object hiện tại trong non-static member function. `delete this` chỉ khả thi về kỹ thuật dưới contract self-ownership rất chặt cho heap object và không còn truy cập sau đó; thiết kế này dễ lỗi và thường nên thay bằng ownership tường minh."
+      }
+    },
+    {
+      "number": 85,
+      "sourceId": "daily-cpp-interview-q085",
+      "directory": "085_virtual-inheritance-in-c-and-when-should-you-use-it",
+      "chapter": "object-design",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "What is virtual inheritance in C++ and when should you use it?",
+        "vi": "Kế thừa ảo trong C++ là gì và khi nào nên dùng?"
+      },
+      "repeatOf": "daily-cpp-interview-q017",
+      "answer": {
+        "en": "Virtual inheritance represents one shared base subobject when a most-derived object reaches that base through multiple paths. The most-derived constructor is responsible for initializing it.",
+        "vi": "Kế thừa ảo biểu diễn một base subobject dùng chung khi object dẫn xuất cuối đi tới base qua nhiều nhánh. Constructor của lớp dẫn xuất cuối chịu trách nhiệm khởi tạo base đó."
+      }
+    },
+    {
+      "number": 86,
+      "sourceId": "daily-cpp-interview-q086",
+      "directory": "086_always-use-virtual-inheritance-if-yes-why-if-not-why-not",
+      "chapter": "object-design",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "Should we always use virtual inheritance? If yes, why? If not, why not?",
+        "vi": "Có nên luôn dùng kế thừa ảo không? Nếu có, vì sao? Nếu không, vì sao?"
+      },
+      "repeatOf": "daily-cpp-interview-q018",
+      "answer": {
+        "en": "Do not use virtual inheritance by default. Reserve it for designs that require one shared base identity across a diamond and accept the extra layout, initialization, and coupling costs.",
+        "vi": "Không nên dùng kế thừa ảo mặc định. Chỉ dành nó cho thiết kế cần một base identity dùng chung trong cấu trúc kim cương và chấp nhận chi phí layout, initialization và coupling tăng thêm."
+      }
+    },
+    {
+      "number": 87,
+      "sourceId": "daily-cpp-interview-q087",
+      "directory": "087_a-strong-type-mean-and-what-advantages-does-it-have",
+      "chapter": "object-design",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "What does a strong type mean and what advantages does it have?",
+        "vi": "Strong type là gì và có những lợi ích nào?"
+      },
+      "repeatOf": "daily-cpp-interview-q025",
+      "answer": {
+        "en": "A strong type creates a distinct semantic type around a representation, preventing accidental interchange of values such as meters and seconds. It can enforce invariants and make overloads and interfaces clearer.",
+        "vi": "Strong type tạo một semantic type riêng quanh representation, ngăn trộn nhầm các giá trị như mét và giây. Nó có thể ép invariant và làm overload lẫn interface rõ hơn."
+      }
+    },
+    {
+      "number": 88,
+      "sourceId": "daily-cpp-interview-q088",
+      "directory": "088_user-defined-literals",
+      "chapter": "object-design",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are user-defined literals?",
+        "vi": "User-defined literal là gì?"
+      },
+      "repeatOf": "daily-cpp-interview-q044",
+      "answer": {
+        "en": "User-defined literals use a literal operator and a suffix such as `_ms` to construct a domain value directly from literal syntax. Keep conversion rules explicit and use reserved-safe suffix naming.",
+        "vi": "User-defined literal dùng literal operator và suffix như `_ms` để tạo domain value trực tiếp từ cú pháp literal. Cần giữ conversion rule tường minh và đặt suffix tránh vùng tên dành riêng."
+      }
+    },
+    {
+      "number": 89,
+      "sourceId": "daily-cpp-interview-q089",
+      "directory": "089_we-use-boolean-arguments",
+      "chapter": "object-design",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Why shouldn’t we use boolean arguments?",
+        "vi": "Vì sao không nên dùng tham số boolean?"
+      },
+      "answer": {
+        "en": "A boolean argument hides meaning at the call site and often signals two behaviors packed into one function. Prefer a named enum, options type, or separate named functions when the choice represents a domain mode rather than a simple predicate.",
+        "vi": "Tham số boolean che ý nghĩa tại call site và thường báo hiệu hai hành vi bị nhét vào một hàm. Nên dùng enum có tên, options type hoặc các hàm tên riêng khi lựa chọn biểu diễn mode nghiệp vụ thay vì predicate đơn giản."
+      }
+    },
+    {
+      "number": 90,
+      "sourceId": "daily-cpp-interview-q090",
+      "directory": "090_distinguish-between-shallow-copy-and-deep-copy",
+      "chapter": "object-design",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "Distinguish between shallow copy and deep copy",
+        "vi": "Phân biệt shallow copy và deep copy."
+      },
+      "answer": {
+        "en": "A shallow copy duplicates handles while both objects still refer to the same underlying resource; a deep copy creates an independent resource with equivalent value. The correct choice follows the type's ownership and value semantics.",
+        "vi": "Shallow copy sao chép handle nên hai object vẫn trỏ cùng resource nền; deep copy tạo resource độc lập có giá trị tương đương. Lựa chọn đúng phụ thuộc ownership và value semantics của type."
+      }
+    },
+    {
+      "number": 91,
+      "sourceId": "daily-cpp-interview-q091",
+      "directory": "091_are-class-functions-taken-into-consideration-as-part-of-th",
+      "chapter": "object-design",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Are class functions taken into consideration as part of the object size?",
+        "vi": "Hàm thành viên của lớp có được tính vào kích thước object không?"
+      },
+      "answer": {
+        "en": "Non-static member function code is not stored separately in each object, so it does not directly add per-object size. Data members, padding, alignment, bases, and implementation machinery such as a virtual pointer determine object size.",
+        "vi": "Code của non-static member function không được lưu riêng trong từng object nên không trực tiếp làm tăng kích thước mỗi object. Data member, padding, alignment, base và cơ chế implementation như virtual pointer mới quyết định object size."
+      }
+    },
+    {
+      "number": 92,
+      "sourceId": "daily-cpp-interview-q092",
+      "directory": "092_dynamic-dispatch-mean",
+      "chapter": "object-design",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "What does dynamic dispatch mean?",
+        "vi": "Dynamic dispatch là gì?"
+      },
+      "answer": {
+        "en": "Dynamic dispatch is runtime selection of the final overrider for a virtual call based on the object's dynamic type. It requires using the object polymorphically through a pointer or reference rather than slicing it by value.",
+        "vi": "Dynamic dispatch là việc runtime chọn final overrider cho lời gọi virtual dựa trên dynamic type của object. Nó cần dùng object đa hình qua pointer hoặc reference thay vì slicing theo giá trị."
+      }
+    },
+    {
+      "number": 93,
+      "sourceId": "daily-cpp-interview-q093",
+      "directory": "093_vtable-and-vpointer",
+      "chapter": "object-design",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "What are vtable and vpointer?",
+        "vi": "Vtable và vpointer là gì?"
+      },
+      "answer": {
+        "en": "A vtable is a common implementation table of virtual-function targets, and a vpointer is a hidden per-object pointer used to reach it. The standard specifies virtual-call behavior, not that every implementation must use exactly this layout.",
+        "vi": "Vtable là cách implementation phổ biến lưu bảng đích của virtual function, còn vpointer là pointer ẩn trong object để truy cập bảng đó. Chuẩn quy định hành vi virtual call chứ không bắt mọi implementation dùng đúng layout này."
+      }
+    },
+    {
+      "number": 94,
+      "sourceId": "daily-cpp-interview-q094",
+      "directory": "094_should-base-class-destructors-be-virtual",
+      "chapter": "object-design",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Should base class destructors be virtual?",
+        "vi": "Destructor của lớp cơ sở có nên là `virtual` không?"
+      },
+      "answer": {
+        "en": "A base destructor should be public and virtual when objects may be deleted through base pointers. If deletion through the base is forbidden, a protected non-virtual destructor is a valid alternative; adding virtual solely by habit imposes polymorphic layout.",
+        "vi": "Destructor của base nên public và virtual khi object có thể bị xóa qua base pointer. Nếu cấm xóa qua base, destructor protected non-virtual là lựa chọn hợp lệ; thêm virtual theo thói quen sẽ áp đặt polymorphic layout."
+      }
+    },
+    {
+      "number": 95,
+      "sourceId": "daily-cpp-interview-q095",
+      "directory": "095_an-abstract-class-in-c",
+      "chapter": "object-design",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is an abstract class in C++?",
+        "vi": "Abstract class trong C++ là gì?"
+      },
+      "answer": {
+        "en": "An abstract class has at least one pure virtual function and cannot be instantiated directly. It can still own state, define constructors and concrete functions, and even provide a definition for a pure virtual function.",
+        "vi": "Abstract class có ít nhất một pure virtual function và không thể khởi tạo trực tiếp. Nó vẫn có thể giữ state, định nghĩa constructor, concrete function và thậm chí cung cấp definition cho pure virtual function."
+      }
+    },
+    {
+      "number": 96,
+      "sourceId": "daily-cpp-interview-q096",
+      "directory": "096_have-polymorphic-behaviour-without-the-cost-of-virtual-fun",
+      "chapter": "object-design",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "Is it possible to have polymorphic behaviour without the cost of virtual functions?",
+        "vi": "Có thể có hành vi đa hình mà không chịu chi phí của hàm ảo không?"
+      },
+      "answer": {
+        "en": "Yes. Templates, CRTP, concepts, and discriminated unions such as `std::variant` can provide static or closed-set polymorphism without virtual dispatch. The trade-offs include compile-time coupling, code size, and less runtime extensibility.",
+        "vi": "Có. Template, CRTP, concept và discriminated union như `std::variant` có thể cung cấp static hoặc closed-set polymorphism mà không cần virtual dispatch. Đổi lại là coupling ở compile time, code size và khả năng mở rộng runtime thấp hơn."
+      }
+    },
+    {
+      "number": 97,
+      "sourceId": "daily-cpp-interview-q097",
+      "directory": "097_how-would-you-add-functionality-to-your-classes-with-the-c",
+      "chapter": "object-design",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "How would you add functionality to your classes with the Curiously Recurring Template Pattern (CRTP)?",
+        "vi": "Làm sao thêm chức năng vào lớp bằng Curiously Recurring Template Pattern (CRTP)?"
+      },
+      "answer": {
+        "en": "CRTP passes the derived type as a template argument to a base, allowing the base to call derived behavior with `static_cast<Derived&>(*this)`. It supplies compile-time mixins without virtual dispatch, but the relationship and lifetime assumptions must remain explicit.",
+        "vi": "CRTP truyền kiểu dẫn xuất làm template argument cho base, cho phép base gọi hành vi dẫn xuất qua `static_cast<Derived&>(*this)`. Nó tạo mixin compile-time không cần virtual dispatch, nhưng quan hệ và giả định lifetime phải rõ ràng."
+      }
+    },
+    {
+      "number": 98,
+      "sourceId": "daily-cpp-interview-q098",
+      "directory": "098_the-good-reasons-to-use-init-functions-to-initialize-an-ob",
+      "chapter": "object-design",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "What are the good reasons to use init() functions to initialize an object?",
+        "vi": "Khi nào có lý do chính đáng để dùng hàm `init()` khởi tạo object?"
+      },
+      "answer": {
+        "en": "An `init()` function is justified mainly for genuine two-phase protocols where construction cannot finish immediately, such as registration requiring an already shared owner. Otherwise it creates an observable invalid state; prefer constructors or factories that return a fully valid object or an error.",
+        "vi": "Hàm `init()` chủ yếu hợp lý với protocol hai pha thật sự, khi construction không thể hoàn tất ngay, chẳng hạn đăng ký cần owner đã được share. Trường hợp khác, nó tạo invalid state có thể quan sát; nên dùng constructor hoặc factory trả object hoàn chỉnh hay lỗi."
+      }
+    },
+    {
+      "number": 99,
+      "sourceId": "daily-cpp-interview-q099",
+      "directory": "099_observable-behaviour-of-code",
+      "chapter": "behavior",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "What is observable behaviour of code?",
+        "vi": "Observable behavior của chương trình là gì?"
+      },
+      "answer": {
+        "en": "Observable behavior is the part of execution the abstract machine requires an implementation to preserve, such as specified I/O effects and accesses to volatile objects under the applicable rules. The as-if rule permits any optimization that leaves required observations unchanged.",
+        "vi": "Observable behavior là phần thực thi mà abstract machine yêu cầu implementation phải giữ, như hiệu ứng I/O được quy định và truy cập volatile object theo rule áp dụng. As-if rule cho phép mọi tối ưu miễn các quan sát bắt buộc không đổi."
+      }
+    },
+    {
+      "number": 100,
+      "sourceId": "daily-cpp-interview-q100",
+      "directory": "100_the-characteristics-of-an-ill-formed-c-program",
+      "chapter": "behavior",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are the characteristics of an ill-formed C++ program?",
+        "vi": "Một chương trình C++ ill-formed có những đặc điểm gì?"
+      },
+      "answer": {
+        "en": "An ill-formed program violates a syntax rule, semantic constraint, or diagnosable requirement of C++. A conforming implementation must issue at least one diagnostic for diagnosable violations, while ill-formed-no-diagnostic-required cases need not be detected.",
+        "vi": "Chương trình ill-formed vi phạm syntax rule, semantic constraint hoặc yêu cầu có diagnostic của C++. Implementation phù hợp phải phát ít nhất một diagnostic cho vi phạm cần chẩn đoán; trường hợp ill-formed, no diagnostic required có thể không bị phát hiện."
+      }
+    },
+    {
+      "number": 101,
+      "sourceId": "daily-cpp-interview-q101",
+      "directory": "101_unspecified-behaviour",
+      "chapter": "behavior",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is unspecified behaviour?",
+        "vi": "Unspecified behavior là gì?"
+      },
+      "answer": {
+        "en": "Unspecified behavior means the standard permits one of several valid outcomes and the implementation need not document which occurs on a particular evaluation. A program must be correct for every permitted choice.",
+        "vi": "Unspecified behavior nghĩa là chuẩn cho phép một trong nhiều kết quả hợp lệ và implementation không phải ghi lại lựa chọn nào xảy ra ở một lần đánh giá cụ thể. Chương trình phải đúng với mọi lựa chọn được phép."
+      }
+    },
+    {
+      "number": 102,
+      "sourceId": "daily-cpp-interview-q102",
+      "directory": "102_implementation-defined-behaviour",
+      "chapter": "behavior",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is implementation-defined behaviour?",
+        "vi": "Implementation-defined behavior là gì?"
+      },
+      "answer": {
+        "en": "Implementation-defined behavior lets each implementation choose an allowed behavior but requires that choice to be documented, such as sizes or mappings for certain types. Portable code either avoids depending on it or validates the documented target.",
+        "vi": "Implementation-defined behavior cho phép mỗi implementation chọn một hành vi hợp lệ nhưng phải document lựa chọn đó, chẳng hạn kích thước hoặc ánh xạ của một số kiểu. Code portable phải tránh phụ thuộc hoặc kiểm tra rõ target đã document."
+      }
+    },
+    {
+      "number": 103,
+      "sourceId": "daily-cpp-interview-q103",
+      "directory": "103_undefined-behaviour-in-c",
+      "chapter": "behavior",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is undefined behaviour in C++?",
+        "vi": "Undefined behavior trong C++ là gì?"
+      },
+      "answer": {
+        "en": "Undefined behavior occurs when the standard imposes no requirements after a violated rule or precondition. The optimizer may assume it never happens, so one observed run cannot establish a stable result.",
+        "vi": "Undefined behavior xảy ra khi chuẩn không đặt yêu cầu nào sau khi một rule hoặc precondition bị vi phạm. Optimizer có thể giả định nó không bao giờ xảy ra, nên một lần chạy quan sát được không chứng minh kết quả ổn định."
+      }
+    },
+    {
+      "number": 104,
+      "sourceId": "daily-cpp-interview-q104",
+      "directory": "104_the-reasons-behind-undefined-behaviour-s-existence",
+      "chapter": "behavior",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "What are the reasons behind undefined behaviour’s existence?",
+        "vi": "Vì sao undefined behavior tồn tại?"
+      },
+      "answer": {
+        "en": "Undefined behavior preserves room for efficient low-level implementations, avoids mandatory checks and semantics that would penalize valid programs, and accommodates diverse hardware. That freedom is useful only when programs uphold the language and library preconditions.",
+        "vi": "Undefined behavior giữ không gian cho implementation low-level hiệu quả, tránh bắt buộc kiểm tra và semantics gây chi phí cho chương trình hợp lệ, đồng thời hỗ trợ phần cứng đa dạng. Sự tự do đó chỉ hữu ích khi chương trình tuân thủ precondition của ngôn ngữ và thư viện."
+      }
+    },
+    {
+      "number": 105,
+      "sourceId": "daily-cpp-interview-q105",
+      "directory": "105_what-approaches-to-take-to-avoid-undefined-behaviour",
+      "chapter": "behavior",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "What approaches to take to avoid undefined behaviour?",
+        "vi": "Có những cách nào để tránh undefined behavior?"
+      },
+      "answer": {
+        "en": "Avoid undefined behavior by designing explicit invariants and ownership, validating inputs and library preconditions, enabling strong warnings, and running sanitizers and tests. Prefer RAII, bounded abstractions, and small scopes so invalid states are harder to express.",
+        "vi": "Tránh undefined behavior bằng invariant và ownership tường minh, kiểm tra input cùng precondition thư viện, bật warning mạnh và chạy sanitizer/test. Ưu tiên RAII, abstraction có bounds và scope nhỏ để invalid state khó được biểu diễn."
+      }
+    },
+    {
+      "number": 106,
+      "sourceId": "daily-cpp-interview-q106",
+      "directory": "106_iterator-invalidation-give-a-few-examples",
+      "chapter": "behavior",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "What is iterator invalidation? Give a few examples.",
+        "vi": "Iterator invalidation là gì? Hãy đưa ra vài ví dụ."
+      },
+      "answer": {
+        "en": "Iterator invalidation means a container operation makes existing iterators, references, or pointers unusable. Reallocation invalidates all vector handles, erasing invalidates handles at or after the erased vector position, while node-based containers have different rules that must be checked per operation.",
+        "vi": "Iterator invalidation nghĩa là operation trên container làm iterator, reference hoặc pointer hiện có không còn dùng được. Reallocation của vector vô hiệu toàn bộ handle, erase vô hiệu handle tại hoặc sau vị trí xóa; container dạng node có rule khác cần kiểm tra theo từng operation."
+      }
+    },
+    {
+      "number": 107,
+      "sourceId": "daily-cpp-interview-q107",
+      "directory": "107_the-stl",
+      "chapter": "stl",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is the STL?",
+        "vi": "STL là gì?"
+      },
+      "answer": {
+        "en": "STL commonly refers to the generic containers, iterators, algorithms, function objects, and related utilities standardized from the original Standard Template Library design. The full C++ standard library is broader and also includes I/O, threading, filesystem, and more.",
+        "vi": "STL thường chỉ tập container, iterator, algorithm, function object và utility generic được chuẩn hóa từ thiết kế Standard Template Library ban đầu. Toàn bộ thư viện chuẩn C++ rộng hơn, còn gồm I/O, threading, filesystem và nhiều phần khác."
+      }
+    },
+    {
+      "number": 108,
+      "sourceId": "daily-cpp-interview-q108",
+      "directory": "108_the-advantages-of-algorithms-over-raw-loops",
+      "chapter": "stl",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are the advantages of algorithms over raw loops?",
+        "vi": "Thuật toán chuẩn có lợi thế gì so với vòng lặp viết tay?"
+      },
+      "answer": {
+        "en": "Standard algorithms express intent, compose with iterator/range abstractions, reduce hand-written boundary errors, and can receive implementation optimization or execution-policy support. A raw loop remains appropriate when the operation cannot be expressed clearly as an algorithm.",
+        "vi": "Standard algorithm biểu diễn ý định, kết hợp với abstraction iterator/range, giảm lỗi biên tự viết và có thể nhận tối ưu hoặc execution policy từ implementation. Vòng lặp tay vẫn phù hợp khi operation không thể diễn đạt rõ bằng algorithm."
+      }
+    },
+    {
+      "number": 109,
+      "sourceId": "daily-cpp-interview-q109",
+      "directory": "109_algorithms-validate-ranges",
+      "chapter": "stl",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "Do algorithms validate ranges?",
+        "vi": "Thuật toán chuẩn có kiểm tra tính hợp lệ của range không?"
+      },
+      "answer": {
+        "en": "Algorithms generally trust their iterator ranges and documented preconditions; they do not validate that two iterators form a valid range or that an ordering requirement holds. Violating those contracts can make the program undefined.",
+        "vi": "Algorithm thường tin iterator range và precondition đã document; chúng không xác minh hai iterator tạo range hợp lệ hay yêu cầu ordering đã đúng. Vi phạm contract đó có thể làm chương trình undefined."
+      }
+    },
+    {
+      "number": 110,
+      "sourceId": "daily-cpp-interview-q110",
+      "directory": "110_combine-containers-of-different-sizes",
+      "chapter": "stl",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "Can you combine containers of different sizes?",
+        "vi": "Có thể kết hợp các container có kích thước khác nhau không?"
+      },
+      "answer": {
+        "en": "Some algorithms accept multiple ranges, but an overload that receives only the first iterator of a secondary range assumes enough elements are available. Check sizes or use an interface that carries both ends; C++ ranges improve several APIs but do not erase every precondition.",
+        "vi": "Một số algorithm nhận nhiều range, nhưng overload chỉ nhận iterator đầu của range phụ sẽ giả định có đủ phần tử. Cần kiểm tra size hoặc dùng interface mang cả hai đầu; C++ ranges cải thiện nhiều API nhưng không xóa mọi precondition."
+      }
+    },
+    {
+      "number": 111,
+      "sourceId": "daily-cpp-interview-q111",
+      "directory": "111_how-is-a-vector-s-memory-layout-organized",
+      "chapter": "stl",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "How is a vector’s memory layout organized?",
+        "vi": "Bộ nhớ của `vector` được tổ chức như thế nào?"
+      },
+      "answer": {
+        "en": "A `std::vector` stores its elements contiguously in one allocation and tracks a logical size within a capacity. Growth beyond capacity allocates a new block and moves or copies elements, invalidating pointers, references, and iterators to the old storage.",
+        "vi": "`std::vector` lưu phần tử liên tục trong một allocation và theo dõi logical size bên trong capacity. Khi tăng vượt capacity, nó cấp block mới rồi move hoặc copy phần tử, làm vô hiệu pointer, reference và iterator tới storage cũ."
+      }
+    },
+    {
+      "number": 112,
+      "sourceId": "daily-cpp-interview-q112",
+      "directory": "112_inherit-from-a-standard-container-such-as-vector-if-so-wha",
+      "chapter": "stl",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Can we inherit from a standard container (such as std::vector)? If so what are the implications?",
+        "vi": "Có thể kế thừa từ container chuẩn như `std::vector` không? Nếu có thì hệ quả là gì?"
+      },
+      "repeatOf": "daily-cpp-interview-q024",
+      "answer": {
+        "en": "Deriving from a standard container is legal syntax but usually the wrong public abstraction because containers are not polymorphic bases and lack virtual destructors. Composition preserves invariants and limits the exposed API.",
+        "vi": "Kế thừa từ container chuẩn hợp lệ về cú pháp nhưng thường là public abstraction sai vì container không phải polymorphic base và không có virtual destructor. Composition giữ invariant và giới hạn API được lộ."
+      }
+    },
+    {
+      "number": 113,
+      "sourceId": "daily-cpp-interview-q113",
+      "directory": "113_the-type-of-mycollection-after-the-following-declaration",
+      "chapter": "stl",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is the type of myCollection after the following declaration?",
+        "vi": "`myCollection` có kiểu gì sau khai báo sau?"
+      },
+      "repeatOf": "daily-cpp-interview-q004",
+      "answer": {
+        "en": "The declaration deduces `std::initializer_list<int>` because copy-list initialization with `auto` uses the initializer-list deduction rule. The elements must agree on one deduced element type.",
+        "vi": "Khai báo suy luận thành `std::initializer_list<int>` vì copy-list initialization với `auto` dùng quy tắc suy luận initializer list. Các phần tử phải thống nhất một kiểu phần tử được suy luận."
+      }
+    },
+    {
+      "number": 114,
+      "sourceId": "daily-cpp-interview-q114",
+      "directory": "114_the-advantages-of-const-iterators-over-iterators",
+      "chapter": "stl",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are the advantages of const_iterators over iterators?",
+        "vi": "`const_iterator` có lợi thế gì so với iterator?"
+      },
+      "answer": {
+        "en": "A `const_iterator` allows traversal without mutation through that iterator, works naturally with const containers, and communicates read-only intent to the compiler and reviewer. It does not make the underlying container globally immutable through other aliases.",
+        "vi": "`const_iterator` cho phép duyệt mà không mutation qua iterator đó, dùng tự nhiên với const container và truyền đạt ý định chỉ đọc cho compiler lẫn reviewer. Nó không làm container nền bất biến qua mọi alias khác."
+      }
+    },
+    {
+      "number": 115,
+      "sourceId": "daily-cpp-interview-q115",
+      "directory": "115_binary-search-an-element-with-algorithms",
+      "chapter": "stl",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Binary search an element with algorithms!",
+        "vi": "Dùng algorithm để tìm kiếm nhị phân một phần tử!"
+      },
+      "answer": {
+        "en": "`std::binary_search` requires the range to be partitioned according to the same ordering used by the search, which a normally sorted range satisfies. Sort first or maintain the invariant; calling it on the unsorted sample violates its precondition, so the result cannot be trusted.",
+        "vi": "`std::binary_search` yêu cầu range được partition theo cùng ordering dùng để tìm kiếm, điều mà range được sort bình thường đáp ứng. Hãy sort trước hoặc duy trì invariant; gọi nó trên mẫu chưa sort vi phạm precondition nên không thể tin kết quả."
+      }
+    },
+    {
+      "number": 116,
+      "sourceId": "daily-cpp-interview-q116",
+      "directory": "116_an-iterator-class",
+      "chapter": "stl",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is an Iterator class?",
+        "vi": "Iterator class là gì?"
+      },
+      "answer": {
+        "en": "An iterator is an abstraction that identifies a position and supports operations required by an iterator category or concept; it need not literally be a class. Algorithms depend on those semantic operations rather than on one concrete container type.",
+        "vi": "Iterator là abstraction xác định một vị trí và hỗ trợ operation theo iterator category hoặc concept; nó không bắt buộc phải là một class. Algorithm phụ thuộc các operation có semantics đó thay vì một concrete container type."
+      }
+    },
+    {
+      "number": 117,
+      "sourceId": "daily-cpp-interview-q117",
+      "directory": "117_call-a-virtual-function-from-a-constructor-or-a-destructor",
+      "chapter": "language-practice",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "Can you call a virtual function from a constructor or a destructor?",
+        "vi": "Có thể gọi hàm ảo từ constructor hoặc destructor không?"
+      },
+      "repeatOf": "daily-cpp-interview-q022",
+      "answer": {
+        "en": "A virtual call inside construction or destruction dispatches only within the class whose constructor or destructor is active. More-derived overrides are not selected because those subobjects are not yet, or are no longer, alive.",
+        "vi": "Virtual call trong lúc construction hoặc destruction chỉ dispatch trong lớp có constructor/destructor đang hoạt động. Override ở lớp dẫn xuất sâu hơn không được chọn vì các subobject đó chưa hoặc không còn sống."
+      }
+    },
+    {
+      "number": 118,
+      "sourceId": "daily-cpp-interview-q118",
+      "directory": "118_default-arguments-how-are-they-evaluated-in-a-c-function",
+      "chapter": "language-practice",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "What are default arguments? How are they evaluated in a C++ function?",
+        "vi": "Default argument là gì và được đánh giá như thế nào trong hàm C++?"
+      },
+      "repeatOf": "daily-cpp-interview-q083",
+      "answer": {
+        "en": "Default arguments are chosen from the declaration visible at the call site and according to static type, then evaluated when the call runs. They are not part of virtual dispatch and changes can require caller recompilation.",
+        "vi": "Default argument được chọn từ khai báo nhìn thấy tại call site theo static type rồi mới được đánh giá khi lời gọi chạy. Nó không thuộc virtual dispatch và việc thay đổi có thể yêu cầu compile lại caller."
+      }
+    },
+    {
+      "number": 119,
+      "sourceId": "daily-cpp-interview-q119",
+      "directory": "119_can-virtual-functions-have-default-arguments",
+      "chapter": "language-practice",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "Can virtual functions have default arguments?",
+        "vi": "Hàm ảo có thể có default argument không?"
+      },
+      "answer": {
+        "en": "Yes, a virtual function may declare default arguments, but the default is bound statically while the function body dispatches dynamically. A call through a base can therefore execute a derived override with the base declaration's default value, so this combination is best avoided.",
+        "vi": "Có, virtual function có thể có default argument, nhưng default được bind tĩnh còn function body dispatch động. Lời gọi qua base vì thế có thể chạy override dẫn xuất với giá trị mặc định từ khai báo base; nên tránh kết hợp này."
+      }
+    },
+    {
+      "number": 120,
+      "sourceId": "daily-cpp-interview-q120",
+      "directory": "120_should-base-class-destructors-be-virtual",
+      "chapter": "language-practice",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Should base class destructors be virtual?",
+        "vi": "Destructor của lớp cơ sở có nên là `virtual` không?"
+      },
+      "repeatOf": "daily-cpp-interview-q094",
+      "answer": {
+        "en": "Use a public virtual destructor for a base intended to be deleted polymorphically. Use a protected non-virtual destructor when deletion through the base must be forbidden; not every base class needs virtual destruction.",
+        "vi": "Dùng destructor public virtual cho base được thiết kế để xóa đa hình. Dùng destructor protected non-virtual khi phải cấm xóa qua base; không phải base class nào cũng cần virtual destruction."
+      }
+    },
+    {
+      "number": 121,
+      "sourceId": "daily-cpp-interview-q121",
+      "directory": "121_the-function-of-the-keyword-mutable",
+      "chapter": "language-practice",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is the function of the keyword mutable?",
+        "vi": "Từ khóa `mutable` có tác dụng gì?"
+      },
+      "answer": {
+        "en": "A mutable data member may be modified even through a const object, which supports logically const caches, counters, or mutexes without changing externally visible value. In a lambda, `mutable` lets a non-const call operator modify captured-by-value state.",
+        "vi": "Data member `mutable` có thể được sửa ngay cả qua const object, phù hợp cho cache, counter hoặc mutex logically const mà không đổi giá trị quan sát bên ngoài. Trong lambda, `mutable` cho phép call operator non-const sửa state capture theo giá trị."
+      }
+    },
+    {
+      "number": 122,
+      "sourceId": "daily-cpp-interview-q122",
+      "directory": "122_the-function-of-the-keyword-volatile",
+      "chapter": "language-practice",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is the function of the keyword volatile?",
+        "vi": "Từ khóa `volatile` có tác dụng gì?"
+      },
+      "answer": {
+        "en": "`volatile` tells the implementation that accesses are observable in a limited, implementation-oriented sense, useful mainly for some memory-mapped I/O and signal scenarios. It provides neither atomicity nor inter-thread synchronization; use atomics for concurrency.",
+        "vi": "`volatile` báo cho implementation rằng access có tính quan sát theo nghĩa giới hạn, chủ yếu hữu ích cho một số memory-mapped I/O và signal. Nó không cung cấp atomicity hay synchronization giữa thread; concurrency phải dùng atomic."
+      }
+    },
+    {
+      "number": 123,
+      "sourceId": "daily-cpp-interview-q123",
+      "directory": "123_an-inline-function",
+      "chapter": "language-practice",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is an inline function?",
+        "vi": "Inline function là gì?"
+      },
+      "answer": {
+        "en": "An inline function may be defined identically in multiple translation units while denoting one entity under the ODR. `inline` is not a command that guarantees machine-code inlining; optimization decisions remain with the compiler.",
+        "vi": "Inline function có thể được định nghĩa giống nhau ở nhiều translation unit nhưng vẫn biểu diễn một entity theo ODR. `inline` không phải mệnh lệnh bắt compiler inline machine code; quyết định tối ưu vẫn thuộc compiler."
+      }
+    },
+    {
+      "number": 124,
+      "sourceId": "daily-cpp-interview-q124",
+      "directory": "124_what-do-we-catch",
+      "chapter": "language-practice",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "What do we catch?",
+        "vi": "Ta nên bắt exception theo kiểu nào?"
+      },
+      "answer": {
+        "en": "Catch exceptions by `const` reference to the appropriate base when handling a hierarchy, and order specific handlers before general ones. Catching by value can copy and slice; catch by non-const reference only when mutation is an intentional protocol.",
+        "vi": "Nên bắt exception bằng `const` reference tới base phù hợp khi xử lý hierarchy và đặt handler cụ thể trước handler tổng quát. Bắt theo giá trị có thể copy và slice; chỉ bắt bằng non-const reference khi mutation là protocol có chủ ý."
+      }
+    },
+    {
+      "number": 125,
+      "sourceId": "daily-cpp-interview-q125",
+      "directory": "125_the-differences-between-references-and-pointers",
+      "chapter": "language-practice",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are the differences between references and pointers?",
+        "vi": "Reference và pointer khác nhau thế nào?"
+      },
+      "answer": {
+        "en": "A reference is an alias that must be initialized and cannot be reseated, while a pointer is an object that may be null, reassigned, and used in pointer arithmetic where valid. Both can dangle, and neither alone expresses ownership.",
+        "vi": "Reference là alias phải được khởi tạo và không thể reseat; pointer là object có thể null, gán lại và thực hiện pointer arithmetic khi hợp lệ. Cả hai đều có thể dangling và tự chúng không biểu diễn ownership."
+      }
+    },
+    {
+      "number": 126,
+      "sourceId": "daily-cpp-interview-q126",
+      "directory": "126_which-of-the-following-variable-declarations-compile-and-w",
+      "chapter": "language-practice",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "Which of the following variable declarations compile and what would be the value of a?",
+        "vi": "Những khai báo biến nào sau đây biên dịch được và giá trị của `a` là bao nhiêu?"
+      },
+      "answer": {
+        "en": "Declarations 1, 2, and 3 compile. The first two produce 42; assigning `-42` converts modulo one more than the maximum unsigned value, while braced initialization in declaration 4 rejects that non-constant narrowing conversion.",
+        "vi": "Khai báo 1, 2 và 3 biên dịch được. Hai khai báo đầu cho 42; gán `-42` chuyển theo modulo lớn hơn giá trị unsigned tối đa một đơn vị, còn braced initialization ở khai báo 4 từ chối narrowing conversion đó."
+      }
+    },
+    {
+      "number": 127,
+      "sourceId": "daily-cpp-interview-q127",
+      "directory": "127_what-will-the-line-of-code-below-print-out-and-why",
+      "chapter": "language-practice",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "What will the line of code below print out and why?",
+        "vi": "Dòng mã dưới đây in gì và vì sao?"
+      },
+      "answer": {
+        "en": "`25u - 50` is evaluated as unsigned arithmetic because the signed operand converts to unsigned. The result wraps modulo `UINT_MAX + 1`, yielding `UINT_MAX - 24`—4294967271 only on a 32-bit `unsigned int`.",
+        "vi": "`25u - 50` được tính theo unsigned arithmetic vì toán hạng signed chuyển sang unsigned. Kết quả wrap theo modulo `UINT_MAX + 1`, thành `UINT_MAX - 24`; con số 4294967271 chỉ đúng khi `unsigned int` có 32 bit."
+      }
+    },
+    {
+      "number": 128,
+      "sourceId": "daily-cpp-interview-q128",
+      "directory": "128_the-difference-between-pre-and-post-increment-decrement-op",
+      "chapter": "language-practice",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "Explain the difference between pre- and post increment/decrement operators",
+        "vi": "Giải thích sự khác nhau giữa toán tử tăng/giảm trước và sau."
+      },
+      "answer": {
+        "en": "Prefix increment modifies the operand and yields the incremented object, normally as an lvalue reference. Postfix increment also modifies the operand but returns the old value as a separate result, which can require extra work for user-defined types.",
+        "vi": "Prefix increment sửa toán hạng rồi trả object đã tăng, thường dưới dạng lvalue reference. Postfix increment cũng sửa toán hạng nhưng trả giá trị cũ thành kết quả riêng, có thể tốn thêm công việc với user-defined type."
+      }
+    },
+    {
+      "number": 129,
+      "sourceId": "daily-cpp-interview-q129",
+      "directory": "129_the-final-values-of-a-b-and-c",
+      "chapter": "language-practice",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "What are the final values of a, b and c?",
+        "vi": "Giá trị cuối cùng của `a`, `b` và `c` là gì?"
+      },
+      "answer": {
+        "en": "The final values are `a == 9`, `b == 10`, and `c == 11`. Multiplication happens before addition, so `c` first becomes 10; postfix `c++` assigns that old value to `b` and then increments `c`.",
+        "vi": "Giá trị cuối là `a == 9`, `b == 10`, `c == 11`. Phép nhân chạy trước phép cộng nên `c` ban đầu thành 10; postfix `c++` gán giá trị cũ đó cho `b` rồi mới tăng `c`."
+      }
+    },
+    {
+      "number": 130,
+      "sourceId": "daily-cpp-interview-q130",
+      "directory": "130_this-string-declaration-compile",
+      "chapter": "language-practice",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "Does this string declaration compile?",
+        "vi": "Khai báo string này có biên dịch không?"
+      },
+      "answer": {
+        "en": "With `<string>` included, `std::string(foo);` is parsed as the declaration `std::string foo;`, so it creates an empty string rather than a discarded temporary. Do not rely on `<iostream>` transitively providing `<string>`; write the intended declaration clearly.",
+        "vi": "Khi đã include `<string>`, `std::string(foo);` được parse như khai báo `std::string foo;`, nên nó tạo string rỗng chứ không phải temporary bị bỏ. Không nên dựa vào `<iostream>` include bắc cầu `<string>`; hãy viết rõ khai báo mong muốn."
+      }
+    },
+    {
+      "number": 131,
+      "sourceId": "daily-cpp-interview-q131",
+      "directory": "131_default-member-initializers-in-c",
+      "chapter": "language-practice",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are Default Member Initializers in C++?",
+        "vi": "Default Member Initializer trong C++ là gì?"
+      },
+      "answer": {
+        "en": "A default member initializer supplies an initial value when a constructor does not explicitly initialize that member. Constructors still initialize members in declaration order, and a member initializer in the constructor overrides the default for that construction.",
+        "vi": "Default member initializer cung cấp giá trị ban đầu khi constructor không khởi tạo tường minh member đó. Member vẫn được khởi tạo theo thứ tự khai báo và member initializer trong constructor sẽ override default cho lần construction ấy."
+      }
+    },
+    {
+      "number": 132,
+      "sourceId": "daily-cpp-interview-q132",
+      "directory": "132_the-most-vexing-parse",
+      "chapter": "language-practice",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is the most vexing parse?",
+        "vi": "Most vexing parse là gì?"
+      },
+      "answer": {
+        "en": "The most vexing parse is C++'s rule for a syntactically ambiguous statement: if it can be parsed as a declaration, it is treated as a declaration. Braced initialization or an unambiguous variable form removes the ambiguity.",
+        "vi": "Most vexing parse là quy tắc xử lý câu lệnh C++ mơ hồ về cú pháp: nếu có thể parse thành declaration thì nó được xem là declaration. Braced initialization hoặc dạng khai báo biến không mơ hồ sẽ loại bỏ vấn đề."
+      }
+    },
+    {
+      "number": 133,
+      "sourceId": "daily-cpp-interview-q133",
+      "directory": "133_this-code-compile-if-yes-what-does-it-do-if-not-why-not",
+      "chapter": "language-practice",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "Does this code compile? If yes, what does it do? If not, why not?",
+        "vi": "Đoạn mã này có biên dịch không? Nếu có, nó làm gì? Nếu không, vì sao?"
+      },
+      "answer": {
+        "en": "It does not compile at the member call. `MyObject o();` declares a function named `o` returning `MyObject`; it does not construct an object. Use `MyObject o;` or `MyObject o{};`.",
+        "vi": "Đoạn mã không compile tại lời gọi member. `MyObject o();` khai báo một hàm tên `o` trả `MyObject`, không xây dựng object. Hãy dùng `MyObject o;` hoặc `MyObject o{};`."
+      }
+    },
+    {
+      "number": 134,
+      "sourceId": "daily-cpp-interview-q134",
+      "directory": "134_string-view-and-why-should-we-use-it",
+      "chapter": "language-practice",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is std::string_view and why should we use it?",
+        "vi": "`std::string_view` là gì và vì sao nên dùng?"
+      },
+      "answer": {
+        "en": "`std::string_view` is a cheap, non-owning view of a contiguous character sequence. It is useful for read-only parameters and slicing, but the underlying storage must outlive the view and data is not guaranteed null-terminated; it should not blindly replace every `const std::string&`.",
+        "vi": "`std::string_view` là view non-owning rẻ của một chuỗi ký tự liên tục. Nó hữu ích cho tham số chỉ đọc và slicing, nhưng storage nền phải sống lâu hơn view và dữ liệu không được bảo đảm null-terminated; không nên máy móc thay mọi `const std::string&`."
+      }
+    },
+    {
+      "number": 135,
+      "sourceId": "daily-cpp-interview-q135",
+      "directory": "135_check-if-a-string-starts-or-ends-with-a-certain-substring",
+      "chapter": "language-practice",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "How to check if a string starts or ends with a certain substring?",
+        "vi": "Làm sao kiểm tra một string bắt đầu hoặc kết thúc bằng một substring?"
+      },
+      "answer": {
+        "en": "Since C++20, `std::string` and `std::string_view` provide `starts_with` and `ends_with`. Before that, compare a prefix at position zero and compare the suffix only after checking that the source is at least as long as the suffix.",
+        "vi": "Từ C++20, `std::string` và `std::string_view` có `starts_with` và `ends_with`. Trước đó, so sánh prefix tại vị trí 0 và chỉ so sánh suffix sau khi kiểm tra chuỗi nguồn dài ít nhất bằng suffix."
+      }
+    },
+    {
+      "number": 136,
+      "sourceId": "daily-cpp-interview-q136",
+      "directory": "136_rvo",
+      "chapter": "language-practice",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is RVO?",
+        "vi": "RVO là gì?"
+      },
+      "answer": {
+        "en": "RVO is copy elision for an object returned by value. C++17 guarantees elision for matching prvalue cases, while NRVO for a named local remains permitted rather than guaranteed; eligible elision may omit copy/move even when those operations have side effects.",
+        "vi": "RVO là copy elision cho object được trả theo giá trị. C++17 bảo đảm elision ở các trường hợp prvalue phù hợp, còn NRVO cho named local vẫn được phép chứ không bắt buộc; elision đủ điều kiện có thể bỏ copy/move dù operation đó có side effect."
+      }
+    },
+    {
+      "number": 137,
+      "sourceId": "daily-cpp-interview-q137",
+      "directory": "137_we-ensure-the-compiler-performs-rvo",
+      "chapter": "language-practice",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "How can we ensure the compiler performs RVO?",
+        "vi": "Làm sao giúp compiler thực hiện RVO?"
+      },
+      "answer": {
+        "en": "Return a prvalue directly when possible to obtain guaranteed C++17 elision, or return the same named local from all relevant paths to make NRVO possible. Do not write `std::move(local)` in the return, because it usually prevents NRVO.",
+        "vi": "Hãy trả prvalue trực tiếp khi có thể để nhận elision được bảo đảm từ C++17, hoặc trả cùng một named local trên các nhánh liên quan để NRVO có thể xảy ra. Không viết `std::move(local)` ở return vì thường làm mất NRVO."
+      }
+    },
+    {
+      "number": 138,
+      "sourceId": "daily-cpp-interview-q138",
+      "directory": "138_the-primary-and-mixed-value-categories-in-c",
+      "chapter": "language-practice",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are the primary and mixed value categories in C++?",
+        "vi": "Các value category cơ bản và hỗn hợp trong C++ là gì?"
+      },
+      "answer": {
+        "en": "The primary value categories are lvalue, xvalue, and prvalue. Glvalue groups lvalue plus xvalue because both identify an object or function; rvalue groups prvalue plus xvalue because their resources can generally participate in move-oriented operations.",
+        "vi": "Các value category cơ bản là lvalue, xvalue và prvalue. Glvalue gồm lvalue cộng xvalue vì cả hai xác định identity; rvalue gồm prvalue cộng xvalue vì resource của chúng thường có thể tham gia operation hướng move."
+      }
+    },
+    {
+      "number": 139,
+      "sourceId": "daily-cpp-interview-q139",
+      "directory": "139_safely-compare-signed-and-unsigned-integers",
+      "chapter": "language-practice",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "Can you safely compare signed and unsigned integers?",
+        "vi": "Có thể so sánh an toàn số nguyên signed và unsigned không?"
+      },
+      "answer": {
+        "en": "Mixed signed/unsigned comparison can convert a negative signed value to a large unsigned value. In C++20 use `std::cmp_equal`, `std::cmp_less`, and related helpers, or perform an explicit range check before converting to one known common type.",
+        "vi": "So sánh trộn signed/unsigned có thể chuyển giá trị signed âm thành unsigned rất lớn. Trong C++20, dùng `std::cmp_equal`, `std::cmp_less` và helper liên quan, hoặc kiểm tra range tường minh trước khi chuyển về một common type đã biết."
+      }
+    },
+    {
+      "number": 140,
+      "sourceId": "daily-cpp-interview-q140",
+      "directory": "140_the-return-value-of-main-and-what-are-the-available-signat",
+      "chapter": "language-practice",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What is the return value of main and what are the available signatures?",
+        "vi": "`main` trả gì và có những chữ ký hợp lệ nào?"
+      },
+      "answer": {
+        "en": "Standard `main` returns `int`; the usual signatures are `int main()` and `int main(int argc, char* argv[])`, with implementation-defined additional forms possible. Falling off the end returns zero, and `argc` includes the program name when it is positive.",
+        "vi": "`main` chuẩn trả `int`; các chữ ký thường dùng là `int main()` và `int main(int argc, char* argv[])`, ngoài ra implementation có thể hỗ trợ dạng khác. Đi hết body tương đương trả 0 và `argc` tính cả tên chương trình khi dương."
+      }
+    },
+    {
+      "number": 141,
+      "sourceId": "daily-cpp-interview-q141",
+      "directory": "141_prefer-default-arguments-or-overloading",
+      "chapter": "language-practice",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "prompt": {
+        "en": "Should you prefer default arguments or overloading?",
+        "vi": "Nên ưu tiên default argument hay overload?"
+      },
+      "answer": {
+        "en": "Neither form is universally preferable. Default arguments are concise when one operation truly has a stable default, but values are compiled into callers and interact badly with virtual dispatch; overloads support distinct contracts and can preserve binary compatibility at the cost of more API surface.",
+        "vi": "Không có lựa chọn luôn tốt hơn. Default argument gọn khi một operation thật sự có default ổn định, nhưng giá trị được compile vào caller và tương tác kém với virtual dispatch; overload hỗ trợ contract riêng và có thể giữ binary compatibility, đổi lại API rộng hơn."
+      }
+    },
+    {
+      "number": 142,
+      "sourceId": "daily-cpp-interview-q142",
+      "directory": "142_how-many-variables-should-you-declare-on-a-line",
+      "chapter": "language-practice",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "How many variables should you declare on a line?",
+        "vi": "Nên khai báo bao nhiêu biến trên một dòng?"
+      },
+      "answer": {
+        "en": "Declare one variable per statement. It makes each type, pointer declarator, initializer, lifetime, and comment unambiguous and avoids the false impression that one initializer applies to every name.",
+        "vi": "Nên khai báo một biến trên mỗi statement. Cách này làm rõ kiểu, pointer declarator, initializer, lifetime và comment của từng biến, đồng thời tránh hiểu nhầm một initializer áp dụng cho mọi tên."
+      }
+    },
+    {
+      "number": 143,
+      "sourceId": "daily-cpp-interview-q143",
+      "directory": "143_prefer-a-switch-statement-or-chained-if-statements",
+      "chapter": "language-practice",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "prompt": {
+        "en": "Should you prefer a switch statement or chained if statements?",
+        "vi": "Nên ưu tiên `switch` hay chuỗi câu lệnh `if`?"
+      },
+      "answer": {
+        "en": "Use `switch` for one discrete integral or enum discriminator, especially when exhaustive enum diagnostics help; use `if` for ranges, unrelated predicates, or heterogeneous conditions. Readability and domain shape matter more than assuming one is inherently faster.",
+        "vi": "Dùng `switch` cho một discriminator rời rạc kiểu integral hoặc enum, nhất là khi diagnostic exhaustiveness hữu ích; dùng `if` cho range, predicate không cùng loại hoặc điều kiện hỗn hợp. Readability và hình dạng bài toán quan trọng hơn giả định một dạng luôn nhanh hơn."
+      }
+    },
+    {
+      "number": 144,
+      "sourceId": "daily-cpp-interview-q144",
+      "directory": "144_include-guards",
+      "chapter": "language-practice",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "What are include guards?",
+        "vi": "Include guard là gì?"
+      },
+      "answer": {
+        "en": "Include guards wrap a header in a unique preprocessor macro so repeated inclusion in one translation unit does not repeat its declarations and definitions. `#pragma once` is widely supported but non-standard; macro guards remain the portable mechanism.",
+        "vi": "Include guard bọc header trong một preprocessor macro duy nhất để việc include lặp trong một translation unit không lặp lại declaration và definition. `#pragma once` được hỗ trợ rộng nhưng không thuộc chuẩn; macro guard vẫn là cơ chế portable."
+      }
+    },
+    {
+      "number": 145,
+      "sourceId": "daily-cpp-interview-q145",
+      "directory": "145_use-angle-brackets-filename-or-double-quotes-filename-to-i",
+      "chapter": "language-practice",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "Should you use angle brackets(<filename>) or double quotes(“filename”) to include?",
+        "vi": "Nên dùng dấu ngoặc nhọn hay dấu ngoặc kép trong `#include`?"
+      },
+      "answer": {
+        "en": "Quotes normally search relative or user header locations before implementation include paths, while angle brackets use the implementation's system-style search. Exact search order is implementation-defined; conventionally use quotes for project-local headers and angles for standard or external dependencies.",
+        "vi": "Dấu ngoặc kép thường tìm ở vị trí tương đối hoặc user header trước include path của implementation, còn ngoặc nhọn dùng cách tìm kiểu system. Thứ tự chính xác phụ thuộc implementation; convention là dùng ngoặc kép cho header nội bộ dự án và ngoặc nhọn cho standard/external dependency."
+      }
+    },
+    {
+      "number": 146,
+      "sourceId": "daily-cpp-interview-q146",
+      "directory": "146_how-many-return-statements-should-you-have-in-a-function",
+      "chapter": "language-practice",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "prompt": {
+        "en": "How many return statements should you have in a function?",
+        "vi": "Một hàm nên có bao nhiêu câu lệnh `return`?"
+      },
+      "answer": {
+        "en": "There is no useful universal limit. Multiple early returns and guard clauses often make a short function clearer by removing nesting; if many exits are hard to reason about, reduce the function's size and responsibilities rather than enforcing one-return dogma.",
+        "vi": "Không có giới hạn phổ quát hữu ích. Nhiều early return và guard clause thường làm hàm ngắn rõ hơn nhờ giảm nesting; nếu quá nhiều exit khó suy luận, hãy giảm kích thước và trách nhiệm của hàm thay vì ép giáo điều chỉ một `return`."
+      }
+    }
+  ]
+}
