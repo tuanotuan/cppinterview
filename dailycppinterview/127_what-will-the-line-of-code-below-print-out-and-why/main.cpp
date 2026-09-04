@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q127: What will the line of code below print out and why?
+// Daily C++ Interview Q127: What will the line of code below print out and why?
 // Key: `25u - 50` is evaluated as unsigned arithmetic because the signed operand converts to
 // unsigned. The result wraps modulo `UINT_MAX + 1`, yielding `UINT_MAX - 24`—4294967271 only on
 // a 32-bit `unsigned int`.

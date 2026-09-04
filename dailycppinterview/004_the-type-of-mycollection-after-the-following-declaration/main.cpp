@@ -1,5 +1,4 @@
-// Real-World C++ Interviews Q004: What is the type of myCollection after the following
-// declaration?
+// Daily C++ Interview Q004: What is the type of myCollection after the following declaration?
 // Key: `auto myCollection = {1, 2, 3};` deduces `std::initializer_list<int>`. All elements must
 // support deduction of one common element type.
 #include <initializer_list>

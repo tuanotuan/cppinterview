@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q093: What are vtable and vpointer?
+// Daily C++ Interview Q093: What are vtable and vpointer?
 // Key: A vtable is a common implementation table of virtual-function targets, and a vpointer is
 // a hidden per-object pointer used to reach it. The standard specifies virtual-call behavior,
 // not that every implementation must use exactly this layout.

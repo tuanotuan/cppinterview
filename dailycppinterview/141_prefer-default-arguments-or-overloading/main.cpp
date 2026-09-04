@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q141: Should you prefer default arguments or overloading?
+// Daily C++ Interview Q141: Should you prefer default arguments or overloading?
 // Key: Neither form is universally preferable. Default arguments are concise when one operation
 // truly has a stable default, but values are compiled into callers and interact badly with
 // virtual dispatch; overloads support distinct contracts and can preserve binary compatibility

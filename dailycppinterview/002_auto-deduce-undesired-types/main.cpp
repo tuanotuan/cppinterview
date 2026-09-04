@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q002: When can auto deduce undesired types?
+// Daily C++ Interview Q002: When can auto deduce undesired types?
 // Key: `auto` preserves the initializer's actual expression type, which can be an invisible
 // proxy such as `std::vector<bool>::reference` rather than `bool`. Force the intended value
 // type when a proxy could outlive its owner or expose surprising behavior.

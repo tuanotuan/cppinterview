@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q136: What is RVO?
+// Daily C++ Interview Q136: What is RVO?
 // Key: RVO is copy elision for an object returned by value. C++17 guarantees elision for
 // matching prvalue cases, while NRVO for a named local remains permitted rather than
 // guaranteed; eligible elision may omit copy/move even when those operations have side effects.

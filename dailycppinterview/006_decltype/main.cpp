@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q006: Explain decltype!
+// Daily C++ Interview Q006: Explain decltype!
 // Key: `decltype` reports the declared type for an unparenthesized name, but for other
 // expressions it also reflects value category: lvalue gives `T&`, xvalue gives `T&&`, and
 // prvalue gives `T`. Extra parentheses can therefore change the result.

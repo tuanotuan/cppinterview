@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q078: What is constructor delegation?
+// Daily C++ Interview Q078: What is constructor delegation?
 // Key: Constructor delegation lets one constructor call another constructor of the same class
 // in its initializer list. The target constructor initializes the object first, after which the
 // delegating constructor's body runs; delegation cannot be mixed with other member

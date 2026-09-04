@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q068: What are modules and what advantages do they bring?
+// Daily C++ Interview Q068: What are modules and what advantages do they bring?
 // Key: Modules provide named, separately compiled interfaces instead of repeatedly
 // text-including headers. They can improve isolation and build scalability, but dependency
 // scanning, binary module artifacts, macros, and toolchain interoperability require an explicit

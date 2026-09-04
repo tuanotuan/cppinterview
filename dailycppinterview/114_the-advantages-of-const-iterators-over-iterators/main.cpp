@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q114: What are the advantages of const_iterators over iterators?
+// Daily C++ Interview Q114: What are the advantages of const_iterators over iterators?
 // Key: A `const_iterator` allows traversal without mutation through that iterator, works
 // naturally with const containers, and communicates read-only intent to the compiler and
 // reviewer. It does not make the underlying container globally immutable through other aliases.

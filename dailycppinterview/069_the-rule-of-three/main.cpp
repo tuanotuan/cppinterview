@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q069: Explain the rule of three
+// Daily C++ Interview Q069: Explain the rule of three
 // Key: If a class directly manages a resource and needs a user-defined destructor, it commonly
 // also needs a copy constructor and copy assignment operator with coherent ownership semantics.
 // This Rule of Three is a warning to define or delete the whole copy contract.

@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q108: What are the advantages of algorithms over raw loops?
+// Daily C++ Interview Q108: What are the advantages of algorithms over raw loops?
 // Key: Standard algorithms express intent, compose with iterator/range abstractions, reduce
 // hand-written boundary errors, and can receive implementation optimization or execution-policy
 // support. A raw loop remains appropriate when the operation cannot be expressed clearly as an

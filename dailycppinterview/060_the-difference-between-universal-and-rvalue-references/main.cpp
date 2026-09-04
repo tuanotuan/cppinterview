@@ -1,5 +1,4 @@
-// Real-World C++ Interviews Q060: What is the difference between universal and rvalue
-// references?
+// Daily C++ Interview Q060: What is the difference between universal and rvalue references?
 // Key: `T&&` is a forwarding reference only when `T` is cv-unqualified and deduced in that
 // context (or for a corresponding `auto&&`). Otherwise it is an ordinary rvalue reference that
 // binds to rvalues; the distinction controls reference collapsing and forwarding.

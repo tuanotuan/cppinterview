@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q030: What are immediately invoked lambda functions?
+// Daily C++ Interview Q030: What are immediately invoked lambda functions?
 // Key: An immediately invoked lambda expression places the call `()` directly after the lambda,
 // such as `auto value = [&] { return compute(); }();`. It creates a small local scope for
 // complex one-time initialization without leaving a callable behind.

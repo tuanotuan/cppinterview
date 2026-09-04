@@ -1,5 +1,4 @@
-// Real-World C++ Interviews Q143: Should you prefer a switch statement or chained if
-// statements?
+// Daily C++ Interview Q143: Should you prefer a switch statement or chained if statements?
 // Key: Use `switch` for one discrete integral or enum discriminator, especially when exhaustive
 // enum diagnostics help; use `if` for ranges, unrelated predicates, or heterogeneous
 // conditions. Readability and domain shape matter more than assuming one is inherently faster.

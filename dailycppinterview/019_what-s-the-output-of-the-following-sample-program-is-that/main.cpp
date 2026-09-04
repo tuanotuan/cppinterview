@@ -1,5 +1,5 @@
-// Real-World C++ Interviews Q019: What’s the output of the following sample program? Is that
-// what you’d expect? Why? Why not?
+// Daily C++ Interview Q019: What’s the output of the following sample program? Is that what
+// you’d expect? Why? Why not?
 // Key: The program prints `Dog speaks`, `Dog eats 42`, `Animal speaks`, then `Animal eats 42`.
 // `speak` is not virtual, while `Dog::eat(unsigned)` does not override `Animal::eat(int)`;
 // `override` would expose both mistakes at compile time.

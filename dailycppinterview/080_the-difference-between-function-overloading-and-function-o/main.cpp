@@ -1,5 +1,5 @@
-// Real-World C++ Interviews Q080: What is the difference between function overloading and
-// function overriding?
+// Daily C++ Interview Q080: What is the difference between function overloading and function
+// overriding?
 // Key: Overloading is compile-time selection among same-named functions with different
 // parameters. Overriding replaces virtual behavior in a derived class through a matching
 // signature and runtime dynamic dispatch.

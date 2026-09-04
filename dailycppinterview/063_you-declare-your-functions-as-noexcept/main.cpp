@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q063: When should you declare your functions as noexcept?
+// Daily C++ Interview Q063: When should you declare your functions as noexcept?
 // Key: Declare a function `noexcept` when throwing would violate its contract, especially
 // destructors, swap-like operations, and move operations that containers can safely prefer. If
 // an exception escapes, the program terminates, so use conditional `noexcept` for generic code

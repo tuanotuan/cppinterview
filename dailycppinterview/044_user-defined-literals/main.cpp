@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q044: What are user-defined literals?
+// Daily C++ Interview Q044: What are user-defined literals?
 // Key: A user-defined literal maps a suffix such as `_km` to a literal operator that constructs
 // a typed value at compile time or runtime. It can improve domain clarity, but suffixes
 // beginning with an underscore are the safe namespace for user code.

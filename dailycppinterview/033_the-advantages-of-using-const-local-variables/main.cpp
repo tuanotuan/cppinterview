@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q033: What are the advantages of using const local variables?
+// Daily C++ Interview Q033: What are the advantages of using const local variables?
 // Key: A const local variable documents that its value is stable after initialization and lets
 // the compiler reject accidental writes. It narrows the mutable state a reader must track,
 // though const should not be added when later reassignment is intentional.

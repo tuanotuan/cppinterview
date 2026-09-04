@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q081: What is the override keyword and what are its advantages?
+// Daily C++ Interview Q081: What is the override keyword and what are its advantages?
 // Key: `override` turns the intention to override into a checked compiler contract. It catches
 // cv/ref qualifier, parameter, and other signature mismatches that would otherwise silently
 // hide or overload a base function.

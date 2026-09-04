@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q083: What are default arguments? How are they evaluated in a C++
+// Daily C++ Interview Q083: What are default arguments? How are they evaluated in a C++
 // function?
 // Key: A default argument is substituted at the call site from declarations visible there,
 // using the function's static type; its expression is evaluated when the call executes.

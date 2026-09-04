@@ -36,7 +36,10 @@ export async function generateMetadata({
   params: Promise<{ locale: Locale; lessonId: string }>;
 }): Promise<Metadata> {
   const { locale, lessonId } = await params;
-  const lesson = findLesson(getRepoContentManifest(), lessonId);
+  const lesson = findLesson(
+    localizeContentManifest(getRepoContentManifest(), locale),
+    lessonId,
+  );
   const t = await getTranslations({ locale, namespace: "Learn.reader" });
   return lesson
     ? {

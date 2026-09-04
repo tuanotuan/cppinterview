@@ -72,6 +72,58 @@ describe("content translations", () => {
     expect(hasExactLessonTranslation(sourceLesson, "en")).toBe(true);
   });
 
+  it("presents the current Daily collection name without changing its v1 hashes", () => {
+    const sourceLesson = manifest.lessons.find(
+      (lesson) => lesson.id === "dailycpp-q050",
+    )!;
+    const localizedVietnamese = localizeContentManifest(
+      manifest,
+      "vi",
+    ).lessons.find((lesson) => lesson.id === sourceLesson.id)!;
+    const localizedEnglish = localizeContentManifest(
+      manifest,
+      "en",
+    ).lessons.find((lesson) => lesson.id === sourceLesson.id)!;
+
+    expect(sourceLesson.sections.some((section) =>
+      section.bodyMarkdown.includes("Daily C++ Interview")
+    )).toBe(true);
+    expect(localizedVietnamese.sections.some((section) =>
+      section.bodyMarkdown.includes("Daily C++ Interview")
+    )).toBe(false);
+    expect(localizedVietnamese.sections.some((section) =>
+      section.bodyMarkdown.includes("Real-World C++ Interviews")
+    )).toBe(true);
+    expect(localizedVietnamese.code).toContain("Real-World C++ Interviews Q050");
+    expect(localizedEnglish.title).toContain("Question 050");
+    expect(localizedEnglish.sections.some((section) =>
+      section.bodyMarkdown.includes("Real-World C++ Interviews")
+    )).toBe(true);
+    expect(localizedVietnamese.sourceHash).toBe(sourceLesson.sourceHash);
+    expect(localizedEnglish.sourceHash).toBe(sourceLesson.sourceHash);
+  });
+
+  it("uses the exact approved English copy for a Daily lesson check", () => {
+    const review = questionTranslationReviewCandidates(manifest, "en").find(
+      (candidate) => candidate.question.id === "dailycpp-q050-001",
+    )!;
+    const sourceQuestion = manifest.questions.find(
+      (question) => question.id === review.question.id,
+    )!;
+    const publication = publicationFor(review);
+    const localizedQuestion = localizeContentManifest(
+      manifest,
+      "en",
+      [publication],
+    ).questions.find((question) => question.id === sourceQuestion.id)!;
+
+    expect(hasExactQuestionTranslation(sourceQuestion, "en", [publication]))
+      .toBe(true);
+    expect(localizedQuestion.prompt).toBe("What is a trivial class in C++?");
+    expect(localizedQuestion.prompt).not.toContain("là gì");
+    expect(localizedQuestion.sourceHash).toBe(sourceQuestion.sourceHash);
+  });
+
   it("distinguishes translated questions from canonical-language fallbacks", () => {
     const translated = manifest.questions.find(
       (question) => question.id === "cpp98-address-pointer-001",

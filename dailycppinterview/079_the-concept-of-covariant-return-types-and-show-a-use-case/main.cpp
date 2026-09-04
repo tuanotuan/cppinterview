@@ -1,5 +1,5 @@
-// Real-World C++ Interviews Q079: Explain the concept of covariant return types and show a
-// use-case where it comes in handy!
+// Daily C++ Interview Q079: Explain the concept of covariant return types and show a use-case
+// where it comes in handy!
 // Key: Covariant returns allow an override to narrow a returned class pointer or reference to a
 // derived type. The rule applies only to compatible pointer/reference class returns, not
 // arbitrary values or smart pointers.

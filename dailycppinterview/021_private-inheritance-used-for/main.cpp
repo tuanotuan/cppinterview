@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q021: What is private inheritance used for?
+// Daily C++ Interview Q021: What is private inheritance used for?
 // Key: Private inheritance models an implementation relationship and can provide controlled
 // access to protected members or enable empty-base optimization. Prefer composition unless
 // inheritance is specifically needed for those mechanics.

@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q042: What is aggregate initialization?
+// Daily C++ Interview Q042: What is aggregate initialization?
 // Key: Aggregate initialization initializes an aggregate's elements directly from a braced
 // list, in declaration order or with designated initializers where supported. Whether a class
 // is an aggregate depends on standard-version rules about constructors, bases, virtual

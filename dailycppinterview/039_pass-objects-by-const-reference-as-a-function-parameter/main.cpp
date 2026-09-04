@@ -1,5 +1,4 @@
-// Real-World C++ Interviews Q039: Should you pass objects by const reference as a function
-// parameter?
+// Daily C++ Interview Q039: Should you pass objects by const reference as a function parameter?
 // Key: Use `const T&` for a required, non-owning read-only parameter when copying `T` is
 // expensive. Use `T` when the function needs its own value, `T&` for mutation, and pointer-like
 // forms when nullability or ownership must be expressed.

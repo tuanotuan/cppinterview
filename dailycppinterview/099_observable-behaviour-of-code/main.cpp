@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q099: What is observable behaviour of code?
+// Daily C++ Interview Q099: What is observable behaviour of code?
 // Key: Observable behavior is the part of execution the abstract machine requires an
 // implementation to preserve, such as specified I/O effects and accesses to volatile objects
 // under the applicable rules. The as-if rule permits any optimization that leaves required

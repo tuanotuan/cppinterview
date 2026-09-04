@@ -15,6 +15,7 @@ type SourceQuestion = {
   directory: string;
   chapter: string;
   difficulty: "beginner" | "intermediate" | "advanced";
+  questionVersion?: number;
   prompt: { en: string; vi: string };
   repeatOf?: string;
 };
@@ -32,6 +33,7 @@ const sourceCatalog = JSON.parse(
     title: string;
     questionCount: number;
     uniquePromptCount: number;
+    defaultQuestionVersion: number;
   };
   questions: SourceQuestion[];
 };
@@ -53,6 +55,7 @@ describe("Real-World C++ Interviews collection", () => {
       title: "Real-World C++ Interviews",
       questionCount: 146,
       uniquePromptCount: 127,
+      defaultQuestionVersion: 1,
     });
     expect(sourceCatalog.questions).toHaveLength(146);
     expect(sourceCatalog.questions.map((question) => question.number)).toEqual(
@@ -135,12 +138,15 @@ describe("Real-World C++ Interviews collection", () => {
       expect(questions).toHaveLength(1);
 
       const question = questions[0]!;
+      const expectedVersion = source.questionVersion ??
+        sourceCatalog.collection.defaultQuestionVersion;
       expect(question).toMatchObject({
         id: `${lesson.id}-001`,
         status: "draft",
         difficulty: source.difficulty,
         prompt: source.prompt.vi,
         sourceHash: lesson.sourceHash,
+        version: expectedVersion,
       });
       expect(question.taxonomy.standard).toBe("dailycpp");
       expect(question.taxonomy.tags).toContain("standard::dailycpp");
@@ -155,7 +161,7 @@ describe("Real-World C++ Interviews collection", () => {
       const english = englishQuestions.get(question.id);
       expect(english).toMatchObject({
         questionId: question.id,
-        questionVersion: question.version,
+        questionVersion: expectedVersion,
         sourceHash: lesson.sourceHash,
         status: "draft",
         prompt: source.prompt.en,
@@ -165,10 +171,8 @@ describe("Real-World C++ Interviews collection", () => {
         readFile(path.join(repoRoot, lesson.knowledgePath), "utf8"),
         readFile(path.join(repoRoot, lesson.translationPaths![0]!), "utf8"),
       ]);
-      expect(viMarkdown).toContain("bộ Real-World C++ Interviews");
-      expect(enMarkdown).toContain("Real-World C++ Interviews collection");
-      expect(viMarkdown).not.toContain("Daily C++ Interview");
-      expect(enMarkdown).not.toContain("Daily C++ Interview");
+      expect(viMarkdown).toContain("bộ Daily C++ Interview");
+      expect(enMarkdown).toContain("Daily C++ Interview collection");
       expect(selfCheckPrompt(viMarkdown)).toBe(source.prompt.vi);
       expect(selfCheckPrompt(enMarkdown)).toBe(source.prompt.en);
       expect(selfCheckCount(viMarkdown)).toBe(1);

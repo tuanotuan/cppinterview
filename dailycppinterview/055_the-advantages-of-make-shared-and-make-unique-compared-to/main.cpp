@@ -1,5 +1,5 @@
-// Real-World C++ Interviews Q055: What are the advantages of std::make_shared and
-// std::make_unique compared to the new operator?
+// Daily C++ Interview Q055: What are the advantages of std::make_shared and std::make_unique
+// compared to the new operator?
 // Key: `make_unique` and `make_shared` express ownership without a naked `new` and provide
 // exception-safe construction. `make_shared` commonly combines object and control block in one
 // allocation, though weak references may keep that combined allocation alive and custom deleter
