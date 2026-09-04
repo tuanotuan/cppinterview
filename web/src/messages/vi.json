@@ -23,7 +23,7 @@
       "status": "Đang tải trang mới."
     },
     "footer": {
-      "description": "Nền tảng luyện phỏng vấn C++ với thẻ ôn tập, phản hồi AI và mock interview có cấu trúc.",
+      "description": "Nền tảng luyện phỏng vấn C++ với thẻ ôn tập theo phương pháp lặp lại ngắt quãng, phản hồi AI và phỏng vấn thử có cấu trúc.",
       "navigationAria": "Điều hướng cuối trang",
       "today": "Học hôm nay",
       "progress": "Tiến độ",
@@ -40,11 +40,11 @@
       "connect": "Kết nối",
       "github": "Đóng góp mã nguồn",
       "vibeCodingCommunity": "Cộng đồng Vibe Coding",
-      "slogan": "C++ interview practice · Learn deliberately"
+      "slogan": "Luyện phỏng vấn C++ · Lặp lại ngắt quãng"
     },
     "meta": {
       "title": "cppinterview — Luyện phỏng vấn mỗi ngày",
-      "description": "Luyện phỏng vấn C++ với ngân hàng câu hỏi đã được duyệt, AI coach và mock interview."
+      "description": "Luyện phỏng vấn C++ bằng thẻ theo phương pháp lặp lại ngắt quãng, ngân hàng câu hỏi đã duyệt, AI coach và phỏng vấn thử."
     }
   },
   "Landing": {
@@ -56,7 +56,7 @@
     "eyebrow": "Luyện phỏng vấn C++",
     "headline": "Học C++ có hệ thống.",
     "headlineAccent": "Trả lời có cơ sở.",
-    "description": "cppinterview là nơi luyện phỏng vấn C++ với ngân hàng câu hỏi đã được duyệt, lịch ôn có chủ đích, AI coach và mock interview — để mỗi lần học đều phục vụ cho lần phỏng vấn tiếp theo.",
+    "description": "cppinterview giúp bạn luyện phỏng vấn C++ bằng thẻ theo phương pháp lặp lại ngắt quãng, kết hợp ngân hàng câu hỏi đã duyệt, AI coach và phỏng vấn thử — để nhớ kiến thức lâu hơn và vận dụng tốt hơn khi phỏng vấn.",
     "answerFirst": "Tự trả lời",
     "answerFirstSuffix": "trước khi xem đáp án",
     "private": "Lưu riêng tư",
@@ -66,8 +66,8 @@
     "sampleQuestion": "Khi nào dùng reference, khi nào dùng pointer trong API C++?",
     "yourAnswer": "Câu trả lời của bạn",
     "sampleAnswer": "Reference biểu đạt đối tượng luôn tồn tại; pointer phù hợp khi…",
-    "metricSchedule": "Lịch ôn",
-    "metricScheduleLabel": "đúng lúc",
+    "metricSchedule": "Ôn thẻ",
+    "metricScheduleLabel": "đúng thời điểm",
     "metricCoach": "AI coach",
     "metricCoachLabel": "sau khi trả lời",
     "metricMock": "Mock",
@@ -82,14 +82,14 @@
     "disabledAuth": "Đăng nhập đang được cấu hình.",
     "capabilities": [
       {"title": "Ngân hàng câu hỏi đã được duyệt", "description": "Học trực tiếp từ các thẻ C++ đã được kiểm tra nội dung, đáp án và tiêu chí chấm trước khi đưa vào lịch ôn."},
-      {"title": "Ôn đều, thấy rõ tiến bộ", "description": "Lịch ôn lặp lại ưu tiên đúng phần cần nhớ lại. Tài khoản giúp lưu tiến độ riêng tư giữa các thiết bị."},
+      {"title": "Ôn thẻ bằng lặp lại ngắt quãng", "description": "Hệ thống đưa từng thẻ trở lại đúng thời điểm dựa trên mức độ ghi nhớ, giúp bạn tập trung vào phần cần củng cố và theo dõi tiến bộ qua từng ngày."},
       {"title": "Luyện đúng kiểu phỏng vấn kỹ sư", "description": "Từ C++ hiện đại tới đọc code, debugging, system design và mock interview cho các vị trí kỹ sư C++."}
     ],
     "workflow": [
       {"title": "Chọn phiên học", "description": "Bắt đầu từ các thẻ đã có sẵn trong ngân hàng câu hỏi."},
       {"title": "Tự trả lời", "description": "Làm trước như trong phỏng vấn, rồi mới xem gợi ý hoặc đáp án."},
       {"title": "Nhận phản hồi", "description": "AI coach giúp chỉ ra phần đúng, phần còn thiếu và câu hỏi tiếp nối."},
-      {"title": "Ôn đúng lúc", "description": "Lịch ôn nhắc lại các chủ đề cần củng cố để kiến thức bền hơn."}
+      {"title": "Lặp lại đúng thời điểm", "description": "Phương pháp lặp lại ngắt quãng đưa các thẻ cần củng cố trở lại theo lịch để kiến thức bền hơn."}
     ],
     "notices": {
       "notConfigured": "Supabase chưa được cấu hình.",
