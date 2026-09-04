@@ -18,53 +18,58 @@ export async function SiteFooter() {
       id="site-footer"
       className="bg-[color:var(--footer-background)] text-[color:var(--footer-text)]"
     >
-      <div className="ui-page-width px-4 py-12 sm:px-7 sm:py-14 lg:px-10 lg:py-16">
-        <div className="max-w-3xl">
-          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-3">
-            <Link
-              href="/"
-              aria-label={t("homeAria")}
-              className="inline-flex min-h-11 items-center gap-2.5 rounded-xl pr-1 font-bold tracking-[-0.025em] focus-visible:ring-2 focus-visible:ring-[color:var(--footer-accent)] focus-visible:outline-none"
-            >
-              <BrandMark
-                size="sm"
-                className="ring-1 ring-white/15 shadow-[0_10px_30px_rgb(0_0_0_/_24%)]"
-              />
-              <span className="text-lg">cppinterview</span>
-            </Link>
-            <span className="text-sm text-[color:var(--footer-muted)]">
-              {t("footer.by")}
-            </span>
-            <span className="rounded-lg bg-[color:var(--footer-accent)] px-2.5 py-1.5 text-sm font-bold text-[color:var(--footer-action-ink)]">
-              @{footerCreatorHandle}
-            </span>
-          </div>
-
-          <p className="mt-5 max-w-2xl text-base leading-7 text-[color:var(--footer-muted)]">
-            {t("footer.description")}
-          </p>
-
-          <div className="mt-7 flex flex-col gap-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-            <div className="flex flex-wrap items-center gap-x-1 text-sm text-[color:var(--footer-muted)]">
-              <span className="mr-2">© {new Date().getFullYear()} cppinterview</span>
-              <nav aria-label={t("footer.contactAria")}>
-                <ul className="flex items-center gap-1">
-                  {footerContactLinks.map((item) => (
-                    <li key={item.href}>
-                      <FooterContactLink
-                        href={item.href}
-                        kind={item.kind}
-                        label={t(item.labelKey)}
-                        external={item.external}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              </nav>
+      <div className="ui-page-width px-4 py-10 sm:px-7 sm:py-12 lg:px-10 lg:py-14">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)] lg:gap-16 xl:gap-24">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-3">
+              <Link
+                href="/"
+                aria-label={t("homeAria")}
+                className="inline-flex min-h-11 items-center gap-2.5 rounded-xl pr-1 font-bold tracking-[-0.025em] focus-visible:ring-2 focus-visible:ring-[color:var(--footer-accent)] focus-visible:outline-none"
+              >
+                <BrandMark
+                  size="sm"
+                  className="ring-1 ring-white/15 shadow-[0_10px_30px_rgb(0_0_0_/_24%)]"
+                />
+                <span className="text-lg">cppinterview</span>
+              </Link>
+              <span className="text-sm text-[color:var(--footer-muted)]">
+                {t("footer.by")}
+              </span>
+              <span className="rounded-lg bg-[color:var(--footer-accent)] px-2.5 py-1.5 text-sm font-bold text-[color:var(--footer-action-ink)]">
+                @{footerCreatorHandle}
+              </span>
             </div>
 
-            <LanguageSwitcher tone="dark" compact />
+            <p className="mt-5 max-w-2xl text-base leading-7 text-[color:var(--footer-muted)]">
+              {t("footer.description")}
+            </p>
           </div>
+
+          <nav className="min-w-0" aria-label={t("footer.contactAria")}>
+            <p className="text-xs font-bold tracking-[0.18em] text-[color:var(--footer-accent)] uppercase">
+              {t("footer.connect")}
+            </p>
+            <ul className="mt-3 grid gap-1 sm:grid-cols-2 lg:grid-cols-1">
+              {footerContactLinks.map((item) => (
+                <li key={item.href} className="min-w-0">
+                  <FooterContactLink
+                    href={item.href}
+                    kind={item.kind}
+                    label={t(item.labelKey)}
+                    external={item.external}
+                  />
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+
+        <div className="mt-10 flex flex-col gap-4 border-t border-[color:var(--footer-border)] pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <span className="text-sm text-[color:var(--footer-muted)]">
+            © {new Date().getFullYear()} cppinterview
+          </span>
+          <LanguageSwitcher tone="dark" compact />
         </div>
       </div>
     </footer>
@@ -89,9 +94,14 @@ function FooterContactLink({
       title={label}
       target={external ? "_blank" : undefined}
       rel={external ? "noreferrer" : undefined}
-      className="inline-flex size-11 items-center justify-center rounded-lg text-[color:var(--footer-muted)] transition hover:bg-[color:var(--footer-accent-soft)] hover:text-[color:var(--footer-text)] focus-visible:ring-2 focus-visible:ring-[color:var(--footer-accent)] focus-visible:outline-none"
+      className="group flex min-h-12 min-w-0 items-center gap-3 rounded-xl px-2 py-1.5 text-[color:var(--footer-muted)] transition hover:bg-[color:var(--footer-accent-soft)] hover:text-[color:var(--footer-text)] focus-visible:ring-2 focus-visible:ring-[color:var(--footer-accent)] focus-visible:outline-none"
     >
-      <FooterContactIcon kind={kind} />
+      <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-[color:var(--footer-surface)] text-[color:var(--footer-accent)] transition-colors group-hover:bg-[color:var(--footer-surface-hover)]">
+        <FooterContactIcon kind={kind} />
+      </span>
+      <span className="min-w-0 text-sm leading-5 font-semibold break-words">
+        {label}
+      </span>
     </a>
   );
 }

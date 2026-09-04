@@ -459,13 +459,13 @@ trạng thái từ tên nhánh.
   owner/khác owner lần lượt thấy 1/0 row, anon REST bị chặn đúng `401`/`42501`,
   và database advisor không có lỗi. Security review đủ 10 nhóm OWASP không có
   finding mở; production dependency audit báo 0 lỗ hổng.
-- Footer cá nhân tối giản đạt toàn bộ `npm run validate`: content/context check,
-  ESLint, TypeScript, 160 file/906 Vitest test và Next.js production build sinh
-  592 static path. Targeted footer/landing/language đạt 8/8; SSR smoke xác nhận
-  đúng handle cùng GitHub/Facebook/email và không còn menu/tài khoản cũ trong
-  footer. Chrome 1365×768 và 390×844 xác nhận bố cục không tràn, contact icon đủ
-  vùng bấm 44 px; menu ngôn ngữ dark-tone mở lên trên. Không có migration, remote
-  mutation, asset hoặc dependency mới.
+- Footer cá nhân hai cột responsive đạt toàn bộ `npm run validate`: content/context
+  check, ESLint, TypeScript, 160 file/906 Vitest test và Next.js production build
+  sinh 592 static path. Targeted footer đạt 4/4; GitHub, Cộng đồng Vibe Coding và
+  email hiện thành liên kết có cả icon lẫn nhãn, còn copyright/bộ đổi ngôn ngữ nằm
+  trên hàng cuối riêng. Chrome 1365×768, 768×1024 và 375×812 xác nhận desktop cân
+  hai cột, tablet/mobile xếp lại đúng breakpoint và không tràn ngang; vùng bấm liên
+  hệ tối thiểu 48 px. Không có migration, remote mutation, asset hoặc dependency mới.
 - Fix quyền đọc publication cho Mock đạt toàn bộ `npm run validate`: content/context
   check, ESLint, TypeScript, 142 file/823 Vitest test và Next.js production build
   sinh 590 static path. Targeted migration test đạt 2/2; `supabase db push --dry-run`

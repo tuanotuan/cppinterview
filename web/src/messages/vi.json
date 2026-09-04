@@ -25,10 +25,11 @@
     "footer": {
       "description": "cppinterview giúp bạn luyện phỏng vấn C++ bằng thẻ theo phương pháp lặp lại ngắt quãng, phản hồi AI và các phiên phỏng vấn thử có cấu trúc.",
       "by": "by",
+      "connect": "Kết nối",
       "contactAria": "Liên kết của tác giả",
-      "github": "GitHub của tuanotuan",
-      "facebook": "Facebook của tuanotuan",
-      "email": "Gửi email cho tuanotuan"
+      "github": "GitHub · @tuanotuan",
+      "facebook": "Cộng đồng Vibe Coding",
+      "email": "Email · tuan.hcmus77@gmail.com"
     },
     "meta": {
       "title": "cppinterview — Luyện phỏng vấn mỗi ngày",
