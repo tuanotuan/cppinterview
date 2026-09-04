@@ -354,7 +354,9 @@ trạng thái từ tên nhánh.
 - Guest mode mở Luna AI Coach mà không cần tài khoản, qua giới hạn public ba
   lượt/24 giờ. Practice đọc quota hiệu dụng theo IP/device/account khi tải trang
   và cập nhật lại từ route sau mỗi lượt; trạng thái chưa đọc được không được giả
-  thành `3/3`. Mở đáp án, gợi ý và đánh giá local vẫn dùng được.
+  thành `3/3`. Mở đáp án, gợi ý và đánh giá local vẫn dùng được. Quyền thử này
+  không mở “Học với AI” trong lesson: guest/anonymous chỉ thấy CTA đăng nhập và
+  CTA vào bài luyện thẻ ba lượt.
 - Câu trả lời trống nghĩa là chưa biết và vẫn gọi được AI. Luồng
   Trợ giúp → Làm lại khóa rating cho tới khi người học tự trả lời lại; retry và
   cppinterview Repair vẫn đi qua scheduler chuẩn, không tạo review trùng.
@@ -384,12 +386,16 @@ trạng thái từ tên nhánh.
   Mobile/tablet đặt panel sau hero và trước mục lục; desktop dùng rail sticky rộng
   24–28rem, cao theo viewport. Nút mở rộng chuyển panel thành dialog focus tối đa
   40rem, hỗ trợ focus trap và Escape. Transcript chỉ ở memory, tối đa bốn lượt hỏi
-  và reset theo lesson/locale/content hash.
+  và reset theo lesson/locale/content hash. Static render fail closed ở trạng thái
+  kiểm tra; chỉ account được `/api/auth/status` xác nhận mới thấy transcript/form.
+  Guest thấy cổng đăng nhập và link guest Practice đúng locale.
 - `/api/coach/lesson` tự dựng toàn bộ lesson đúng locale từ manifest, gồm mọi
   section và code mẫu; client không thể thay context. Luna trả structured answer
   cùng section citation đã kiểm tra, dùng đúng ngôn ngữ UI, không nhận question
-  bank/rubric/answer key và không fallback Gemini.
-- Public/non-admin chia sẻ quota AI ba lượt rolling 24 giờ hiện hữu; owner dùng
+  bank/rubric/answer key và không fallback Gemini. Route xác minh lại account bằng
+  Supabase `getUser()`, loại guest/anonymous bằng `401` private/no-store trước khi
+  reserve quota hoặc gọi provider; client cũng chuyển về gate nếu session hết hạn.
+- Account non-admin dùng quota AI ba lượt rolling 24 giờ hiện hữu; owner dùng
   daily/monthly budget cùng durable ambiguity barrier. Migration
   `20260829130024_add_lesson_ai_assistant.sql` và bản sửa kế tiếp
   `20260830021455_fix_lesson_ai_dispatch_coalesce.sql` phải được áp theo thứ tự
@@ -479,13 +485,14 @@ trạng thái từ tên nhánh.
   sinh 590 static path. `content:sync:check` dựng payload 264 lesson/790 question;
   targeted test đạt 10/10 và production dependency audit báo 0 lỗ hổng.
   Remote chỉ được đọc, chưa sync.
-- Lesson tutor đạt toàn bộ `npm run validate`: content/context check, ESLint,
-  TypeScript, 129 file/769 Vitest test và Next.js production build sinh 376
-  static page cùng route `/api/coach/lesson`. Targeted tests phủ context đầy đủ
-  của mọi lesson VI/EN, locale/prompt-injection boundary, quota/idempotency,
-  reservation terminal, SQL grants/RLS và UI responsive/accessibility. Audit
-  production dependency báo 0 vulnerability; migration runtime local chưa chạy
-  được vì máy không có Docker/Podman và không có remote mutation nào được thực hiện.
+- Auth gate của lesson tutor đạt toàn bộ `npm run validate`: content/context check,
+  ESLint, TypeScript, 160 file/907 Vitest test và Next.js production build sinh
+  592 static path. Targeted 48/48 khóa guest/anonymous trước quota/provider, giữ
+  account non-admin hoạt động, không render form trong lúc kiểm tra hoặc ở guest,
+  và giữ guest Coach của Practice ở quota 3 lượt. Security review đủ 10 nhóm OWASP
+  không có finding mở; `npm audit --offline --omit=dev --audit-level=moderate` báo
+  0 vulnerability, còn audit online không lấy được advisory vì npm registry timeout.
+  Không có migration hay Supabase remote mutation mới.
 - Hotfix Practice cho question DB stale đạt `content:check`, `context:check`,
   ESLint, TypeScript, 111 file/656 Vitest test và Next.js production build 67
   page. Regression test giữ question revision cũ trong hàng `needs_review` nhưng

@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import { BrandMark } from "@/app/brand-mark";
 import { LanguageSwitcher } from "@/app/language-switcher";
 import { localizedAlternates } from "@/i18n/metadata";
-import type { Locale } from "@/i18n/routing";
+import { localizeHref, type Locale } from "@/i18n/routing";
 import { buildLessonAssistantContext } from "@/lib/ai/lesson-assistant-context.server";
 import { getRepoContentManifest } from "@/lib/content/question-store-server";
 import { localizeContentManifest } from "@/lib/content/translations";
@@ -66,6 +66,12 @@ export default async function LessonReaderPage({
   const previous = itemIndex > 0 ? library[itemIndex - 1] : null;
   const next = itemIndex < library.length - 1 ? library[itemIndex + 1] : null;
   const practiceHref = lessonPracticeHref(lesson);
+  const lessonHref = localizeHref(`/learn/${lesson.id}`, locale);
+  const lessonAiAuthHref = localizeHref(
+    `/auth?next=${encodeURIComponent(lessonHref)}`,
+    locale,
+  );
+  const guestPracticeHref = localizeHref(`${practiceHref}&guest=1`, locale);
   const assistantContext = buildLessonAssistantContext(lesson);
   const readerBlocks = buildLessonReaderBlocks(lesson.sections, Boolean(lesson.code));
   const titleById = new Map(
@@ -132,7 +138,9 @@ export default async function LessonReaderPage({
         <div className="mt-7 grid items-start gap-7 xl:gap-6 xl:grid-cols-[13.75rem_minmax(32rem,1fr)_clamp(24rem,30vw,28rem)]">
           <LessonAiAssistant
             key={`${locale}:${lesson.id}:${assistantContext.contextHash}`}
+            authHref={lessonAiAuthHref}
             contextHash={assistantContext.contextHash}
+            guestPracticeHref={guestPracticeHref}
             lessonId={lesson.id}
             locale={locale}
             sections={lesson.sections.map((section, index) => ({
