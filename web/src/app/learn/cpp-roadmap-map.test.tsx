@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -43,7 +46,57 @@ describe("CppRoadmapMap", () => {
     expect(html.match(/aria-pressed="false"/g)).toHaveLength(3);
     expect(html).toContain('aria-expanded="false"');
   });
+
+  it.each([
+    ["learning", "#dad1fd"],
+    ["done", "#cbcbcb"],
+    ["skipped", "#496b69"],
+  ])(
+    "fills the whole lesson node for the %s state",
+    (status, sourceSurface) => {
+      expect(globalStyles).toContain(
+        `--roadmap-${status}-surface: ${sourceSurface};`,
+      );
+
+      const selector = `.cpp-roadmap-node-shell > a[data-progress="${status}"]`;
+      const baseRule = cssRuleBody(selector);
+      const hoverRule = cssRuleBody(`${selector}:hover`);
+
+      expect(baseRule).toContain(
+        `background: var(--roadmap-${status}-surface);`,
+      );
+      expect(baseRule).toContain(
+        `border-color: var(--roadmap-${status}-border);`,
+      );
+      expect(hoverRule).toContain(
+        `background: var(--roadmap-${status}-surface-hover);`,
+      );
+    },
+  );
+
+  it("keeps skipped lesson text readable on the dark full-node surface", () => {
+    expect(
+      cssRuleBody(
+        '.cpp-roadmap-node-shell > a[data-progress="skipped"]',
+      ),
+    ).toContain("color: var(--roadmap-skipped-ink);");
+  });
 });
+
+const globalStyles = readFileSync(
+  path.resolve(import.meta.dirname, "../globals.css"),
+  "utf8",
+).replaceAll("\r\n", "\n");
+
+function cssRuleBody(selector: string): string {
+  const start = globalStyles.indexOf(`${selector} {`);
+  if (start < 0) throw new Error(`Missing CSS rule: ${selector}`);
+
+  const bodyStart = globalStyles.indexOf("{", start) + 1;
+  const end = globalStyles.indexOf("}", bodyStart);
+  if (end < 0) throw new Error(`Unclosed CSS rule: ${selector}`);
+  return globalStyles.slice(bodyStart, end);
+}
 
 const day = {
   day: 1,

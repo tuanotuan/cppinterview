@@ -92,7 +92,7 @@ const coverageNodeStyles: Record<RoadmapCoverage, string> = {
 };
 
 const nodeClassName =
-  "group relative flex min-h-[5.25rem] w-full flex-col items-start justify-center rounded-lg border-2 px-3.5 py-2.5 text-left shadow-[3px_3px_0_rgb(15_58_105_/_16%)] transition-[background-color,border-color,box-shadow]";
+  "group relative flex min-h-[5.25rem] w-full flex-col items-start justify-center rounded-lg border-2 px-3.5 py-2.5 text-left shadow-[3px_3px_0_rgb(15_58_105_/_16%)] transition-[background-color,border-color,box-shadow,color]";
 
 export function CppRoadmapMap({
   roadmap,
@@ -592,7 +592,7 @@ function RoadmapNodeContent({
       {linked ? (
         <span
           aria-hidden="true"
-          className="absolute right-2 bottom-1.5 text-[#0f3a69]/35 transition-transform group-hover:translate-x-0.5"
+          className="absolute right-2 bottom-1.5 text-current opacity-40 transition-transform group-hover:translate-x-0.5"
         >
           <svg viewBox="0 0 20 20" className="size-4" fill="none">
             <path
