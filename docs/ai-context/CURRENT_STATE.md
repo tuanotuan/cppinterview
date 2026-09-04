@@ -243,18 +243,19 @@ trạng thái từ tên nhánh.
   sau hai migration C++14/C++17. Lịch sử local/remote đã khớp; cả bốn check constraint
   standard/track đều validated và chấp nhận `cpp23`. Migration không publish hay duyệt
   học liệu.
-- Nhánh hiện tại thêm collection `dailycpp`: 146 thư mục theo đúng thứ tự nguồn,
-  mỗi thư mục có đúng `vi.md`, `en.md`, `main.cpp` và đúng một câu hỏi
-  `dailycpp-qNNN-001` với difficulty ước tính. 146 mục chứa 127 prompt duy nhất và
-  giữ nguyên 19 cặp lặp có chủ ý; không có roadmap. Migration local
-  `20260904092827_add_daily_cpp_content_track.sql` chỉ mở rộng bốn check constraint
-  và chưa được push remote; chưa chạy content sync hay duyệt 146 draft mới.
-- Snapshot nội dung Supabase được kiểm tra read-only đang chậm hơn repo: remote có
-  đủ 53 lesson C++11, 50 C++14 và 50 C++17, nhưng chỉ có một lesson C++20 legacy
-  và chưa có C++23; `content_store_state.source_revision` vẫn là `859a6a4…`.
-  `content:sync:check` của working tree hiện dựng đúng payload 410 lesson/936
-  question. Sau khi merge phải áp migration Daily trước lần sync snapshot chứa
-  track mới; đây là external mutation nên không chạy thủ công từ nhánh feature.
+- Collection `dailycpp` đã merge: 146 thư mục theo đúng thứ tự nguồn, mỗi thư mục
+  có đúng `vi.md`, `en.md`, `main.cpp` và đúng một câu hỏi
+  `dailycpp-qNNN-001` với difficulty ước tính. 146 mục chứa 127 prompt duy nhất,
+  giữ nguyên 19 cặp lặp có chủ ý và không có roadmap. Migration
+  `20260904092827_add_daily_cpp_content_track.sql` đã được áp lên Supabase remote;
+  lịch sử local/remote khớp và cả bốn constraint standard/track đều validated,
+  chấp nhận `dailycpp`.
+- Content sync remote đã hoàn tất từ merge commit `5a4e19f`: state khớp exact
+  source revision/checksum local với 410 lesson active và 936 repository question
+  active. Riêng `dailycpp` có 146 lesson active và đúng 146 repository question
+  draft (73 dễ, 39 trung bình, 34 khó), không có question DB-owned hay generation
+  job. 30 lesson và 51 question legacy đã archive vẫn được giữ cho audit; 146
+  question Daily chưa được duyệt tự động.
 
 - Kho câu hỏi đã duyệt chưa bao phủ đều tick data, Linux/mạng, hệ
   thống phân tán và kỹ năng chịu trách nhiệm đầu cuối. Giao diện phải gọi đây là
@@ -437,8 +438,13 @@ trạng thái từ tên nhánh.
   `g++ -std=c++20 -Wall -Wextra -Wpedantic -fsyntax-only`.
   `content:sync:check` dựng payload 410 lesson/936 question. Security review đủ
   10 nhóm OWASP không có finding mở và production dependency audit báo 0 lỗ
-  hổng. Migration Daily và content snapshot mới chỉ nằm local; Supabase remote
-  chưa bị thay đổi.
+  hổng. Migration Daily đã được push bằng `--skip-vault`; constraint và migration
+  history remote đã xác minh. GitHub Actions retry sau migration đạt toàn bộ gate,
+  sync đúng merge commit/revision/checksum và enqueue 0 generation job. Remote có
+  đúng 146 lesson/146 repository question Daily, không có question DB-owned.
+  Production smoke trả HTTP 200 cho `/vi/learn` và `/vi/learn/dailycpp-q001`, có
+  đúng nhãn collection và nội dung câu hỏi đầu tiên; database advisor không có
+  lỗi mức `ERROR`.
 - Tiến độ cá nhân trên cả năm roadmap dùng `Đang học`/`Đã xong`/`Bỏ qua`, hydrate
   sau static render và lưu owner-private tách khỏi FSRS. Ba trạng thái phủ toàn bộ
   nền node bằng ba dải tím/xanh lá/xanh đậm tách biệt, có hover riêng và giữ chữ/icon đủ
