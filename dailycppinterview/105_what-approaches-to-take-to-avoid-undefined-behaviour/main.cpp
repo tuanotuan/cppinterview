@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q105: What approaches to take to avoid undefined behaviour?
+// Daily C++ Interview Q105: What approaches to take to avoid undefined behaviour?
 // Key: Avoid undefined behavior by designing explicit invariants and ownership, validating
 // inputs and library preconditions, enabling strong warnings, and running sanitizers and tests.
 // Prefer RAII, bounded abstractions, and small scopes so invalid states are harder to express.

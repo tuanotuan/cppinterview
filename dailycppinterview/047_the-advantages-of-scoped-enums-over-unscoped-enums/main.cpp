@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q047: What are the advantages of scoped enums over unscoped enums?
+// Daily C++ Interview Q047: What are the advantages of scoped enums over unscoped enums?
 // Key: A scoped enum (`enum class`) keeps enumerators in its scope, avoids implicit conversion
 // to integers, and allows an explicit underlying type. These properties reduce name collisions
 // and accidental arithmetic.

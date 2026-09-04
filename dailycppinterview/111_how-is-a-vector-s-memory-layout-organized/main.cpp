@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q111: How is a vector’s memory layout organized?
+// Daily C++ Interview Q111: How is a vector’s memory layout organized?
 // Key: A `std::vector` stores its elements contiguously in one allocation and tracks a logical
 // size within a capacity. Growth beyond capacity allocates a new block and moves or copies
 // elements, invalidating pointers, references, and iterators to the old storage.

@@ -36,7 +36,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: c34d9a3235c63387fdb7a32c9ce46488b412139a1a8bc39e4dd8a167b1e5f166
+    sourceHash: 13537319a894e03e96de2c57638ba0d62a3d1a05c81f81443d8e67b6db014c8e
     status: draft
     version: 1
   - id: dailycpp-q002-001
@@ -75,7 +75,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: b6267a76d0a4faf28eb258502f3bcef1a87ed074d0205e7f099a72cf365be8c4
+    sourceHash: 13a83f59af255e22dfa36662b7bbaff34c4785d30f354dc4c39c961096c8e3d2
     status: draft
     version: 1
   - id: dailycpp-q003-001
@@ -114,7 +114,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 6ffc2cb50a863af33c2b70f975a970530da8e09d9afe0a051bf13fa7cd52184f
+    sourceHash: 41dc3863d7ac2d17f214312e0bcefe001bbfa1646e06fa633078615b2b69e305
     status: draft
     version: 1
   - id: dailycpp-q004-001
@@ -152,7 +152,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 7638fdf78b1f0c872d63591aaa8642f2522a696c0684473395dd724c0e3b7639
+    sourceHash: 18996ed7ce24bf9c8932bba178217f31e0232b16dac70b016789e49031c30fcf
     status: draft
     version: 1
   - id: dailycpp-q005-001
@@ -191,7 +191,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: aaff27328b0c1563dd6f6db73cbf9e7784ea2e7fb36fb8814e43e1b6ed7748ac
+    sourceHash: 6f293f3161895f9ae5498161e6bbafdc14983720062f8a5e23f7571baab3415f
     status: draft
     version: 1
   - id: dailycpp-q006-001
@@ -230,7 +230,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 7721178abcd0bf516ba6106b2da547b55ee8f98e9f2c4adba29293f2a8935b16
+    sourceHash: 74cf2ab6261f83251865f671523bb9eb6d7b09619dfb569061cfad229e8c7108
     status: draft
     version: 1
   - id: dailycpp-q007-001
@@ -269,7 +269,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 1aa983a5308941d8054ece962b9bb2874bef78197ef4db9712a4b9019b2f1497
+    sourceHash: 4232cdf1d29a3bc9bbadb506a44cf0311838aec0e09d6b9a7fe21faaa7df7ffa
     status: draft
     version: 1
   - id: dailycpp-q008-001
@@ -306,7 +306,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 80dace773fa5fdacb76a7ad902039e13a425503f64c673fd54631c3bdb3fee3a
+    sourceHash: b129cae6823673ad107b3e2f813b24ff62129e85a8b180f16fac15fd4996f108
     status: draft
     version: 1
   - id: dailycpp-q009-001
@@ -345,7 +345,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 9fbdd4f9407ba5fb1adce9473662bd262ed8f2384d43cdf742186e89c45bc9af
+    sourceHash: ad454a76f2fdf4b7ed04054b55432779dd9d1372c23aecc1f89af6a8ccaea0b4
     status: draft
     version: 1
   - id: dailycpp-q010-001
@@ -382,7 +382,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 2bb85bcfe2d8ed9fd570343e8cdf53d4bc359017a2dca9ab7440d0a21ec6fddd
+    sourceHash: 2ceed7d302bf5f4e2e45a6592ea15f44c11e5bd06b2764b99639d523355be482
     status: draft
     version: 1
   - id: dailycpp-q011-001
@@ -421,7 +421,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: f8f4a43b1ee276c49ab1c8c4e22591c1a10cb7361a5cf29fa3c7147619d720a8
+    sourceHash: 061bfb9af3e3c4bcad5d7843e4b5f3b8ec752d8ee4cdffc735060d3be56720fa
     status: draft
     version: 1
   - id: dailycpp-q012-001
@@ -460,7 +460,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: c3d325b0cf4459d9b4900c61e0a182895d7b75f5b45e505163fdfecf0b496563
+    sourceHash: bfcc3fb66a1ea06b76adb98757e34166a9cef7bfdf749beb37d44e9e32584a21
     status: draft
     version: 1
   - id: dailycpp-q013-001
@@ -499,7 +499,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 8295ff9769bf6e7623d95588959ff40a0148b17cc7241be70ba8449f924fa23f
+    sourceHash: 2d220d4f4d1e4254c2dd1d1d4e708fa8c773377a3599ff24ede13c444763bf97
     status: draft
     version: 1
   - id: dailycpp-q014-001
@@ -538,7 +538,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 296b00592459c1469531349db48362cdec67137321cca7f0336aaa9c846fd0e6
+    sourceHash: d20e11a0e9d51c0a4325a3c61c1e9a986582bb6f8e2a77da77a6ba44fcbb3910
     status: draft
     version: 1
   - id: dailycpp-q015-001
@@ -575,7 +575,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: f628ce96e715ccc9fa16dc77a2a776c68dcaed7c521cf8212c4ceb1339ac64ba
+    sourceHash: 9dcdd23710f8bd4961a69d445019cf8d2731c5d1fcfee9f37d5f5112225243da
     status: draft
     version: 1
   - id: dailycpp-q016-001
@@ -614,7 +614,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: d4949af5766846e57696abd9e36a46369f3bf2a2a1bd480d1fce3a18f22b9318
+    sourceHash: 567e591ab0fb063ed91e4e390739628138835684b53fbd35e8de204ca83d4be0
     status: draft
     version: 1
   - id: dailycpp-q017-001
@@ -653,7 +653,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 81a53982facad3287e7930e71a05659b59bc83d456671ddf2a8e39d7b8866a00
+    sourceHash: a70d3a8173fdb6144b776badd558abf8674aec6d699186bcc7e0d4c2c5bc6814
     status: draft
     version: 1
   - id: dailycpp-q018-001
@@ -692,7 +692,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 09dff15d3070687aa9d97d8e98a7c77a84a5d06cc05b479b3c59f86e77da135d
+    sourceHash: 3fdd0059e4409ac8772cda35553cd0baa588f1972a793a946bb499ee7ab8a628
     status: draft
     version: 1
   - id: dailycpp-q019-001
@@ -768,7 +768,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 1a8fdace918196a2ddfe12c2b701e5f67d7bb950beb4b440c2288c45e3c1098f
+    sourceHash: 731d2c826ad3942340153881bef35b431b291cfcd06675ad72e0cb8c2d07d7bc
     status: draft
     version: 1
   - id: dailycpp-q020-001
@@ -808,7 +808,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 85ed860a0903b42cf15de033cb7dc3c5b1ab748c64d6aed790faa333e5c7a9c3
+    sourceHash: 18021e2631b939f6e3df7b01558563fa2019f269bc6d4b3248e5dce7291a24fb
     status: draft
     version: 1
   - id: dailycpp-q021-001
@@ -847,7 +847,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 6234b50c0415a5bfe9918abefbd35706ff9e3687bcc529acfcca5d6b6484d20a
+    sourceHash: 2f1e52225cd6d9f0eff0267a804d7ff8d18e5d4f7b61b31b7ad76ddc2670cfb2
     status: draft
     version: 1
   - id: dailycpp-q022-001
@@ -886,7 +886,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 0b573b9264776eb2a0b58f3a49daeb16c6e863bde662563279b091d74b074bc5
+    sourceHash: 6069ad8d5e58ccfa04f8d68362e6201633bb6f7a30ce81a51fb4595e10308679
     status: draft
     version: 1
   - id: dailycpp-q023-001
@@ -925,7 +925,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: ce34cee61ecb0a87758077fe2513202d9bdea9086be2128bc2b20251a26385cb
+    sourceHash: 707c2d45996e899eadeb08ed9159acb38c9b8da966c93d9bee85725f12db4b37
     status: draft
     version: 1
   - id: dailycpp-q024-001
@@ -964,7 +964,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: be22cfa55f7d30c4f4c0ba053371ca67c81bd8b9bb474aa081752b2436720d03
+    sourceHash: 227f1220eb0eb65b9c0b986bb0d27d10fd4429cf819234053eb7044ee77c1a13
     status: draft
     version: 1
   - id: dailycpp-q025-001
@@ -1003,7 +1003,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 6c70c8506da813ad58d83ccd80ec4efe46ce6634dca30d48c7396becee242669
+    sourceHash: a9627ee417e3387457f31472fed968b700eb32e20071a06f70388b42a676c45b
     status: draft
     version: 1
   - id: dailycpp-q026-001
@@ -1042,7 +1042,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 5270c2e9d133f3494125b09cb3769193a6b97236a26078761e245e881ffd8b26
+    sourceHash: a80efe0a0c4322299fec1a3286e937c4836a7c6a2df6b65c4c5ef9fdfd7cc106
     status: draft
     version: 1
   - id: dailycpp-q027-001
@@ -1081,7 +1081,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 33351515d501371f7ce9063a24020f417fe7f6399a8a295e55ed33f28a82cdb6
+    sourceHash: 787916fd84d4efed81cfec202d1ef35b84a05d6910e4f2789fad365ba9405ef8
     status: draft
     version: 1
   - id: dailycpp-q028-001
@@ -1134,7 +1134,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 0cded9b2be27f911604916a0a1a040a30f8cebb4ae17b92a6d93ebbc2b8b8fde
+    sourceHash: f9619b8ddc7488c48d8fb160a9e12556fb28aef69234c155132c1426131f23fb
     status: draft
     version: 1
   - id: dailycpp-q029-001
@@ -1173,7 +1173,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: bf923e78fc59569a9efa60844a22ed14d3e2f972da06d1915e92e9509ef29a14
+    sourceHash: cca994815b49516a984d267c4e025a185203225aedae0e0a9652bea07adf7b21
     status: draft
     version: 1
   - id: dailycpp-q030-001
@@ -1212,7 +1212,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 0d80ad8e2def2fcea08ec85ee38abba4cc0f717b309547245f5097b59b175b63
+    sourceHash: 69d8cbcb159d76f161d8f6cc2e223a191b0bd3daf80b6dadf546c2f7b6c15e5e
     status: draft
     version: 1
   - id: dailycpp-q031-001
@@ -1251,7 +1251,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 848d2c4180d60208bbe384320928403bbaa92872dcba333f17d213069b75dc4d
+    sourceHash: 83c6dfcd29c049da031e109d635791254cc0b0640e621c9f6ed08f05135dab7e
     status: draft
     version: 1
   - id: dailycpp-q032-001
@@ -1302,7 +1302,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 3ac06a16d594847a7302c058722b25c5cc0756b0ddba3d489a194dccda6a89b3
+    sourceHash: 9166027619e1dddcab8965d46f0b566628749ece78b1524b1da75ac378f7e050
     status: draft
     version: 1
   - id: dailycpp-q033-001
@@ -1341,7 +1341,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: bd8dbec68e60ff4395acfcb5ca3524b54a5026b152398b0365009fbee65f8fe0
+    sourceHash: 18058ddc2125ee2370510c65d57ef9735518fdcbc5665a48f740ff9b893854f4
     status: draft
     version: 1
   - id: dailycpp-q034-001
@@ -1382,7 +1382,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 63ddfa8b346a8ffb48b70dc338c4ed784bbae460cce31a611a5c005c2cf50147
+    sourceHash: 7ef720766f75f6a1c80dbf7cd88be23ad878241f45e78825dd227e18e8f05325
     status: draft
     version: 1
   - id: dailycpp-q035-001
@@ -1421,7 +1421,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: a695479c2aaf8def7a114a617f1087a1d08fa717ca4fdb62b1d872306d1954c2
+    sourceHash: b47715db155378d50ae1c1874b2f1e2b86872c9b5ae90c0a7d008a83100d451d
     status: draft
     version: 1
   - id: dailycpp-q036-001
@@ -1460,7 +1460,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 84675a0aec51e2e35bbd935dc563f5eb3ab0fcd287b56e4a41d764f8e52b8837
+    sourceHash: a1be7ba60c0a169a258832e4984f88b1b7a6b8e642606b21f0d536041b4c38c9
     status: draft
     version: 1
   - id: dailycpp-q037-001
@@ -1499,7 +1499,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: e1a884e05ae2576763ccc327701335c90264ce0aee8f1d7bbc795d837182ea09
+    sourceHash: fa2066c61cd1b34c50de25394ae4dda04719d93f68d142b5f9ac3a7eacb1696d
     status: draft
     version: 1
   - id: dailycpp-q038-001
@@ -1538,7 +1538,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: c7e54e41905c502b2897aa96994c43d9b1d386119aaedc8f0579ea82e00ba36e
+    sourceHash: 0e343a15800d9e5ff3fb15bec1252a2ce136e7c65745b05a053dbd02f6c5064b
     status: draft
     version: 1
   - id: dailycpp-q039-001
@@ -1577,7 +1577,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 9585fb91d19d96f406fbc0dc0f61df3db3b5affd62cffbf0ccf80adfe968615f
+    sourceHash: 2c0743ae1d5257cf1c990a46f40ce277fa13f5d352383e74c468ef52964022fa
     status: draft
     version: 1
   - id: dailycpp-q040-001
@@ -1616,7 +1616,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 6d59e5c198595705fd828865781e3e8dfd2d7d117d4c924afd56b828b9d1e70f
+    sourceHash: 2b69d933441c6c6bfd0739895ecb7d8f666310e845cb04b0493c527eea6a2209
     status: draft
     version: 1
   - id: dailycpp-q041-001
@@ -1655,7 +1655,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: b729dca0f6101fb809b12570a45e7cc10ed3ea62334ce131a5bab4ddfcbb3495
+    sourceHash: faf3609907cc3b378a8a07505dcc37367263b5d3559e8bd69d9c4c905c9455e5
     status: draft
     version: 1
   - id: dailycpp-q042-001
@@ -1694,7 +1694,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 276970c65f558468fb2486f9a983b3f81f6be1e76cd334c4903d0048cde15a16
+    sourceHash: dbe2d1acd1df038c5f58b9e47c92c076b6d231c316204ed065dca3c4d78cea89
     status: draft
     version: 1
   - id: dailycpp-q043-001
@@ -1733,7 +1733,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: dd58dfa27c6d9ad55776d0f3b54393dd410517258c325fbfa6a081c73d42b5fc
+    sourceHash: ef92e5f737ca941c8efd55aeb3b5008c356b92775720a89229ea5f350a988d04
     status: draft
     version: 1
   - id: dailycpp-q044-001
@@ -1772,7 +1772,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 898e6d4899c5e1c45d09fee2c3f55dc27f2c4eee05ed93eead0bb6bc2eb907f1
+    sourceHash: 9b1347e6934303dfa635652604c99e855223608b1308c837c62965d052bef226
     status: draft
     version: 1
   - id: dailycpp-q045-001
@@ -1811,7 +1811,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: aa65d22fff5f0b65fee938f6949dcf6f062ac8118694c07ebd264267b1860292
+    sourceHash: 625e53a016cbb9ffa9e08812c335fffb3cb7880178bdd7383b4e46d1ef9e83e9
     status: draft
     version: 1
   - id: dailycpp-q046-001
@@ -1848,7 +1848,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 95cfb10201477a063759790002e655bc9ae84504ba49a5678d0948ee505d0439
+    sourceHash: f8f7ecb46fe42b47d2b285866f8f5b47b21247fa60d0153babbf2bd785b48adb
     status: draft
     version: 1
   - id: dailycpp-q047-001
@@ -1887,7 +1887,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 3ed4c0d34b5713cb6da91ba197bedd9c29e9ad054c2e6d95d48c996e04b8581e
+    sourceHash: 6375af5454614e1f45245db4e7bdd6b53ee8f4d19f4a9d644c50eeb7905ebe29
     status: draft
     version: 1
   - id: dailycpp-q048-001
@@ -1926,7 +1926,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 9e31d1c0a8a7bc09da53beb5d4bdb9de7d752937dab7d6a16f4fab7d67de3d0e
+    sourceHash: d4e12a591992e38372b549d7ef874dc9eba65fa9afaa699897c89f99af98e4e0
     status: draft
     version: 1
   - id: dailycpp-q049-001
@@ -1965,7 +1965,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: f0d3006a23685e14fb9ba4557d35cf1015cbb3c338372d8dd37af520312378eb
+    sourceHash: c98817e824a0a1477f0cd4a2887fa17846de7b1a5cb6b274ebeeeb782ad4266b
     status: draft
     version: 1
   - id: dailycpp-q050-001
@@ -2004,7 +2004,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: b0155073ae0e02e057a7b822491647f2241cd71d12e4178cae1b9c44f267be7b
+    sourceHash: 755772be6847f9fa85ba88a92f93ceecd0f1de32fb08ea3f440adc128f2eb0c6
     status: draft
     version: 1
   - id: dailycpp-q051-001
@@ -2043,7 +2043,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 14eb34ab5b18f58f6727d0697e36f1b5c327f47e9d74388ae86efc84c7273c18
+    sourceHash: aa4c27c514f6fb96a8f5d36c136c6c5e8c1770ae86b03ebc2870c21afab580de
     status: draft
     version: 1
   - id: dailycpp-q052-001
@@ -2082,7 +2082,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: ebb8a65327d6df17d2153cfb01a096b7a654c7a0523dc7253cf5ff0ebb62ab12
+    sourceHash: 993112331c3e8a41d1448b1b36f2a5baa01633a4d9a17a954f31fcf90f5d6066
     status: draft
     version: 1
   - id: dailycpp-q053-001
@@ -2121,7 +2121,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 4f93d7bfa2aa1a685114de2dcfffd4ed418adfd5673e3a89861f96522145cfa6
+    sourceHash: adfaa648a2b4797c4729e405b5e61a8a3831916fd4f46deb30b7f136d8f3ea5c
     status: draft
     version: 1
   - id: dailycpp-q054-001
@@ -2160,7 +2160,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 14a1d4312ba7c0352445f1fe1a25e2bd1bd244d637e9fcec35dfd8c3083c8e42
+    sourceHash: 49a97d471bff4c0a62f320f05d13c461260abe0b3a7d829cb4de041278c686f6
     status: draft
     version: 1
   - id: dailycpp-q055-001
@@ -2201,7 +2201,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: bdd33eed148e21abfbdfe40885d6b1f865a2b12bf4cab1b199af14d40f04fe23
+    sourceHash: 573c294d43d7f0d84aadfdc5af9d09587613c65f6fbf7337533f021324a28d7c
     status: draft
     version: 1
   - id: dailycpp-q056-001
@@ -2240,7 +2240,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 67f8b7ce43c8478e509e4a29f293d816526f262ad43bd36dec9625aa2d970daf
+    sourceHash: ac1fa2fafb3f9071f49f049c48b7ec2031b4450289bfc3421a26466a5379dfdf
     status: draft
     version: 1
   - id: dailycpp-q057-001
@@ -2279,7 +2279,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: c1a6284d35227e43a2c72f82a7db6a60bf553244ca107f7a4c92c14d8a759abc
+    sourceHash: cffb57ddf6f16b71b85ac9b6c99c9f3415c2c78150743bda88a4dd64012c31f4
     status: draft
     version: 1
   - id: dailycpp-q058-001
@@ -2318,7 +2318,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: b116416cd399d25039447f1545840aba26f739046327b7c06bd2a6f695c5aec1
+    sourceHash: 2a76118fdb7eed7bb1927d8899a9a5429aafee30f2b25a12c49db0f01f2606bb
     status: draft
     version: 1
   - id: dailycpp-q059-001
@@ -2357,7 +2357,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: b48551c1a9d1c22c256356419ec113bd3cd5c0a7b8f142c9d91a6ec55e2632c7
+    sourceHash: e9b101e9769065ebc7775a4234b7c697839603bba619c5afa77291fc2996c660
     status: draft
     version: 1
   - id: dailycpp-q060-001
@@ -2396,7 +2396,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 24c42a6d1d935205022d7d8bfb15fc8c831c9cb354a6705dd2705355dcf4afc1
+    sourceHash: 59c798b8389d24f810253717988bf2c18f1aa506960b499b6b0b1320b9a148a1
     status: draft
     version: 1
   - id: dailycpp-q061-001
@@ -2435,7 +2435,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: afa61d4d94a18f8648cd68f13e0734b42c654701b361fc83be62091e4b17af93
+    sourceHash: 37b468015f3a81c9a1fa4098dc78c28fcf969abf5936fcc2ec2acbd0b680083b
     status: draft
     version: 1
   - id: dailycpp-q062-001
@@ -2474,7 +2474,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 1e6a5127b2d4008f092bedf02407c78076f90b9f504241f93db6f9b25866eb3b
+    sourceHash: bf6d37cd95b3112f5cac450706752af75131fc2d7efd8a4e2af01fd6fb747e0e
     status: draft
     version: 1
   - id: dailycpp-q063-001
@@ -2515,7 +2515,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 451c079db685a350435896c495b31b00a97799fa315786f1911e7f2e43bb066b
+    sourceHash: c64b0325f0f62b767202a906763c04d31f00da8787a990c45c107c2140af570c
     status: draft
     version: 1
   - id: dailycpp-q064-001
@@ -2554,7 +2554,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 86f8d0f35b009afcab31eb90983702f511b674ea4b8f16a8f2bbbc5dbd9a7855
+    sourceHash: 76338a679cc6f0e7aa30f6acdae1b3f45b61b40b786d2d862599ae6f7186e0f3
     status: draft
     version: 1
   - id: dailycpp-q065-001
@@ -2595,7 +2595,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 6514c074f7e491fb4c6a083abf54b0038a3c48d91fe9d68cd8c5e86b7d7fa76e
+    sourceHash: db324ce1741005dbe3ef5c29275e90d4aecd2826633e2a7d971eb1bb0591a184
     status: draft
     version: 1
   - id: dailycpp-q066-001
@@ -2634,7 +2634,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 070ce9109862a606c08d6119594fb34a7bcda848b9a7567c44bbe7060cd88392
+    sourceHash: 2e987047e7f6090611b264644aa38e2112444743b54596ea3a98d35fa128ac43
     status: draft
     version: 1
   - id: dailycpp-q067-001
@@ -2673,7 +2673,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: bdbe4e67de9bc0e17871a7c55dbaf3540815f8ebabd82897a7adb9883866da21
+    sourceHash: 852f5c8663e1aa4550dad4e8d0fe37bee66a27d2eee5008fd85ebf1284ff8e50
     status: draft
     version: 1
   - id: dailycpp-q068-001
@@ -2712,7 +2712,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 10885f689977c470bcbeb45d1407a1de8cb6e43e4fc497fb56bc94d7bd823144
+    sourceHash: 126f1ae352d8c256ac685ccf122d8560147133deb5a85e99ce63c35f737b3fa5
     status: draft
     version: 1
   - id: dailycpp-q069-001
@@ -2751,7 +2751,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 154688bbe584b2b6aa8bd7106ebf082c9273a500cbae9122dcafe9bc04015a10
+    sourceHash: af2e8b55390c94df04f9f3356e9bae4a01e65048dd3628f95ebeeb6d7ad1179a
     status: draft
     version: 1
   - id: dailycpp-q070-001
@@ -2790,7 +2790,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 8f4565bb2ba59e37ed506483d0d37d274f200d045a4cdb606324844d807af8ec
+    sourceHash: 563595822e1550dd60d35502a6b7f00700ba951c09b934a3bdf94662a74d6015
     status: draft
     version: 1
   - id: dailycpp-q071-001
@@ -2829,7 +2829,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: d627f5182a2204e16115bddb11ee78cc303f8ef17250758e659ce16667f36b9a
+    sourceHash: 8817f62c384cd0add669fc7abe825100bd84ba22811ec5adfa03b98695b816c7
     status: draft
     version: 1
   - id: dailycpp-q072-001
@@ -2868,7 +2868,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: c652c7fc3b1384f15ab400eee8be70208c53ae71cb2ac7792e9e3dd7d893331e
+    sourceHash: 2951ee89c581c5df2e4efb9c731bd4f96c6c575525fe4dbdd9b81a1a47cfd58c
     status: draft
     version: 1
   - id: dailycpp-q073-001
@@ -2907,7 +2907,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: b87e6eaefd492ee3ccd838df9736937a8a9220f01721f400b011f4c6ee3aae8b
+    sourceHash: 9a390793acbec56f375eb0a7bcbd0166d0b602b46a4b25b75f4895828fc9c3f0
     status: draft
     version: 1
   - id: dailycpp-q074-001
@@ -2946,7 +2946,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: efd4e03db38e2a7dea3d4a7fa4e102e860ce43b18ecd25e6dd1f5b3332fd6da3
+    sourceHash: b037440abf96c127a988a07e831b9337255f1df8edfc6d341acfd838e2650bc8
     status: draft
     version: 1
   - id: dailycpp-q075-001
@@ -2985,7 +2985,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: c3bf4110d860c8fe06cc9d8d5066dce421691ad6c7aed2f7f731c09dccfb5784
+    sourceHash: ff15f186d61fa918822673b1f40ee0c07e65782b698a95a11f9ce47a890e525d
     status: draft
     version: 1
   - id: dailycpp-q076-001
@@ -3024,7 +3024,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 597effbada88f2ca701ba8750ed924ad3941d3c734bc685ecc2959c50ff8d6aa
+    sourceHash: 1bb5d9aff6540bd7d9b16de46d22070317f14f32e7db366a2cea6481245926ba
     status: draft
     version: 1
   - id: dailycpp-q077-001
@@ -3063,7 +3063,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 41b5638141cae6404231841c122323130ff9c57a95271ba23a1412c2a5cf1d52
+    sourceHash: c6a4b3c73395056f0b84cae2400befaf37cb813bc6e10e7300503870ba14c176
     status: draft
     version: 1
   - id: dailycpp-q078-001
@@ -3102,7 +3102,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: ceee4c1dd20b2d52910fdd8154931df0dc0fed320442f544f851bb2f2da83a91
+    sourceHash: 814bd1c63630afa4b2844902db604e6c6c652f9044431b7784354288588d1652
     status: draft
     version: 1
   - id: dailycpp-q079-001
@@ -3141,7 +3141,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: e11577d00865268eb74716b6eb2e4dffc2a2d8c9088237d5af5abda89628fcea
+    sourceHash: 138e4a4372a1fe3aa151036b0b08279128293421a3a692b19c4aa29a38e27df0
     status: draft
     version: 1
   - id: dailycpp-q080-001
@@ -3178,7 +3178,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 9d5994a29a66e13612cc4de3444c5904b3d2a9d20a70052423eb3291cb742b9f
+    sourceHash: 3087c20de8c55d6d79363703d128af96c3a5c09aed05d1a9a3e07f4830b6abee
     status: draft
     version: 1
   - id: dailycpp-q081-001
@@ -3217,7 +3217,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 20a48f9a9ee6396847b59e06f2f7bd507a888a36b1061854db6ad97f76149819
+    sourceHash: 4ae3fc6640de250e6456da0cf3093b71e4c34dafc658ad422d444894dcf4ddf8
     status: draft
     version: 1
   - id: dailycpp-q082-001
@@ -3256,7 +3256,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: b145b5d13e6770657c0e490b51923bc7b6beaa49410439444f08676f6021a1b7
+    sourceHash: 52f2ddad4ebc42b76df84ebbca561581ede343542158427a02961df715373abc
     status: draft
     version: 1
   - id: dailycpp-q083-001
@@ -3295,7 +3295,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 55e5761d2ebcb836f6f5ab1f398d8492b663473a39bf42777c8cc4915bb754bd
+    sourceHash: 8fbc43d7e6d13eea3cdd5af3d331bc2d76bf4972803caad3199050ee975470fb
     status: draft
     version: 1
   - id: dailycpp-q084-001
@@ -3334,7 +3334,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 536d2d6ce4e1975ca0885994cdb7307a36a54798be033f9f99e62030c76d847a
+    sourceHash: 9e8ce430a8996d4ceeb819110300e9c3ef6983359d0122282395373c989d92fa
     status: draft
     version: 1
   - id: dailycpp-q085-001
@@ -3371,7 +3371,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 951a6fda810176f960aadb94876b32192a3ee27b92a337d246e257f702183a4a
+    sourceHash: e8105e1f847e5379fce83226fe7fbef277819c84834f77b91375c0e4ab26334e
     status: draft
     version: 1
   - id: dailycpp-q086-001
@@ -3409,7 +3409,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 334e2030d032fcacaffc5b9f33e15acd39a9bb30675bee98627e5a112c47ce5d
+    sourceHash: c7ded877e25d6c97684490d33a768217dd73a06e744cbc7514a2b78885457b5d
     status: draft
     version: 1
   - id: dailycpp-q087-001
@@ -3446,7 +3446,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: c1cd1cd7d9ef238559e0e03b0a1470d9c19667b11fa348341e5de429fdbf4c73
+    sourceHash: 65b2bbc6f49f5e1f326161668880c1eab145a8b22974de5c96c342b582b50b4c
     status: draft
     version: 1
   - id: dailycpp-q088-001
@@ -3485,7 +3485,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: bdf9ba836a40276fb745b24981e65aea556c162282f177819b7cc6e4ba826268
+    sourceHash: 80f634fe39286fb4fe28e059897acd4309ed3ef3e8d0e2ac61a6da9c441dd30d
     status: draft
     version: 1
   - id: dailycpp-q089-001
@@ -3524,7 +3524,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 78c08d874ce2e3ff9a5a206e1481271d26527cd56078c1e30131518d161efee3
+    sourceHash: f6bc457ad70be5d3ec20d23025cb204979493525cd621dae7bdea219d05ad846
     status: draft
     version: 1
   - id: dailycpp-q090-001
@@ -3563,7 +3563,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: f43a13a603c1b0cfb566fd6bc4f38e1880bef05dd3cfa1637015c7d70cf09fd2
+    sourceHash: b47010e72af3b867f698351fd172ce1e5b7179341eb44db081ea78d779f888b6
     status: draft
     version: 1
   - id: dailycpp-q091-001
@@ -3602,7 +3602,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 8a2538d938e494a2d2c1c613f808b72669e6c2db6beb135cf33fa3842bb5bb69
+    sourceHash: bca79d299b6ae41f0133898f5ec853f99660d37724a2a2cea261f2231833ec66
     status: draft
     version: 1
   - id: dailycpp-q092-001
@@ -3641,7 +3641,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: ad92cb47473a32e0bbde572ddb140070c9acfbd8f24834565f274cee123caa74
+    sourceHash: c20e74200f1564f67d95ef16e500eb95f1a1170f909a481436f2930fb8b74d26
     status: draft
     version: 1
   - id: dailycpp-q093-001
@@ -3680,7 +3680,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: f0dc54ff35054094f295e40e666beda94eb2205867e0f181076c3f2e34441c81
+    sourceHash: fd3cd8a50b34637cb1af4212dab493ec5e7685a6d86c33710e346fc87a7fb31a
     status: draft
     version: 1
   - id: dailycpp-q094-001
@@ -3719,7 +3719,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 0b66be1ff79e3292ebd812a108cdd5cebf41bf701b409feaa87bfbbcd9f41de3
+    sourceHash: 657b46906216429c91573a0ced750e52c1268bb26577263e22b44a9a8821524e
     status: draft
     version: 1
   - id: dailycpp-q095-001
@@ -3758,7 +3758,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: a4aec0ccc673f8a6eb8344962fb3ec09476f59221807aef9d6c178a91fafb21e
+    sourceHash: ff2499c07e32f8dabc7b9b490717b0ca19d1c38142d063d836f2357a2492a34a
     status: draft
     version: 1
   - id: dailycpp-q096-001
@@ -3797,7 +3797,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 47c96e98b9ba02f01937be84fbd7f725bec22f79c0230e26df07aacaa54eb834
+    sourceHash: 881440ad396844c3d338bc61ac4144c6bd2ea681e75da994e97562847c167d51
     status: draft
     version: 1
   - id: dailycpp-q097-001
@@ -3836,7 +3836,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 0b77e98ab4553b27aea422797ce3178ea029c461360c3dce08f608d70e78bbc2
+    sourceHash: 2c1aa2715a2b27e94793bf255ebda824017061e9b3e464d87e65b555bfef7adf
     status: draft
     version: 1
   - id: dailycpp-q098-001
@@ -3875,7 +3875,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 8ac5329ca98aa11aae80b3c3c3f5b2e956e5dc53dbe8137c42776864b6cac5a4
+    sourceHash: ffd00f1f93e6ba0b694f0b0333487906277cdeeb4afe9ab87742054609b6a6ab
     status: draft
     version: 1
   - id: dailycpp-q099-001
@@ -3914,7 +3914,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: d73e2f1e10810806f2e73f6a45213705f889c14c222764594bf5c9e83f37238d
+    sourceHash: a6a6ea8e8428a809c0068baa90fbaaa76697cfb67ee7c5c4f6ccace1ad303974
     status: draft
     version: 1
   - id: dailycpp-q100-001
@@ -3953,7 +3953,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: f07158ba5ebde4382bb85be47c7910113e448f8f60da902349a11cc3850652dd
+    sourceHash: adbdfa8036188608b1f5637439852c006a134a3e706372cc2a900cb87e5d8442
     status: draft
     version: 1
   - id: dailycpp-q101-001
@@ -3992,7 +3992,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 31e414bb019419f747aeae8eef97d104929ed9dccfc078954d423a44c7d87e27
+    sourceHash: cbb6c26b95693b86c58f101040b300ab2b9bb0ecf4f6d768041c8a9b7a412261
     status: draft
     version: 1
   - id: dailycpp-q102-001
@@ -4031,7 +4031,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 44b98258a43b300338e18803353c75a5f947d7cc1df6c748f399bdb9b23ff563
+    sourceHash: 93885bcace24de8a5a9c57b9524efb316f23991b4767ed569712d717245dc7bc
     status: draft
     version: 1
   - id: dailycpp-q103-001
@@ -4070,7 +4070,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 3c89ba7f2c9e881cd170813d71ae2b92879d51d9cb0dd1b76fadf1686b35d3a0
+    sourceHash: 2a460f100a469181332862fe1ca52a60ff185be815cd85d293a282aa8a563778
     status: draft
     version: 1
   - id: dailycpp-q104-001
@@ -4109,7 +4109,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 992a4f816a04506069d648d0e9e376b3cbcd19819a87937c3673111628264ab3
+    sourceHash: 09dc2bbe99f26d7c0dbc2ce55646d69e45d0700f1750c7d169f5144ee2fd74ec
     status: draft
     version: 1
   - id: dailycpp-q105-001
@@ -4148,7 +4148,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: f0e4eeb027654d78aa7961ee199b8be645751289d16d64a38807bcfe7104240d
+    sourceHash: a0183dfdbf01991026100b2405ede7c2754d122c09b377a6af957a6cb3102e64
     status: draft
     version: 1
   - id: dailycpp-q106-001
@@ -4189,7 +4189,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: fbcf6e369a3bfe301b9a2d4458b58604af6da2d5d8e8bd996d9bb5842879a962
+    sourceHash: e35214c7030df468530f73958bd63fcc589692ec70662ae0c8c6855521b7150a
     status: draft
     version: 1
   - id: dailycpp-q107-001
@@ -4228,7 +4228,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 376bc8ed35c0b19ae650322e7e798b3ba1528aece504b17bb7475cbad6a4a30c
+    sourceHash: 0bd60fe29e7db0b4ce96cedc2c710dd4f76f7d5f08c43e77adae58668df94d4a
     status: draft
     version: 1
   - id: dailycpp-q108-001
@@ -4267,7 +4267,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 1828ce8af5c42bdb100de34e039103d74f413ad2719a407346817f9c954c2d9e
+    sourceHash: 297daf7050b0d1f1a6645fc784ce04d8de122e97219814d51543b34a4567fe08
     status: draft
     version: 1
   - id: dailycpp-q109-001
@@ -4306,7 +4306,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: a46c16f943f7f7e5664b0bb46a303e2f9c304ddd97d97a24ee5c8f06092af838
+    sourceHash: 04830dbe6b6aa3c8b6c2a716e34d7a7e43d01ccc626a5bf25cc122d861d77493
     status: draft
     version: 1
   - id: dailycpp-q110-001
@@ -4345,7 +4345,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: fdb14b458e58b442aab4d3a3a518700109a84bf354341ce9e21b00880cf7c40b
+    sourceHash: 10b9b929b48dfa6c86a6756e1219bb03c4dd69f5d69d45ea909c6840f29ce77d
     status: draft
     version: 1
   - id: dailycpp-q111-001
@@ -4384,7 +4384,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: d36f3b89e1ae3a25e7fffd9193b710ba84548ebb641005e2cb7f7af0231d996b
+    sourceHash: 6a1a7584c5cffcd5ed7195796b59c5c4bc8f867773d9efa4928f37e91631060e
     status: draft
     version: 1
   - id: dailycpp-q112-001
@@ -4423,7 +4423,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 772c0aea04ab3f4f7e0fae281210c98435fd5d125c24b4aac6436bf47fd05c29
+    sourceHash: 82aa2893c7704b43709d58f3e3b5142aa5d2ccf5f4674f1ba3dc6ea85adebad1
     status: draft
     version: 1
   - id: dailycpp-q113-001
@@ -4463,7 +4463,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: c45ad3442df2e2bb8aa658fe6bd1128c87e87d7d512ecdf44edde05c75d664bd
+    sourceHash: d6f5327cb37169d1dadc788110691389ba51c1fdb879766fa0b1ff7a66084a8b
     status: draft
     version: 1
   - id: dailycpp-q114-001
@@ -4502,7 +4502,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 266486fb423d95b7e8739433a83dcfe30dbc8681601dff92329fb9c07ec5ea93
+    sourceHash: fda0319a397ace4f4f17f4a54f486ae71938f3f71b06058b252737777fe8fab0
     status: draft
     version: 1
   - id: dailycpp-q115-001
@@ -4550,7 +4550,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 44644351b76e02ece0663b3d9d8ab782b2dceea6f25dec989f28da738c7eea35
+    sourceHash: 04bfcd26ac5b5a43b8df2e303281acfd76bf580adfa28a642af2a436a20b88fd
     status: draft
     version: 1
   - id: dailycpp-q116-001
@@ -4589,7 +4589,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: d1ed63bb6e1c2ecbc8e02ab0835509c8e4e55f7cb85591cb907b908daa7037b0
+    sourceHash: c5af9fd337858717c30a0534c37935e98abfc1bf0786d9fc0dafa383bbc98cf4
     status: draft
     version: 1
   - id: dailycpp-q117-001
@@ -4628,7 +4628,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 535e996dada1fd30140d8d874e15732b6c8a6233c9a4bee121d3b31ae20f23d4
+    sourceHash: a67dae974e111e5035e8bde0680a686b74594c849a5fa9eea98469266b5227c0
     status: draft
     version: 1
   - id: dailycpp-q118-001
@@ -4667,7 +4667,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 247b596cd2f56e7cbb8e2204ccf0d0b54c811f383a121648384bdd54eaf2771f
+    sourceHash: a3a33917a2daa9e2e0079c747f83d94ef61a7c6e1a36bdafac7915f4cde14a15
     status: draft
     version: 1
   - id: dailycpp-q119-001
@@ -4706,7 +4706,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 5e2d814eb7df7e9aebac190cc9d6d13f44e6466a4accdb88d3712593f149092c
+    sourceHash: 91704a144deea890bbef4679326c2e9f986d087d87a840ddf6a049904ba5a6a5
     status: draft
     version: 1
   - id: dailycpp-q120-001
@@ -4745,7 +4745,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: e425725d2571a4239e2023b32828dec9b2212f80c418fd86135019c4cc99e4c9
+    sourceHash: dbac18c7816ef42740d1e3bef31afe69aa427683d3c766f9f666b66bccc74c6e
     status: draft
     version: 1
   - id: dailycpp-q121-001
@@ -4784,7 +4784,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 033d31b97d5d8b852853baa444612086fbed1183afcac0baa63cc38c707c15c8
+    sourceHash: 6f1271f74d4e2b201c0b969dd5cffe9b67a3c19677df0feb778ccec7fe6aa553
     status: draft
     version: 1
   - id: dailycpp-q122-001
@@ -4823,7 +4823,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: f3b194d4af78dd7dcfa2c5eb24909adcf115fe9028f00532b6eb9e6533682abd
+    sourceHash: 956a8e045577a428de77fac14c94a224dfd02af2f52c3e86e9c9ed6f2597890b
     status: draft
     version: 1
   - id: dailycpp-q123-001
@@ -4862,7 +4862,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 14ac9d7072c3e5ca63e08d91409cd90870b5d66b03d1a29a921bd1270bc95726
+    sourceHash: 4bd04e983adb5cdb8338d47b5352b8ee465fba58addfd80b891639e614592705
     status: draft
     version: 1
   - id: dailycpp-q124-001
@@ -4901,7 +4901,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: d60c7624c447e103e6c968178464b49b11b059103c0874fec5de4b29c44abc65
+    sourceHash: 7b0698236f4776d1ad7214cfacb3a2801d47aef94fd8b72e88f0748c56f11358
     status: draft
     version: 1
   - id: dailycpp-q125-001
@@ -4940,7 +4940,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: b0b82882cd52a641d244e7b45d302473205aa0d924662432cdb99476525ecac3
+    sourceHash: 20968e682bc1f86d68187bda46340625a8893a1b92ed16a2c098de459faa9881
     status: draft
     version: 1
   - id: dailycpp-q126-001
@@ -4984,7 +4984,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 0621368872455e11cc24979179a725a017e0d3b0ac916a4694757e72cd2ccd66
+    sourceHash: 7e64ff2e2ab6695597b712d4e0c4609a58cd8ae51d8183f41242704c27ca7c29
     status: draft
     version: 1
   - id: dailycpp-q127-001
@@ -5029,7 +5029,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 94970d41055b0dbbb67e596f4b47e4cb095517db6a5101888bb4fcaf5d5b0bce
+    sourceHash: 4f3e896732eb86ebe7476405c625633a80a9c2355a5643c047202ba775689589
     status: draft
     version: 1
   - id: dailycpp-q128-001
@@ -5068,7 +5068,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: df7b676bf8cf425243d51287bb3203a049f7d2848db46eb4f9c53c67474dd296
+    sourceHash: 4f3f2268df5cf67d92cdbef2beecc7b8042d654b754d71beb7300ee0c532cfc1
     status: draft
     version: 1
   - id: dailycpp-q129-001
@@ -5112,7 +5112,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: e4e0fd4b78bb4c63cf7efa8e8fb2643aa664810ce81d28e8b7bfa64bf727e83e
+    sourceHash: bdd6381042bdd76dfea3de637ec6d82a579c2e81625aafed1b0b7d88420b531c
     status: draft
     version: 1
   - id: dailycpp-q130-001
@@ -5157,7 +5157,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: ccd2edcb0b33528175dbee5740de4f806411d35c954d0a3042e9ae97c8343b55
+    sourceHash: 807c4a18bb8fbed3b8f706a3cdd02e68b370c38389b012d865cafde9de34fcc9
     status: draft
     version: 1
   - id: dailycpp-q131-001
@@ -5196,7 +5196,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: f52264e55842ddd107f1b1c9c39ee3e032ec3cc64a8ef9ccd084a1eeee3bde27
+    sourceHash: 3ef1856de0af4466810e46e36a0d7de7ab0cc272edd6d80cc47a560d34dc6c43
     status: draft
     version: 1
   - id: dailycpp-q132-001
@@ -5235,7 +5235,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 411bff2056906803bf8d13d39b81f9d6f4586554d3f9b1579fc9c7de6b92e8f5
+    sourceHash: d06b93e4b2f2dc792ac17e794794b0e416f0569698454317cf9c936edf353b3e
     status: draft
     version: 1
   - id: dailycpp-q133-001
@@ -5282,7 +5282,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 9fce2b3cbc9f3e2efe7ae867f4a2751c70656060bd9b31ab1c6ecbddfc50cfcf
+    sourceHash: 97287630be65326a890673b0bdc897138f45ebe6e334775351831545b74aaab1
     status: draft
     version: 1
   - id: dailycpp-q134-001
@@ -5321,7 +5321,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: d0e2b64d899010348ddab74e3ae5940420a22f3ebcc5675d9b581899de3e20e4
+    sourceHash: 0f5b10ec720750f76f807b7c40e8ff6b07e4dfe10a33e01de50a77b6b6f0c7c3
     status: draft
     version: 1
   - id: dailycpp-q135-001
@@ -5360,7 +5360,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 92f2fc883c4eabd53d4038a466df2826a82a95a9f90309a751642dc9d40b79f6
+    sourceHash: ef147667e6cbe2f5205392f2e739899dbe4b8cf7d84072b89dd6171a9be02e92
     status: draft
     version: 1
   - id: dailycpp-q136-001
@@ -5399,7 +5399,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 867870aebd8be9961824a6d1fe4dce80ca68e88945d5cab3f9edd00e2925e2b1
+    sourceHash: 82725da2d1e7992963d8aa20bb0b38461dfe24bb27c23b909fae1e25bd89ecae
     status: draft
     version: 1
   - id: dailycpp-q137-001
@@ -5438,7 +5438,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: a5b7322773094a06cc08785076b361de42c73511ec1969df586fe8b05b26ec57
+    sourceHash: 71c1709c7c62123ae402974e2124f5a3957387c2852c4212e9e1d9dcec75d887
     status: draft
     version: 1
   - id: dailycpp-q138-001
@@ -5477,7 +5477,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 7056be012f269c763d39304524d2ed4ec188d32f6b3094961f1f8655384f0ffa
+    sourceHash: 70ee31dbd624d2dbbcac320b617ed2303b7efd333afa45fef4c91bb7a4e0b37f
     status: draft
     version: 1
   - id: dailycpp-q139-001
@@ -5516,7 +5516,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: cd12bb5eb351b166b5173ce102fb4d6779ac92b4ec9c0b2251294531a8764190
+    sourceHash: 8cdcd66abdc98de5a04ba29848ffcb5cfd1e5eebbcfc3683bd966983a14437a1
     status: draft
     version: 1
   - id: dailycpp-q140-001
@@ -5555,7 +5555,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: c5dbdf223df7a9da9973a530406b61efe6c3c5d717737c3e198b343006f4b21e
+    sourceHash: 7e0a25a7acd4a1040bf0f74de1f876ff90e72d020aa5f33bd7b343ad21051170
     status: draft
     version: 1
   - id: dailycpp-q141-001
@@ -5594,7 +5594,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: a169ec76286105ae1e024e57938b191572d3115c519142e6c66ff78163f8c652
+    sourceHash: 561ff65f1c4b9c80baa47917fb842fb8632faeecad67e540df9dd06f22fbd0cf
     status: draft
     version: 1
   - id: dailycpp-q142-001
@@ -5633,7 +5633,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 970a42d6ced1d8ac9eb7172eb7cdfe18063af9fdd6fe27a1c4f08b40c39b2910
+    sourceHash: 0cc1cbb9a92afc6b7c1d0ee7c6f325c660d3a6233a11935f7b9d83b791fd1afe
     status: draft
     version: 1
   - id: dailycpp-q143-001
@@ -5672,7 +5672,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 00044e8c95304c789287e614150ad383ab47afc7e43c917599958fcdbb82bfc0
+    sourceHash: c53f0939fb257dc2ef0ce60dd4f790ffe24d14b18113b7c9a63524d75580dbe7
     status: draft
     version: 1
   - id: dailycpp-q144-001
@@ -5711,7 +5711,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: e9d09effdb12c67b7c7399e615458698ed70ad32d4c02d396dbfa202eb38cd2d
+    sourceHash: b6b750afb605e45a64d66a026462d481edb7ae4d5812fd9d883127ec1e457828
     status: draft
     version: 1
   - id: dailycpp-q145-001
@@ -5752,7 +5752,7 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: e4c21356d783ed5dfe1c98243ddf17a77da7169b1d3ccdc8b6f7dbcaa002ac22
+    sourceHash: 965df2611e442fe18c33f370d01342c07f4092a3100106dc2a57c7051b65cdde
     status: draft
     version: 1
   - id: dailycpp-q146-001
@@ -5791,6 +5791,6 @@ questions:
       - sectionId: y-tuong-cot-loi
       - sectionId: cach-no-hoat-dong
       - sectionId: cau-hoi-tu-kiem-tra
-    sourceHash: 75370b7cb8ef66bc97684a6f14902a944f6d7162290134f8c74f08f14686e422
+    sourceHash: 3c05cea38b909564e14195655dcd89494532bbc6b76d1753a4cac32188ef5aba
     status: draft
     version: 1

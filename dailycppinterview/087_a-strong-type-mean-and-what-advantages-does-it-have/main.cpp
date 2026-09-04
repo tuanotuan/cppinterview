@@ -1,5 +1,4 @@
-// Real-World C++ Interviews Q087: What does a strong type mean and what advantages does it
-// have?
+// Daily C++ Interview Q087: What does a strong type mean and what advantages does it have?
 // Key: A strong type creates a distinct semantic type around a representation, preventing
 // accidental interchange of values such as meters and seconds. It can enforce invariants and
 // make overloads and interfaces clearer.

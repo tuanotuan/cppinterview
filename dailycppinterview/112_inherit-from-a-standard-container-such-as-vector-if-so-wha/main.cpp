@@ -1,5 +1,5 @@
-// Real-World C++ Interviews Q112: Can we inherit from a standard container (such as
-// std::vector)? If so what are the implications?
+// Daily C++ Interview Q112: Can we inherit from a standard container (such as std::vector)? If
+// so what are the implications?
 // Key: Deriving from a standard container is legal syntax but usually the wrong public
 // abstraction because containers are not polymorphic bases and lack virtual destructors.
 // Composition preserves invariants and limits the exposed API.

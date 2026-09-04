@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q038: Should you take plain old data types by const reference as a
+// Daily C++ Interview Q038: Should you take plain old data types by const reference as a
 // function parameter?
 // Key: Small scalar and other cheap value types should normally be passed by value; a reference
 // can cost the same size while adding indirection and aliasing. Use const reference when

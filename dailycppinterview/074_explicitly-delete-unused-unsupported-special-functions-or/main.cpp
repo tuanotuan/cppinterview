@@ -1,5 +1,5 @@
-// Real-World C++ Interviews Q074: Should you explicitly delete unused/unsupported special
-// functions or declare them as private?
+// Daily C++ Interview Q074: Should you explicitly delete unused/unsupported special functions
+// or declare them as private?
 // Key: A public `= delete` is the modern choice because it documents the forbidden operation
 // and lets overload resolution diagnose it directly. Private declaration without a definition
 // is a legacy technique and can defer or obscure the error.

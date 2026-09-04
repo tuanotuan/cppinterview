@@ -253,11 +253,18 @@ trạng thái từ tên nhánh.
 - Content sync remote từ merge commit `5a4e19f` là baseline có 410 lesson active
   và 936 repository question active. Riêng `dailycpp` có 146 lesson active và
   đúng 146 repository question draft (73 dễ, 39 trung bình, 34 khó), không có
-  question DB-owned hay generation job. Rebrand sang Real-World C++ Interviews
-  giữ nguyên toàn bộ lesson/question ID nhưng đổi source revision/checksum của
-  đúng 146 mục; chỉ sync remote sau khi nhánh rebrand được merge. 30 lesson và
-  51 question legacy đã archive vẫn được giữ cho audit; 146 question collection
-  chưa được duyệt tự động.
+  question DB-owned hay generation job. PR #210 đã merge nhưng main workflow run
+  `33888296761` dừng fail-closed với `P0001 Question revision conflict` vì rebrand
+  từng đổi 146 source hash mà vẫn giữ question v1; remote do đó vẫn ở baseline.
+  Hotfix giữ lại exact v1 source hash/ID/version để bảo toàn approval và chuyển
+  tên `Real-World C++ Interviews` ở lớp hiển thị. Generator giờ từ chối ghi đè
+  khi hash đổi mà `questionVersion` không tăng. Đối chiếu remote read-only xác
+  nhận 146/146 Daily question có exact admin approval, nhưng chưa có Daily English
+  publication nào trong `content_question_translations`; sau khi hotfix deploy,
+  Admin sẽ hiện lại đúng 146 English copy chờ duyệt và `/en/practice` tiếp tục
+  fail-closed cho tới khi chúng được duyệt. Không tự suy diễn approval câu gốc
+  thành approval bản dịch. 30 lesson và 51 question legacy đã archive vẫn được
+  giữ cho audit.
 
 - Kho câu hỏi đã duyệt chưa bao phủ đều tick data, Linux/mạng, hệ
   thống phân tán và kỹ năng chịu trách nhiệm đầu cuối. Giao diện phải gọi đây là
@@ -432,11 +439,12 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Collection Real-World C++ Interviews đạt toàn bộ `npm run validate`: content/context
-  check, ESLint, TypeScript, 162 file/915 Vitest test và Next.js production build
+- Hotfix revision drift của Real-World C++ Interviews đạt toàn bộ `npm run validate`:
+  content/context check, ESLint, TypeScript, 162 file/917 Vitest test và Next.js production build
   sinh 884 static path. Targeted contract xác nhận đủ 146 lesson song ngữ, 438
   source file, đúng một question/lesson, 127 prompt duy nhất, 19 cặp lặp nguồn,
-  không có roadmap và không có mojibake; cả 146 `main.cpp` qua
+  không có roadmap và không có mojibake; test riêng xác nhận Q050 dùng đúng English
+  copy khi có exact publication và giữ nguyên v1 hash. Cả 146 `main.cpp` qua
   `g++ -std=c++20 -Wall -Wextra -Wpedantic -fsyntax-only`.
   `content:sync:check` dựng payload 410 lesson/936 question. Security review đủ
   10 nhóm OWASP không có finding mở và production dependency audit báo 0 lỗ
@@ -445,8 +453,9 @@ trạng thái từ tên nhánh.
   sync đúng merge commit/revision/checksum và enqueue 0 generation job. Remote có
   đúng 146 lesson/146 repository question cho collection, không có question
   DB-owned. Production smoke trước rebrand trả HTTP 200 cho `/vi/learn` và
-  `/vi/learn/dailycpp-q001`; cần smoke lại nhãn Real-World C++ Interviews sau khi
-  merge, deploy và sync nội dung. Database advisor không có lỗi mức `ERROR`.
+  `/vi/learn/dailycpp-q001`; cần smoke lại tên hiển thị cùng Q050 tiếng Anh sau
+  khi hotfix merge/deploy, content sync thành công và 146 English copy được admin
+  duyệt. Database advisor không có lỗi mức `ERROR`.
 - Tiến độ cá nhân trên cả năm roadmap dùng `Đang học`/`Đã xong`/`Bỏ qua`, hydrate
   sau static render và lưu owner-private tách khỏi FSRS. Ba trạng thái phủ toàn bộ
   nền node bằng ba dải tím/xanh lá/xanh đậm tách biệt, có hover riêng và giữ chữ/icon đủ

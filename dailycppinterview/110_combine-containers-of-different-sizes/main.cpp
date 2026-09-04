@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q110: Can you combine containers of different sizes?
+// Daily C++ Interview Q110: Can you combine containers of different sizes?
 // Key: Some algorithms accept multiple ranges, but an overload that receives only the first
 // iterator of a secondary range assumes enough elements are available. Check sizes or use an
 // interface that carries both ends; C++ ranges improve several APIs but do not erase every

@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q067: Explain what consteval and constinit bring to C++?
+// Daily C++ Interview Q067: Explain what consteval and constinit bring to C++?
 // Key: `consteval` makes a function immediate so evaluated calls must be constant expressions.
 // `constinit` guarantees static initialization for a static- or thread-storage object but does
 // not add constness.

@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q075: What is a trivial class in C++?
+// Daily C++ Interview Q075: What is a trivial class in C++?
 // Key: Triviality means the relevant construction, copy, move, or destruction operation
 // requires no custom action under the standard's rules. Use traits such as
 // `std::is_trivially_copyable_v<T>` for the exact operation instead of relying on appearance.

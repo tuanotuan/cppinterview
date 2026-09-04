@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q001: Explain auto type deduction!
+// Daily C++ Interview Q001: Explain auto type deduction!
 // Key: `auto` follows template-style deduction: top-level references and cv-qualifiers may be
 // dropped according to the declaration form, while braced initializers have special
 // `std::initializer_list` rules. Write `auto&`, `const auto&`, or `auto&&` when reference

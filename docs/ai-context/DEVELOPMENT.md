@@ -138,6 +138,14 @@ thể được nhận ra và giữ ID, nhưng luôn kiểm tra diff.
   `dailycppinterview/`, phần registry, YAML câu hỏi và overlay tiếng Anh; sau đó
   chạy `npm run content:generate`. Mỗi thư mục phải có đúng `vi.md`, `en.md`,
   `main.cpp`, còn mỗi lesson chỉ có một question ID `dailycpp-qNNN-001`.
+- Chuỗi `Daily C++ Interview` đã nằm trong 146 revision v1 và tham gia source
+  hash nên generator cố ý giữ nó ở source; `localizeContentManifest()` thay bằng
+  tên hiển thị `Real-World C++ Interviews` trước khi render. Không sửa chuỗi nguồn
+  chỉ để rebrand. `collection.defaultQuestionVersion` là version mặc định; nếu
+  nội dung/hash của một câu thật sự đổi, tăng `questionVersion` riêng trên mục đó
+  (hoặc tăng default khi toàn bộ collection đổi). Generator phải fail nếu hash
+  đổi mà version không tăng, trước khi chạm vào bất kỳ source hay catalog sinh tự
+  động nào.
 - Giữ cả 146 mục, bao gồm 19 câu lặp có chủ ý của nguồn; không gộp ID và không tự
   sinh bộ ba Dễ/Trung bình/Khó. Difficulty là ước tính biên tập lưu trong manifest.
 - Track `dailycpp` là collection trung lập phiên bản: hiển thị trong Library và

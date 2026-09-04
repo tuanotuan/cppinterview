@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q120: Should base class destructors be virtual?
+// Daily C++ Interview Q120: Should base class destructors be virtual?
 // Key: Use a public virtual destructor for a base intended to be deleted polymorphically. Use a
 // protected non-virtual destructor when deletion through the base must be forbidden; not every
 // base class needs virtual destruction.

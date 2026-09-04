@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q010: What does a static member function mean in C++?
+// Daily C++ Interview Q010: What does a static member function mean in C++?
 // Key: A static member function has no `this` pointer and can be called through the class name.
 // It can directly access only static members, although it may operate on objects passed
 // explicitly.

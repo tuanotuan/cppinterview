@@ -8,6 +8,7 @@
     "sourceEdition": "2022-09-05",
     "questionCount": 146,
     "uniquePromptCount": 127,
+    "defaultQuestionVersion": 1,
     "licenseBasis": "User confirmed permission to reuse the 146 source prompts on 2026-09-04.",
     "importPolicy": "The PDF is not stored. Only the source prompt and indispensable prompt context may be retained; lessons, answers, and examples are independently authored."
   },

@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q037: Should functions return const references?
+// Daily C++ Interview Q037: Should functions return const references?
 // Key: A function may return a const reference only when the referred object is guaranteed to
 // outlive every use by the caller. It avoids a copy and prevents mutation through that
 // reference, but returning a local or short-lived subobject dangles.

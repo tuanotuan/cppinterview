@@ -11,6 +11,8 @@ type ManifestLesson = ContentManifest["lessons"][number];
 type ManifestQuestion = ContentManifest["questions"][number];
 
 const sourceHashSchema = z.string().regex(/^[a-f0-9]{64}$/);
+const legacyDailyCppCollectionName = "Daily C++ Interview";
+const dailyCppCollectionDisplayName = "Real-World C++ Interviews";
 
 const lessonTranslationSchema = z.object({
   lessonId: z.string().min(1),
@@ -253,7 +255,7 @@ export function localizeContentManifest(
     catalog.questions.map((item) => [item.questionId, item]),
   );
 
-  return {
+  const localizedManifest: ContentManifest = {
     ...manifest,
     lessons: manifest.lessons.map((lesson) => {
       const translation = lessonTranslations.get(lesson.id);
@@ -293,6 +295,68 @@ export function localizeContentManifest(
       };
     }),
   };
+
+  return applyCollectionDisplayNames(localizedManifest);
+}
+
+function applyCollectionDisplayNames(manifest: ContentManifest): ContentManifest {
+  const dailyLessonIds = new Set(
+    manifest.lessons
+      .filter((lesson) => lesson.track === "dailycpp")
+      .map((lesson) => lesson.id),
+  );
+
+  return {
+    ...manifest,
+    lessons: manifest.lessons.map((lesson) =>
+      dailyLessonIds.has(lesson.id)
+        ? {
+            ...lesson,
+            title: replaceLegacyDailyCppName(lesson.title),
+            sections: lesson.sections.map((section) => ({
+              ...section,
+              heading: replaceLegacyDailyCppName(section.heading),
+              bodyMarkdown: replaceLegacyDailyCppName(section.bodyMarkdown),
+              bodyText: replaceLegacyDailyCppName(section.bodyText),
+            })),
+            checklistItems: lesson.checklistItems.map(replaceLegacyDailyCppName),
+            code: lesson.code === null
+              ? null
+              : replaceLegacyDailyCppName(lesson.code),
+          }
+        : lesson
+    ),
+    questions: manifest.questions.map((question) =>
+      dailyLessonIds.has(question.lessonId)
+        ? {
+            ...question,
+            prompt: replaceLegacyDailyCppName(question.prompt),
+            code: question.code
+              ? replaceLegacyDailyCppName(question.code)
+              : question.code,
+            hint: replaceLegacyDailyCppName(question.hint),
+            answer: {
+              short: replaceLegacyDailyCppName(question.answer.short),
+              detailed: replaceLegacyDailyCppName(question.answer.detailed),
+            },
+            rubric: {
+              required: question.rubric.required.map(replaceLegacyDailyCppName),
+              bonus: question.rubric.bonus.map(replaceLegacyDailyCppName),
+              misconceptions: question.rubric.misconceptions.map(
+                replaceLegacyDailyCppName,
+              ),
+            },
+          }
+        : question
+    ),
+  };
+}
+
+function replaceLegacyDailyCppName(value: string) {
+  return value.replaceAll(
+    legacyDailyCppCollectionName,
+    dailyCppCollectionDisplayName,
+  );
 }
 
 function isQuestionTranslationPublished(

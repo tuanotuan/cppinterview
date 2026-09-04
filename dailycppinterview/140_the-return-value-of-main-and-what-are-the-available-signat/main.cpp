@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q140: What is the return value of main and what are the available
+// Daily C++ Interview Q140: What is the return value of main and what are the available
 // signatures?
 // Key: Standard `main` returns `int`; the usual signatures are `int main()` and `int main(int
 // argc, char* argv[])`, with implementation-defined additional forms possible. Falling off the

@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q040: Does the signature of a function declaration has to match the
+// Daily C++ Interview Q040: Does the signature of a function declaration has to match the
 // signature of the function definition?
 // Key: Declarations for the same function must agree on parameter types and function
 // qualifiers; otherwise they denote a different overload or fail to match a definition. Return

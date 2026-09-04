@@ -12,6 +12,11 @@ const registryPath = path.join(webRoot, "content", "lesson-registry.yaml");
 const questionPath = path.join(webRoot, "content", "questions", "daily-cpp-interview.yaml");
 const englishCatalogPath = path.join(webRoot, "src", "content-translations", "en.json");
 
+// This label shipped inside every v1 source file and therefore participates in
+// the immutable lesson/question hashes. The UI maps it to the current display
+// name; changing it here requires a new question version for all 146 entries.
+const immutableSourceCollectionLabel = "Daily C++ Interview";
+
 const difficultyLabel = {
   beginner: { vi: "Dễ", en: "Easy" },
   intermediate: { vi: "Trung bình", en: "Medium" },
@@ -167,7 +172,7 @@ function commentLines(label, value) {
 
 function commonPreamble(item) {
   return [
-    commentLines(`Real-World C++ Interviews Q${String(item.number).padStart(3, "0")}: `, item.prompt.en),
+    commentLines(`${immutableSourceCollectionLabel} Q${String(item.number).padStart(3, "0")}: `, item.prompt.en),
     commentLines("Key: ", item.answer.en),
     "",
   ].join("\n");
@@ -1331,7 +1336,7 @@ function lessonMarkdown(item, locale, code) {
 
 ## 1. Vấn đề nó giải quyết
 
-Đây là một chủ đề phỏng vấn C++ độc lập trong bộ Real-World C++ Interviews. Mục tiêu là trả lời đúng trọng tâm, nêu quy tắc chi phối và phân biệt hành vi do chuẩn quy định với chi tiết riêng của compiler.
+Đây là một chủ đề phỏng vấn C++ độc lập trong bộ ${immutableSourceCollectionLabel}. Mục tiêu là trả lời đúng trọng tâm, nêu quy tắc chi phối và phân biệt hành vi do chuẩn quy định với chi tiết riêng của compiler.
 
 ## 2. Kiến thức cần có
 
@@ -1398,7 +1403,7 @@ Chạy với warning nghiêm ngặt để đối chiếu kết luận thay vì g
 
 ## 1. Problem It Solves
 
-This is one self-contained C++ interview topic from the Real-World C++ Interviews collection. The goal is to give the conclusion, name the governing rule, and separate standard behavior from compiler-specific details.
+This is one self-contained C++ interview topic from the ${immutableSourceCollectionLabel} collection. The goal is to give the conclusion, name the governing rule, and separate standard behavior from compiler-specific details.
 
 ## 2. Prerequisites
 
@@ -1461,7 +1466,7 @@ Run it with strict warnings to verify the reasoning instead of memorizing output
 `;
 }
 
-function questionRecord(item, hash) {
+function questionRecord(item, hash, version) {
   const code = codeContextByQuestion[item.number];
   const type = code ? "code_reasoning" : item.difficulty === "advanced" ? "pitfall" : "recall";
   return {
@@ -1500,14 +1505,14 @@ function questionRecord(item, hash) {
     ],
     sourceHash: hash,
     status: "draft",
-    version: 1,
+    version,
   };
 }
 
-function englishQuestionTranslation(item, hash) {
+function englishQuestionTranslation(item, hash, version) {
   return {
     questionId: `dailycpp-q${String(item.number).padStart(3, "0")}-001`,
-    questionVersion: 1,
+    questionVersion: version,
     sourceHash: hash,
     status: "draft",
     prompt: item.prompt.en,
@@ -1536,6 +1541,10 @@ const catalog = JSON.parse(await readFile(catalogPath, "utf8"));
 if (catalog.questions.length !== 146) {
   throw new Error(`Expected 146 source questions, found ${catalog.questions.length}`);
 }
+if (!Number.isInteger(catalog.collection.defaultQuestionVersion) ||
+    catalog.collection.defaultQuestionVersion < 1) {
+  throw new Error("defaultQuestionVersion must be a positive integer");
+}
 for (const [index, item] of catalog.questions.entries()) {
   if (item.number !== index + 1) {
     throw new Error(`Question order breaks at index ${index}`);
@@ -1563,24 +1572,51 @@ for (const item of catalog.questions.filter((question) => question.repeatOf)) {
   }
 }
 
-await mkdir(sourceRoot, { recursive: true });
-const generated = [];
-for (const item of catalog.questions) {
-  const directory = path.join(sourceRoot, item.directory);
-  await mkdir(directory, { recursive: true });
+const existingQuestionDocument = parseYaml(await readFile(questionPath, "utf8"));
+const existingQuestions = new Map(
+  existingQuestionDocument.questions.map((question) => [question.id, question]),
+);
+const generated = catalog.questions.map((item) => {
   const code = codeFor(item);
   const viMarkdown = lessonMarkdown(item, "vi", code);
   const enMarkdown = lessonMarkdown(item, "en", code);
-  await Promise.all([
-    writeFile(path.join(directory, "vi.md"), viMarkdown, "utf8"),
-    writeFile(path.join(directory, "en.md"), enMarkdown, "utf8"),
-    writeFile(path.join(directory, "main.cpp"), code, "utf8"),
-  ]);
-  generated.push({
+  const hash = sourceHash(viMarkdown, code);
+  const version = item.questionVersion ??
+    catalog.collection.defaultQuestionVersion;
+  if (!Number.isInteger(version) || version < 1) {
+    throw new Error(`Question ${item.number} has an invalid questionVersion`);
+  }
+  const question = questionRecord(item, hash, version);
+  const existing = existingQuestions.get(question.id);
+  if (existing && existing.sourceHash !== hash && version <= existing.version) {
+    throw new Error(
+      `Question ${question.id} content changed at v${version}; ` +
+      "increment questionVersion before regenerating immutable content",
+    );
+  }
+  return {
     item,
     sourcePath: path.posix.join("dailycppinterview", item.directory),
-    hash: sourceHash(viMarkdown, code),
-  });
+    directory: path.join(sourceRoot, item.directory),
+    code,
+    viMarkdown,
+    enMarkdown,
+    hash,
+    version,
+    question,
+  };
+});
+
+// Validate every immutable revision before touching generated files. A stale
+// version must not leave a partially regenerated source tree behind.
+await mkdir(sourceRoot, { recursive: true });
+for (const entry of generated) {
+  await mkdir(entry.directory, { recursive: true });
+  await Promise.all([
+    writeFile(path.join(entry.directory, "vi.md"), entry.viMarkdown, "utf8"),
+    writeFile(path.join(entry.directory, "en.md"), entry.enMarkdown, "utf8"),
+    writeFile(path.join(entry.directory, "main.cpp"), entry.code, "utf8"),
+  ]);
 }
 
 const registry = parseYaml(await readFile(registryPath, "utf8"));
@@ -1598,7 +1634,7 @@ registry.lessons.push(...generated.map(({ item, sourcePath }, index) => ({
 })));
 await writeFile(registryPath, stringifyYaml(registry, { lineWidth: 100 }), "utf8");
 
-const questions = generated.map(({ item, hash }) => questionRecord(item, hash));
+const questions = generated.map(({ question }) => question);
 await writeFile(
   questionPath,
   stringifyYaml({ schemaVersion: 1, questions }, { lineWidth: 100 }),
@@ -1608,7 +1644,9 @@ await writeFile(
 const englishCatalog = JSON.parse(await readFile(englishCatalogPath, "utf8"));
 englishCatalog.questions = englishCatalog.questions
   .filter((question) => !question.questionId.startsWith("dailycpp-q"))
-  .concat(generated.map(({ item, hash }) => englishQuestionTranslation(item, hash)));
+  .concat(generated.map(({ item, hash, version }) => {
+    return englishQuestionTranslation(item, hash, version);
+  }));
 await writeFile(englishCatalogPath, `${JSON.stringify(englishCatalog, null, 2)}\n`, "utf8");
 
 console.log(

@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q061: What is reference collapsing?
+// Daily C++ Interview Q061: What is reference collapsing?
 // Key: Reference collapsing reduces nested reference formation to one reference: any
 // combination containing `&` becomes `&`, and only `&&` combined with `&&` remains `&&`. This
 // is what lets forwarding references preserve the caller's value category.

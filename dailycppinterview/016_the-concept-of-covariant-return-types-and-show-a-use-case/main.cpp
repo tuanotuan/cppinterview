@@ -1,5 +1,5 @@
-// Real-World C++ Interviews Q016: Explain the concept of covariant return types and show a
-// use-case where it comes in handy!
+// Daily C++ Interview Q016: Explain the concept of covariant return types and show a use-case
+// where it comes in handy!
 // Key: An overriding virtual function may return a pointer or reference to a more-derived class
 // than the base function returns. This covariant return lets callers with derived static type
 // receive the narrower result while base callers retain the base interface.

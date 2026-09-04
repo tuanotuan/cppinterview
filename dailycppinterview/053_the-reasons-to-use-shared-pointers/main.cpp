@@ -1,4 +1,4 @@
-// Real-World C++ Interviews Q053: What are the reasons to use shared pointers?
+// Daily C++ Interview Q053: What are the reasons to use shared pointers?
 // Key: Use `std::shared_ptr` only when several independent owners genuinely determine one
 // lifetime. Reference counting makes ownership explicit, but adds a control block and
 // atomic-count overhead and does not make the pointee itself thread-safe.
