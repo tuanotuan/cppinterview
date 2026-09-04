@@ -33,9 +33,10 @@ chứa token semantic cho light theme navy + turquoise, bề mặt workspace ph�
 action, app-header trắng và thang bo góc 12/16/20 px dùng chung. Footer learner
 dùng surface midnight full-bleed với token text/link/border riêng, còn nội dung
 giữ cùng `ui-page-width`; khoảng reserve dưới mobile navigation cũng dùng nền
-footer để không tạo dải sáng. Footer dùng bố cục tối giản một cột, giữ logo,
-creator badge, mô tả, copyright, ba contact icon có nhãn trợ năng và bộ đổi ngôn
-ngữ; không có menu điều hướng hay CTA tài khoản. Gradient chỉ nằm ở landing; navigation active dùng
+footer để không tạo dải sáng. Footer dùng hai cột responsive: thương hiệu/mô tả
+ở trái, ba liên kết GitHub/Facebook/email có cả icon và nhãn ở phải; hàng cuối
+giữ copyright cùng bộ đổi ngôn ngữ. Trên mobile các phần xếp dọc, không có menu
+điều hướng hay CTA tài khoản. Gradient chỉ nằm ở landing; navigation active dùng
 nền turquoise nhạt, chữ navy và indicator thay vì pill tối. Landing, Practice,
 thư viện, Mock, Stats và Profile dùng cùng
 header/card/CTA và `ui-page-width` trên desktop lẫn mobile. Practice chỉ có một bộ
