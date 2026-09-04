@@ -31,9 +31,9 @@ trạng thái từ tên nhánh.
   `Đang học`/`Đã xong`/`Bỏ qua` bằng toolbar hover/focus trên desktop hoặc trigger
   44 px trên mobile; chọn lại cùng trạng thái trả node về pending. `Đang học` không
   hoàn tất, còn `Đã xong + Bỏ qua` tính completion và vẫn được thống kê riêng.
-  Node đã chọn đổi toàn bộ surface theo bảng màu của developer-roadmap: tím cho
-  `Đang học`, xám cho `Đã xong` và xanh đậm/chữ sáng cho `Bỏ qua`; viền, badge và
-  icon tiếp tục giúp phân biệt trạng thái mà không phụ thuộc riêng vào màu nền.
+  Node đã chọn đổi toàn bộ surface với ba dải màu tách biệt: tím cho `Đang học`,
+  xanh lá bão hòa cho `Đã xong` và xanh đậm/chữ sáng cho `Bỏ qua`; viền, badge
+  và icon tiếp tục giúp phân biệt trạng thái mà không phụ thuộc riêng vào màu nền.
   Khách chọn trạng thái nhận dialog đăng nhập Google/GitHub/email. Tiến độ hydrate
   sau static render từ `/api/roadmap/progress`, lưu trong bảng owner-private
   `user_roadmap_lesson_states` và không chạm localStorage hay scheduler/FSRS.
@@ -419,14 +419,16 @@ trạng thái từ tên nhánh.
 
 - Tiến độ cá nhân trên cả năm roadmap dùng `Đang học`/`Đã xong`/`Bỏ qua`, hydrate
   sau static render và lưu owner-private tách khỏi FSRS. Ba trạng thái phủ toàn bộ
-  nền node theo bảng màu của developer-roadmap, có hover riêng và giữ chữ/icon đủ
+  nền node bằng ba dải tím/xanh lá/xanh đậm tách biệt, có hover riêng và giữ chữ/icon đủ
   tương phản; browser smoke ở desktop 1440×900 và mobile 390×844 xác nhận đúng
   surface/viền, kích thước node ổn định. Desktop hover/focus hiện toolbar sibling
   của link; mobile có trigger 44 px; khách bấm trạng thái nhận dialog chỉ gồm
   GitHub, Google và email. Thay đổi đạt toàn bộ
   `npm run validate`: content/context check, ESLint, TypeScript, 160 file/903
   Vitest test và Next.js production build sinh 592 static path, gồm API
-  `/api/roadmap/progress`. Security review đủ 10 nhóm OWASP không có finding mở;
+  `/api/roadmap/progress`. Guard ngôn ngữ quét toàn repo có timeout riêng 20 giây
+  để tránh timeout giả khi Vitest chạy song song trên Windows; matcher không đổi.
+  Security review đủ 10 nhóm OWASP không có finding mở;
   production dependency audit báo 0 lỗ hổng. Migration
   `20260903102303_create_roadmap_lesson_progress.sql` đã được push lên linked
   Supabase remote và migration history đã đồng bộ. Kiểm tra remote xác nhận đúng

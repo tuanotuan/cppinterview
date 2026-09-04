@@ -36,7 +36,7 @@ describe("user-facing language", () => {
     );
 
     expect(findMatches(files, [informalPronoun])).toEqual([]);
-  });
+  }, 20_000);
 
   it("keeps recurring product labels in clear Vietnamese", () => {
     const appFiles = walk(path.join(webRoot, "src", "app")).filter((file) =>
