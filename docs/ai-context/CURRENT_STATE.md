@@ -421,10 +421,17 @@ trạng thái từ tên nhánh.
   `npm run validate`: content/context check, ESLint, TypeScript, 160 file/899
   Vitest test và Next.js production build sinh 592 static path, gồm API
   `/api/roadmap/progress`. Security review đủ 10 nhóm OWASP không có finding mở;
-  production dependency audit báo 0 lỗ hổng. pgTAP runtime chưa chạy được vì máy
-  không có Docker/PostgreSQL local; static migration test và contract API/RLS vẫn
-  đạt. Migration `20260903102303_create_roadmap_lesson_progress.sql` chưa được
-  push remote và không có dependency mới.
+  production dependency audit báo 0 lỗ hổng. Migration
+  `20260903102303_create_roadmap_lesson_progress.sql` đã được push lên linked
+  Supabase remote và migration history đã đồng bộ. Kiểm tra remote xác nhận đúng
+  bảng, primary key, trigger, grants tối thiểu và năm policy; RLS smoke bằng SQL
+  transaction đạt owner CRUD/cách ly khác owner/chặn anonymous Auth/check status,
+  rồi rollback sạch về 0 fixture. Anon REST bị chặn đúng `401`/`42501`, Security
+  Advisor không có lỗi và production smoke trả `401` cho guest GET, `403` cho
+  cross-origin PUT; trang roadmap VI trả 200 với đủ ba trạng thái. pgTAP không được
+  bật trên remote và máy local không có Docker/PostgreSQL nên file pgTAP không chạy
+  trực tiếp; remote `db lint` vẫn báo lỗi có sẵn, không liên quan thay đổi này, về
+  tham chiếu `usage_date` mơ hồ trong `record_admin_mobile_usage_heartbeat`.
 - Hàng điều hướng desktop của Practice phủ đủ bốn cột với vùng bấm 48 px, active
   state có nền/viền/indicator và focus ring; bottom nav mobile không đổi. Thay đổi
   đạt toàn bộ `npm run validate`: content/context check, ESLint, TypeScript, 154
