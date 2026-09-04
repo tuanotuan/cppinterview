@@ -4,7 +4,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it } from "vitest";
 
-import { LessonAiAssistant } from "./lesson-ai-assistant";
+import {
+  LessonAiAssistant,
+  LessonAiAssistantView,
+} from "./lesson-ai-assistant";
 
 const messages = {
   Learn: {
@@ -15,6 +18,12 @@ const messages = {
         expand: "Expand",
         collapse: "Collapse",
         description: "Ask about this lesson.",
+        checkingAccount: "Checking your account…",
+        authRequiredTitle: "Sign in to learn with AI",
+        authRequiredBody:
+          "Learn with AI requires an account. Guests can try three card turns.",
+        signIn: "Sign in to learn with AI",
+        guestPractice: "Try three card-learning turns",
         transcriptAria: "Lesson tutor conversation",
         emptyTitle: "What would you like to understand?",
         emptyBody: "Ask one specific question.",
@@ -46,13 +55,17 @@ const messages = {
 };
 
 describe("LessonAiAssistant", () => {
-  it("renders one accessible, responsive, idle assistant without calling AI", () => {
+  it("renders one accessible, responsive, idle assistant for an authenticated account", () => {
     const html = renderToStaticMarkup(
       <NextIntlClientProvider locale="en" messages={messages}>
-        <LessonAiAssistant
+        <LessonAiAssistantView
+          accessState="authenticated"
+          authHref="/en/auth?next=%2Fen%2Flearn%2Fcpp11-toolchain"
           contextHash={"a".repeat(64)}
+          guestPracticeHref="/practice?deck=cpp11&guest=1"
           lessonId="cpp11-toolchain"
           locale="en"
+          onAuthenticationRequired={() => undefined}
           sections={[{ id: "toolchain", label: "1. Toolchain" }]}
         />
       </NextIntlClientProvider>,
@@ -71,6 +84,51 @@ describe("LessonAiAssistant", () => {
     expect(html).toContain('rows="3"');
     expect(html).not.toContain("/api/coach/lesson");
     expect(html).not.toContain("dangerouslySetInnerHTML");
+  });
+
+  it("fails closed while checking the account and does not render the question form", () => {
+    const html = renderToStaticMarkup(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <LessonAiAssistant
+          authHref="/en/auth?next=%2Fen%2Flearn%2Fcpp11-toolchain"
+          contextHash={"a".repeat(64)}
+          guestPracticeHref="/practice?deck=cpp11&guest=1"
+          lessonId="cpp11-toolchain"
+          locale="en"
+          sections={[{ id: "toolchain", label: "1. Toolchain" }]}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    expect(html).toContain("Checking your account");
+    expect(html).toContain('aria-busy="true"');
+    expect(html).not.toContain("Your question");
+    expect(html).not.toContain("<textarea");
+  });
+
+  it("shows sign-in and the three-turn card trial instead of lesson AI to guests", () => {
+    const html = renderToStaticMarkup(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <LessonAiAssistantView
+          accessState="guest"
+          authHref="/en/auth?next=%2Fen%2Flearn%2Fcpp11-toolchain"
+          contextHash={"a".repeat(64)}
+          guestPracticeHref="/practice?deck=cpp11&study=lesson-check&guest=1"
+          lessonId="cpp11-toolchain"
+          locale="en"
+          onAuthenticationRequired={() => undefined}
+          sections={[{ id: "toolchain", label: "1. Toolchain" }]}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    expect(html).toContain("Sign in to learn with AI");
+    expect(html).toContain("Try three card-learning turns");
+    expect(html).toContain("next=%2Fen%2Flearn%2Fcpp11-toolchain");
+    expect(html).toContain("guest=1");
+    expect(html).not.toContain("Your question");
+    expect(html).not.toContain("<textarea");
+    expect(html).not.toContain('role="log"');
   });
 
   it("does not submit Enter while an IME composition is active", async () => {

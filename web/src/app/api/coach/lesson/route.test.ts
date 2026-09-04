@@ -282,13 +282,87 @@ describe("POST /api/coach/lesson", () => {
     expect(mocks.answerLessonWithOpenAI).not.toHaveBeenCalled();
   });
 
-  it("uses the shared public quota with a lesson-specific request kind", async () => {
+  it("rejects a guest before reserving quota or calling Luna", async () => {
     mocks.isSupabaseConfigured.mockReturnValue(true);
     mocks.isUnmeteredLocalAiEnabled.mockReturnValue(false);
     mocks.isPublicAiEnabled.mockReturnValue(true);
     mocks.createSupabaseServerClient.mockResolvedValue({
       auth: {
         getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
+      },
+    });
+
+    const response = await POST(
+      request({
+        lessonId: "cpp11-toolchain",
+        messages: [{ role: "user", content: "Explain this." }],
+        responseLocale: "en",
+        idempotencyKey,
+      }),
+    );
+
+    expect(response.status).toBe(401);
+    expect(response.headers.get("Cache-Control")).toBe("private, no-store");
+    expect(response.headers.get("Vary")).toBe("Cookie");
+    await expect(response.json()).resolves.toMatchObject({
+      code: "authentication_required",
+      error: expect.stringContaining("sign in"),
+    });
+    expect(mocks.reservePublicAiAdmission).not.toHaveBeenCalled();
+    expect(mocks.reserveLessonAssistantResponse).not.toHaveBeenCalled();
+    expect(mocks.answerLessonWithOpenAI).not.toHaveBeenCalled();
+  });
+
+  it("does not treat an anonymous Supabase identity as an account", async () => {
+    mocks.isSupabaseConfigured.mockReturnValue(true);
+    mocks.isUnmeteredLocalAiEnabled.mockReturnValue(false);
+    mocks.isPublicAiEnabled.mockReturnValue(true);
+    mocks.createSupabaseServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: {
+            user: {
+              id: "123e4567-e89b-42d3-a456-426614174009",
+              aud: "authenticated",
+              is_anonymous: true,
+            },
+          },
+          error: null,
+        }),
+      },
+    });
+
+    const response = await POST(
+      request({
+        lessonId: "cpp11-toolchain",
+        messages: [{ role: "user", content: "Explain this." }],
+        responseLocale: "en",
+        idempotencyKey,
+      }),
+    );
+
+    expect(response.status).toBe(401);
+    expect(mocks.reservePublicAiAdmission).not.toHaveBeenCalled();
+    expect(mocks.answerLessonWithOpenAI).not.toHaveBeenCalled();
+  });
+
+  it("uses the shared public quota for an authenticated non-admin account", async () => {
+    mocks.isSupabaseConfigured.mockReturnValue(true);
+    mocks.isUnmeteredLocalAiEnabled.mockReturnValue(false);
+    mocks.isPublicAiEnabled.mockReturnValue(true);
+    mocks.createSupabaseServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: {
+            user: {
+              id: "123e4567-e89b-42d3-a456-426614174008",
+              aud: "authenticated",
+              is_anonymous: false,
+              identities: [],
+            },
+          },
+          error: null,
+        }),
       },
     });
     const admission = {

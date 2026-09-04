@@ -1,6 +1,12 @@
 "use client";
 
-import { useMemo, useRef, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 import { useTranslations } from "next-intl";
 
 import { useDialogAccessibility } from "@/app/accessible-dialog";
@@ -38,16 +44,79 @@ type PublicQuotaSnapshot = {
   resetsAt: string | null;
 };
 
-export function LessonAiAssistant({
-  contextHash,
-  lessonId,
-  locale,
-  sections,
-}: {
+export type LessonAiAccessState = "checking" | "authenticated" | "guest";
+
+type LessonAiAssistantProps = {
+  authHref: string;
   contextHash: string;
+  guestPracticeHref: string;
   lessonId: string;
   locale: AiResponseLocale;
   sections: LessonSectionLink[];
+};
+
+export function LessonAiAssistant({
+  authHref,
+  contextHash,
+  guestPracticeHref,
+  lessonId,
+  locale,
+  sections,
+}: LessonAiAssistantProps) {
+  const [accessState, setAccessState] =
+    useState<LessonAiAccessState>("checking");
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    void fetch("/api/auth/status", {
+      cache: "no-store",
+      credentials: "same-origin",
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Lesson AI auth status unavailable");
+        const payload: unknown = await response.json();
+        if (!isAuthStatusPayload(payload)) {
+          throw new Error("Lesson AI auth status is invalid");
+        }
+        if (!controller.signal.aborted) {
+          setAccessState(payload.authenticated ? "authenticated" : "guest");
+        }
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setAccessState("guest");
+      });
+
+    return () => controller.abort();
+  }, []);
+
+  return (
+    <LessonAiAssistantView
+      accessState={accessState}
+      authHref={authHref}
+      contextHash={contextHash}
+      guestPracticeHref={guestPracticeHref}
+      lessonId={lessonId}
+      locale={locale}
+      onAuthenticationRequired={() => setAccessState("guest")}
+      sections={sections}
+    />
+  );
+}
+
+export function LessonAiAssistantView({
+  accessState,
+  authHref,
+  contextHash,
+  guestPracticeHref,
+  lessonId,
+  locale,
+  onAuthenticationRequired,
+  sections,
+}: LessonAiAssistantProps & {
+  accessState: LessonAiAccessState;
+  onAuthenticationRequired: () => void;
 }) {
   const t = useTranslations("Learn.reader.ai");
   const formRef = useRef<HTMLFormElement>(null);
@@ -96,6 +165,7 @@ export function LessonAiAssistant({
       });
       const response = await fetch("/api/coach/lesson", {
         method: "POST",
+        credentials: "same-origin",
         headers: {
           "Content-Type": "application/json",
           "X-Response-Locale": locale,
@@ -110,6 +180,14 @@ export function LessonAiAssistant({
       const payload = (await response.json().catch(() => null)) as
         | LessonAssistantApiPayload
         | null;
+      if (response.status === 401) {
+        setMessages([]);
+        setDraft("");
+        setQuota(null);
+        setStatus("idle");
+        onAuthenticationRequired();
+        return;
+      }
       if (!response.ok) {
         throw new LessonAssistantApiError(
           typeof payload?.error === "string"
@@ -187,6 +265,16 @@ export function LessonAiAssistant({
     setError(null);
     setQuota(null);
     setStatus("idle");
+  }
+
+  if (accessState !== "authenticated") {
+    return (
+      <LessonAiAccessGate
+        accessState={accessState}
+        authHref={authHref}
+        guestPracticeHref={guestPracticeHref}
+      />
+    );
   }
 
   return (
@@ -435,6 +523,126 @@ export function LessonAiAssistant({
       </form>
       </aside>
     </>
+  );
+}
+
+function LessonAiAccessGate({
+  accessState,
+  authHref,
+  guestPracticeHref,
+}: {
+  accessState: Exclude<LessonAiAccessState, "authenticated">;
+  authHref: string;
+  guestPracticeHref: string;
+}) {
+  const t = useTranslations("Learn.reader.ai");
+  const checking = accessState === "checking";
+
+  return (
+    <aside
+      aria-labelledby="lesson-ai-title"
+      aria-describedby="lesson-ai-description"
+      aria-busy={checking}
+      className="order-1 min-w-0 overflow-hidden rounded-[1.25rem] border border-[#0f3a69]/12 bg-white/95 shadow-[0_16px_60px_rgb(15_58_105_/_7%)] xl:sticky xl:top-5 xl:col-start-3 xl:row-start-1"
+    >
+      <div className="border-b border-[#0f3a69]/10 p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-[#16865a] uppercase">
+              {t("eyebrow")}
+            </p>
+            <h2
+              id="lesson-ai-title"
+              className="mt-1 text-xl font-semibold tracking-tight text-[#092c51]"
+            >
+              {t("title")}
+            </h2>
+          </div>
+          <span className="rounded-full bg-[#65e6d2]/25 px-2.5 py-1 font-mono text-[10px] font-bold text-[#0f3a69]">
+            Luna
+          </span>
+        </div>
+        <p
+          id="lesson-ai-description"
+          className="mt-2 text-sm leading-6 text-[#526276]"
+        >
+          {t("description")}
+        </p>
+      </div>
+
+      {checking ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex min-h-48 flex-col items-center justify-center gap-3 p-6 text-center text-sm text-[#526276]"
+        >
+          <span
+            aria-hidden="true"
+            className="size-7 animate-spin rounded-full border-2 border-[#138f8c]/25 border-t-[#138f8c] motion-reduce:animate-none"
+          />
+          <span>{t("checkingAccount")}</span>
+        </div>
+      ) : (
+        <div className="p-5">
+          <div className="rounded-2xl border border-[#138f8c]/20 bg-[#eef7f6] p-5 text-center">
+            <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-[#0f3a69] text-[#65e6d2] shadow-[3px_3px_0_rgb(101_230_210_/_55%)]">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                className="size-6"
+                fill="none"
+              >
+                <rect
+                  x="5"
+                  y="10"
+                  width="14"
+                  height="10"
+                  rx="2.5"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                />
+                <path
+                  d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </span>
+            <h3 className="mt-5 text-lg font-semibold tracking-tight text-[#092c51]">
+              {t("authRequiredTitle")}
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-[#526276]">
+              {t("authRequiredBody")}
+            </p>
+            <div className="mt-5 grid gap-2.5">
+              <a
+                href={authHref}
+                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#0f3a69] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#164b81] focus-visible:ring-4 focus-visible:ring-[#65e6d2]/55 focus-visible:outline-none"
+              >
+                {t("signIn")}
+              </a>
+              <a
+                href={guestPracticeHref}
+                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#0f3a69]/18 bg-white px-4 py-3 text-sm font-bold text-[#0f3a69] transition hover:border-[#138f8c]/45 hover:bg-[#f8fcfb] focus-visible:ring-4 focus-visible:ring-[#65e6d2]/45 focus-visible:outline-none"
+              >
+                {t("guestPractice")}
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+    </aside>
+  );
+}
+
+function isAuthStatusPayload(
+  value: unknown,
+): value is { authenticated: boolean } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as { authenticated?: unknown }).authenticated === "boolean"
   );
 }
 

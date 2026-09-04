@@ -1,3 +1,5 @@
+import type { User } from "@supabase/supabase-js";
+
 import {
   AiBudgetConfigurationError,
   AiDailyBudgetExceededError,
@@ -153,8 +155,18 @@ export async function POST(request: Request) {
   const supabase = supabaseConfigured
     ? await createSupabaseServerClient()
     : null;
-  const authResult = supabase ? await supabase.auth.getUser() : null;
-  const user = authResult?.data.user ?? null;
+  let user: User | null = null;
+  if (supabase) {
+    try {
+      const authResult = await supabase.auth.getUser();
+      user = authResult.data.user ?? null;
+      if (authResult.error || !user || user.is_anonymous) {
+        return authenticationRequiredResponse(locale);
+      }
+    } catch {
+      return authenticationRequiredResponse(locale);
+    }
+  }
   const isAdmin = Boolean(user && isTuanotuanQuestionAdmin(user));
   if (!isAdmin && !isPublicAiEnabled() && !isUnmeteredLocalAiEnabled()) {
     return errorResponse(
@@ -670,6 +682,20 @@ function errorResponse(
   return Response.json(
     { error: localized(locale, vietnamese, english), code },
     { status, headers },
+  );
+}
+
+function authenticationRequiredResponse(locale: AiResponseLocale) {
+  return errorResponse(
+    locale,
+    "authentication_required",
+    401,
+    "Bạn cần đăng nhập để dùng Học với AI trong bài học.",
+    "You must sign in to use Learn with AI in a lesson.",
+    {
+      "Cache-Control": "private, no-store",
+      Vary: "Cookie",
+    },
   );
 }
 

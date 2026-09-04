@@ -288,6 +288,9 @@ Trạng thái trình duyệt không thêm migration:
 - Transcript “Học với AI” của lesson chỉ sống trong React memory, không ghi
   localStorage/Supabase và reset khi đổi lesson, locale hoặc content hash. Client
   không gửi Markdown/code lesson; route luôn dựng lại localized context canonical.
+  Client chỉ hiện form sau auth-status check, còn route phải xác minh lại account
+  không ẩn danh và trả `401` trước quota/provider cho guest; không coi UI gate là
+  ranh giới bảo mật.
 - Progress, study session, Focus session, saved item/AI answer, Hub preference,
   Guided onboarding, WorldQuant training state và Mission snapshot đều dùng
   namespace theo `account UUID`/`local`. Không đọc hoặc tự nhận dữ liệu legacy
@@ -378,8 +381,8 @@ Trạng thái trình duyệt không thêm migration:
 ## Public AI quota
 
 Migrations `20260805100000_create_public_ai_quota_admission.sql` and
-`20260805110000_create_public_ai_budget_ledger.sql` enable guest/non-admin Luna
-access. They store HMAC hashes of IP, device, and optional account identities in
+`20260805110000_create_public_ai_budget_ledger.sql` enable public Coach/Mock and
+non-admin Luna access. They store HMAC hashes of IP, device, and optional account identities in
 rolling 24-hour windows; raw IPs, device tokens, prompts, and answers are never
 persisted. The admission RPC is service-role-only and reserves a lease before
 the site-wide budget ledger dispatches a provider call. An undispatched lease can
@@ -415,8 +418,9 @@ or content-sync key; neither variable may use `NEXT_PUBLIC_`. Keep
 `PUBLIC_AI_ENABLED=false` until the migrations and deployed API/UI version are
 both ready.
 
-Lesson tutor dùng cùng public quota ba lượt/24 giờ với request kind
-`lesson_assistant`; migration
+Lesson tutor chỉ dành cho account không ẩn danh; account non-admin vẫn dùng cùng
+public quota ba lượt/24 giờ với request kind `lesson_assistant`, còn guest bị
+chặn trước admission. Migration
 `20260829130024_add_lesson_ai_assistant.sql` mở rộng constraint/RPC quota và tạo
 terminal cache account-scoped cho owner. Migration không lưu prompt/transcript,
 thu hồi quyền table và chỉ cấp đúng RPC cần thiết. Migration tương thích với app
@@ -632,9 +636,11 @@ service-role-only/browser grants như contract hiện tại.
   gọi lại provider cùng lượt.
 - Lesson tutor phải rebuild full localized lesson server-side, hard-fail nếu quá
   context bound, không tin context/citation từ client và không đưa question bank,
-  rubric hay đáp án vào prompt. Public/non-admin dùng admission hiện hữu; owner
-  dùng account reservation + daily/monthly budget. Cả hai chỉ gọi Luna một lần,
-  `store: false`, structured output và không fallback Gemini.
+  rubric hay đáp án vào prompt. Route phải xác minh account không ẩn danh trước
+  admission/provider; account non-admin dùng admission hiện hữu, owner dùng account
+  reservation + daily/monthly budget. Cả hai chỉ gọi Luna một lần, `store: false`,
+  structured output và không fallback Gemini. Guest Practice vẫn được dùng Coach
+  tối đa ba lượt rolling 24 giờ; không mở lại lesson tutor cho guest.
 - OpenAI/Gemini transport retry phải để `0` cho request trả phí. Lỗi cấu hình hoặc
   lỗi 4xx xác định trước/sau dispatch theo classifier hiện hành mới được release
   reservation; timeout, mất mạng, 408, 5xx hoặc parse response thất bại là kết
