@@ -8,6 +8,17 @@ trạng thái từ tên nhánh.
 
 ## Handoff hiện tại
 
+- Yêu cầu kế tiếp mới dừng ở plan, chưa sửa code/content/DB: bổ sung 30 chủ đề từ
+  [roadmap.sh](https://roadmap.sh/questions/cpp) vào Real-World C++ Interviews.
+  Khoảng 20/30 chủ đề trùng hoặc gần trùng với 146 câu hiện có, và
+  [Terms of Use](https://roadmap.sh/terms) cùng
+  [license của repo nguồn](https://github.com/nilbuild/developer-roadmap/blob/master/license)
+  không cho tái xuất bản nội dung nếu chưa có phép. Trước khi triển khai phải chốt
+  một trong hai hướng: có văn bản cho phép để giữ đúng 30 prompt, hoặc chỉ dùng
+  phạm vi kiến thức làm định hướng rồi tự biên soạn hoàn toàn. Nếu tiếp tục, nối
+  ID `dailycpp-q147`–`dailycpp-q176`, giữ đúng ba file/một question mỗi lesson,
+  không tạo roadmap hay migration mới, tách provenance nguồn và không đổi bất kỳ
+  identity/hash/version nào của 146 câu cũ.
 - Bộ lọc thư viện `/learn` hiển thị riêng C++98, C++11, C++14, C++17, C++20,
   C++23 và collection Real-World C++ Interviews, không còn gộp nhiều chuẩn trong một
   chip. Catalog hiện có lesson cho mọi chip nên tất cả đều khả dụng; chip
@@ -250,19 +261,15 @@ trạng thái từ tên nhánh.
   `20260904092827_add_daily_cpp_content_track.sql` đã được áp lên Supabase remote;
   lịch sử local/remote khớp và cả bốn constraint standard/track đều validated,
   chấp nhận `dailycpp`.
-- Content sync remote từ merge commit `5a4e19f` là baseline có 410 lesson active
-  và 936 repository question active. Riêng `dailycpp` có 146 lesson active và
-  đúng 146 repository question draft (73 dễ, 39 trung bình, 34 khó), không có
-  question DB-owned hay generation job. PR #210 đã merge nhưng main workflow run
-  `33888296761` dừng fail-closed với `P0001 Question revision conflict` vì rebrand
-  từng đổi 146 source hash mà vẫn giữ question v1; remote do đó vẫn ở baseline.
-  Hotfix giữ lại exact v1 source hash/ID/version để bảo toàn approval và chuyển
-  tên `Real-World C++ Interviews` ở lớp hiển thị. Generator giờ từ chối ghi đè
-  khi hash đổi mà `questionVersion` không tăng. Đối chiếu remote read-only xác
-  nhận 146/146 Daily question có exact admin approval, nhưng chưa có Daily English
-  publication nào trong `content_question_translations`; sau khi hotfix deploy,
-  Admin sẽ hiện lại đúng 146 English copy chờ duyệt và `/en/practice` tiếp tục
-  fail-closed cho tới khi chúng được duyệt. Không tự suy diễn approval câu gốc
+- PR #211 đã merge vào `main` tại `706fa08`; main sync lại thành công với 410
+  lesson active và 936 repository question active. Riêng `dailycpp` có 146 lesson
+  active và đúng 146 repository question draft (73 dễ, 39 trung bình, 34 khó),
+  không có question DB-owned hay generation job. Hotfix giữ nguyên toàn bộ exact
+  source hash/ID/version v1 đã duyệt, còn generator từ chối ghi đè khi hash đổi mà
+  `questionVersion` không tăng. Remote hiện có đủ 146 canonical approval và 146
+  English publication khớp exact revision; `/vi/practice` và `/en/practice` đều
+  đọc được 146 Daily ID duy nhất, Q050 dùng đúng prompt tiếng Anh và hai trang
+  Library hiển thị `Real-World C++ Interviews`. Không tự suy diễn approval câu gốc
   thành approval bản dịch. 30 lesson và 51 question legacy đã archive vẫn được
   giữ cho audit.
 
@@ -452,10 +459,10 @@ trạng thái từ tên nhánh.
   history remote đã xác minh. GitHub Actions retry sau migration đạt toàn bộ gate,
   sync đúng merge commit/revision/checksum và enqueue 0 generation job. Remote có
   đúng 146 lesson/146 repository question cho collection, không có question
-  DB-owned. Production smoke trước rebrand trả HTTP 200 cho `/vi/learn` và
-  `/vi/learn/dailycpp-q001`; cần smoke lại tên hiển thị cùng Q050 tiếng Anh sau
-  khi hotfix merge/deploy, content sync thành công và 146 English copy được admin
-  duyệt. Database advisor không có lỗi mức `ERROR`.
+  DB-owned. Production smoke sau PR #211 xác nhận `/vi/learn` và `/en/learn` dùng
+  tên `Real-World C++ Interviews`; `/vi/practice` và `/en/practice` đều trả HTTP
+  200, chứa đủ 146 Daily ID duy nhất và trang tiếng Anh có đúng prompt Q050.
+  Database advisor không có lỗi mức `ERROR`.
 - Tiến độ cá nhân trên cả năm roadmap dùng `Đang học`/`Đã xong`/`Bỏ qua`, hydrate
   sau static render và lưu owner-private tách khỏi FSRS. Ba trạng thái phủ toàn bộ
   nền node bằng ba dải tím/xanh lá/xanh đậm tách biệt, có hover riêng và giữ chữ/icon đủ

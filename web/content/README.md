@@ -9,6 +9,7 @@ discovers and serves lessons only from these repository roots:
 - `cpp17/<lesson>/knowledge.md` or `vi.md`
 - `cpp20/<lesson>/knowledge.md` or `vi.md`
 - `cpp23/<lesson>/knowledge.md` or `vi.md`
+- `dailycppinterview/<lesson>/vi.md`
 
 Each lesson must be registered in `lesson-registry.yaml`. A monolingual lesson
 uses `knowledge.md`. A bilingual lesson uses canonical Vietnamese `vi.md` plus
@@ -30,6 +31,22 @@ and is shown as supporting source material when present.
 The root `python/` directory is intentionally outside this pipeline. It is
 kept in the repository as personal study material and is neither discovered,
 synced, nor displayed by the web product.
+
+## Real-World C++ Interviews
+
+`dailycppinterview/` is a version-neutral C++ collection and deliberately has no
+roadmap. Its authored catalog is `daily-cpp-interview-source.json`; run
+`node scripts/generate-daily-cpp-interview.mjs` from `web/` to regenerate the
+lesson directories, lesson registry entries, question YAML, and English
+question overlay. Do not edit generated collection files instead of the
+catalog/generator.
+
+Every collection lesson contains exactly `vi.md`, `en.md`, and `main.cpp`, with
+one self-check and one stable question ID. The original 146 question revisions
+are immutable v1 content: a real content change requires a new question version,
+while a rename must be handled at the display layer. Permission recorded for
+those 146 source prompts does not cover later sources; document separate
+provenance and reuse permission before importing external prompts.
 
 ## Roadmaps
 
