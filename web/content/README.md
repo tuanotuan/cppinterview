@@ -35,18 +35,22 @@ synced, nor displayed by the web product.
 ## Real-World C++ Interviews
 
 `dailycppinterview/` is a version-neutral C++ collection and deliberately has no
-roadmap. Its authored catalog is `daily-cpp-interview-source.json`; run
+roadmap. Its authored catalog is `daily-cpp-interview-source.json`; the catalog
+records provenance and permission separately for the original 146 prompts and
+the repository-owner-curated 30-prompt expansion. Run
 `node scripts/generate-daily-cpp-interview.mjs` from `web/` to regenerate the
 lesson directories, lesson registry entries, question YAML, and English
 question overlay. Do not edit generated collection files instead of the
 catalog/generator.
 
 Every collection lesson contains exactly `vi.md`, `en.md`, and `main.cpp`, with
-one self-check and one stable question ID. The original 146 question revisions
-are immutable v1 content: a real content change requires a new question version,
-while a rename must be handled at the display layer. Permission recorded for
-those 146 source prompts does not cover later sources; document separate
-provenance and reuse permission before importing external prompts.
+one self-check and one stable question ID. All generated question revisions are
+immutable: a real content change requires a new question version, while a rename
+must be handled at the display layer. The legacy `Daily C++ Interview` label is
+retained only in Q001-Q146 because it participates in those v1 source hashes;
+later batches use their own declared source label. Every future batch must add a
+non-overlapping range with separate provenance and reuse permission before its
+prompts are imported.
 
 ## Roadmaps
 

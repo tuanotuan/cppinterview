@@ -4,14 +4,32 @@
     "id": "daily-cpp-interview",
     "track": "dailycpp",
     "title": "Real-World C++ Interviews",
-    "author": "Sandor Dargo",
-    "sourceEdition": "2022-09-05",
-    "questionCount": 146,
-    "uniquePromptCount": 127,
-    "defaultQuestionVersion": 1,
-    "licenseBasis": "User confirmed permission to reuse the 146 source prompts on 2026-09-04.",
-    "importPolicy": "The PDF is not stored. Only the source prompt and indispensable prompt context may be retained; lessons, answers, and examples are independently authored."
+    "questionCount": 176,
+    "uniquePromptCount": 157,
+    "defaultQuestionVersion": 1
   },
+  "sourceBatches": [
+    {
+      "id": "sandor-dargo-2022",
+      "start": 1,
+      "end": 146,
+      "sourceLabel": "Daily C++ Interview",
+      "author": "Sandor Dargo",
+      "sourceEdition": "2022-09-05",
+      "licenseBasis": "User confirmed permission to reuse the 146 source prompts on 2026-09-04.",
+      "importPolicy": "The PDF is not stored. Only the source prompt and indispensable prompt context may be retained; lessons, answers, and examples are independently authored."
+    },
+    {
+      "id": "repository-owner-curated-2026",
+      "start": 147,
+      "end": 176,
+      "sourceLabel": "Real-World C++ Interviews",
+      "author": "Repository owner",
+      "sourceEdition": "2026-09-05",
+      "licenseBasis": "The repository owner confirmed that they collected and may provide these 30 prompts for use in this project.",
+      "importPolicy": "The supplied prompts may be retained. Explanations, translations, and examples are technically reviewed and independently authored for this project."
+    }
+  ],
   "chapters": [
     {
       "start": 1,
@@ -110,6 +128,27 @@
       "id": "language-practice",
       "en": "language rules and coding practice",
       "vi": "quy tắc ngôn ngữ và thực hành code"
+    },
+    {
+      "start": 147,
+      "end": 152,
+      "id": "interview-foundations",
+      "en": "C++ foundations, storage, and parameter passing",
+      "vi": "nền tảng C++, storage và truyền tham số"
+    },
+    {
+      "start": 153,
+      "end": 170,
+      "id": "interview-core-techniques",
+      "en": "object design, functions, and exception safety",
+      "vi": "thiết kế đối tượng, hàm và an toàn exception"
+    },
+    {
+      "start": 171,
+      "end": 176,
+      "id": "interview-advanced-techniques",
+      "en": "templates and modern C++ techniques",
+      "vi": "template và kỹ thuật C++ hiện đại"
     }
   ],
   "questions": [
@@ -2466,6 +2505,516 @@
       "answer": {
         "en": "There is no useful universal limit. Multiple early returns and guard clauses often make a short function clearer by removing nesting; if many exits are hard to reason about, reduce the function's size and responsibilities rather than enforcing one-return dogma.",
         "vi": "Không có giới hạn phổ quát hữu ích. Nhiều early return và guard clause thường làm hàm ngắn rõ hơn nhờ giảm nesting; nếu quá nhiều exit khó suy luận, hãy giảm kích thước và trách nhiệm của hàm thay vì ép giáo điều chỉ một `return`."
+      }
+    },
+    {
+      "number": 147,
+      "sourceId": "repository-owner-curated-q147",
+      "directory": "147_what-is-cpp-and-how-is-it-different-from-c",
+      "chapter": "interview-foundations",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "syntax": "template<class T> T twice(T value); // generic C++ abstraction",
+      "prompt": {
+        "en": "What is C++? How is it different from C?",
+        "vi": "C++ là gì và khác C như thế nào?"
+      },
+      "answer": {
+        "en": "C++ is a general-purpose, multi-paradigm language that evolved from C and adds abstraction mechanisms such as classes, templates, RAII, overloading, exceptions, and a rich standard library. C and C++ share much syntax but are separate languages with different type rules, object and lifetime models, valid programs, and idioms; C++ is not merely C with classes.",
+        "vi": "C++ là ngôn ngữ đa mục đích, đa mô hình phát triển từ C và bổ sung các cơ chế trừu tượng như class, template, RAII, overload, exception cùng thư viện chuẩn phong phú. C và C++ chia sẻ nhiều cú pháp nhưng là hai ngôn ngữ riêng với quy tắc kiểu, mô hình object/lifetime, tập chương trình hợp lệ và idiom khác nhau; C++ không chỉ là C có thêm class."
+      }
+    },
+    {
+      "number": 148,
+      "sourceId": "repository-owner-curated-q148",
+      "directory": "148_access-specifiers",
+      "chapter": "interview-foundations",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "syntax": "class Account { public: void deposit(); protected: void audit(); private: int balance{}; };",
+      "prompt": {
+        "en": "What are access modifiers in C++?",
+        "vi": "Access specifier trong C++ là gì?"
+      },
+      "answer": {
+        "en": "The access specifiers `public`, `protected`, and `private` control where class members can be named. Public members are generally accessible, protected members are accessible to the class, friends, and derived classes, and private members to the class and friends; a `class` defaults to private access while a `struct` defaults to public. Access control is a compile-time interface rule, not a memory-security boundary.",
+        "vi": "Các access specifier `public`, `protected` và `private` kiểm soát nơi member của class được phép được gọi tên. Member public nhìn chung truy cập được từ bên ngoài; member protected dành cho chính class, friend và class dẫn xuất; member private dành cho chính class và friend. `class` mặc định private còn `struct` mặc định public; đây là quy tắc interface ở compile time, không phải ranh giới bảo mật bộ nhớ."
+      }
+    },
+    {
+      "number": 149,
+      "sourceId": "repository-owner-curated-q149",
+      "directory": "149_the-std-namespace",
+      "chapter": "interview-foundations",
+      "difficulty": "beginner",
+      "difficultyScore": 1,
+      "syntax": "std::vector<int> values; std::sort(values.begin(), values.end());",
+      "prompt": {
+        "en": "What is std in C++?",
+        "vi": "`std` trong C++ là gì?"
+      },
+      "answer": {
+        "en": "`std` is the namespace in which the C++ standard library declares most of its names, such as `std::string`, `std::vector`, and `std::sort`. Qualify names with `std::` or use narrow `using` declarations; a global `using namespace std;` risks collisions, and user code must not add declarations to `std` except for cases explicitly permitted by the standard.",
+        "vi": "`std` là namespace nơi thư viện chuẩn C++ khai báo phần lớn tên như `std::string`, `std::vector` và `std::sort`. Nên định danh bằng `std::` hoặc dùng `using` declaration có phạm vi hẹp; `using namespace std;` ở phạm vi global dễ gây xung đột, và code người dùng không được tự thêm declaration vào `std` ngoài các trường hợp chuẩn cho phép rõ ràng."
+      }
+    },
+    {
+      "number": 150,
+      "sourceId": "repository-owner-curated-q150",
+      "directory": "150_pointers-versus-references",
+      "chapter": "interview-foundations",
+      "difficulty": "beginner",
+      "difficultyScore": 2,
+      "syntax": "int* pointer = &value; int& reference = value;",
+      "prompt": {
+        "en": "What is a pointer in C++, and how is it different from a reference?",
+        "vi": "Pointer trong C++ là gì và khác reference như thế nào?"
+      },
+      "answer": {
+        "en": "A pointer is an object that stores an address; it can be null, reseated, copied, and, for array elements, used in pointer arithmetic. A reference is an alias bound during initialization and cannot later be reseated; ordinary references must denote a valid object or function whenever used. Neither form implies ownership by itself, so ownership must be expressed separately, preferably with RAII types.",
+        "vi": "Pointer là một object lưu địa chỉ; nó có thể null, trỏ lại nơi khác, được sao chép và dùng pointer arithmetic khi trỏ vào phần tử mảng. Reference là alias được bind khi khởi tạo và không thể bind lại; reference thông thường phải chỉ tới object hoặc function hợp lệ khi được dùng. Cả hai không tự biểu thị ownership, vì vậy ownership cần được thể hiện riêng, ưu tiên bằng kiểu RAII."
+      }
+    },
+    {
+      "number": 151,
+      "sourceId": "repository-owner-curated-q151",
+      "directory": "151_automatic-versus-dynamic-storage",
+      "chapter": "interview-foundations",
+      "difficulty": "beginner",
+      "difficultyScore": 2,
+      "syntax": "int local{}; auto dynamic = std::make_unique<int>(42);",
+      "prompt": {
+        "en": "What is the difference between stack memory and heap memory?",
+        "vi": "Bộ nhớ stack và heap khác nhau như thế nào?"
+      },
+      "answer": {
+        "en": "The C++ standard specifies storage durations rather than requiring physical stacks or heaps. Automatic objects normally live until their scope exits and are destroyed automatically; dynamically allocated objects live until their owning operation releases them. Automatic allocation is usually cheap and bounded by thread stack space, while dynamic allocation is more flexible but has allocator cost and lifetime risk, so production C++ normally manages it through RAII containers and smart pointers rather than raw `new` and `delete`.",
+        "vi": "Chuẩn C++ quy định storage duration chứ không bắt buộc cách triển khai vật lý bằng stack hay heap. Object có automatic storage thường sống đến khi thoát scope và được hủy tự động; object cấp phát động sống đến khi thao tác sở hữu giải phóng nó. Cấp phát automatic thường rẻ nhưng bị giới hạn bởi không gian stack của thread, còn cấp phát động linh hoạt hơn nhưng có chi phí allocator và rủi ro lifetime, nên C++ production thường quản lý bằng container RAII và smart pointer thay vì `new`/`delete` thô."
+      }
+    },
+    {
+      "number": 152,
+      "sourceId": "repository-owner-curated-q152",
+      "directory": "152_pass-by-value-versus-reference",
+      "chapter": "interview-foundations",
+      "difficulty": "beginner",
+      "difficultyScore": 2,
+      "syntax": "void inspect(const Value& value); void update(Value& value);",
+      "prompt": {
+        "en": "What is the difference between pass by value and pass by reference?",
+        "vi": "Truyền tham trị và truyền tham chiếu khác nhau như thế nào?"
+      },
+      "answer": {
+        "en": "A non-reference parameter is a separate object initialized from the argument, so modifying it does not modify the caller's object; copying or moving it may have a cost. A reference parameter binds to the caller's object: a non-const reference can modify it, while `const T&` provides read-only access and often avoids a copy. Choose by contract first—small value types are often best passed by value, and a reference is not automatically faster in every case.",
+        "vi": "Parameter không phải reference là một object riêng được khởi tạo từ argument, nên sửa nó không sửa object của caller; việc copy hoặc move có thể phát sinh chi phí. Parameter kiểu reference bind vào object của caller: reference không const có thể sửa object, còn `const T&` cho quyền đọc và thường tránh copy. Cần chọn theo contract trước; kiểu giá trị nhỏ thường nên truyền bằng value và reference không tự động nhanh hơn trong mọi trường hợp."
+      }
+    },
+    {
+      "number": 153,
+      "sourceId": "repository-owner-curated-q153",
+      "directory": "153_copy-construction-shallow-and-deep-copy",
+      "chapter": "interview-core-techniques",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "syntax": "Type(const Type& other); Type& operator=(const Type& other);",
+      "prompt": {
+        "en": "Explain shallow copy, deep copy, and the copy constructor in C++.",
+        "vi": "Giải thích shallow copy, deep copy và copy constructor trong C++."
+      },
+      "answer": {
+        "en": "A copy constructor initializes a new object from an existing object. An implicitly generated copy performs memberwise copy: value members become independent values, while a raw pointer member copies only its address, which can look like a shallow copy and can break ownership. A deep-copying owner allocates a distinct resource and copies its contents, but the preferred design is the Rule of Zero—store resources in value-semantic RAII members so generated copy and destruction already have the right behavior.",
+        "vi": "Copy constructor khởi tạo object mới từ một object có sẵn. Copy do compiler sinh thực hiện copy từng member: member giá trị trở thành giá trị độc lập, còn raw pointer chỉ sao chép địa chỉ nên có thể tạo hiệu ứng shallow copy và làm hỏng ownership. Một owner deep-copy sẽ cấp phát resource riêng rồi sao chép nội dung, nhưng thiết kế ưu tiên là Rule of Zero: lưu resource trong các member RAII có value semantics để copy và destructor sinh tự động đã có hành vi đúng."
+      }
+    },
+    {
+      "number": 154,
+      "sourceId": "repository-owner-curated-q154",
+      "directory": "154_recursive-functions",
+      "chapter": "interview-core-techniques",
+      "difficulty": "intermediate",
+      "difficultyScore": 2,
+      "syntax": "Result solve(Input input) { if (is_base(input)) return result; return solve(smaller(input)); }",
+      "prompt": {
+        "en": "What is a recursive function? Provide an example.",
+        "vi": "Hàm đệ quy là gì? Hãy đưa ra một ví dụ."
+      },
+      "answer": {
+        "en": "A recursive function invokes itself directly or indirectly on a smaller subproblem. It needs a reachable base case and progress toward that case; otherwise it recurses indefinitely, and even correct deep recursion can exhaust the call stack. C++ does not guarantee tail-call optimization, so an iterative algorithm or explicit stack is safer when depth can be large or controlled by input.",
+        "vi": "Hàm đệ quy gọi lại chính nó trực tiếp hoặc gián tiếp trên một bài toán con nhỏ hơn. Nó cần base case có thể đạt tới và mỗi bước phải tiến gần base case; nếu không sẽ đệ quy vô hạn, còn đệ quy đúng nhưng quá sâu vẫn có thể làm cạn call stack. C++ không bảo đảm tail-call optimization, nên thuật toán lặp hoặc stack tường minh an toàn hơn khi độ sâu lớn hay do input quyết định."
+      }
+    },
+    {
+      "number": 155,
+      "sourceId": "repository-owner-curated-q155",
+      "directory": "155_function-overloading",
+      "chapter": "interview-core-techniques",
+      "difficulty": "intermediate",
+      "difficultyScore": 2,
+      "syntax": "void print(int value); void print(std::string_view value);",
+      "prompt": {
+        "en": "What is function overloading in C++ (compile-time polymorphism)?",
+        "vi": "Function overloading trong C++ (đa hình compile time) là gì?"
+      },
+      "answer": {
+        "en": "Function overloading declares multiple functions with the same name in the same scope but different parameter lists or, for member functions, qualifying cv/ref details. Overload resolution selects the best viable candidate at compile time from the argument types and conversions. A return type alone cannot distinguish overloads, and conversions or default arguments can make a call ambiguous.",
+        "vi": "Function overloading khai báo nhiều function cùng tên trong cùng scope nhưng khác danh sách parameter hoặc, với member function, khác cv/ref qualifier phù hợp. Overload resolution chọn candidate khả dụng tốt nhất ở compile time dựa trên kiểu argument và conversion. Chỉ khác return type không đủ tạo overload, còn conversion hay default argument có thể làm lời gọi bị ambiguous."
+      }
+    },
+    {
+      "number": 156,
+      "sourceId": "repository-owner-curated-q156",
+      "directory": "156_struct-versus-class",
+      "chapter": "interview-core-techniques",
+      "difficulty": "intermediate",
+      "difficultyScore": 2,
+      "syntax": "struct S { int value; }; class C { int value; };",
+      "prompt": {
+        "en": "What is the difference between struct and class in C++?",
+        "vi": "`struct` và `class` trong C++ khác nhau như thế nào?"
+      },
+      "answer": {
+        "en": "`struct` and `class` define the same kind of class type and can both have constructors, member functions, templates, inheritance, and virtual dispatch. The language differences are defaults: members and base classes are public in a `struct`, but private in a `class`. Conventionally, structs model simple value-like aggregates and classes emphasize hidden invariants, but that is a style choice rather than a language restriction.",
+        "vi": "`struct` và `class` định nghĩa cùng một loại class type; cả hai đều có thể có constructor, member function, template, inheritance và virtual dispatch. Khác biệt ngôn ngữ nằm ở mặc định: member và base class của `struct` là public, còn của `class` là private. Theo convention, struct thường mô hình hóa value hoặc aggregate đơn giản còn class nhấn mạnh invariant được che giấu, nhưng đó là lựa chọn phong cách chứ không phải giới hạn của ngôn ngữ."
+      }
+    },
+    {
+      "number": 157,
+      "sourceId": "repository-owner-curated-q157",
+      "directory": "157_auto-and-decltype",
+      "chapter": "interview-core-techniques",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "syntax": "auto value = expression; decltype(auto) result = (value);",
+      "prompt": {
+        "en": "What are the auto and decltype keywords used for?",
+        "vi": "Các keyword `auto` và `decltype` được dùng để làm gì?"
+      },
+      "answer": {
+        "en": "`auto` asks the compiler to deduce a declared type from an initializer using rules largely modeled on template argument deduction; the written declarator still controls references and cv-qualification. `decltype(expr)` computes a type without evaluating the expression and preserves value-category information, with special rules for unparenthesized names. `decltype(auto)` applies those `decltype` rules to a deduced declaration or return type and can therefore preserve references that plain `auto` would drop.",
+        "vi": "`auto` yêu cầu compiler suy luận kiểu khai báo từ initializer theo quy tắc phần lớn tương tự template argument deduction; declarator được viết vẫn quyết định reference và cv-qualification. `decltype(expr)` xác định kiểu mà không evaluate biểu thức và giữ thông tin value category, với quy tắc riêng cho tên không có ngoặc. `decltype(auto)` áp dụng quy tắc `decltype` cho declaration hoặc return type được suy luận nên có thể giữ reference mà `auto` thường bỏ."
+      }
+    },
+    {
+      "number": 158,
+      "sourceId": "repository-owner-curated-q158",
+      "directory": "158_friend-functions",
+      "chapter": "interview-core-techniques",
+      "difficulty": "intermediate",
+      "difficultyScore": 2,
+      "syntax": "class Box { friend double area(const Box& box); private: double width{}; };",
+      "prompt": {
+        "en": "What is a friend function?",
+        "vi": "Friend function là gì?"
+      },
+      "answer": {
+        "en": "A friend function is not a member function, but a `friend` declaration grants it access to a class's private and protected members. Friendship is explicit, neither inherited nor transitive, and does not grant friendship in the reverse direction. It is useful for tightly coupled non-member operations such as symmetric operators, but broad friendship increases coupling and should not replace a well-designed public interface.",
+        "vi": "Friend function không phải member function, nhưng declaration `friend` cấp cho nó quyền truy cập member private và protected của class. Friendship phải khai báo tường minh, không được kế thừa, không bắc cầu và không tự có hiệu lực theo chiều ngược lại. Nó hữu ích cho operation non-member gắn chặt như toán tử đối xứng, nhưng friendship quá rộng làm tăng coupling và không nên thay thế public interface được thiết kế tốt."
+      }
+    },
+    {
+      "number": 159,
+      "sourceId": "repository-owner-curated-q159",
+      "directory": "159_object-slicing",
+      "chapter": "interview-core-techniques",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "syntax": "void inspect(const Base& value); // preserve the derived dynamic type",
+      "prompt": {
+        "en": "What is object slicing in C++? How can you avoid it?",
+        "vi": "Object slicing trong C++ là gì và tránh nó bằng cách nào?"
+      },
+      "answer": {
+        "en": "Object slicing occurs when a derived object is copied into a base object by value, so the new object contains only the base subobject and loses derived state and behavior. Avoid it by passing and storing polymorphic objects through references or owning smart pointers, and give a polymorphic base a virtual destructor. When true value semantics are required, use a virtual `clone`, type erasure, or a closed sum type such as `std::variant` instead of accidental base-value copies.",
+        "vi": "Object slicing xảy ra khi object dẫn xuất được copy theo value vào một object base, khiến object mới chỉ còn base subobject và mất state cùng behavior của phần dẫn xuất. Có thể tránh bằng cách truyền và lưu object đa hình qua reference hoặc smart pointer sở hữu, đồng thời cho base đa hình một virtual destructor. Khi thực sự cần value semantics, dùng virtual `clone`, type erasure hoặc sum type đóng như `std::variant` thay vì vô tình copy theo base value."
+      }
+    },
+    {
+      "number": 160,
+      "sourceId": "repository-owner-curated-q160",
+      "directory": "160_abstract-classes-and-interface-like-design",
+      "chapter": "interview-core-techniques",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "syntax": "struct Shape { virtual ~Shape() = default; virtual double area() const = 0; };",
+      "prompt": {
+        "en": "What is the difference between an abstract class and an interface in C++? How do you implement interface-like behavior?",
+        "vi": "Abstract class và interface trong C++ khác nhau thế nào? Làm sao triển khai hành vi giống interface?"
+      },
+      "answer": {
+        "en": "An abstract class has at least one pure virtual function and may also own state, constructors, non-virtual functions, and implemented virtual functions. C++ has no `interface` keyword; an interface-like runtime contract is normally an abstract class containing only the required pure virtual operations plus a virtual destructor when deletion through the base is supported. C++20 concepts provide a separate compile-time contract for generic code without inheritance or runtime dispatch.",
+        "vi": "Abstract class có ít nhất một pure virtual function và vẫn có thể sở hữu state, constructor, function không virtual hay virtual function đã có implementation. C++ không có keyword `interface`; contract runtime giống interface thường là abstract class chỉ chứa các operation pure virtual cần thiết cùng virtual destructor khi hỗ trợ xóa qua base. C++20 concept là một dạng contract compile time riêng cho generic code, không cần inheritance hay runtime dispatch."
+      }
+    },
+    {
+      "number": 161,
+      "sourceId": "repository-owner-curated-q161",
+      "directory": "161_encapsulation",
+      "chapter": "interview-core-techniques",
+      "difficulty": "intermediate",
+      "difficultyScore": 2,
+      "syntax": "class Account { public: bool withdraw(int amount); private: int balance{}; };",
+      "prompt": {
+        "en": "Explain encapsulation with an example.",
+        "vi": "Giải thích encapsulation bằng một ví dụ."
+      },
+      "answer": {
+        "en": "Encapsulation packages state with the operations that maintain its invariants and hides representation details behind a stable interface. It is not merely making fields private and adding unrestricted getters and setters: callers should express valid domain operations, such as `withdraw`, while the class rejects invalid transitions such as a negative balance. This reduces coupling and lets the implementation change without forcing callers to change.",
+        "vi": "Encapsulation đóng gói state cùng các operation duy trì invariant và che giấu chi tiết biểu diễn sau một interface ổn định. Nó không chỉ là đặt field thành private rồi thêm getter/setter không hạn chế; caller nên diễn đạt operation hợp lệ của domain như `withdraw`, còn class từ chối transition không hợp lệ như số dư âm. Cách này giảm coupling và cho phép đổi implementation mà không buộc caller đổi theo."
+      }
+    },
+    {
+      "number": 162,
+      "sourceId": "repository-owner-curated-q162",
+      "directory": "162_multiple-inheritance",
+      "chapter": "interview-core-techniques",
+      "difficulty": "intermediate",
+      "difficultyScore": 4,
+      "syntax": "class Report : public Printable, public Serializable { /* ... */ };",
+      "prompt": {
+        "en": "What is multiple inheritance, and what problems can it cause?",
+        "vi": "Multiple inheritance là gì và có thể gây ra vấn đề nào?"
+      },
+      "answer": {
+        "en": "Multiple inheritance lets one class derive from more than one base. It can create ambiguous member lookup, duplicated base subobjects in a diamond, more complex construction order, and tighter coupling; virtual inheritance can make a diamond share one virtual base but adds its own complexity. Multiple inheritance works best for small orthogonal interfaces, while composition is usually clearer for combining stateful implementations.",
+        "vi": "Multiple inheritance cho phép một class dẫn xuất từ nhiều base. Nó có thể gây ambiguous member lookup, nhân đôi base subobject trong diamond, làm phức tạp thứ tự construction và tăng coupling; virtual inheritance giúp diamond dùng chung một virtual base nhưng cũng thêm độ phức tạp. Multiple inheritance phù hợp nhất với các interface nhỏ, trực giao, còn composition thường rõ hơn khi kết hợp implementation có state."
+      }
+    },
+    {
+      "number": 163,
+      "sourceId": "repository-owner-curated-q163",
+      "directory": "163_static-versus-non-static-data-members",
+      "chapter": "interview-core-techniques",
+      "difficulty": "intermediate",
+      "difficultyScore": 2,
+      "syntax": "struct Item { int id{}; inline static int live_count{}; };",
+      "prompt": {
+        "en": "What is the difference between static data members and normal data members?",
+        "vi": "Static data member và data member thông thường khác nhau như thế nào?"
+      },
+      "answer": {
+        "en": "Each object contains its own non-static data members, while a static data member belongs to the class and is shared by all objects. A static member has static storage duration and can exist even when no instance exists; since C++17 it can be defined as `inline static` inside the class. Static member functions have no `this` pointer and can directly access only static members, whereas non-static member functions operate on a particular object.",
+        "vi": "Mỗi object chứa bản riêng của non-static data member, còn static data member thuộc về class và được chia sẻ giữa mọi object. Static member có static storage duration và có thể tồn tại khi chưa có instance; từ C++17 có thể định nghĩa nó bằng `inline static` ngay trong class. Static member function không có `this` pointer và chỉ truy cập trực tiếp static member, còn non-static member function làm việc trên một object cụ thể."
+      }
+    },
+    {
+      "number": 164,
+      "sourceId": "repository-owner-curated-q164",
+      "directory": "164_the-this-pointer",
+      "chapter": "interview-core-techniques",
+      "difficulty": "intermediate",
+      "difficultyScore": 2,
+      "syntax": "Widget& set(int value) { this->value = value; return *this; }",
+      "prompt": {
+        "en": "What is the this pointer, and how is it used?",
+        "vi": "`this` pointer là gì và được dùng như thế nào?"
+      },
+      "answer": {
+        "en": "Inside a non-static member function, `this` points to the object on which the function was invoked; its pointee is const in a const-qualified member function. It is commonly used to disambiguate members from parameters, pass the current object, or return `*this` for chaining. Static member functions have no `this`, and `delete this` is valid only under rare ownership contracts that are difficult to make safe and should normally be avoided.",
+        "vi": "Bên trong non-static member function, `this` trỏ tới object mà function được gọi trên đó; pointee của nó là const trong member function được const-qualify. Nó thường dùng để phân biệt member với parameter trùng tên, truyền object hiện tại hoặc trả `*this` để chaining. Static member function không có `this`, còn `delete this` chỉ hợp lệ trong contract ownership rất hiếm và khó bảo đảm an toàn nên thông thường cần tránh."
+      }
+    },
+    {
+      "number": 165,
+      "sourceId": "repository-owner-curated-q165",
+      "directory": "165_function-overriding",
+      "chapter": "interview-core-techniques",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "syntax": "struct Derived : Base { void run() const override; };",
+      "prompt": {
+        "en": "What is function overriding in C++, and how does the base class affect it?",
+        "vi": "Function overriding trong C++ là gì và base class ảnh hưởng ra sao?"
+      },
+      "answer": {
+        "en": "A derived member overrides a virtual base member when its name, parameter list, cv/ref qualifiers, and return and exception rules form a valid overriding signature. Calls through a base reference or pointer then dispatch to the final overrider at runtime. Mark derived declarations `override` so the compiler catches mismatches; unrelated overloads with the same name can otherwise hide the base overload set, which may need an explicit `using Base::name`.",
+        "vi": "Member của class dẫn xuất override một virtual member của base khi tên, danh sách parameter, cv/ref qualifier cùng quy tắc return và exception tạo thành signature override hợp lệ. Lời gọi qua base reference hoặc pointer khi đó dispatch tới final overrider ở runtime. Nên ghi `override` để compiler bắt mismatch; overload không liên quan nhưng cùng tên có thể che overload set của base, khi đó có thể cần `using Base::name`."
+      }
+    },
+    {
+      "number": 166,
+      "sourceId": "repository-owner-curated-q166",
+      "directory": "166_function-pointers",
+      "chapter": "interview-core-techniques",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "syntax": "using Operation = int (*)(int, int); Operation operation = &add;",
+      "prompt": {
+        "en": "What is a function pointer, and how do you use it?",
+        "vi": "Function pointer là gì và được dùng như thế nào?"
+      },
+      "answer": {
+        "en": "A function pointer stores the address of a free or static function with a specific signature and supports indirect calls, callbacks, and dispatch tables. It can be null or reseated, and a captureless lambda can convert to a compatible function pointer. Non-static member-function pointers use a different type and require an object; `std::function` adds type erasure and stateful callable support but also has more overhead than a raw function pointer.",
+        "vi": "Function pointer lưu địa chỉ của free function hoặc static function có một signature cụ thể và hỗ trợ lời gọi gián tiếp, callback hay dispatch table. Nó có thể null hoặc trỏ lại function khác, và lambda không capture có thể chuyển sang function pointer tương thích. Pointer tới non-static member function có kiểu khác và cần một object; `std::function` hỗ trợ type erasure cùng callable có state nhưng có overhead lớn hơn raw function pointer."
+      }
+    },
+    {
+      "number": 167,
+      "sourceId": "repository-owner-curated-q167",
+      "directory": "167_inline-expansion-and-performance",
+      "chapter": "interview-core-techniques",
+      "difficulty": "intermediate",
+      "difficultyScore": 4,
+      "syntax": "inline int square(int value) { return value * value; }",
+      "prompt": {
+        "en": "How does inline expansion of functions affect performance?",
+        "vi": "Inline expansion của function ảnh hưởng hiệu năng như thế nào?"
+      },
+      "answer": {
+        "en": "Inlining can remove call overhead and expose constants and control flow to further optimization, but duplicating a body can increase code size and instruction-cache pressure. The optimizer may inline a function without the `inline` specifier or decline to inline one that has it; the keyword's guaranteed language role is primarily to permit identical definitions across translation units under the ODR. Performance decisions should therefore be based on optimized builds and measurement, not the keyword alone.",
+        "vi": "Inlining có thể loại bỏ overhead của lời gọi và làm lộ constant cùng control flow cho các tối ưu tiếp theo, nhưng nhân bản function body có thể tăng kích thước code và tạo áp lực lên instruction cache. Optimizer có thể inline function không ghi `inline` hoặc từ chối function có keyword này; vai trò ngôn ngữ được bảo đảm của `inline` chủ yếu là cho phép definition giống nhau ở nhiều translation unit theo ODR. Vì vậy quyết định hiệu năng phải dựa trên optimized build và đo đạc, không dựa riêng vào keyword."
+      }
+    },
+    {
+      "number": 168,
+      "sourceId": "repository-owner-curated-q168",
+      "directory": "168_exception-handling",
+      "chapter": "interview-core-techniques",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "syntax": "try { work(); } catch (const std::exception& error) { handle(error); }",
+      "prompt": {
+        "en": "How is exception handling implemented in C++?",
+        "vi": "Exception handling được triển khai trong C++ như thế nào?"
+      },
+      "answer": {
+        "en": "`throw` initializes an exception object and transfers control to a matching handler in an enclosing `try`/`catch` sequence. During stack unwinding, fully constructed automatic objects are destroyed in reverse order, which is why RAII is central to exception safety. Catch polymorphic exceptions by `const` reference and order specific handlers before general ones; destructors should not let exceptions escape during unwinding.",
+        "vi": "`throw` khởi tạo một exception object rồi chuyển control tới handler phù hợp trong chuỗi `try`/`catch` bao quanh. Trong quá trình stack unwinding, các automatic object đã construction hoàn chỉnh được hủy theo thứ tự ngược, vì vậy RAII là nền tảng của exception safety. Nên catch exception đa hình bằng `const` reference, đặt handler cụ thể trước handler tổng quát và không để exception thoát khỏi destructor trong lúc unwinding."
+      }
+    },
+    {
+      "number": 169,
+      "sourceId": "repository-owner-curated-q169",
+      "directory": "169_standard-and-user-defined-exceptions",
+      "chapter": "interview-core-techniques",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "syntax": "class ParseError : public std::runtime_error { using std::runtime_error::runtime_error; };",
+      "prompt": {
+        "en": "What is the difference between std::exception and user-defined exceptions?",
+        "vi": "`std::exception` và exception do người dùng định nghĩa khác nhau thế nào?"
+      },
+      "answer": {
+        "en": "`std::exception` is the polymorphic base of the standard exception hierarchy and exposes the virtual `what()` diagnostic. A user-defined exception represents domain-specific failure and should normally derive from an appropriate standard type such as `std::runtime_error` or `std::logic_error`, optionally carrying structured context. Catching by `const std::exception&` gives a generic boundary while earlier handlers can still match the domain type precisely.",
+        "vi": "`std::exception` là polymorphic base của hệ exception chuẩn và cung cấp diagnostic ảo `what()`. Exception do người dùng định nghĩa biểu diễn lỗi riêng của domain và thường nên dẫn xuất từ kiểu chuẩn phù hợp như `std::runtime_error` hoặc `std::logic_error`, có thể mang thêm context có cấu trúc. Catch bằng `const std::exception&` tạo boundary tổng quát, còn handler đặt trước vẫn có thể match chính xác kiểu domain."
+      }
+    },
+    {
+      "number": 170,
+      "sourceId": "repository-owner-curated-q170",
+      "directory": "170_raii-and-exception-safety",
+      "chapter": "interview-core-techniques",
+      "difficulty": "intermediate",
+      "difficultyScore": 3,
+      "syntax": "auto owner = std::make_unique<Resource>(); std::lock_guard lock(mutex);",
+      "prompt": {
+        "en": "How can RAII (Resource Acquisition Is Initialization) help with exception safety?",
+        "vi": "RAII giúp bảo đảm exception safety như thế nào?"
+      },
+      "answer": {
+        "en": "RAII stores resource ownership in an object's state: construction establishes ownership and the destructor releases it. Because destructors of fully constructed automatic objects run during normal return and stack unwinding, files, locks, memory, and other resources are released without duplicated cleanup paths. RAII prevents leaks but does not by itself guarantee transactional state; strong exception guarantees may also require commit-after-success designs such as copy-and-swap.",
+        "vi": "RAII đặt ownership của resource vào state của object: construction thiết lập quyền sở hữu và destructor giải phóng resource. Vì destructor của automatic object đã construction hoàn chỉnh chạy cả khi return bình thường lẫn stack unwinding, file, lock, memory và resource khác được dọn mà không cần lặp cleanup path. RAII ngăn leak nhưng không tự bảo đảm state mang tính transaction; strong exception guarantee còn có thể cần thiết kế chỉ commit sau khi thành công như copy-and-swap."
+      }
+    },
+    {
+      "number": 171,
+      "sourceId": "repository-owner-curated-q171",
+      "directory": "171_templates",
+      "chapter": "interview-advanced-techniques",
+      "difficulty": "advanced",
+      "difficultyScore": 4,
+      "syntax": "template<class T> T max_value(T left, T right);",
+      "prompt": {
+        "en": "Explain templates in C++ and provide a simple example.",
+        "vi": "Giải thích template trong C++ và đưa ra một ví dụ đơn giản."
+      },
+      "answer": {
+        "en": "Templates parameterize functions, classes, aliases, or variables over types, values, and in some cases other templates. The compiler forms specializations when they are needed, enabling zero-overhead generic code but potentially increasing compile time and generated code size. C++20 concepts can state requirements explicitly and improve overload selection and diagnostics compared with unconstrained substitution failures.",
+        "vi": "Template tham số hóa function, class, alias hoặc variable theo kiểu, giá trị và trong một số trường hợp theo template khác. Compiler tạo specialization khi cần, cho phép generic code gần như không có runtime overhead nhưng có thể làm tăng thời gian compile và kích thước code sinh ra. C++20 concept diễn đạt requirement tường minh, giúp overload selection và diagnostic rõ hơn so với substitution failure không có constraint."
+      }
+    },
+    {
+      "number": 172,
+      "sourceId": "repository-owner-curated-q172",
+      "directory": "172_the-stl-and-common-containers",
+      "chapter": "interview-advanced-techniques",
+      "difficulty": "advanced",
+      "difficultyScore": 3,
+      "syntax": "std::vector<int> values; std::unordered_map<std::string, int> counts;",
+      "prompt": {
+        "en": "What is the Standard Template Library (STL)? Name some commonly used containers.",
+        "vi": "Standard Template Library (STL) là gì? Hãy kể tên một số container thường dùng."
+      },
+      "answer": {
+        "en": "The STL is the generic-programming foundation of the C++ standard library built around containers, iterators, algorithms, and function objects. Common sequence containers include `vector`, `array`, `deque`, `list`, and `forward_list`; ordered associative containers include `map` and `set`; unordered variants are hash based; and adaptors include `stack`, `queue`, and `priority_queue`. Container choice should follow access pattern, invalidation rules, ordering, and complexity needs rather than habit.",
+        "vi": "STL là nền tảng generic programming của thư viện chuẩn C++, xoay quanh container, iterator, algorithm và function object. Sequence container phổ biến gồm `vector`, `array`, `deque`, `list`, `forward_list`; associative container có thứ tự gồm `map`, `set`; biến thể unordered dựa trên hash; adaptor gồm `stack`, `queue`, `priority_queue`. Cần chọn container theo access pattern, quy tắc invalidation, ordering và yêu cầu độ phức tạp thay vì theo thói quen."
+      }
+    },
+    {
+      "number": 173,
+      "sourceId": "repository-owner-curated-q173",
+      "directory": "173_lambda-expressions",
+      "chapter": "interview-advanced-techniques",
+      "difficulty": "advanced",
+      "difficultyScore": 3,
+      "syntax": "auto add = [offset](int value) { return value + offset; };",
+      "prompt": {
+        "en": "What are lambda expressions in C++11 and later?",
+        "vi": "Lambda expression trong C++11 trở lên là gì?"
+      },
+      "answer": {
+        "en": "A lambda expression creates an unnamed closure object whose call operator contains the written body. Its capture list can copy or reference surrounding entities, use init-capture, or capture nothing; parameters may be typed or use `auto` for a generic lambda. Entities captured by copy cannot be modified through the closure's default const call operator unless the lambda is `mutable`, and only captureless lambdas convert directly to compatible function pointers.",
+        "vi": "Lambda expression tạo một closure object không tên có call operator chứa body được viết. Capture list có thể copy hoặc reference entity xung quanh, dùng init-capture hoặc không capture; parameter có thể ghi kiểu hay dùng `auto` để tạo generic lambda. Entity được capture bằng copy không thể bị sửa qua call operator mặc định dạng const trừ khi lambda được đánh dấu `mutable`, và chỉ lambda không capture mới chuyển trực tiếp sang function pointer tương thích."
+      }
+    },
+    {
+      "number": 174,
+      "sourceId": "repository-owner-curated-q174",
+      "directory": "174_move-semantics",
+      "chapter": "interview-advanced-techniques",
+      "difficulty": "advanced",
+      "difficultyScore": 4,
+      "syntax": "Type(Type&& other) noexcept; target = std::move(source);",
+      "prompt": {
+        "en": "What are move semantics in C++11, and why are they important?",
+        "vi": "Move semantics trong C++11 là gì và vì sao quan trọng?"
+      },
+      "answer": {
+        "en": "Move semantics let an object transfer resources from an expiring source instead of duplicating them, using rvalue references plus move construction or move assignment. `std::move` performs only a cast that makes an object eligible for moving; the selected operation does the transfer. A moved-from standard-library object remains valid but usually has an unspecified value, and marking genuine move operations `noexcept` lets containers prefer them while preserving strong guarantees during reallocation.",
+        "vi": "Move semantics cho phép object chuyển resource từ một source sắp hết lifetime thay vì nhân bản resource, thông qua rvalue reference cùng move constructor hoặc move assignment. `std::move` chỉ thực hiện cast để object đủ điều kiện được move; operation được chọn mới thực sự chuyển resource. Object thư viện chuẩn sau move vẫn hợp lệ nhưng thường có giá trị không xác định cụ thể, và đánh dấu move operation thật sự là `noexcept` giúp container ưu tiên move mà vẫn giữ strong guarantee khi reallocation."
+      }
+    },
+    {
+      "number": 175,
+      "sourceId": "repository-owner-curated-q175",
+      "directory": "175_lvalues-rvalues-and-value-categories",
+      "chapter": "interview-advanced-techniques",
+      "difficulty": "advanced",
+      "difficultyScore": 4,
+      "syntax": "use(value); use(std::move(value)); // lvalue, then xvalue",
+      "prompt": {
+        "en": "What are lvalues and rvalues?",
+        "vi": "Lvalue và rvalue là gì?"
+      },
+      "answer": {
+        "en": "An lvalue is a glvalue that is not an xvalue and normally denotes an object whose identity persists; an xvalue is a glvalue whose resources may be reused. A prvalue computes a value or initializes an object, and the term rvalue covers prvalues and xvalues. These value categories affect overload resolution, reference binding, temporary materialization, and move semantics; they are more precise than saying only that lvalues appear on the left and rvalues on the right of assignment.",
+        "vi": "Lvalue là glvalue không phải xvalue và thường chỉ một object có identity tiếp tục tồn tại; xvalue là glvalue có resource có thể được tái sử dụng. Prvalue tính ra một giá trị hoặc khởi tạo object, còn thuật ngữ rvalue bao gồm prvalue và xvalue. Các value category này chi phối overload resolution, reference binding, temporary materialization và move semantics; chúng chính xác hơn cách nói lvalue chỉ nằm bên trái còn rvalue chỉ nằm bên phải phép gán."
+      }
+    },
+    {
+      "number": 176,
+      "sourceId": "repository-owner-curated-q176",
+      "directory": "176_sfinae-and-template-specialization",
+      "chapter": "interview-advanced-techniques",
+      "difficulty": "advanced",
+      "difficultyScore": 5,
+      "syntax": "template<class T, std::enable_if_t<condition<T>, int> = 0> void use(T value);",
+      "prompt": {
+        "en": "What is SFINAE? How does it relate to template specialization?",
+        "vi": "SFINAE là gì và liên quan thế nào tới template specialization?"
+      },
+      "answer": {
+        "en": "SFINAE means Substitution Failure Is Not An Error: when substitution fails in the immediate context of a function-template candidate, that candidate is removed from overload resolution instead of making the program ill-formed. It can enable overloads or partial class specializations conditionally, but it is not itself explicit specialization, and function templates cannot be partially specialized. In C++20, constraints and concepts usually express the same intent more clearly and produce better diagnostics.",
+        "vi": "SFINAE là viết tắt của Substitution Failure Is Not An Error: khi substitution thất bại trong immediate context của một candidate function template, candidate đó bị loại khỏi overload resolution thay vì làm cả chương trình ill-formed. Cơ chế này có thể bật overload hoặc partial class specialization theo điều kiện, nhưng bản thân nó không phải explicit specialization và function template không được partial-specialize. Trong C++20, constraint và concept thường diễn đạt cùng ý định rõ hơn và cho diagnostic tốt hơn."
       }
     }
   ]

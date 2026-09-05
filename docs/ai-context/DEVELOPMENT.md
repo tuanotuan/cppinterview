@@ -130,24 +130,27 @@ thể được nhận ra và giữ ID, nhưng luôn kiểm tra diff.
 
 ### Collection Real-World C++ Interviews
 
-- `web/content/daily-cpp-interview-source.json` là manifest biên tập cho 146 mục
-  nguồn theo đúng thứ tự; PDF tham chiếu không được lưu trong repo. Prompt nguồn
-  được giữ nguyên theo từng ngôn ngữ, còn phần giải thích và code mẫu được biên
-  soạn độc lập.
+- `web/content/daily-cpp-interview-source.json` là manifest biên tập cho 176 mục
+  nguồn theo đúng thứ tự. `sourceBatches` phải phủ chính xác toàn bộ dải số,
+  không chồng lấn và ghi riêng author/edition/permission/import policy cho từng
+  nguồn; prompt được giữ nguyên theo permission tương ứng, còn phần giải thích,
+  bản dịch và code mẫu được review kỹ thuật trong project.
 - Chạy `node scripts/generate-daily-cpp-interview.mjs` từ `web/` để sinh lại
   `dailycppinterview/`, phần registry, YAML câu hỏi và overlay tiếng Anh; sau đó
   chạy `npm run content:generate`. Mỗi thư mục phải có đúng `vi.md`, `en.md`,
   `main.cpp`, còn mỗi lesson chỉ có một question ID `dailycpp-qNNN-001`.
-- Chuỗi `Daily C++ Interview` đã nằm trong 146 revision v1 và tham gia source
-  hash nên generator cố ý giữ nó ở source; `localizeContentManifest()` thay bằng
-  tên hiển thị `Real-World C++ Interviews` trước khi render. Không sửa chuỗi nguồn
+- Chuỗi `Daily C++ Interview` đã nằm trong Q001–Q146 revision v1 và tham gia
+  source hash nên generator chỉ giữ nó cho batch legacy;
+  `localizeContentManifest()` thay bằng tên hiển thị `Real-World C++ Interviews`
+  trước khi render. Q147–Q176 dùng nhãn batch hiện hành. Không sửa chuỗi legacy
   chỉ để rebrand. `collection.defaultQuestionVersion` là version mặc định; nếu
   nội dung/hash của một câu thật sự đổi, tăng `questionVersion` riêng trên mục đó
   (hoặc tăng default khi toàn bộ collection đổi). Generator phải fail nếu hash
   đổi mà version không tăng, trước khi chạm vào bất kỳ source hay catalog sinh tự
   động nào.
-- Giữ cả 146 mục, bao gồm 19 câu lặp có chủ ý của nguồn; không gộp ID và không tự
-  sinh bộ ba Dễ/Trung bình/Khó. Difficulty là ước tính biên tập lưu trong manifest.
+- Giữ cả 176 mục, bao gồm 19 câu lặp nguyên văn có chủ ý trong batch legacy;
+  không gộp ID và không tự sinh bộ ba Dễ/Trung bình/Khó. Câu chỉ gần trùng chủ đề
+  không dùng `repeatOf`; difficulty là ước tính biên tập lưu trong manifest.
 - Track `dailycpp` là collection trung lập phiên bản: hiển thị trong Library và
   queue học sau C++23, nhưng không có file/route roadmap, không tham gia ma trận
   coverage theo phiên bản và chưa được chọn vào Mock C++11–23.

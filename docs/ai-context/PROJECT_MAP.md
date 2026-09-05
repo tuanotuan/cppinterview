@@ -7,7 +7,7 @@ Tài liệu ổn định để tìm đúng vùng code. Xác minh lại nếu sou
 | Path | Vai trò |
 |---|---|
 | `cpp98_foundation/`, `cpp11/`, `cpp14/`, `cpp17/`, `cpp20/`, `cpp23/` | Lesson theo phiên bản C++; mỗi thư mục bài có canonical `knowledge.md` hoặc `vi.md`, có thể thêm `en.md` song ngữ và thường có `main.cpp` |
-| `dailycppinterview/` | Bộ Real-World C++ Interviews gồm 146 chủ đề theo thứ tự nguồn; mỗi chủ đề có đúng `vi.md`, `en.md`, `main.cpp` và đúng một câu hỏi tự kiểm tra. Đây là collection C++, không phải phiên bản chuẩn và không có roadmap |
+| `dailycppinterview/` | Bộ Real-World C++ Interviews gồm 176 chủ đề theo thứ tự nguồn và provenance tách theo batch; mỗi chủ đề có đúng `vi.md`, `en.md`, `main.cpp` và đúng một câu hỏi tự kiểm tra. Đây là collection C++, không phải phiên bản chuẩn và không có roadmap |
 | `python/` | Ghi chú cá nhân giữ nguyên trong repo; web không quét, đồng bộ hoặc hiển thị |
 | `web/` | App cppinterview: Next.js App Router, React, TypeScript |
 | `web/src/proxy.ts`, `web/src/i18n/` | Entry point kết hợp refresh cookie/session Supabase với định tuyến locale `vi`/`en`; API, Admin và WorldQuant được bỏ qua khỏi locale middleware |
@@ -126,7 +126,7 @@ API quan trọng:
 
 | Domain | File đầu mối | Trách nhiệm |
 |---|---|---|
-| `content` | `loader.ts`, `schema.ts`, `automation.ts`, `translations.ts` | Parse canonical `vi.md` của lesson song ngữ hoặc legacy `knowledge.md`, kiểm tra companion `en.md` cùng topology, sinh manifest/overlay và chỉ áp question translation đã publication exact copy mà không đổi identity/source/code. Với `dailycpp`, lớp locale đổi legacy source label sang `Real-World C++ Interviews` khi render để không làm đổi 146 immutable v1 hash |
+| `content` | `loader.ts`, `schema.ts`, `automation.ts`, `translations.ts` | Parse canonical `vi.md` của lesson song ngữ hoặc legacy `knowledge.md`, kiểm tra companion `en.md` cùng topology, sinh manifest/overlay và chỉ áp question translation đã publication exact copy mà không đổi identity/source/code. Với `dailycpp`, lớp locale đổi legacy source label sang `Real-World C++ Interviews` khi render để không làm đổi immutable v1 hash của Q001–Q146 |
 | `content` | `question-store-server.ts`, `published-question-bank.server.ts` | Chọn `repo`/`shadow`/`db`, parity, apply override; server-only reader dùng exact publication của `content_admins` làm nguồn chung cho Practice và Mock mà không đưa credential xuống client |
 | `learn` | `lesson-library.ts`, `{cpp11,cpp14,cpp17,cpp20,cpp23}-roadmap.ts`, `roadmap-progress.ts`, `roadmap-progress.server.ts` | Dựng catalog lesson, validate/localize registry roadmap riêng và quản lý ba trạng thái tiến độ cá nhân độc lập với FSRS; server chỉ chấp nhận lesson đúng track trong manifest, node roadmap không tham gia discovery hay question sync |
 | `practice` | `learning-state.ts`, `fsrs-scheduler.ts`, `fsrs-sync.ts`, `scheduler.ts`, `storage.ts`, `progress-sync.ts`, `study-session.ts` | Daily plan Anki-style dựng từ trạng thái đầu ngày; FSRS 6 replay exact content/history generation để tính due date và bốn khoảng rating động; browser/cloud progress, rating nguyên tử, streak và draft/phase Trợ giúp → Làm lại |

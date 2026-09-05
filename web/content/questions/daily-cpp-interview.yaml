@@ -5794,3 +5794,1314 @@ questions:
     sourceHash: 3c05cea38b909564e14195655dcd89494532bbc6b76d1753a4cac32188ef5aba
     status: draft
     version: 1
+  - id: dailycpp-q147-001
+    lessonId: dailycpp-q147
+    type: recall
+    responseMode: text
+    difficulty: beginner
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 2
+    prompt: C++ là gì và khác C như thế nào?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: C++ là ngôn ngữ đa mục đích, đa mô hình phát triển từ C và bổ sung các cơ chế trừu tượng như
+        class, template, RAII, overload, exception cùng thư viện chuẩn phong phú. C và C++ chia sẻ
+        nhiều cú pháp nhưng là hai ngôn ngữ riêng với quy tắc kiểu, mô hình object/lifetime, tập
+        chương trình hợp lệ và idiom khác nhau; C++ không chỉ là C có thêm class.
+      detailed: >-
+        C++ là ngôn ngữ đa mục đích, đa mô hình phát triển từ C và bổ sung các cơ chế trừu tượng như
+        class, template, RAII, overload, exception cùng thư viện chuẩn phong phú. C và C++ chia sẻ
+        nhiều cú pháp nhưng là hai ngôn ngữ riêng với quy tắc kiểu, mô hình object/lifetime, tập
+        chương trình hợp lệ và idiom khác nhau; C++ không chỉ là C có thêm class.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 6757f0caf9467ad838d7354a80982bd3879d23f2302c75c1e6b0d72e79f73c76
+    status: draft
+    version: 1
+  - id: dailycpp-q148-001
+    lessonId: dailycpp-q148
+    type: recall
+    responseMode: text
+    difficulty: beginner
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 2
+    prompt: Access specifier trong C++ là gì?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Các access specifier `public`, `protected` và `private` kiểm soát nơi member của class được
+        phép được gọi tên. Member public nhìn chung truy cập được từ bên ngoài; member protected
+        dành cho chính class, friend và class dẫn xuất; member private dành cho chính class và
+        friend. `class` mặc định private còn `struct` mặc định public; đây là quy tắc interface ở
+        compile time, không phải ranh giới bảo mật bộ nhớ.
+      detailed: >-
+        Các access specifier `public`, `protected` và `private` kiểm soát nơi member của class được
+        phép được gọi tên. Member public nhìn chung truy cập được từ bên ngoài; member protected
+        dành cho chính class, friend và class dẫn xuất; member private dành cho chính class và
+        friend. `class` mặc định private còn `struct` mặc định public; đây là quy tắc interface ở
+        compile time, không phải ranh giới bảo mật bộ nhớ.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 3d7e9c54e0c87a7eedc7ea67941cfcd81c2aad7d305cdae9fdfa81e3f7be3972
+    status: draft
+    version: 1
+  - id: dailycpp-q149-001
+    lessonId: dailycpp-q149
+    type: recall
+    responseMode: text
+    difficulty: beginner
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 2
+    prompt: "`std` trong C++ là gì?"
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: "`std` là namespace nơi thư viện chuẩn C++ khai báo phần lớn tên như `std::string`,
+        `std::vector` và `std::sort`. Nên định danh bằng `std::` hoặc dùng `using` declaration có
+        phạm vi hẹp; `using namespace std;` ở phạm vi global dễ gây xung đột, và code người dùng
+        không được tự thêm declaration vào `std` ngoài các trường hợp chuẩn cho phép rõ ràng."
+      detailed: >-
+        `std` là namespace nơi thư viện chuẩn C++ khai báo phần lớn tên như `std::string`,
+        `std::vector` và `std::sort`. Nên định danh bằng `std::` hoặc dùng `using` declaration có
+        phạm vi hẹp; `using namespace std;` ở phạm vi global dễ gây xung đột, và code người dùng
+        không được tự thêm declaration vào `std` ngoài các trường hợp chuẩn cho phép rõ ràng.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 0fd55d854f5ea5f6291101a459bb69b92417a262af658633039d4341970372b4
+    status: draft
+    version: 1
+  - id: dailycpp-q150-001
+    lessonId: dailycpp-q150
+    type: recall
+    responseMode: text
+    difficulty: beginner
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 2
+    prompt: Pointer trong C++ là gì và khác reference như thế nào?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Pointer là một object lưu địa chỉ; nó có thể null, trỏ lại nơi khác, được sao chép và dùng
+        pointer arithmetic khi trỏ vào phần tử mảng. Reference là alias được bind khi khởi tạo và
+        không thể bind lại; reference thông thường phải chỉ tới object hoặc function hợp lệ khi được
+        dùng. Cả hai không tự biểu thị ownership, vì vậy ownership cần được thể hiện riêng, ưu tiên
+        bằng kiểu RAII.
+      detailed: >-
+        Pointer là một object lưu địa chỉ; nó có thể null, trỏ lại nơi khác, được sao chép và dùng
+        pointer arithmetic khi trỏ vào phần tử mảng. Reference là alias được bind khi khởi tạo và
+        không thể bind lại; reference thông thường phải chỉ tới object hoặc function hợp lệ khi được
+        dùng. Cả hai không tự biểu thị ownership, vì vậy ownership cần được thể hiện riêng, ưu tiên
+        bằng kiểu RAII.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 4157e056926ee97c4fc96c882e83cb68585b70594390a01b825c2009c9a46ba0
+    status: draft
+    version: 1
+  - id: dailycpp-q151-001
+    lessonId: dailycpp-q151
+    type: recall
+    responseMode: text
+    difficulty: beginner
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 2
+    prompt: Bộ nhớ stack và heap khác nhau như thế nào?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Chuẩn C++ quy định storage duration chứ không bắt buộc cách triển khai vật lý bằng stack hay
+        heap. Object có automatic storage thường sống đến khi thoát scope và được hủy tự động;
+        object cấp phát động sống đến khi thao tác sở hữu giải phóng nó. Cấp phát automatic thường
+        rẻ nhưng bị giới hạn bởi không gian stack của thread, còn cấp phát động linh hoạt hơn nhưng
+        có chi phí allocator và rủi ro lifetime, nên C++ production thường quản lý bằng container
+        RAII và smart pointer thay vì `new`/`delete` thô.
+      detailed: >-
+        Chuẩn C++ quy định storage duration chứ không bắt buộc cách triển khai vật lý bằng stack hay
+        heap. Object có automatic storage thường sống đến khi thoát scope và được hủy tự động;
+        object cấp phát động sống đến khi thao tác sở hữu giải phóng nó. Cấp phát automatic thường
+        rẻ nhưng bị giới hạn bởi không gian stack của thread, còn cấp phát động linh hoạt hơn nhưng
+        có chi phí allocator và rủi ro lifetime, nên C++ production thường quản lý bằng container
+        RAII và smart pointer thay vì `new`/`delete` thô.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 1542187734105b6b020609c1099ff22a3dfacdcd4cfc72e18bc594a8671256c8
+    status: draft
+    version: 1
+  - id: dailycpp-q152-001
+    lessonId: dailycpp-q152
+    type: recall
+    responseMode: text
+    difficulty: beginner
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 2
+    prompt: Truyền tham trị và truyền tham chiếu khác nhau như thế nào?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: "Parameter không phải reference là một object riêng được khởi tạo từ argument, nên sửa nó
+        không sửa object của caller; việc copy hoặc move có thể phát sinh chi phí. Parameter kiểu
+        reference bind vào object của caller: reference không const có thể sửa object, còn `const
+        T&` cho quyền đọc và thường tránh copy. Cần chọn theo contract trước; kiểu giá trị nhỏ
+        thường nên truyền bằng value và reference không tự động nhanh hơn trong mọi trường hợp."
+      detailed: >-
+        Parameter không phải reference là một object riêng được khởi tạo từ argument, nên sửa nó
+        không sửa object của caller; việc copy hoặc move có thể phát sinh chi phí. Parameter kiểu
+        reference bind vào object của caller: reference không const có thể sửa object, còn `const
+        T&` cho quyền đọc và thường tránh copy. Cần chọn theo contract trước; kiểu giá trị nhỏ
+        thường nên truyền bằng value và reference không tự động nhanh hơn trong mọi trường hợp.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: a77bac3443838e13bd2a8c90429fa7401fa4509b41f82a7e5e55e96f4fe0e73d
+    status: draft
+    version: 1
+  - id: dailycpp-q153-001
+    lessonId: dailycpp-q153
+    type: recall
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 4
+    prompt: Giải thích shallow copy, deep copy và copy constructor trong C++.
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: "Copy constructor khởi tạo object mới từ một object có sẵn. Copy do compiler sinh thực hiện
+        copy từng member: member giá trị trở thành giá trị độc lập, còn raw pointer chỉ sao chép địa
+        chỉ nên có thể tạo hiệu ứng shallow copy và làm hỏng ownership. Một owner deep-copy sẽ cấp
+        phát resource riêng rồi sao chép nội dung, nhưng thiết kế ưu tiên là Rule of Zero: lưu
+        resource trong các member RAII có value semantics để copy và destructor sinh tự động đã có
+        hành vi đúng."
+      detailed: >-
+        Copy constructor khởi tạo object mới từ một object có sẵn. Copy do compiler sinh thực hiện
+        copy từng member: member giá trị trở thành giá trị độc lập, còn raw pointer chỉ sao chép địa
+        chỉ nên có thể tạo hiệu ứng shallow copy và làm hỏng ownership. Một owner deep-copy sẽ cấp
+        phát resource riêng rồi sao chép nội dung, nhưng thiết kế ưu tiên là Rule of Zero: lưu
+        resource trong các member RAII có value semantics để copy và destructor sinh tự động đã có
+        hành vi đúng.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 3cd6cf1e2352703650fcb2b465371f2f42a52c0c223293c3d9ae58d95e8af8d8
+    status: draft
+    version: 1
+  - id: dailycpp-q154-001
+    lessonId: dailycpp-q154
+    type: recall
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 4
+    prompt: Hàm đệ quy là gì? Hãy đưa ra một ví dụ.
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Hàm đệ quy gọi lại chính nó trực tiếp hoặc gián tiếp trên một bài toán con nhỏ hơn. Nó cần
+        base case có thể đạt tới và mỗi bước phải tiến gần base case; nếu không sẽ đệ quy vô hạn,
+        còn đệ quy đúng nhưng quá sâu vẫn có thể làm cạn call stack. C++ không bảo đảm tail-call
+        optimization, nên thuật toán lặp hoặc stack tường minh an toàn hơn khi độ sâu lớn hay do
+        input quyết định.
+      detailed: >-
+        Hàm đệ quy gọi lại chính nó trực tiếp hoặc gián tiếp trên một bài toán con nhỏ hơn. Nó cần
+        base case có thể đạt tới và mỗi bước phải tiến gần base case; nếu không sẽ đệ quy vô hạn,
+        còn đệ quy đúng nhưng quá sâu vẫn có thể làm cạn call stack. C++ không bảo đảm tail-call
+        optimization, nên thuật toán lặp hoặc stack tường minh an toàn hơn khi độ sâu lớn hay do
+        input quyết định.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 621c7fad25e72318496bea195ca2fd38193322746d05c0984eb8915f7c00ba61
+    status: draft
+    version: 1
+  - id: dailycpp-q155-001
+    lessonId: dailycpp-q155
+    type: recall
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 4
+    prompt: Function overloading trong C++ (đa hình compile time) là gì?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Function overloading khai báo nhiều function cùng tên trong cùng scope nhưng khác danh sách
+        parameter hoặc, với member function, khác cv/ref qualifier phù hợp. Overload resolution chọn
+        candidate khả dụng tốt nhất ở compile time dựa trên kiểu argument và conversion. Chỉ khác
+        return type không đủ tạo overload, còn conversion hay default argument có thể làm lời gọi bị
+        ambiguous.
+      detailed: >-
+        Function overloading khai báo nhiều function cùng tên trong cùng scope nhưng khác danh sách
+        parameter hoặc, với member function, khác cv/ref qualifier phù hợp. Overload resolution chọn
+        candidate khả dụng tốt nhất ở compile time dựa trên kiểu argument và conversion. Chỉ khác
+        return type không đủ tạo overload, còn conversion hay default argument có thể làm lời gọi bị
+        ambiguous.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: a22ba34483840f45e757f5c6383f772c96d2501eff3e9446aae2d855e38295f5
+    status: draft
+    version: 1
+  - id: dailycpp-q156-001
+    lessonId: dailycpp-q156
+    type: recall
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 4
+    prompt: "`struct` và `class` trong C++ khác nhau như thế nào?"
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: "`struct` và `class` định nghĩa cùng một loại class type; cả hai đều có thể có constructor,
+        member function, template, inheritance và virtual dispatch. Khác biệt ngôn ngữ nằm ở mặc
+        định: member và base class của `struct` là public, còn của `class` là private. Theo
+        convention, struct thường mô hình hóa value hoặc aggregate đơn giản còn class nhấn mạnh
+        invariant được che giấu, nhưng đó là lựa chọn phong cách chứ không phải giới hạn của ngôn
+        ngữ."
+      detailed: >-
+        `struct` và `class` định nghĩa cùng một loại class type; cả hai đều có thể có constructor,
+        member function, template, inheritance và virtual dispatch. Khác biệt ngôn ngữ nằm ở mặc
+        định: member và base class của `struct` là public, còn của `class` là private. Theo
+        convention, struct thường mô hình hóa value hoặc aggregate đơn giản còn class nhấn mạnh
+        invariant được che giấu, nhưng đó là lựa chọn phong cách chứ không phải giới hạn của ngôn
+        ngữ.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 29ee9f3586c8d35628bf5bfbd52754f70edeb8850743e830a4d2569c75fa80d9
+    status: draft
+    version: 1
+  - id: dailycpp-q157-001
+    lessonId: dailycpp-q157
+    type: recall
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 4
+    prompt: Các keyword `auto` và `decltype` được dùng để làm gì?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: "`auto` yêu cầu compiler suy luận kiểu khai báo từ initializer theo quy tắc phần lớn tương tự
+        template argument deduction; declarator được viết vẫn quyết định reference và
+        cv-qualification. `decltype(expr)` xác định kiểu mà không evaluate biểu thức và giữ thông
+        tin value category, với quy tắc riêng cho tên không có ngoặc. `decltype(auto)` áp dụng quy
+        tắc `decltype` cho declaration hoặc return type được suy luận nên có thể giữ reference mà
+        `auto` thường bỏ."
+      detailed: >-
+        `auto` yêu cầu compiler suy luận kiểu khai báo từ initializer theo quy tắc phần lớn tương tự
+        template argument deduction; declarator được viết vẫn quyết định reference và
+        cv-qualification. `decltype(expr)` xác định kiểu mà không evaluate biểu thức và giữ thông
+        tin value category, với quy tắc riêng cho tên không có ngoặc. `decltype(auto)` áp dụng quy
+        tắc `decltype` cho declaration hoặc return type được suy luận nên có thể giữ reference mà
+        `auto` thường bỏ.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 2013c504594a6b4aedc97400a8f7bb2103797dc739cfb4717e879f290ede2ed6
+    status: draft
+    version: 1
+  - id: dailycpp-q158-001
+    lessonId: dailycpp-q158
+    type: recall
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 4
+    prompt: Friend function là gì?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Friend function không phải member function, nhưng declaration `friend` cấp cho nó quyền truy
+        cập member private và protected của class. Friendship phải khai báo tường minh, không được
+        kế thừa, không bắc cầu và không tự có hiệu lực theo chiều ngược lại. Nó hữu ích cho
+        operation non-member gắn chặt như toán tử đối xứng, nhưng friendship quá rộng làm tăng
+        coupling và không nên thay thế public interface được thiết kế tốt.
+      detailed: >-
+        Friend function không phải member function, nhưng declaration `friend` cấp cho nó quyền truy
+        cập member private và protected của class. Friendship phải khai báo tường minh, không được
+        kế thừa, không bắc cầu và không tự có hiệu lực theo chiều ngược lại. Nó hữu ích cho
+        operation non-member gắn chặt như toán tử đối xứng, nhưng friendship quá rộng làm tăng
+        coupling và không nên thay thế public interface được thiết kế tốt.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 7720b1a0b5991ab3ab4e4b77a7f93e234d7f06e867224639d115b1f8f5cd378f
+    status: draft
+    version: 1
+  - id: dailycpp-q159-001
+    lessonId: dailycpp-q159
+    type: recall
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 4
+    prompt: Object slicing trong C++ là gì và tránh nó bằng cách nào?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Object slicing xảy ra khi object dẫn xuất được copy theo value vào một object base, khiến
+        object mới chỉ còn base subobject và mất state cùng behavior của phần dẫn xuất. Có thể tránh
+        bằng cách truyền và lưu object đa hình qua reference hoặc smart pointer sở hữu, đồng thời
+        cho base đa hình một virtual destructor. Khi thực sự cần value semantics, dùng virtual
+        `clone`, type erasure hoặc sum type đóng như `std::variant` thay vì vô tình copy theo base
+        value.
+      detailed: >-
+        Object slicing xảy ra khi object dẫn xuất được copy theo value vào một object base, khiến
+        object mới chỉ còn base subobject và mất state cùng behavior của phần dẫn xuất. Có thể tránh
+        bằng cách truyền và lưu object đa hình qua reference hoặc smart pointer sở hữu, đồng thời
+        cho base đa hình một virtual destructor. Khi thực sự cần value semantics, dùng virtual
+        `clone`, type erasure hoặc sum type đóng như `std::variant` thay vì vô tình copy theo base
+        value.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 9b241183e4a3b44835a5b403bd190a35875b4987a72f4f4cdaa18dbc5092bec6
+    status: draft
+    version: 1
+  - id: dailycpp-q160-001
+    lessonId: dailycpp-q160
+    type: recall
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 4
+    prompt: Abstract class và interface trong C++ khác nhau thế nào? Làm sao triển khai hành vi giống
+      interface?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Abstract class có ít nhất một pure virtual function và vẫn có thể sở hữu state, constructor,
+        function không virtual hay virtual function đã có implementation. C++ không có keyword
+        `interface`; contract runtime giống interface thường là abstract class chỉ chứa các
+        operation pure virtual cần thiết cùng virtual destructor khi hỗ trợ xóa qua base. C++20
+        concept là một dạng contract compile time riêng cho generic code, không cần inheritance hay
+        runtime dispatch.
+      detailed: >-
+        Abstract class có ít nhất một pure virtual function và vẫn có thể sở hữu state, constructor,
+        function không virtual hay virtual function đã có implementation. C++ không có keyword
+        `interface`; contract runtime giống interface thường là abstract class chỉ chứa các
+        operation pure virtual cần thiết cùng virtual destructor khi hỗ trợ xóa qua base. C++20
+        concept là một dạng contract compile time riêng cho generic code, không cần inheritance hay
+        runtime dispatch.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 766f590fa65d580fe3ce36b2cdeb45b00ae83f8277743d4c5937357559a2d485
+    status: draft
+    version: 1
+  - id: dailycpp-q161-001
+    lessonId: dailycpp-q161
+    type: recall
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 4
+    prompt: Giải thích encapsulation bằng một ví dụ.
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Encapsulation đóng gói state cùng các operation duy trì invariant và che giấu chi tiết biểu
+        diễn sau một interface ổn định. Nó không chỉ là đặt field thành private rồi thêm
+        getter/setter không hạn chế; caller nên diễn đạt operation hợp lệ của domain như `withdraw`,
+        còn class từ chối transition không hợp lệ như số dư âm. Cách này giảm coupling và cho phép
+        đổi implementation mà không buộc caller đổi theo.
+      detailed: >-
+        Encapsulation đóng gói state cùng các operation duy trì invariant và che giấu chi tiết biểu
+        diễn sau một interface ổn định. Nó không chỉ là đặt field thành private rồi thêm
+        getter/setter không hạn chế; caller nên diễn đạt operation hợp lệ của domain như `withdraw`,
+        còn class từ chối transition không hợp lệ như số dư âm. Cách này giảm coupling và cho phép
+        đổi implementation mà không buộc caller đổi theo.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: d22136ebc6f7258eabf3a7998eed2aef4ffe7f434db5af0158b332545ad085f8
+    status: draft
+    version: 1
+  - id: dailycpp-q162-001
+    lessonId: dailycpp-q162
+    type: recall
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 4
+    prompt: Multiple inheritance là gì và có thể gây ra vấn đề nào?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Multiple inheritance cho phép một class dẫn xuất từ nhiều base. Nó có thể gây ambiguous
+        member lookup, nhân đôi base subobject trong diamond, làm phức tạp thứ tự construction và
+        tăng coupling; virtual inheritance giúp diamond dùng chung một virtual base nhưng cũng thêm
+        độ phức tạp. Multiple inheritance phù hợp nhất với các interface nhỏ, trực giao, còn
+        composition thường rõ hơn khi kết hợp implementation có state.
+      detailed: >-
+        Multiple inheritance cho phép một class dẫn xuất từ nhiều base. Nó có thể gây ambiguous
+        member lookup, nhân đôi base subobject trong diamond, làm phức tạp thứ tự construction và
+        tăng coupling; virtual inheritance giúp diamond dùng chung một virtual base nhưng cũng thêm
+        độ phức tạp. Multiple inheritance phù hợp nhất với các interface nhỏ, trực giao, còn
+        composition thường rõ hơn khi kết hợp implementation có state.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 7e5a563495fd80e67f4301e57c956058bccbd04bf1bc2149e89fbd3ba9b673b8
+    status: draft
+    version: 1
+  - id: dailycpp-q163-001
+    lessonId: dailycpp-q163
+    type: recall
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 4
+    prompt: Static data member và data member thông thường khác nhau như thế nào?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Mỗi object chứa bản riêng của non-static data member, còn static data member thuộc về class
+        và được chia sẻ giữa mọi object. Static member có static storage duration và có thể tồn tại
+        khi chưa có instance; từ C++17 có thể định nghĩa nó bằng `inline static` ngay trong class.
+        Static member function không có `this` pointer và chỉ truy cập trực tiếp static member, còn
+        non-static member function làm việc trên một object cụ thể.
+      detailed: >-
+        Mỗi object chứa bản riêng của non-static data member, còn static data member thuộc về class
+        và được chia sẻ giữa mọi object. Static member có static storage duration và có thể tồn tại
+        khi chưa có instance; từ C++17 có thể định nghĩa nó bằng `inline static` ngay trong class.
+        Static member function không có `this` pointer và chỉ truy cập trực tiếp static member, còn
+        non-static member function làm việc trên một object cụ thể.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: ab3dd059830bf53bf59ea79a4909b357f14ff9d59f1b9db177b6a21885bce5e1
+    status: draft
+    version: 1
+  - id: dailycpp-q164-001
+    lessonId: dailycpp-q164
+    type: recall
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 4
+    prompt: "`this` pointer là gì và được dùng như thế nào?"
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Bên trong non-static member function, `this` trỏ tới object mà function được gọi trên đó;
+        pointee của nó là const trong member function được const-qualify. Nó thường dùng để phân
+        biệt member với parameter trùng tên, truyền object hiện tại hoặc trả `*this` để chaining.
+        Static member function không có `this`, còn `delete this` chỉ hợp lệ trong contract
+        ownership rất hiếm và khó bảo đảm an toàn nên thông thường cần tránh.
+      detailed: >-
+        Bên trong non-static member function, `this` trỏ tới object mà function được gọi trên đó;
+        pointee của nó là const trong member function được const-qualify. Nó thường dùng để phân
+        biệt member với parameter trùng tên, truyền object hiện tại hoặc trả `*this` để chaining.
+        Static member function không có `this`, còn `delete this` chỉ hợp lệ trong contract
+        ownership rất hiếm và khó bảo đảm an toàn nên thông thường cần tránh.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: fab008e3a0d1025f3eefeb7c9d9c3910f1edb2a884a37fd61a0fecb09560c5a5
+    status: draft
+    version: 1
+  - id: dailycpp-q165-001
+    lessonId: dailycpp-q165
+    type: recall
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 4
+    prompt: Function overriding trong C++ là gì và base class ảnh hưởng ra sao?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Member của class dẫn xuất override một virtual member của base khi tên, danh sách parameter,
+        cv/ref qualifier cùng quy tắc return và exception tạo thành signature override hợp lệ. Lời
+        gọi qua base reference hoặc pointer khi đó dispatch tới final overrider ở runtime. Nên ghi
+        `override` để compiler bắt mismatch; overload không liên quan nhưng cùng tên có thể che
+        overload set của base, khi đó có thể cần `using Base::name`.
+      detailed: >-
+        Member của class dẫn xuất override một virtual member của base khi tên, danh sách parameter,
+        cv/ref qualifier cùng quy tắc return và exception tạo thành signature override hợp lệ. Lời
+        gọi qua base reference hoặc pointer khi đó dispatch tới final overrider ở runtime. Nên ghi
+        `override` để compiler bắt mismatch; overload không liên quan nhưng cùng tên có thể che
+        overload set của base, khi đó có thể cần `using Base::name`.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 32cb75feea2cb4e1d7eb161b799ef43e5eec9d64bd6420ffad27b8b0d4d4d3d2
+    status: draft
+    version: 1
+  - id: dailycpp-q166-001
+    lessonId: dailycpp-q166
+    type: recall
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 4
+    prompt: Function pointer là gì và được dùng như thế nào?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Function pointer lưu địa chỉ của free function hoặc static function có một signature cụ thể
+        và hỗ trợ lời gọi gián tiếp, callback hay dispatch table. Nó có thể null hoặc trỏ lại
+        function khác, và lambda không capture có thể chuyển sang function pointer tương thích.
+        Pointer tới non-static member function có kiểu khác và cần một object; `std::function` hỗ
+        trợ type erasure cùng callable có state nhưng có overhead lớn hơn raw function pointer.
+      detailed: >-
+        Function pointer lưu địa chỉ của free function hoặc static function có một signature cụ thể
+        và hỗ trợ lời gọi gián tiếp, callback hay dispatch table. Nó có thể null hoặc trỏ lại
+        function khác, và lambda không capture có thể chuyển sang function pointer tương thích.
+        Pointer tới non-static member function có kiểu khác và cần một object; `std::function` hỗ
+        trợ type erasure cùng callable có state nhưng có overhead lớn hơn raw function pointer.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 98567f8bef8c42811e19583227534e4cf9129fff91e22de2aa2e19c56b5c6608
+    status: draft
+    version: 1
+  - id: dailycpp-q167-001
+    lessonId: dailycpp-q167
+    type: recall
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 4
+    prompt: Inline expansion của function ảnh hưởng hiệu năng như thế nào?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Inlining có thể loại bỏ overhead của lời gọi và làm lộ constant cùng control flow cho các tối
+        ưu tiếp theo, nhưng nhân bản function body có thể tăng kích thước code và tạo áp lực lên
+        instruction cache. Optimizer có thể inline function không ghi `inline` hoặc từ chối function
+        có keyword này; vai trò ngôn ngữ được bảo đảm của `inline` chủ yếu là cho phép definition
+        giống nhau ở nhiều translation unit theo ODR. Vì vậy quyết định hiệu năng phải dựa trên
+        optimized build và đo đạc, không dựa riêng vào keyword.
+      detailed: >-
+        Inlining có thể loại bỏ overhead của lời gọi và làm lộ constant cùng control flow cho các
+        tối ưu tiếp theo, nhưng nhân bản function body có thể tăng kích thước code và tạo áp lực lên
+        instruction cache. Optimizer có thể inline function không ghi `inline` hoặc từ chối function
+        có keyword này; vai trò ngôn ngữ được bảo đảm của `inline` chủ yếu là cho phép definition
+        giống nhau ở nhiều translation unit theo ODR. Vì vậy quyết định hiệu năng phải dựa trên
+        optimized build và đo đạc, không dựa riêng vào keyword.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: afdc1cfd23d71db2464e492acfc71b6f7143088d801faf4ad2d0462bb7abe027
+    status: draft
+    version: 1
+  - id: dailycpp-q168-001
+    lessonId: dailycpp-q168
+    type: recall
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 4
+    prompt: Exception handling được triển khai trong C++ như thế nào?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: "`throw` khởi tạo một exception object rồi chuyển control tới handler phù hợp trong chuỗi
+        `try`/`catch` bao quanh. Trong quá trình stack unwinding, các automatic object đã
+        construction hoàn chỉnh được hủy theo thứ tự ngược, vì vậy RAII là nền tảng của exception
+        safety. Nên catch exception đa hình bằng `const` reference, đặt handler cụ thể trước handler
+        tổng quát và không để exception thoát khỏi destructor trong lúc unwinding."
+      detailed: >-
+        `throw` khởi tạo một exception object rồi chuyển control tới handler phù hợp trong chuỗi
+        `try`/`catch` bao quanh. Trong quá trình stack unwinding, các automatic object đã
+        construction hoàn chỉnh được hủy theo thứ tự ngược, vì vậy RAII là nền tảng của exception
+        safety. Nên catch exception đa hình bằng `const` reference, đặt handler cụ thể trước handler
+        tổng quát và không để exception thoát khỏi destructor trong lúc unwinding.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: b324e85e776efd43541a650e9d05e5c9b9a772d4326a7f3cbdf7ec3c94ac431c
+    status: draft
+    version: 1
+  - id: dailycpp-q169-001
+    lessonId: dailycpp-q169
+    type: recall
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 4
+    prompt: "`std::exception` và exception do người dùng định nghĩa khác nhau thế nào?"
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: "`std::exception` là polymorphic base của hệ exception chuẩn và cung cấp diagnostic ảo
+        `what()`. Exception do người dùng định nghĩa biểu diễn lỗi riêng của domain và thường nên
+        dẫn xuất từ kiểu chuẩn phù hợp như `std::runtime_error` hoặc `std::logic_error`, có thể mang
+        thêm context có cấu trúc. Catch bằng `const std::exception&` tạo boundary tổng quát, còn
+        handler đặt trước vẫn có thể match chính xác kiểu domain."
+      detailed: >-
+        `std::exception` là polymorphic base của hệ exception chuẩn và cung cấp diagnostic ảo
+        `what()`. Exception do người dùng định nghĩa biểu diễn lỗi riêng của domain và thường nên
+        dẫn xuất từ kiểu chuẩn phù hợp như `std::runtime_error` hoặc `std::logic_error`, có thể mang
+        thêm context có cấu trúc. Catch bằng `const std::exception&` tạo boundary tổng quát, còn
+        handler đặt trước vẫn có thể match chính xác kiểu domain.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 23b9fb4e09ac13906bec3f862b68f99763e5ef037a77b2ca5ff838c25deb0ec9
+    status: draft
+    version: 1
+  - id: dailycpp-q170-001
+    lessonId: dailycpp-q170
+    type: recall
+    responseMode: text
+    difficulty: intermediate
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 4
+    prompt: RAII giúp bảo đảm exception safety như thế nào?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: "RAII đặt ownership của resource vào state của object: construction thiết lập quyền sở hữu và
+        destructor giải phóng resource. Vì destructor của automatic object đã construction hoàn
+        chỉnh chạy cả khi return bình thường lẫn stack unwinding, file, lock, memory và resource
+        khác được dọn mà không cần lặp cleanup path. RAII ngăn leak nhưng không tự bảo đảm state
+        mang tính transaction; strong exception guarantee còn có thể cần thiết kế chỉ commit sau khi
+        thành công như copy-and-swap."
+      detailed: >-
+        RAII đặt ownership của resource vào state của object: construction thiết lập quyền sở hữu và
+        destructor giải phóng resource. Vì destructor của automatic object đã construction hoàn
+        chỉnh chạy cả khi return bình thường lẫn stack unwinding, file, lock, memory và resource
+        khác được dọn mà không cần lặp cleanup path. RAII ngăn leak nhưng không tự bảo đảm state
+        mang tính transaction; strong exception guarantee còn có thể cần thiết kế chỉ commit sau khi
+        thành công như copy-and-swap.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 1e1e8efdda950d6198aacbfdac87ae916073d91d1d69fda15654daade9a2efbe
+    status: draft
+    version: 1
+  - id: dailycpp-q171-001
+    lessonId: dailycpp-q171
+    type: pitfall
+    responseMode: text
+    difficulty: advanced
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 6
+    prompt: Giải thích template trong C++ và đưa ra một ví dụ đơn giản.
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Template tham số hóa function, class, alias hoặc variable theo kiểu, giá trị và trong một số
+        trường hợp theo template khác. Compiler tạo specialization khi cần, cho phép generic code
+        gần như không có runtime overhead nhưng có thể làm tăng thời gian compile và kích thước code
+        sinh ra. C++20 concept diễn đạt requirement tường minh, giúp overload selection và
+        diagnostic rõ hơn so với substitution failure không có constraint.
+      detailed: >-
+        Template tham số hóa function, class, alias hoặc variable theo kiểu, giá trị và trong một số
+        trường hợp theo template khác. Compiler tạo specialization khi cần, cho phép generic code
+        gần như không có runtime overhead nhưng có thể làm tăng thời gian compile và kích thước code
+        sinh ra. C++20 concept diễn đạt requirement tường minh, giúp overload selection và
+        diagnostic rõ hơn so với substitution failure không có constraint.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: c84e6ccd7f48c6fbd8e75a594cf9c83454fc1eec8bb8ab299692dc4347cc2df3
+    status: draft
+    version: 1
+  - id: dailycpp-q172-001
+    lessonId: dailycpp-q172
+    type: pitfall
+    responseMode: text
+    difficulty: advanced
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 6
+    prompt: Standard Template Library (STL) là gì? Hãy kể tên một số container thường dùng.
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: STL là nền tảng generic programming của thư viện chuẩn C++, xoay quanh container, iterator,
+        algorithm và function object. Sequence container phổ biến gồm `vector`, `array`, `deque`,
+        `list`, `forward_list`; associative container có thứ tự gồm `map`, `set`; biến thể unordered
+        dựa trên hash; adaptor gồm `stack`, `queue`, `priority_queue`. Cần chọn container theo
+        access pattern, quy tắc invalidation, ordering và yêu cầu độ phức tạp thay vì theo thói
+        quen.
+      detailed: >-
+        STL là nền tảng generic programming của thư viện chuẩn C++, xoay quanh container, iterator,
+        algorithm và function object. Sequence container phổ biến gồm `vector`, `array`, `deque`,
+        `list`, `forward_list`; associative container có thứ tự gồm `map`, `set`; biến thể unordered
+        dựa trên hash; adaptor gồm `stack`, `queue`, `priority_queue`. Cần chọn container theo
+        access pattern, quy tắc invalidation, ordering và yêu cầu độ phức tạp thay vì theo thói
+        quen.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 568c2b8e75ee74e53ec7c833eaa85cb164ad6f3669dc22b437476d6134c68416
+    status: draft
+    version: 1
+  - id: dailycpp-q173-001
+    lessonId: dailycpp-q173
+    type: pitfall
+    responseMode: text
+    difficulty: advanced
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 6
+    prompt: Lambda expression trong C++11 trở lên là gì?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Lambda expression tạo một closure object không tên có call operator chứa body được viết.
+        Capture list có thể copy hoặc reference entity xung quanh, dùng init-capture hoặc không
+        capture; parameter có thể ghi kiểu hay dùng `auto` để tạo generic lambda. Entity được
+        capture bằng copy không thể bị sửa qua call operator mặc định dạng const trừ khi lambda được
+        đánh dấu `mutable`, và chỉ lambda không capture mới chuyển trực tiếp sang function pointer
+        tương thích.
+      detailed: >-
+        Lambda expression tạo một closure object không tên có call operator chứa body được viết.
+        Capture list có thể copy hoặc reference entity xung quanh, dùng init-capture hoặc không
+        capture; parameter có thể ghi kiểu hay dùng `auto` để tạo generic lambda. Entity được
+        capture bằng copy không thể bị sửa qua call operator mặc định dạng const trừ khi lambda được
+        đánh dấu `mutable`, và chỉ lambda không capture mới chuyển trực tiếp sang function pointer
+        tương thích.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 2e8a4a3b5387b95e76baae823f2ed684e53e253e66bd6599a148a91b02daee89
+    status: draft
+    version: 1
+  - id: dailycpp-q174-001
+    lessonId: dailycpp-q174
+    type: pitfall
+    responseMode: text
+    difficulty: advanced
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 6
+    prompt: Move semantics trong C++11 là gì và vì sao quan trọng?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Move semantics cho phép object chuyển resource từ một source sắp hết lifetime thay vì nhân
+        bản resource, thông qua rvalue reference cùng move constructor hoặc move assignment.
+        `std::move` chỉ thực hiện cast để object đủ điều kiện được move; operation được chọn mới
+        thực sự chuyển resource. Object thư viện chuẩn sau move vẫn hợp lệ nhưng thường có giá trị
+        không xác định cụ thể, và đánh dấu move operation thật sự là `noexcept` giúp container ưu
+        tiên move mà vẫn giữ strong guarantee khi reallocation.
+      detailed: >-
+        Move semantics cho phép object chuyển resource từ một source sắp hết lifetime thay vì nhân
+        bản resource, thông qua rvalue reference cùng move constructor hoặc move assignment.
+        `std::move` chỉ thực hiện cast để object đủ điều kiện được move; operation được chọn mới
+        thực sự chuyển resource. Object thư viện chuẩn sau move vẫn hợp lệ nhưng thường có giá trị
+        không xác định cụ thể, và đánh dấu move operation thật sự là `noexcept` giúp container ưu
+        tiên move mà vẫn giữ strong guarantee khi reallocation.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 3e4714f24ce3b2bd70be8417ad7834b1ce7c964052e9ad3cd0c8a159516510b3
+    status: draft
+    version: 1
+  - id: dailycpp-q175-001
+    lessonId: dailycpp-q175
+    type: pitfall
+    responseMode: text
+    difficulty: advanced
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 6
+    prompt: Lvalue và rvalue là gì?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: Lvalue là glvalue không phải xvalue và thường chỉ một object có identity tiếp tục tồn tại;
+        xvalue là glvalue có resource có thể được tái sử dụng. Prvalue tính ra một giá trị hoặc khởi
+        tạo object, còn thuật ngữ rvalue bao gồm prvalue và xvalue. Các value category này chi phối
+        overload resolution, reference binding, temporary materialization và move semantics; chúng
+        chính xác hơn cách nói lvalue chỉ nằm bên trái còn rvalue chỉ nằm bên phải phép gán.
+      detailed: >-
+        Lvalue là glvalue không phải xvalue và thường chỉ một object có identity tiếp tục tồn tại;
+        xvalue là glvalue có resource có thể được tái sử dụng. Prvalue tính ra một giá trị hoặc khởi
+        tạo object, còn thuật ngữ rvalue bao gồm prvalue và xvalue. Các value category này chi phối
+        overload resolution, reference binding, temporary materialization và move semantics; chúng
+        chính xác hơn cách nói lvalue chỉ nằm bên trái còn rvalue chỉ nằm bên phải phép gán.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: 6515f54c68a5d8151d701dbdbead18026444619ed3189d57f1336cdf6935402c
+    status: draft
+    version: 1
+  - id: dailycpp-q176-001
+    lessonId: dailycpp-q176
+    type: pitfall
+    responseMode: text
+    difficulty: advanced
+    interviewCategory: language_knowledge
+    interviewFormat: concept_explanation
+    estimatedMinutes: 6
+    prompt: SFINAE là gì và liên quan thế nào tới template specialization?
+    hint: Nêu kết luận trước, sau đó chỉ ra quy tắc C++ và điều kiện khiến kết luận đó đúng.
+    answer:
+      short: "SFINAE là viết tắt của Substitution Failure Is Not An Error: khi substitution thất bại trong
+        immediate context của một candidate function template, candidate đó bị loại khỏi overload
+        resolution thay vì làm cả chương trình ill-formed. Cơ chế này có thể bật overload hoặc
+        partial class specialization theo điều kiện, nhưng bản thân nó không phải explicit
+        specialization và function template không được partial-specialize. Trong C++20, constraint
+        và concept thường diễn đạt cùng ý định rõ hơn và cho diagnostic tốt hơn."
+      detailed: >-
+        SFINAE là viết tắt của Substitution Failure Is Not An Error: khi substitution thất bại trong
+        immediate context của một candidate function template, candidate đó bị loại khỏi overload
+        resolution thay vì làm cả chương trình ill-formed. Cơ chế này có thể bật overload hoặc
+        partial class specialization theo điều kiện, nhưng bản thân nó không phải explicit
+        specialization và function template không được partial-specialize. Trong C++20, constraint
+        và concept thường diễn đạt cùng ý định rõ hơn và cho diagnostic tốt hơn.
+
+
+        Hãy liên hệ trực tiếp kết luận với kiểu, lifetime, ownership, overload resolution hoặc
+        library contract xuất hiện trong câu hỏi. Nếu kết quả phụ thuộc implementation hoặc vi phạm
+        precondition, cần nói rõ thay vì chỉ đoán output.
+    rubric:
+      required:
+        - Trả lời trực tiếp đúng câu hỏi nguồn.
+        - Nêu đúng quy tắc C++ và điều kiện áp dụng.
+        - Không suy diễn từ một compiler hoặc một lần chạy duy nhất.
+      bonus:
+        - Nêu được hệ quả về thiết kế API, lifetime, ownership, portability hoặc hiệu năng.
+      misconceptions:
+        - Chỉ nhắc lại thuật ngữ mà không giải thích cơ chế hoặc điều kiện.
+    sources:
+      - sectionId: y-tuong-cot-loi
+      - sectionId: cach-no-hoat-dong
+      - sectionId: cau-hoi-tu-kiem-tra
+    sourceHash: b34b8219b098fe81b59234b171146363eebd4e1edde4729ec469a178c7525191
+    status: draft
+    version: 1
