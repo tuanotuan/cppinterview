@@ -14,7 +14,7 @@ Tài liệu ổn định để tìm đúng vùng code. Xác minh lại nếu sou
 | `web/src/app/[locale]/layout.tsx`, `web/src/app/site-footer.tsx`, `web/src/app/site-footer-links.ts` | Shell learner theo locale, `html lang`, message provider, footer và mobile navigation/tracker dùng chung; footer tĩnh tối giản giới thiệu `cppinterview by @tuanotuan`, khai báo tập trung GitHub/Facebook/email công khai và không đọc trạng thái đăng nhập; Admin/WorldQuant có document layout riêng không prefix locale |
 | `web/src/messages/`, `web/src/content-translations/`, `web/src/lib/content/question-translations.server.ts` | Chuỗi UI theo namespace, overlay bản dịch bind exact revision và publication đã duyệt từ Supabase; ID/version/hash/taxonomy/code/source không bị dịch |
 | `web/src/app/recall-mobile-nav.tsx` | Điều hướng mobile dùng chung: Học hôm nay, Nhiệm vụ, Trung tâm chuẩn bị, Thư viện, Hồ sơ; tự ẩn ở mock/full-round để giữ không gian phỏng vấn |
-| `web/content/` | Registry lesson, question và roadmap YAML do Git quản lý; roadmap chỉ tổ chức đường học, không tạo lesson giả |
+| `web/content/` | Registry lesson, question và roadmap YAML do Git quản lý; `real-world-cpp-interview-questions.json` là index chỉ-prompt sinh từ catalog để rà trùng, không phải nguồn sửa tay; roadmap chỉ tổ chức đường học, không tạo lesson giả |
 | `web/src/generated/content-manifest.json`, `web/src/generated/lesson-translations-en.json` | Manifest và overlay lesson tiếng Anh deterministic, không sửa tay |
 | `web/supabase/migrations/` | Schema/RPC/RLS theo thứ tự timestamp |
 | `.github/workflows/web-validate.yml` | CI validate, refresh/sync/generate content |

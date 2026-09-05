@@ -57,10 +57,11 @@ Sau mọi thay đổi project, chạy:
 npm run context:refresh
 ```
 
-Snapshot máy sinh có fingerprint của lesson, content, source/test, scripts,
-package metadata, env template, CI và Supabase. CI chặn snapshot cũ. Nếu behavior
-hay kiến trúc đổi, vẫn phải cập nhật file context semantic theo `AGENTS.md`;
-fingerprint không thể tự giải thích ý nghĩa thay đổi.
+Snapshot máy sinh có fingerprint của lesson, content (gồm JSON), source/test,
+scripts TypeScript/ES module, package metadata, env template, CI và Supabase. Vì
+vậy index câu hỏi và normalizer `.mjs` cũng làm `context:check` phát hiện snapshot
+cũ. Nếu behavior hay kiến trúc đổi, vẫn phải cập nhật file context semantic theo
+`AGENTS.md`; fingerprint không thể tự giải thích ý nghĩa thay đổi.
 Chỉ lesson đã đăng ký và được manifest tham chiếu mới thuộc fingerprint; thư
 mục nháp chưa đăng ký không được làm snapshot của project đã commit lệch theo
 file local. Chạy `content:refresh` để đăng ký lesson sẵn sàng đưa vào sản phẩm,
@@ -137,8 +138,12 @@ thể được nhận ra và giữ ID, nhưng luôn kiểm tra diff.
   bản dịch và code mẫu được review kỹ thuật trong project.
 - Chạy `node scripts/generate-daily-cpp-interview.mjs` từ `web/` để sinh lại
   `dailycppinterview/`, phần registry, YAML câu hỏi và overlay tiếng Anh; sau đó
-  chạy `npm run content:generate`. Mỗi thư mục phải có đúng `vi.md`, `en.md`,
-  `main.cpp`, còn mỗi lesson chỉ có một question ID `dailycpp-qNNN-001`.
+  chạy `npm run content:generate`. Lệnh sau đồng thời sinh
+  `web/content/real-world-cpp-interview-questions.json`, index chỉ chứa
+  `dailycpp-qNNN` và prompt tiếng Anh canonical để search trước khi nhập batch
+  mới; không sửa index bằng tay. `content:check` fail nếu index lệch source.
+  Mỗi thư mục phải có đúng `vi.md`, `en.md`, `main.cpp`, còn mỗi lesson chỉ có
+  một question ID `dailycpp-qNNN-001`.
 - Chuỗi `Daily C++ Interview` đã nằm trong Q001–Q146 revision v1 và tham gia
   source hash nên generator chỉ giữ nó cho batch legacy;
   `localizeContentManifest()` thay bằng tên hiển thị `Real-World C++ Interviews`
@@ -150,7 +155,9 @@ thể được nhận ra và giữ ID, nhưng luôn kiểm tra diff.
   động nào.
 - Giữ cả 176 mục, bao gồm 19 câu lặp nguyên văn có chủ ý trong batch legacy;
   không gộp ID và không tự sinh bộ ba Dễ/Trung bình/Khó. Câu chỉ gần trùng chủ đề
-  không dùng `repeatOf`; difficulty là ước tính biên tập lưu trong manifest.
+  không dùng `repeatOf`; generator chuẩn hóa Unicode, hoa/thường, whitespace,
+  dấu nháy và dấu câu cuối để chặn biến thể trùng. `repeatOf` chỉ dành cho lặp
+  exact có chủ ý; difficulty là ước tính biên tập lưu trong manifest.
 - Track `dailycpp` là collection trung lập phiên bản: hiển thị trong Library và
   queue học sau C++23, nhưng không có file/route roadmap, không tham gia ma trận
   coverage theo phiên bản và chưa được chọn vào Mock C++11–23.

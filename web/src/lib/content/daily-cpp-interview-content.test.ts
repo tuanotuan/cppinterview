@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import englishCatalog from "@/content-translations/en.json";
 import manifestJson from "@/generated/content-manifest.json";
 
+import { normalizeInterviewQuestionPrompt } from "../../../scripts/daily-cpp-interview-prompt.mjs";
 import { contentManifestSchema } from "./schema";
 
 type SourceQuestion = {
@@ -51,6 +52,19 @@ const sourceCatalog = JSON.parse(
   sourceBatches: SourceBatch[];
   questions: SourceQuestion[];
 };
+const questionIndex = JSON.parse(
+  readFileSync(
+    path.join(
+      process.cwd(),
+      "content",
+      "real-world-cpp-interview-questions.json",
+    ),
+    "utf8",
+  ),
+) as {
+  schemaVersion: number;
+  questions: Array<{ id: string; prompt: string }>;
+};
 const manifest = contentManifestSchema.parse(manifestJson);
 const lessons = manifest.lessons
   .filter((lesson) => lesson.track === "dailycpp")
@@ -78,7 +92,7 @@ describe("Real-World C++ Interviews collection", () => {
 
     const promptGroups = new Map<string, number[]>();
     for (const question of sourceCatalog.questions) {
-      const key = question.prompt.en.trim().toLowerCase();
+      const key = normalizeInterviewQuestionPrompt(question.prompt.en);
       promptGroups.set(key, [...(promptGroups.get(key) ?? []), question.number]);
     }
     expect(promptGroups.size).toBe(157);
@@ -99,6 +113,32 @@ describe("Real-World C++ Interviews collection", () => {
         expect(original?.difficulty).toBe(question.difficulty);
       }
     }
+  });
+
+  it("keeps a generated question-only index aligned with the source catalog", () => {
+    expect(Object.keys(questionIndex).sort()).toEqual([
+      "questions",
+      "schemaVersion",
+    ]);
+    expect(questionIndex.schemaVersion).toBe(1);
+    expect(questionIndex.questions).toEqual(
+      sourceCatalog.questions.map((question) => ({
+        id: `dailycpp-q${String(question.number).padStart(3, "0")}`,
+        prompt: question.prompt.en,
+      })),
+    );
+    for (const question of questionIndex.questions) {
+      expect(Object.keys(question).sort()).toEqual(["id", "prompt"]);
+    }
+  });
+
+  it("normalizes superficial formatting before duplicate detection", () => {
+    expect(normalizeInterviewQuestionPrompt("What is RAII ?")).toBe(
+      normalizeInterviewQuestionPrompt("  WHAT   IS  RAII?  "),
+    );
+    expect(normalizeInterviewQuestionPrompt("Why use “RAII”…")).toBe(
+      normalizeInterviewQuestionPrompt('Why use "RAII"!'),
+    );
   });
 
   it("records complete, non-overlapping provenance for every source question", () => {

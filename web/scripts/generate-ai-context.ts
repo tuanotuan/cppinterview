@@ -89,9 +89,11 @@ async function main() {
         ]),
       ),
       findFiles(path.join(webRoot, "content"), (file) =>
-        /\.(md|yaml|yml)$/.test(file),
+        /\.(json|md|yaml|yml)$/.test(file),
       ),
-      findFiles(path.join(webRoot, "scripts"), (file) => file.endsWith(".ts")),
+      findFiles(path.join(webRoot, "scripts"), (file) =>
+        /\.(mjs|ts)$/.test(file),
+      ),
       findFiles(path.join(webRoot, "src"), (file) =>
         /\.(ts|tsx|json)$/.test(file),
       ),

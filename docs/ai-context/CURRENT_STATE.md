@@ -12,9 +12,11 @@ trạng thái từ tên nhánh.
   repository owner xác nhận quyền cung cấp 30 prompt sưu tầm. Batch mới dùng ID
   `dailycpp-q147`–`dailycpp-q176`, provenance riêng, nhãn collection hiện hành,
   đúng `vi.md`/`en.md`/`main.cpp` và một question draft mỗi lesson. Generator
-  kiểm tra range/provenance/count/duplicate trước khi ghi; Q001–Q146 giữ nguyên
-  identity/hash/version và chuỗi nguồn legacy. Không có roadmap, migration,
-  content sync, approval, deploy hay remote mutation mới.
+  kiểm tra range/provenance/count và duplicate đã chuẩn hóa trước khi ghi;
+  `real-world-cpp-interview-questions.json` là index sinh tự động chỉ chứa ID và
+  prompt để rà batch mới. Q001–Q146 giữ nguyên identity/hash/version và chuỗi
+  nguồn legacy. Không có roadmap, migration, content sync, approval, deploy hay
+  remote mutation mới.
 - Bộ lọc thư viện `/learn` hiển thị riêng C++98, C++11, C++14, C++17, C++20,
   C++23 và collection Real-World C++ Interviews, không còn gộp nhiều chuẩn trong một
   chip. Catalog hiện có lesson cho mọi chip nên tất cả đều khả dụng; chip
@@ -445,12 +447,12 @@ trạng thái từ tên nhánh.
 ## Validation gần nhất
 
 - Mở rộng local Real-World C++ Interviews từ 146 lên 176 chủ đề đạt toàn bộ
-  `npm run validate`: content/context check, ESLint, TypeScript, 162 file/918
+  `npm run validate`: content/context check, ESLint, TypeScript, 162 file/920
   Vitest test và Next.js production build sinh 944 static path. Targeted contract
   xác nhận đủ 176 lesson song ngữ, 528 source file, đúng một question/lesson,
-  157 prompt duy nhất, 19 cặp lặp exact thuộc batch legacy và hai batch provenance
-  phủ kín catalog; Q001–Q146 giữ nguyên lesson/question identity, version và source
-  hash. Cả 30 `main.cpp` mới qua
+  question-only index khớp source, 157 prompt chuẩn hóa duy nhất, 19 cặp lặp
+  exact thuộc batch legacy và hai batch provenance phủ kín catalog; Q001–Q146
+  giữ nguyên lesson/question identity, version và source hash. Cả 30 `main.cpp` mới qua
   `g++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -fsyntax-only`.
   `content:sync:check` dựng payload 440 lesson/966 question. Không có migration,
   content sync, approval, deploy hay remote mutation trong thay đổi này. Production
