@@ -43,6 +43,14 @@ lesson directories, lesson registry entries, question YAML, and English
 question overlay. Do not edit generated collection files instead of the
 catalog/generator.
 
+`npm run content:generate` also derives
+`real-world-cpp-interview-questions.json` from that catalog. The index contains
+only the stable lesson ID and canonical English prompt, with no answers or
+lesson copy. Search it before adding a batch and never edit it manually. The
+collection generator normalizes Unicode, letter case, whitespace, quotation
+marks, and trailing question punctuation before checking duplicates; an exact
+intentional repetition must still declare `repeatOf`.
+
 Every collection lesson contains exactly `vi.md`, `en.md`, and `main.cpp`, with
 one self-check and one stable question ID. All generated question revisions are
 immutable: a real content change requires a new question version, while a rename

@@ -33,8 +33,8 @@
 
 ## Consistency marker
 
-- Project input fingerprint: `32c59ea0dbad97c8ee6005f2e41b6357cf1526040aa2c17eea8de2b02dabe08c`
-- Fingerprinted files: 1844
+- Project input fingerprint: `f5ca44122d3f9991777d7aee5fa571a6b362e1c7b044dbe6091b107fe6a30472`
+- Fingerprinted files: 1848
 
 The fingerprint covers registered lesson sources, content files, application
 source/tests, scripts, package metadata, environment template, workflows, and

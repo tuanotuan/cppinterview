@@ -1,0 +1,709 @@
+{
+  "schemaVersion": 1,
+  "questions": [
+    {
+      "id": "dailycpp-q001",
+      "prompt": "Explain auto type deduction!"
+    },
+    {
+      "id": "dailycpp-q002",
+      "prompt": "When can auto deduce undesired types?"
+    },
+    {
+      "id": "dailycpp-q003",
+      "prompt": "What are the advantages of using auto?"
+    },
+    {
+      "id": "dailycpp-q004",
+      "prompt": "What is the type of myCollection after the following declaration?"
+    },
+    {
+      "id": "dailycpp-q005",
+      "prompt": "What are trailing return types?"
+    },
+    {
+      "id": "dailycpp-q006",
+      "prompt": "Explain decltype!"
+    },
+    {
+      "id": "dailycpp-q007",
+      "prompt": "When to use decltype(auto)?"
+    },
+    {
+      "id": "dailycpp-q008",
+      "prompt": "Which data type do you get when you add two bools?"
+    },
+    {
+      "id": "dailycpp-q009",
+      "prompt": "What does a static member variable in C++ mean?"
+    },
+    {
+      "id": "dailycpp-q010",
+      "prompt": "What does a static member function mean in C++?"
+    },
+    {
+      "id": "dailycpp-q011",
+      "prompt": "What is the static initialization order fiasco?"
+    },
+    {
+      "id": "dailycpp-q012",
+      "prompt": "How to solve the static initialization order fiasco?"
+    },
+    {
+      "id": "dailycpp-q013",
+      "prompt": "What is the difference between function overloading and function overriding?"
+    },
+    {
+      "id": "dailycpp-q014",
+      "prompt": "What is a virtual function?"
+    },
+    {
+      "id": "dailycpp-q015",
+      "prompt": "What is the override keyword and what are its advantages?"
+    },
+    {
+      "id": "dailycpp-q016",
+      "prompt": "Explain the concept of covariant return types and show a use-case where it comes in handy!"
+    },
+    {
+      "id": "dailycpp-q017",
+      "prompt": "What is virtual inheritance in C++ and when should you use it?"
+    },
+    {
+      "id": "dailycpp-q018",
+      "prompt": "Should we always use virtual inheritance? If yes, why? If not, why not?"
+    },
+    {
+      "id": "dailycpp-q019",
+      "prompt": "What’s the output of the following sample program? Is that what you’d expect? Why? Why not?"
+    },
+    {
+      "id": "dailycpp-q020",
+      "prompt": "Can you access the public and protected members and functions of a base class if you have private inheritance?"
+    },
+    {
+      "id": "dailycpp-q021",
+      "prompt": "What is private inheritance used for?"
+    },
+    {
+      "id": "dailycpp-q022",
+      "prompt": "Can you call a virtual function from a constructor or a destructor?"
+    },
+    {
+      "id": "dailycpp-q023",
+      "prompt": "What role does a virtual destructor play?"
+    },
+    {
+      "id": "dailycpp-q024",
+      "prompt": "Can we inherit from a standard container (such as std::vector)? If so what are the implications?"
+    },
+    {
+      "id": "dailycpp-q025",
+      "prompt": "What does a strong type mean and what advantages does it have?"
+    },
+    {
+      "id": "dailycpp-q026",
+      "prompt": "Explain short-circuit evaluation"
+    },
+    {
+      "id": "dailycpp-q027",
+      "prompt": "What is a destructor and how can we overload it?"
+    },
+    {
+      "id": "dailycpp-q028",
+      "prompt": "What is the output of the following piece of code and why?"
+    },
+    {
+      "id": "dailycpp-q029",
+      "prompt": "How to use the = delete specifier in C++?"
+    },
+    {
+      "id": "dailycpp-q030",
+      "prompt": "What are immediately invoked lambda functions?"
+    },
+    {
+      "id": "dailycpp-q031",
+      "prompt": "What kind of captures are available for lambda expressions?"
+    },
+    {
+      "id": "dailycpp-q032",
+      "prompt": "What is the output of the following piece of code and why?"
+    },
+    {
+      "id": "dailycpp-q033",
+      "prompt": "What are the advantages of using const local variables?"
+    },
+    {
+      "id": "dailycpp-q034",
+      "prompt": "Is it a good idea to have const members in a class?"
+    },
+    {
+      "id": "dailycpp-q035",
+      "prompt": "Does it make sense to return const objects by value?"
+    },
+    {
+      "id": "dailycpp-q036",
+      "prompt": "How should you return const pointers from a function?"
+    },
+    {
+      "id": "dailycpp-q037",
+      "prompt": "Should functions return const references?"
+    },
+    {
+      "id": "dailycpp-q038",
+      "prompt": "Should you take plain old data types by const reference as a function parameter?"
+    },
+    {
+      "id": "dailycpp-q039",
+      "prompt": "Should you pass objects by const reference as a function parameter?"
+    },
+    {
+      "id": "dailycpp-q040",
+      "prompt": "Does the signature of a function declaration has to match the signature of the function definition?"
+    },
+    {
+      "id": "dailycpp-q041",
+      "prompt": "Explain what consteval and constinit bring to C++?"
+    },
+    {
+      "id": "dailycpp-q042",
+      "prompt": "What is aggregate initialization?"
+    },
+    {
+      "id": "dailycpp-q043",
+      "prompt": "What are explicit constructors and what are their advantages?"
+    },
+    {
+      "id": "dailycpp-q044",
+      "prompt": "What are user-defined literals?"
+    },
+    {
+      "id": "dailycpp-q045",
+      "prompt": "Why should we use nullptr instead of NULL or 0?"
+    },
+    {
+      "id": "dailycpp-q046",
+      "prompt": "What advantages does alias have over typedef?"
+    },
+    {
+      "id": "dailycpp-q047",
+      "prompt": "What are the advantages of scoped enums over unscoped enums?"
+    },
+    {
+      "id": "dailycpp-q048",
+      "prompt": "Should you explicitly delete unused/unsupported special functions or declare them as private?"
+    },
+    {
+      "id": "dailycpp-q049",
+      "prompt": "How to use the = delete specifier in C++?"
+    },
+    {
+      "id": "dailycpp-q050",
+      "prompt": "What is a trivial class in C++?"
+    },
+    {
+      "id": "dailycpp-q051",
+      "prompt": "Explain the Resource acquisition is initialization (RAII) idiom"
+    },
+    {
+      "id": "dailycpp-q052",
+      "prompt": "When should we use unique pointers?"
+    },
+    {
+      "id": "dailycpp-q053",
+      "prompt": "What are the reasons to use shared pointers?"
+    },
+    {
+      "id": "dailycpp-q054",
+      "prompt": "When to use a weak pointer?"
+    },
+    {
+      "id": "dailycpp-q055",
+      "prompt": "What are the advantages of std::make_shared and std::make_unique compared to the new operator?"
+    },
+    {
+      "id": "dailycpp-q056",
+      "prompt": "Should you use smart pointers over raw pointers all the time?"
+    },
+    {
+      "id": "dailycpp-q057",
+      "prompt": "When and why should we initialize pointers to nullptr?"
+    },
+    {
+      "id": "dailycpp-q058",
+      "prompt": "What does std::move move?"
+    },
+    {
+      "id": "dailycpp-q059",
+      "prompt": "What does std::forward forward?"
+    },
+    {
+      "id": "dailycpp-q060",
+      "prompt": "What is the difference between universal and rvalue references?"
+    },
+    {
+      "id": "dailycpp-q061",
+      "prompt": "What is reference collapsing?"
+    },
+    {
+      "id": "dailycpp-q062",
+      "prompt": "When constexpr functions are evaluated?"
+    },
+    {
+      "id": "dailycpp-q063",
+      "prompt": "When should you declare your functions as noexcept?"
+    },
+    {
+      "id": "dailycpp-q064",
+      "prompt": "What are concepts in C++?"
+    },
+    {
+      "id": "dailycpp-q065",
+      "prompt": "What are the available standard attributes in C++?"
+    },
+    {
+      "id": "dailycpp-q066",
+      "prompt": "What is 3-way comparison?"
+    },
+    {
+      "id": "dailycpp-q067",
+      "prompt": "Explain what consteval and constinit bring to C++?"
+    },
+    {
+      "id": "dailycpp-q068",
+      "prompt": "What are modules and what advantages do they bring?"
+    },
+    {
+      "id": "dailycpp-q069",
+      "prompt": "Explain the rule of three"
+    },
+    {
+      "id": "dailycpp-q070",
+      "prompt": "Explain the rule of five"
+    },
+    {
+      "id": "dailycpp-q071",
+      "prompt": "Explain the rule of zero"
+    },
+    {
+      "id": "dailycpp-q072",
+      "prompt": "What does std::move move?"
+    },
+    {
+      "id": "dailycpp-q073",
+      "prompt": "What is a destructor and how can we overload it?"
+    },
+    {
+      "id": "dailycpp-q074",
+      "prompt": "Should you explicitly delete unused/unsupported special functions or declare them as private?"
+    },
+    {
+      "id": "dailycpp-q075",
+      "prompt": "What is a trivial class in C++?"
+    },
+    {
+      "id": "dailycpp-q076",
+      "prompt": "What advantages does having a default constructor have?"
+    },
+    {
+      "id": "dailycpp-q077",
+      "prompt": "What are the differences between a class and a struct?"
+    },
+    {
+      "id": "dailycpp-q078",
+      "prompt": "What is constructor delegation?"
+    },
+    {
+      "id": "dailycpp-q079",
+      "prompt": "Explain the concept of covariant return types and show a use-case where it comes in handy!"
+    },
+    {
+      "id": "dailycpp-q080",
+      "prompt": "What is the difference between function overloading and function overriding?"
+    },
+    {
+      "id": "dailycpp-q081",
+      "prompt": "What is the override keyword and what are its advantages?"
+    },
+    {
+      "id": "dailycpp-q082",
+      "prompt": "Explain what is a friend class or a friend function"
+    },
+    {
+      "id": "dailycpp-q083",
+      "prompt": "What are default arguments? How are they evaluated in a C++ function?"
+    },
+    {
+      "id": "dailycpp-q084",
+      "prompt": "What is this pointer and can we delete it?"
+    },
+    {
+      "id": "dailycpp-q085",
+      "prompt": "What is virtual inheritance in C++ and when should you use it?"
+    },
+    {
+      "id": "dailycpp-q086",
+      "prompt": "Should we always use virtual inheritance? If yes, why? If not, why not?"
+    },
+    {
+      "id": "dailycpp-q087",
+      "prompt": "What does a strong type mean and what advantages does it have?"
+    },
+    {
+      "id": "dailycpp-q088",
+      "prompt": "What are user-defined literals?"
+    },
+    {
+      "id": "dailycpp-q089",
+      "prompt": "Why shouldn’t we use boolean arguments?"
+    },
+    {
+      "id": "dailycpp-q090",
+      "prompt": "Distinguish between shallow copy and deep copy"
+    },
+    {
+      "id": "dailycpp-q091",
+      "prompt": "Are class functions taken into consideration as part of the object size?"
+    },
+    {
+      "id": "dailycpp-q092",
+      "prompt": "What does dynamic dispatch mean?"
+    },
+    {
+      "id": "dailycpp-q093",
+      "prompt": "What are vtable and vpointer?"
+    },
+    {
+      "id": "dailycpp-q094",
+      "prompt": "Should base class destructors be virtual?"
+    },
+    {
+      "id": "dailycpp-q095",
+      "prompt": "What is an abstract class in C++?"
+    },
+    {
+      "id": "dailycpp-q096",
+      "prompt": "Is it possible to have polymorphic behaviour without the cost of virtual functions?"
+    },
+    {
+      "id": "dailycpp-q097",
+      "prompt": "How would you add functionality to your classes with the Curiously Recurring Template Pattern (CRTP)?"
+    },
+    {
+      "id": "dailycpp-q098",
+      "prompt": "What are the good reasons to use init() functions to initialize an object?"
+    },
+    {
+      "id": "dailycpp-q099",
+      "prompt": "What is observable behaviour of code?"
+    },
+    {
+      "id": "dailycpp-q100",
+      "prompt": "What are the characteristics of an ill-formed C++ program?"
+    },
+    {
+      "id": "dailycpp-q101",
+      "prompt": "What is unspecified behaviour?"
+    },
+    {
+      "id": "dailycpp-q102",
+      "prompt": "What is implementation-defined behaviour?"
+    },
+    {
+      "id": "dailycpp-q103",
+      "prompt": "What is undefined behaviour in C++?"
+    },
+    {
+      "id": "dailycpp-q104",
+      "prompt": "What are the reasons behind undefined behaviour’s existence?"
+    },
+    {
+      "id": "dailycpp-q105",
+      "prompt": "What approaches to take to avoid undefined behaviour?"
+    },
+    {
+      "id": "dailycpp-q106",
+      "prompt": "What is iterator invalidation? Give a few examples."
+    },
+    {
+      "id": "dailycpp-q107",
+      "prompt": "What is the STL?"
+    },
+    {
+      "id": "dailycpp-q108",
+      "prompt": "What are the advantages of algorithms over raw loops?"
+    },
+    {
+      "id": "dailycpp-q109",
+      "prompt": "Do algorithms validate ranges?"
+    },
+    {
+      "id": "dailycpp-q110",
+      "prompt": "Can you combine containers of different sizes?"
+    },
+    {
+      "id": "dailycpp-q111",
+      "prompt": "How is a vector’s memory layout organized?"
+    },
+    {
+      "id": "dailycpp-q112",
+      "prompt": "Can we inherit from a standard container (such as std::vector)? If so what are the implications?"
+    },
+    {
+      "id": "dailycpp-q113",
+      "prompt": "What is the type of myCollection after the following declaration?"
+    },
+    {
+      "id": "dailycpp-q114",
+      "prompt": "What are the advantages of const_iterators over iterators?"
+    },
+    {
+      "id": "dailycpp-q115",
+      "prompt": "Binary search an element with algorithms!"
+    },
+    {
+      "id": "dailycpp-q116",
+      "prompt": "What is an Iterator class?"
+    },
+    {
+      "id": "dailycpp-q117",
+      "prompt": "Can you call a virtual function from a constructor or a destructor?"
+    },
+    {
+      "id": "dailycpp-q118",
+      "prompt": "What are default arguments? How are they evaluated in a C++ function?"
+    },
+    {
+      "id": "dailycpp-q119",
+      "prompt": "Can virtual functions have default arguments?"
+    },
+    {
+      "id": "dailycpp-q120",
+      "prompt": "Should base class destructors be virtual?"
+    },
+    {
+      "id": "dailycpp-q121",
+      "prompt": "What is the function of the keyword mutable?"
+    },
+    {
+      "id": "dailycpp-q122",
+      "prompt": "What is the function of the keyword volatile?"
+    },
+    {
+      "id": "dailycpp-q123",
+      "prompt": "What is an inline function?"
+    },
+    {
+      "id": "dailycpp-q124",
+      "prompt": "What do we catch?"
+    },
+    {
+      "id": "dailycpp-q125",
+      "prompt": "What are the differences between references and pointers?"
+    },
+    {
+      "id": "dailycpp-q126",
+      "prompt": "Which of the following variable declarations compile and what would be the value of a?"
+    },
+    {
+      "id": "dailycpp-q127",
+      "prompt": "What will the line of code below print out and why?"
+    },
+    {
+      "id": "dailycpp-q128",
+      "prompt": "Explain the difference between pre- and post increment/decrement operators"
+    },
+    {
+      "id": "dailycpp-q129",
+      "prompt": "What are the final values of a, b and c?"
+    },
+    {
+      "id": "dailycpp-q130",
+      "prompt": "Does this string declaration compile?"
+    },
+    {
+      "id": "dailycpp-q131",
+      "prompt": "What are Default Member Initializers in C++?"
+    },
+    {
+      "id": "dailycpp-q132",
+      "prompt": "What is the most vexing parse?"
+    },
+    {
+      "id": "dailycpp-q133",
+      "prompt": "Does this code compile? If yes, what does it do? If not, why not?"
+    },
+    {
+      "id": "dailycpp-q134",
+      "prompt": "What is std::string_view and why should we use it?"
+    },
+    {
+      "id": "dailycpp-q135",
+      "prompt": "How to check if a string starts or ends with a certain substring?"
+    },
+    {
+      "id": "dailycpp-q136",
+      "prompt": "What is RVO?"
+    },
+    {
+      "id": "dailycpp-q137",
+      "prompt": "How can we ensure the compiler performs RVO?"
+    },
+    {
+      "id": "dailycpp-q138",
+      "prompt": "What are the primary and mixed value categories in C++?"
+    },
+    {
+      "id": "dailycpp-q139",
+      "prompt": "Can you safely compare signed and unsigned integers?"
+    },
+    {
+      "id": "dailycpp-q140",
+      "prompt": "What is the return value of main and what are the available signatures?"
+    },
+    {
+      "id": "dailycpp-q141",
+      "prompt": "Should you prefer default arguments or overloading?"
+    },
+    {
+      "id": "dailycpp-q142",
+      "prompt": "How many variables should you declare on a line?"
+    },
+    {
+      "id": "dailycpp-q143",
+      "prompt": "Should you prefer a switch statement or chained if statements?"
+    },
+    {
+      "id": "dailycpp-q144",
+      "prompt": "What are include guards?"
+    },
+    {
+      "id": "dailycpp-q145",
+      "prompt": "Should you use angle brackets(<filename>) or double quotes(“filename”) to include?"
+    },
+    {
+      "id": "dailycpp-q146",
+      "prompt": "How many return statements should you have in a function?"
+    },
+    {
+      "id": "dailycpp-q147",
+      "prompt": "What is C++? How is it different from C?"
+    },
+    {
+      "id": "dailycpp-q148",
+      "prompt": "What are access modifiers in C++?"
+    },
+    {
+      "id": "dailycpp-q149",
+      "prompt": "What is std in C++?"
+    },
+    {
+      "id": "dailycpp-q150",
+      "prompt": "What is a pointer in C++, and how is it different from a reference?"
+    },
+    {
+      "id": "dailycpp-q151",
+      "prompt": "What is the difference between stack memory and heap memory?"
+    },
+    {
+      "id": "dailycpp-q152",
+      "prompt": "What is the difference between pass by value and pass by reference?"
+    },
+    {
+      "id": "dailycpp-q153",
+      "prompt": "Explain shallow copy, deep copy, and the copy constructor in C++."
+    },
+    {
+      "id": "dailycpp-q154",
+      "prompt": "What is a recursive function? Provide an example."
+    },
+    {
+      "id": "dailycpp-q155",
+      "prompt": "What is function overloading in C++ (compile-time polymorphism)?"
+    },
+    {
+      "id": "dailycpp-q156",
+      "prompt": "What is the difference between struct and class in C++?"
+    },
+    {
+      "id": "dailycpp-q157",
+      "prompt": "What are the auto and decltype keywords used for?"
+    },
+    {
+      "id": "dailycpp-q158",
+      "prompt": "What is a friend function?"
+    },
+    {
+      "id": "dailycpp-q159",
+      "prompt": "What is object slicing in C++? How can you avoid it?"
+    },
+    {
+      "id": "dailycpp-q160",
+      "prompt": "What is the difference between an abstract class and an interface in C++? How do you implement interface-like behavior?"
+    },
+    {
+      "id": "dailycpp-q161",
+      "prompt": "Explain encapsulation with an example."
+    },
+    {
+      "id": "dailycpp-q162",
+      "prompt": "What is multiple inheritance, and what problems can it cause?"
+    },
+    {
+      "id": "dailycpp-q163",
+      "prompt": "What is the difference between static data members and normal data members?"
+    },
+    {
+      "id": "dailycpp-q164",
+      "prompt": "What is the this pointer, and how is it used?"
+    },
+    {
+      "id": "dailycpp-q165",
+      "prompt": "What is function overriding in C++, and how does the base class affect it?"
+    },
+    {
+      "id": "dailycpp-q166",
+      "prompt": "What is a function pointer, and how do you use it?"
+    },
+    {
+      "id": "dailycpp-q167",
+      "prompt": "How does inline expansion of functions affect performance?"
+    },
+    {
+      "id": "dailycpp-q168",
+      "prompt": "How is exception handling implemented in C++?"
+    },
+    {
+      "id": "dailycpp-q169",
+      "prompt": "What is the difference between std::exception and user-defined exceptions?"
+    },
+    {
+      "id": "dailycpp-q170",
+      "prompt": "How can RAII (Resource Acquisition Is Initialization) help with exception safety?"
+    },
+    {
+      "id": "dailycpp-q171",
+      "prompt": "Explain templates in C++ and provide a simple example."
+    },
+    {
+      "id": "dailycpp-q172",
+      "prompt": "What is the Standard Template Library (STL)? Name some commonly used containers."
+    },
+    {
+      "id": "dailycpp-q173",
+      "prompt": "What are lambda expressions in C++11 and later?"
+    },
+    {
+      "id": "dailycpp-q174",
+      "prompt": "What are move semantics in C++11, and why are they important?"
+    },
+    {
+      "id": "dailycpp-q175",
+      "prompt": "What are lvalues and rvalues?"
+    },
+    {
+      "id": "dailycpp-q176",
+      "prompt": "What is SFINAE? How does it relate to template specialization?"
+    }
+  ]
+}

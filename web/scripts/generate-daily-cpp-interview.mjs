@@ -4,6 +4,8 @@ import path from "node:path";
 
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 
+import { normalizeInterviewQuestionPrompt } from "./daily-cpp-interview-prompt.mjs";
+
 const webRoot = process.cwd();
 const repoRoot = path.resolve(webRoot, "..");
 const sourceRoot = path.join(repoRoot, "dailycppinterview");
@@ -2188,7 +2190,7 @@ if (sourceBatchByQuestionNumber.size !== catalog.questions.length) {
 
 const normalizedPromptGroups = new Map();
 for (const item of catalog.questions) {
-  const key = item.prompt.en.trim().toLowerCase();
+  const key = normalizeInterviewQuestionPrompt(item.prompt.en);
   normalizedPromptGroups.set(key, [...(normalizedPromptGroups.get(key) ?? []), item.number]);
 }
 const duplicateGroups = [...normalizedPromptGroups.values()].filter((numbers) => numbers.length > 1);
