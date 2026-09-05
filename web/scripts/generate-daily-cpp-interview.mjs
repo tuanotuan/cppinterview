@@ -12,10 +12,11 @@ const registryPath = path.join(webRoot, "content", "lesson-registry.yaml");
 const questionPath = path.join(webRoot, "content", "questions", "daily-cpp-interview.yaml");
 const englishCatalogPath = path.join(webRoot, "src", "content-translations", "en.json");
 
-// This label shipped inside every v1 source file and therefore participates in
-// the immutable lesson/question hashes. The UI maps it to the current display
-// name; changing it here requires a new question version for all 146 entries.
-const immutableSourceCollectionLabel = "Daily C++ Interview";
+// This label shipped inside the original 146 v1 source files and therefore
+// participates in their immutable lesson/question hashes. New batches use the
+// label declared by their provenance record instead of inheriting this legacy
+// source name.
+const immutableLegacySourceCollectionLabel = "Daily C++ Interview";
 
 const difficultyLabel = {
   beginner: { vi: "Dễ", en: "Easy" },
@@ -38,6 +39,9 @@ const syntaxByChapter = {
   behavior: "Check every language and library precondition before evaluating the expression.",
   stl: "std::algorithm(first, last, ...); // satisfy the documented range contract",
   "language-practice": "Prefer the form whose type, lifetime, and control flow are unambiguous.",
+  "interview-foundations": "Make types, storage duration, and parameter semantics explicit.",
+  "interview-core-techniques": "Make object invariants, dispatch, and cleanup explicit.",
+  "interview-advanced-techniques": "Constrain generic code and preserve value-category intent.",
 };
 
 const codeContextByQuestion = {
@@ -170,16 +174,24 @@ function commentLines(label, value) {
   return lines.join("\n");
 }
 
+function sourceCollectionLabel(item) {
+  const batch = sourceBatchByQuestionNumber.get(item.number);
+  if (!batch) {
+    throw new Error(`Question ${item.number} has no source batch`);
+  }
+  return batch.sourceLabel;
+}
+
 function commonPreamble(item) {
   return [
-    commentLines(`${immutableSourceCollectionLabel} Q${String(item.number).padStart(3, "0")}: `, item.prompt.en),
+    commentLines(`${sourceCollectionLabel(item)} Q${String(item.number).padStart(3, "0")}: `, item.prompt.en),
     commentLines("Key: ", item.answer.en),
     "",
   ].join("\n");
 }
 
 function codeFor(item) {
-  const special = specialCode(item.number);
+  const special = specialCode(item.number) ?? curatedInterviewCode(item.number);
   if (special) return `${commonPreamble(item)}${special.trim()}\n`;
 
   const chapterSamples = {
@@ -353,6 +365,545 @@ int main() {
   };
 
   return `${commonPreamble(item)}${chapterSamples[item.chapter].trim()}\n`;
+}
+
+function curatedInterviewCode(number) {
+  const samples = {
+    147: `#include <iostream>
+#include <vector>
+
+template<class T>
+T sum(const std::vector<T>& values) {
+    T result{};
+    for (const T& value : values) result += value;
+    return result;
+}
+
+int main() {
+    const std::vector<int> values{1, 2, 3};
+    std::cout << sum(values) << std::endl;
+}`,
+    148: `#include <iostream>
+
+class Account {
+public:
+    void deposit(int amount) {
+        if (amount > 0) balance_ += amount;
+        record_activity();
+    }
+
+    int balance() const { return balance_; }
+
+protected:
+    void record_activity() { ++activity_count_; }
+    int activity_count() const { return activity_count_; }
+
+private:
+    int balance_{};
+    int activity_count_{};
+};
+
+class AuditedAccount final : public Account {
+public:
+    int activities() const { return activity_count(); }
+};
+
+int main() {
+    AuditedAccount account;
+    account.deposit(50);
+    std::cout << account.balance() << ' ' << account.activities() << std::endl;
+}`,
+    149: `#include <algorithm>
+#include <iostream>
+#include <vector>
+
+int main() {
+    std::vector<int> values{3, 1, 2};
+    std::sort(values.begin(), values.end());
+    for (const int value : values) std::cout << value << ' ';
+    std::cout << std::endl;
+}`,
+    150: `#include <iostream>
+
+int main() {
+    int first = 10;
+    int second = 20;
+    int* pointer = &first;
+    int& reference = first;
+
+    pointer = &second;
+    reference = 30;
+
+    std::cout << first << ' ' << *pointer << std::endl;
+}`,
+    151: `#include <iostream>
+#include <memory>
+
+int main() {
+    int automatic = 10;
+    auto dynamic = std::make_unique<int>(20);
+    std::cout << automatic + *dynamic << std::endl;
+}`,
+    152: `#include <iostream>
+
+int by_value(int value) {
+    return value + 10;
+}
+
+void by_reference(int& value) {
+    value += 10;
+}
+
+int main() {
+    int first = 1;
+    int second = 1;
+    const int copied_result = by_value(first);
+    by_reference(second);
+    std::cout << first << ' ' << copied_result << ' ' << second << std::endl;
+}`,
+    153: `#include <iostream>
+#include <memory>
+
+class Number {
+public:
+    explicit Number(int value) : value_(std::make_unique<int>(value)) {}
+
+    Number(const Number& other)
+        : value_(std::make_unique<int>(*other.value_)) {}
+
+    Number& operator=(const Number& other) {
+        if (this != &other) value_ = std::make_unique<int>(*other.value_);
+        return *this;
+    }
+
+    int value() const { return *value_; }
+    void set(int value) { *value_ = value; }
+
+private:
+    std::unique_ptr<int> value_;
+};
+
+int main() {
+    Number first{10};
+    Number second = first;
+    second.set(20);
+    std::cout << first.value() << ' ' << second.value() << std::endl;
+}`,
+    154: `#include <cstdint>
+#include <iostream>
+
+constexpr std::uint64_t factorial(unsigned value) {
+    return value < 2 ? 1 : value * factorial(value - 1);
+}
+
+int main() {
+    static_assert(factorial(5) == 120);
+    std::cout << factorial(6) << std::endl;
+}`,
+    155: `#include <iostream>
+#include <string_view>
+
+void print(int value) {
+    std::cout << "integer: " << value << std::endl;
+}
+
+void print(std::string_view value) {
+    std::cout << "text: " << value << std::endl;
+}
+
+int main() {
+    print(42);
+    print(std::string_view{"C++"});
+}`,
+    156: `#include <iostream>
+
+struct Point {
+    int x{};
+    int y{};
+};
+
+class Counter {
+public:
+    explicit Counter(int value) : value_(value) {}
+    int value() const { return value_; }
+
+private:
+    int value_{};
+};
+
+int main() {
+    const Point point{2, 3};
+    const Counter counter{4};
+    std::cout << point.x + point.y + counter.value() << std::endl;
+}`,
+    157: `#include <type_traits>
+#include <utility>
+
+int main() {
+    const int source = 42;
+    auto value = source;
+    const auto& view = source;
+    decltype(auto) exact = (view);
+
+    static_assert(std::is_same_v<decltype(value), int>);
+    static_assert(std::is_same_v<decltype(exact), const int&>);
+}`,
+    158: `#include <iostream>
+
+class Box {
+public:
+    Box(double width, double height) : width_(width), height_(height) {}
+    friend double area(const Box& box);
+
+private:
+    double width_{};
+    double height_{};
+};
+
+double area(const Box& box) {
+    return box.width_ * box.height_;
+}
+
+int main() {
+    std::cout << area(Box{3.0, 4.0}) << std::endl;
+}`,
+    159: `#include <iostream>
+
+struct Base {
+    virtual ~Base() = default;
+    virtual const char* name() const { return "Base"; }
+};
+
+struct Derived final : Base {
+    const char* name() const override { return "Derived"; }
+};
+
+void print(const Base& value) {
+    std::cout << value.name() << std::endl;
+}
+
+int main() {
+    const Derived derived;
+    const Base sliced = derived;
+    print(sliced);
+    print(derived);
+}`,
+    160: `#include <iostream>
+#include <memory>
+
+struct Shape {
+    virtual ~Shape() = default;
+    virtual double area() const = 0;
+};
+
+class Square final : public Shape {
+public:
+    explicit Square(double side) : side_(side) {}
+    double area() const override { return side_ * side_; }
+
+private:
+    double side_{};
+};
+
+int main() {
+    const std::unique_ptr<Shape> shape = std::make_unique<Square>(3.0);
+    std::cout << shape->area() << std::endl;
+}`,
+    161: `#include <iostream>
+
+class Account {
+public:
+    explicit Account(int balance) : balance_(balance >= 0 ? balance : 0) {}
+
+    bool withdraw(int amount) {
+        if (amount <= 0 || amount > balance_) return false;
+        balance_ -= amount;
+        return true;
+    }
+
+    int balance() const { return balance_; }
+
+private:
+    int balance_{};
+};
+
+int main() {
+    Account account{100};
+    account.withdraw(30);
+    std::cout << account.balance() << std::endl;
+}`,
+    162: `#include <iostream>
+
+struct Printable {
+    virtual ~Printable() = default;
+    virtual void print() const = 0;
+};
+
+struct Identifiable {
+    virtual ~Identifiable() = default;
+    virtual int id() const = 0;
+};
+
+class Report final : public Printable, public Identifiable {
+public:
+    void print() const override { std::cout << "report " << id() << std::endl; }
+    int id() const override { return 7; }
+};
+
+int main() {
+    const Report report;
+    report.print();
+}`,
+    163: `#include <iostream>
+
+class Item {
+public:
+    explicit Item(int id) : id_(id) { ++live_count_; }
+    Item(const Item& other) : id_(other.id_) { ++live_count_; }
+    ~Item() { --live_count_; }
+
+    int id() const { return id_; }
+    static int live_count() { return live_count_; }
+
+private:
+    int id_{};
+    inline static int live_count_{};
+};
+
+int main() {
+    const Item first{1};
+    const Item second{2};
+    std::cout << first.id() << ' ' << second.id() << ' ' << Item::live_count()
+              << std::endl;
+}`,
+    164: `#include <iostream>
+
+class Widget {
+public:
+    Widget& set_value(int value) {
+        this->value_ = value;
+        return *this;
+    }
+
+    Widget& increment() {
+        ++value_;
+        return *this;
+    }
+
+    int value() const { return value_; }
+
+private:
+    int value_{};
+};
+
+int main() {
+    Widget widget;
+    std::cout << widget.set_value(4).increment().value() << std::endl;
+}`,
+    165: `#include <iostream>
+
+struct Base {
+    virtual ~Base() = default;
+    virtual int value() const { return 1; }
+};
+
+struct Derived final : Base {
+    int value() const override { return 2; }
+};
+
+int main() {
+    const Derived derived;
+    const Base& base = derived;
+    std::cout << base.value() << std::endl;
+}`,
+    166: `#include <array>
+#include <iostream>
+
+int add(int left, int right) {
+    return left + right;
+}
+
+int multiply(int left, int right) {
+    return left * right;
+}
+
+using Operation = int (*)(int, int);
+
+int main() {
+    const std::array<Operation, 2> operations{&add, &multiply};
+    for (const Operation operation : operations) {
+        std::cout << operation(3, 4) << ' ';
+    }
+    std::cout << std::endl;
+}`,
+    167: `#include <iostream>
+
+inline constexpr int square(int value) {
+    return value * value;
+}
+
+int main() {
+    static_assert(square(5) == 25);
+    std::cout << square(7) << std::endl;
+}`,
+    168: `#include <iostream>
+#include <stdexcept>
+
+int divide(int numerator, int denominator) {
+    if (denominator == 0) throw std::invalid_argument{"division by zero"};
+    return numerator / denominator;
+}
+
+int main() {
+    try {
+        std::cout << divide(8, 0) << std::endl;
+    } catch (const std::exception& error) {
+        std::cout << error.what() << std::endl;
+    }
+}`,
+    169: `#include <iostream>
+#include <stdexcept>
+#include <string>
+
+class ParseError final : public std::runtime_error {
+public:
+    ParseError(int line, const std::string& message)
+        : std::runtime_error(message), line_(line) {}
+
+    int line() const { return line_; }
+
+private:
+    int line_{};
+};
+
+int main() {
+    try {
+        throw ParseError{7, "invalid token"};
+    } catch (const ParseError& error) {
+        std::cout << "line " << error.line() << ": " << error.what() << std::endl;
+    }
+}`,
+    170: `#include <iostream>
+#include <memory>
+#include <stdexcept>
+
+struct Resource {
+    ~Resource() { std::cout << "released" << std::endl; }
+};
+
+void work() {
+    const auto resource = std::make_unique<Resource>();
+    throw std::runtime_error{"failure"};
+}
+
+int main() {
+    try {
+        work();
+    } catch (const std::exception&) {
+        std::cout << "caught" << std::endl;
+    }
+}`,
+    171: `#include <concepts>
+#include <cstddef>
+#include <iostream>
+
+template<std::totally_ordered T>
+T max_value(T left, T right) {
+    return left < right ? right : left;
+}
+
+template<class T, std::size_t Size>
+struct FixedArray {
+    T values[Size]{};
+};
+
+int main() {
+    FixedArray<int, 3> values{{1, 2, 3}};
+    std::cout << max_value(values.values[0], values.values[2]) << std::endl;
+}`,
+    172: `#include <algorithm>
+#include <iostream>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+int main() {
+    std::vector<int> values{3, 1, 2};
+    std::sort(values.begin(), values.end());
+
+    std::unordered_map<std::string, int> counts{{"cpp", 3}};
+    std::cout << values.front() << ' ' << counts.at("cpp") << std::endl;
+}`,
+    173: `#include <algorithm>
+#include <iostream>
+#include <vector>
+
+int main() {
+    const int threshold = 3;
+    const std::vector<int> values{1, 3, 5, 7};
+    const auto above = std::count_if(
+        values.begin(),
+        values.end(),
+        [threshold](int value) { return value > threshold; }
+    );
+    std::cout << above << std::endl;
+}`,
+    174: `#include <iostream>
+#include <string>
+#include <utility>
+#include <vector>
+
+struct Message {
+    std::string text;
+    std::vector<int> payload;
+};
+
+int main() {
+    Message source{"ready", {1, 2, 3}};
+    Message target = std::move(source);
+    std::cout << target.text << ' ' << target.payload.size() << std::endl;
+}`,
+    175: `#include <iostream>
+#include <utility>
+
+void category(const int&) {
+    std::cout << "lvalue" << std::endl;
+}
+
+void category(int&&) {
+    std::cout << "rvalue" << std::endl;
+}
+
+int main() {
+    int value = 42;
+    category(value);
+    category(std::move(value));
+    category(7);
+}`,
+    176: `#include <iostream>
+#include <type_traits>
+
+template<class T, std::enable_if_t<std::is_integral_v<T>, int> = 0>
+T twice(T value) {
+    return value + value;
+}
+
+template<class T>
+struct TypeName {
+    static constexpr const char* value = "other";
+};
+
+template<>
+struct TypeName<int> {
+    static constexpr const char* value = "int";
+};
+
+int main() {
+    std::cout << twice(21) << ' ' << TypeName<int>::value << std::endl;
+}`,
+  };
+
+  return samples[number] ?? null;
 }
 
 function specialCode(number) {
@@ -1322,7 +1873,8 @@ function lessonMarkdown(item, locale, code) {
     : `Question ${String(item.number).padStart(3, "0")}: ${prompt}`;
   const chapter = catalog.chapters.find((entry) => entry.id === item.chapter);
   const difficulty = difficultyLabel[item.difficulty][locale];
-  const syntax = syntaxByChapter[item.chapter];
+  const syntax = item.syntax ?? syntaxByChapter[item.chapter];
+  const collectionLabel = sourceCollectionLabel(item);
   const codeLines = code.split("\n");
   while (codeLines[0]?.startsWith("//")) codeLines.shift();
   while (codeLines[0]?.trim() === "") codeLines.shift();
@@ -1336,7 +1888,7 @@ function lessonMarkdown(item, locale, code) {
 
 ## 1. Vấn đề nó giải quyết
 
-Đây là một chủ đề phỏng vấn C++ độc lập trong bộ ${immutableSourceCollectionLabel}. Mục tiêu là trả lời đúng trọng tâm, nêu quy tắc chi phối và phân biệt hành vi do chuẩn quy định với chi tiết riêng của compiler.
+Đây là một chủ đề phỏng vấn C++ độc lập trong bộ ${collectionLabel}. Mục tiêu là trả lời đúng trọng tâm, nêu quy tắc chi phối và phân biệt hành vi do chuẩn quy định với chi tiết riêng của compiler.
 
 ## 2. Kiến thức cần có
 
@@ -1403,7 +1955,7 @@ Chạy với warning nghiêm ngặt để đối chiếu kết luận thay vì g
 
 ## 1. Problem It Solves
 
-This is one self-contained C++ interview topic from the ${immutableSourceCollectionLabel} collection. The goal is to give the conclusion, name the governing rule, and separate standard behavior from compiler-specific details.
+This is one self-contained C++ interview topic from the ${collectionLabel} collection. The goal is to give the conclusion, name the governing rule, and separate standard behavior from compiler-specific details.
 
 ## 2. Prerequisites
 
@@ -1538,17 +2090,100 @@ function englishQuestionTranslation(item, hash, version) {
 }
 
 const catalog = JSON.parse(await readFile(catalogPath, "utf8"));
-if (catalog.questions.length !== 146) {
-  throw new Error(`Expected 146 source questions, found ${catalog.questions.length}`);
+if (!Number.isInteger(catalog.collection.questionCount) ||
+    catalog.collection.questionCount < 1) {
+  throw new Error("questionCount must be a positive integer");
+}
+if (catalog.questions.length !== catalog.collection.questionCount) {
+  throw new Error(
+    `Expected ${catalog.collection.questionCount} source questions, ` +
+    `found ${catalog.questions.length}`,
+  );
 }
 if (!Number.isInteger(catalog.collection.defaultQuestionVersion) ||
     catalog.collection.defaultQuestionVersion < 1) {
   throw new Error("defaultQuestionVersion must be a positive integer");
 }
+
+if (!Array.isArray(catalog.sourceBatches) || catalog.sourceBatches.length === 0) {
+  throw new Error("At least one source batch is required");
+}
+const sourceBatchByQuestionNumber = new Map();
+const sourceBatchIds = new Set();
+for (const batch of catalog.sourceBatches) {
+  if (typeof batch.id !== "string" || !batch.id.trim() ||
+      sourceBatchIds.has(batch.id)) {
+    throw new Error(`Invalid or duplicate source batch id: ${batch.id}`);
+  }
+  sourceBatchIds.add(batch.id);
+  if (!Number.isInteger(batch.start) || !Number.isInteger(batch.end) ||
+      batch.start < 1 || batch.end < batch.start) {
+    throw new Error(`Source batch ${batch.id} has an invalid range`);
+  }
+  for (const field of ["sourceLabel", "author", "sourceEdition", "licenseBasis", "importPolicy"]) {
+    if (typeof batch[field] !== "string" || !batch[field].trim()) {
+      throw new Error(`Source batch ${batch.id} is missing ${field}`);
+    }
+  }
+  for (let number = batch.start; number <= batch.end; number += 1) {
+    if (sourceBatchByQuestionNumber.has(number)) {
+      throw new Error(`Question ${number} belongs to overlapping source batches`);
+    }
+    sourceBatchByQuestionNumber.set(number, batch);
+  }
+}
+const legacyBatch = catalog.sourceBatches.find(
+  (batch) => batch.id === "sandor-dargo-2022",
+);
+if (!legacyBatch || legacyBatch.start !== 1 || legacyBatch.end !== 146 ||
+    legacyBatch.sourceLabel !== immutableLegacySourceCollectionLabel) {
+  throw new Error("The immutable Q001-Q146 source batch contract changed");
+}
+
+const sourceIds = new Set();
+const directories = new Set();
 for (const [index, item] of catalog.questions.entries()) {
   if (item.number !== index + 1) {
     throw new Error(`Question order breaks at index ${index}`);
   }
+  if (!sourceBatchByQuestionNumber.has(item.number)) {
+    throw new Error(`Question ${item.number} is not covered by a source batch`);
+  }
+  if (typeof item.sourceId !== "string" || !item.sourceId.trim() ||
+      sourceIds.has(item.sourceId)) {
+    throw new Error(`Question ${item.number} has an invalid or duplicate sourceId`);
+  }
+  sourceIds.add(item.sourceId);
+  if (typeof item.directory !== "string" || !item.directory.trim() ||
+      directories.has(item.directory)) {
+    throw new Error(`Question ${item.number} has an invalid or duplicate directory`);
+  }
+  directories.add(item.directory);
+  const chapter = catalog.chapters.find((candidate) => candidate.id === item.chapter);
+  if (!chapter || item.number < chapter.start || item.number > chapter.end) {
+    throw new Error(`Question ${item.number} has an invalid chapter assignment`);
+  }
+  if (!difficultyLabel[item.difficulty] ||
+      !Number.isInteger(item.difficultyScore) ||
+      item.difficultyScore < 1 ||
+      item.difficultyScore > 5) {
+    throw new Error(`Question ${item.number} has invalid difficulty metadata`);
+  }
+  for (const field of ["prompt", "answer"]) {
+    for (const locale of ["vi", "en"]) {
+      if (typeof item[field]?.[locale] !== "string" ||
+          !item[field][locale].trim()) {
+        throw new Error(`Question ${item.number} is missing ${field}.${locale}`);
+      }
+    }
+  }
+  if (item.syntax !== undefined &&
+      (typeof item.syntax !== "string" || !item.syntax.trim())) {
+    throw new Error(`Question ${item.number} has invalid syntax`);
+  }
+}
+if (sourceBatchByQuestionNumber.size !== catalog.questions.length) {
+  throw new Error("Source batch ranges must cover exactly the question inventory");
 }
 
 const normalizedPromptGroups = new Map();
@@ -1557,10 +2192,16 @@ for (const item of catalog.questions) {
   normalizedPromptGroups.set(key, [...(normalizedPromptGroups.get(key) ?? []), item.number]);
 }
 const duplicateGroups = [...normalizedPromptGroups.values()].filter((numbers) => numbers.length > 1);
-if (normalizedPromptGroups.size !== 127 || duplicateGroups.length !== 19) {
-  throw new Error("Source duplicate contract changed; expected 127 unique prompts and 19 duplicate pairs");
+const repeatedQuestions = catalog.questions.filter((question) => question.repeatOf);
+if (!Number.isInteger(catalog.collection.uniquePromptCount) ||
+    normalizedPromptGroups.size !== catalog.collection.uniquePromptCount ||
+    repeatedQuestions.length !== catalog.questions.length - normalizedPromptGroups.size ||
+    duplicateGroups.length !== repeatedQuestions.length) {
+  throw new Error(
+    "Source duplicate contract does not match uniquePromptCount and repeatOf metadata",
+  );
 }
-for (const item of catalog.questions.filter((question) => question.repeatOf)) {
+for (const item of repeatedQuestions) {
   const original = catalog.questions.find(
     (question) => question.sourceId === item.repeatOf,
   );

@@ -23183,6 +23183,756 @@
           "Repeats a term without explaining its mechanism or conditions."
         ]
       }
+    },
+    {
+      "questionId": "dailycpp-q147-001",
+      "questionVersion": 1,
+      "sourceHash": "6757f0caf9467ad838d7354a80982bd3879d23f2302c75c1e6b0d72e79f73c76",
+      "status": "draft",
+      "prompt": "What is C++? How is it different from C?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "C++ is a general-purpose, multi-paradigm language that evolved from C and adds abstraction mechanisms such as classes, templates, RAII, overloading, exceptions, and a rich standard library. C and C++ share much syntax but are separate languages with different type rules, object and lifetime models, valid programs, and idioms; C++ is not merely C with classes.",
+        "detailed": "C++ is a general-purpose, multi-paradigm language that evolved from C and adds abstraction mechanisms such as classes, templates, RAII, overloading, exceptions, and a rich standard library. C and C++ share much syntax but are separate languages with different type rules, object and lifetime models, valid programs, and idioms; C++ is not merely C with classes.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q148-001",
+      "questionVersion": 1,
+      "sourceHash": "3d7e9c54e0c87a7eedc7ea67941cfcd81c2aad7d305cdae9fdfa81e3f7be3972",
+      "status": "draft",
+      "prompt": "What are access modifiers in C++?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "The access specifiers `public`, `protected`, and `private` control where class members can be named. Public members are generally accessible, protected members are accessible to the class, friends, and derived classes, and private members to the class and friends; a `class` defaults to private access while a `struct` defaults to public. Access control is a compile-time interface rule, not a memory-security boundary.",
+        "detailed": "The access specifiers `public`, `protected`, and `private` control where class members can be named. Public members are generally accessible, protected members are accessible to the class, friends, and derived classes, and private members to the class and friends; a `class` defaults to private access while a `struct` defaults to public. Access control is a compile-time interface rule, not a memory-security boundary.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q149-001",
+      "questionVersion": 1,
+      "sourceHash": "0fd55d854f5ea5f6291101a459bb69b92417a262af658633039d4341970372b4",
+      "status": "draft",
+      "prompt": "What is std in C++?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "`std` is the namespace in which the C++ standard library declares most of its names, such as `std::string`, `std::vector`, and `std::sort`. Qualify names with `std::` or use narrow `using` declarations; a global `using namespace std;` risks collisions, and user code must not add declarations to `std` except for cases explicitly permitted by the standard.",
+        "detailed": "`std` is the namespace in which the C++ standard library declares most of its names, such as `std::string`, `std::vector`, and `std::sort`. Qualify names with `std::` or use narrow `using` declarations; a global `using namespace std;` risks collisions, and user code must not add declarations to `std` except for cases explicitly permitted by the standard.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q150-001",
+      "questionVersion": 1,
+      "sourceHash": "4157e056926ee97c4fc96c882e83cb68585b70594390a01b825c2009c9a46ba0",
+      "status": "draft",
+      "prompt": "What is a pointer in C++, and how is it different from a reference?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "A pointer is an object that stores an address; it can be null, reseated, copied, and, for array elements, used in pointer arithmetic. A reference is an alias bound during initialization and cannot later be reseated; ordinary references must denote a valid object or function whenever used. Neither form implies ownership by itself, so ownership must be expressed separately, preferably with RAII types.",
+        "detailed": "A pointer is an object that stores an address; it can be null, reseated, copied, and, for array elements, used in pointer arithmetic. A reference is an alias bound during initialization and cannot later be reseated; ordinary references must denote a valid object or function whenever used. Neither form implies ownership by itself, so ownership must be expressed separately, preferably with RAII types.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q151-001",
+      "questionVersion": 1,
+      "sourceHash": "1542187734105b6b020609c1099ff22a3dfacdcd4cfc72e18bc594a8671256c8",
+      "status": "draft",
+      "prompt": "What is the difference between stack memory and heap memory?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "The C++ standard specifies storage durations rather than requiring physical stacks or heaps. Automatic objects normally live until their scope exits and are destroyed automatically; dynamically allocated objects live until their owning operation releases them. Automatic allocation is usually cheap and bounded by thread stack space, while dynamic allocation is more flexible but has allocator cost and lifetime risk, so production C++ normally manages it through RAII containers and smart pointers rather than raw `new` and `delete`.",
+        "detailed": "The C++ standard specifies storage durations rather than requiring physical stacks or heaps. Automatic objects normally live until their scope exits and are destroyed automatically; dynamically allocated objects live until their owning operation releases them. Automatic allocation is usually cheap and bounded by thread stack space, while dynamic allocation is more flexible but has allocator cost and lifetime risk, so production C++ normally manages it through RAII containers and smart pointers rather than raw `new` and `delete`.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q152-001",
+      "questionVersion": 1,
+      "sourceHash": "a77bac3443838e13bd2a8c90429fa7401fa4509b41f82a7e5e55e96f4fe0e73d",
+      "status": "draft",
+      "prompt": "What is the difference between pass by value and pass by reference?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "A non-reference parameter is a separate object initialized from the argument, so modifying it does not modify the caller's object; copying or moving it may have a cost. A reference parameter binds to the caller's object: a non-const reference can modify it, while `const T&` provides read-only access and often avoids a copy. Choose by contract first—small value types are often best passed by value, and a reference is not automatically faster in every case.",
+        "detailed": "A non-reference parameter is a separate object initialized from the argument, so modifying it does not modify the caller's object; copying or moving it may have a cost. A reference parameter binds to the caller's object: a non-const reference can modify it, while `const T&` provides read-only access and often avoids a copy. Choose by contract first—small value types are often best passed by value, and a reference is not automatically faster in every case.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q153-001",
+      "questionVersion": 1,
+      "sourceHash": "3cd6cf1e2352703650fcb2b465371f2f42a52c0c223293c3d9ae58d95e8af8d8",
+      "status": "draft",
+      "prompt": "Explain shallow copy, deep copy, and the copy constructor in C++.",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "A copy constructor initializes a new object from an existing object. An implicitly generated copy performs memberwise copy: value members become independent values, while a raw pointer member copies only its address, which can look like a shallow copy and can break ownership. A deep-copying owner allocates a distinct resource and copies its contents, but the preferred design is the Rule of Zero—store resources in value-semantic RAII members so generated copy and destruction already have the right behavior.",
+        "detailed": "A copy constructor initializes a new object from an existing object. An implicitly generated copy performs memberwise copy: value members become independent values, while a raw pointer member copies only its address, which can look like a shallow copy and can break ownership. A deep-copying owner allocates a distinct resource and copies its contents, but the preferred design is the Rule of Zero—store resources in value-semantic RAII members so generated copy and destruction already have the right behavior.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q154-001",
+      "questionVersion": 1,
+      "sourceHash": "621c7fad25e72318496bea195ca2fd38193322746d05c0984eb8915f7c00ba61",
+      "status": "draft",
+      "prompt": "What is a recursive function? Provide an example.",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "A recursive function invokes itself directly or indirectly on a smaller subproblem. It needs a reachable base case and progress toward that case; otherwise it recurses indefinitely, and even correct deep recursion can exhaust the call stack. C++ does not guarantee tail-call optimization, so an iterative algorithm or explicit stack is safer when depth can be large or controlled by input.",
+        "detailed": "A recursive function invokes itself directly or indirectly on a smaller subproblem. It needs a reachable base case and progress toward that case; otherwise it recurses indefinitely, and even correct deep recursion can exhaust the call stack. C++ does not guarantee tail-call optimization, so an iterative algorithm or explicit stack is safer when depth can be large or controlled by input.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q155-001",
+      "questionVersion": 1,
+      "sourceHash": "a22ba34483840f45e757f5c6383f772c96d2501eff3e9446aae2d855e38295f5",
+      "status": "draft",
+      "prompt": "What is function overloading in C++ (compile-time polymorphism)?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "Function overloading declares multiple functions with the same name in the same scope but different parameter lists or, for member functions, qualifying cv/ref details. Overload resolution selects the best viable candidate at compile time from the argument types and conversions. A return type alone cannot distinguish overloads, and conversions or default arguments can make a call ambiguous.",
+        "detailed": "Function overloading declares multiple functions with the same name in the same scope but different parameter lists or, for member functions, qualifying cv/ref details. Overload resolution selects the best viable candidate at compile time from the argument types and conversions. A return type alone cannot distinguish overloads, and conversions or default arguments can make a call ambiguous.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q156-001",
+      "questionVersion": 1,
+      "sourceHash": "29ee9f3586c8d35628bf5bfbd52754f70edeb8850743e830a4d2569c75fa80d9",
+      "status": "draft",
+      "prompt": "What is the difference between struct and class in C++?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "`struct` and `class` define the same kind of class type and can both have constructors, member functions, templates, inheritance, and virtual dispatch. The language differences are defaults: members and base classes are public in a `struct`, but private in a `class`. Conventionally, structs model simple value-like aggregates and classes emphasize hidden invariants, but that is a style choice rather than a language restriction.",
+        "detailed": "`struct` and `class` define the same kind of class type and can both have constructors, member functions, templates, inheritance, and virtual dispatch. The language differences are defaults: members and base classes are public in a `struct`, but private in a `class`. Conventionally, structs model simple value-like aggregates and classes emphasize hidden invariants, but that is a style choice rather than a language restriction.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q157-001",
+      "questionVersion": 1,
+      "sourceHash": "2013c504594a6b4aedc97400a8f7bb2103797dc739cfb4717e879f290ede2ed6",
+      "status": "draft",
+      "prompt": "What are the auto and decltype keywords used for?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "`auto` asks the compiler to deduce a declared type from an initializer using rules largely modeled on template argument deduction; the written declarator still controls references and cv-qualification. `decltype(expr)` computes a type without evaluating the expression and preserves value-category information, with special rules for unparenthesized names. `decltype(auto)` applies those `decltype` rules to a deduced declaration or return type and can therefore preserve references that plain `auto` would drop.",
+        "detailed": "`auto` asks the compiler to deduce a declared type from an initializer using rules largely modeled on template argument deduction; the written declarator still controls references and cv-qualification. `decltype(expr)` computes a type without evaluating the expression and preserves value-category information, with special rules for unparenthesized names. `decltype(auto)` applies those `decltype` rules to a deduced declaration or return type and can therefore preserve references that plain `auto` would drop.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q158-001",
+      "questionVersion": 1,
+      "sourceHash": "7720b1a0b5991ab3ab4e4b77a7f93e234d7f06e867224639d115b1f8f5cd378f",
+      "status": "draft",
+      "prompt": "What is a friend function?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "A friend function is not a member function, but a `friend` declaration grants it access to a class's private and protected members. Friendship is explicit, neither inherited nor transitive, and does not grant friendship in the reverse direction. It is useful for tightly coupled non-member operations such as symmetric operators, but broad friendship increases coupling and should not replace a well-designed public interface.",
+        "detailed": "A friend function is not a member function, but a `friend` declaration grants it access to a class's private and protected members. Friendship is explicit, neither inherited nor transitive, and does not grant friendship in the reverse direction. It is useful for tightly coupled non-member operations such as symmetric operators, but broad friendship increases coupling and should not replace a well-designed public interface.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q159-001",
+      "questionVersion": 1,
+      "sourceHash": "9b241183e4a3b44835a5b403bd190a35875b4987a72f4f4cdaa18dbc5092bec6",
+      "status": "draft",
+      "prompt": "What is object slicing in C++? How can you avoid it?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "Object slicing occurs when a derived object is copied into a base object by value, so the new object contains only the base subobject and loses derived state and behavior. Avoid it by passing and storing polymorphic objects through references or owning smart pointers, and give a polymorphic base a virtual destructor. When true value semantics are required, use a virtual `clone`, type erasure, or a closed sum type such as `std::variant` instead of accidental base-value copies.",
+        "detailed": "Object slicing occurs when a derived object is copied into a base object by value, so the new object contains only the base subobject and loses derived state and behavior. Avoid it by passing and storing polymorphic objects through references or owning smart pointers, and give a polymorphic base a virtual destructor. When true value semantics are required, use a virtual `clone`, type erasure, or a closed sum type such as `std::variant` instead of accidental base-value copies.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q160-001",
+      "questionVersion": 1,
+      "sourceHash": "766f590fa65d580fe3ce36b2cdeb45b00ae83f8277743d4c5937357559a2d485",
+      "status": "draft",
+      "prompt": "What is the difference between an abstract class and an interface in C++? How do you implement interface-like behavior?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "An abstract class has at least one pure virtual function and may also own state, constructors, non-virtual functions, and implemented virtual functions. C++ has no `interface` keyword; an interface-like runtime contract is normally an abstract class containing only the required pure virtual operations plus a virtual destructor when deletion through the base is supported. C++20 concepts provide a separate compile-time contract for generic code without inheritance or runtime dispatch.",
+        "detailed": "An abstract class has at least one pure virtual function and may also own state, constructors, non-virtual functions, and implemented virtual functions. C++ has no `interface` keyword; an interface-like runtime contract is normally an abstract class containing only the required pure virtual operations plus a virtual destructor when deletion through the base is supported. C++20 concepts provide a separate compile-time contract for generic code without inheritance or runtime dispatch.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q161-001",
+      "questionVersion": 1,
+      "sourceHash": "d22136ebc6f7258eabf3a7998eed2aef4ffe7f434db5af0158b332545ad085f8",
+      "status": "draft",
+      "prompt": "Explain encapsulation with an example.",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "Encapsulation packages state with the operations that maintain its invariants and hides representation details behind a stable interface. It is not merely making fields private and adding unrestricted getters and setters: callers should express valid domain operations, such as `withdraw`, while the class rejects invalid transitions such as a negative balance. This reduces coupling and lets the implementation change without forcing callers to change.",
+        "detailed": "Encapsulation packages state with the operations that maintain its invariants and hides representation details behind a stable interface. It is not merely making fields private and adding unrestricted getters and setters: callers should express valid domain operations, such as `withdraw`, while the class rejects invalid transitions such as a negative balance. This reduces coupling and lets the implementation change without forcing callers to change.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q162-001",
+      "questionVersion": 1,
+      "sourceHash": "7e5a563495fd80e67f4301e57c956058bccbd04bf1bc2149e89fbd3ba9b673b8",
+      "status": "draft",
+      "prompt": "What is multiple inheritance, and what problems can it cause?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "Multiple inheritance lets one class derive from more than one base. It can create ambiguous member lookup, duplicated base subobjects in a diamond, more complex construction order, and tighter coupling; virtual inheritance can make a diamond share one virtual base but adds its own complexity. Multiple inheritance works best for small orthogonal interfaces, while composition is usually clearer for combining stateful implementations.",
+        "detailed": "Multiple inheritance lets one class derive from more than one base. It can create ambiguous member lookup, duplicated base subobjects in a diamond, more complex construction order, and tighter coupling; virtual inheritance can make a diamond share one virtual base but adds its own complexity. Multiple inheritance works best for small orthogonal interfaces, while composition is usually clearer for combining stateful implementations.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q163-001",
+      "questionVersion": 1,
+      "sourceHash": "ab3dd059830bf53bf59ea79a4909b357f14ff9d59f1b9db177b6a21885bce5e1",
+      "status": "draft",
+      "prompt": "What is the difference between static data members and normal data members?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "Each object contains its own non-static data members, while a static data member belongs to the class and is shared by all objects. A static member has static storage duration and can exist even when no instance exists; since C++17 it can be defined as `inline static` inside the class. Static member functions have no `this` pointer and can directly access only static members, whereas non-static member functions operate on a particular object.",
+        "detailed": "Each object contains its own non-static data members, while a static data member belongs to the class and is shared by all objects. A static member has static storage duration and can exist even when no instance exists; since C++17 it can be defined as `inline static` inside the class. Static member functions have no `this` pointer and can directly access only static members, whereas non-static member functions operate on a particular object.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q164-001",
+      "questionVersion": 1,
+      "sourceHash": "fab008e3a0d1025f3eefeb7c9d9c3910f1edb2a884a37fd61a0fecb09560c5a5",
+      "status": "draft",
+      "prompt": "What is the this pointer, and how is it used?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "Inside a non-static member function, `this` points to the object on which the function was invoked; its pointee is const in a const-qualified member function. It is commonly used to disambiguate members from parameters, pass the current object, or return `*this` for chaining. Static member functions have no `this`, and `delete this` is valid only under rare ownership contracts that are difficult to make safe and should normally be avoided.",
+        "detailed": "Inside a non-static member function, `this` points to the object on which the function was invoked; its pointee is const in a const-qualified member function. It is commonly used to disambiguate members from parameters, pass the current object, or return `*this` for chaining. Static member functions have no `this`, and `delete this` is valid only under rare ownership contracts that are difficult to make safe and should normally be avoided.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q165-001",
+      "questionVersion": 1,
+      "sourceHash": "32cb75feea2cb4e1d7eb161b799ef43e5eec9d64bd6420ffad27b8b0d4d4d3d2",
+      "status": "draft",
+      "prompt": "What is function overriding in C++, and how does the base class affect it?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "A derived member overrides a virtual base member when its name, parameter list, cv/ref qualifiers, and return and exception rules form a valid overriding signature. Calls through a base reference or pointer then dispatch to the final overrider at runtime. Mark derived declarations `override` so the compiler catches mismatches; unrelated overloads with the same name can otherwise hide the base overload set, which may need an explicit `using Base::name`.",
+        "detailed": "A derived member overrides a virtual base member when its name, parameter list, cv/ref qualifiers, and return and exception rules form a valid overriding signature. Calls through a base reference or pointer then dispatch to the final overrider at runtime. Mark derived declarations `override` so the compiler catches mismatches; unrelated overloads with the same name can otherwise hide the base overload set, which may need an explicit `using Base::name`.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q166-001",
+      "questionVersion": 1,
+      "sourceHash": "98567f8bef8c42811e19583227534e4cf9129fff91e22de2aa2e19c56b5c6608",
+      "status": "draft",
+      "prompt": "What is a function pointer, and how do you use it?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "A function pointer stores the address of a free or static function with a specific signature and supports indirect calls, callbacks, and dispatch tables. It can be null or reseated, and a captureless lambda can convert to a compatible function pointer. Non-static member-function pointers use a different type and require an object; `std::function` adds type erasure and stateful callable support but also has more overhead than a raw function pointer.",
+        "detailed": "A function pointer stores the address of a free or static function with a specific signature and supports indirect calls, callbacks, and dispatch tables. It can be null or reseated, and a captureless lambda can convert to a compatible function pointer. Non-static member-function pointers use a different type and require an object; `std::function` adds type erasure and stateful callable support but also has more overhead than a raw function pointer.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q167-001",
+      "questionVersion": 1,
+      "sourceHash": "afdc1cfd23d71db2464e492acfc71b6f7143088d801faf4ad2d0462bb7abe027",
+      "status": "draft",
+      "prompt": "How does inline expansion of functions affect performance?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "Inlining can remove call overhead and expose constants and control flow to further optimization, but duplicating a body can increase code size and instruction-cache pressure. The optimizer may inline a function without the `inline` specifier or decline to inline one that has it; the keyword's guaranteed language role is primarily to permit identical definitions across translation units under the ODR. Performance decisions should therefore be based on optimized builds and measurement, not the keyword alone.",
+        "detailed": "Inlining can remove call overhead and expose constants and control flow to further optimization, but duplicating a body can increase code size and instruction-cache pressure. The optimizer may inline a function without the `inline` specifier or decline to inline one that has it; the keyword's guaranteed language role is primarily to permit identical definitions across translation units under the ODR. Performance decisions should therefore be based on optimized builds and measurement, not the keyword alone.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q168-001",
+      "questionVersion": 1,
+      "sourceHash": "b324e85e776efd43541a650e9d05e5c9b9a772d4326a7f3cbdf7ec3c94ac431c",
+      "status": "draft",
+      "prompt": "How is exception handling implemented in C++?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "`throw` initializes an exception object and transfers control to a matching handler in an enclosing `try`/`catch` sequence. During stack unwinding, fully constructed automatic objects are destroyed in reverse order, which is why RAII is central to exception safety. Catch polymorphic exceptions by `const` reference and order specific handlers before general ones; destructors should not let exceptions escape during unwinding.",
+        "detailed": "`throw` initializes an exception object and transfers control to a matching handler in an enclosing `try`/`catch` sequence. During stack unwinding, fully constructed automatic objects are destroyed in reverse order, which is why RAII is central to exception safety. Catch polymorphic exceptions by `const` reference and order specific handlers before general ones; destructors should not let exceptions escape during unwinding.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q169-001",
+      "questionVersion": 1,
+      "sourceHash": "23b9fb4e09ac13906bec3f862b68f99763e5ef037a77b2ca5ff838c25deb0ec9",
+      "status": "draft",
+      "prompt": "What is the difference between std::exception and user-defined exceptions?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "`std::exception` is the polymorphic base of the standard exception hierarchy and exposes the virtual `what()` diagnostic. A user-defined exception represents domain-specific failure and should normally derive from an appropriate standard type such as `std::runtime_error` or `std::logic_error`, optionally carrying structured context. Catching by `const std::exception&` gives a generic boundary while earlier handlers can still match the domain type precisely.",
+        "detailed": "`std::exception` is the polymorphic base of the standard exception hierarchy and exposes the virtual `what()` diagnostic. A user-defined exception represents domain-specific failure and should normally derive from an appropriate standard type such as `std::runtime_error` or `std::logic_error`, optionally carrying structured context. Catching by `const std::exception&` gives a generic boundary while earlier handlers can still match the domain type precisely.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q170-001",
+      "questionVersion": 1,
+      "sourceHash": "1e1e8efdda950d6198aacbfdac87ae916073d91d1d69fda15654daade9a2efbe",
+      "status": "draft",
+      "prompt": "How can RAII (Resource Acquisition Is Initialization) help with exception safety?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "RAII stores resource ownership in an object's state: construction establishes ownership and the destructor releases it. Because destructors of fully constructed automatic objects run during normal return and stack unwinding, files, locks, memory, and other resources are released without duplicated cleanup paths. RAII prevents leaks but does not by itself guarantee transactional state; strong exception guarantees may also require commit-after-success designs such as copy-and-swap.",
+        "detailed": "RAII stores resource ownership in an object's state: construction establishes ownership and the destructor releases it. Because destructors of fully constructed automatic objects run during normal return and stack unwinding, files, locks, memory, and other resources are released without duplicated cleanup paths. RAII prevents leaks but does not by itself guarantee transactional state; strong exception guarantees may also require commit-after-success designs such as copy-and-swap.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q171-001",
+      "questionVersion": 1,
+      "sourceHash": "c84e6ccd7f48c6fbd8e75a594cf9c83454fc1eec8bb8ab299692dc4347cc2df3",
+      "status": "draft",
+      "prompt": "Explain templates in C++ and provide a simple example.",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "Templates parameterize functions, classes, aliases, or variables over types, values, and in some cases other templates. The compiler forms specializations when they are needed, enabling zero-overhead generic code but potentially increasing compile time and generated code size. C++20 concepts can state requirements explicitly and improve overload selection and diagnostics compared with unconstrained substitution failures.",
+        "detailed": "Templates parameterize functions, classes, aliases, or variables over types, values, and in some cases other templates. The compiler forms specializations when they are needed, enabling zero-overhead generic code but potentially increasing compile time and generated code size. C++20 concepts can state requirements explicitly and improve overload selection and diagnostics compared with unconstrained substitution failures.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q172-001",
+      "questionVersion": 1,
+      "sourceHash": "568c2b8e75ee74e53ec7c833eaa85cb164ad6f3669dc22b437476d6134c68416",
+      "status": "draft",
+      "prompt": "What is the Standard Template Library (STL)? Name some commonly used containers.",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "The STL is the generic-programming foundation of the C++ standard library built around containers, iterators, algorithms, and function objects. Common sequence containers include `vector`, `array`, `deque`, `list`, and `forward_list`; ordered associative containers include `map` and `set`; unordered variants are hash based; and adaptors include `stack`, `queue`, and `priority_queue`. Container choice should follow access pattern, invalidation rules, ordering, and complexity needs rather than habit.",
+        "detailed": "The STL is the generic-programming foundation of the C++ standard library built around containers, iterators, algorithms, and function objects. Common sequence containers include `vector`, `array`, `deque`, `list`, and `forward_list`; ordered associative containers include `map` and `set`; unordered variants are hash based; and adaptors include `stack`, `queue`, and `priority_queue`. Container choice should follow access pattern, invalidation rules, ordering, and complexity needs rather than habit.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q173-001",
+      "questionVersion": 1,
+      "sourceHash": "2e8a4a3b5387b95e76baae823f2ed684e53e253e66bd6599a148a91b02daee89",
+      "status": "draft",
+      "prompt": "What are lambda expressions in C++11 and later?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "A lambda expression creates an unnamed closure object whose call operator contains the written body. Its capture list can copy or reference surrounding entities, use init-capture, or capture nothing; parameters may be typed or use `auto` for a generic lambda. Entities captured by copy cannot be modified through the closure's default const call operator unless the lambda is `mutable`, and only captureless lambdas convert directly to compatible function pointers.",
+        "detailed": "A lambda expression creates an unnamed closure object whose call operator contains the written body. Its capture list can copy or reference surrounding entities, use init-capture, or capture nothing; parameters may be typed or use `auto` for a generic lambda. Entities captured by copy cannot be modified through the closure's default const call operator unless the lambda is `mutable`, and only captureless lambdas convert directly to compatible function pointers.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q174-001",
+      "questionVersion": 1,
+      "sourceHash": "3e4714f24ce3b2bd70be8417ad7834b1ce7c964052e9ad3cd0c8a159516510b3",
+      "status": "draft",
+      "prompt": "What are move semantics in C++11, and why are they important?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "Move semantics let an object transfer resources from an expiring source instead of duplicating them, using rvalue references plus move construction or move assignment. `std::move` performs only a cast that makes an object eligible for moving; the selected operation does the transfer. A moved-from standard-library object remains valid but usually has an unspecified value, and marking genuine move operations `noexcept` lets containers prefer them while preserving strong guarantees during reallocation.",
+        "detailed": "Move semantics let an object transfer resources from an expiring source instead of duplicating them, using rvalue references plus move construction or move assignment. `std::move` performs only a cast that makes an object eligible for moving; the selected operation does the transfer. A moved-from standard-library object remains valid but usually has an unspecified value, and marking genuine move operations `noexcept` lets containers prefer them while preserving strong guarantees during reallocation.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q175-001",
+      "questionVersion": 1,
+      "sourceHash": "6515f54c68a5d8151d701dbdbead18026444619ed3189d57f1336cdf6935402c",
+      "status": "draft",
+      "prompt": "What are lvalues and rvalues?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "An lvalue is a glvalue that is not an xvalue and normally denotes an object whose identity persists; an xvalue is a glvalue whose resources may be reused. A prvalue computes a value or initializes an object, and the term rvalue covers prvalues and xvalues. These value categories affect overload resolution, reference binding, temporary materialization, and move semantics; they are more precise than saying only that lvalues appear on the left and rvalues on the right of assignment.",
+        "detailed": "An lvalue is a glvalue that is not an xvalue and normally denotes an object whose identity persists; an xvalue is a glvalue whose resources may be reused. A prvalue computes a value or initializes an object, and the term rvalue covers prvalues and xvalues. These value categories affect overload resolution, reference binding, temporary materialization, and move semantics; they are more precise than saying only that lvalues appear on the left and rvalues on the right of assignment.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
+    },
+    {
+      "questionId": "dailycpp-q176-001",
+      "questionVersion": 1,
+      "sourceHash": "b34b8219b098fe81b59234b171146363eebd4e1edde4729ec469a178c7525191",
+      "status": "draft",
+      "prompt": "What is SFINAE? How does it relate to template specialization?",
+      "hint": "Lead with the conclusion, then identify the C++ rule and the conditions that make it true.",
+      "answer": {
+        "short": "SFINAE means Substitution Failure Is Not An Error: when substitution fails in the immediate context of a function-template candidate, that candidate is removed from overload resolution instead of making the program ill-formed. It can enable overloads or partial class specializations conditionally, but it is not itself explicit specialization, and function templates cannot be partially specialized. In C++20, constraints and concepts usually express the same intent more clearly and produce better diagnostics.",
+        "detailed": "SFINAE means Substitution Failure Is Not An Error: when substitution fails in the immediate context of a function-template candidate, that candidate is removed from overload resolution instead of making the program ill-formed. It can enable overloads or partial class specializations conditionally, but it is not itself explicit specialization, and function templates cannot be partially specialized. In C++20, constraints and concepts usually express the same intent more clearly and produce better diagnostics.\n\nConnect the conclusion directly to the type, lifetime, ownership, overload-resolution rule, or library contract present in the question. State implementation dependence or a violated precondition explicitly instead of merely guessing output."
+      },
+      "rubric": {
+        "required": [
+          "Directly answers the single source question.",
+          "States the governing C++ rule and its conditions.",
+          "Does not generalize from one compiler or one observed run."
+        ],
+        "bonus": [
+          "Explains an API, lifetime, ownership, portability, or performance consequence."
+        ],
+        "misconceptions": [
+          "Repeats a term without explaining its mechanism or conditions."
+        ]
+      }
     }
   ]
 }

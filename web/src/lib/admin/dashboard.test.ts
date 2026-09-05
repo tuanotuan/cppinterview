@@ -140,7 +140,7 @@ describe("admin dashboard snapshot", () => {
     );
 
     const expectedTranslationReviews =
-      (53 + 50 + 50 + 52 + 54) * 3 + 146;
+      (53 + 50 + 50 + 52 + 54) * 3 + 176;
     expect(snapshot.metrics.pendingTranslations).toBe(expectedTranslationReviews);
     const toolchainReviews = snapshot.translationReviews.filter(
       (review) => review.question.lessonId === "cpp11-toolchain",
@@ -216,10 +216,10 @@ describe("admin dashboard snapshot", () => {
     const dailyReviews = snapshot.translationReviews.filter(
       (review) => review.question.lessonId.startsWith("dailycpp-q"),
     );
-    expect(dailyReviews).toHaveLength(146);
+    expect(dailyReviews).toHaveLength(176);
     expect(
       new Set(dailyReviews.map((review) => review.question.lessonId)).size,
-    ).toBe(146);
+    ).toBe(176);
     for (const review of dailyReviews) {
       expect(review.question.taxonomy.standard).toBe("dailycpp");
       expect(review.question.taxonomy.tags).toContain("standard::dailycpp");

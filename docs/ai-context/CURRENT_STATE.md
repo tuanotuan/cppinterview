@@ -8,17 +8,13 @@ trạng thái từ tên nhánh.
 
 ## Handoff hiện tại
 
-- Yêu cầu kế tiếp mới dừng ở plan, chưa sửa code/content/DB: bổ sung 30 chủ đề từ
-  [roadmap.sh](https://roadmap.sh/questions/cpp) vào Real-World C++ Interviews.
-  Khoảng 20/30 chủ đề trùng hoặc gần trùng với 146 câu hiện có, và
-  [Terms of Use](https://roadmap.sh/terms) cùng
-  [license của repo nguồn](https://github.com/nilbuild/developer-roadmap/blob/master/license)
-  không cho tái xuất bản nội dung nếu chưa có phép. Trước khi triển khai phải chốt
-  một trong hai hướng: có văn bản cho phép để giữ đúng 30 prompt, hoặc chỉ dùng
-  phạm vi kiến thức làm định hướng rồi tự biên soạn hoàn toàn. Nếu tiếp tục, nối
-  ID `dailycpp-q147`–`dailycpp-q176`, giữ đúng ba file/một question mỗi lesson,
-  không tạo roadmap hay migration mới, tách provenance nguồn và không đổi bất kỳ
-  identity/hash/version nào của 146 câu cũ.
+- Real-World C++ Interviews đã được mở rộng local từ 146 lên 176 chủ đề sau khi
+  repository owner xác nhận quyền cung cấp 30 prompt sưu tầm. Batch mới dùng ID
+  `dailycpp-q147`–`dailycpp-q176`, provenance riêng, nhãn collection hiện hành,
+  đúng `vi.md`/`en.md`/`main.cpp` và một question draft mỗi lesson. Generator
+  kiểm tra range/provenance/count/duplicate trước khi ghi; Q001–Q146 giữ nguyên
+  identity/hash/version và chuỗi nguồn legacy. Không có roadmap, migration,
+  content sync, approval, deploy hay remote mutation mới.
 - Bộ lọc thư viện `/learn` hiển thị riêng C++98, C++11, C++14, C++17, C++20,
   C++23 và collection Real-World C++ Interviews, không còn gộp nhiều chuẩn trong một
   chip. Catalog hiện có lesson cho mọi chip nên tất cả đều khả dụng; chip
@@ -56,10 +52,10 @@ trạng thái từ tên nhánh.
   và callback Auth kỹ thuật vẫn không prefix. Các lối tắt Admin trong Practice,
   Stats và guide tick dùng `next/link` trực tiếp nên luôn mở `/admin`, không bị
   navigation theo locale đổi thành route 404 `/vi/admin` hoặc `/en/admin`.
-- Catalog hiện có 936 question Git-owned: 3 verified và 933 draft. Mỗi lesson
+- Catalog local hiện có 966 question Git-owned: 3 verified và 963 draft. Mỗi lesson
   C++11/C++14/C++17/C++20/C++23 có ba draft beginner/intermediate/advanced với taxonomy
   `standard::<track>` và `difficulty::<level>`; mỗi lesson Daily chỉ có đúng một
-  draft nguồn. Có 927 English copy tương ứng xuất hiện thành mục duyệt riêng trong
+  draft nguồn. Có 957 English copy tương ứng xuất hiện thành mục duyệt riêng trong
   Admin nhưng giữ nguyên canonical ID/version/hash/taxonomy.
   Cả 3 question verified hiện hành cũng có overlay tiếng Anh; `/en/practice` chỉ xếp question và English copy đã duyệt vào hàng học. Question được duyệt
   nhưng chưa dịch không còn fallback sang tiếng Việt, còn source excerpt/title
@@ -254,14 +250,16 @@ trạng thái từ tên nhánh.
   sau hai migration C++14/C++17. Lịch sử local/remote đã khớp; cả bốn check constraint
   standard/track đều validated và chấp nhận `cpp23`. Migration không publish hay duyệt
   học liệu.
-- Collection `dailycpp` đã merge: 146 thư mục theo đúng thứ tự nguồn, mỗi thư mục
+- Collection `dailycpp` local có 176 thư mục theo đúng thứ tự nguồn, mỗi thư mục
   có đúng `vi.md`, `en.md`, `main.cpp` và đúng một câu hỏi
-  `dailycpp-qNNN-001` với difficulty ước tính. 146 mục chứa 127 prompt duy nhất,
-  giữ nguyên 19 cặp lặp có chủ ý và không có roadmap. Migration
+  `dailycpp-qNNN-001` với difficulty ước tính. 176 mục chứa 157 prompt duy nhất,
+  giữ nguyên 19 cặp lặp nguyên văn trong batch legacy và không có roadmap. Hai
+  source batch phủ riêng Q001–Q146 và Q147–Q176 với permission/import policy
+  tách biệt. Migration
   `20260904092827_add_daily_cpp_content_track.sql` đã được áp lên Supabase remote;
   lịch sử local/remote khớp và cả bốn constraint standard/track đều validated,
   chấp nhận `dailycpp`.
-- PR #211 đã merge vào `main` tại `706fa08`; main sync lại thành công với 410
+- Remote production vẫn ở baseline PR #211: main sync thành công với 410
   lesson active và 936 repository question active. Riêng `dailycpp` có 146 lesson
   active và đúng 146 repository question draft (73 dễ, 39 trung bình, 34 khó),
   không có question DB-owned hay generation job. Hotfix giữ nguyên toàn bộ exact
@@ -446,23 +444,18 @@ trạng thái từ tên nhánh.
 
 ## Validation gần nhất
 
-- Hotfix revision drift của Real-World C++ Interviews đạt toàn bộ `npm run validate`:
-  content/context check, ESLint, TypeScript, 162 file/917 Vitest test và Next.js production build
-  sinh 884 static path. Targeted contract xác nhận đủ 146 lesson song ngữ, 438
-  source file, đúng một question/lesson, 127 prompt duy nhất, 19 cặp lặp nguồn,
-  không có roadmap và không có mojibake; test riêng xác nhận Q050 dùng đúng English
-  copy khi có exact publication và giữ nguyên v1 hash. Cả 146 `main.cpp` qua
-  `g++ -std=c++20 -Wall -Wextra -Wpedantic -fsyntax-only`.
-  `content:sync:check` dựng payload 410 lesson/936 question. Security review đủ
-  10 nhóm OWASP không có finding mở và production dependency audit báo 0 lỗ
-  hổng. Migration `dailycpp` đã được push bằng `--skip-vault`; constraint và migration
-  history remote đã xác minh. GitHub Actions retry sau migration đạt toàn bộ gate,
-  sync đúng merge commit/revision/checksum và enqueue 0 generation job. Remote có
-  đúng 146 lesson/146 repository question cho collection, không có question
-  DB-owned. Production smoke sau PR #211 xác nhận `/vi/learn` và `/en/learn` dùng
-  tên `Real-World C++ Interviews`; `/vi/practice` và `/en/practice` đều trả HTTP
-  200, chứa đủ 146 Daily ID duy nhất và trang tiếng Anh có đúng prompt Q050.
-  Database advisor không có lỗi mức `ERROR`.
+- Mở rộng local Real-World C++ Interviews từ 146 lên 176 chủ đề đạt toàn bộ
+  `npm run validate`: content/context check, ESLint, TypeScript, 162 file/918
+  Vitest test và Next.js production build sinh 944 static path. Targeted contract
+  xác nhận đủ 176 lesson song ngữ, 528 source file, đúng một question/lesson,
+  157 prompt duy nhất, 19 cặp lặp exact thuộc batch legacy và hai batch provenance
+  phủ kín catalog; Q001–Q146 giữ nguyên lesson/question identity, version và source
+  hash. Cả 30 `main.cpp` mới qua
+  `g++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -fsyntax-only`.
+  `content:sync:check` dựng payload 440 lesson/966 question. Không có migration,
+  content sync, approval, deploy hay remote mutation trong thay đổi này. Production
+  vẫn ở baseline sau PR #211: 410 lesson/936 question, gồm 146 lesson/question của
+  collection; smoke và database advisor của baseline đó giữ nguyên kết quả đã xác minh.
 - Tiến độ cá nhân trên cả năm roadmap dùng `Đang học`/`Đã xong`/`Bỏ qua`, hydrate
   sau static render và lưu owner-private tách khỏi FSRS. Ba trạng thái phủ toàn bộ
   nền node bằng ba dải tím/xanh lá/xanh đậm tách biệt, có hover riêng và giữ chữ/icon đủ

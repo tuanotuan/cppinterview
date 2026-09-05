@@ -51,8 +51,8 @@ describe("content translations", () => {
       "en",
     );
     expect(coverage).toEqual({
-      lessons: 405,
-      questions: 926,
+      lessons: 435,
+      questions: 956,
     });
   });
 

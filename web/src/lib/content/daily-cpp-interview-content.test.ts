@@ -15,9 +15,22 @@ type SourceQuestion = {
   directory: string;
   chapter: string;
   difficulty: "beginner" | "intermediate" | "advanced";
+  difficultyScore: number;
+  syntax?: string;
   questionVersion?: number;
   prompt: { en: string; vi: string };
   repeatOf?: string;
+};
+
+type SourceBatch = {
+  id: string;
+  start: number;
+  end: number;
+  sourceLabel: string;
+  author: string;
+  sourceEdition: string;
+  licenseBasis: string;
+  importPolicy: string;
 };
 
 const repoRoot = path.resolve(process.cwd(), "..");
@@ -35,6 +48,7 @@ const sourceCatalog = JSON.parse(
     uniquePromptCount: number;
     defaultQuestionVersion: number;
   };
+  sourceBatches: SourceBatch[];
   questions: SourceQuestion[];
 };
 const manifest = contentManifestSchema.parse(manifestJson);
@@ -53,13 +67,13 @@ describe("Real-World C++ Interviews collection", () => {
       id: "daily-cpp-interview",
       track: "dailycpp",
       title: "Real-World C++ Interviews",
-      questionCount: 146,
-      uniquePromptCount: 127,
+      questionCount: 176,
+      uniquePromptCount: 157,
       defaultQuestionVersion: 1,
     });
-    expect(sourceCatalog.questions).toHaveLength(146);
+    expect(sourceCatalog.questions).toHaveLength(176);
     expect(sourceCatalog.questions.map((question) => question.number)).toEqual(
-      Array.from({ length: 146 }, (_, index) => index + 1),
+      Array.from({ length: 176 }, (_, index) => index + 1),
     );
 
     const promptGroups = new Map<string, number[]>();
@@ -67,7 +81,7 @@ describe("Real-World C++ Interviews collection", () => {
       const key = question.prompt.en.trim().toLowerCase();
       promptGroups.set(key, [...(promptGroups.get(key) ?? []), question.number]);
     }
-    expect(promptGroups.size).toBe(127);
+    expect(promptGroups.size).toBe(157);
     expect(
       [...promptGroups.values()].filter((numbers) => numbers.length === 2),
     ).toHaveLength(19);
@@ -87,10 +101,43 @@ describe("Real-World C++ Interviews collection", () => {
     }
   });
 
-  it("loads 146 sequential bilingual lessons without a roadmap", () => {
-    expect(lessons).toHaveLength(146);
+  it("records complete, non-overlapping provenance for every source question", () => {
+    expect(sourceCatalog.sourceBatches).toMatchObject([
+      {
+        id: "sandor-dargo-2022",
+        start: 1,
+        end: 146,
+        sourceLabel: "Daily C++ Interview",
+      },
+      {
+        id: "repository-owner-curated-2026",
+        start: 147,
+        end: 176,
+        sourceLabel: "Real-World C++ Interviews",
+      },
+    ]);
+
+    const coveredNumbers = sourceCatalog.sourceBatches.flatMap((batch) =>
+      Array.from(
+        { length: batch.end - batch.start + 1 },
+        (_, index) => batch.start + index,
+      ),
+    );
+    expect(coveredNumbers).toEqual(
+      Array.from({ length: 176 }, (_, index) => index + 1),
+    );
+    for (const batch of sourceCatalog.sourceBatches) {
+      expect(batch.author.trim()).not.toBe("");
+      expect(batch.sourceEdition.trim()).not.toBe("");
+      expect(batch.licenseBasis.trim()).not.toBe("");
+      expect(batch.importPolicy.trim()).not.toBe("");
+    }
+  });
+
+  it("loads 176 sequential bilingual lessons without a roadmap", () => {
+    expect(lessons).toHaveLength(176);
     expect(lessons.map((lesson) => lesson.order)).toEqual(
-      Array.from({ length: 146 }, (_, index) => index + 1),
+      Array.from({ length: 176 }, (_, index) => index + 1),
     );
     expect(
       existsSync(path.join(process.cwd(), "content", "roadmaps", "dailycpp.yaml")),
@@ -116,10 +163,12 @@ describe("Real-World C++ Interviews collection", () => {
   });
 
   it("keeps exactly vi.md, en.md, and main.cpp in every topic", async () => {
-    for (const lesson of lessons) {
-      const files = await readdir(path.join(repoRoot, lesson.sourcePath));
-      expect(files.sort()).toEqual(["en.md", "main.cpp", "vi.md"]);
-    }
+    await Promise.all(
+      lessons.map(async (lesson) => {
+        const files = await readdir(path.join(repoRoot, lesson.sourcePath));
+        expect(files.sort()).toEqual(["en.md", "main.cpp", "vi.md"]);
+      }),
+    );
   });
 
   it("keeps exactly one source question per lesson", async () => {
@@ -128,58 +177,67 @@ describe("Real-World C++ Interviews collection", () => {
         .filter((question) => question.questionId.startsWith("dailycpp-q"))
         .map((question) => [question.questionId, question]),
     );
-    expect(englishQuestions.size).toBe(146);
+    expect(englishQuestions.size).toBe(176);
 
-    for (const [index, lesson] of lessons.entries()) {
-      const source = sourceCatalog.questions[index]!;
-      const questions = manifest.questions.filter(
-        (question) => question.lessonId === lesson.id,
-      );
-      expect(questions).toHaveLength(1);
+    await Promise.all(
+      lessons.map(async (lesson, index) => {
+        const source = sourceCatalog.questions[index]!;
+        const questions = manifest.questions.filter(
+          (question) => question.lessonId === lesson.id,
+        );
+        expect(questions).toHaveLength(1);
 
-      const question = questions[0]!;
-      const expectedVersion = source.questionVersion ??
-        sourceCatalog.collection.defaultQuestionVersion;
-      expect(question).toMatchObject({
-        id: `${lesson.id}-001`,
-        status: "draft",
-        difficulty: source.difficulty,
-        prompt: source.prompt.vi,
-        sourceHash: lesson.sourceHash,
-        version: expectedVersion,
-      });
-      expect(question.taxonomy.standard).toBe("dailycpp");
-      expect(question.taxonomy.tags).toContain("standard::dailycpp");
-      expect(question.taxonomy.tags).toContain(
-        `difficulty::${source.difficulty}`,
-      );
-      if (codeDependentQuestionNumbers.has(source.number)) {
-        expect(question.code).toBeTruthy();
-        expect(question.type).toBe("code_reasoning");
-      }
+        const question = questions[0]!;
+        const expectedVersion = source.questionVersion ??
+          sourceCatalog.collection.defaultQuestionVersion;
+        expect(question).toMatchObject({
+          id: `${lesson.id}-001`,
+          status: "draft",
+          difficulty: source.difficulty,
+          prompt: source.prompt.vi,
+          sourceHash: lesson.sourceHash,
+          version: expectedVersion,
+        });
+        expect(question.taxonomy.standard).toBe("dailycpp");
+        expect(question.taxonomy.tags).toContain("standard::dailycpp");
+        expect(question.taxonomy.tags).toContain(
+          `difficulty::${source.difficulty}`,
+        );
+        if (codeDependentQuestionNumbers.has(source.number)) {
+          expect(question.code).toBeTruthy();
+          expect(question.type).toBe("code_reasoning");
+        }
 
-      const english = englishQuestions.get(question.id);
-      expect(english).toMatchObject({
-        questionId: question.id,
-        questionVersion: expectedVersion,
-        sourceHash: lesson.sourceHash,
-        status: "draft",
-        prompt: source.prompt.en,
-      });
+        const english = englishQuestions.get(question.id);
+        expect(english).toMatchObject({
+          questionId: question.id,
+          questionVersion: expectedVersion,
+          sourceHash: lesson.sourceHash,
+          status: "draft",
+          prompt: source.prompt.en,
+        });
 
-      const [viMarkdown, enMarkdown] = await Promise.all([
-        readFile(path.join(repoRoot, lesson.knowledgePath), "utf8"),
-        readFile(path.join(repoRoot, lesson.translationPaths![0]!), "utf8"),
-      ]);
-      expect(viMarkdown).toContain("bộ Daily C++ Interview");
-      expect(enMarkdown).toContain("Daily C++ Interview collection");
-      expect(selfCheckPrompt(viMarkdown)).toBe(source.prompt.vi);
-      expect(selfCheckPrompt(enMarkdown)).toBe(source.prompt.en);
-      expect(selfCheckCount(viMarkdown)).toBe(1);
-      expect(selfCheckCount(enMarkdown)).toBe(1);
-      expect(mojibakePattern.test(viMarkdown)).toBe(false);
-      expect(mojibakePattern.test(enMarkdown)).toBe(false);
-    }
+        const [viMarkdown, enMarkdown] = await Promise.all([
+          readFile(path.join(repoRoot, lesson.knowledgePath), "utf8"),
+          readFile(path.join(repoRoot, lesson.translationPaths![0]!), "utf8"),
+        ]);
+        if (source.number <= 146) {
+          expect(viMarkdown).toContain("bộ Daily C++ Interview");
+          expect(enMarkdown).toContain("Daily C++ Interview collection");
+        } else {
+          expect(viMarkdown).toContain("bộ Real-World C++ Interviews");
+          expect(enMarkdown).toContain("Real-World C++ Interviews collection");
+          expect(viMarkdown).not.toContain("bộ Daily C++ Interview");
+          expect(enMarkdown).not.toContain("Daily C++ Interview collection");
+        }
+        expect(selfCheckPrompt(viMarkdown)).toBe(source.prompt.vi);
+        expect(selfCheckPrompt(enMarkdown)).toBe(source.prompt.en);
+        expect(selfCheckCount(viMarkdown)).toBe(1);
+        expect(selfCheckCount(enMarkdown)).toBe(1);
+        expect(mojibakePattern.test(viMarkdown)).toBe(false);
+        expect(mojibakePattern.test(enMarkdown)).toBe(false);
+      }),
+    );
   });
 });
 

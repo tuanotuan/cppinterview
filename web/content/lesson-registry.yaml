@@ -4225,3 +4225,303 @@ lessons:
       - language-practice
     prerequisites:
       - dailycpp-q145
+  - id: dailycpp-q147
+    sourcePath: dailycppinterview/147_what-is-cpp-and-how-is-it-different-from-c
+    language: cpp
+    track: dailycpp
+    order: 147
+    tags:
+      - daily-cpp-interview
+      - interview-foundations
+    prerequisites:
+      - dailycpp-q146
+  - id: dailycpp-q148
+    sourcePath: dailycppinterview/148_access-specifiers
+    language: cpp
+    track: dailycpp
+    order: 148
+    tags:
+      - daily-cpp-interview
+      - interview-foundations
+    prerequisites:
+      - dailycpp-q147
+  - id: dailycpp-q149
+    sourcePath: dailycppinterview/149_the-std-namespace
+    language: cpp
+    track: dailycpp
+    order: 149
+    tags:
+      - daily-cpp-interview
+      - interview-foundations
+    prerequisites:
+      - dailycpp-q148
+  - id: dailycpp-q150
+    sourcePath: dailycppinterview/150_pointers-versus-references
+    language: cpp
+    track: dailycpp
+    order: 150
+    tags:
+      - daily-cpp-interview
+      - interview-foundations
+    prerequisites:
+      - dailycpp-q149
+  - id: dailycpp-q151
+    sourcePath: dailycppinterview/151_automatic-versus-dynamic-storage
+    language: cpp
+    track: dailycpp
+    order: 151
+    tags:
+      - daily-cpp-interview
+      - interview-foundations
+    prerequisites:
+      - dailycpp-q150
+  - id: dailycpp-q152
+    sourcePath: dailycppinterview/152_pass-by-value-versus-reference
+    language: cpp
+    track: dailycpp
+    order: 152
+    tags:
+      - daily-cpp-interview
+      - interview-foundations
+    prerequisites:
+      - dailycpp-q151
+  - id: dailycpp-q153
+    sourcePath: dailycppinterview/153_copy-construction-shallow-and-deep-copy
+    language: cpp
+    track: dailycpp
+    order: 153
+    tags:
+      - daily-cpp-interview
+      - interview-core-techniques
+    prerequisites:
+      - dailycpp-q152
+  - id: dailycpp-q154
+    sourcePath: dailycppinterview/154_recursive-functions
+    language: cpp
+    track: dailycpp
+    order: 154
+    tags:
+      - daily-cpp-interview
+      - interview-core-techniques
+    prerequisites:
+      - dailycpp-q153
+  - id: dailycpp-q155
+    sourcePath: dailycppinterview/155_function-overloading
+    language: cpp
+    track: dailycpp
+    order: 155
+    tags:
+      - daily-cpp-interview
+      - interview-core-techniques
+    prerequisites:
+      - dailycpp-q154
+  - id: dailycpp-q156
+    sourcePath: dailycppinterview/156_struct-versus-class
+    language: cpp
+    track: dailycpp
+    order: 156
+    tags:
+      - daily-cpp-interview
+      - interview-core-techniques
+    prerequisites:
+      - dailycpp-q155
+  - id: dailycpp-q157
+    sourcePath: dailycppinterview/157_auto-and-decltype
+    language: cpp
+    track: dailycpp
+    order: 157
+    tags:
+      - daily-cpp-interview
+      - interview-core-techniques
+    prerequisites:
+      - dailycpp-q156
+  - id: dailycpp-q158
+    sourcePath: dailycppinterview/158_friend-functions
+    language: cpp
+    track: dailycpp
+    order: 158
+    tags:
+      - daily-cpp-interview
+      - interview-core-techniques
+    prerequisites:
+      - dailycpp-q157
+  - id: dailycpp-q159
+    sourcePath: dailycppinterview/159_object-slicing
+    language: cpp
+    track: dailycpp
+    order: 159
+    tags:
+      - daily-cpp-interview
+      - interview-core-techniques
+    prerequisites:
+      - dailycpp-q158
+  - id: dailycpp-q160
+    sourcePath: dailycppinterview/160_abstract-classes-and-interface-like-design
+    language: cpp
+    track: dailycpp
+    order: 160
+    tags:
+      - daily-cpp-interview
+      - interview-core-techniques
+    prerequisites:
+      - dailycpp-q159
+  - id: dailycpp-q161
+    sourcePath: dailycppinterview/161_encapsulation
+    language: cpp
+    track: dailycpp
+    order: 161
+    tags:
+      - daily-cpp-interview
+      - interview-core-techniques
+    prerequisites:
+      - dailycpp-q160
+  - id: dailycpp-q162
+    sourcePath: dailycppinterview/162_multiple-inheritance
+    language: cpp
+    track: dailycpp
+    order: 162
+    tags:
+      - daily-cpp-interview
+      - interview-core-techniques
+    prerequisites:
+      - dailycpp-q161
+  - id: dailycpp-q163
+    sourcePath: dailycppinterview/163_static-versus-non-static-data-members
+    language: cpp
+    track: dailycpp
+    order: 163
+    tags:
+      - daily-cpp-interview
+      - interview-core-techniques
+    prerequisites:
+      - dailycpp-q162
+  - id: dailycpp-q164
+    sourcePath: dailycppinterview/164_the-this-pointer
+    language: cpp
+    track: dailycpp
+    order: 164
+    tags:
+      - daily-cpp-interview
+      - interview-core-techniques
+    prerequisites:
+      - dailycpp-q163
+  - id: dailycpp-q165
+    sourcePath: dailycppinterview/165_function-overriding
+    language: cpp
+    track: dailycpp
+    order: 165
+    tags:
+      - daily-cpp-interview
+      - interview-core-techniques
+    prerequisites:
+      - dailycpp-q164
+  - id: dailycpp-q166
+    sourcePath: dailycppinterview/166_function-pointers
+    language: cpp
+    track: dailycpp
+    order: 166
+    tags:
+      - daily-cpp-interview
+      - interview-core-techniques
+    prerequisites:
+      - dailycpp-q165
+  - id: dailycpp-q167
+    sourcePath: dailycppinterview/167_inline-expansion-and-performance
+    language: cpp
+    track: dailycpp
+    order: 167
+    tags:
+      - daily-cpp-interview
+      - interview-core-techniques
+    prerequisites:
+      - dailycpp-q166
+  - id: dailycpp-q168
+    sourcePath: dailycppinterview/168_exception-handling
+    language: cpp
+    track: dailycpp
+    order: 168
+    tags:
+      - daily-cpp-interview
+      - interview-core-techniques
+    prerequisites:
+      - dailycpp-q167
+  - id: dailycpp-q169
+    sourcePath: dailycppinterview/169_standard-and-user-defined-exceptions
+    language: cpp
+    track: dailycpp
+    order: 169
+    tags:
+      - daily-cpp-interview
+      - interview-core-techniques
+    prerequisites:
+      - dailycpp-q168
+  - id: dailycpp-q170
+    sourcePath: dailycppinterview/170_raii-and-exception-safety
+    language: cpp
+    track: dailycpp
+    order: 170
+    tags:
+      - daily-cpp-interview
+      - interview-core-techniques
+    prerequisites:
+      - dailycpp-q169
+  - id: dailycpp-q171
+    sourcePath: dailycppinterview/171_templates
+    language: cpp
+    track: dailycpp
+    order: 171
+    tags:
+      - daily-cpp-interview
+      - interview-advanced-techniques
+    prerequisites:
+      - dailycpp-q170
+  - id: dailycpp-q172
+    sourcePath: dailycppinterview/172_the-stl-and-common-containers
+    language: cpp
+    track: dailycpp
+    order: 172
+    tags:
+      - daily-cpp-interview
+      - interview-advanced-techniques
+    prerequisites:
+      - dailycpp-q171
+  - id: dailycpp-q173
+    sourcePath: dailycppinterview/173_lambda-expressions
+    language: cpp
+    track: dailycpp
+    order: 173
+    tags:
+      - daily-cpp-interview
+      - interview-advanced-techniques
+    prerequisites:
+      - dailycpp-q172
+  - id: dailycpp-q174
+    sourcePath: dailycppinterview/174_move-semantics
+    language: cpp
+    track: dailycpp
+    order: 174
+    tags:
+      - daily-cpp-interview
+      - interview-advanced-techniques
+    prerequisites:
+      - dailycpp-q173
+  - id: dailycpp-q175
+    sourcePath: dailycppinterview/175_lvalues-rvalues-and-value-categories
+    language: cpp
+    track: dailycpp
+    order: 175
+    tags:
+      - daily-cpp-interview
+      - interview-advanced-techniques
+    prerequisites:
+      - dailycpp-q174
+  - id: dailycpp-q176
+    sourcePath: dailycppinterview/176_sfinae-and-template-specialization
+    language: cpp
+    track: dailycpp
+    order: 176
+    tags:
+      - daily-cpp-interview
+      - interview-advanced-techniques
+    prerequisites:
+      - dailycpp-q175
