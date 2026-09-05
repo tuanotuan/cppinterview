@@ -27,7 +27,8 @@ môi trường chạy và log đã loại bỏ dữ liệu nhạy cảm.
 
 | Khu vực | Vai trò |
 |---|---|
-| `cpp98_foundation/`, `cpp11/`, `cpp20/` | Nguồn bài học C++ của sản phẩm |
+| `cpp98_foundation/`, `cpp11/`, `cpp14/`, `cpp17/`, `cpp20/`, `cpp23/` | Nguồn bài học theo từng phiên bản C++ |
+| `dailycppinterview/` | Output sinh từ catalog của collection Real-World C++ Interviews; không sửa tay thay cho nguồn |
 | `web/` | Ứng dụng Next.js, test, content registry và Supabase migrations |
 | `web/content/questions/` | Câu hỏi Git-owned có version và trạng thái duyệt |
 | `web/src/messages/` | Chuỗi giao diện `vi`/`en` |
@@ -105,7 +106,9 @@ Nếu sửa API hoặc convention Next.js, đọc guide tương ứng trong
 
 ### Lesson, question và bản dịch
 
-- Chỉ ba source root C++ trong bảng trên được web discovery.
+- Web chỉ discovery sáu source root theo phiên bản C++ và collection
+  `dailycppinterview/` trong bảng trên. Không đưa `python/` hoặc CMake vào
+  pipeline đang xuất bản.
 - `knowledge.md` cần một heading cấp một và ít nhất một heading cấp hai.
 - Question mới bắt đầu ở `draft`; AI draft không tự trở thành `verified`.
 - Sửa nội dung question phải tăng version/source hash và làm approval cũ mất
@@ -114,6 +117,12 @@ Nếu sửa API hoặc convention Next.js, đọc guide tương ứng trong
   taxonomy, schema và enum. Không machine-translate ở runtime.
 - Chạy generator từ nguồn và review toàn bộ diff sinh ra; không chỉnh manifest
   bằng tay.
+- Với Real-World C++ Interviews, sửa catalog
+  `web/content/daily-cpp-interview-source.json` rồi chạy
+  `node scripts/generate-daily-cpp-interview.mjs` từ `web/`. Mỗi lesson phải giữ
+  đúng `vi.md`, `en.md`, `main.cpp` và một question; 146 revision v1 ban đầu là
+  bất biến. Quyền sử dụng của cohort này không tự áp dụng cho nguồn bổ sung, nên
+  mọi nguồn mới phải có provenance và căn cứ sử dụng riêng trước khi nhập.
 
 ### Database, API và bảo mật
 
